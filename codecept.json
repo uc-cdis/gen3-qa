@@ -1,0 +1,34 @@
+{
+  "output": "./output",
+  "helpers": {
+    "WebDriverIO": {
+      "url": "https://thanhnd.planx-pla.net",
+      "smartWait": 5000,
+      "browser": "chrome",
+      "restart": false,
+      "windowSize": "normal",
+      "timeouts": {
+        "script": 6000,
+        "page load": 10000
+      }
+    },
+    "REST": {
+      "endpoint": "https://thanhnd.planx-pla.net",
+      "defaultHeaders": ""
+    },
+    "CDISHelper": {
+      "require": "./cdisHelper.js",
+      "defaultHost": "https://thanhnd.planx-pla.net"
+    }
+  },
+  "include": {
+    "I": "./stepsFile.js"
+  },
+  "mocha": {},
+  "bootstrap": false,
+  "teardown": null,
+  "hooks": [],
+  "tests": "*/*Test.js",
+  "timeout": 10000,
+  "name": "selenium"
+}
