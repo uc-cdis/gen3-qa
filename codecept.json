@@ -2,7 +2,7 @@
   "output": "./output",
   "helpers": {
     "WebDriverIO": {
-      "url": "https://thanhnd.planx-pla.net",
+      "url": "https://dev.planx-pla.net",
       "smartWait": 5000,
       "browser": "chrome",
       "restart": false,
@@ -13,12 +13,12 @@
       }
     },
     "REST": {
-      "endpoint": "https://thanhnd.planx-pla.net",
+      "endpoint": "https://dev.planx-pla.net",
       "defaultHeaders": ""
     },
     "CDISHelper": {
       "require": "./cdisHelper.js",
-      "defaultHost": "https://thanhnd.planx-pla.net"
+      "defaultHost": "https://dev.planx-pla.net"
     }
   },
   "include": {

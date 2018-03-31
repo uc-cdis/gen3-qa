@@ -2,7 +2,7 @@
 Feature('Login');
 
 Scenario('test login', (I) => {
-  I.load('https://thanhnd.planx-pla.net');
+  I.load('');
   I.seeCookie('access_token');
   I.seeHomepageDetails();
 });
