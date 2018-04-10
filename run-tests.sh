@@ -49,7 +49,7 @@ runTest() {
 
 EOM
     # Don't actually run the tests yet ... :-p
-    echo npm run test
+    npm run test
   )
 }
 
