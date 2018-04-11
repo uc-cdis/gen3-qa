@@ -10,6 +10,11 @@
       "timeouts": {
         "script": 6000,
         "page load": 10000
+      },
+      "desiredCapabilities": {
+        "chromeOptions": {
+          "args": [ "--headless", "--disable-gpu", "--window-size=800,600" ]
+        }
       }
     },
     "REST": {
