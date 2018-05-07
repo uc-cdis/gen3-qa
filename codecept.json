@@ -5,8 +5,12 @@
       "url": "https://dev.planx-pla.net",
       "smartWait": 5000,
       "browser": "chrome",
+      "desiredCapabilities": {
+        "chromeOptions": {
+          "args": [ "--headless", "--disable-gpu", "--window-size=800,600" ]
+        }
+      },
       "restart": false,
-      "windowSize": "normal",
       "timeouts": {
         "script": 6000,
         "page load": 10000
