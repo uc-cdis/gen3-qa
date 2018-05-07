@@ -18,7 +18,7 @@ pipeline {
         dir('cloud-automation') {
           git(
             url: 'https://github.com/uc-cdis/cloud-automation.git',
-            branch: 'master'
+            branch: 'chore/gen3-refactor'
           )
         }
       }
@@ -29,7 +29,7 @@ pipeline {
           echo "GIT_BRANCH is $env.GIT_BRANCH"
           echo "GIT_COMMIT is $env.GIT_COMMIT"
           echo "WORKSPACE is $env.WORKSPACE"
-          sh "bash cloud-automation/tf_files/configs/kube-roll-qa.sh"
+          sh "bash cloud-automation/gen3/bin/kube-roll-qa.sh"
         }
       }
     }
@@ -48,10 +48,12 @@ pipeline {
       echo "https://jenkins.planx-pla.net/ $env.JOB_NAME pipeline succeeded"
     }
     failure {
-      slackSend color: 'bad', message: "https://jenkins.planx-pla.net $env.JOB_NAME pipeline failed"
+      echo "Failure!"
+      //slackSend color: 'bad', message: "https://jenkins.planx-pla.net $env.JOB_NAME pipeline failed"
     }
     unstable {
-      slackSend color: 'bad', message: "https://jenkins.planx-pla.net $env.JOB_NAME pipeline unstable"
+      echo "Unstable!"
+      //slackSend color: 'bad', message: "https://jenkins.planx-pla.net $env.JOB_NAME pipeline unstable"
     }
   }
 }
