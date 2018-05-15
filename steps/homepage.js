@@ -2,5 +2,5 @@
 
 module.exports.load = function(url) {
   this.amOnPage(url);
-  this.waitForText('CDIS.AUTOTEST', 60);
+  this.waitForText('cdis.autotest@gmail.com', 60);
 };
