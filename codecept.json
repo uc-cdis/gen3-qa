@@ -2,7 +2,7 @@
   "output": "./output",
   "helpers": {
     "WebDriverIO": {
-      "url": "https://dev.planx-pla.net",
+      "url": "https://thanhnd.planx-pla.net",
       "smartWait": 5000,
       "browser": "chrome",
       "desiredCapabilities": {
@@ -17,12 +17,11 @@
       }
     },
     "REST": {
-      "endpoint": "https://dev.planx-pla.net",
+      "endpoint": "https://thanhnd.planx-pla.net",
       "defaultHeaders": ""
     },
     "CDISHelper": {
-      "require": "./cdisHelper.js",
-      "defaultHost": "https://dev.planx-pla.net"
+      "require": "./cdisHelper.js"
     }
   },
   "include": {
@@ -32,7 +31,7 @@
   "bootstrap": false,
   "teardown": null,
   "hooks": [],
-  "tests": "*/*Test.js",
+  "tests": "apis/presignedUrlTest.js",
   "timeout": 10000,
   "name": "selenium"
 }

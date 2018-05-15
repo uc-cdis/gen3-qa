@@ -33,6 +33,15 @@ pipeline {
         }
       }
     }
+    stage('RunInstall') {
+      steps {
+        dir('gen3-qa') {
+          withEnv(['GEN3_NOPROXY=true']) {
+            sh "bash ./run-install.sh"
+          }
+        }
+      }
+    }
     stage('RunTests') {
       steps {
         dir('gen3-qa') {
