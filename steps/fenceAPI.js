@@ -77,9 +77,7 @@ module.exports.deleteFileIndices = function(endpoint, files) {
       this.sendDeleteRequest(`${endpoint}${file.did}?rev=${file.rev}`,
         headers
       ).then(
-        (res) => {
-          console.log(res.body)
-        }
+        (res) => res.body
       )
     }
   );
@@ -96,15 +94,16 @@ module.exports.createAPIKey = function(endpoint, scope, access_token) {
     JSON.stringify({
       scope: scope
     }),
-    headers);
+    headers)
+    .then(
+      (res) => res.body
+    );
 };
 
 module.exports.deleteAPIKey = function(endpoint, api_key) {
   return this.sendDeleteRequest(`${endpoint}${api_key}`, accessTokenHeaders)
     .then(
-      (res) => {
-        console.log(res.body);
-      }
+      (res) => res.body
     );
 };
 
@@ -116,14 +115,9 @@ module.exports.getAccessToken = function (endpoint, api_key) {
   let data = (api_key !== null) ? { api_key: api_key } : {};
   return this.sendPostRequest(endpoint, JSON.stringify(data), headers)
     .then(
-      (res) => {
-        console.log(res.body);
-        return res.body;
-      })
+      (res) => res.body
+    )
     .catch(
-      (e) => {
-        console.log(e);
-        return e.message;
-      }
+      (e) => e.message
     );
 };

@@ -31,7 +31,7 @@
   "bootstrap": false,
   "teardown": null,
   "hooks": [],
-  "tests": "apis/presignedUrlTest.js",
+  "tests": "*/*Test.js",
   "timeout": 10000,
   "name": "selenium"
 }

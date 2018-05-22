@@ -31,6 +31,7 @@
   "scripts": {
     "selenium-install": "selenium-standalone install",
     "selenium-start": "selenium-standalone start > /dev/null 2>&1 &",
-    "test": "codeceptjs run --debug --verbose"
+    "test": "codeceptjs run --debug --verbose",
+    "selenium-stop": "selenium-standalone start > /dev/null 2>&1 &",
   }
 }
