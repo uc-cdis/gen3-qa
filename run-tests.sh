@@ -37,7 +37,7 @@ runTest() {
       echo "ERROR: failed to retrive HOST_NAME for namespace $namespace"
       return 1
     fi
-    export ACCESS_TOKEN=$(kubectl --namespace=${namespace} exec $(get_pod fence $namespace) -- fence-create token-create --scopes openid,user,fence,data --type access_token --exp 1800 --username cdis.autotest@gmail.com)
+    export ACCESS_TOKEN=$(kubectl --namespace=${namespace} exec $(get_pod fence $namespace) -- fence-create token-create --scopes openid,user,fence,data,credentials --type access_token --exp 1800 --username cdis.autotest@gmail.com)
     if [[ $? -ne 0 || -z "$ACCESS_TOKEN" ]]; then
       echo "ERROR: failed to retrieve ACCESS_TOKEN for namespace $namespace"
       return 1
@@ -55,6 +55,7 @@ runTest() {
 
 EOM
     # Don't actually run the tests yet ... :-p
+    npm run custom
     npm run test
   )
 }
