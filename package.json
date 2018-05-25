@@ -4,7 +4,13 @@
   "description": "Bionimbus Data Portal",
   "main": "index.js",
   "dependencies": {
-    "selenium-standalone": "^6.13.0"
+    "chai": "^4.1.2",
+    "chai-as-promised": "^7.1.1",
+    "codeceptjs": "^1.1.7",
+    "selenium-standalone": "^6.13.0",
+    "unirest": "^0.5.1",
+    "uuid": "^3.2.1",
+    "webdriverio": "^4.12.0"
   },
   "repository": {
     "type": "git",
@@ -16,22 +22,15 @@
     "url": "https://github.com/uc-cdis/auto-qa/issues"
   },
   "devDependencies": {
-    "chai": "^4.1.2",
-    "chai-as-promised": "^7.1.1",
-    "codeceptjs": "^1.1.7",
     "eslint": "^4.7.2",
     "eslint-config-airbnb": "^15.1.0",
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-jsx-a11y": "^5.1.1",
-    "eslint-plugin-react": "^7.4.0",
-    "webdriverio": "^4.12.0",
-    "unirest": "^0.5.1",
-    "uuid": "^3.2.1"
+    "eslint-plugin-react": "^7.4.0"
   },
   "scripts": {
     "selenium-install": "selenium-standalone install",
     "selenium-start": "selenium-standalone start > /dev/null 2>&1 &",
-    "test": "codeceptjs run --debug --verbose",
-    "selenium-stop": "selenium-standalone start > /dev/null 2>&1 &",
+    "test": "codeceptjs run --debug --verbose"
   }
 }
