@@ -46,7 +46,7 @@ pipeline {
       steps {
         dir('gen3-qa') {
           withEnv(['GEN3_NOPROXY=true']) {
-            sh "bash ./run-tests.sh"
+            sh "bash ./run-tests.sh $env.KUBECTL_NAMESPACE"
           }
         }
       }
