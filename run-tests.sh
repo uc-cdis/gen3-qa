@@ -7,7 +7,7 @@ _RUN_TESTS=$(dirname "${BASH_SOURCE:-$0}")  # $0 supports zsh
 cd "${_RUN_TESTS}"
 npm install
 
-namespaceList=$(kubectl get namespace -o json | jq -r '.items[].metadata.name')
+namespaceList="${1:-default}" #$(kubectl get namespace -o json | jq -r '.items[].metadata.name')}
 
 if [[ $? -ne 0 ]]; then
   echo "ERROR: failed to retrieve kubernetes namespaces: $namespaceList"
@@ -20,7 +20,7 @@ get_pod() {
   local namespace
   name="$1"
   namespace="${2:-default}"
-  pod=$(kubectl --namespace $namespace get pods --output=jsonpath='{range .items[*]}{.metadata.name}  {"\n"}{end}' | grep -m 1 "$name")
+  pod=$(kubectl --namespace $namespace get pods --output=json | jq -r '.items[] | select(.status.phase=="Running") | .metadata.name' | grep -m 1 "$name")
   echo $pod
 }
 
