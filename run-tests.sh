@@ -20,7 +20,7 @@ get_pod() {
   local namespace
   name="$1"
   namespace="${2:-default}"
-  pod=$(kubectl --namespace $namespace get pods --output=jsonpath='{range .items[*]}{.metadata.name}  {"\n"}{end}' | grep -m 1 "$name")
+  pod=$(kubectl --namespace $namespace get pods --output=json | jq -r '.items[] | select(.status.phase=="Running") | .metadata.name' | grep -m 1 "$name")
   echo $pod
 }
 
