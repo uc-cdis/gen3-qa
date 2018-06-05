@@ -25,11 +25,20 @@ pipeline {
     }
     stage('K8sDeploy') {
       steps {
-        withEnv(['GEN3_NOPROXY=true']) {
+        withEnv(['GEN3_NOPROXY=true', 'vpc_name=qaplanetv1']) {
           echo "GIT_BRANCH is $env.GIT_BRANCH"
           echo "GIT_COMMIT is $env.GIT_COMMIT"
           echo "WORKSPACE is $env.WORKSPACE"
-          sh "bash cloud-automation/tf_files/configs/kube-roll-qa.sh"
+          sh "bash cloud-automation/gen3/bin/kube-roll-all.sh"
+        }
+      }
+    }
+    stage('RunInstall') {
+      steps {
+        dir('gen3-qa') {
+          withEnv(['GEN3_NOPROXY=true']) {
+            sh "bash ./run-install.sh"
+          }
         }
       }
     }
@@ -37,7 +46,7 @@ pipeline {
       steps {
         dir('gen3-qa') {
           withEnv(['GEN3_NOPROXY=true']) {
-            sh "bash ./run-tests.sh"
+            sh "bash ./run-tests.sh $env.KUBECTL_NAMESPACE"
           }
         }
       }
@@ -48,10 +57,12 @@ pipeline {
       echo "https://jenkins.planx-pla.net/ $env.JOB_NAME pipeline succeeded"
     }
     failure {
-      slackSend color: 'bad', message: "https://jenkins.planx-pla.net $env.JOB_NAME pipeline failed"
+      echo "Failure!"
+      //slackSend color: 'bad', message: "https://jenkins.planx-pla.net $env.JOB_NAME pipeline failed"
     }
     unstable {
-      slackSend color: 'bad', message: "https://jenkins.planx-pla.net $env.JOB_NAME pipeline unstable"
+      echo "Unstable!"
+      //slackSend color: 'bad', message: "https://jenkins.planx-pla.net $env.JOB_NAME pipeline unstable"
     }
   }
 }

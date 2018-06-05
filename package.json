@@ -29,6 +29,9 @@
     "uuid": "^3.2.1"
   },
   "scripts": {
-    "test": "codeceptjs run --debug --verbose"
+    "selenium-install": "selenium-standalone install",
+    "selenium-start": "selenium-standalone start > /dev/null 2>&1 &",
+    "test": "codeceptjs run --debug --verbose",
+    "custom": "node ./custom/getParameters > codecept.json"
   }
 }

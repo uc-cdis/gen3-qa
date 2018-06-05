@@ -10,27 +10,34 @@ const files = {
     filename: 'test_valid',
     link: 's3://cdis-presigned-url-test/testdata',
     md5: '73d643ec3f4beb9020eef0beed440ad0',
-    metadata: {'acls':'test'},
+    acl: ['test'],
     size: 9,
   },
   not_allowed: {
     filename: 'test_not_allowed',
     link: 's3://cdis-presigned-url-test/testdata',
     md5: '73d643ec3f4beb9020eef0beed440ad0',
-    metadata: {'acls':'acct'},
+    acl: ['acct'],
     size: 9,
   },
   no_link: {
     filename: 'test_no_link',
     md5: '73d643ec3f4beb9020eef0beed440ad0',
-    metadata: {'acls':'test'},
+    acl: ['test'],
     size: 9,
   },
   http_link: {
     filename: 'test_protocol',
     link: 'http://cdis-presigned-url-test/testdata',
     md5: '73d643ec3f4beb9020eef0beed440ad0',
-    metadata: {'acls':'test'},
+    acl: ['test'],
+    size: 9,
+  },
+  invalid_protocol: {
+    filename: 'test_invalid_protocol',
+    link: 's2://cdis-presigned-url-test/testdata',
+    md5: '73d643ec3f4beb9020eef0beed440ad0',
+    acl: ['test'],
     size: 9,
   },
 };
@@ -52,9 +59,17 @@ Scenario('test presigned-url with file user does not have permission', async(I) 
 Scenario('test presigned-url with invalid protocol', async(I) => {
   return expect(I.seeFileContentEqual(
     '/user/data/download/',
+    files.invalid_protocol.did,
+    ['protocol=s2']
+  )).to.eventually.equal('The specified protocol s2 is not supported');
+});
+
+Scenario('test presigned-url with protocol not available in indexed document', async(I) => {
+  return expect(I.seeFileContentEqual(
+    '/user/data/download/',
     files.allowed.did,
     ['protocol=s2']
-  )).to.eventually.equal('The specified protocol is not supported');
+  )).to.eventually.equal(`File ${files.allowed.did} does not have a location with specified protocol s2.`);
 });
 
 Scenario('test presigned-url with protocol not exist for file', async(I) => {
@@ -62,14 +77,22 @@ Scenario('test presigned-url with protocol not exist for file', async(I) => {
     '/user/data/download/',
     files.http_link.did,
     ['protocol=s3']
-  )).to.eventually.equal('Can\'t find a location for the data with given request arguments.');
+  )).to.eventually.equal(`File ${files.http_link.did} does not have a location with specified protocol s3.`);
 });
 
 Scenario('test presigned-url no data', async(I) => {
   return expect(I.seeFileContentEqual(
     '/user/data/download/',
+    files.no_link.did,
+    ['protocol=s3']
+  )).to.eventually.equal(`File ${files.no_link.did} does not have a location with specified protocol s3.`);
+});
+
+Scenario('test presigned-url no requested protocol, no data', async(I) => {
+  return expect(I.seeFileContentEqual(
+    '/user/data/download/',
     files.no_link.did
-  )).to.eventually.equal('Can\'t find a location for the data');
+  )).to.eventually.equal(`Can\'t find any file locations.`);
 });
 
 BeforeSuite((I) => {

@@ -10,7 +10,7 @@ let indexAuth = Buffer.from(`${username}:${password}`).toString('base64');
 
 module.exports.seeFileContentEqual = function(endpoint, id, args=[]) {
   return this.sendGetRequest(
-    `${endpoint}${id}?${args.join('&')}`, accessTokenHeaders).then(
+    `${endpoint}${id}?${args.join('&')}`.replace(/[?]$/g, ''), accessTokenHeaders).then(
     (res) => {
       if (res.body.hasOwnProperty('url'))
         return this.sendGetRequest(res.body.url).then(
@@ -44,17 +44,22 @@ module.exports.addFileIndices = function(endpoint, files) {
   files.forEach(
     (file) => {
       file.did = uuid.v4().toString();
-      let data = JSON.stringify({
+      let data = {
         file_name: file.filename,
         did: file.did,
         form: 'object',
         size: file.size,
-        urls: [file.link],
+        urls: [],
         hashes: {'md5': file.md5},
-        metadata: file.metadata});
-      this.sendPostRequest(endpoint, data, headers)
+        acl: file.acl,
+        metadata: file.metadata};
+      if (file.link !== null && file.link !== undefined)
+        data.urls = [file.link];
+      let strData = JSON.stringify(data);
+      this.sendPostRequest(endpoint, strData, headers)
         .then(
           (res) => {
+            console.log(res.body);
             file.rev = res.body.rev;
           }
         );
@@ -72,9 +77,7 @@ module.exports.deleteFileIndices = function(endpoint, files) {
       this.sendDeleteRequest(`${endpoint}${file.did}?rev=${file.rev}`,
         headers
       ).then(
-        (res) => {
-          console.log(res.body)
-        }
+        (res) => res.body
       )
     }
   );
@@ -91,15 +94,16 @@ module.exports.createAPIKey = function(endpoint, scope, access_token) {
     JSON.stringify({
       scope: scope
     }),
-    headers);
+    headers)
+    .then(
+      (res) => res.body
+    );
 };
 
 module.exports.deleteAPIKey = function(endpoint, api_key) {
   return this.sendDeleteRequest(`${endpoint}${api_key}`, accessTokenHeaders)
     .then(
-      (res) => {
-        console.log(res.body);
-      }
+      (res) => res.body
     );
 };
 
@@ -111,14 +115,9 @@ module.exports.getAccessToken = function (endpoint, api_key) {
   let data = (api_key !== null) ? { api_key: api_key } : {};
   return this.sendPostRequest(endpoint, JSON.stringify(data), headers)
     .then(
-      (res) => {
-        console.log(res.body);
-        return res.body;
-      })
+      (res) => res.body
+    )
     .catch(
-      (e) => {
-        console.log(e);
-        return e.message;
-      }
+      (e) => e.message
     );
 };

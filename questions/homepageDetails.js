@@ -1,34 +1,21 @@
 'use strict';
 
 const seeSummary = function() {
-  this.waitForText('Project Submission Summary', 5);
-  ['Cases', 'Experiments', 'Aliquots', 'Files'].map(
-    item => this.see(item)
-  );
+  this.seeNumberOfElements('.h1-typo', 1);
+  // this.seeNumberOfElements('.h4-typo', 7);
+  this.seeNumberOfElements('.h3-typo', 5);
+  // this.seeNumberOfElements('.special-number', 4);
 };
 
 const seeChart = function() {
-  this.seeElement({css: 'div.recharts-responsive-container'});
-};
-
-const seeProjectList = function() {
-  this.see('List of Projects');
-};
-
-
-const seeTransactionLogs = function() {
-  this.see('Recent Submissions');
+  // this.seeElement({css: 'div.recharts-responsive-container'});
 };
 
 module.exports.seeHomepageDetails = function () {
   let I = actor({
     seeSummary: seeSummary,
     seeChart: seeChart,
-    seeProjectList: seeProjectList,
-    seeTransactionLogs: seeTransactionLogs,
   });
   I.seeSummary();
   I.seeChart();
-  I.seeProjectList();
-  I.seeTransactionLogs();
 };
