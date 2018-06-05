@@ -14,7 +14,6 @@ if [[ $? -ne 0 ]]; then
   exit 1
 fi
 
-
 get_pod() {
   local name
   local namespace
@@ -30,6 +29,7 @@ get_pod() {
 runTest() {
   local namespace
   namespace="${1:-default}"
+  echo $namespace
   (
     export KUBECTL_NAMESPACE="$namespace"
     export HOSTNAME=$(kubectl --namespace=${namespace} get configmaps global -ojsonpath='{.data.hostname}')
@@ -42,8 +42,13 @@ runTest() {
       echo "ERROR: failed to retrieve ACCESS_TOKEN for namespace $namespace"
       return 1
     fi
-    qa_cred=$( kubectl get secret sheepdog-secret -ojson | jq -r '.data["wsgi.py"]' | base64 --decode | egrep "(\s+'auth':\s\('gdcapi')" | sed "s/.*\(('gdcapi', '[A-Za-z0-9]\{8,\}')\).*/\1/" )
-    export INDEX_USER=gdcapi
+    export EXPIRED_ACCESS_TOKEN=$(kubectl --namespace=${namespace} exec $(get_pod fence $namespace) -- fence-create token-create --scopes openid,user,fence,data,credentials --type access_token --exp 1 --username cdis.autotest@gmail.com)
+    if [[ $? -ne 0 || -z "$EXPIRED_ACCESS_TOKEN" ]]; then
+      echo "ERROR: failed to retrieve EXPIRED_ACCESS_TOKEN for namespace $namespace"
+      return 1
+    fi
+    qa_cred=$( kubectl --namespace=${namespace} get secret sheepdog-creds -o json | jq -r '.data["creds.json"]' | base64 --decode | egrep '(\s+"indexd_password":)' | sed 's/.*\("[A-Za-z0-9]\{8,\}"\).*/\1/' )
+    export INDEX_USERNAME=gdcapi
     export INDEX_PASSWORD=$( [[ $qa_cred =~ ([A-Za-z0-9]{8,}+) ]] && echo ${BASH_REMATCH[1]} )
     if [[ $? -ne 0 || -z "$INDEX_PASSWORD" ]]; then
       echo "ERROR: failed to retrieve INDEX_PASSWORD for namespace $namespace"
