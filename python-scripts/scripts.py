@@ -16,6 +16,7 @@ CHUNK_SIZE = 45
 def gen_test_data(args):
 
     api_endpoint = args.host + '/api/v0/submission/' + args.project
+    chunk_size = int(args.chunk_size) if args.chunk_size else  CHUNK_SIZE
 
     token = ''
     if os.path.isfile(args.access_token):
@@ -41,15 +42,17 @@ def gen_test_data(args):
                 continue
             index = 0
             while index < len(data):
-                response = requests.put(api_endpoint, data=json.dumps(list(data[index:min(index+CHUNK_SIZE, len(data))])), headers={
+                response = requests.put(api_endpoint, data=json.dumps(list(data[index:min(index+chunk_size, len(data))])), headers={
                                         'content-type': 'application/json', 'Authorization': 'bearer ' + token})
                 if response.status_code != 200:
                     print(
                         "\n\n==============================={}=======================================".format(fname))
-                    print('Failed at chunk {}'.format(index/CHUNK_SIZE))
+                    print('Failed at chunk {}'.format(index/chunk_size))
+                    if index == 0:
+                        print response.content
                     print response.status_code
 
-                index = index + CHUNK_SIZE
+                index = index + chunk_size
             print('Done submitting {}'.format(fname))
 
 
@@ -63,6 +66,7 @@ def parse_arguments():
                              help="a directory contaning meta-data to submit in json format")
     create_data.add_argument('--project', required=True,
                              help="project url for submission")
+    create_data.add_argument('--chunk_size', help="number of node instances is submitted in one request")
     create_data.add_argument('--access_token', required=True,
                              help="auth key file")
 
