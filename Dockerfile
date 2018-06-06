@@ -32,15 +32,12 @@ RUN Rscript -e 'install.packages("yaml",repos="http://cran.us.r-project.org");' 
     && Rscript -e 'install.packages("stringr",repos="http://cran.us.r-project.org");' \
     && Rscript -e 'install.packages("pryr",repos="http://cran.us.r-project.org");'
 
-COPY . /AUTO-QA
+COPY . /gen3-qa
 
-WORKDIR /AUTO-QA/python-scripts
+WORKDIR /gen3-qa/python-scripts
 
 RUN mkdir -p sim-data-code \
-    && git clone https://github.com/occ-data/data-simulator /AUTO-QA/python-scripts/sim-data-code \
-    && cd /AUTO-QA/python-scripts/sim-data-code \
-    && git checkout fix/validate_func \
-    && cd /AUTO-QA/python-scripts
+    && git clone https://github.com/occ-data/data-simulator /gen3-qa/python-scripts/sim-data-code
 
 ARG APP=dev
 ARG BASENAME
