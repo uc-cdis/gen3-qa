@@ -59,11 +59,11 @@ pipeline {
     failure {
       echo "Failure!"
       archiveArtifacts artifacts: '**/output/*.png', fingerprint: true
-      slackSend color: 'bad', message: "https://jenkins.planx-pla.net $env.JOB_NAME pipeline failed"
+      //slackSend color: 'bad', message: "https://jenkins.planx-pla.net $env.JOB_NAME pipeline failed"
     }
     unstable {
       echo "Unstable!"
-      slackSend color: 'bad', message: "https://jenkins.planx-pla.net $env.JOB_NAME pipeline unstable"
+      //slackSend color: 'bad', message: "https://jenkins.planx-pla.net $env.JOB_NAME pipeline unstable"
     }
   }
 }
