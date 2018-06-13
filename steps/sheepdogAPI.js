@@ -1,27 +1,38 @@
 'use strict';
 
-let username = process.env.INDEX_USERNAME;
-let password = process.env.INDEX_PASSWORD;
-let accessTokenHeaders = {
-  'Accept': 'application/json',
-  'Authorization': `bearer ${process.env.ACCESS_TOKEN}`
-};
-let indexAuth = Buffer.from(`${username}:${password}`).toString('base64');
+let util = require('./utilAPI');
+let accessTokenHeader = util.getAccessTokenHeader();
 
-module.exports.submitFile = function(endpoint, file) {
+module.exports.submitFile = function(sheep_endpoint, index_endpoint, file) {
   return this.sendPutRequest(
-    endpoint, JSON.stringify(file), accessTokenHeaders).then(
+    `${sheep_endpoint}${file.program}/${file.project}/`, JSON.stringify(file.data), accessTokenHeader).then(
     (res) => {
       if (res.body.hasOwnProperty('entities')) {
+        console.log("PUT Result", res.body);
+        console.log("PUT Errors:", res.body.entities[0].errors);
         let new_id = res.body.entities[0].id;
-        let get_file = `/api/v0/submission//dev/test/export?ids=${new_id}&format=json`;
-        return this.sendGetRequest(get_file, accessTokenHeaders).then(
+        file.id = new_id;
+        let get_file = `${sheep_endpoint}${file.program}/${file.project}/export?ids=${new_id}&format=json`;
+        // get file from sheepdog to get did
+        return this.sendGetRequest(get_file, accessTokenHeader).then(
           (res) => {
             res = JSON.parse(res.body)[0];
-            if (res.hasOwnProperty('read_groups'))
-              return res;
+              if (res.hasOwnProperty('object_id')) {
+              file.did = res.object_id;
+              // get file from indexd
+              return this.sendGetRequest(`${index_endpoint}${file.did}`, accessTokenHeader).then(
+                (res) => {
+                  if (res.statusCode === 200) {
+                    console.log("Indexd Result:", res.body);
+                    return res.body;
+                  }
+                  else
+                    throw new Error(res.message);
+                }
+              )
+            }
             else
-              throw new Error(res.message); // FIXME not sure if correct
+              throw new Error(res.message);
           }
         ).catch(
           (e) => {
@@ -40,15 +51,16 @@ module.exports.submitFile = function(endpoint, file) {
   )
 };
 
-module.exports.deleteFile = function(id) {
-  let delete_url = `/api/v0/submission//dev/test/entities/${id}`;
-  this.sendDeleteRequest(delete_url, accessTokenHeaders)
+module.exports.deleteFile = function(endpoint, file) {
+  let delete_url = `${endpoint}${file.program}/${file.project}/entities/${file.id}`;
+  return this.sendDeleteRequest(delete_url, accessTokenHeader)
     .then(
       (res) => {
         if (res.statusCode === 200)
           return true;
         else
-          throw new Error(res.message);
+          console.log("Error deleting file:", res.body);
+        return false;
       }
     ).catch(
     (e) => {
@@ -59,14 +71,14 @@ module.exports.deleteFile = function(id) {
 };
 
 module.exports.addNodes = function(endpoint, nodes) {
-  nodes.forEach(
+  // add nodes, in sorted key ascending order
+  nodes.sort((a, b) => {return a.key - b.key}).forEach(
     (node) => {
       this.sendPutRequest(
-        endpoint, JSON.stringify(node), accessTokenHeaders).then(
+        `${endpoint}${node.program}/${node.project}/`, JSON.stringify(node.data), accessTokenHeader).then(
         (res) => {
-          console.log(res.body);
           if (res.body.hasOwnProperty('entities'))
-            node.id = res.body.entities[0].id;
+            node.data.id = res.body.entities[0].id;
         }
       )
     }
@@ -74,15 +86,14 @@ module.exports.addNodes = function(endpoint, nodes) {
 };
 
 module.exports.deleteNodes = function(endpoint, nodes) {
-  nodes.reverse().forEach(
+  // remove nodes, in reverse sorted (descending key) order
+  nodes.sort((a, b) => {return b.key - a.key}).forEach(
     (node) => {
-      let delete_url = `/api/v0/submission//dev/test/entities/${node.id}`;
-      this.sendDeleteRequest(delete_url, accessTokenHeaders)
+      let delete_url = `${endpoint}${node.program}/${node.project}/entities/${node.data.id}`;
+      this.sendDeleteRequest(delete_url, accessTokenHeader)
         .then(
           (res) => {
-            console.log(res.body);
             if (res.statusCode !== 200)
-              //throw new Error(res.message);
               res.body.entities[0].errors.forEach((e) => {console.log(e)})
           }
         ).catch(
