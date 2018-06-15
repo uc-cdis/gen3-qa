@@ -34,6 +34,18 @@ const files = {
   }
 };
 
+Scenario('test submit indexd without authentication', async(I) => {
+  let endpoint = "/api/v0/submission/";
+  let program = "dev";
+  let project = "test";
+  return expect(I.sendPutRequest(
+    `${endpoint}${program}/${project}/`, {}, "").then(
+    (res) => {
+      return res.body.message;
+    }
+  )).to.eventually.equal("You don\'t have access to this data: No authentication is provided");
+});
+
 Scenario('test submit indexd', async(I) => {
   // submit basic file without url
   let res = await I.submitFile("/api/v0/submission/", "/index/index/", files.base_file);
@@ -74,10 +86,12 @@ Scenario('test submit indexd -> update url', async(I) => {
   return expect(I.deleteFile("/api/v0/submission/", files.base_file)).to.eventually.equal(true);
 });
 
-BeforeSuite((I) => {
-  I.addNodes("/api/v0/submission/", Object.values(nodes))
+BeforeSuite(async (I) => {
+  let all_added = await I.addNodes("/api/v0/submission/", Object.values(nodes));
+  assert(all_added);
 });
 
-AfterSuite((I) => {
-  I.deleteNodes("/api/v0/submission/", Object.values(nodes))
+AfterSuite(async (I) => {
+  let all_removed = await I.deleteNodes("/api/v0/submission/", Object.values(nodes));
+  assert(all_removed);
 });

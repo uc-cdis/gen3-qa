@@ -12,11 +12,20 @@ const {
   seeFileContentEqual,
 } = require('./steps/fenceAPI');
 const {
+  getIndexd,
+  didFromFileId,
   submitFile,
   deleteFile,
+  addNode,
   addNodes,
+  deleteNode,
   deleteNodes
 } = require('./steps/sheepdogAPI');
+const {
+  gqlNodeExists,
+  gqlQuery,
+  gqlCountType,
+} = require('./steps/graphqlAPI');
 const { seeHomepageDetails } = require('./questions/homepageDetails');
 
 module.exports = function() {
@@ -30,9 +39,16 @@ module.exports = function() {
     deleteFileIndices: deleteFileIndices,
     getAccessToken: getAccessToken,
     seeFileContentEqual: seeFileContentEqual,
+    getIndexd: getIndexd,
+    didFromFileId: didFromFileId,
     submitFile: submitFile,
     deleteFile: deleteFile,
+    addNode: addNode,
     addNodes: addNodes,
-    deleteNodes: deleteNodes
+    deleteNode: deleteNode,
+    deleteNodes: deleteNodes,
+    gqlNodeExists: gqlNodeExists,
+    gqlQuery: gqlQuery,
+    gqlCountType: gqlCountType
   });
 };
