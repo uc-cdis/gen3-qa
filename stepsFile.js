@@ -11,6 +11,12 @@ const {
   getAccessToken,
   seeFileContentEqual,
 } = require('./steps/fenceAPI');
+const {
+  submitFile,
+  deleteFile,
+  addNodes,
+  deleteNodes
+} = require('./steps/sheepdogAPI');
 const { seeHomepageDetails } = require('./questions/homepageDetails');
 
 module.exports = function() {
@@ -24,5 +30,9 @@ module.exports = function() {
     deleteFileIndices: deleteFileIndices,
     getAccessToken: getAccessToken,
     seeFileContentEqual: seeFileContentEqual,
+    submitFile: submitFile,
+    deleteFile: deleteFile,
+    addNodes: addNodes,
+    deleteNodes: deleteNodes
   });
 };
