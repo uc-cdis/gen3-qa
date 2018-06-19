@@ -22,7 +22,7 @@ const {
   deleteNodes
 } = require('./steps/sheepdogAPI');
 const {
-  gqlNodeExists,
+  gqlNodeQuery,
   gqlQuery,
   gqlCountType,
 } = require('./steps/graphqlAPI');
@@ -47,7 +47,7 @@ module.exports = function() {
     addNodes: addNodes,
     deleteNode: deleteNode,
     deleteNodes: deleteNodes,
-    gqlNodeExists: gqlNodeExists,
+    gqlNodeQuery: gqlNodeQuery,
     gqlQuery: gqlQuery,
     gqlCountType: gqlCountType
   });

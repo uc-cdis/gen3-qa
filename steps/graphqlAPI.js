@@ -6,7 +6,7 @@ let accessTokenHeader = util.getAccessTokenHeader();
 const graphql_endpoint = "/api/v0/submission/graphql";
 
 
-function objectToArgString(obj) {
+function nodeFieldsToString(obj) {
   let arg_string = "";
   Object.keys(obj).forEach(
     (prop) => {
@@ -18,34 +18,19 @@ function objectToArgString(obj) {
   return arg_string;
 }
 
-module.exports.gqlNodeExists = async function(type, node, filter_string) {
-  //TODO use the graphqlQuery function
-  // query node type by submitter_id (assumed to be unique for type) and get all fields
-  let fields_string = objectToArgString(node.data);
+module.exports.gqlNodeQuery = async function(type, node, filter_string) {
+  // query node type by filter_string and include all fields in node
+  let fields_string = nodeFieldsToString(node.data);
   let q = `{
     ${type}(${filter_string}) {
       ${fields_string}
     }
   }`;
 
-  // make query and determine if equal
+  // make query
   return this.sendPostRequest(graphql_endpoint, JSON.stringify({query: q, variables: null}), accessTokenHeader)
     .then(
-      (res) => {
-        if (!res.body.data.hasOwnProperty(type))
-          return false; // no data returned
-        if (res.body.data[type].length === 0)
-          return false; // no data was found
-        let gql_data = res.body.data[type][0]; // currently just looking at first result
-        // verify all attributes are equal
-        for (let prop in gql_data) {
-          if (gql_data.hasOwnProperty(prop) && node.data.hasOwnProperty(prop)) {
-            if (gql_data[prop] !== node.data[prop])
-              return false;
-          }
-        }
-        return true;
-      }
+      (res) => res.body
     )
 };
 
