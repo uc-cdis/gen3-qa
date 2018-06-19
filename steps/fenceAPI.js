@@ -51,7 +51,7 @@ module.exports.addFileIndices = function(endpoint, files) {
       this.sendPostRequest(endpoint, strData, headers)
         .then(
           (res) => {
-            console.log(res.body);
+            console.log("QQQ", res.body);
             file.rev = res.body.rev;
           }
         );
@@ -73,8 +73,12 @@ module.exports.deleteFileIndices = function(endpoint, files) {
 };
 
 module.exports.createAPIKey = function(endpoint, scope, access_token) {
-  let headers = util.getIndexAuthHeader();
-  headers['Content-Type'] = 'application/json; charset=UTF-8';
+  let headers={
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+    'Authorization': `bearer ${access_token}`
+  };
+  console.log(headers);
   return this.sendPostRequest(
     endpoint,
     JSON.stringify({

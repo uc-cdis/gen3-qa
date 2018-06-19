@@ -23,13 +23,13 @@ Scenario('test graphQL not authenticated', async(I) => {
 
 
 Scenario('test graphQL alias', async(I) => {
-  await I.addNode("/api/v0/submission/", nodes.case);
+  await I.addNode("/api/v0/submission/", nodes.study);
 
   q = `query Test { alias1: case { id } }`;
   let res = await I.gqlQuery(q, null);
   expect(res.data).to.have.property("alias1");
 
-  await I.deleteNode("/api/v0/submission/", nodes.case);
+  await I.deleteNode("/api/v0/submission/", nodes.study);
 });
 
 Scenario('test graphQL fields', async(I) => {
@@ -40,8 +40,17 @@ Scenario('test graphQL fields', async(I) => {
   let filter_string;
   for(let type_name of Object.keys(nodes)) {
     filter_string = `submitter_id: "${nodes[type_name].data.submitter_id}"`;
-    let node_exists = await I.gqlNodeExists(type_name, nodes[type_name], filter_string);
-    expect(node_exists).to.equal(true);
+    let res = await I.gqlNodeQuery(type_name, nodes[type_name], filter_string);
+
+    expect(res.data).to.have.property(type_name);
+    expect(res.data[type_name]).to.have.lengthOf.above(0);
+    let gql_data = res.data[type_name][0];
+    // assert equal properties
+    for (let prop in gql_data) {
+      if (gql_data.hasOwnProperty(prop) && nodes[type_name].data.hasOwnProperty(prop)) {
+        expect(gql_data[prop]).to.equal(nodes[type_name].data[prop])
+      }
+    }
   }
 
   // remove nodes
@@ -90,9 +99,11 @@ Scenario('test graphQL path filter', async(I) => {
   let filter_string;
   for(let type_name of Object.keys(nodes)) {
     // filter by project id
-    filter_string = `project_id: "${nodes[type_name].program}-${nodes[type_name].project}"`;
-    let node_exists = await I.gqlNodeExists(type_name, nodes[type_name], filter_string);
-    expect(node_exists).to.equal(true);
+    filter_string = `project_id: "${I.getProgramName()}-${I.getProjectName()}"`;
+    let res = await I.gqlNodeQuery(type_name, nodes[type_name], filter_string);
+    console.log(res);
+    expect(res.data).to.have.property(type_name);
+    expect(res.data[type_name]).to.have.lengthOf.above(0);
   }
 
   // remove nodes
@@ -106,18 +117,19 @@ Scenario('test graphQL with_path_to', async(I) => {
   let test_node = nodes.read_group.data;
 
   let q = `query Test {
-      case (
-              order_by_desc: "created_datetime",
-              with_path_to: {
-                  type: "${test_node.type}", submitter_id: "${test_node.submitter_id}"
-              }
-          ) {
-          submitter_id
-      }
+    case (
+      order_by_desc: "created_datetime",
+        with_path_to: {
+            type: "${test_node.type}", submitter_id: "${test_node.submitter_id}"
+        }
+    ) {
+      submitter_id
+    }
   }`;
 
   let res = await I.gqlQuery(q, null);
-  expect(res.data.case.length).to.equal(1);
+  
+  expect(res.data.case).to.have.lengthOf(1);
   expect(res.data.case[0].submitter_id).to.equal(nodes.case.data.submitter_id);
 
   await I.deleteNodes("/api/v0/submission/", Object.values(nodes));
@@ -132,8 +144,10 @@ Scenario('test graphQL path filter bad filter', async(I) => {
   for(let type_name of Object.keys(nodes)) {
     // filter by a nonexistent project id
     filter_string = `project_id: "NOT-EXISTS"`;
-    let node_exists = await I.gqlNodeExists(type_name, nodes[type_name], filter_string);
-    expect(node_exists).to.equal(false);
+    let res = await I.gqlNodeQuery(type_name, nodes[type_name], filter_string);
+
+    expect(res.data).to.have.property(type_name);
+    expect(res.data[type_name]).to.have.lengthOf(0);
   }
 
   // remove nodes
@@ -146,8 +160,10 @@ Scenario('test graphQL path filter no data', async(I) => {
   let filter_string;
   for(let type_name of Object.keys(nodes)) {
     // filter by project id
-    filter_string = `project_id: "${nodes[type_name].program}-${nodes[type_name].project}"`;
-    let node_exists = await I.gqlNodeExists(type_name, nodes[type_name], filter_string);
-    expect(node_exists).to.equal(false);
+    filter_string = `project_id: "${I.getProgramName()}-${I.getProjectName()}"`;
+    let res = await I.gqlNodeQuery(type_name, nodes[type_name], filter_string);
+
+    expect(res.data).to.have.property(type_name);
+    expect(res.data[type_name]).to.have.lengthOf(0);
   }
 });

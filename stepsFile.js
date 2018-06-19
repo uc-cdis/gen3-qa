@@ -1,6 +1,10 @@
 'use strict';
 // in this file you can append custom step methods to 'I' object
 
+const{
+  getProgramName,
+  getProjectName
+} = require('./steps/utilAPI');
 const { load } = require('./steps/homepage');
 const { loginGoogle } = require('./steps/loginGoogle');
 const {
@@ -22,7 +26,7 @@ const {
   deleteNodes
 } = require('./steps/sheepdogAPI');
 const {
-  gqlNodeExists,
+  gqlNodeQuery,
   gqlQuery,
   gqlCountType,
 } = require('./steps/graphqlAPI');
@@ -30,6 +34,8 @@ const { seeHomepageDetails } = require('./questions/homepageDetails');
 
 module.exports = function() {
   return actor({
+    getProgramName: getProgramName,
+    getProjectName: getProjectName,
     load: load,
     seeHomepageDetails: seeHomepageDetails,
     loginGoogle: loginGoogle,
@@ -47,7 +53,7 @@ module.exports = function() {
     addNodes: addNodes,
     deleteNode: deleteNode,
     deleteNodes: deleteNodes,
-    gqlNodeExists: gqlNodeExists,
+    gqlNodeQuery: gqlNodeQuery,
     gqlQuery: gqlQuery,
     gqlCountType: gqlCountType
   });

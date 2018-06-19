@@ -1,8 +1,6 @@
 {
   "study": {
     "key": 1,
-    "program": "dev",
-    "project": "test",
     "data": {
       "data_description": "d3VZsWipsy64",
       "study_description": "S45t6kBh3PML",
@@ -17,8 +15,6 @@
   },
   "case": {
     "key": 2,
-    "program": "dev",
-    "project": "test",
     "data": {
       "cohort_id": "Surgical Donor",
       "amputation_type": "K8THZWcGkkqz",
@@ -35,8 +31,6 @@
   },
   "sample": {
     "key": 3,
-    "program": "dev",
-    "project": "test",
     "data": {
       "pathology_notes": "m81kGqCbinRL",
       "oct_embedded": "yihvwwZGIyGT",
@@ -70,8 +64,6 @@
   },
   "aliquot": {
     "key": 4,
-    "program": "dev",
-    "project": "test",
     "data": {
       "aliquot_quantity": 6.7315,
       "aliquot_volume": 15.3402,
@@ -95,8 +87,6 @@
   },
   "read_group": {
     "key": 5,
-    "program": "dev",
-    "project": "test",
     "data": {
       "library_name": "lzVhCIAn75rz",
       "is_paired_end": false,

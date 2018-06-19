@@ -36,10 +36,8 @@ const files = {
 
 Scenario('test submit indexd without authentication', async(I) => {
   let endpoint = "/api/v0/submission/";
-  let program = "dev";
-  let project = "test";
   return expect(I.sendPutRequest(
-    `${endpoint}${program}/${project}/`, {}, "").then(
+    `${endpoint}${I.getProgramName()}/${I.getProjectName()}/`, {}, "").then(
     (res) => {
       return res.body.message;
     }

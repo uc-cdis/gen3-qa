@@ -3,6 +3,9 @@
 let util = require('./utilAPI');
 let accessTokenHeader = util.getAccessTokenHeader();
 
+const program_name = util.getProgramName();
+const project_name = util.getProjectName();
+
 module.exports.getIndexd = async function(index_endpoint, did) {
   // get data from indexd
   return this.sendGetRequest(`${index_endpoint}${did}`, accessTokenHeader).then(
@@ -14,7 +17,7 @@ module.exports.getIndexd = async function(index_endpoint, did) {
 
 module.exports.didFromFileId = async function(sheep_endpoint, file) {
   // get did from sheepdog id
-  let sheepdog_endpoint = `${sheep_endpoint}${file.program}/${file.project}/export?ids=${file.id}&format=json`;
+  let sheepdog_endpoint = `${sheep_endpoint}${program_name}/${project_name}/export?ids=${file.id}&format=json`;
   return this.sendGetRequest(sheepdog_endpoint, accessTokenHeader).then(
     (res) => {
       res = JSON.parse(res.body)[0];
@@ -34,7 +37,7 @@ module.exports.didFromFileId = async function(sheep_endpoint, file) {
 
 module.exports.submitFile = function(sheep_endpoint, index_endpoint, file) {
   return this.sendPutRequest(
-    `${sheep_endpoint}${file.program}/${file.project}/`, JSON.stringify(file.data), accessTokenHeader).then(
+    `${sheep_endpoint}${program_name}/${project_name}/`, JSON.stringify(file.data), accessTokenHeader).then(
     (res) => {
       if (res.body.hasOwnProperty('entities')) {
         file.id = res.body.entities[0].id;
@@ -62,7 +65,7 @@ module.exports.submitFile = function(sheep_endpoint, index_endpoint, file) {
 };
 
 module.exports.deleteFile = function(endpoint, file) {
-  let delete_url = `${endpoint}${file.program}/${file.project}/entities/${file.id}`;
+  let delete_url = `${endpoint}${program_name}/${project_name}/entities/${file.id}`;
   return this.sendDeleteRequest(delete_url, accessTokenHeader)
     .then(
       (res) => {
@@ -82,7 +85,7 @@ module.exports.deleteFile = function(endpoint, file) {
 
 module.exports.addNode = async function(endpoint, node) {
   return this.sendPutRequest(
-    `${endpoint}${node.program}/${node.project}/`, JSON.stringify(node.data), accessTokenHeader)
+    `${endpoint}${program_name}/${project_name}/`, JSON.stringify(node.data), accessTokenHeader)
     .then( (res) => {
       if (res.body.hasOwnProperty('entities')) {
         node.data.id = res.body.entities[0].id;
@@ -106,7 +109,7 @@ module.exports.addNodes = async function(endpoint, nodes) {
 };
 
 module.exports.deleteNode = async function(endpoint, node) {
-  let delete_endpoint = `${endpoint}${node.program}/${node.project}/entities/${node.data.id}`;
+  let delete_endpoint = `${endpoint}${program_name}/${project_name}/entities/${node.data.id}`;
   return this.sendDeleteRequest(delete_endpoint, accessTokenHeader)
     .then( (res) => {
       if (res.statusCode !== 200) {

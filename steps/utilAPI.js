@@ -18,3 +18,11 @@ module.exports.getIndexAuthHeader = function() {
     'Authorization': `Basic ${indexAuth}`
   };
 };
+
+module.exports.getProgramName = function() {
+  return process.env.HOSTNAME.startsWith('qa') ? 'QA' : 'DEV';
+};
+
+module.exports.getProjectName = function() {
+  return 'test';
+};
