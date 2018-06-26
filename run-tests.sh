@@ -30,13 +30,25 @@ runTest() {
   local namespace
   namespace="${1:-default}"
   echo $namespace
+  
   (
+    # If new pods are still rolling/starting up, then wait for that to finish
+    COUNT=0
+    while [[ COUNT -lt 20 && 0 != "$(kubectl --namespace=${namespace} get pods -o json | jq -r '[.items[] | { name: .metadata.generateName, phase: .status.phase }] | map(select( .phase=="Pending" )) | length')" ]]; do 
+      kubectl "--namespace=${namespace}" get pods
+      echo ------------
+      echo "Waiting for pods to exit Pending state"
+      let COUNT+=1
+      sleep 10
+    done
+    echo "Acquiring tokens for test authentication"
     export KUBECTL_NAMESPACE="$namespace"
     export HOSTNAME=$(kubectl --namespace=${namespace} get configmaps global -ojsonpath='{.data.hostname}')
     if [[ $? -ne 0 || -z "$HOSTNAME" ]]; then
       echo "ERROR: failed to retrive HOST_NAME for namespace $namespace"
       return 1
     fi
+
     export ACCESS_TOKEN=$(kubectl --namespace=${namespace} exec $(get_pod fence $namespace) -- fence-create token-create --scopes openid,user,fence,data,credentials --type access_token --exp 1800 --username cdis.autotest@gmail.com)
     if [[ $? -ne 0 || -z "$ACCESS_TOKEN" ]]; then
       echo "ERROR: failed to retrieve ACCESS_TOKEN for namespace $namespace"
@@ -59,7 +71,6 @@ runTest() {
   HOSTNAME=$HOSTNAME
 
 EOM
-    # Don't actually run the tests yet ... :-p
     npm run custom
     npm run test
   )
