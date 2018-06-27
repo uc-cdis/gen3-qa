@@ -4,6 +4,7 @@
   "description": "Bionimbus Data Portal",
   "main": "index.js",
   "dependencies": {
+    "mocha-junit-reporter": "^1.17.0",
     "selenium-standalone": "^6.13.0"
   },
   "repository": {

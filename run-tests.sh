@@ -72,7 +72,8 @@ runTest() {
 
 EOM
     npm run custom
-    npm run test
+    # see https://codecept.io/reports/
+    ./node_modules/.bin/codeceptjs run --debug --verbose --reporter mocha-junit-reporter
   )
 }
 

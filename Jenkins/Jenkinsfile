@@ -65,5 +65,8 @@ pipeline {
       echo "Unstable!"
       //slackSend color: 'bad', message: "https://jenkins.planx-pla.net $env.JOB_NAME pipeline unstable"
     }
+    always {
+      junit "gen3-qa/output/*.xml"
+    }
   }
 }
