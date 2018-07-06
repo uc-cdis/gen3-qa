@@ -8,7 +8,11 @@ Testing requires the following environment variables
 `INDEX_PASSWORD`: password for indexd requests  
 `HOSTNAME`: hostname for tests (e.g. qa.planx-pla.net)  
 
+After setting the environment variables, do the following
 ```bash
+# Create a condecept.json config file
+npm run custom
+
 # Install all required node modules
 npm install
 
