@@ -8,6 +8,12 @@ pipeline {
       steps {
         dir('gen3-qa') {
           checkout scm
+          /*
+          git(
+            url: 'https://github.com/uc-cdis/gen3-qa.git',
+            branch: 'fix/k8s'
+          )
+          */
         }
         dir('cdis-manifest') {
           git(
@@ -25,11 +31,14 @@ pipeline {
     }
     stage('K8sDeploy') {
       steps {
-        withEnv(['GEN3_NOPROXY=true', 'vpc_name=qaplanetv1']) {
+        withEnv(['GEN3_NOPROXY=true', "vpc_name=$env.KUBECTL_NAMESPACE", "GEN3_HOME=$env.WORKSPACE/cloud-automation"]) {
+          echo "GEN3_HOME is $env.GEN3_HOME"
           echo "GIT_BRANCH is $env.GIT_BRANCH"
           echo "GIT_COMMIT is $env.GIT_COMMIT"
+          echo "KUBECTL_NAMESPACE is $env.KUBECTL_NAMESPACE"
           echo "WORKSPACE is $env.WORKSPACE"
           sh "bash cloud-automation/gen3/bin/kube-roll-all.sh"
+          sh "bash cloud-automation/gen3/bin/kube-wait4-pods.sh || true"
         }
       }
     }
@@ -45,7 +54,7 @@ pipeline {
     stage('RunTests') {
       steps {
         dir('gen3-qa') {
-          withEnv(['GEN3_NOPROXY=true']) {
+          withEnv(['GEN3_NOPROXY=true', "vpc_name=$env.KUBECTL_NAMESPACE", "GEN3_HOME=$env.WORKSPACE/cloud-automation"]) {
             sh "bash ./run-tests.sh $env.KUBECTL_NAMESPACE"
           }
         }
@@ -64,6 +73,9 @@ pipeline {
     unstable {
       echo "Unstable!"
       //slackSend color: 'bad', message: "https://jenkins.planx-pla.net $env.JOB_NAME pipeline unstable"
+    }
+    always {
+      junit "gen3-qa/output/*.xml"
     }
   }
 }

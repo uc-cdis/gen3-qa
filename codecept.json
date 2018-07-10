@@ -2,7 +2,7 @@
   "output": "./output",
   "helpers": {
     "WebDriverIO": {
-      "url": "https://thanhnd.planx-pla.net",
+      "url": "https://reuben.planx-pla.net",
       "smartWait": 5000,
       "browser": "chrome",
       "desiredCapabilities": {
@@ -21,7 +21,7 @@
       }
     },
     "REST": {
-      "endpoint": "https://thanhnd.planx-pla.net",
+      "endpoint": "https://reuben.planx-pla.net",
       "defaultHeaders": ""
     },
     "CDISHelper": {
@@ -31,7 +31,11 @@
   "include": {
     "I": "./stepsFile.js"
   },
-  "mocha": {},
+  "mocha": {
+    "reporterOptions": {
+      "mochaFile": "output/result.xml"
+    }
+  },
   "bootstrap": false,
   "teardown": null,
   "hooks": [],
