@@ -19,16 +19,6 @@ function nodeFieldsToString(obj) {
 }
 
 
-module.exports.seeFileContentEqual = function() {
-  let results = {};
-  for (let type_name of Object.keys(nodes)) {
-    let filter_string = `submitter_id: "${nodes[type_name].data.submitter_id}"`;
-    results.push(this.gqlNodeQuery(type_name, nodes[type_name], filter_string));
-  }
-  return results;
-};
-
-
 module.exports.makeGraphQLNodeQuery = async function(type, node, filter_string) {
   // query node type by filter_string and include ALL fields in node
   let fields_string = nodeFieldsToString(node.data);

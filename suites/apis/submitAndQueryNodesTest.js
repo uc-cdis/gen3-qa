@@ -122,6 +122,54 @@ Scenario('test graphQL invalid field', async(I) => {
 });
 
 
+Scenario('test graphQL filter by string attribute', async(I) => {
+  // add all nodes
+  await I.addNodes(I.getSheepdogRoot(), nodes_list);
+  I.seeAllNodesAddSuccess(nodes_list);
+
+  let test_node = first_node;
+  let test_field = 'marker_panel_description';
+  let filter_string = `${test_field}: "${test_node.data[test_field]}"`;
+  let res = await I.makeGraphQLNodeQuery(test_node.data.type, test_node, filter_string);
+
+  I.seeNumberOfGraphQLField(res, test_node.data.type, 1);
+
+  await I.deleteNodes(I.getSheepdogRoot(), nodes_list);
+});
+
+
+Scenario('test graphQL filter by boolean attribute', async(I) => {
+  // add all nodes
+  await I.addNodes(I.getSheepdogRoot(), nodes_list);
+  I.seeAllNodesAddSuccess(nodes_list);
+
+  let test_node = first_node;
+  let test_field = 'copy_numbers_identified';
+  let filter_string = `${test_field}: ${test_node.data[test_field]}`;
+  let res = await I.makeGraphQLNodeQuery(test_node.data.type, test_node, filter_string);
+
+  I.seeNumberOfGraphQLField(res, test_node.data.type, 1);
+
+  await I.deleteNodes(I.getSheepdogRoot(), nodes_list);
+});
+
+
+Scenario('test graphQL filter by integer attribute', async(I) => {
+  // add all nodes
+  await I.addNodes(I.getSheepdogRoot(), nodes_list);
+  I.seeAllNodesAddSuccess(nodes_list);
+
+  let test_node = first_node;
+  let test_field = 'number_samples_per_experimental_group';
+  let filter_string = `${test_field}: ${test_node.data[test_field]}`;
+  let res = await I.makeGraphQLNodeQuery(test_node.data.type, test_node, filter_string);
+
+  I.seeNumberOfGraphQLField(res, test_node.data.type, 1);
+
+  await I.deleteNodes(I.getSheepdogRoot(), nodes_list);
+});
+
+
 Scenario('test graphQL count', async(I) => {
   // Count instances of each type
   let previous_counts = {};
@@ -166,7 +214,7 @@ Scenario('test graphQL project id filter', async(I) => {
 
 // TODO: figure out what with_path_to is actually supposed to do...
 //Test valid filter, test invalid type name, test invalid type (e.g. integer)
-Scenario('test graphQL with_path_to', async(I) => {
+Scenario('test graphQL with_path_to first to last node', async(I) => {
   // add all nodes
   await I.addNodes(I.getSheepdogRoot(), nodes_list);
   I.seeAllNodesAddSuccess(nodes_list);
@@ -185,7 +233,46 @@ Scenario('test graphQL with_path_to', async(I) => {
   }`;
 
   let res = await I.makeGraphQLQuery(q, null);
-  I.seeGraphQLPass(res);
+  I.seeNumberOfGraphQLField(res, start_node.type, 1);
+
+  await I.deleteNodes(I.getSheepdogRoot(), nodes_list);
+  I.seeAllNodesDeleteSuccess(nodes_list);
+});
+
+
+Scenario('test graphQL path filter bad filter', async(I) => {
+  await I.addNode(I.getSheepdogRoot(), first_node);
+  I.seeNodeAddSuccess(first_node);
+
+  // filter by a nonexistent project id
+  let filter_string = `project_id: "NOT-EXISTS"`;
+  let res = await I.makeGraphQLNodeQuery(first_node.data.type, first_node, filter_string);
+
+  // remove nodes
+  await I.deleteNodes(I.getSheepdogRoot(), nodes_list);
+});
+
+
+Scenario('test graphQL with_path_to last to first node', async(I) => {
+  // add all nodes
+  await I.addNodes(I.getSheepdogRoot(), nodes_list);
+  I.seeAllNodesAddSuccess(nodes_list);
+
+  let start_node = last_node.data;
+  let end_node = first_node.data;
+  let q = `query Test {
+    ${start_node.type} (
+      order_by_desc: "created_datetime",
+        with_path_to: {
+            type: "${end_node.type}", submitter_id: "${end_node.submitter_id}"
+        }
+    ) {
+      submitter_id
+    }
+  }`;
+
+  let res = await I.makeGraphQLQuery(q, null);
+  I.seeNumberOfGraphQLField(res, start_node.type, 1);
 
   await I.deleteNodes(I.getSheepdogRoot(), nodes_list);
   I.seeAllNodesDeleteSuccess(nodes_list);
