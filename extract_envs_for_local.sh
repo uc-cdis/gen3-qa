@@ -46,6 +46,8 @@ if [[ -n "$GEN3_HOME" ]]; then
   fi
 fi
 
+timestamp="$(date +"%s")"
+
 # write environment variables to file
 cat - << EOM > envs_local.txt
 #!/bin/bash
@@ -55,5 +57,5 @@ export ACCESS_TOKEN=$ACCESS_TOKEN
 export EXPIRED_ACCESS_TOKEN=$EXPIRED_ACCESS_TOKEN
 export INDEX_USERNAME=$INDEX_USERNAME
 export INDEX_PASSWORD=$INDEX_PASSWORD  
-export 
+export TIMESTAMP=$timestamp
 EOM
