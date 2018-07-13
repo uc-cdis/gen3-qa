@@ -2,7 +2,7 @@
   "output": "./output",
   "helpers": {
     "WebDriverIO": {
-      "url": "https://reuben.planx-pla.net",
+      "url": "https://qa-bloodpac.planx-pla.net",
       "smartWait": 5000,
       "browser": "chrome",
       "desiredCapabilities": {
@@ -10,7 +10,7 @@
           "args": [
             "--headless",
             "--disable-gpu",
-            "--window-size=800,600"
+            "--window-size=1300,1000"
           ]
         }
       },
@@ -21,7 +21,7 @@
       }
     },
     "REST": {
-      "endpoint": "https://reuben.planx-pla.net",
+      "endpoint": "https://qa-bloodpac.planx-pla.net",
       "defaultHeaders": ""
     },
     "CDISHelper": {
