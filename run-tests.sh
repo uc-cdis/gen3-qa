@@ -72,6 +72,8 @@ HOSTNAME=$HOSTNAME
 EOM
     npm run custom
     # see https://codecept.io/reports/
+    cd "${_RUN_TESTS}"
+    echo $PWD
     ./node_modules/.bin/codeceptjs run --debug --verbose --reporter mocha-junit-reporter
   )
 }
@@ -91,7 +93,7 @@ genData() {
   saveDir=../TestData/
   dictURL=$(g3kubectl get configmaps global -o json | jq -r '.data.dictionary_url')
   if [[ $? -ne 0 || -z "dictURL" ]]; then
-    echo "ERROR: failed to retrive dictionary_url for namespace $namespace"
+    echo "ERROR: failed to retrieve dictionary_url for namespace $namespace"
     return 1
   fi
 
