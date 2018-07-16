@@ -72,7 +72,7 @@ HOSTNAME=$HOSTNAME
 EOM
     npm run custom
     # see https://codecept.io/reports/
-    echo $_RUN_TESTS
+    echo "${_RUN_TESTS}"
     cd ${_RUN_TESTS}
     echo $PWD
     ./node_modules/.bin/codeceptjs run --debug --verbose --reporter mocha-junit-reporter
