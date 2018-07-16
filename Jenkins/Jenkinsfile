@@ -53,10 +53,8 @@ pipeline {
         dir('gen3-qa') {
           withEnv(['GEN3_NOPROXY=true']) {
             sh "bash ./run-install.sh"
+            sh "bash ./generate-data.sh"
           }
-        }
-        dir('data-simulator') {
-          sh "bash ./generate-data.sh"
         }
       }
     }
