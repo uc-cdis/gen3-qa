@@ -2,12 +2,14 @@
 #
 #
 
-ls
-
 echo "AYO"
 echo $PWD
 
-ls ~/
+_RUN_TESTS=$(dirname "${BASH_SOURCE:-$0}")  # $0 supports zsh
+
+cd "${_RUN_TESTS}"
+
+echo $PWD
 
 dictURL=https://s3.amazonaws.com/dictionary-artifacts/genomel-dictionary/master/schema.json
 # dictURL=$(g3kubectl get configmaps global -o json | jq '.data.dictionary_url')
@@ -17,4 +19,4 @@ saveDir=~/TestData/
 
 mkdir -p $saveDir
 
-Rscript ~/data-simulator/GenTestDataCmd.R $dictURL $projectName $nData $saveDir
+Rscript ../data-simulator/GenTestDataCmd.R $dictURL $projectName $nData $saveDir
