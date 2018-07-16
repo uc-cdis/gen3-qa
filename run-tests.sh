@@ -3,6 +3,7 @@
 #
 
 _RUN_TESTS=$(dirname "${BASH_SOURCE:-$0}")  # $0 supports zsh
+_GEN_DATA=../data-simulator
 
 cd "${_RUN_TESTS}"
 npm install
@@ -75,9 +76,38 @@ EOM
   )
 }
 
+#
+# Generate data for a specified namespace
+#
+genData() {
+  local namespace
+  namespace="${1:-default}"
+  echo $namespace
+
+  cd ../data-simulator
+
+  projectName=test
+  nData=1
+  saveDir=../TestData/
+  dictURL=$(g3kubectl get configmaps global -o json | jq -r '.data.dictionary_url')
+  if [[ $? -ne 0 || -z "dictURL" ]]; then
+    echo "ERROR: failed to retrive dictionary_url for namespace $namespace"
+    return 1
+  fi
+
+  mkdir -p $saveDir
+
+  Rscript GenTestDataCmd.R $dictURL $projectName $nData $saveDir
+  if [[ $? -ne 0 ]]; then return 1; fi
+
+  cd "${_GEN_DATA}"
+}
+
 exitCode=0
 for name in ${namespaceList}; do
   if [[ "$name" == "default" || "$name" =~ ^qa- ]]; then
+    genData "$name"
+    if [[ $? -ne 0 ]]; then exitCode=1; fi
     runTest "$name"
     if [[ $? -ne 0 ]]; then exitCode=1; fi
   fi
