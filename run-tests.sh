@@ -84,7 +84,7 @@ genData() {
   namespace="${1:-default}"
   echo $namespace
 
-  cd ../data-simulator
+  cd "${_GEN_DATA}"
 
   projectName=test
   nData=1
@@ -100,7 +100,7 @@ genData() {
   Rscript GenTestDataCmd.R $dictURL $projectName $nData $saveDir
   if [[ $? -ne 0 ]]; then return 1; fi
 
-  cd "${_GEN_DATA}"
+  cd "${_RUN_TESTS}"
 }
 
 exitCode=0
