@@ -2,12 +2,18 @@
 #
 #
 
-echo "AYO"
-echo $PWD
-
 _RUN_TESTS=$(dirname "${BASH_SOURCE:-$0}")  # $0 supports zsh
 
 cd "${_RUN_TESTS}"
+
+if [[ -n "$GEN3_HOME" ]]; then  # load gen3 tools from cloud-automation
+  source "${GEN3_HOME}/gen3/lib/utils.sh"
+  gen3_load "gen3/gen3setup"
+fi
+
+echo "AYO"
+echo $PWD
+
 cd ../data-simulator
 
 echo $PWD
@@ -21,3 +27,5 @@ saveDir=../TestData/
 mkdir -p $saveDir
 
 Rscript GenTestDataCmd.R $dictURL $projectName $nData $saveDir
+
+ls $saveDir
