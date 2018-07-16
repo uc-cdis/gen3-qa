@@ -2,7 +2,8 @@
 #
 #
 
-_RUN_TESTS=$(dirname "${BASH_SOURCE:-$0}")  # $0 supports zsh
+# _RUN_TESTS=$(dirname "${BASH_SOURCE:-$0}")  # $0 supports zsh
+_RUN_TESTS=$PWD
 _GEN_DATA=../data-simulator
 
 cd "${_RUN_TESTS}"
@@ -72,9 +73,6 @@ HOSTNAME=$HOSTNAME
 EOM
     npm run custom
     # see https://codecept.io/reports/
-    echo "${_RUN_TESTS}"
-    cd ${_RUN_TESTS}
-    echo $PWD
     ./node_modules/.bin/codeceptjs run --debug --verbose --reporter mocha-junit-reporter
   )
 }
