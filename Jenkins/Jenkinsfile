@@ -27,6 +27,12 @@ pipeline {
             branch: 'master'
           )
         }
+        dir('data-simulator') {
+          git(
+            url: 'https://github.com/occ-data/data-simulator.git',
+            branch: 'master'
+          )
+        }
       }
     }
     stage('K8sDeploy') {
@@ -48,6 +54,9 @@ pipeline {
           withEnv(['GEN3_NOPROXY=true']) {
             sh "bash ./run-install.sh"
           }
+        }
+        dir('data-simulator') {
+          sh "bash ./generate-data.sh"
         }
       }
     }
