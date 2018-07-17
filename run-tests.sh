@@ -3,8 +3,10 @@
 #
 
 # _RUN_TESTS=$(dirname "${BASH_SOURCE:-$0}")  # $0 supports zsh
-_RUN_TESTS=$PWD
-_GEN_DATA=../data-simulator
+_RUN_TESTS="$PWD/gen3-qa"
+_GEN_DATA="$PWD/data-simulator"
+
+export TEST_DATA_PATH="$PWD/TestData"
 
 cd "${_RUN_TESTS}"
 npm install
@@ -20,6 +22,8 @@ fi
 # Run a test in the specified namespace
 #
 runTest() {
+  cd "${_RUN_TESTS}"
+
   local namespace
   namespace="${1:-default}"
   echo $namespace
@@ -89,19 +93,18 @@ genData() {
 
   projectName=test
   nData=1
-  saveDir=../TestData/
   dictURL=$(g3kubectl get configmaps global -o json | jq -r '.data.dictionary_url')
   if [[ $? -ne 0 || -z "dictURL" ]]; then
     echo "ERROR: failed to retrieve dictionary_url for namespace $namespace"
     return 1
   fi
 
-  mkdir -p $saveDir
+  mkdir -p $TEST_DATA_PATH
 
-  Rscript GenTestDataCmd.R $dictURL $projectName $nData $saveDir
+  rCMD="Rscript GenTestDataCmd.R $dictURL $projectName $nData $TEST_DATA_PATH"
+  echo rCMD
+  eval $rCMD
   if [[ $? -ne 0 ]]; then return 1; fi
-
-  cd "${_RUN_TESTS}"
 }
 
 exitCode=0
