@@ -103,7 +103,7 @@ genData() {
   mkdir -p $TEST_DATA_PATH
 
   rCMD="Rscript GenTestDataCmd.R $dictURL $projectName $nData $TEST_DATA_PATH"
-  echo rCMD
+  echo $rCMD
   eval $rCMD
   if [[ $? -ne 0 ]]; then return 1; fi
 }
