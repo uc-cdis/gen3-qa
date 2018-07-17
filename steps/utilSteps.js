@@ -52,7 +52,8 @@ module.exports.getNodePathToFile = function() {
   let file_node = Object.values(all_nodes).find((node) => { return node.category === 'data_file' });
   if (file_node === undefined)
     throw new Error('Unable to find a data_file node.');
-  let nodes_in_path = nodePathToProject(file_node.name, all_nodes);
+
+  return nodePathToProject(file_node.name, all_nodes);
 };
 
 
