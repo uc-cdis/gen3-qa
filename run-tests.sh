@@ -2,7 +2,6 @@
 #
 #
 
-# _RUN_TESTS=$(dirname "${BASH_SOURCE:-$0}")  # $0 supports zsh
 _RUN_TESTS="$PWD"
 _ROOT_DIR="$(dirname "$PWD")"
 _GEN_DATA="$_ROOT_DIR/data-simulator"
