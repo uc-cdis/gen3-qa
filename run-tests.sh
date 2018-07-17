@@ -3,10 +3,11 @@
 #
 
 # _RUN_TESTS=$(dirname "${BASH_SOURCE:-$0}")  # $0 supports zsh
-_RUN_TESTS="$PWD/gen3-qa"
-_GEN_DATA="$PWD/data-simulator"
+_RUN_TESTS="$PWD"
+_ROOT_DIR="$(dirname "$PWD")"
+_GEN_DATA="$_ROOT_DIR/data-simulator"
 
-export TEST_DATA_PATH="$PWD/TestData"
+export TEST_DATA_PATH="$_ROOT_DIR/TestData"
 
 cd "${_RUN_TESTS}"
 npm install
