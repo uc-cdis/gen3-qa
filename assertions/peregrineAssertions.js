@@ -23,13 +23,13 @@ module.exports.seeAllGraphQLPass = function(results) {
     }
   });
 
-  expect(fail_list).to.have.lengthOf(0);
+  expect(fail_list).to.deep.equal([])
 };
 
 
 module.exports.seeGraphQLHasField = function(res, entity_name) {
   this.seeGraphQLPass(res);
-  expect(res.data).to.have.property(entity_name);
+  expect(res).to.have.nested.property(`data.${entity_name}`);
 };
 
 
@@ -70,7 +70,7 @@ module.exports.seeGraphQLNodeEqual = function(node, result, node_name) {
   });
 
   expect(fields_compared).to.be.above(0, 'failed to compare node to result: all fields were different');
-  expect(fail_list).to.have.lengthOf(0);
+  expect(fail_list).to.deep.equal([]);
 };
 
 
@@ -85,7 +85,7 @@ module.exports.seeAllGraphQLNodesEqual = function(nodes, results) {
     }
   }
 
-  expect(fail_list).to.have.lengthOf(0);
+  expect(fail_list).to.deep.equal([])
 };
 
 module.exports.seeGraphQLNodeCountIncrease = function(previous_res, new_res, node_name) {
@@ -94,8 +94,8 @@ module.exports.seeGraphQLNodeCountIncrease = function(previous_res, new_res, nod
 
   let count_name = `_${node_name}_count`;
 
-  expect(previous_res.data).to.have.property(count_name);
-  expect(new_res.data).to.have.property(count_name, previous_res.data[count_name] + 1);
+  expect(previous_res).to.have.nested.property(`data.${count_name}`);
+  expect(new_res).to.nested.include({[`data.${count_name}`]: previous_res.data[count_name] + 1})
 };
 
 
@@ -110,5 +110,5 @@ module.exports.seeAllGraphQLNodeCountIncrease = function(previous_count, new_cou
     }
   });
 
-  expect(fail_list).to.have.lengthOf(0);
+  expect(fail_list).to.deep.equal([])
 };

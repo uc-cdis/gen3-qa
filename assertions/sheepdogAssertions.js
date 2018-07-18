@@ -6,8 +6,7 @@ chai.use(chaiAsPromised);
 let expect = chai.expect;
 
 const hasEntity = function(res) {
-  expect(res).to.have.property('entities');
-  expect(res.entities).to.have.lengthOf.above(0)
+  expect(res).to.have.nested.property('entities[0]')
 };
 
 
@@ -47,7 +46,7 @@ module.exports.seeAllNodesAddSuccess = function(node_list) {
     }
   }
 
-  expect(fail_list).to.have.lengthOf(0);
+  expect(fail_list).to.deep.equal([])
 };
 
 
@@ -62,16 +61,14 @@ module.exports.seeAllNodesDeleteSuccess = function(node_list) {
     }
   }
 
-  expect(fail_list).to.have.lengthOf(0);
+  expect(fail_list).to.deep.equal([])
 };
 
 
 module.exports.seeSheepdogHasEntityError = function(res, error_type) {
   hasEntity(res);
   let entity = res.entities[0];
-  expect(entity).to.have.property('errors');
-  expect(entity.errors).to.have.lengthOf.above(0);
-  expect(entity.errors[0]).to.have.property('type', error_type);
+  expect(entity).to.nested.include({'errors[0].type': error_type});
 };
 
 

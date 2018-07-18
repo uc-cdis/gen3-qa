@@ -21,16 +21,13 @@ module.exports.seeIndexdGetFilePass = function(res) {
 module.exports.seeIndexdEqualsFile = function(indexd_res, file) {
   this.seeIndexdGetFilePass(indexd_res);
 
-  expect(indexd_res).to.have.property('hashes');
-  expect(indexd_res.hashes).to.have.property('md5', file.data.md5sum);
+  expect(indexd_res).to.nested.include({'hashes.md5': file.data.md5sum});
 
   expect(indexd_res).to.have.property('size', file.data.file_size);
 
   expect(indexd_res).to.have.property('urls');
   if (typeof file.data.urls !== 'undefined') {
-    expect(indexd_res).to.have.property('urls');
-    expect(indexd_res.urls).to.have.lengthOf.above(0);
-    expect(indexd_res.urls[0]).to.equal(file.data.urls)
+    expect(indexd_res).to.nested.include({'urls[0]': file.data.urls});
   }
 };
 
@@ -39,7 +36,7 @@ module.exports.seeFileDeleteSuccess = function(file) {
   // Note that we are looking at the entire resposne, not response.body
   // This is because indexd's body is undefined on success for deletion
 
-  expect(file.indexd_delete_res).to.have.property('raw_body', '');
+  expect(file).to.nested.include({'indexd_delete_res.raw_body': ''});
 };
 
 

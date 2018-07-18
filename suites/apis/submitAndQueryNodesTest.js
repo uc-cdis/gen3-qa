@@ -28,9 +28,6 @@ Scenario('test node submit unauthenticated', async(I) => {
 
 
 Scenario('test node submit/delete', async(I) => {
-  let q = "{ experiment { id } }";
-  let s = await I.makeGraphQLQuery(q, null);
-
   await I.addNode(I.getSheepdogRoot(), first_node);
   I.seeNodeAddSuccess(first_node);
 
@@ -212,8 +209,7 @@ Scenario('test graphQL project id filter', async(I) => {
   I.seeAllNodesDeleteSuccess(nodes_list);
 });
 
-// TODO: figure out what with_path_to is actually supposed to do...
-//Test valid filter, test invalid type name, test invalid type (e.g. integer)
+
 Scenario('test graphQL with_path_to first to last node', async(I) => {
   // add all nodes
   await I.addNodes(I.getSheepdogRoot(), nodes_list);
@@ -247,6 +243,7 @@ Scenario('test graphQL path filter bad filter', async(I) => {
   // filter by a nonexistent project id
   let filter_string = `project_id: "NOT-EXISTS"`;
   let res = await I.makeGraphQLNodeQuery(first_node.data.type, first_node, filter_string);
+  I.seeNumberOfGraphQLField(res, first_node.data.type, 0);
 
   // remove nodes
   await I.deleteNodes(I.getSheepdogRoot(), nodes_list);
@@ -279,30 +276,11 @@ Scenario('test graphQL with_path_to last to first node', async(I) => {
 });
 
 
-Scenario('test graphQL path filter bad filter', async(I) => {
-  await I.addNode(I.getSheepdogRoot(), first_node);
-  I.seeNodeAddSuccess(first_node);
-
-  // filter by a nonexistent project id
-  let filter_string = `project_id: "NOT-EXISTS"`;
-  let res = await I.makeGraphQLNodeQuery(first_node.data.type, first_node, filter_string);
-
-  // remove nodes
-  await I.deleteNodes(I.getSheepdogRoot(), nodes_list);
+BeforeSuite(async (I) => {
+  // try to clean up any leftover nodes
+  await I.findDeleteAllNodes();
 });
 
-
-Scenario('test graphQL path filter no data', async(I) => {
-  // don't add nodes and query
-  let filter_string;
-  for(let type_name of Object.keys(nodes)) {
-    // filter by project id
-    filter_string = `project_id: "${I.getProgramName()}-${I.getProjectName()}"`;
-    let res = await I.makeGraphQLNodeQuery(type_name, nodes[type_name], filter_string);
-
-    // expect(I.seeGqlQueryEmpty(res, type_name)).to.equal(true, `Query not empty for ${type_name}` + JSON.stringify(res));
-  }
-});
 
 Before((I) => {
   nodes = require("../../sample_data/submitSamples.json");
