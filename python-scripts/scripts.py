@@ -10,9 +10,7 @@ import json
 
 CHUNK_SIZE = 45
 
-# python scripts.py data-create --host  https://giangb.planx-pla.net --dir ~/Desktop/Projects/data-simulator/SampleJsonOutput --project "DEV/test" --token token.txt
-
-
+# python scripts.py data-create --host  https://giangb.planx-pla.net --dir ~/Desktop/Projects/data-simulator/SampleJsonOutput --project "DEV/test" --access_token token.txt
 def gen_test_data(args):
 
     api_endpoint = args.host + '/api/v0/submission/' + args.project
@@ -23,16 +21,22 @@ def gen_test_data(args):
         with open(args.access_token, 'r') as reader:
             token = reader.read()
         token = token[:-1]
+    else:
+        print('There is no input token text file. Continue anyway!')
 
     submission_order = ''
     if(os.path.isfile(join(args.dir, 'DataImportOrder.txt'))):
         with open(join(args.dir, 'DataImportOrder.txt'), 'r') as reader:
             submission_order = reader.read()
+    else:
+        print('There is no DataImportOrder.txt file!')
+        return
 
     submission_order = submission_order.split('\n')
 
     for fname in (submission_order):
         if fname is None or fname == '':
+            print('There is no {} in input directory'.format(fname))
             continue
         with open(join(args.dir, fname), 'r') as rfile:
             data = json.loads(rfile.read())
@@ -76,6 +80,5 @@ def parse_arguments():
 if __name__ == "__main__":
 
     args = parse_arguments()
-
     if args.action == 'data-create':
         gen_test_data(args)
