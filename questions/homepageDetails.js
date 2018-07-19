@@ -1,9 +1,9 @@
 'use strict';
 
 const seeSummary = function() {
-  this.seeNumberOfElements('.h1-typo', 1);
+  this.waitNumberOfVisibleElements('.h1-typo', 1, 5);
   // this.seeNumberOfElements('.h4-typo', 7);
-  this.seeNumberOfElements('.h3-typo', 5);
+  this.waitNumberOfVisibleElements('.h3-typo', 5, 5);
   // this.seeNumberOfElements('.special-number', 4);
 };
 
