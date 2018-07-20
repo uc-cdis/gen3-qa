@@ -1,12 +1,7 @@
 'use strict';
 
-let username = process.env.INDEX_USERNAME;
-let password = process.env.INDEX_PASSWORD;
-let accessTokenHeaders = {
-  'Accept': 'application/json',
-  'Authorization': `bearer ${process.env.ACCESS_TOKEN}`
-};
-let indexAuth = Buffer.from(`${username}:${password}`).toString('base64');
+let util = require('./utilSteps');
+let accessTokenHeaders = util.getAccessTokenHeader();
 
 module.exports.seeFileContentEqual = function(endpoint, id, args=[]) {
   return this.sendGetRequest(
@@ -36,11 +31,8 @@ module.exports.seeFileContentEqual = function(endpoint, id, args=[]) {
 
 module.exports.addFileIndices = function(endpoint, files) {
   let uuid = require('uuid');
-  let headers={
-    'Accept': 'application/json',
-    'Content-Type': 'application/json; charset=UTF-8',
-    'Authorization': `Basic ${indexAuth}`
-  };
+  let headers = util.getIndexAuthHeader();
+  headers['Content-Type'] = 'application/json; charset=UTF-8';
   files.forEach(
     (file) => {
       file.did = uuid.v4().toString();
@@ -59,7 +51,6 @@ module.exports.addFileIndices = function(endpoint, files) {
       this.sendPostRequest(endpoint, strData, headers)
         .then(
           (res) => {
-            console.log(res.body);
             file.rev = res.body.rev;
           }
         );
@@ -67,18 +58,22 @@ module.exports.addFileIndices = function(endpoint, files) {
   )
 };
 
+module.exports.deleteFileIndex = function(endpoint, file) {
+  let headers = util.getIndexAuthHeader();
+  return this.sendDeleteRequest(`${endpoint}${file.did}?rev=${file.rev}`,
+    headers
+  ).then(
+    (res) => {
+      file.indexd_delete_res = res;
+      return res;
+    }
+  )
+};
+
 module.exports.deleteFileIndices = function(endpoint, files) {
-  let headers = {
-    'Accept': 'application/json',
-    'Authorization': `Basic ${indexAuth}`
-  };
   files.forEach(
     (file) => {
-      this.sendDeleteRequest(`${endpoint}${file.did}?rev=${file.rev}`,
-        headers
-      ).then(
-        (res) => res.body
-      )
+      this.deleteFileIndex(endpoint, file);
     }
   );
 };
@@ -108,10 +103,7 @@ module.exports.deleteAPIKey = function(endpoint, api_key) {
 };
 
 module.exports.getAccessToken = function (endpoint, api_key) {
-  let headers={
-    'Accept': 'application/json',
-    'Content-Type': 'application/json'
-  };
+  let headers = util.getIndexAuthHeader();
   let data = (api_key !== null) ? { api_key: api_key } : {};
   return this.sendPostRequest(endpoint, JSON.stringify(data), headers)
     .then(
