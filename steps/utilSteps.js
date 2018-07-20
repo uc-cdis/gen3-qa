@@ -1,6 +1,9 @@
 'use strict';
 
-<<<<<<< feat/graphqlQuery
+const fs = require('fs');
+
+const data_path = process.env.TEST_DATA_PATH;
+
 let username = process.env.INDEX_USERNAME;
 let password = process.env.INDEX_PASSWORD;
 let indexAuth = Buffer.from(`${username}:${password}`).toString('base64');
@@ -42,13 +45,10 @@ module.exports.getSheepdogRoot = function() {
   return "/api/v0/submission/"
 };
 
+
 module.exports.sortByKey = function(obj_list) {
   obj_list.sort((a, b) => {return a.key - b.key})
 };
-=======
-const fs = require('fs');
-
-const data_path = process.env.TEST_DATA_PATH;
 
 
 const nodePathToProject = function(start_node_name, all_nodes) {
@@ -106,4 +106,3 @@ module.exports.getNodePathToFile = function() {
 module.exports.sortNodes = function(node_list) {
   return node_list.sort((a, b) => { return a.order - b.order })
 };
->>>>>>> master
