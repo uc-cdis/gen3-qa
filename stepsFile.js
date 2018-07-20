@@ -12,6 +12,10 @@ const {
   seeFileContentEqual,
 } = require('./steps/fenceAPI');
 const { seeHomepageDetails } = require('./questions/homepageDetails');
+const {
+  getAllNodes,
+  getNodePathToFile
+} = require('./steps/utilSteps');
 
 module.exports = function() {
   return actor({
@@ -24,5 +28,7 @@ module.exports = function() {
     deleteFileIndices: deleteFileIndices,
     getAccessToken: getAccessToken,
     seeFileContentEqual: seeFileContentEqual,
+    getAllNodes: getAllNodes,
+    getNodePathToFile: getNodePathToFile
   });
 };
