@@ -8,6 +8,8 @@ const{
   getProjectName,
   getIndexdRoot,
   getSheepdogRoot,
+  getAllNodes,
+  getNodePathToFile
 } = require('./steps/utilSteps');
 
 const { load } = require('./steps/homepage');
@@ -74,6 +76,7 @@ const {
   seeAllGraphQLNodeCountIncrease,
 } = require('./assertions/peregrineAssertions');
 
+
 module.exports = function() {
   return actor({
     // Util Steps
@@ -83,6 +86,8 @@ module.exports = function() {
     getProjectName: getProjectName,
     getIndexdRoot: getIndexdRoot,
     getSheepdogRoot: getSheepdogRoot,
+    getAllNodes: getAllNodes,
+    getNodePathToFile: getNodePathToFile,
 
     // Homepage Steps
     load: load,
@@ -143,6 +148,6 @@ module.exports = function() {
     seeGraphQLNodeEqual: seeGraphQLNodeEqual,
     seeAllGraphQLNodesEqual: seeAllGraphQLNodesEqual,
     seeGraphQLNodeCountIncrease: seeGraphQLNodeCountIncrease,
-    seeAllGraphQLNodeCountIncrease: seeAllGraphQLNodeCountIncrease,
+    seeAllGraphQLNodeCountIncrease: seeAllGraphQLNodeCountIncrease
   });
 };
