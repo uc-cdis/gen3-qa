@@ -283,8 +283,10 @@ BeforeSuite(async (I) => {
 
 
 Before((I) => {
-  nodes = require("../../sample_data/submitSamples.json");
-  nodes_list = Object.values(nodes).sort((a, b) => {return a.key - b.key});
+  nodes = I.getNodePathToFile();
+  // delete the file node
+  Object.keys(nodes).map((key) => { if (nodes[key].category === 'data_file') { delete nodes[key] } });
+  nodes_list = I.sortNodes(Object.values(nodes));
   first_node = nodes_list[0];
   second_node = nodes_list[1];
   last_node = nodes_list[nodes_list.length-1];

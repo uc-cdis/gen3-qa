@@ -77,9 +77,9 @@ module.exports.addNode = async function(endpoint, node) {
 };
 
 
-module.exports.addNodes = async function(endpoint, nodes) {
+module.exports.addNodes = async function(endpoint, nodes_list) {
   // add nodes, in sorted key ascending order
-  for (let node of nodes.sort((a, b) => {return a.key - b.key})) {
+  for (let node of this.sortNodes(nodes_list)) {
     await this.addNode(endpoint, node);
   }
 };
@@ -94,9 +94,9 @@ module.exports.deleteNode = async function(endpoint, node) {
     });
 };
 
-module.exports.deleteNodes = async function(endpoint, nodes) {
+module.exports.deleteNodes = async function(endpoint, nodes_list) {
   // remove nodes, in reverse sorted (descending key) order
-  for (let node of nodes.sort((a, b) => {return b.key - a.key})) {
+  for (let node of this.sortNodes(nodes_list).reverse()) {
     await this.deleteNode(endpoint, node);
   }
 };

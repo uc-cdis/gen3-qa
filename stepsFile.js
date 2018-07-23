@@ -9,7 +9,8 @@ const{
   getIndexdRoot,
   getSheepdogRoot,
   getAllNodes,
-  getNodePathToFile
+  getNodePathToFile,
+  sortNodes,
 } = require('./steps/utilSteps');
 
 const { load } = require('./steps/homepage');
@@ -88,6 +89,7 @@ module.exports = function() {
     getSheepdogRoot: getSheepdogRoot,
     getAllNodes: getAllNodes,
     getNodePathToFile: getNodePathToFile,
+    sortNodes: sortNodes,
 
     // Homepage Steps
     load: load,

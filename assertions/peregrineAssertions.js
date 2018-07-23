@@ -19,7 +19,7 @@ module.exports.seeAllGraphQLPass = function(results) {
     try {
       this.seeGraphQLPass(res);
     } catch(e) {
-      fail_list.push(e);
+      fail_list.push(e.message);
     }
   });
 
@@ -65,7 +65,7 @@ module.exports.seeGraphQLNodeEqual = function(node, result, node_name) {
         expect(node_data[field]).to.equal(q_res[field]);
       }
     } catch(e) {
-      fail_list.push(e)
+      fail_list.push(e.message)
     }
   });
 
@@ -81,7 +81,7 @@ module.exports.seeAllGraphQLNodesEqual = function(nodes, results) {
     try {
       this.seeGraphQLNodeEqual(nodes[node_name], results[node_name], node_name)
     } catch(e) {
-      fail_list.push(e);
+      fail_list.push(e.message);
     }
   }
 
@@ -106,7 +106,7 @@ module.exports.seeAllGraphQLNodeCountIncrease = function(previous_count, new_cou
     try {
       this.seeGraphQLNodeCountIncrease(previous_count[type_name], new_count[type_name], type_name);
     } catch(e) {
-      fail_list.push(e);
+      fail_list.push(e.message);
     }
   });
 
