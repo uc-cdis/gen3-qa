@@ -13,27 +13,20 @@ const clone = function(obj) {
   return JSON.parse(JSON.stringify(obj));
 };
 
-// Nodes, sorted hierarchically by key
-let nodes = require("../../sample_data/submitSamples.json");
+const extractFile = function(nodes) {
+  let file_node_name = Object.keys(nodes).find((node_name) => { return nodes[node_name].category === 'data_file' });
+  let bfd = clone(nodes[file_node_name].data);
+  delete nodes[file_node_name];
+  return bfd;
+};
+
+// list for non data_file nodes
+let nodes, nodes_list;
 
 let test_url = "s3://cdis-presigned-url-test/testdata";
 
 // data used for testing files
-let base_data = {
-  "data_type": "Unaligned Reads",
-  "data_format": "FASTQ",
-  "data_category": "Sequencing Data",
-  "experimental_strategy": "Low Pass WGS",
-  "md5sum": "d47d8663f668ed4d301584a2d5f581b2",
-  "file_name": "testdata",
-  "object_id": "f3e2f610-74c8-11e8-adc0-fa7ae01bbebc",
-  "file_size": 3,
-  "type": "submitted_unaligned_reads",
-  "submitter_id": "submitted_unaligned_reads_001",
-  "read_groups": {
-    "submitter_id": "read_group_001"
-  }
-};
+let base_file_data;
 
 // Used for holding different file versions for testing. Refreshed before every Scenario
 let files;
@@ -170,7 +163,12 @@ BeforeSuite(async (I) => {
   // Cleanup any leftover nodes from previous Suites
   await I.findDeleteAllNodes();
 
-  // Add all nodes
+  // Get nodes path and extract the file node
+  nodes = I.getNodePathToFile();
+  base_file_data = extractFile(nodes);
+
+  // Sort the nodes and add them all
+  nodes_list = I.sortNodes(Object.values(nodes));
   await I.addNodes(I.getSheepdogRoot(), Object.values(nodes));
   I.seeAllNodesAddSuccess(Object.values(nodes));
 });
@@ -178,7 +176,7 @@ BeforeSuite(async (I) => {
 
 Before((I) => {
   // reload the files
-  files = getFiles(base_data);
+  files = getFiles(base_file_data);
 });
 
 

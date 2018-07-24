@@ -8,6 +8,10 @@ let expect = chai.expect;
 
 Feature('SubmitAndQueryNodesTest');
 
+const getFieldOfType = function(object, field_type) {
+  return Object.keys(object).find((key) => { return typeof object[key] === field_type })
+};
+
 // Nodes, sorted hierarchically by key. Refreshed before each scenario
 let nodes, nodes_list;
 let first_node;
@@ -125,7 +129,7 @@ Scenario('test graphQL filter by string attribute', async(I) => {
   I.seeAllNodesAddSuccess(nodes_list);
 
   let test_node = first_node;
-  let test_field = 'marker_panel_description';
+  let test_field = getFieldOfType(test_node.data, 'string');
   let filter_string = `${test_field}: "${test_node.data[test_field]}"`;
   let res = await I.makeGraphQLNodeQuery(test_node.data.type, test_node, filter_string);
 
@@ -141,7 +145,7 @@ Scenario('test graphQL filter by boolean attribute', async(I) => {
   I.seeAllNodesAddSuccess(nodes_list);
 
   let test_node = first_node;
-  let test_field = 'copy_numbers_identified';
+  let test_field = getFieldOfType(test_node.data, 'boolean');
   let filter_string = `${test_field}: ${test_node.data[test_field]}`;
   let res = await I.makeGraphQLNodeQuery(test_node.data.type, test_node, filter_string);
 
@@ -157,7 +161,7 @@ Scenario('test graphQL filter by integer attribute', async(I) => {
   I.seeAllNodesAddSuccess(nodes_list);
 
   let test_node = first_node;
-  let test_field = 'number_samples_per_experimental_group';
+  let test_field = getFieldOfType(test_node.data, 'number');
   let filter_string = `${test_field}: ${test_node.data[test_field]}`;
   let res = await I.makeGraphQLNodeQuery(test_node.data.type, test_node, filter_string);
 

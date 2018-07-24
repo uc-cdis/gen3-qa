@@ -126,17 +126,22 @@ module.exports.deleteByIdRecursively = async function(endpoint, id) {
 module.exports.findDeleteAllNodes = async function() {
   // Delete all nodes in the program/project
 
-  let top_node = 'experiment';
+  let top_node = 'project';
   let q = `
   {
-    ${top_node} (project_id: "${program_name}-${project_name}") {
-      id
+    ${top_node} {
+      _links {
+        id
+      }
     }
   }`;
 
   let res = await this.makeGraphQLQuery(q, null);
   while (res.data[top_node].length > 0) {
-    await this.deleteByIdRecursively(this.getSheepdogRoot(), res.data[top_node][0].id);
-    res = await this.makeGraphQLQuery(q, null);
+    let linked_type = res.data[top_node].pop();
+    while (linked_type._links.length > 0) {
+      let linked_type_instance = linked_type._links.pop();
+      await this.deleteByIdRecursively(this.getSheepdogRoot(), linked_type_instance.id);
+    }
   }
 };

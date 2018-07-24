@@ -11,9 +11,9 @@ const hasEntity = function(res) {
 
 
 module.exports.seeNodePass = function(res) {
-  expect(res).to.have.property('success', true);
-  expect(res).to.have.property('entity_error_count', 0);
-  expect(res).to.have.property('transactional_error_count', 0);
+  expect(res).to.have.property('success', true, JSON.stringify(res));
+  expect(res).to.have.property('entity_error_count', 0, JSON.stringify(res));
+  expect(res).to.have.property('transactional_error_count', 0, JSON.stringify(res));
 };
 
 
