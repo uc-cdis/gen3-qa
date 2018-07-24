@@ -10,12 +10,10 @@ module.exports.seeFileContentEqual = function(endpoint, id, args=[]) {
       if (res.body.hasOwnProperty('url'))
         return this.sendGetRequest(res.body.url).then(
           (res) => {
-            console.log(res.body);
             return res.body;
           }
         ).catch(
           (e) => {
-            console.log(e);
             return e.message;
           }
         );
@@ -108,7 +106,6 @@ module.exports.getAccessToken = function (endpoint, api_key) {
   return this.sendPostRequest(endpoint, JSON.stringify(data), headers)
     .then(
       (res) => {
-        console.log("AYO", res.statusCode);
         if (res.statusCode === 200)
           return res.body;
         return res.statusCode;
