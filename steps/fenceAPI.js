@@ -19,14 +19,10 @@ module.exports.seeFileContentEqual = function(endpoint, id, args=[]) {
             return e.message;
           }
         );
-      else
-        throw new Error(res.body.message);
-    }).catch(
-      (e) => {
-        console.log(e);
-        return e.message;
+      else {
+        return res.statusCode;
       }
-    );
+    })
 };
 
 module.exports.addFileIndices = function(endpoint, files) {
@@ -91,7 +87,11 @@ module.exports.createAPIKey = function(endpoint, scope, access_token) {
     }),
     headers)
     .then(
-      (res) => res.body
+      (res) => {
+        if (res.statusCode === 200)
+          return res.body;
+        return res.statusCode;
+      }
     );
 };
 
@@ -107,7 +107,12 @@ module.exports.getAccessToken = function (endpoint, api_key) {
   let data = (api_key !== null) ? { api_key: api_key } : {};
   return this.sendPostRequest(endpoint, JSON.stringify(data), headers)
     .then(
-      (res) => res.body
+      (res) => {
+        console.log("AYO", res.statusCode);
+        if (res.statusCode === 200)
+          return res.body;
+        return res.statusCode;
+      }
     )
     .catch(
       (e) => e.message

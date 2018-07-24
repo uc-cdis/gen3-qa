@@ -29,9 +29,7 @@ Scenario('test create APIKey with expired access token', async(I) => {
   scope = ['data', 'user'];
   let result = I.createAPIKey('/user/credentials/api/',
     scope, expired_access_token);
-  return expect(result).to.eventually.not.have.property('api_key')
-    && expect(result).to.eventually.have.property('message')
-      .to.eventually.equal('Authentication Error: Signature has expired');
+  return expect(result).to.eventually.equal(401);
 });
 
 Scenario('test refresh access token with api_key', async(I) => {
@@ -41,13 +39,12 @@ Scenario('test refresh access token with api_key', async(I) => {
 
 Scenario('test refresh access token with invalid api_key', async(I) => {
   return expect(I.getAccessToken('/user/credentials/api/access_token', 'invalid'))
-    .to.eventually.not.have.property('access_token');
+    .to.eventually.equal(401);
 });
 
 Scenario('test refresh access token without api_key', async(I) => {
   return expect(I.getAccessToken('/user/credentials/api/access_token', null))
-    .to.eventually.have.property('message')
-    .to.eventually.equal('Please provide an api_key in payload');
+    .to.eventually.equal(400);
 });
 
 AfterSuite((I) => {

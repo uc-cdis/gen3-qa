@@ -53,7 +53,7 @@ Scenario('test presigned-url with file user does not have permission', async(I) 
   return expect(I.seeFileContentEqual(
     '/user/data/download/',
     files.not_allowed.did
-  )).to.eventually.equal('You don\'t have access permission on this file');
+  )).to.eventually.equal(401);
 });
 
 Scenario('test presigned-url with invalid protocol', async(I) => {
@@ -61,7 +61,7 @@ Scenario('test presigned-url with invalid protocol', async(I) => {
     '/user/data/download/',
     files.invalid_protocol.did,
     ['protocol=s2']
-  )).to.eventually.equal('The specified protocol s2 is not supported');
+  )).to.eventually.equal(400);
 });
 
 Scenario('test presigned-url with protocol not available in indexed document', async(I) => {
@@ -69,7 +69,7 @@ Scenario('test presigned-url with protocol not available in indexed document', a
     '/user/data/download/',
     files.allowed.did,
     ['protocol=s2']
-  )).to.eventually.equal(`File ${files.allowed.did} does not have a location with specified protocol s2.`);
+  )).to.eventually.equal(404);
 });
 
 Scenario('test presigned-url with protocol not exist for file', async(I) => {
@@ -77,7 +77,7 @@ Scenario('test presigned-url with protocol not exist for file', async(I) => {
     '/user/data/download/',
     files.http_link.did,
     ['protocol=s3']
-  )).to.eventually.equal(`File ${files.http_link.did} does not have a location with specified protocol s3.`);
+  )).to.eventually.equal(404);
 });
 
 Scenario('test presigned-url no data', async(I) => {
@@ -85,14 +85,14 @@ Scenario('test presigned-url no data', async(I) => {
     '/user/data/download/',
     files.no_link.did,
     ['protocol=s3']
-  )).to.eventually.equal(`File ${files.no_link.did} does not have a location with specified protocol s3.`);
+  )).to.eventually.equal(404);
 });
 
 Scenario('test presigned-url no requested protocol, no data', async(I) => {
   return expect(I.seeFileContentEqual(
     '/user/data/download/',
     files.no_link.did
-  )).to.eventually.equal(`Can\'t find any file locations.`);
+  )).to.eventually.equal(404);
 });
 
 BeforeSuite((I) => {
