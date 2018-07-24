@@ -12,39 +12,32 @@ let access_token = process.env.ACCESS_TOKEN;
 let expired_access_token = process.env.EXPIRED_ACCESS_TOKEN;
 
 Scenario('test create APIKey success', async(I) => {
-  scope = ['data', 'user'];
-  return expect(I.createAPIKey('/user/credentials/api/', scope, access_token)
-    .then(
-      (result) => {
-        console.log(result);
-        key_id = result.key_id;
-        api_key = result.api_key;
-        return result;
-      }
-    ))
-    .to.eventually.have.property('api_key');
+  let scope = ['data', 'user'];
+  let api_key_res = await I.createAPIKey('/user/credentials/api/', scope, access_token);
+  expect(api_key_res).to.have.nested.property('body.api_key');
+  key_id = api_key_res.body.key_id;
+  api_key = api_key_res.body.api_key;
 });
 
 Scenario('test create APIKey with expired access token', async(I) => {
-  scope = ['data', 'user'];
-  let result = I.createAPIKey('/user/credentials/api/',
-    scope, expired_access_token);
-  return expect(result).to.eventually.equal(401);
+  let scope = ['data', 'user'];
+  let api_key_res = await I.createAPIKey('/user/credentials/api/', scope, expired_access_token);
+  I.seeFenceHasError(api_key_res, 401, 'Authentication Error: Signature has expired');
 });
 
 Scenario('test refresh access token with api_key', async(I) => {
-  return expect(I.getAccessToken('/user/credentials/api/access_token', api_key))
-    .to.eventually.have.property('access_token');
+  let access_token_res = await I.getAccessToken('/user/credentials/api/access_token', api_key);
+  expect(access_token_res).has.property('access_token');
 });
 
 Scenario('test refresh access token with invalid api_key', async(I) => {
-  return expect(I.getAccessToken('/user/credentials/api/access_token', 'invalid'))
-    .to.eventually.equal(401);
+  let access_token_res = await I.getAccessToken('/user/credentials/api/access_token', 'invalid');
+  I.seeFenceHasError(access_token_res, 401, 'Not enough segments')
 });
 
 Scenario('test refresh access token without api_key', async(I) => {
-  return expect(I.getAccessToken('/user/credentials/api/access_token', null))
-    .to.eventually.equal(400);
+  let access_token_res = await I.getAccessToken('/user/credentials/api/access_token', null);
+  I.seeFenceHasError(access_token_res, 400, 'Please provide an api_key in payload');
 });
 
 AfterSuite((I) => {
