@@ -25,8 +25,10 @@ const {
   deleteFileIndex,
   deleteFileIndices,
   getAccessToken,
-  seeFileContentEqual,
+  createSignedUrl,
 } = require('./steps/fenceAPI');
+
+const { seeFenceHasError } = require('./assertions/fenceAssertions');
 
 const {
   getIndexdFile,
@@ -105,7 +107,10 @@ module.exports = function() {
     deleteFileIndex: deleteFileIndex,
     deleteFileIndices: deleteFileIndices,
     getAccessToken: getAccessToken,
-    seeFileContentEqual: seeFileContentEqual,
+    createSignedUrl: createSignedUrl,
+
+    // Fence Assertions
+    seeFenceHasError: seeFenceHasError,
 
     // Sheepdog/Indexd Steps
     getIndexdFile: getIndexdFile,

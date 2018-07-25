@@ -43,56 +43,76 @@ const files = {
 };
 
 Scenario('test presigned-url', async(I) => {
-  return expect(I.seeFileContentEqual(
-    '/user/data/download/',
-    files.allowed.did
-  )).to.eventually.equal('Hi Zac!\ncdis-data-client uploaded this!\n');
+  let signed_url_res = await I.createSignedUrl('/user/data/download/', files.allowed.did);
+  expect(signed_url_res).to.have.nested.property('body.url');
+
+  let get_url_res = await I.sendGetRequest(signed_url_res.body.url);
+  expect(get_url_res).to.have.property('body', 'Hi Zac!\ncdis-data-client uploaded this!\n');
 });
 
 Scenario('test presigned-url with file user does not have permission', async(I) => {
-  return expect(I.seeFileContentEqual(
-    '/user/data/download/',
-    files.not_allowed.did
-  )).to.eventually.equal('You don\'t have access permission on this file');
+  let signed_url_res = await I.createSignedUrl('/user/data/download/', files.not_allowed.did);
+  I.seeFenceHasError(signed_url_res, 401, 'You don&#39;t have access permission on this file');
 });
 
 Scenario('test presigned-url with invalid protocol', async(I) => {
-  return expect(I.seeFileContentEqual(
+  let signed_url_res = await I.createSignedUrl(
     '/user/data/download/',
     files.invalid_protocol.did,
     ['protocol=s2']
-  )).to.eventually.equal('The specified protocol s2 is not supported');
+  );
+  I.seeFenceHasError(signed_url_res, 400, 'The specified protocol s2 is not supported')
 });
 
 Scenario('test presigned-url with protocol not available in indexed document', async(I) => {
-  return expect(I.seeFileContentEqual(
+  let signed_url_res = await I.createSignedUrl(
     '/user/data/download/',
     files.allowed.did,
     ['protocol=s2']
-  )).to.eventually.equal(`File ${files.allowed.did} does not have a location with specified protocol s2.`);
+  );
+  I.seeFenceHasError(
+    signed_url_res,
+    404,
+    `File ${files.allowed.did} does not have a location with specified protocol s2.`
+  );
 });
 
 Scenario('test presigned-url with protocol not exist for file', async(I) => {
-  return expect(I.seeFileContentEqual(
+  let signed_url_res = await I.createSignedUrl(
     '/user/data/download/',
     files.http_link.did,
     ['protocol=s3']
-  )).to.eventually.equal(`File ${files.http_link.did} does not have a location with specified protocol s3.`);
+  );
+  I.seeFenceHasError(
+    signed_url_res,
+    404,
+    `File ${files.http_link.did} does not have a location with specified protocol s3.`
+  )
 });
 
 Scenario('test presigned-url no data', async(I) => {
-  return expect(I.seeFileContentEqual(
+  let signed_url_res = await I.createSignedUrl(
     '/user/data/download/',
     files.no_link.did,
     ['protocol=s3']
-  )).to.eventually.equal(`File ${files.no_link.did} does not have a location with specified protocol s3.`);
+  );
+  I.seeFenceHasError(
+    signed_url_res,
+    404,
+    `File ${files.no_link.did} does not have a location with specified protocol s3.`
+  )
 });
 
 Scenario('test presigned-url no requested protocol, no data', async(I) => {
-  return expect(I.seeFileContentEqual(
+  let signed_url_res = await I.createSignedUrl(
     '/user/data/download/',
     files.no_link.did
-  )).to.eventually.equal(`Can\'t find any file locations.`);
+  );
+  I.seeFenceHasError(
+    signed_url_res,
+    404,
+    'Can&#39;t find any file locations.'
+  )
 });
 
 BeforeSuite((I) => {
