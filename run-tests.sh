@@ -113,10 +113,11 @@ for name in ${namespaceList}; do
     genData "$name"
     if [[ $? -ne 0 ]]; then exitCode=1; fi
     runTest "$name"
+    echo $?
     if [[ $? -ne 0 ]]; then exitCode=1; fi
   fi
 done
 
-exitCode=0
+exitCode=-1
 
 exit $exitCode

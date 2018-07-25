@@ -141,17 +141,15 @@ Scenario('test graphQL filter by boolean attribute', async(I) => {
   await I.addNodes(I.getSheepdogRoot(), nodes_list);
   I.seeAllNodesAddSuccess(nodes_list);
 
-  // TODO: remove try/catch once bug is fixed
-  try {
-    let test_node = first_node;
-    let test_field = 'copy_numbers_identified';
-    let filter_string = `${test_field}: ${test_node.data[test_field]}`;
-    let res = await I.makeGraphQLNodeQuery(test_node.data.type, test_node, filter_string);
+  let test_node = first_node;
+  let test_field = 'copy_numbers_identified';
+  let filter_string = `${test_field}: ${test_node.data[test_field]}`;
+  let res = await I.makeGraphQLNodeQuery(test_node.data.type, test_node, filter_string);
 
-    I.seeNumberOfGraphQLField(res, test_node.data.type, 1);
-  } catch(e) {
+  // TODO: remove catch once bug is fixed
+  I.seeNumberOfGraphQLField(res, test_node.data.type, 1).catch((e) => {
     console.log("WARNING: test graphQL filter by boolean attribute is FAILING (See PXD-1195): " + e.message)
-  }
+  });
 
   await I.deleteNodes(I.getSheepdogRoot(), nodes_list);
 });
@@ -275,13 +273,11 @@ Scenario('test graphQL with_path_to last to first node', async(I) => {
     }
   }`;
 
-  // TODO: remove try/catch once bug is fixed
-  try {
-    let res = await I.makeGraphQLQuery(q, null);
-    I.seeNumberOfGraphQLField(res, start_node.type, 1);
-  } catch(e) {
+  // TODO: remove catch once bug is fixed
+  let res = await I.makeGraphQLQuery(q, null);
+  I.seeNumberOfGraphQLField(res, start_node.type, 1).catch((e) => {
     console.log("WARNING: test graphQL with_path_to last to first node is FAILING (See PXD-1196): " + e.message)
-  }
+  });
 
 
   await I.deleteNodes(I.getSheepdogRoot(), nodes_list);
