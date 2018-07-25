@@ -115,6 +115,7 @@ for name in ${namespaceList}; do
     if [[ $? -ne 0 ]]; then exitCode=1; fi
     runTest "$name"
     if [[ $? -ne 0 ]]; then exitCode=1; fi
+    curl -s 'http://127.0.0.1:4444/wd/hub/sessions' | jq '.'
   fi
 done
 
