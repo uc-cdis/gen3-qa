@@ -26,7 +26,6 @@ const {
   deleteFileIndices,
   getAccessToken,
   createSignedUrl,
-  getSignedUrl
 } = require('./steps/fenceAPI');
 
 const { seeFenceHasError } = require('./assertions/fenceAssertions');
@@ -109,7 +108,6 @@ module.exports = function() {
     deleteFileIndices: deleteFileIndices,
     getAccessToken: getAccessToken,
     createSignedUrl: createSignedUrl,
-    getSignedUrl: getSignedUrl,
 
     // Fence Assertions
     seeFenceHasError: seeFenceHasError,

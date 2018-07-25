@@ -46,8 +46,8 @@ Scenario('test presigned-url', async(I) => {
   let signed_url_res = await I.createSignedUrl('/user/data/download/', files.allowed.did);
   expect(signed_url_res).to.have.nested.property('body.url');
 
-  let get_url_res = await I.getSignedUrl(signed_url_res.body.url);
-  expect(get_url_res).to.equal('Hi Zac!\ncdis-data-client uploaded this!\n');
+  let get_url_res = await I.sendGetRequest(signed_url_res.body.url);
+  expect(get_url_res).to.have.property('body', 'Hi Zac!\ncdis-data-client uploaded this!\n');
 });
 
 Scenario('test presigned-url with file user does not have permission', async(I) => {

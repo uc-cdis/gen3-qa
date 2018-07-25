@@ -12,13 +12,6 @@ module.exports.createSignedUrl = function(endpoint, id, args=[]) {
 };
 
 
-module.exports.getSignedUrl = function(url) {
-  return this.sendGetRequest(url).then(
-    (res) => res.body
-  );
-};
-
-
 module.exports.addFileIndices = function(endpoint, files) {
   let uuid = require('uuid');
   let headers = util.getIndexAuthHeader();

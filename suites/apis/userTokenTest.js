@@ -27,7 +27,7 @@ Scenario('test create APIKey with expired access token', async(I) => {
 
 Scenario('test refresh access token with api_key', async(I) => {
   let access_token_res = await I.getAccessToken('/user/credentials/api/access_token', api_key);
-  expect(access_token_res).has.property('access_token');
+  expect(access_token_res).has.nested.property('body.access_token');
 });
 
 Scenario('test refresh access token with invalid api_key', async(I) => {
