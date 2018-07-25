@@ -77,6 +77,7 @@ EOM
 
 exitCode=0
 for name in ${namespaceList}; do
+  curl -s 'http://127.0.0.1:4444/wd/hub/sessions' | jq '.'
   if [[ "$name" == "default" || "$name" =~ ^qa- ]]; then
     runTest "$name"
     if [[ $? -ne 0 ]]; then exitCode=1; fi
