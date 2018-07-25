@@ -183,4 +183,7 @@ Before((I) => {
 AfterSuite(async (I) => {
   await I.deleteNodes(I.getSheepdogRoot(), Object.values(nodes));
   I.seeAllNodesDeleteSuccess(Object.values(nodes));
+
+  // try to delete anything else that may be remaining
+  await I.findDeleteAllNodes();
 });
