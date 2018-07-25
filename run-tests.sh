@@ -109,17 +109,12 @@ genData() {
 
 exitCode=0
 for name in ${namespaceList}; do
-  curl -s 'http://127.0.0.1:4444/wd/hub/sessions' | jq '.'
   if [[ "$name" == "default" || "$name" =~ ^qa- ]]; then
-    echo "Before Data simulator"
-    curl -s 'http://127.0.0.1:4444/wd/hub/sessions' | jq '.'
     genData "$name"
     if [[ $? -ne 0 ]]; then exitCode=1; fi
-    echo "After Data simulator"
-    curl -s 'http://127.0.0.1:4444/wd/hub/sessions' | jq '.'
     runTest "$name"
     if [[ $? -ne 0 ]]; then exitCode=1; fi
-    echo "After tests"
+    echo "Curling selenium sessions for debugging..."
     curl -s 'http://127.0.0.1:4444/wd/hub/sessions' | jq '.'
   fi
 done
