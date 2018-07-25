@@ -117,6 +117,6 @@ for name in ${namespaceList}; do
   fi
 done
 
-exitCode=2
+exitCode=0
 
 exit $exitCode
