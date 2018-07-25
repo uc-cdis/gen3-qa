@@ -36,6 +36,9 @@ while [[ $(curl -s -o /dev/null -w "%{http_code}" localhost:4444) != "200" ]]; d
         WAIT_COUNT=0
         npm run selenium-start
     fi
+    # could try killing the process and running again (though risky if another job is using it)
+    # pkill -f selenium-standalone
+    # run selenium-start
     let WAIT_COUNT+=1
     sleep 5
 done
