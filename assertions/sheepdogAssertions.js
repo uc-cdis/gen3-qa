@@ -11,9 +11,9 @@ const hasEntity = function(res) {
 
 
 module.exports.seeNodePass = function(res) {
-  expect(res).to.have.property('success', true);
-  expect(res).to.have.property('entity_error_count', 0);
-  expect(res).to.have.property('transactional_error_count', 0);
+  expect(res).to.have.property('success', true, JSON.stringify(res));
+  expect(res).to.have.property('entity_error_count', 0, JSON.stringify(res));
+  expect(res).to.have.property('transactional_error_count', 0, JSON.stringify(res));
 };
 
 
@@ -42,7 +42,7 @@ module.exports.seeAllNodesAddSuccess = function(node_list) {
     try {
       this.seeNodeAddSuccess(node);
     } catch (e) {
-      fail_list.push(e);
+      fail_list.push(e.message);
     }
   }
 
@@ -57,7 +57,7 @@ module.exports.seeAllNodesDeleteSuccess = function(node_list) {
     try {
       this.seeNodeDeleteSuccess(node)
     } catch (e) {
-      fail_list.push(e);
+      fail_list.push(e.message);
     }
   }
 

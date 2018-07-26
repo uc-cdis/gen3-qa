@@ -77,9 +77,9 @@ module.exports.addNode = async function(endpoint, node) {
 };
 
 
-module.exports.addNodes = async function(endpoint, nodes) {
+module.exports.addNodes = async function(endpoint, nodes_list) {
   // add nodes, in sorted key ascending order
-  for (let node of nodes.sort((a, b) => {return a.key - b.key})) {
+  for (let node of this.sortNodes(nodes_list)) {
     await this.addNode(endpoint, node);
   }
 };
@@ -94,9 +94,9 @@ module.exports.deleteNode = async function(endpoint, node) {
     });
 };
 
-module.exports.deleteNodes = async function(endpoint, nodes) {
+module.exports.deleteNodes = async function(endpoint, nodes_list) {
   // remove nodes, in reverse sorted (descending key) order
-  for (let node of nodes.sort((a, b) => {return b.key - a.key})) {
+  for (let node of this.sortNodes(nodes_list).reverse()) {
     await this.deleteNode(endpoint, node);
   }
 };
@@ -126,17 +126,22 @@ module.exports.deleteByIdRecursively = async function(endpoint, id) {
 module.exports.findDeleteAllNodes = async function() {
   // Delete all nodes in the program/project
 
-  let top_node = 'experiment';
+  let top_node = 'project';
   let q = `
   {
-    ${top_node} (project_id: "${program_name}-${project_name}") {
-      id
+    ${top_node} {
+      _links {
+        id
+      }
     }
   }`;
 
   let res = await this.makeGraphQLQuery(q, null);
   while (res.data[top_node].length > 0) {
-    await this.deleteByIdRecursively(this.getSheepdogRoot(), res.data[top_node][0].id);
-    res = await this.makeGraphQLQuery(q, null);
+    let linked_type = res.data[top_node].pop();
+    while (linked_type._links.length > 0) {
+      let linked_type_instance = linked_type._links.pop();
+      await this.deleteByIdRecursively(this.getSheepdogRoot(), linked_type_instance.id);
+    }
   }
 };
