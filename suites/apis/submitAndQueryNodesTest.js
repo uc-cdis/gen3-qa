@@ -141,39 +141,23 @@ Scenario('test graphQL filter by string attribute', async(I) => {
 
 // FIXME: This is a known bug that needs to be fixed. See PXD-1195
 Scenario('test graphQL filter by boolean attribute', async(I) => {
-  // add all nodes
-  await I.addNodes(I.getSheepdogRoot(), nodes_list);
-  I.seeAllNodesAddSuccess(nodes_list);
-
-  let test_node = first_node;
-  let test_field = getFieldOfType(test_node.data, 'boolean');
-  let filter_string = `${test_field}: ${test_node.data[test_field]}`;
-  let res = await I.makeGraphQLNodeQuery(test_node.data.type, test_node, filter_string);
-
+  // This test assumes that projects in all commons will have a boolean attribute 'releasable'
+  let boolean_field = 'releasable';
+  let boolean_state = I.getProject()[boolean_field];
+  let q = `
+  {
+   project(${boolean_field}: ${boolean_state}) {
+    id
+   }
+  }
+  `;
+  let res = await I.makeGraphQLQuery(q, null);
   // TODO: remove try/catch once bug is fixed
   try {
-    I.seeNumberOfGraphQLField(res, test_node.data.type, 1)
+    I.seeNumberOfGraphQLField(res, 'project', 1)
   } catch(e) {
     console.log("WARNING: test graphQL filter by boolean attribute is FAILING (See PXD-1195): " + e.message)
   }
-
-  await I.deleteNodes(I.getSheepdogRoot(), nodes_list);
-});
-
-
-Scenario('test graphQL filter by integer attribute', async(I) => {
-  // add all nodes
-  await I.addNodes(I.getSheepdogRoot(), nodes_list);
-  I.seeAllNodesAddSuccess(nodes_list);
-
-  let test_node = first_node;
-  let test_field = getFieldOfType(test_node.data, 'number');
-  let filter_string = `${test_field}: ${test_node.data[test_field]}`;
-  let res = await I.makeGraphQLNodeQuery(test_node.data.type, test_node, filter_string);
-
-  I.seeNumberOfGraphQLField(res, test_node.data.type, 1);
-
-  await I.deleteNodes(I.getSheepdogRoot(), nodes_list);
 });
 
 
