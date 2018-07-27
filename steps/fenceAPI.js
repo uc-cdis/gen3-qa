@@ -93,3 +93,28 @@ module.exports.getAccessToken = function (endpoint, api_key) {
       (res) => res
     );
 };
+
+module.exports.getUserInfo = function(access_token) {
+  let access_token_header = this.makeTokenHeader(access_token);
+  let endpoint = '/user/user';
+  return this.sendGetRequest(endpoint, null, access_token_header);
+};
+
+module.exports.createGoogleLink = function(redirect, access_token) {
+  let access_token_header = this.makeTokenHeader(access_token);
+  redirect = (redirect !== null || redirect !== '') ? `?redirect=${redirect}` : '';
+  let endpoint = `/user/link/google${redirect}`;
+  return this.sendPostRequest(endpoint, null, access_token_header);
+};
+
+module.exports.extendGoogleLink = function(access_token) {
+  let access_token_header = this.makeTokenHeader(access_token);
+  let endpoint = '/user/link/google';
+  return this.sendPatchRequest(endpoint, null, access_token_header);
+};
+
+module.exports.deleteGoogleLink = function(access_token) {
+  let access_token_header = this.makeTokenHeader(access_token);
+  let endpoint = '/user/link/google';
+  return this.sendDeleteRequest(endpoint, null, access_token_header);
+};
