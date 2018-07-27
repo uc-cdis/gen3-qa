@@ -10,6 +10,7 @@ let Helper = codecept_helper;
 const {
   getAccessTokenHeader,
   getProgramName,
+  getProject
 } = require('./steps/utilSteps');
 
 class CDISHelper extends Helper {
@@ -25,13 +26,7 @@ class CDISHelper extends Helper {
       name: program_name, type: 'program',
       dbgap_accession_number: program_name
     };
-    let project = {
-      type: "project",
-      code: "test",
-      name: "test",
-      dbgap_accession_number: "test",
-      state: "open"
-    };
+    let project = getProject();
 
     let program_form = {
       url: endpoint,
