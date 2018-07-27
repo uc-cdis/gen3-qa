@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('fs');
+const path = require('path');
 
 const data_path = process.env.TEST_DATA_PATH;
 
@@ -51,6 +52,12 @@ module.exports.sortByKey = function(obj_list) {
 };
 
 
+const getDataPathString = function(file_name) {
+  let path_obj = {dir: data_path, base: file_name};
+  return path.format(path_obj)
+};
+
+
 const nodePathToProject = function(start_node_name, all_nodes) {
   let nodes_in_path = {};
   let current_node_name = start_node_name;
@@ -65,10 +72,10 @@ const nodePathToProject = function(start_node_name, all_nodes) {
 module.exports.getAllNodes = function() {
   // return an object of data nodes, keyed by node name
   try {
-    let nodes = JSON.parse(fs.readFileSync(data_path + 'NodeDescriptions.json'));
+    let nodes = JSON.parse(fs.readFileSync(getDataPathString('NodeDescriptions.json')));
     let nodes_dict = {};
     for (let node of nodes) {
-      let node_data = JSON.parse(fs.readFileSync(`${data_path}${node.NODE}.json`));
+      let node_data = JSON.parse(fs.readFileSync(getDataPathString(`${node.NODE}.json`)))[0];
       let node_name = node.NODE;
       let node_order = node.ORDER;
       let node_category = node.CATEGORY;

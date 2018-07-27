@@ -3,31 +3,14 @@
 let util = require('./utilSteps');
 let accessTokenHeaders = util.getAccessTokenHeader();
 
-module.exports.seeFileContentEqual = function(endpoint, id, args=[]) {
+
+module.exports.createSignedUrl = function(endpoint, id, args=[]) {
   return this.sendGetRequest(
     `${endpoint}${id}?${args.join('&')}`.replace(/[?]$/g, ''), accessTokenHeaders).then(
-    (res) => {
-      if (res.body.hasOwnProperty('url'))
-        return this.sendGetRequest(res.body.url).then(
-          (res) => {
-            console.log(res.body);
-            return res.body;
-          }
-        ).catch(
-          (e) => {
-            console.log(e);
-            return e.message;
-          }
-        );
-      else
-        throw new Error(res.body.message);
-    }).catch(
-      (e) => {
-        console.log(e);
-        return e.message;
-      }
-    );
+      (res) => res
+  );
 };
+
 
 module.exports.addFileIndices = function(endpoint, files) {
   let uuid = require('uuid');
@@ -91,7 +74,7 @@ module.exports.createAPIKey = function(endpoint, scope, access_token) {
     }),
     headers)
     .then(
-      (res) => res.body
+      (res) => res
     );
 };
 
@@ -107,9 +90,6 @@ module.exports.getAccessToken = function (endpoint, api_key) {
   let data = (api_key !== null) ? { api_key: api_key } : {};
   return this.sendPostRequest(endpoint, JSON.stringify(data), headers)
     .then(
-      (res) => res.body
-    )
-    .catch(
-      (e) => e.message
+      (res) => res
     );
 };
