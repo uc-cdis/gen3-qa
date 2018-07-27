@@ -142,11 +142,10 @@ Scenario('test graphQL filter by string attribute', async(I) => {
 // FIXME: This is a known bug that needs to be fixed. See PXD-1195
 Scenario('test graphQL filter by boolean attribute', async(I) => {
   // This test assumes that projects in all commons will have a boolean attribute 'releasable'
-  let boolean_field = 'releasable';
-  let boolean_state = I.getProject()[boolean_field];
+  let boolean_state = I.getProject()['releasable'];
   let q = `
   {
-   project(${boolean_field}: ${boolean_state}) {
+   project(releasable: ${boolean_state}) {
     id
    }
   }
