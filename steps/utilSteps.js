@@ -79,7 +79,6 @@ const nodePathToProject = function(start_node_name, all_nodes) {
     if (s === 'project')
       break;
     nodes_in_path[s] = all_nodes[s];
-    console.log(s, all_nodes[s]);
     que = all_nodes[s].target.concat(que)
   }
   return nodes_in_path;
