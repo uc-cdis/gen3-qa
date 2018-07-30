@@ -59,13 +59,18 @@ const getDataPathString = function(file_name) {
 
 
 const nodePathToProject = function(start_node_name, all_nodes) {
+  // BFS to find path to project
   let nodes_in_path = {};
-  let current_node_name = start_node_name;
-  while (current_node_name !== 'project') {
-    nodes_in_path[current_node_name] = all_nodes[current_node_name];
-    current_node_name = all_nodes[current_node_name].target
+  let que = [start_node_name];
+  while (que.length > 0) {
+    let s = que.pop();
+    if (s === 'project')
+      break;
+    nodes_in_path[s] = all_nodes[s];
+    console.log(s, all_nodes[s]);
+    que = all_nodes[s].target.concat(que)
   }
-  return nodes_in_path
+  return nodes_in_path;
 };
 
 
