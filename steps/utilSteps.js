@@ -33,7 +33,19 @@ module.exports.getProgramName = function() {
 
 
 module.exports.getProjectName = function() {
-  return 'test';
+  return this.getProject().name;
+};
+
+
+module.exports.getProject = function() {
+  return {
+    type: "project",
+    code: "test",
+    name: "test",
+    dbgap_accession_number: "test",
+    state: "open",
+    releasable: true
+  }
 };
 
 

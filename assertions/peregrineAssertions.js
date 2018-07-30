@@ -7,8 +7,8 @@ let expect = chai.expect;
 
 
 module.exports.seeGraphQLPass = function(res) {
-  expect(res).to.have.property('data');
-  expect(res).to.not.have.property('errors');
+  expect(res, JSON.stringify(res)).to.have.property('data');
+  expect(res, JSON.stringify(res)).to.not.have.property('errors');
 };
 
 
