@@ -14,6 +14,8 @@ if [[ $? -ne 0 ]]; then
   exit 1
 fi
 
+echo "BEFORE START: Curling selenium sessions for debugging..."
+curl -s 'http://127.0.0.1:4444/wd/hub/sessions' | jq '.'
 
 npm run selenium-install
 npm run selenium-start
@@ -22,6 +24,10 @@ START_COUNT=0
 WAIT_COUNT=0
 echo "Starting Selenium..."
 
+echo "Curling selenium sessions for debugging..."
+curl -s 'http://127.0.0.1:4444/wd/hub/sessions' | jq '.'
+echo "Sleeping for a bit to wait for selenium..."
+sleep 10
 echo "Curling selenium sessions for debugging..."
 curl -s 'http://127.0.0.1:4444/wd/hub/sessions' | jq '.'
 
