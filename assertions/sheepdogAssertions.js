@@ -4,6 +4,8 @@ let chai = require('chai');
 let chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 let expect = chai.expect;
+chai.config.includeStack = true;
+chai.config.truncateThreshold = 0;
 
 const hasEntity = function(res) {
   expect(res).to.have.nested.property('entities[0]')

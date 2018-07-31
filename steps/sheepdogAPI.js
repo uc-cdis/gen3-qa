@@ -145,6 +145,6 @@ module.exports.findDeleteAllNodes = async function() {
       }
     }
   } catch(e) {
-    console.log("Error finding and deleting nodes for project. \nError: " + e.message + "\nQuery result: " + res)
+    console.log("Error finding and deleting nodes for project. \n  Error: " + e.message + "\n  Query result: " + res)
   }
 };

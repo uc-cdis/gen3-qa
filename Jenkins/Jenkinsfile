@@ -46,6 +46,7 @@ pipeline {
           echo "GEN3_HOME is $env.GEN3_HOME"
           sh "bash cloud-automation/gen3/bin/kube-roll-all.sh"
           sh "bash cloud-automation/gen3/bin/kube-wait4-pods.sh || true"
+          sh "bash ./gen3-qa/check-pod-health.sh"
         }
       }
     }
