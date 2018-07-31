@@ -65,7 +65,7 @@ class CDISHelper extends Helper {
     }
   }
 
-  _failed() {
+  async _failed(test_result) {
     // Check health of services
     const helper = this.helpers['REST'];
 
@@ -75,13 +75,15 @@ class CDISHelper extends Helper {
       portal: "/",
       fence: "/user/jwt/keys"
     };
-    console.log("Health Check");
-    Object.values(endpoints).map((endpoint) => {
-      helper.sendGetRequest(`https://${process.env.HOSTNAME}${endpoint}`)
+    test_result.err.stack += '\n\nServices Health Check:';
+    let promises = Object.values(endpoints).map((endpoint) => {
+      return helper.sendGetRequest(`https://${process.env.HOSTNAME}${endpoint}`)
         .then((res) => {
-          console.log(`Health ${endpoint}`.padEnd(30) + `: ${res.statusCode}`)
+          test_result.err.stack += `\nHealth ${endpoint}`.padEnd(30) + `: ${res.statusCode}`
         });
     });
+    await Promise.all(promises);
+    console.log(test_result.err.stack)
   }
 }
 
