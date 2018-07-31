@@ -111,7 +111,7 @@ exitCode=0
 for name in ${namespaceList}; do
   if [[ "$name" == "default" || "$name" =~ ^qa- ]]; then
     genData "$name"
-    if [[ $? -ne 0 ]]; then exitCode=1; fi
+    if [[ $? -ne 0 ]]; then exit 1; fi
     runTest "$name"
     if [[ $? -ne 0 ]]; then exitCode=1; fi
   fi
