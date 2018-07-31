@@ -64,6 +64,25 @@ class CDISHelper extends Helper {
       helper.setCookie({name: 'access_token', value: access_token});
     }
   }
+
+  _failed() {
+    // Check health of services
+    const helper = this.helpers['REST'];
+
+    let endpoints = {
+      sheepdog: "/api/_status",
+      peregrine: "/peregrine/_status",
+      portal: "/",
+      fence: "/user/jwt/keys"
+    };
+    console.log("Health Check");
+    Object.values(endpoints).map((endpoint) => {
+      helper.sendGetRequest(`https://${process.env.HOSTNAME}${endpoint}`)
+        .then((res) => {
+          console.log(`Health ${endpoint}`.padEnd(30) + `: ${res.statusCode}`)
+        });
+    });
+  }
 }
 
 module.exports = CDISHelper;
