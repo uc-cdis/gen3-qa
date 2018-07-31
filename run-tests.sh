@@ -11,7 +11,7 @@ export TEST_DATA_PATH="$_ROOT_DIR/TestData/"
 cd "${_RUN_TESTS}"
 npm install
 
-namespaceList="${1:-default}" 
+namespaceList="${1:-default}"
 
 if [[ -n "$GEN3_HOME" ]]; then  # load gen3 tools from cloud-automation
   source "${GEN3_HOME}/gen3/lib/utils.sh"
@@ -27,7 +27,7 @@ runTest() {
   local namespace
   namespace="${1:-default}"
   echo $namespace
-  
+
   (
     if [[ -n "$GEN3_HOME" ]]; then
       echo "Acquiring tokens for test authentication"
@@ -63,11 +63,11 @@ GEN3_HOME environment not set, so gen3 tools not available -
 please manually set the environment variables necessary to
 run the integration test suite:
   HOSTNAME
-  ACCESS_TOKEN 
+  ACCESS_TOKEN
   EXPIRED_ACCESS_TOKEN
   INDEX_USERNAME
   INDEX_PASSWORD
-  
+
 EOM
     fi
     cat - <<EOM
@@ -114,6 +114,8 @@ for name in ${namespaceList}; do
     if [[ $? -ne 0 ]]; then exit 1; fi
     runTest "$name"
     if [[ $? -ne 0 ]]; then exitCode=1; fi
+    echo "Curling selenium sessions for debugging..."
+    curl -s 'http://127.0.0.1:4444/wd/hub/sessions' | jq '.'
   fi
 done
 

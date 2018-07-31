@@ -17,3 +17,30 @@ fi
 
 npm run selenium-install
 npm run selenium-start
+
+START_COUNT=0
+WAIT_COUNT=0
+echo "Starting Selenium..."
+
+echo "Curling selenium sessions for debugging..."
+curl -s 'http://127.0.0.1:4444/wd/hub/sessions' | jq '.'
+
+while [[ $(curl -s -o /dev/null -w "%{http_code}" localhost:4444) != "200" ]]; do
+    if [ "$WAIT_COUNT" -gt 6 ]; then
+        if [ "$START_COUNT" -gt 2 ]; then
+            echo -e "ERROR: Unable to start Selenium."
+            exit 1
+        fi
+        echo -e "Selenium not started after 30 seconds, restarting"
+        let START_COUNT+=1
+        WAIT_COUNT=0
+        npm run selenium-start
+    fi
+    # could try killing the process and running again (though risky if another job is using it)
+    # pkill -f selenium-standalone
+    # run selenium-start
+    let WAIT_COUNT+=1
+    sleep 5
+done
+
+echo "Selenium running"
