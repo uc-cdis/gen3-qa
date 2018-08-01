@@ -32,6 +32,7 @@
   "scripts": {
     "selenium-install": "selenium-standalone install",
     "selenium-start": "selenium-standalone start",
+    "selenium-kill": "pkill -f selenium-standalone",
     "test": "codeceptjs run --debug --verbose",
     "custom": "node ./custom/getParameters > codecept.json"
   }

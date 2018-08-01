@@ -50,15 +50,6 @@ pipeline {
         }
       }
     }
-    /* stage('RunInstall') {
-      steps {
-        dir('gen3-qa') {
-          withEnv(['GEN3_NOPROXY=true', "vpc_name=$env.KUBECTL_NAMESPACE", "GEN3_HOME=$env.WORKSPACE/cloud-automation"]) {
-            sh "bash ./run-install.sh"
-          }
-         }
-      }
-    } */
     stage('RunTests') {
       steps {
         dir('gen3-qa') {
