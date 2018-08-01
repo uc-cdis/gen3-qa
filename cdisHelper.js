@@ -13,50 +13,54 @@ const {
   getProject
 } = require('./steps/utilSteps');
 
+const createProgramProject = function() {
+  // add program and project
+  let accessTokenHeader = getAccessTokenHeader();
+  let hostname = process.env.HOSTNAME;
+
+  let endpoint = "https://" + hostname + "/api/v0/submission/";
+
+  let program_name = getProgramName();
+  let program = {
+    name: program_name, type: 'program',
+    dbgap_accession_number: program_name
+  };
+  let project = getProject();
+
+  let program_form = {
+    url: endpoint,
+    method: 'POST',
+    headers: accessTokenHeader,
+    form: JSON.stringify(program)
+  };
+  let project_form = {
+    url: endpoint + program_name + "/",
+    method: 'POST',
+    headers: accessTokenHeader,
+    form: JSON.stringify(project)
+  };
+
+  return request.post(
+    program_form,
+    (error, response, body) => {
+      console.log("Create Program: ", body);
+      return request.post(
+        project_form,
+        (error, response, body) => {
+          console.log("Create Project: ", body);
+          return expect(JSON.parse(body)).to.have.property("entities")
+        })
+    }
+  )
+};
+
 class CDISHelper extends Helper {
-  _init() {
-    // add program and project
-    let accessTokenHeader = getAccessTokenHeader();
-    let hostname = process.env.HOSTNAME;
-
-    let endpoint = "https://" + hostname + "/api/v0/submission/";
-
-    let program_name = getProgramName();
-    let program = {
-      name: program_name, type: 'program',
-      dbgap_accession_number: program_name
-    };
-    let project = getProject();
-
-    let program_form = {
-      url: endpoint,
-      method: 'POST',
-      headers: accessTokenHeader,
-      form: JSON.stringify(program)
-    };
-    let project_form = {
-      url: endpoint + program_name + "/",
-      method: 'POST',
-      headers: accessTokenHeader,
-      form: JSON.stringify(project)
-    };
-
-    request.post(
-      program_form,
-      (error, response, body) => {
-        console.log("Create Program: ", body);
-        request.post(
-          project_form,
-          (error, response, body) => {
-            console.log("Create Project: ", body);
-            return expect(JSON.parse(body)).to.have.property("entities")
-          })
-      }
-    )
+  async _init() {
+    await createProgramProject()
   }
 
   _beforeSuite(suite) {
-    if (!suite.title.indexOf('API') >= 0)
+    if (!(suite.title.indexOf('API') >= 0))
     {
       const helper = this.helpers['WebDriverIO'];
       helper.amOnPage('');
