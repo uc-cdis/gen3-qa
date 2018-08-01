@@ -21,7 +21,7 @@ npm run selenium-install
 START_COUNT=0
 WAIT_COUNT=0
 CURRENT_PORT=4444
-echo "Starting Selenium..."
+echo "Searching for free port for Selenium..."
 while [[ $(curl -s -o /dev/null -w "%{http_code}" localhost:${CURRENT_PORT}) == "200" ]]; do
     let "CURRENT_PORT+=1"
 done

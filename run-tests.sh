@@ -104,18 +104,23 @@ genData() {
   rCMD="Rscript GenTestDataCmd.R $dictURL $projectName $nData $TEST_DATA_PATH"
   echo $rCMD
   eval $rCMD
-  if [[ $? -ne 0 ]]; then return 1; fi
+  if [[ $? -ne 0 ]]; then
+    echo "ERROR: Failed to generate test data for $namespace"
+    return 1
+  fi
 }
 
 exitCode=0
 for name in ${namespaceList}; do
   if [[ "$name" == "default" || "$name" =~ ^qa- ]]; then
     genData "$name"
-    if [[ $? -ne 0 ]]; then exit 1; fi
+    if [[ $? -ne 0 ]]; then
+      # Don't run the tests if we fail to generate data
+      exitCode=1
+      continue
+    fi
     runTest "$name"
     if [[ $? -ne 0 ]]; then exitCode=1; fi
-    echo "Curling selenium sessions for debugging..."
-    curl -s 'http://127.0.0.1:4444/wd/hub/sessions' | jq '.'
   fi
 done
 

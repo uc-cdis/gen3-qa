@@ -33,6 +33,6 @@
     "selenium-install": "selenium-standalone install",
     "selenium-start": "selenium-standalone start",
     "test": "codeceptjs run --debug --verbose",
-    "custom": "node ./custom/getParameters > codecept.json",
+    "custom": "node ./custom/getParameters > codecept.json"
   }
 }
