@@ -2,7 +2,7 @@ exports.config = {
   output: "./output",
   helpers: {
     WebDriverIO: {
-      url: `https://${process.env.KUBECTL_NAMESPACE}.planx-pla.net`,
+      url: `https://${process.env.HOSTNAME}.planx-pla.net`,
       smartWait: 5000,
       browser: "chrome",
       desiredCapabilities: {
@@ -22,7 +22,7 @@ exports.config = {
       port: process.env.SELENIUM_PORT || 4444
     },
     REST: {
-      "endpoint": `https://${process.env.KUBECTL_NAMESPACE}.planx-pla.net`,
+      "endpoint": `https://${process.env.HOSTNAME}.planx-pla.net`,
       "defaultHeaders": ""
     },
     CDISHelper: {
