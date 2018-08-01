@@ -75,7 +75,7 @@ Running test in $namespace
 HOSTNAME=$HOSTNAME
 
 EOM
-    npm run custom
+    # npm run custom DON'T THINK WE NEED THIS NOW THAT W HAVE codecept.conf.js
     # see https://codecept.io/reports/
     ./node_modules/.bin/codeceptjs run --debug --verbose --reporter mocha-junit-reporter
   )

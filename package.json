@@ -31,8 +31,8 @@
   },
   "scripts": {
     "selenium-install": "selenium-standalone install",
-    "selenium-start": "selenium-standalone start > /dev/null 2>&1 &",
+    "selenium-start": "selenium-standalone start",
     "test": "codeceptjs run --debug --verbose",
-    "custom": "node ./custom/getParameters > codecept.json"
+    "custom": "node ./custom/getParameters > codecept.json",
   }
 }
