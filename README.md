@@ -1,6 +1,8 @@
 # Gen3 Automatic Integration Test
 Test steps are written in steps folder (ie test setup and utility functions) while the details to each test are declared in assertions folder. Two folders `portal` and `apis` contains tests for portal and REST apis respectively.
 
+Some tests are run on the account cdis.autotest@gmail.com. Verify that you have this user added to your user.yaml for the commons you will test. You'll then need to run `gen3 runjob usersync` to update the users.
+
 Testing requires the following environment variables  
 `ACCESS_TOKEN`: used for requests, provided by fence  
 `EXPIRED_ACCESS_TOKEN`: used to test result for expired access token, provided by fence  
