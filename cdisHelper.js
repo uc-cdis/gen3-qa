@@ -56,13 +56,16 @@ const createProgramProject = function() {
 
 class CDISHelper extends Helper {
   async _init() {
-    await createProgramProject()
+    await createProgramProject();
   }
 
   _beforeSuite(suite) {
+    const helper = this.helpers['WebDriverIO'];
+    // get the session id for the web driver
+    global.seleniumSessionId = helper.browser.requestHandler.sessionID;
+    // if not doing an API test, set the access token cookie
     if (!(suite.title.indexOf('API') >= 0))
     {
-      const helper = this.helpers['WebDriverIO'];
       helper.amOnPage('');
       let access_token = process.env.ACCESS_TOKEN;
       helper.setCookie({name: 'access_token', value: access_token});

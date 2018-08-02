@@ -1,3 +1,5 @@
+let request = require('request');
+
 exports.config = {
   output: "./output",
   helpers: {
@@ -38,7 +40,11 @@ exports.config = {
     }
   },
   bootstrap: false,
-  teardown: null,
+  teardown: function(done) {
+    // session id is a global var retrieved in the helper
+    console.log(`Killing Selenium session ${seleniumSessionId}`);
+    request.del(`http://localhost:4444/wd/hub/session/${seleniumSessionId}`);
+  },
   hooks: [],
   tests: "suites/*/*Test.js",
   timeout: 10000,
