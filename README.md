@@ -5,11 +5,11 @@ Test process needs `ACCESS_TOKEN, EXPIRED_ACCESS_TOKEN, INDEX_USERNAME, INDEX_PA
 
 If running gen3-qa locally, make sure you have an open OpenVPN connection to gdc. Then, start a Selenium server with
 ```
-./node_modules/selenium-standalone/bin/selenium-standalone start
+npm selenium-start
 ```
 and then run 
 ```
-bash local_run.sh
+. ./local_run.sh
 ```
 to run the tests. Note that bash local_run.sh will ssh onto a namespace (which is set at the top of the script) to generate these environment variables for testing
 
