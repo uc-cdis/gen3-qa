@@ -14,11 +14,13 @@ get_envs() {
     eval $env_vars
 }
 
+exit_code=0
 # control block to generate new env variables only if the old ones expired
 if [[ -z $TIMESTAMP ]]; then
     echo "No environment variables found, generating new ones"
     get_envs
     exit_code=$?
+    echo $exit_code
 else
     timestamp="$(date +"%s")"
     if [[ "$TIMESTAMP+1800" -lt  "$timestamp" ]]; then
@@ -30,6 +32,6 @@ else
     fi
 fi
 
-if [[ exit_code == 0 ]]; then
+if [[ $exit_code == 0 ]]; then
     npm run test
 fi
