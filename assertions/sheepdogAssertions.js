@@ -13,27 +13,27 @@ const hasEntity = function(res) {
 
 
 module.exports.seeNodePass = function(res) {
-  expect(res).to.have.property('success', true, JSON.stringify(res));
-  expect(res).to.have.property('entity_error_count', 0, JSON.stringify(res));
-  expect(res).to.have.property('transactional_error_count', 0, JSON.stringify(res));
+  expect(res).to.have.property('success', true);
+  expect(res).to.have.property('entity_error_count', 0);
+  expect(res).to.have.property('transactional_error_count', 0);
 };
 
 
 module.exports.seeNodeAddSuccess = function(node) {
   this.seeNodePass(node.add_res);
-  expect(node.add_res).to.have.property('created_entity_count', 1, JSON.stringify(node.add_res));
+  expect(node.add_res).to.have.property('created_entity_count', 1);
 };
 
 
 module.exports.seeNodeDeleteSuccess = function(node) {
   this.seeNodePass(node.delete_res);
-  expect(node.delete_res).to.have.property('deleted_entity_count', 1, JSON.stringify(node.delete_res));
+  expect(node.delete_res).to.have.property('deleted_entity_count', 1);
 };
 
 
 module.exports.seeNodeUpdateSuccess = function(node) {
   this.seeNodePass(node.add_res);
-  expect(node.add_res).to.have.property('updated_entity_count', 1, JSON.stringify(node.add_res));
+  expect(node.add_res).to.have.property('updated_entity_count', 1);
 };
 
 
