@@ -90,7 +90,6 @@ class CDISHelper extends Helper {
         });
     });
     await Promise.all(promises);
-    console.log(test_result.err.stack)
   }
 }
 
