@@ -18,7 +18,7 @@ fi
 namespace=$1
 # run gen3 tools to extract values
 if [[ -n "$GEN3_HOME" ]]; then
-  echo "Acquiring tokens for test authentication"
+  # echo "Acquiring tokens for test authentication"
   if [[ -n "$namespace" && "$namespace" != "default" ]]; then
     export KUBECTL_NAMESPACE="$namespace"
   fi
@@ -49,9 +49,7 @@ fi
 timestamp="$(date +"%s")"
 
 # write environment variables to file
-cat - << EOM > envs_local.txt
-#!/bin/bash
-
+cat - << EOM
 export HOSTNAME=$HOSTNAME
 export ACCESS_TOKEN=$ACCESS_TOKEN
 export EXPIRED_ACCESS_TOKEN=$EXPIRED_ACCESS_TOKEN
