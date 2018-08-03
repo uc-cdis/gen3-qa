@@ -41,6 +41,7 @@ runTest() {
       fi
 
       export ACCESS_TOKEN=$(g3kubectl exec $(gen3 pod fence $namespace) -- fence-create token-create --scopes openid,user,fence,data,credentials --type access_token --exp 1800 --username cdis.autotest@gmail.com)
+      export ADMIN_ACCESS_TOKEN=$(g3kubectl exec $(gen3 pod fence $namespace) -- fence-create token-create --scopes openid,admin,user,fence,data,credentials --type access_token --exp 1800 --username cdis.autotest@gmail.com)
       if [[ $? -ne 0 || -z "$ACCESS_TOKEN" ]]; then
         echo "ERROR: failed to retrieve ACCESS_TOKEN for namespace $namespace"
         return 1

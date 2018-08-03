@@ -93,3 +93,14 @@ module.exports.getAccessToken = function (endpoint, api_key) {
       (res) => res
     );
 };
+
+
+module.exports.listAllUsers = function(access_token) {
+  let headers={
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+    'Authorization': `bearer ${access_token}`
+  };
+  let endpoint = '/user/admin/user'
+  return this.sendGetRequest(endpoint,headers)
+};

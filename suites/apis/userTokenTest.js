@@ -9,6 +9,7 @@ let key_id = null;
 let api_key = null;
 
 let access_token = process.env.ACCESS_TOKEN;
+let admin_access_token = process.env.ADMIN_ACCESS_TOKEN;
 let expired_access_token = process.env.EXPIRED_ACCESS_TOKEN;
 
 Scenario('test create APIKey success', async(I) => {
@@ -17,6 +18,24 @@ Scenario('test create APIKey success', async(I) => {
   expect(api_key_res).to.have.nested.property('body.api_key');
   key_id = api_key_res.body.key_id;
   api_key = api_key_res.body.api_key;
+});
+
+Scenario('test get admin endpoint without admin scope', async(I) => {
+  let res = await I.listAllUsers(access_token);
+  expect(res).to.have.property('statusCode', 401);
+});
+
+
+Scenario('test get admin endpoint with admin scope', async(I) => {
+  let res = await I.listAllUsers(admin_access_token);
+  expect(res).to.have.property('statusCode', 200);
+});
+
+
+Scenario('test create APIKey with disallowed scope', async(I) => {
+  let scope = ['data', 'user', 'credentials'];
+  let api_key_res = await I.createAPIKey('/user/credentials/api/', scope, access_token);
+  expect(res).to.have.property('statusCode', 401);
 });
 
 Scenario('test create APIKey with expired access token', async(I) => {
