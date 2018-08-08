@@ -12,7 +12,7 @@ exports.config = {
           args: [
             "--headless",
             "--disable-gpu",
-            "--window-size=800,600"
+            "--window-size=1000,900"
           ]
         }
       },
@@ -32,7 +32,13 @@ exports.config = {
     }
   },
   include: {
-    I: "./stepsFile.js"
+    I: "./stepsFile.js",
+    // APIs
+    sheepdog: "./actors/apis/sheepdogActor.js",
+
+    // Pages
+    homePage: "./actors/portal/homePage.js",
+    dictPage: "./actors/portal/dictPage.js"
   },
   mocha: {
     reporterOptions: {
@@ -46,7 +52,7 @@ exports.config = {
     request.del(`http://localhost:4444/wd/hub/session/${seleniumSessionId}`);
   },
   hooks: [],
-  tests: "suites/*/*Test.js",
+  tests: "injectionTest.js",
   timeout: 10000,
   name: "selenium"
 };
