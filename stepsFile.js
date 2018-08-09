@@ -18,6 +18,7 @@ const { load } = require('./steps/homepage');
 const { seeHomepageDetails } = require('./assertions/homepageDetails');
 
 const {
+  goToFiles,
   loadFiles,
   clickAFile,
   loadCoreMetadata,
@@ -106,6 +107,7 @@ module.exports = function() {
     seeHomepageDetails: seeHomepageDetails,
 
     // Core Metadata Steps
+    goToFiles: goToFiles,
     loadFiles: loadFiles,
     clickAFile: clickAFile,
     loadCoreMetadata: loadCoreMetadata,

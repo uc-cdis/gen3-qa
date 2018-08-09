@@ -1,8 +1,11 @@
 'use strict';
 
-module.exports.loadFiles = function() {
+module.exports.goToFiles = function() {
   this.load('');
   this.click('Files');
+};
+
+module.exports.loadFiles = function() {
   this.waitForText('Project', 60);
 };
 
