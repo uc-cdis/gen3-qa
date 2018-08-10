@@ -5,20 +5,11 @@ let chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 let expect = chai.expect;
 
+let util = require('./utilApis');
+
 
 Feature('SubmitFileTest');
 
-
-const clone = function(obj) {
-  return JSON.parse(JSON.stringify(obj));
-};
-
-const extractFile = function(nodes) {
-  let file_node_name = Object.keys(nodes).find((node_name) => { return nodes[node_name].category === 'data_file' });
-  let bfd = clone(nodes[file_node_name].data);
-  delete nodes[file_node_name];
-  return bfd;
-};
 
 // list for non data_file nodes
 let nodes, nodes_list;
@@ -30,28 +21,6 @@ let base_file_data;
 
 // Used for holding different file versions for testing. Refreshed before every Scenario
 let files;
-
-const getFiles = function(base_data) {
-  let valid_file = clone(base_data);
-
-  let invalid_prop = clone(base_data);
-  invalid_prop.file_size = "hello";
-
-  let missing_required = clone(base_data);
-  delete missing_required.md5sum;
-
-  return {
-    valid_file: {
-      "data": valid_file
-    },
-    invalid_prop: {
-      "data": invalid_prop
-    },
-    missing_required: {
-      "data": missing_required
-    }
-  };
-};
 
 
 Scenario('test submit file without authentication', async(I) => {
@@ -165,7 +134,7 @@ BeforeSuite(async (I) => {
 
   // Get nodes path and extract the file node
   nodes = I.getNodePathToFile();
-  base_file_data = extractFile(nodes);
+  base_file_data = util.extractFile(nodes);
 
   // Sort the nodes and add them all
   nodes_list = I.sortNodes(Object.values(nodes));
@@ -176,7 +145,7 @@ BeforeSuite(async (I) => {
 
 Before((I) => {
   // reload the files
-  files = getFiles(base_file_data);
+  files = util.getFiles(base_file_data);
 });
 
 
