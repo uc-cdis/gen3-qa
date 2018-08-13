@@ -20,6 +20,14 @@ const { seeHomepageDetails } = require('./assertions/homepageDetails');
 const { loginGoogle } = require('./steps/loginGoogle');
 
 const {
+  seeVisualizations, 
+  seeSQON,
+  dontSeeSQON,
+} = require('./assertions/dataExplorerAssertions');
+
+const { openDataExplorer } = require('./steps/explorer.js');
+
+const {
   addFileIndices,
   createAPIKey,
   deleteAPIKey,
@@ -101,6 +109,14 @@ module.exports = function() {
 
     // Google Steps
     loginGoogle: loginGoogle,
+
+    // Data Explorer Steps
+    openDataExplorer: openDataExplorer,
+
+    // Data Explorer Assertions
+    seeVisualizations: seeVisualizations,
+    seeSQON: seeSQON,
+    dontSeeSQON: dontSeeSQON,
 
     // Fence (??) Steps TODO: some of these functions probably need to be moved into another steps file
     addFileIndices: addFileIndices,

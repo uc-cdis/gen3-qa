@@ -69,6 +69,56 @@ class CDISHelper extends Helper {
       helper.setCookie({name: 'access_token', value: access_token});
     }
   }
+
+  // http://webdriver.io/api/protocol/elements.html
+  elements(selector) {
+    const browser = this.helpers['WebDriverIO'].browser;
+    return browser.elements(selector)
+      .then((res) => {
+        return res.value;
+      })
+      .catch((err) => {
+        return null;
+      });
+  }
+
+  elementIdText(id) {
+    const browser = this.helpers['WebDriverIO'].browser;
+    return browser.elementIdText(id)
+      .then((res) => {
+        return res.value;
+      })
+      .catch((err) => {
+        return null;
+      });
+  }
+
+  // http://webdriver.io/api/protocol/elementIdClick.html
+  elementIdClick(id) {
+    const browser = this.helpers['WebDriverIO'].browser;
+    return browser.elementIdClick(id)
+      .then()
+      .catch((err) => {
+        return null;
+      });
+  }
+
+  // http://webdriver.io/api/protocol/elementIdElement.html
+  elementIdElement(id, selector) {
+    const browser = this.helpers['WebDriverIO'].browser;
+    return browser.elementIdElement(id, selector)
+      .then((res) => {
+        return res.value;
+      })
+      .catch((err) => {
+        return null;
+      });
+  }
+
+  debug() {
+    const browser = this.helpers['WebDriverIO'].browser;
+    browser.debug();
+  }
 }
 
 module.exports = CDISHelper;
