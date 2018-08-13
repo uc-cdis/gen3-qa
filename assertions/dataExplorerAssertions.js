@@ -1,5 +1,7 @@
 'use strict';
 
+let assert = require('assert');
+
 module.exports.seeVisualizations = function () {
   this.seeElement('.data-explorer__visualizations');
 };
@@ -10,4 +12,9 @@ module.exports.seeSQON = function() {
 
 module.exports.dontSeeSQON = function() {
   this.dontSeeElement('.sqon-view');
+}
+
+module.exports.seeArrangerReturnedCorrectly = function(res) {
+  assert.equal(res.status, 200);
+  assert(res.body);
 }

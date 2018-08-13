@@ -23,7 +23,7 @@ Scenario('test exploring data using filters and sqon view', async (I) => {
       await I.elementIdClick(filterableItem.ELEMENT);
       I.seeVisualizations();
       I.seeSQON();
-      await I.wait(5); // wait for filter item refreshed
+      await I.wait(1); // wait for filter item refreshed
     }
   }
 
@@ -35,4 +35,18 @@ Scenario('test exploring data using filters and sqon view', async (I) => {
   await I.click('.sqon-clear');
   I.seeVisualizations();
   I.dontSeeSQON();
+});
+
+Scenario('test arranger service', async I => {
+  let res = await I.pingArranger();
+  I.seeArrangerReturnedCorrectly(res);
+
+  res = await I.arrangerColumnStateQuery();
+  I.seeArrangerReturnedCorrectly(res);
+
+  res = await I.arrangerAggsStateQuery();
+  I.seeArrangerReturnedCorrectly(res);
+
+  res = await I.arrangerSubjectAggregationQuery();
+  I.seeArrangerReturnedCorrectly(res);
 });

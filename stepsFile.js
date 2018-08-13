@@ -23,9 +23,16 @@ const {
   seeVisualizations, 
   seeSQON,
   dontSeeSQON,
+  seeArrangerReturnedCorrectly,
 } = require('./assertions/dataExplorerAssertions');
 
-const { openDataExplorer } = require('./steps/explorer.js');
+const {
+  openDataExplorer,
+  pingArranger,
+  arrangerColumnStateQuery,
+  arrangerAggsStateQuery,
+  arrangerSubjectAggregationQuery,
+} = require('./steps/explorer.js');
 
 const {
   addFileIndices,
@@ -112,11 +119,16 @@ module.exports = function() {
 
     // Data Explorer Steps
     openDataExplorer: openDataExplorer,
+    pingArranger: pingArranger,
+    arrangerColumnStateQuery: arrangerColumnStateQuery,
+    arrangerAggsStateQuery: arrangerAggsStateQuery,
+    arrangerSubjectAggregationQuery: arrangerSubjectAggregationQuery,
 
     // Data Explorer Assertions
     seeVisualizations: seeVisualizations,
     seeSQON: seeSQON,
     dontSeeSQON: dontSeeSQON,
+    seeArrangerReturnedCorrectly: seeArrangerReturnedCorrectly,
 
     // Fence (??) Steps TODO: some of these functions probably need to be moved into another steps file
     addFileIndices: addFileIndices,
