@@ -17,6 +17,13 @@ const { load } = require('./steps/homepage');
 
 const { seeHomepageDetails } = require('./assertions/homepageDetails');
 
+const {
+  goToFiles,
+  loadFiles,
+  clickAFile,
+  loadCoreMetadata,
+} = require('./steps/coremetadatapage');
+
 const { loginGoogle } = require('./steps/loginGoogle');
 
 const {
@@ -98,6 +105,12 @@ module.exports = function() {
 
     // Homepage Assertions
     seeHomepageDetails: seeHomepageDetails,
+
+    // Core Metadata Steps
+    goToFiles: goToFiles,
+    loadFiles: loadFiles,
+    clickAFile: clickAFile,
+    loadCoreMetadata: loadCoreMetadata,
 
     // Google Steps
     loginGoogle: loginGoogle,
