@@ -24,10 +24,13 @@ const {
   seeSQON,
   dontSeeSQON,
   seeArrangerReturnedCorrectly,
+  seeSQONLabelsCountCorrect,
 } = require('./assertions/dataExplorerAssertions');
 
 const {
   openDataExplorer,
+  clickNthFilterTab,
+  clickFirstFilterItemUnderNthGroup,
   pingArranger,
   arrangerColumnStateQuery,
   arrangerAggsStateQuery,
@@ -119,6 +122,8 @@ module.exports = function() {
 
     // Data Explorer Steps
     openDataExplorer: openDataExplorer,
+    clickNthFilterTab: clickNthFilterTab,
+    clickFirstFilterItemUnderNthGroup: clickFirstFilterItemUnderNthGroup,
     pingArranger: pingArranger,
     arrangerColumnStateQuery: arrangerColumnStateQuery,
     arrangerAggsStateQuery: arrangerAggsStateQuery,
@@ -129,6 +134,7 @@ module.exports = function() {
     seeSQON: seeSQON,
     dontSeeSQON: dontSeeSQON,
     seeArrangerReturnedCorrectly: seeArrangerReturnedCorrectly,
+    seeSQONLabelsCountCorrect: seeSQONLabelsCountCorrect,
 
     // Fence (??) Steps TODO: some of these functions probably need to be moved into another steps file
     addFileIndices: addFileIndices,

@@ -5,6 +5,14 @@ module.exports.openDataExplorer = async function() {
   await this.waitForElement('.data-explorer', 10);
 }
 
+module.exports.clickNthFilterTab = async function(n) {
+  await this.click('.filter-group__tab:nth-child(' + n + ')');
+}
+
+module.exports.clickFirstFilterItemUnderNthGroup = async function(n) {
+  await this.click('.aggregation-card:nth-child(' + n + ') .bucket-item');
+}
+
 const BASE_URL = '/api/v0/flat-search/search/graphql';
 
 let postRequest = async function(endpoint, payload) {

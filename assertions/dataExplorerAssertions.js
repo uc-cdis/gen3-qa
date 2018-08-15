@@ -10,6 +10,10 @@ module.exports.seeSQON = function() {
   this.seeElement('.sqon-view')
 }
 
+module.exports.seeSQONLabelsCountCorrect = function(n) {
+  this.waitNumberOfVisibleElements('.sqon-value', n, 10);
+}
+
 module.exports.dontSeeSQON = function() {
   this.dontSeeElement('.sqon-view');
 }
