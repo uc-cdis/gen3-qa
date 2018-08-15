@@ -1,6 +1,6 @@
 Feature('Data Explorer');
 
-Scenario('test exploring data using filters and sqon view', async (I) => {
+Scenario('test exploring data using filters and sqon view @explorer-only', async (I) => {
   await I.openDataExplorer();
   I.seeVisualizations();
 
@@ -33,7 +33,7 @@ Scenario('test exploring data using filters and sqon view', async (I) => {
   I.dontSeeSQON();
 });
 
-Scenario('test arranger service', async I => {
+Scenario('test arranger service @explorer-only', async I => {
   let res = await I.pingArranger();
   I.seeArrangerReturnedCorrectly(res);
 
