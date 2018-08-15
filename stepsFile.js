@@ -27,6 +27,24 @@ const {
 const { loginGoogle } = require('./steps/loginGoogle');
 
 const {
+  seeVisualizations, 
+  seeSQON,
+  dontSeeSQON,
+  seeArrangerReturnedCorrectly,
+  seeSQONLabelsCountCorrect,
+} = require('./assertions/dataExplorerAssertions');
+
+const {
+  openDataExplorer,
+  clickNthFilterTab,
+  clickFirstFilterItemUnderNthGroup,
+  pingArranger,
+  arrangerColumnStateQuery,
+  arrangerAggsStateQuery,
+  arrangerSubjectAggregationQuery,
+} = require('./steps/explorer.js');
+
+const {
   addFileIndices,
   createAPIKey,
   deleteAPIKey,
@@ -114,6 +132,22 @@ module.exports = function() {
 
     // Google Steps
     loginGoogle: loginGoogle,
+
+    // Data Explorer Steps
+    openDataExplorer: openDataExplorer,
+    clickNthFilterTab: clickNthFilterTab,
+    clickFirstFilterItemUnderNthGroup: clickFirstFilterItemUnderNthGroup,
+    pingArranger: pingArranger,
+    arrangerColumnStateQuery: arrangerColumnStateQuery,
+    arrangerAggsStateQuery: arrangerAggsStateQuery,
+    arrangerSubjectAggregationQuery: arrangerSubjectAggregationQuery,
+
+    // Data Explorer Assertions
+    seeVisualizations: seeVisualizations,
+    seeSQON: seeSQON,
+    dontSeeSQON: dontSeeSQON,
+    seeArrangerReturnedCorrectly: seeArrangerReturnedCorrectly,
+    seeSQONLabelsCountCorrect: seeSQONLabelsCountCorrect,
 
     // Fence (??) Steps TODO: some of these functions probably need to be moved into another steps file
     addFileIndices: addFileIndices,
