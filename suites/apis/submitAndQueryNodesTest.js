@@ -1,16 +1,6 @@
 'use strict';
 
-let chai = require('chai');
-let chaiAsPromised = require('chai-as-promised');
-chai.use(chaiAsPromised);
-let expect = chai.expect;
-
-
 Feature('SubmitAndQueryNodesTest');
-
-const getFieldOfType = function(object, field_type) {
-  return Object.keys(object).find((key) => { return typeof object[key] === field_type })
-};
 
 // Nodes, sorted hierarchically by key. Refreshed before each scenario
 let nodes, nodes_list;
@@ -19,96 +9,60 @@ let second_node;
 let last_node;
 
 
-Scenario('test node submit unauthenticated', async(I) => {
-  return expect(I.sendPostRequest(
-    I.getSheepdogRoot(), JSON.stringify(first_node), "")
-    .then(
-      (res) => {
-        return res.body.message;
-      }
-    ))
-    .to.eventually.equal("You don't have access to this data: No authentication is provided");
+Scenario('submit and delete node', async(sheepdog) => {
+  await sheepdog.complete.addNode(first_node);
+  await sheepdog.complete.deleteNode(first_node);
 });
 
 
-Scenario('test node submit/delete', async(I) => {
-  await I.addNode(I.getSheepdogRoot(), first_node);
-  I.seeNodeAddSuccess(first_node);
-
-  await I.deleteNode(I.getSheepdogRoot(), first_node);
-  I.seeNodeDeleteSuccess(first_node);
+Scenario('submit and delete node path', async(sheepdog) => {
+  await sheepdog.complete.addNodes(nodes_list);
+  await sheepdog.complete.deleteNodes(nodes_list);
 });
 
 
-Scenario('test submit/delete node path', async(I) => {
-  await I.addNodes(I.getSheepdogRoot(), nodes_list);
-  I.seeAllNodesAddSuccess(nodes_list);
-
-  await I.deleteNodes(I.getSheepdogRoot(), nodes_list, false);
-  I.seeAllNodesDeleteSuccess(nodes_list);
-});
-
-
-Scenario('test graphQL not authenticated', async(I) => {
-  return expect(I.sendPostRequest(
-    "/api/v0/submission/graphql", JSON.stringify({query: null, variables: null}), "")
-    .then(
-      (res) => {
-        return res.body.message;
-      }
-    ))
-    .to.eventually.equal("You don't have access to this data: No authentication is provided");
-});
-
-
-Scenario('test graphQL simple query', async(I) => {
-  await I.addNode(I.getSheepdogRoot(), first_node);
-  I.seeNodeAddSuccess(first_node);
+Scenario('make simple query', async(sheepdog, peregrine) => {
+  await sheepdog.complete.addNode(first_node);
 
   let q = `query Test { alias1: ${first_node.data.type} { id } }`;
-  let res = await I.makeGraphQLQuery(q, null);
-  I.seeNumberOfGraphQLField(res, 'alias1', 1);
+  let res = await peregrine.do.query(q, null);
+  peregrine.ask.hasFieldCount(res, 'alias1', 1);
 
-  await I.deleteNode(I.getSheepdogRoot(), first_node);
-  I.seeNodeDeleteSuccess(first_node);
+  await sheepdog.complete.deleteNode(first_node);
 });
 
 
-Scenario('test graphQL all node fields', async(I) => {
+Scenario('query all node fields', async(sheepdog, peregrine) => {
   // add all nodes
-  await I.addNodes(I.getSheepdogRoot(), nodes_list);
-  I.seeAllNodesAddSuccess(nodes_list);
+  await sheepdog.do.addNodes(nodes_list);
 
   // make query for each node (including all fields of each node)
-  let filter_string;
   let results = {};
-  for(let type_name of Object.keys(nodes)) {
-    // filter by submitter_id
-    filter_string = `submitter_id: "${nodes[type_name].data.submitter_id}"`;
-    results[type_name] = await I.makeGraphQLNodeQuery(type_name, nodes[type_name], filter_string);
+  for (let node of nodes_list) {
+    // make query for node type and include all attributes
+    results[node.name] = await peregrine.do.queryNodeFields(node);
   }
 
   // expect each node query's fields to equal those of each original node
-  I.seeAllGraphQLNodesEqual(nodes, results);
+  peregrine.ask.queryResultsEqualNodes(results, nodes_list);
 
   // remove nodes
-  await I.deleteNodes(I.getSheepdogRoot(), nodes_list);
-  I.seeAllNodesDeleteSuccess(nodes_list);
+  await sheepdog.complete.deleteNodes(nodes_list);
 });
 
 
-Scenario('test node submit without parent', async(I) => {
+Scenario('submit node without parent', async(sheepdog, peregrine) => {
   // verify parent node does not exist
-  let parent_res = await I.makeGraphQLNodeQuery(first_node.data.type, first_node, null);
-  I.seeNumberOfGraphQLField(parent_res, first_node.data.type, 0);
+  let parent_res = await peregrine.do.queryNodeFields(first_node);
+  peregrine.ask.hasFieldCount(parent_res, first_node.name, 0);
 
   // try adding the second node
-  await I.addNode(I.getSheepdogRoot(), second_node);
-  I.seeSheepdogHasEntityError(second_node.add_res, 'INVALID_LINK');
+  await sheepdog.do.addNode(second_node);
+  sheepdog.ask.hasEntityError(second_node.add_res, 'INVALID_LINK');
 });
 
 
-Scenario('test graphQL invalid field', async(I) => {
+Scenario('query on invalid field', async(peregrine) => {
   let invalid_field = 'abcdefg';
   let node_type = first_node.data.type;
   let q = `{
@@ -117,32 +71,31 @@ Scenario('test graphQL invalid field', async(I) => {
     }
   }`;
 
-  let res = await I.makeGraphQLQuery(q, null);
-
-  I.seeGraphQLHasError(res, `Cannot query field "${invalid_field}" on type "${node_type}".`);
+  let res = await peregrine.do.query(q, null);
+  peregrine.ask.hasError(res, `Cannot query field "${invalid_field}" on type "${node_type}".`);
 });
 
 
-Scenario('test graphQL filter by string attribute', async(I) => {
-  // add all nodes
-  await I.addNodes(I.getSheepdogRoot(), nodes_list);
-  I.seeAllNodesAddSuccess(nodes_list);
+Scenario('filter query by string attribute', async(sheepdog, peregrine) => {
+  await sheepdog.complete.addNodes(nodes_list);
 
-  let test_node = first_node;
-  let test_field = getFieldOfType(test_node.data, 'string');
-  let filter_string = `${test_field}: "${test_node.data[test_field]}"`;
-  let res = await I.makeGraphQLNodeQuery(test_node.data.type, test_node, filter_string);
+  let test_field = getFieldOfType(first_node.data, 'string');
+  let q = `{
+    ${first_node.name} (${test_field}: "${first_node.data[test_field]}") {
+      id
+    }
+  }`;
+  let res = await peregrine.do.query(q, null);
+  peregrine.ask.hasFieldCount(res, first_node.name, 1);
 
-  I.seeNumberOfGraphQLField(res, test_node.data.type, 1);
-
-  await I.deleteNodes(I.getSheepdogRoot(), nodes_list);
+  await sheepdog.complete.deleteNodes(nodes_list);
 });
 
 
 // FIXME: This is a known bug that needs to be fixed. See PXD-1195
-Scenario('test graphQL filter by boolean attribute', async(I) => {
+Scenario('filter query by boolean attribute', async(commons, peregrine) => {
   // This test assumes that projects in all commons will have a boolean attribute 'releasable'
-  let boolean_state = I.getProject()['releasable'];
+  let boolean_state = commons.project['releasable'];
   let q = `
   {
    project(releasable: ${boolean_state}) {
@@ -150,130 +103,100 @@ Scenario('test graphQL filter by boolean attribute', async(I) => {
    }
   }
   `;
-  let res = await I.makeGraphQLQuery(q, null);
+  let res = await peregrine.do.query(q, null);
   // TODO: remove try/catch once bug is fixed
   try {
-    I.seeNumberOfGraphQLField(res, 'project', 1)
+    peregrine.ask.hasFieldCount(res, 'project', 1)
   } catch(e) {
     console.log("WARNING: test graphQL filter by boolean attribute is FAILING (See PXD-1195): " + e.message)
   }
 });
 
 
-Scenario('test graphQL count', async(I) => {
-  // Count instances of each type
+Scenario('test _[field]_count filter', async(peregrine, sheepdog) => {
+  // Count number of each node type
   let previous_counts = {};
-  for (let type_name of Object.keys(nodes)) {
-    previous_counts[type_name] = await I.graphQLCountType(type_name);
+  for (let node of nodes_list) {
+    previous_counts[node.name] = await peregrine.do.queryCount(node);
   }
-  I.seeAllGraphQLPass(previous_counts);
 
   // add all nodes
-  await I.addNodes(I.getSheepdogRoot(), nodes_list);
-  I.seeAllNodesAddSuccess(nodes_list);
+  await sheepdog.complete.addNodes(nodes_list);
 
-  // verify count has increased by 1 for all nodes
+  // requery the nodes for count
   let new_counts = {};
-  for (let type_name of Object.keys(nodes)) {
-    new_counts[type_name] = await I.graphQLCountType(type_name);
+  for (let node of nodes_list) {
+    new_counts[node.name] = await peregrine.do.queryCount(node)
   }
-  I.seeAllGraphQLNodeCountIncrease(previous_counts, new_counts);
 
-  await I.deleteNodes(I.getSheepdogRoot(), nodes_list);
+  // expect all node counts to increase by 1
+  peregrine.ask.allCountsIncrease(previous_counts, new_counts);
+
+  await sheepdog.complete.deleteNodes(nodes_list);
 });
 
 
-Scenario('test graphQL project id filter', async(I) => {
+Scenario('filter by project_id', async(peregrine, sheepdog, commons) => {
   // add the nodes
-  await I.addNodes(I.getSheepdogRoot(), nodes_list);
-  I.seeAllNodesAddSuccess(nodes_list);
+  await sheepdog.complete.addNodes(nodes_list);
 
   let results = {};
-  let filter_string;
-  for(let type_name of Object.keys(nodes)) {
-    // filter by project id
-    filter_string = `project_id: "${I.getProgramName()}-${I.getProjectName()}"`;
-    results[type_name] = await I.makeGraphQLNodeQuery(type_name, nodes[type_name], filter_string);
+  let filters = {
+    project_id: `${commons.program.name}-${commons.project.name}`
+  };
+  for(let node of nodes_list) {
+    results[node.name] = await peregrine.do.queryNodeFields(node, filters);
   }
-  I.seeAllGraphQLNodesEqual(nodes, results);
+  peregrine.ask.queryResultsEqualNodes(results, nodes_list);
 
   // remove nodes
-  await I.deleteNodes(I.getSheepdogRoot(), nodes_list);
-  I.seeAllNodesDeleteSuccess(nodes_list);
+  await sheepdog.complete.deleteNodes(nodes_list);
 });
 
 
-Scenario('test graphQL with_path_to first to last node', async(I) => {
-  // add all nodes
-  await I.addNodes(I.getSheepdogRoot(), nodes_list);
-  I.seeAllNodesAddSuccess(nodes_list);
-
-  let start_node = first_node.data;
-  let end_node = last_node.data;
-  let q = `query Test {
-    ${start_node.type} (
-      order_by_desc: "created_datetime",
-        with_path_to: {
-            type: "${end_node.type}", submitter_id: "${end_node.submitter_id}"
-        }
-    ) {
-      submitter_id
-    }
-  }`;
-
-  let res = await I.makeGraphQLQuery(q, null);
-  I.seeNumberOfGraphQLField(res, start_node.type, 1);
-
-  await I.deleteNodes(I.getSheepdogRoot(), nodes_list);
-  I.seeAllNodesDeleteSuccess(nodes_list);
-});
-
-
-Scenario('test graphQL path filter bad filter', async(I) => {
-  await I.addNode(I.getSheepdogRoot(), first_node);
-  I.seeNodeAddSuccess(first_node);
+Scenario('filter by invalid project_id', async(peregrine, sheepdog) => {
+  await sheepdog.complete.addNode(first_node);
 
   // filter by a nonexistent project id
-  let filter_string = `project_id: "NOT-EXISTS"`;
-  let res = await I.makeGraphQLNodeQuery(first_node.data.type, first_node, filter_string);
-  I.seeNumberOfGraphQLField(res, first_node.data.type, 0);
+  let filters = {
+    project_id: "NOT-EXIST"
+  };
+  let res = await peregrine.do.queryNodeFields(first_node, filters);
+  peregrine.ask.hasFieldCount(res, first_node.name, 0);
 
-  // remove nodes
-  await I.deleteNodes(I.getSheepdogRoot(), nodes_list);
+  await sheepdog.do.deleteNode(first_node);
+});
+
+
+Scenario('test with_path_to - first to last node', async(peregrine, sheepdog) => {
+  await sheepdog.complete.addNodes(nodes_list);
+
+  let res = await peregrine.do.queryWithPathTo(first_node, last_node);
+  peregrine.ask.hasFieldCount(res, first_node.name, 1);
+
+  await sheepdog.complete.deleteNodes(nodes_list);
 });
 
 
 // FIXME: This is a known bug that needs to be fixed. See PXD-1196
-Scenario('test graphQL with_path_to last to first node', async(I) => {
-  // add all nodes
-  await I.addNodes(I.getSheepdogRoot(), nodes_list);
-  I.seeAllNodesAddSuccess(nodes_list);
-
-  let start_node = last_node.data;
-  let end_node = first_node.data;
-  let q = `query Test {
-    ${start_node.type} (
-      order_by_desc: "created_datetime",
-        with_path_to: {
-            type: "${end_node.type}", submitter_id: "${end_node.submitter_id}"
-        }
-    ) {
-      submitter_id
-    }
-  }`;
+Scenario('test graphQL with_path_to last to first node', async(peregrine, sheepdog) => {
+  await sheepdog.complete.addNodes(nodes_list);
 
   // TODO: remove try/catch once bug is fixed
-  let res = await I.makeGraphQLQuery(q, null);
   try {
-    I.seeNumberOfGraphQLField(res, start_node.type, 1)
+    let res = await peregrine.do.queryWithPathTo(first_node, last_node);
+    peregrine.ask.hasFieldCount(res, first_node.name, 1);
   } catch(e) {
     console.log("WARNING: test graphQL with_path_to last to first node is FAILING (See PXD-1196): " + e.message)
   }
 
-  await I.deleteNodes(I.getSheepdogRoot(), nodes_list);
-  I.seeAllNodesDeleteSuccess(nodes_list);
+  await sheepdog.complete.deleteNodes(nodes_list);
 });
 
+
+const _getFieldOfType = function(object, field_type) {
+  return Object.keys(object).find((key) => { return typeof object[key] === field_type })
+};
 
 BeforeSuite(async (I) => {
   // try to clean up any leftover nodes

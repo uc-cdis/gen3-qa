@@ -1,47 +1,42 @@
-let chai = require('chai');
-let chaiAsPromised = require('chai-as-promised');
-chai.use(chaiAsPromised);
-let expect = chai.expect;
+'use strict';
 
 Feature('UserTokenAPI');
 
 let key_id = null;
 let api_key = null;
 
-let access_token = process.env.ACCESS_TOKEN;
-let expired_access_token = process.env.EXPIRED_ACCESS_TOKEN;
-
-Scenario('test create APIKey success', async(I) => {
+Scenario('test create APIKey success @current', async(fence, commons) => {
   let scope = ['data', 'user'];
-  let api_key_res = await I.createAPIKey('/user/credentials/api/', scope, access_token);
-  expect(api_key_res).to.have.nested.property('body.api_key');
+  let api_key_res = await fence.do.createAPIKey(scope, commons.expiredAccessTokenHeader);
+  fence.ask.hasAPIKey(api_key_res);
   key_id = api_key_res.body.key_id;
   api_key = api_key_res.body.api_key;
 });
 
-Scenario('test create APIKey with expired access token', async(I) => {
+Scenario('create APIKey with expired access token @current', async(fence, commons) => {
   let scope = ['data', 'user'];
-  let api_key_res = await I.createAPIKey('/user/credentials/api/', scope, expired_access_token);
-  I.seeFenceHasError(api_key_res, 401, 'Authentication Error: Signature has expired');
+  let api_key_res = await fence.do.createAPIKey(scope, commons.expiredAccessTokenHeader);
+  fence.ask.hasError(api_key_res, 401, 'Authentication Error: Signature has expired');
 });
 
-Scenario('test refresh access token with api_key', async(I) => {
-  let access_token_res = await I.getAccessToken('/user/credentials/api/access_token', api_key);
-  expect(access_token_res).has.nested.property('body.access_token');
+Scenario('refresh access token with api_key @current', async(fence) => {
+  let access_token_res = await fence.do.getAccessToken(api_key);
+  fence.ask.hasAccessToken(access_token_res);
 });
 
-Scenario('test refresh access token with invalid api_key', async(I) => {
-  let access_token_res = await I.getAccessToken('/user/credentials/api/access_token', 'invalid');
-  I.seeFenceHasError(access_token_res, 401, 'Not enough segments')
+Scenario('refresh access token with invalid api_key @current', async(fence) => {
+  let access_token_res = await fence.do.getAccessToken('invalid');
+  fence.ask.hasError(access_token_res, 401, 'Not enough segments')
 });
 
-Scenario('test refresh access token without api_key', async(I) => {
-  let access_token_res = await I.getAccessToken('/user/credentials/api/access_token', null);
-  I.seeFenceHasError(access_token_res, 400, 'Please provide an api_key in payload');
+Scenario('test refresh access token without api_key @current', async(fence) => {
+  let access_token_res = await fence.do.getAccessToken(null);
+  fence.ask.hasError(access_token_res, 400, 'Please provide an api_key in payload');
 });
 
-AfterSuite((I) => {
-  if (key_id !== null){
-    I.deleteAPIKey('/user/credentials/cdis/', key_id);
+AfterSuite((fence) => {
+  if (key_id !== null) {
+    fence.do.deleteAPIKey(key_id);
+    // I.deleteAPIKey('/user/credentials/cdis/', key_id);
   }
 });
