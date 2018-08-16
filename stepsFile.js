@@ -8,10 +8,16 @@ const{
   getProjectName,
   getIndexdRoot,
   getSheepdogRoot,
+  getCoreMetadataRoot,
   getAllNodes,
   getNodePathToFile,
   sortNodes,
 } = require('./steps/utilSteps');
+
+const{
+  clone,
+  extractFile,
+} = require('./suites/apis/utilApis');
 
 const { load } = require('./steps/homepage');
 
@@ -104,6 +110,14 @@ const {
   seeAllGraphQLNodeCountIncrease,
 } = require('./assertions/peregrineAssertions');
 
+const { getCoremetadata } = require('./steps/pidginAPI');
+
+const {
+  seeJsonCoremetadata,
+  seeBibtexCoremetadata,
+  seePidginError,
+} = require('./assertions/pidginAssertions');
+
 
 module.exports = function() {
   return actor({
@@ -114,9 +128,14 @@ module.exports = function() {
     getProjectName: getProjectName,
     getIndexdRoot: getIndexdRoot,
     getSheepdogRoot: getSheepdogRoot,
+    getCoreMetadataRoot: getCoreMetadataRoot,
     getAllNodes: getAllNodes,
     getNodePathToFile: getNodePathToFile,
     sortNodes: sortNodes,
+
+    // Util Apis
+    clone: clone,
+    extractFile: extractFile,
 
     // Homepage Steps
     load: load,
@@ -202,6 +221,14 @@ module.exports = function() {
     seeGraphQLNodeEqual: seeGraphQLNodeEqual,
     seeAllGraphQLNodesEqual: seeAllGraphQLNodesEqual,
     seeGraphQLNodeCountIncrease: seeGraphQLNodeCountIncrease,
-    seeAllGraphQLNodeCountIncrease: seeAllGraphQLNodeCountIncrease
+    seeAllGraphQLNodeCountIncrease: seeAllGraphQLNodeCountIncrease,
+
+    // Pidgin Steps
+    getCoremetadata: getCoremetadata,
+
+    // Pidgin Assertions
+    seeJsonCoremetadata: seeJsonCoremetadata,
+    seeBibtexCoremetadata: seeBibtexCoremetadata,
+    seePidginError: seePidginError,
   });
 };

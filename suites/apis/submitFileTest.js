@@ -5,20 +5,11 @@ let chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 let expect = chai.expect;
 
+let util = require('./utilApis');
+
 
 Feature('SubmitFileTest');
 
-
-const clone = function(obj) {
-  return JSON.parse(JSON.stringify(obj));
-};
-
-const extractFile = function(nodes) {
-  let file_node_name = Object.keys(nodes).find((node_name) => { return nodes[node_name].category === 'data_file' });
-  let bfd = clone(nodes[file_node_name].data);
-  delete nodes[file_node_name];
-  return bfd;
-};
 
 // list for non data_file nodes
 let nodes, nodes_list;
@@ -52,7 +43,6 @@ const getFiles = function(base_data) {
     }
   };
 };
-
 
 Scenario('test submit file without authentication', async(I) => {
   let endpoint = I.getSheepdogRoot();
@@ -165,7 +155,7 @@ BeforeSuite(async (I) => {
 
   // Get nodes path and extract the file node
   nodes = I.getNodePathToFile();
-  base_file_data = extractFile(nodes);
+  base_file_data = util.extractFile(nodes);
 
   // Sort the nodes and add them all
   nodes_list = I.sortNodes(Object.values(nodes));
@@ -176,7 +166,7 @@ BeforeSuite(async (I) => {
 
 Before((I) => {
   // reload the files
-  files = getFiles(base_file_data);
+  files = util.getFiles(base_file_data);
 });
 
 
