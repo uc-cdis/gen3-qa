@@ -3,25 +3,16 @@
 let util = require('./utilSteps');
 let accessTokenHeader = util.getAccessTokenHeader();
 
-module.exports.getJsonCoremetadata = async function(coremetadata_endpoint, file, access_token = accessTokenHeader) {
+module.exports.getCoremetadata = async function(file, format = 'json', access_token = accessTokenHeader) {
+
+  let accept = (format == 'bibtex' ? 'x-bibtex' : 'application/json');
   let token = {
-    'Accept': 'application/json',
+    'Accept': accept,
     'Authorization': access_token['Authorization']
   };
-  return this.sendGetRequest(`${coremetadata_endpoint}${file.did}`, token).then(
-    (res) => {
-      file.rev = res.body.rev;
-      return res.body;
-    }
-  )
-};
 
-module.exports.getBibtexCoremetadata = async function(coremetadata_endpoint, file) {
-  let token = {
-    'Accept': 'x-bibtex',
-    'Authorization': accessTokenHeader['Authorization']
-  };
-  return this.sendGetRequest(`${coremetadata_endpoint}${file.did}`, token).then(
+  let endpoint = this.getCoreMetadataRoot();
+  return this.sendGetRequest(`${endpoint}${file.did}`, token).then(
     (res) => {
       file.rev = res.body.rev;
       return res.body;

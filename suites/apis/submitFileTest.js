@@ -22,6 +22,27 @@ let base_file_data;
 // Used for holding different file versions for testing. Refreshed before every Scenario
 let files;
 
+const getFiles = function(base_data) {
+  let valid_file = clone(base_data);
+
+  let invalid_prop = clone(base_data);
+  invalid_prop.file_size = "hello";
+
+  let missing_required = clone(base_data);
+  delete missing_required.md5sum;
+
+  return {
+    valid_file: {
+      "data": valid_file
+    },
+    invalid_prop: {
+      "data": invalid_prop
+    },
+    missing_required: {
+      "data": missing_required
+    }
+  };
+};
 
 Scenario('test submit file without authentication', async(I) => {
   let endpoint = I.getSheepdogRoot();

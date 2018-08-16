@@ -15,7 +15,7 @@ const{
 } = require('./steps/utilSteps');
 
 const{
-  getFiles,
+  clone,
   extractFile,
 } = require('./suites/apis/utilApis');
 
@@ -85,10 +85,7 @@ const {
   seeAllGraphQLNodeCountIncrease,
 } = require('./assertions/peregrineAssertions');
 
-const {
-  getJsonCoremetadata,
-  getBibtexCoremetadata,
-} = require('./steps/pidginAPI');
+const { getCoremetadata } = require('./steps/pidginAPI');
 
 const {
   seeJsonCoremetadata,
@@ -112,8 +109,8 @@ module.exports = function() {
     sortNodes: sortNodes,
 
     // Util Apis
-    getFiles: getFiles,
-    extractFile,
+    clone: clone,
+    extractFile: extractFile,
 
     // Homepage Steps
     load: load,
@@ -180,8 +177,7 @@ module.exports = function() {
     seeAllGraphQLNodeCountIncrease: seeAllGraphQLNodeCountIncrease,
 
     // Pidgin Steps
-    getJsonCoremetadata: getJsonCoremetadata,
-    getBibtexCoremetadata: getBibtexCoremetadata,
+    getCoremetadata: getCoremetadata,
 
     // Pidgin Assertions
     seeJsonCoremetadata: seeJsonCoremetadata,
