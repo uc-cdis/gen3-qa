@@ -39,6 +39,7 @@ const files = {
   },
 };
 
+
 Scenario('get presigned-url', async(I, fence) => {
   let signed_url_res = await fence.do.createSignedUrl(files.allowed.did);
   await fence.complete.checkFileEquals(signed_url_res, 'Hi Zac!\ncdis-data-client uploaded this!\n');

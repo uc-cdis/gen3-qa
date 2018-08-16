@@ -2,16 +2,14 @@
 
 Feature('SubmitFileTest');
 
-// list for non data_file nodes
-let nodes, nodes_list;
-// data used to construct valid and invalid files
+// Used to construct valid and invalid file nodes
 let base_file_node;
 // Used for holding different file versions for testing. Refreshed before every Scenario
 let files;
 // Used adding url to file nodes
 let test_url = "s3://cdis-presigned-url-test/testdata";
 
-Scenario('submit and delete file', async(sheepdog, indexd) => {
+Scenario('submit and delete file @asdfg', async(sheepdog, indexd) => {
   // submit basic file without url
   await sheepdog.complete.addNode(files.valid_file);
   await indexd.complete.checkFile(files.valid_file);
@@ -70,24 +68,13 @@ Scenario('update file with invalid property', async(sheepdog, indexd) => {
 });
 
 
-const _clone = function(obj) {
-  return JSON.parse(JSON.stringify(obj));
-};
-
-const _extractFile = function(nodes) {
-  let file_node_name = Object.keys(nodes).find((node_name) => { return nodes[node_name].category === 'data_file' });
-  let file_node = _clone(nodes[file_node_name]);
-  delete nodes[file_node_name];
-  return file_node;
-};
-
 const _makeFiles = function(base_node) {
-  let valid_file = _clone(base_node);
+  let valid_file = base_node.clone();
 
-  let invalid_prop = _clone(base_node);
+  let invalid_prop = base_node.clone();
   invalid_prop.data.file_size = "hello";
 
-  let missing_required = _clone(base_node);
+  let missing_required = base_node.clone();
   delete missing_required.data.md5sum;
 
   return {
@@ -97,30 +84,25 @@ const _makeFiles = function(base_node) {
   };
 };
 
-BeforeSuite(async (I, sheepdog) => {
+BeforeSuite(async (sheepdog, nodes) => {
   // Cleanup any leftover nodes from previous Suites
-  await I.findDeleteAllNodes();
+  await sheepdog.complete.findDeleteAllNodes();
 
-  // Get nodes path and extract the file node
-  nodes = I.getNodePathToFile();
-  base_file_node = _extractFile(nodes);
-
-  // Sort the nodes and add them all
-  nodes_list = I.sortNodes(Object.values(nodes));
-  await I.addNodes(I.getSheepdogRoot(), Object.values(nodes));
-  I.seeAllNodesAddSuccess(Object.values(nodes));
+  // add nodes up to, but not including, the file node
+  await sheepdog.complete.addNodes(nodes.toFileAsList);
+  base_file_node = nodes.fileNode;
 });
 
 
 Before(() => {
-  // reload the files
+  // clone the base file for "clean" files to work with before each test
   files = _makeFiles(base_file_node);
 });
 
 
-AfterSuite(async (I, sheepdog) => {
-  await sheepdog.complete.deleteNodes(nodes_list);
+AfterSuite(async (sheepdog, nodes) => {
+  await sheepdog.complete.deleteNodes(nodes.toFileAsList);
 
   // try to delete anything else that may be remaining
-  await I.findDeleteAllNodes();
+  await sheepdog.complete.findDeleteAllNodes();
 });

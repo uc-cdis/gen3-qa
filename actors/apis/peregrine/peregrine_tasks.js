@@ -1,6 +1,7 @@
 'use strict';
   
 const peregrine_props = require('./peregrine_props.js');
+const commons_helper = require('../../commons_helper.js');
 let I = actor();
 
 const _fieldsToString = (obj) => {
@@ -37,7 +38,7 @@ module.exports = {
       JSON.stringify(
         {query: query_string, variables: variables_string}
       ),
-      peregrine_props.validAccessTokenHeader)
+      commons_helper.validAccessTokenHeader)
       .then( (res) => res.body )
   },
 

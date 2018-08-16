@@ -32,10 +32,9 @@ exports.config = {
     }
   },
   include: {
-    I: "./stepsFile.js",
-
     // General Helpers
-    commons: "./commons_helper.js",
+    commons: "./actors/commons_helper.js",
+    nodes: "./actors/nodes_helper.js",
 
     // APIs
     sheepdog: "./actors/apis/sheepdog/sheepdog_actor.js",
@@ -44,8 +43,8 @@ exports.config = {
     fence: "./actors/apis/fence/fence_actor.js",
 
     // Pages
-    dictPage: "./actors/portal/dict/dict_actor.js",
-    homePage: "./actors/portal/home/home_actor.js"
+    dict: "./actors/portal/dict/dict_actor.js",
+    home: "./actors/portal/home/home_actor.js"
   },
   mocha: {
     reporterOptions: {
@@ -59,7 +58,7 @@ exports.config = {
     request.del(`http://localhost:4444/wd/hub/session/${seleniumSessionId}`);
   },
   hooks: [],
-  tests: "./suites/*/*Test.js",
+  tests: "./suites/*/*.js",
   timeout: 10000,
   name: "selenium"
 };

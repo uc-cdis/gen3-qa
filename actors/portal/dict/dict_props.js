@@ -5,7 +5,7 @@ module.exports = {
   path: '/dd',
 
   ready_cue: {
-    locators: {
+    locator: {
       css: '.data-dictionary__table'
     }
   },
@@ -13,21 +13,21 @@ module.exports = {
   // Page Elements
   tables: {
     context: '.main-content',
-    locators: {
+    locator: {
       css: '.data-dictionary__table'
     }
   },
 
   graphToggle: {
     context: '.sc-jTzLTM',
-    locators: {
+    locator: {
       xpath: '//a[contains(text(), "Explore dictionary")]'
     }
   },
 
   generalItemDetails: {
     context: '.sc-brqgnP',
-    locators: {
+    locator: {
       css: '.data-dictionary__table-data'
     }
   }

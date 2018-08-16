@@ -1,14 +1,19 @@
-let I = actor();
+'use strict';
+  
+const home_tasks = require('./home_tasks.js');
+const home_questions = require('./home_questions.js');
+const home_props = require('./home_props.js');
+const home_sequences = require('./home_sequences.js');
 
 /**
- * Homepage Actor
+ * home Actor
  */
 module.exports = {
-  props: "hi",
-  do: {
-    goTo() {
-      I.amOnPage('');
-      I.waitForText('Data Commons', 5)
-    }
-  }
+  props: home_props,
+
+  do: home_tasks,
+
+  ask: home_questions,
+  
+  complete: home_sequences
 };

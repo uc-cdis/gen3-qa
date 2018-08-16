@@ -1,11 +1,11 @@
 'use strict';
 
-let util = require('../../../steps/utilSteps');
+let commons_helper = require('../../commons_helper.js')
 
 /**
  * Sheepdog Properties
  */
-const api_root = `/api/v0/submission/${util.getProgramName()}/${util.getProjectName()}`;
+const api_root = `/api/v0/submission/${commons_helper.program.name}/${commons_helper.project.name}`;
 module.exports = {
   // API Config
   endpoints: {
@@ -14,8 +14,6 @@ module.exports = {
     delete: `${api_root}/entities`,
     describe: `${api_root}/export`
   },
-  validAccessTokenHeader: util.getAccessTokenHeader(),
-  // expiredAccessTokenHeader: util.getExpiredTokenHeader(),
 
   resultSuccess: {
     code: 200,

@@ -6,7 +6,7 @@ chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 
 const peregrine_props = require('./peregrine_props.js');
-const generic_actor = require('../generic_actor.js');
+const api_helper = require('../api_helper.js');
 
 /**
  * peregrine helpers
@@ -70,11 +70,11 @@ module.exports = {
     let result_node_list = nodes_list.map( node => {
       return [results[node.name], node]
     });
-    generic_actor.ask.applyQuestion(result_node_list, this.queryResultEqualsNode, true)
+    api_helper.applyQuestion(result_node_list, this.queryResultEqualsNode, true)
   },
 
   queryResultsSuccess(results_list) {
-    generic_actor.ask.applyQuestion(results_list, _resultSuccess)
+    api_helper.applyQuestion(results_list, _resultSuccess)
   },
 
   nodeCountIncrease(node_name, previous_result, new_result) {
@@ -94,7 +94,7 @@ module.exports = {
     let results_merged_list = Object.keys(previous_counts).map( node_name => {
       return [node_name, previous_counts[node_name], new_counts[node_name]]
     });
-    generic_actor.ask.applyQuestion(results_merged_list, this.nodeCountIncrease, true)
+    api_helper.applyQuestion(results_merged_list, this.nodeCountIncrease, true)
   }
 };
 

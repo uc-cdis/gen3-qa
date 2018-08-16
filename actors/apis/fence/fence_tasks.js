@@ -1,7 +1,7 @@
 'use strict';
   
 const fence_props = require('./fence_props.js');
-const commons_helper = require('../../../commons_helper.js')
+const commons_helper = require('../../commons_helper.js');
 let I = actor();
 
 /**
@@ -23,18 +23,14 @@ module.exports = {
     return I.sendGetRequest(url).then( res => res.body);
   },
 
-  createAPIKey(scope, access_token) {
-    let headers = {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'Authorization': `bearer ${access_token}`
-    };
+  createAPIKey(scope, access_token_header) {
+    access_token_header['Content-Type'] = 'application/json';
     return I.sendPostRequest(
       fence_props.endpoints.createAPIKey,
       JSON.stringify({
         scope: scope
       }),
-      headers)
+      access_token_header)
       .then(
         (res) => res
       );

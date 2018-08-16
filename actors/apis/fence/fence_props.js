@@ -1,7 +1,5 @@
 'use strict';
 
-let util = require('../../../steps/utilSteps');
-
 /**
  * fence Properties
  */

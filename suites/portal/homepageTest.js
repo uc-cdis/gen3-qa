@@ -1,8 +1,9 @@
+'use strict';
 
 Feature('Login');
 
-Scenario('test login', (I) => {
-  I.load('');
-  I.seeCookie('access_token');
-  I.seeHomepageDetails();
+Scenario('login', (home) => {
+  home.do.goTo();
+  home.ask.haveAccessToken();
+  home.ask.seeDetails();
 });

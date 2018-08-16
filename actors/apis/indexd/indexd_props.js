@@ -1,6 +1,4 @@
 'use strict';
-  
-let util = require('../../../steps/utilSteps');
 
 /**
  * indexd Properties
@@ -13,9 +11,6 @@ module.exports = {
     get: api_root,
     delete: api_root
   },
-
-  validAuthHeader: util.getIndexAuthHeader(),
-  validAccessTokenHeader: util.getAccessTokenHeader(),
 };
   
   

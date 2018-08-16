@@ -1,7 +1,7 @@
 'use strict';
   
 const indexd_props = require('./indexd_props.js');
-const commons_helper = require('../../../commons_helper.js');
+const commons_helper = require('../../commons_helper.js');
 let I = actor();
 
 /**
@@ -52,7 +52,7 @@ module.exports = {
   async getFile(file_node) {
     // get data from indexd
     return I.sendGetRequest(`${indexd_props.endpoints.get}/${file_node.did}`,
-      indexd_props.validAccessTokenHeader).then(
+      commons_helper.validAccessTokenHeader).then(
       (res) => {
         file_node.rev = _getRevFromResponse(res);
         return res.body;
@@ -62,7 +62,7 @@ module.exports = {
 
   async deleteFile (file_node) {
     return I.sendDeleteRequest(`${indexd_props.endpoints.delete}/${file_node.did}?rev=${file_node.rev}`,
-      indexd_props.validAuthHeader
+      commons_helper.validIndexAuthHeader
     ).then(
       (res) => {
         // Note that we use the entire response, not just the response body
