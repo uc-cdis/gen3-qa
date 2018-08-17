@@ -11,7 +11,7 @@ export TEST_DATA_PATH="$_ROOT_DIR/TestData/"
 cd "${_RUN_TESTS}"
 npm install
 
-namespaceList="${1:-default}" 
+namespaceList="${1:-default}"
 
 if [[ -n "$GEN3_HOME" ]]; then  # load gen3 tools from cloud-automation
   source "${GEN3_HOME}/gen3/lib/utils.sh"
@@ -27,7 +27,7 @@ runTest() {
   local namespace
   namespace="${1:-default}"
   echo $namespace
-  
+
   (
     if [[ -n "$GEN3_HOME" ]]; then
       echo "Acquiring tokens for test authentication"
@@ -63,11 +63,11 @@ GEN3_HOME environment not set, so gen3 tools not available -
 please manually set the environment variables necessary to
 run the integration test suite:
   HOSTNAME
-  ACCESS_TOKEN 
+  ACCESS_TOKEN
   EXPIRED_ACCESS_TOKEN
   INDEX_USERNAME
   INDEX_PASSWORD
-  
+
 EOM
     fi
     cat - <<EOM
@@ -75,7 +75,6 @@ Running test in $namespace
 HOSTNAME=$HOSTNAME
 
 EOM
-    npm run custom
     # see https://codecept.io/reports/
     ./node_modules/.bin/codeceptjs run --debug --verbose --reporter mocha-junit-reporter
   )
@@ -104,14 +103,21 @@ genData() {
   rCMD="Rscript GenTestDataCmd.R $dictURL $projectName $nData $TEST_DATA_PATH"
   echo $rCMD
   eval $rCMD
-  if [[ $? -ne 0 ]]; then return 1; fi
+  if [[ $? -ne 0 ]]; then
+    echo "ERROR: Failed to generate test data for $namespace"
+    return 1
+  fi
 }
 
 exitCode=0
 for name in ${namespaceList}; do
   if [[ "$name" == "default" || "$name" =~ ^qa- ]]; then
     genData "$name"
-    if [[ $? -ne 0 ]]; then exitCode=1; fi
+    if [[ $? -ne 0 ]]; then
+      # Don't run the tests if we fail to generate data
+      exitCode=1
+      continue
+    fi
     runTest "$name"
     if [[ $? -ne 0 ]]; then exitCode=1; fi
   fi

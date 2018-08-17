@@ -4,11 +4,13 @@ let chai = require('chai');
 let chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 let expect = chai.expect;
+chai.config.includeStack = true;
+chai.config.truncateThreshold = 0;
 
 
 module.exports.seeGraphQLPass = function(res) {
-  expect(res).to.have.property('data');
-  expect(res).to.not.have.property('errors');
+  expect(res, JSON.stringify(res)).to.have.property('data');
+  expect(res, JSON.stringify(res)).to.not.have.property('errors');
 };
 
 
