@@ -61,7 +61,7 @@ class CDISHelper extends Helper {
   }
 
   _beforeSuite(suite) {
-    if (!suite.title.indexOf('API') >= 0)
+    if (!(suite.title.indexOf('API') >= 0))
     {
       const helper = this.helpers['WebDriverIO'];
       helper.amOnPage('');
