@@ -1,5 +1,7 @@
 'use strict';
-  
+
+const url = require('url');
+
 let chai = require('chai');
 let expect = chai.expect;
 chai.config.includeStack = true;
@@ -27,6 +29,33 @@ module.exports = {
     expect(res).to.have.property('statusCode', status_code);
     expect(res).to.have.property('body');
     expect(res.body).to.have.string(error_message);
+  },
+
+  linkSuccess(link_res, linked_acct) {
+    let link_url = new URL(link_res.url);
+    expect(link_url.searchParams.get('linked_email')).to.equal(linked_acct.email);
+    expect(link_url.searchParams.get('exp')).to.not.be.null;
+  },
+
+  unlinkSuccess(unlink_res) {
+    expect(unlink_res).to.have.property('statusCode', 200);
+  },
+
+  linkExtendSuccess(extend_res, time_request) {
+    expect(extend_res).to.have.property('statusCode', 200);
+
+    // Check the expiration is within expected range
+    let time_buff = 60;
+    expect(extend_res).to.have.nested.property('body.exp');
+    expect(extend_res.body.exp).to.be.within(
+      time_request + fence_props.linkExtendAmount - time_buff,
+      time_request + fence_props.linkExtendAmount + time_buff);
+  },
+
+  linkHasError(link_res, error_prop) {
+    expect(link_res).to.have.property('statusCode', error_prop.statusCode);
+    expect(link_res).to.have.nested.property('body.error', error_prop.error);
+    expect(link_res).to.have.nested.property('body.error_description', error_prop.error_description);
   }
 };
 

@@ -25,7 +25,9 @@ class CDISHelper extends Helper {
     // Check health of services
     let health_check = await commons_helper.makeHealthCheck();
     test_result.err.stack += '\n\nServices Health Check:';
-    test_result.err.stack += health_check;
+    Promise.all(health_check).then(res => {
+      test_result.err.stack += res;
+    });
   }
 }
 

@@ -76,20 +76,20 @@ module.exports = {
   },
 
   async makeHealthCheck() {
-    let health_results = '';
     let endpoints = {
       sheepdog: "/api/_status",
       peregrine: "/peregrine/_status",
       portal: "/",
       fence: "/user/jwt/keys"
     };
-    let promises = Object.values(endpoints).map((endpoint) => {
-      return request.get(`https://${process.env.HOSTNAME}${endpoint}`)
-        .then((res) => {
-          health_results += `\nHealth ${endpoint}`.padEnd(30) + `: ${res.statusCode}`
-        });
+    let health_results = Object.values(endpoints).map((endpoint) => {
+      return new Promise(function (resolve, reject) {
+        request.get(`https://${process.env.HOSTNAME}${endpoint}`,
+          (error, res, body) => {
+            resolve(`\nHealth ${endpoint}`.padEnd(30) + `: ${res.statusCode}`);
+          });
+      })
     });
-    await Promise.all(promises);
     return health_results;
   }
 };
