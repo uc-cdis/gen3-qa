@@ -3,7 +3,7 @@ const { navbar } = require('../fragments/navbar_actor.js');
 const dict_props = require('./dict_props.js');
 const portal_helper = require('../portal_helper');
 
-let I = actor();
+const I = actor();
 
 /**
  * Dictionary Tasks
@@ -17,5 +17,5 @@ module.exports = {
 
   toggleGraph() {
     portal_helper.clickProp(dict_props.graphToggle);
-  }
+  },
 };

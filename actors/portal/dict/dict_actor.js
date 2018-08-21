@@ -10,5 +10,5 @@ module.exports = {
 
   do: dict_tasks,
 
-  ask: dict_questions
+  ask: dict_questions,
 };

@@ -1,4 +1,4 @@
-'use strict';
+
 
 Feature('SubmitFileTest');
 
@@ -7,9 +7,9 @@ let base_file_node;
 // Used for holding different file versions for testing. Refreshed before every Scenario
 let files;
 // Used adding url to file nodes
-let test_url = "s3://cdis-presigned-url-test/testdata";
+const test_url = 's3://cdis-presigned-url-test/testdata';
 
-Scenario('submit and delete file', async(sheepdog, indexd) => {
+Scenario('submit and delete file', async (sheepdog, indexd) => {
   // submit basic file without url
   await sheepdog.complete.addNode(files.valid_file);
   await indexd.complete.checkFile(files.valid_file);
@@ -18,7 +18,7 @@ Scenario('submit and delete file', async(sheepdog, indexd) => {
 });
 
 
-Scenario('submit file with URL', async(sheepdog, indexd) => {
+Scenario('submit file with URL', async (sheepdog, indexd) => {
   // add url and submit
   files.valid_file.data.urls = test_url;
   await sheepdog.complete.addNode(files.valid_file);
@@ -28,7 +28,7 @@ Scenario('submit file with URL', async(sheepdog, indexd) => {
 });
 
 
-Scenario('submit file then update with URL', async(sheepdog, indexd) => {
+Scenario('submit file then update with URL', async (sheepdog, indexd) => {
   // submit basic file without url
   await sheepdog.complete.addNode(files.valid_file);
   await indexd.complete.checkFile(files.valid_file);
@@ -44,13 +44,13 @@ Scenario('submit file then update with URL', async(sheepdog, indexd) => {
 });
 
 
-Scenario('submit file invalid property', async(sheepdog) => {
+Scenario('submit file invalid property', async (sheepdog) => {
   await sheepdog.do.addNode(files.invalid_prop);
-  sheepdog.ask.hasInternalServerError(files.invalid_prop.add_res)
+  sheepdog.ask.hasInternalServerError(files.invalid_prop.add_res);
 });
 
 
-Scenario('update file with invalid property', async(sheepdog, indexd) => {
+Scenario('update file with invalid property', async (sheepdog, indexd) => {
   // submit valid file
   await sheepdog.complete.addNode(files.valid_file);
   await indexd.complete.checkFile(files.valid_file);
@@ -68,19 +68,19 @@ Scenario('update file with invalid property', async(sheepdog, indexd) => {
 });
 
 
-const _makeFiles = function(base_node) {
-  let valid_file = base_node.clone();
+const _makeFiles = function (base_node) {
+  const valid_file = base_node.clone();
 
-  let invalid_prop = base_node.clone();
-  invalid_prop.data.file_size = "hello";
+  const invalid_prop = base_node.clone();
+  invalid_prop.data.file_size = 'hello';
 
-  let missing_required = base_node.clone();
+  const missing_required = base_node.clone();
   delete missing_required.data.md5sum;
 
   return {
-    valid_file: valid_file,
-    invalid_prop: invalid_prop,
-    missing_required: missing_required
+    valid_file,
+    invalid_prop,
+    missing_required,
   };
 };
 

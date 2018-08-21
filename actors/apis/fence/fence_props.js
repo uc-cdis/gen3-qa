@@ -1,9 +1,9 @@
-'use strict';
+
 
 /**
  * fence Properties
  */
-let root_endpoint = '/user';
+const root_endpoint = '/user';
 module.exports = {
   endpoints: {
     root: root_endpoint,
@@ -13,56 +13,56 @@ module.exports = {
     getAccessToken: `${root_endpoint}/credentials/api/access_token`,
     linkGoogle: `${root_endpoint}/link/google?redirect=.`,
     deleteGoogleLink: `${root_endpoint}/link/google`,
-    extendGoogleLink: `${root_endpoint}/link/google`
+    extendGoogleLink: `${root_endpoint}/link/google`,
   },
 
   linkErrors: {
     noGoogleAcctLinked: {
       statusCode: 404,
-      error: "g_acnt_link_error",
-      error_description: "Couldn't unlink account for user, no linked Google account found."
-    }
+      error: 'g_acnt_link_error',
+      error_description: "Couldn't unlink account for user, no linked Google account found.",
+    },
   },
 
   googleAcct2: {
     email: process.env.SECONDARY_USERNAME,
-    password: process.env.SECONDARY_PASSWORD
+    password: process.env.SECONDARY_PASSWORD,
   },
 
   googleLoginReadyCue: {
     locator: {
-      text: 'Email'
-    }
+      text: 'Email',
+    },
   },
 
   googleEmailField: {
     locator: {
-      css: '#identifierId'
-    }
+      css: '#identifierId',
+    },
   },
 
   googleEmailNext: {
     locator: {
-      css: '#identifierNext'
-    }
+      css: '#identifierNext',
+    },
   },
 
-  googlePasswordField : {
+  googlePasswordField: {
     locator: {
-      css: "input[type=\"password\"]"
-    }
+      css: 'input[type="password"]',
+    },
   },
 
   googlePasswordNext: {
     locator: {
-      css: "#passwordNext"
-    }
+      css: '#passwordNext',
+    },
   },
 
   googlePasswordReadyCue: {
     locator: {
-      text: "Welcome"
-    }
+      text: 'Welcome',
+    },
   },
 
   linkExtendAmount: 86400, // 24 hours (in seconds)

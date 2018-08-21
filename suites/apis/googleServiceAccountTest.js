@@ -1,4 +1,4 @@
-'use strict';
+
 
 Feature('GoogleServiceAccount');
 
@@ -7,7 +7,7 @@ Feature('GoogleServiceAccount');
  * test service acct: both users need to have access
  */
 
-Scenario('', () => {
+Scenario('', async (sheepdog, nodes) => {
   // all accounts in a project must be linked??
-
+  await sheepdog.do.addNode(nodes.firstNode);
 });

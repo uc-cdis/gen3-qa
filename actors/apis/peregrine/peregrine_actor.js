@@ -1,5 +1,5 @@
-'use strict';
-  
+
+
 const peregrine_tasks = require('./peregrine_tasks.js');
 const peregrine_questions = require('./peregrine_questions.js');
 const peregrine_props = require('./peregrine_props.js');
@@ -12,6 +12,5 @@ module.exports = {
 
   do: peregrine_tasks,
 
-  ask: peregrine_questions
+  ask: peregrine_questions,
 };
-  

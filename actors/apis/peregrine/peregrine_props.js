@@ -1,4 +1,4 @@
-'use strict';
+
 
 /**
  * peregrine Properties
@@ -9,6 +9,6 @@ module.exports = {
   },
 
   resLocators: {
-    error: 'entities[0].errors[0].type'
+    error: 'entities[0].errors[0].type',
   },
 };

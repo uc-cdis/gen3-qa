@@ -1,28 +1,26 @@
-'use strict';
-  
+
+
 const fence_props = require('./fence_props.js');
 const commons_helper = require('../../commons_helper.js');
 const portal_helper = require('../../portal/portal_helper.js');
 
-let I = actor();
+const I = actor();
 
 /**
  * fence Tasks
  */
 module.exports = {
-  createSignedUrl(id, args=[]) {
+  createSignedUrl(id, args = []) {
     return I.sendGetRequest(
       `${fence_props.endpoints.getFile}/${id}?${args.join('&')}`.replace(/[?]$/g, ''),
       commons_helper.validAccessTokenHeader)
       .then(
-      (res) => {
-        return res;
-      }
-    );
+        res => res,
+      );
   },
 
   getFile(url) {
-    return I.sendGetRequest(url).then( res => res.body);
+    return I.sendGetRequest(url).then(res => res.body);
   },
 
   createAPIKey(scope, access_token_header) {
@@ -30,11 +28,11 @@ module.exports = {
     return I.sendPostRequest(
       fence_props.endpoints.createAPIKey,
       JSON.stringify({
-        scope: scope
+        scope,
       }),
       access_token_header)
       .then(
-        (res) => res
+        res => res,
       );
   },
 
@@ -42,20 +40,20 @@ module.exports = {
     return I.sendDeleteRequest(
       `${fence_props.endpoints.deleteAPIKey}/${api_key}`,
       commons_helper.validAccessTokenHeader)
-        .then(
-          (res) => res.body
-        );
+      .then(
+        res => res.body,
+      );
   },
 
   getAccessToken(api_key) {
-    let data = (api_key !== null) ? { api_key: api_key } : {};
+    const data = (api_key !== null) ? { api_key } : {};
     return I.sendPostRequest(
       fence_props.endpoints.getAccessToken,
       JSON.stringify(data),
       commons_helper.validIndexAuthHeader)
-        .then(
-          (res) => res
-        );
+      .then(
+        res => res,
+      );
   },
 
   async linkGoogleAcct(linking_acct) {
@@ -76,46 +74,46 @@ module.exports = {
     // wait until redirected back to root
     await I.waitInUrl(fence_props.endpoints.root, 5);
     I.wait(5);
-    let url = await I.grabCurrentUrl();
-    let res = await I.grabSource();
-    console.log("link res", res);
-    console.log("link url", url);
+    const url = await I.grabCurrentUrl();
+    const res = await I.grabSource();
+    console.log('link res', res);
+    console.log('link url', url);
     // FIXME: Why is access_token not there anymore??
     // I.seeCookie('access_token');
     let access_token;
     try {
       access_token = await I.grabCookie('access_token');
-    } catch(e) {
-      console.log(e)
+    } catch (e) {
+      console.log(e);
     }
-    console.log("ACCESS_TOKEN", access_token);
+    console.log('ACCESS_TOKEN', access_token);
     return {
       body: res,
-      url: url,
-      //access_token: access_token
+      url,
+      // access_token: access_token
     };
   },
 
   async unlinkGoogleAcct() {
-    return I.sendDeleteRequest(fence_props.endpoints.deleteGoogleLink, commons_helper.validAccessTokenHeader)
-      .then( (res) => {
-        return {
-          body: res.body,
-          statusCode: res.statusCode
-        };
-      });
+    return I.sendDeleteRequest(
+      fence_props.endpoints.deleteGoogleLink,
+      commons_helper.validAccessTokenHeader)
+      .then(res => ({
+        body: res.body,
+        statusCode: res.statusCode,
+      }));
   },
 
   async extendGoogleLink() {
     I.haveRequestHeaders(commons_helper.validAccessTokenHeader);
     return I.sendPatchRequest(fence_props.endpoints.extendGoogleLink)
-      .then( (res) => {
+      .then((res) => {
         I.resetRequestHeaders();
         return {
           statusCode: res.statusCode,
-          body: res.body
+          body: res.body,
         };
-      })
+      });
   },
 
 };

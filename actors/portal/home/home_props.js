@@ -1,4 +1,4 @@
-'use strict';
+
 
 /**
  * home Properties
@@ -8,21 +8,21 @@ module.exports = {
 
   ready_cue: {
     locator: {
-      text: 'cdis.autotest@gmail.com'
-    }
+      text: 'cdis.autotest@gmail.com',
+    },
   },
 
   // Page elements
 
   summary: {
     locator: {
-      css: '.h1-typo'
-    }
+      css: '.h1-typo',
+    },
   },
 
   cards: {
     locator: {
-      css: '.index-button-bar__thumbnail-button'
-    }
-  }
+      css: '.index-button-bar__thumbnail-button',
+    },
+  },
 };

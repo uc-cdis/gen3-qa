@@ -5,31 +5,31 @@
 /**
  * Navbar Actor
  */
-let I = actor();
+const I = actor();
 
 const navbar_props = {
   context: '.nav-bar',
   dictionary: {
     locators: {
-      xpath: '//div[contains(text(), "Dictionary")][contains(@class, "nav-button")]'
-    }
+      xpath: '//div[contains(text(), "Dictionary")][contains(@class, "nav-button")]',
+    },
   },
   files: {
     locators: {
-      text: 'Files'
-    }
-  }
+      text: 'Files',
+    },
+  },
 };
 
 const navbar_tasks = {
   // clickProp: clickProp
   clickProp() {
-    console.log("hiiiii")
-  }
+    console.log('hiiiii');
+  },
 };
 
 module.exports.navbar = {
   props: navbar_props,
   do: navbar_tasks,
-  ask: null
+  ask: null,
 };

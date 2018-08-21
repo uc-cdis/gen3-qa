@@ -1,12 +1,14 @@
-'use strict';
 
-let chai = require('chai');
-let expect = chai.expect;
+
+const chai = require('chai');
+
+const expect = chai.expect;
 chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 
 const dict_props = require('./dict_props.js');
-let I = actor();
+
+const I = actor();
 
 /**
  * Sheepdog Questions
@@ -14,5 +16,5 @@ let I = actor();
 module.exports = {
   seeTables(num) {
     I.seeNumberOfElements(dict_props.tables.locators.css, num);
-  }
+  },
 };

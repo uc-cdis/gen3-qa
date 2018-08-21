@@ -1,5 +1,5 @@
-'use strict';
-  
+
+
 const fence_tasks = require('./fence_tasks.js');
 const fence_questions = require('./fence_questions.js');
 const fence_props = require('./fence_props.js');
@@ -15,6 +15,5 @@ module.exports = {
 
   ask: fence_questions,
 
-  complete: fence_sequences
+  complete: fence_sequences,
 };
-  

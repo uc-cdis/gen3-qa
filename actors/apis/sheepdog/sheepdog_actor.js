@@ -13,5 +13,5 @@ module.exports = {
 
   ask: sheepdog_questions,
 
-  complete: sheepdog_sequences
+  complete: sheepdog_sequences,
 };

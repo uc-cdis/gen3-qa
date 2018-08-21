@@ -1,9 +1,10 @@
-'use strict';
+
 
 const url = require('url');
 
-let chai = require('chai');
-let expect = chai.expect;
+const chai = require('chai');
+
+const expect = chai.expect;
 chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 
@@ -14,7 +15,7 @@ const fence_props = require('./fence_props.js');
  */
 module.exports = {
   hasUrl(create_url_res) {
-    expect(create_url_res).to.have.nested.property('body.url')
+    expect(create_url_res).to.have.nested.property('body.url');
   },
 
   hasAPIKey(api_key_res) {
@@ -32,7 +33,7 @@ module.exports = {
   },
 
   linkSuccess(link_res, linked_acct) {
-    let link_url = new URL(link_res.url);
+    const link_url = new URL(link_res.url);
     expect(link_url.searchParams.get('linked_email')).to.equal(linked_acct.email);
     expect(link_url.searchParams.get('exp')).to.not.be.null;
   },
@@ -45,7 +46,7 @@ module.exports = {
     expect(extend_res).to.have.property('statusCode', 200);
 
     // Check the expiration is within expected range
-    let time_buff = 60;
+    const time_buff = 60;
     expect(extend_res).to.have.nested.property('body.exp');
     expect(extend_res.body.exp).to.be.within(
       time_request + fence_props.linkExtendAmount - time_buff,
@@ -56,6 +57,6 @@ module.exports = {
     expect(link_res).to.have.property('statusCode', error_prop.statusCode);
     expect(link_res).to.have.nested.property('body.error', error_prop.error);
     expect(link_res).to.have.nested.property('body.error_description', error_prop.error_description);
-  }
+  },
 };
 

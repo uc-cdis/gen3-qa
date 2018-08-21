@@ -1,7 +1,8 @@
-'use strict';
-  
-let chai = require('chai');
-let expect = chai.expect;
+
+
+const chai = require('chai');
+
+const expect = chai.expect;
 chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 
@@ -30,7 +31,7 @@ const hasField = (res, field) => {
 
 
 module.exports = {
-  hasField: hasField,
+  hasField,
 
   hasFieldCount(res, field, count) {
     this.hasField(res, field);
@@ -38,14 +39,14 @@ module.exports = {
   },
 
   hasError(res, error) {
-    expect(res).to.nested.include({'errors[0]': error});
+    expect(res).to.nested.include({ 'errors[0]': error });
   },
 
   queryResultEqualsNode(result, node) {
     hasField(result, node.name);
-    let node_data = node.data; // grab data from node
-    let query_result = result.data[node.name][0]; // grab query response data
-    let fail_list = [];
+    const node_data = node.data; // grab data from node
+    const query_result = result.data[node.name][0]; // grab query response data
+    const fail_list = [];
     let fields_compared = 0;
 
     // Iterate through the node data fields.
@@ -56,8 +57,8 @@ module.exports = {
           ++fields_compared;
           expect(node_data[field]).to.equal(query_result[field]);
         }
-      } catch(e) {
-        fail_list.push(e.message)
+      } catch (e) {
+        fail_list.push(e.message);
       }
     });
 
@@ -67,34 +68,30 @@ module.exports = {
   },
 
   queryResultsEqualNodes(results, nodes_list) {
-    let result_node_list = nodes_list.map( node => {
-      return [results[node.name], node]
-    });
-    api_helper.applyQuestion(result_node_list, this.queryResultEqualsNode, true)
+    const result_node_list = nodes_list.map(node => [results[node.name], node]);
+    api_helper.applyQuestion(result_node_list, this.queryResultEqualsNode, true);
   },
 
   queryResultsSuccess(results_list) {
-    api_helper.applyQuestion(results_list, _resultSuccess)
+    api_helper.applyQuestion(results_list, _resultSuccess);
   },
 
   nodeCountIncrease(node_name, previous_result, new_result) {
     _resultSuccess(previous_result);
     _resultSuccess(new_result);
 
-    let count_name = `_${node_name}_count`;
+    const count_name = `_${node_name}_count`;
     expect(previous_result).to.have.nested.property(`data.${count_name}`);
-    let previous_count = previous_result.data[count_name];
+    const previous_count = previous_result.data[count_name];
 
-    expect(new_result).to.nested.include({[`data.${count_name}`]: previous_count + 1})
+    expect(new_result).to.nested.include({ [`data.${count_name}`]: previous_count + 1 });
   },
 
   allCountsIncrease(previous_counts, new_counts) {
     // assert that the count for each node increased by 1
     // previous_counts and new_counts are objects with results keyed by the node name
-    let results_merged_list = Object.keys(previous_counts).map( node_name => {
-      return [node_name, previous_counts[node_name], new_counts[node_name]]
-    });
-    api_helper.applyQuestion(results_merged_list, this.nodeCountIncrease, true)
-  }
+    const results_merged_list = Object.keys(previous_counts).map(node_name => [node_name, previous_counts[node_name], new_counts[node_name]]);
+    api_helper.applyQuestion(results_merged_list, this.nodeCountIncrease, true);
+  },
 };
 

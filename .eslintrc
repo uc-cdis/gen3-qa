@@ -1,0 +1,28 @@
+{
+  "parserOptions": {
+    "ecmaVersion": 8,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "extends": "airbnb",
+  "plugins": [
+    "codeceptjs"
+  ],
+  "env": {
+    "codeceptjs/codeceptjs": true
+  },
+  "rules": {
+    "codeceptjs/no-actor-in-scenario": 2,
+    "func-names": ["error", "never"],
+    "import/no-extraneous-dependencies": ["error", {"devDependencies": true}],
+    "no-restricted-syntax": ["off", "ForOfStatement"],
+    "no-await-in-loop": ["off"],
+    "no-param-reassign": ["error", { "props": false }],
+    "no-console": ["off"]
+  },
+  "globals": {
+    "seleniumSessionId": true
+  }
+}

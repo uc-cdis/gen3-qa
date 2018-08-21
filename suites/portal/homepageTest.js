@@ -1,4 +1,4 @@
-'use strict';
+
 
 Feature('Login');
 

@@ -1,10 +1,10 @@
-module.exports.getFiles = function(actor_name) {
-  let tasks = `${actor_name}_tasks`;
-  let questions = `${actor_name}_questions`;
-  let props = `${actor_name}_props`;
-  let sequences = `${actor_name}_sequences`;
+module.exports.getFiles = function (actor_name) {
+  const tasks = `${actor_name}_tasks`;
+  const questions = `${actor_name}_questions`;
+  const props = `${actor_name}_props`;
+  const sequences = `${actor_name}_sequences`;
 
-  let actor_template = `'use strict';
+  const actor_template = `'use strict';
   
 const ${tasks} = require('./${tasks}.js');
 const ${questions} = require('./${questions}.js');
@@ -25,7 +25,7 @@ module.exports = {
 };
 `;
 
-  let tasks_template = `'use strict';
+  const tasks_template = `'use strict';
   
 const ${props} = require('./${props}.js');
 let I = actor();
@@ -48,7 +48,7 @@ module.exports = {
 };
 `;
 
-  let questions_template = `'use strict';
+  const questions_template = `'use strict';
   
 let chai = require('chai');
 let expect = chai.expect;
@@ -66,7 +66,7 @@ module.exports = {
 
 `;
 
-  let props_template = `'use strict';
+  const props_template = `'use strict';
 
 /**
  * ${actor_name} Properties
@@ -107,7 +107,7 @@ module.exports = {
 };
 `;
 
-  let sequences_template = `'use strict';
+  const sequences_template = `'use strict';
 
 const ${questions} = require('./${questions}.js');
 const ${tasks} = require('./${tasks}.js');
@@ -123,25 +123,24 @@ module.exports = {
   return {
     actor_file: {
       template: actor_template,
-      name: `${actor_name}_actor.js`
+      name: `${actor_name}_actor.js`,
     },
     tasks_file: {
       template: tasks_template,
-      name: `${tasks}.js`
+      name: `${tasks}.js`,
     },
     questions_file: {
       template: questions_template,
-      name: `${questions}.js`
+      name: `${questions}.js`,
     },
     props_file: {
       template: props_template,
-      name: `${props}.js`
+      name: `${props}.js`,
     },
     sequences_file: {
       template: sequences_template,
-      name: `${sequences}.js`
-    }
+      name: `${sequences}.js`,
+    },
   };
 };
-
 

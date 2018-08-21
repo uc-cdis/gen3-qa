@@ -1,5 +1,5 @@
-'use strict';
-  
+
+
 const indexd_tasks = require('./indexd_tasks.js');
 const indexd_questions = require('./indexd_questions.js');
 const indexd_props = require('./indexd_props.js');
@@ -15,7 +15,6 @@ module.exports = {
 
   ask: indexd_questions,
 
-  complete: indexd_sequences
+  complete: indexd_sequences,
 };
-  
-  
+

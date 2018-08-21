@@ -1,6 +1,6 @@
-'use strict';
 
-let commons_helper = require('../../commons_helper.js')
+
+const commons_helper = require('../../commons_helper.js');
 
 /**
  * Sheepdog Properties
@@ -12,24 +12,24 @@ module.exports = {
     root: api_root,
     add: api_root,
     delete: `${api_root}/entities`,
-    describe: `${api_root}/export`
+    describe: `${api_root}/export`,
   },
 
   resultSuccess: {
     code: 200,
     success: true,
     entity_error_count: 0,
-    transactional_error_count: 0
+    transactional_error_count: 0,
   },
 
   resultFail: {
     code: 400,
-    success: false
+    success: false,
   },
 
   resLocators: {
-    entityErrorType: 'entities[0].errors[0].type'
+    entityErrorType: 'entities[0].errors[0].type',
   },
 
-  internalServerErrorMsg: "Internal server error. Sorry, something unexpected went wrong!"
+  internalServerErrorMsg: 'Internal server error. Sorry, something unexpected went wrong!',
 };
