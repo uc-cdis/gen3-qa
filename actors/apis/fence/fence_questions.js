@@ -7,6 +7,7 @@ chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 
 const fence_props = require('./fence_props.js');
+const google_helper = require('../../google_helper.js');
 
 /**
  * fence Questions
@@ -61,5 +62,10 @@ module.exports = {
       'body.error_description',
       error_prop.error_description,
     );
+  },
+
+  async projectHasUser(someUser) {
+    const x = await google_helper.getProjectMembers();
+    console.log('AYOOO', x);
   },
 };
