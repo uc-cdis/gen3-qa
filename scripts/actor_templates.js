@@ -1,4 +1,4 @@
-module.exports.getFiles = function (actor_name) {
+module.exports.getFiles = function(actor_name) {
   const tasks = `${actor_name}_tasks`;
   const questions = `${actor_name}_questions`;
   const props = `${actor_name}_props`;
@@ -143,4 +143,3 @@ module.exports = {
     },
   };
 };
-

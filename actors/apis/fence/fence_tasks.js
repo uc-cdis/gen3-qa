@@ -1,5 +1,3 @@
-
-
 const fence_props = require('./fence_props.js');
 const commons_helper = require('../../commons_helper.js');
 const portal_helper = require('../../portal/portal_helper.js');
@@ -12,11 +10,12 @@ const I = actor();
 module.exports = {
   createSignedUrl(id, args = []) {
     return I.sendGetRequest(
-      `${fence_props.endpoints.getFile}/${id}?${args.join('&')}`.replace(/[?]$/g, ''),
-      commons_helper.validAccessTokenHeader)
-      .then(
-        res => res,
-      );
+      `${fence_props.endpoints.getFile}/${id}?${args.join('&')}`.replace(
+        /[?]$/g,
+        '',
+      ),
+      commons_helper.validAccessTokenHeader,
+    ).then(res => ({ body: res.body, statusCode: res.statusCode }));
   },
 
   getFile(url) {
@@ -30,30 +29,24 @@ module.exports = {
       JSON.stringify({
         scope,
       }),
-      access_token_header)
-      .then(
-        res => res,
-      );
+      access_token_header,
+    ).then(res => ({ body: res.body, statusCode: res.statusCode }));
   },
 
   deleteAPIKey(api_key) {
     return I.sendDeleteRequest(
       `${fence_props.endpoints.deleteAPIKey}/${api_key}`,
-      commons_helper.validAccessTokenHeader)
-      .then(
-        res => res.body,
-      );
+      commons_helper.validAccessTokenHeader,
+    ).then(res => res.body);
   },
 
   getAccessToken(api_key) {
-    const data = (api_key !== null) ? { api_key } : {};
+    const data = api_key !== null ? { api_key } : {};
     return I.sendPostRequest(
       fence_props.endpoints.getAccessToken,
       JSON.stringify(data),
-      commons_helper.validIndexAuthHeader)
-      .then(
-        res => res,
-      );
+      commons_helper.validIndexAuthHeader,
+    ).then(res => ({ body: res.body, statusCode: res.statusCode }));
   },
 
   async linkGoogleAcct(linking_acct) {
@@ -97,23 +90,23 @@ module.exports = {
   async unlinkGoogleAcct() {
     return I.sendDeleteRequest(
       fence_props.endpoints.deleteGoogleLink,
-      commons_helper.validAccessTokenHeader)
-      .then(res => ({
-        body: res.body,
-        statusCode: res.statusCode,
-      }));
+      commons_helper.validAccessTokenHeader,
+    ).then(res => ({
+      body: res.body,
+      statusCode: res.statusCode,
+    }));
   },
 
   async extendGoogleLink() {
     I.haveRequestHeaders(commons_helper.validAccessTokenHeader);
-    return I.sendPatchRequest(fence_props.endpoints.extendGoogleLink)
-      .then((res) => {
+    return I.sendPatchRequest(fence_props.endpoints.extendGoogleLink).then(
+      res => {
         I.resetRequestHeaders();
         return {
           statusCode: res.statusCode,
           body: res.body,
         };
-      });
+      },
+    );
   },
-
 };

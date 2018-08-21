@@ -11,7 +11,8 @@ const navbar_props = {
   context: '.nav-bar',
   dictionary: {
     locators: {
-      xpath: '//div[contains(text(), "Dictionary")][contains(@class, "nav-button")]',
+      xpath:
+        '//div[contains(text(), "Dictionary")][contains(@class, "nav-button")]',
     },
   },
   files: {

@@ -1,5 +1,3 @@
-
-
 /**
  * indexd Properties
  */
@@ -12,4 +10,3 @@ module.exports = {
     delete: api_root,
   },
 };
-

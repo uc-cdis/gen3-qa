@@ -1,5 +1,3 @@
-
-
 const url = require('url');
 
 const chai = require('chai');
@@ -34,7 +32,9 @@ module.exports = {
 
   linkSuccess(link_res, linked_acct) {
     const link_url = new URL(link_res.url);
-    expect(link_url.searchParams.get('linked_email')).to.equal(linked_acct.email);
+    expect(link_url.searchParams.get('linked_email')).to.equal(
+      linked_acct.email,
+    );
     expect(link_url.searchParams.get('exp')).to.not.be.null;
   },
 
@@ -50,13 +50,16 @@ module.exports = {
     expect(extend_res).to.have.nested.property('body.exp');
     expect(extend_res.body.exp).to.be.within(
       time_request + fence_props.linkExtendAmount - time_buff,
-      time_request + fence_props.linkExtendAmount + time_buff);
+      time_request + fence_props.linkExtendAmount + time_buff,
+    );
   },
 
   linkHasError(link_res, error_prop) {
     expect(link_res).to.have.property('statusCode', error_prop.statusCode);
     expect(link_res).to.have.nested.property('body.error', error_prop.error);
-    expect(link_res).to.have.nested.property('body.error_description', error_prop.error_description);
+    expect(link_res).to.have.nested.property(
+      'body.error_description',
+      error_prop.error_description,
+    );
   },
 };
-

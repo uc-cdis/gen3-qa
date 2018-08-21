@@ -1,5 +1,3 @@
-
-
 const sheepdog_questions = require('./sheepdog_questions.js');
 const sheepdog_tasks = require('./sheepdog_tasks.js');
 const sheepdog_props = require('./sheepdog_props.js');
@@ -8,16 +6,25 @@ const commons_helper = require('../../commons_helper.js');
 
 const I = actor();
 
-const _deleteByIdRecursively = async (id) => {
+const _deleteByIdRecursively = async id => {
   const delete_endpoint = `${sheepdog_props.endpoints.delete}/${id}`;
-  const res = await I.sendDeleteRequest(delete_endpoint, commons_helper.validAccessTokenHeader);
+  const res = await I.sendDeleteRequest(
+    delete_endpoint,
+    commons_helper.validAccessTokenHeader,
+  );
 
   if (!res.body.hasOwnProperty('dependent_ids')) {
-    throw new Error(`Error deleting by ID recursively. Result missing 'dependent_ids' property: ${res.body}`);
+    throw new Error(
+      `Error deleting by ID recursively. Result missing 'dependent_ids' property: ${
+        res.body
+      }`,
+    );
   }
 
   // deleted successfully
-  if (res.body.code === 200 && res.body.dependent_ids === '') { return; }
+  if (res.body.code === 200 && res.body.dependent_ids === '') {
+    return;
+  }
 
   // need to delete dependent(s)
   if (res.body.code !== 200 && res.body.dependent_ids !== '') {
@@ -79,7 +86,11 @@ module.exports = {
         }
       }
     } catch (e) {
-      console.log(`Error finding and deleting nodes for project. \n  Error: ${e.message}\n  Query result: ${res}`);
+      console.log(
+        `Error finding and deleting nodes for project. \n  Error: ${
+          e.message
+        }\n  Query result: ${res}`,
+      );
     }
   },
 };

@@ -1,5 +1,3 @@
-
-
 const Helper = codecept_helper;
 const commons_helper = require('./actors/commons_helper.js');
 
@@ -24,7 +22,7 @@ class CDISHelper extends Helper {
     // Check health of services
     const health_check = await commons_helper.makeHealthCheck();
     test_result.err.stack += '\n\nServices Health Check:';
-    Promise.all(health_check).then((res) => {
+    Promise.all(health_check).then(res => {
       test_result.err.stack += res;
     });
   }

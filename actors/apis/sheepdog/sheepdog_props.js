@@ -1,11 +1,11 @@
-
-
 const commons_helper = require('../../commons_helper.js');
 
 /**
  * Sheepdog Properties
  */
-const api_root = `/api/v0/submission/${commons_helper.program.name}/${commons_helper.project.name}`;
+const api_root = `/api/v0/submission/${commons_helper.program.name}/${
+  commons_helper.project.name
+}`;
 module.exports = {
   // API Config
   endpoints: {
@@ -31,5 +31,6 @@ module.exports = {
     entityErrorType: 'entities[0].errors[0].type',
   },
 
-  internalServerErrorMsg: 'Internal server error. Sorry, something unexpected went wrong!',
+  internalServerErrorMsg:
+    'Internal server error. Sorry, something unexpected went wrong!',
 };

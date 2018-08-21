@@ -1,5 +1,3 @@
-
-
 const chai = require('chai');
 
 const expect = chai.expect;
@@ -11,7 +9,7 @@ const indexd_props = require('./indexd_props.js');
 /**
  *  indexd helpers
  */
-const _resultSuccess = function (res) {
+const _resultSuccess = function(res) {
   expect(res).to.not.have.property('error');
   expect(res).to.have.property('updated_date'); // used elsewhere so making sure it exists
 };

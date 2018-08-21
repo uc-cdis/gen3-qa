@@ -1,5 +1,3 @@
-
-
 const indexd_questions = require('./indexd_questions.js');
 const indexd_tasks = require('./indexd_tasks.js');
 

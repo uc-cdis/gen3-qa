@@ -1,5 +1,3 @@
-
-
 Feature('SubmitFileTest');
 
 // Used to construct valid and invalid file nodes
@@ -17,7 +15,6 @@ Scenario('submit and delete file', async (sheepdog, indexd) => {
   await indexd.complete.deleteFile(files.valid_file);
 });
 
-
 Scenario('submit file with URL', async (sheepdog, indexd) => {
   // add url and submit
   files.valid_file.data.urls = test_url;
@@ -26,7 +23,6 @@ Scenario('submit file with URL', async (sheepdog, indexd) => {
   await sheepdog.complete.deleteNode(files.valid_file);
   await indexd.complete.deleteFile(files.valid_file);
 });
-
 
 Scenario('submit file then update with URL', async (sheepdog, indexd) => {
   // submit basic file without url
@@ -43,12 +39,10 @@ Scenario('submit file then update with URL', async (sheepdog, indexd) => {
   await indexd.complete.deleteFile(files.valid_file);
 });
 
-
-Scenario('submit file invalid property', async (sheepdog) => {
+Scenario('submit file invalid property', async sheepdog => {
   await sheepdog.do.addNode(files.invalid_prop);
   sheepdog.ask.hasInternalServerError(files.invalid_prop.add_res);
 });
-
 
 Scenario('update file with invalid property', async (sheepdog, indexd) => {
   // submit valid file
@@ -67,8 +61,7 @@ Scenario('update file with invalid property', async (sheepdog, indexd) => {
   await indexd.complete.deleteFile(files.invalid_prop);
 });
 
-
-const _makeFiles = function (base_node) {
+const _makeFiles = function(base_node) {
   const valid_file = base_node.clone();
 
   const invalid_prop = base_node.clone();
@@ -93,12 +86,10 @@ BeforeSuite(async (sheepdog, nodes) => {
   base_file_node = nodes.fileNode;
 });
 
-
 Before(() => {
   // clone the base file for "clean" files to work with before each test
   files = _makeFiles(base_file_node);
 });
-
 
 AfterSuite(async (sheepdog, nodes) => {
   await sheepdog.complete.deleteNodes(nodes.toFileAsList);

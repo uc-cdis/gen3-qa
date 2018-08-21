@@ -1,5 +1,3 @@
-
-
 const chai = require('chai');
 
 const expect = chai.expect;
@@ -24,4 +22,3 @@ module.exports = {
     portal_helper.seeProp(home_props.cards, 5, 4);
   },
 };
-

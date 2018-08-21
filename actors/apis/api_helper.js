@@ -1,11 +1,8 @@
-
-
 const chai = require('chai');
 
 const expect = chai.expect;
 chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
-
 
 module.exports = {
   applyQuestion(obj_list, question, spread) {
@@ -16,7 +13,11 @@ module.exports = {
 
     for (const this_obj of obj_list) {
       try {
-        if (spread) { question(...this_obj); } else { question(this_obj); }
+        if (spread) {
+          question(...this_obj);
+        } else {
+          question(this_obj);
+        }
       } catch (e) {
         fail_list.push(e.message);
       }

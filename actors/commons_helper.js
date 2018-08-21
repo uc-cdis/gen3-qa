@@ -1,5 +1,3 @@
-
-
 const chai = require('chai');
 
 const expect = chai.expect;
@@ -63,18 +61,13 @@ module.exports = {
       form: JSON.stringify(this.project),
     };
 
-    return request.post(
-      program_form,
-      (error, response, body) => {
-        console.log('Create Program: ', body);
-        return request.post(
-          project_form,
-          (error, response, body) => {
-            console.log('Create Project: ', body);
-            return expect(JSON.parse(body)).to.have.property('entities');
-          });
-      },
-    );
+    return request.post(program_form, (error, response, body) => {
+      console.log('Create Program: ', body);
+      return request.post(project_form, (error, response, body) => {
+        console.log('Create Project: ', body);
+        return expect(JSON.parse(body)).to.have.property('entities');
+      });
+    });
   },
 
   async makeHealthCheck() {
@@ -84,12 +77,19 @@ module.exports = {
       portal: '/',
       fence: '/user/jwt/keys',
     };
-    const health_results = Object.values(endpoints).map(endpoint => new Promise(((resolve, reject) => {
-      request.get(`https://${process.env.HOSTNAME}${endpoint}`,
-        (error, res, body) => {
-          resolve(`${`\nHealth ${endpoint}`.padEnd(30)}: ${res.statusCode}`);
-        });
-    })));
+    const health_results = Object.values(endpoints).map(
+      endpoint =>
+        new Promise((resolve, reject) => {
+          request.get(
+            `https://${process.env.HOSTNAME}${endpoint}`,
+            (error, res, body) => {
+              resolve(
+                `${`\nHealth ${endpoint}`.padEnd(30)}: ${res.statusCode}`,
+              );
+            },
+          );
+        }),
+    );
     return health_results;
   },
 };

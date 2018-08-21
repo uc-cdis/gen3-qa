@@ -1,5 +1,3 @@
-
-
 const indexd_props = require('./indexd_props.js');
 const commons_helper = require('../../commons_helper.js');
 
@@ -8,7 +6,7 @@ const I = actor();
 /**
  * indexd Helpers
  */
-const _getRevFromResponse = function (res) {
+const _getRevFromResponse = function(res) {
   try {
     return res.body.rev;
   } catch (e) {
@@ -24,7 +22,7 @@ module.exports = {
     const uuid = require('uuid');
     const headers = commons_helper.validIndexAuthHeader;
     headers['Content-Type'] = 'application/json; charset=UTF-8';
-    files.forEach((file) => {
+    files.forEach(file => {
       file.did = uuid.v4().toString();
       const data = {
         file_name: file.filename,
@@ -34,50 +32,47 @@ module.exports = {
         urls: [],
         hashes: { md5: file.md5 },
         acl: file.acl,
-        metadata: file.metadata };
+        metadata: file.metadata,
+      };
 
-      if (file.link !== null && file.link !== undefined) { data.urls = [file.link]; }
+      if (file.link !== null && file.link !== undefined) {
+        data.urls = [file.link];
+      }
 
       const strData = JSON.stringify(data);
-      I.sendPostRequest(indexd_props.endpoints.add, strData, headers)
-        .then(
-          (res) => {
-            file.rev = res.body.rev;
-          },
-        );
-    },
-    );
+      I.sendPostRequest(indexd_props.endpoints.add, strData, headers).then(
+        res => {
+          file.rev = res.body.rev;
+        },
+      );
+    });
   },
 
   async getFile(file_node) {
     // get data from indexd
-    return I.sendGetRequest(`${indexd_props.endpoints.get}/${file_node.did}`,
-      commons_helper.validAccessTokenHeader).then(
-      (res) => {
-        file_node.rev = _getRevFromResponse(res);
-        return res.body;
-      },
-    );
+    return I.sendGetRequest(
+      `${indexd_props.endpoints.get}/${file_node.did}`,
+      commons_helper.validAccessTokenHeader,
+    ).then(res => {
+      file_node.rev = _getRevFromResponse(res);
+      return res.body;
+    });
   },
 
   async deleteFile(file_node) {
-    return I.sendDeleteRequest(`${indexd_props.endpoints.delete}/${file_node.did}?rev=${file_node.rev}`,
+    return I.sendDeleteRequest(
+      `${indexd_props.endpoints.delete}/${file_node.did}?rev=${file_node.rev}`,
       commons_helper.validIndexAuthHeader,
-    ).then(
-      (res) => {
-        // Note that we use the entire response, not just the response body
-        file_node.indexd_delete_res = res;
-        return res;
-      },
-    );
+    ).then(res => {
+      // Note that we use the entire response, not just the response body
+      file_node.indexd_delete_res = res;
+      return res;
+    });
   },
 
   async deleteFileIndices(files) {
-    files.forEach(
-      (file) => {
-        this.deleteFile(file);
-      },
-    );
+    files.forEach(file => {
+      this.deleteFile(file);
+    });
   },
 };
-

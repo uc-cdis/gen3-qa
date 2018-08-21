@@ -1,5 +1,3 @@
-
-
 const chai = require('chai');
 
 const expect = chai.expect;
@@ -12,11 +10,11 @@ const api_helper = require('../api_helper.js');
 /**
  * Internal Helpers
  */
-const _resultSuccess = (res) => {
+const _resultSuccess = res => {
   expect(res).to.deep.include(sheepdog_props.resultSuccess);
 };
 
-const _resultFail = (res) => {
+const _resultFail = res => {
   expect(res).to.deep.include(sheepdog_props.resultFail);
 };
 
@@ -57,6 +55,8 @@ module.exports = {
   },
 
   hasInternalServerError(res) {
-    expect(sheepdog_props.internalServerErrorMsg).to.be.oneOf(res.transactional_errors);
+    expect(sheepdog_props.internalServerErrorMsg).to.be.oneOf(
+      res.transactional_errors,
+    );
   },
 };

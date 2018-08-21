@@ -1,5 +1,3 @@
-
-
 const indexd_tasks = require('./indexd_tasks.js');
 const indexd_questions = require('./indexd_questions.js');
 const indexd_props = require('./indexd_props.js');
@@ -17,4 +15,3 @@ module.exports = {
 
   complete: indexd_sequences,
 };
-

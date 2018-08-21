@@ -1,5 +1,3 @@
-
-
 const home_props = require('./home_props.js');
 const portal_helper = require('../portal_helper.js');
 

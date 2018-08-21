@@ -1,7 +1,10 @@
 const { google } = require('googleapis');
 const nconf = require('nconf');
 
-nconf.argv().env().file('./fence_creds.json');
+nconf
+  .argv()
+  .env()
+  .file('./fence_creds.json');
 
 // Create JWT auth object
 const jwt = new google.auth.JWT(
@@ -30,12 +33,15 @@ jwt.authorize((err, data) => {
   const admin = google.admin('directory_v1');
 
   // List members
-  admin.members.list({
-    groupKey: 'dcf-integration-qa_read_gbag@planx-pla.net',
-    auth: jwt,
-  }, (err, data) => {
-    // console.log(data.data.error.errors)
-    // console.log(err || data);
-    console.log('Members: ', data.data);
-  });
+  admin.members.list(
+    {
+      groupKey: 'dcf-integration-qa_read_gbag@planx-pla.net',
+      auth: jwt,
+    },
+    (err, data) => {
+      // console.log(data.data.error.errors)
+      // console.log(err || data);
+      console.log('Members: ', data.data);
+    },
+  );
 });

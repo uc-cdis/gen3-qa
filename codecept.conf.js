@@ -9,11 +9,7 @@ exports.config = {
       browser: 'chrome',
       desiredCapabilities: {
         chromeOptions: {
-          args: [
-            '--headless',
-            '--disable-gpu',
-            '--window-size=1000,900',
-          ],
+          args: ['--headless', '--disable-gpu', '--window-size=1000,900'],
         },
       },
       restart: false,

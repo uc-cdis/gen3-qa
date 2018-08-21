@@ -1,5 +1,3 @@
-
-
 /**
  * peregrine Properties
  */

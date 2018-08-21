@@ -1,5 +1,3 @@
-
-
 const fence_tasks = require('./fence_tasks.js');
 const fence_questions = require('./fence_questions.js');
 const fence_props = require('./fence_props.js');

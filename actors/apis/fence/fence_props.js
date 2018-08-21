@@ -1,5 +1,3 @@
-
-
 /**
  * fence Properties
  */
@@ -20,7 +18,8 @@ module.exports = {
     noGoogleAcctLinked: {
       statusCode: 404,
       error: 'g_acnt_link_error',
-      error_description: "Couldn't unlink account for user, no linked Google account found.",
+      error_description:
+        "Couldn't unlink account for user, no linked Google account found.",
     },
   },
 
@@ -66,5 +65,4 @@ module.exports = {
   },
 
   linkExtendAmount: 86400, // 24 hours (in seconds)
-
 };
