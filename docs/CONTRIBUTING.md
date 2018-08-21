@@ -1,6 +1,7 @@
 ## PR Checklist
 - [ ] Wrapped failing tests in try/catch blocks, made comment next to fail with link to bug issue
-- [ ] Removed any debugging `console.log()`
+- [ ] Avoided putting questions (assertions) inside of any Tasks you wrote
+- [ ] Implemented cleanup in `After()` for any test that modified state shared across Tests/Suites
 - [ ] Successfully ran _all_ tests (not just my new ones) on my own qa commons
 - [ ] Successfully ran _all_ tests on a qa commons which uses the feature (qa-kidsfirst, qa-bloodpac, qa-brain, qa-niaid)
 - [ ] Successfully completed a Jenkins build on a qa commons with my gen3-qa test branch
