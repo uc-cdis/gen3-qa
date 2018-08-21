@@ -9,7 +9,7 @@ let files;
 // Used adding url to file nodes
 let test_url = "s3://cdis-presigned-url-test/testdata";
 
-Scenario('submit and delete file @asdfg', async(sheepdog, indexd) => {
+Scenario('submit and delete file', async(sheepdog, indexd) => {
   // submit basic file without url
   await sheepdog.complete.addNode(files.valid_file);
   await indexd.complete.checkFile(files.valid_file);
@@ -18,7 +18,7 @@ Scenario('submit and delete file @asdfg', async(sheepdog, indexd) => {
 });
 
 
-Scenario('test submit file with URL', async(sheepdog, indexd) => {
+Scenario('submit file with URL', async(sheepdog, indexd) => {
   // add url and submit
   files.valid_file.data.urls = test_url;
   await sheepdog.complete.addNode(files.valid_file);
@@ -28,7 +28,7 @@ Scenario('test submit file with URL', async(sheepdog, indexd) => {
 });
 
 
-Scenario('test update file with URL', async(sheepdog, indexd) => {
+Scenario('submit file then update with URL', async(sheepdog, indexd) => {
   // submit basic file without url
   await sheepdog.complete.addNode(files.valid_file);
   await indexd.complete.checkFile(files.valid_file);
