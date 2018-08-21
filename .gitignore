@@ -6,3 +6,4 @@ package-lock.json
 .DS_Store
 codecept.json
 local_vars.txt
+google_creds.sh

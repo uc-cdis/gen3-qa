@@ -26,15 +26,17 @@
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-jsx-a11y": "^5.1.1",
     "eslint-plugin-react": "^7.4.0",
-    "webdriverio": "^4.12.0",
+    "googleapis": "^32.0.0",
     "unirest": "^0.5.1",
-    "uuid": "^3.2.1"
+    "uuid": "^3.2.1",
+    "webdriverio": "^4.12.0"
   },
   "scripts": {
     "selenium-install": "selenium-standalone install",
     "selenium-start": "selenium-standalone start > /dev/null 2>&1 &",
     "selenium-kill": "pkill -f selenium-standalone",
-    "test": ". local_run.sh && codeceptjs run --debug --verbose",
+    "pretest": "eslint --ignore-path .gitignore . && . local_run.sh",
+    "test": "codeceptjs run --debug --verbose",
     "grep-test": ". local_run.sh && codeceptjs run --verbose --grep",
     "create-actor": "node scripts/create_actor.js"
   }
