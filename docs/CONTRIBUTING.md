@@ -1,5 +1,12 @@
+## General rules/guidelines
+- Avoid using Codecept's `I` directly in a Scenario - toss it into an actor.
+- Avoid using Chai assertions directly in a Scenario - toss it into a question.
+- Keep assertions out of `tasks`, keep actions out of `questions` - combine them in `sequences`
+- Avoid hardcoding page and API attributes (e.g. locators, endpoints) into `questions` and `tasks`, put them in `props`
+- When creating Promises, avoid using reject() - it can erase the stacktrace if mishandled
+
 ## PR Checklist
-- [ ] Wrapped failing tests in try/catch blocks, made comment next to fail with link to bug issue
+- [ ] Wrapped failing tests (from known bugs) in try/catch blocks, made comment next to fail with link to bug issue
 - [ ] Avoided putting questions (assertions) inside of any Tasks you wrote
 - [ ] Implemented cleanup in `After()` for any test that modified state shared across Tests/Suites
 - [ ] Successfully ran _all_ tests (not just my new ones) on my own qa commons
