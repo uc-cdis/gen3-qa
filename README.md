@@ -96,10 +96,35 @@ After running the command, you must add the actor to the codecept.conf.js file f
 Scenario('test 123', (myactor) => {...})
 ```
 
+#### Async tasks/questions
+Most `tasks` are asynchronous, so asking `questions` about their state require a little async/await work. For most funcitons, you can return another funciton's promise and `await` for the promise to resolve in the Scenario. For example
+```js
+// actor_tasks.js
+module.exports = {
+  async getSomething() {
+    return I.sendGetRequest('/endpoint')
+  }
+}
+
+// actor_questions.js
+module.exports = {
+  hasNoErrors(something) {
+    expect(something).to.not.have.property('error')
+  }
+}
+
+// myTest.js
+Scenario('my test', (actor) => {
+  const result = await actor.do.getSomething();
+  actor.ask.hasNoErrors(result);
+});
+```
+
+When creating new Promises, avoid using reject unless you are going to catch it yourself. If we end up calling the reject() it will throw an error into the "global promise chain" of CodeceptJS, and importantly the test will fail without any meaningful stacktrace about what went wrong. Instead, you could do resolve({ error: err_obj }), and in a question assert there is no error.
+
 ### Tags
 Adding a tag (`@Tag`) to a Scenario name allows filtering which tests are run. If your test is special for some reason (e.g. only applies to one commons) add a tag like so:
 ```
 Scenario('test something @ImSpecial', () => {...});
 ```
-Then using CodeceptJS's `--grep '@DCFOnly'` flag we can filter the tags. We can also invert the flags with `--grep '@DCFOnly' --invert` (see [CodeceptJS's command docs](https://codecept.io/commands/)).
-There is also an npm command for doing the same from the command line: `npm run grep-test -- '@DCFOnly'`
+Then using CodeceptJS's `--grep` flag we can filter the tags for example, to run only tests that have been flagged with `@DCF`, we could do `npm test -- --grep '@DCFOnly'`. We can also invert the flags with `--grep '@DCFOnly' --invert` (see [CodeceptJS's command docs](https://codecept.io/commands/)).
