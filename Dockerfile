@@ -37,7 +37,7 @@ COPY . /gen3-qa
 WORKDIR /gen3-qa/python-scripts
 
 RUN mkdir -p sim-data-code \
-    && git clone https://github.com/occ-data/data-simulator /gen3-qa/python-scripts/sim-data-code
+    && git clone https://github.com/occ-data/data-simulator --branch feat/random_simulated_values --single-branch /gen3-qa/python-scripts/sim-data-code
 
 ARG APP=dev
 ARG BASENAME
