@@ -1,17 +1,5 @@
 const { google } = require('googleapis');
 
-const scopes = [
-  'https://www.googleapis.com/auth/admin.directory.group',
-  'https://www.googleapis.com/auth/admin.directory.group.readonly',
-  'https://www.googleapis.com/auth/admin.directory.group.member',
-  'https://www.googleapis.com/auth/admin.directory.group.member.readonly',
-  'https://www.googleapis.com/auth/admin.directory.user.security',
-];
-
-const asUser = 'group-admin@planx-pla.net';
-
-// const googleCreds = JSON.parse(process.env.GOOGLE_APP_CREDS_JSON);
-
 const fence_app = {
   scopes: [
     'https://www.googleapis.com/auth/admin.directory.group',
@@ -41,14 +29,6 @@ const fence_app = {
     );
   },
 };
-
-// const jwt = new google.auth.JWT(
-//   googleCreds.client_email,
-//   null,
-//   googleCreds.private_key,
-//   scopes,
-//   asUser,
-// );
 
 async function auth(jwt, callback, args) {
   // TODO: will there be multiple types of accounts to log in as?
