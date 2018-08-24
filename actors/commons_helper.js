@@ -3,25 +3,30 @@ const chai = require('chai');
 const expect = chai.expect;
 const request = require('request');
 
-const username = process.env.INDEX_USERNAME;
-const password = process.env.INDEX_PASSWORD;
-const indexAuth = Buffer.from(`${username}:${password}`).toString('base64');
-
 module.exports = {
-  validAccessTokenHeader: {
-    Accept: 'application/json',
-    Authorization: `bearer ${process.env.ACCESS_TOKEN}`,
+  get validAccessTokenHeader() {
+    return {
+      Accept: 'application/json',
+      Authorization: `bearer ${process.env.ACCESS_TOKEN}`,
+    };
   },
 
-  expiredAccessTokenHeader: {
-    Accept: 'application/json',
-    Authorization: `bearer ${process.env.EXPIRED_ACCESS_TOKEN}`,
+  get expiredAccessTokenHeader() {
+    return {
+      Accept: 'application/json',
+      Authorization: `bearer ${process.env.EXPIRED_ACCESS_TOKEN}`,
+    };
   },
 
-  validIndexAuthHeader: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json; charset=UTF-8',
-    Authorization: `Basic ${indexAuth}`,
+  get validIndexAuthHeader() {
+    const username = process.env.INDEX_USERNAME;
+    const password = process.env.INDEX_PASSWORD;
+    const indexAuth = Buffer.from(`${username}:${password}`).toString('base64');
+    return {
+      Accept: 'application/json',
+      'Content-Type': 'application/json; charset=UTF-8',
+      Authorization: `Basic ${indexAuth}`,
+    };
   },
 
   get program() {
@@ -42,7 +47,7 @@ module.exports = {
     releasable: true,
   },
 
-  createProgramProject() {
+  async createProgramProject() {
     // add program and project
     const hostname = process.env.HOSTNAME;
     const endpoint = `https://${hostname}/api/v0/submission/`;
@@ -61,11 +66,19 @@ module.exports = {
       form: JSON.stringify(this.project),
     };
 
-    return request.post(program_form, (error, response, body) => {
-      console.log('Create Program: ', body);
-      return request.post(project_form, (error, response, body) => {
-        console.log('Create Project: ', body);
-        return expect(JSON.parse(body)).to.have.property('entities');
+    return new Promise((resolve, reject) => {
+      request.post(program_form, (error, response, body) => {
+        if (response.statusCode !== 200) {
+          reject(body);
+        } else {
+          request.post(project_form, (err, res, bod) => {
+            if (res.statusCode !== 200) {
+              reject(bod);
+            } else {
+              resolve();
+            }
+          });
+        }
       });
     });
   },

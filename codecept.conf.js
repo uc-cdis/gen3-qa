@@ -47,7 +47,7 @@ exports.config = {
       mochaFile: 'output/result.xml',
     },
   },
-  bootstrap: false,
+  bootstrap: './test_setup.js',
   teardown() {
     // session id is a global var retrieved in the helper
     console.log(`Killing Selenium session ${seleniumSessionId}`);

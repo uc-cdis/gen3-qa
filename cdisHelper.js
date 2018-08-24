@@ -2,10 +2,6 @@ const Helper = codecept_helper;
 const commons_helper = require('./actors/commons_helper.js');
 
 class CDISHelper extends Helper {
-  async _init() {
-    await commons_helper.createProgramProject();
-  }
-
   _beforeSuite(suite) {
     const helper = this.helpers.WebDriverIO;
     // get the session id for the web driver
@@ -19,7 +15,7 @@ class CDISHelper extends Helper {
   }
 
   async _failed(test_result) {
-    // Check health of services
+    // append health of services to error stack
     const health_check = await commons_helper.makeHealthCheck();
     test_result.err.stack += '\n\nServices Health Check:';
     Promise.all(health_check).then(res => {

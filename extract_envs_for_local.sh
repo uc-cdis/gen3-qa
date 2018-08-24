@@ -43,20 +43,15 @@ if [[ -n "$GEN3_HOME" ]]; then
     echo "ERROR: failed to retrieve INDEX_PASSWORD for namespace $namespace"
     exit 1
   fi
-  export GOOGLE_APP_EMAIL=$(cat qaplanetv1/apis_configs/fence_google_app_creds_secret.json | jq ".client_email")
-  export GOOGLE_APP_PRIVATE_KEY=$(cat qaplanetv1/apis_configs/fence_google_app_creds_secret.json | jq ".private_key")
 fi
 
-timestamp="$(date +"%s")"
-
 # write environment variables to file
-cat - << EOM
-export HOSTNAME=$HOSTNAME
-    ACCESS_TOKEN=$ACCESS_TOKEN
-    EXPIRED_ACCESS_TOKEN=$EXPIRED_ACCESS_TOKEN
-    INDEX_USERNAME=$INDEX_USERNAME
-    INDEX_PASSWORD=$INDEX_PASSWORD
-    GOOGLE_APP_EMAIL=$GOOGLE_APP_EMAIL
-    GOOGLE_APP_PRIVATE_KEY=$GOOGLE_APP_PRIVATE_KEY
-    TIMESTAMP=$timestamp
+cat << EOM
+{
+    "HOSTNAME": "$HOSTNAME",
+    "ACCESS_TOKEN": "$ACCESS_TOKEN",
+    "EXPIRED_ACCESS_TOKEN": "$EXPIRED_ACCESS_TOKEN",
+    "INDEX_USERNAME": "$INDEX_USERNAME",
+    "INDEX_PASSWORD": "$INDEX_PASSWORD"
+}
 EOM
