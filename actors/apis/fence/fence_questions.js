@@ -64,8 +64,9 @@ module.exports = {
     );
   },
 
-  async projectHasUser(someUser) {
-    const x = await google_helper.getProjectMembers();
-    console.log('AYOOO', x);
+  membersHasUser(members, someUser) {
+    expect(members).to.have.lengthOf.above(0);
+    const memberEmails = members.map(member => member.email);
+    expect(memberEmails).to.include(someUser.email);
   },
 };

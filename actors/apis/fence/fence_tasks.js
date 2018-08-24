@@ -1,6 +1,7 @@
 const fence_props = require('./fence_props.js');
 const commons_helper = require('../../commons_helper.js');
 const portal_helper = require('../../portal/portal_helper.js');
+const google_helper = require('../../google_helper.js');
 
 const I = actor();
 
@@ -108,5 +109,9 @@ module.exports = {
         };
       },
     );
+  },
+
+  async getProjectMembers(someProject) {
+    return google_helper.getProjectMembers(someProject);
   },
 };

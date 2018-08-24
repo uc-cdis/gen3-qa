@@ -27,4 +27,10 @@ module.exports = {
     const unlink_res = await fence_tasks.unlinkGoogleAcct();
     fence_questions.unlinkSuccess(unlink_res);
   },
+
+  async getProjectMembers(projectName) {
+    const members = await fence_tasks.getProjectMembers(projectName);
+    expect(members).to.not.have.property('error');
+    return members;
+  },
 };
