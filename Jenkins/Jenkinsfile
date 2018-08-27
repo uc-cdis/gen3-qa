@@ -37,7 +37,7 @@ pipeline {
     }
     stage('K8sDeploy') {
       when {
-        expression { $env.DEPLOY_K8S }
+        $env.DEPLOY_K8S
       }
       steps {
         withEnv(['GEN3_NOPROXY=true', "vpc_name=$env.KUBECTL_NAMESPACE", "GEN3_HOME=$env.WORKSPACE/cloud-automation"]) {
