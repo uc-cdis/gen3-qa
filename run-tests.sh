@@ -76,7 +76,7 @@ HOSTNAME=$HOSTNAME
 
 EOM
     # see https://codecept.io/reports/
-    ./node_modules/.bin/codeceptjs run --debug --verbose --reporter mocha-junit-reporter
+    npm test --debug --verbose --reporter mocha-junit-reporter
   )
 }
 
@@ -118,7 +118,8 @@ for name in ${namespaceList}; do
       exitCode=1
       continue
     fi
-    runTest "$name"
+    # runTest "$name"
+    npm test
     if [[ $? -ne 0 ]]; then exitCode=1; fi
   fi
 done
