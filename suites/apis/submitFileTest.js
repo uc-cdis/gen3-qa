@@ -82,8 +82,8 @@ BeforeSuite(async (sheepdog, nodes) => {
   await sheepdog.complete.findDeleteAllNodes();
 
   // add nodes up to, but not including, the file node
-  await sheepdog.complete.addNodes(nodes.toFileAsList);
-  base_file_node = nodes.fileNode;
+  await sheepdog.complete.addNodes(nodes.getPathToFile());
+  base_file_node = nodes.getFileNode();
 });
 
 Before(() => {
@@ -92,7 +92,7 @@ Before(() => {
 });
 
 AfterSuite(async (sheepdog, nodes) => {
-  await sheepdog.complete.deleteNodes(nodes.toFileAsList);
+  await sheepdog.complete.deleteNodes(nodes.getPathToFile());
 
   // try to delete anything else that may be remaining
   await sheepdog.complete.findDeleteAllNodes();

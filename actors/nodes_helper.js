@@ -1,8 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-const data_path = process.env.TEST_DATA_PATH;
-
 /**
  * Node object definition
  */
@@ -27,83 +25,90 @@ class Node {
     return new Node(JSON.parse(JSON.stringify(this.orig_props)));
   }
 
-  getFieldOfType(field_type) {
+  getFieldOfType(fieldType) {
     // find a field of specified type in the node's data
     return Object.keys(this.data).find(
-      key => typeof this.data[key] === field_type,
+      key => typeof this.data[key] === fieldType, // eslint-disable-line valid-typeof
     );
   }
 }
 
-const _getAllNodes = function() {
+/**
+ * Nodes helper internal functions
+ */
+const DATA_PATH = process.env.TEST_DATA_PATH;
+
+const getDataPathString = function (fileName) {
+  // get full path to a file given the file name
+  const pathObj = { dir: DATA_PATH, base: fileName };
+  return path.format(pathObj);
+};
+
+const getAllNodes = function () {
   // return an object of data nodes, keyed by node name
   try {
     const nodes = JSON.parse(
-      fs.readFileSync(_getDataPathString('NodeDescriptions.json')),
+      fs.readFileSync(getDataPathString('NodeDescriptions.json')),
     );
-    const nodes_dict = {};
+    const nodesDict = {};
     for (const node of nodes) {
-      const node_name = node.NODE;
-      nodes_dict[node_name] = new Node({
+      const nodeName = node.NODE;
+      nodesDict[nodeName] = new Node({
         data: JSON.parse(
-          fs.readFileSync(_getDataPathString(`${node_name}.json`)),
+          fs.readFileSync(getDataPathString(`${nodeName}.json`)),
         )[0],
         order: node.ORDER,
         category: node.CATEGORY,
-        name: node_name,
+        name: nodeName,
         target: node.TARGET,
       });
     }
 
-    return nodes_dict;
+    return nodesDict;
   } catch (e) {
     console.log(e);
     throw new Error(`Unable to get node(s) from file(s): ${e.message}`);
   }
 };
 
-const _cloneNodes = function(original_nodes) {
-  const new_nodes = {};
-  Object.keys(original_nodes).forEach(
-    name => (new_nodes[name] = original_nodes[name].clone()),
+const cloneNodes = function (originalNodes) {
+  const newNodes = {};
+  Object.keys(originalNodes).forEach(
+    (name) => {
+      newNodes[name] = originalNodes[name].clone();
+    },
   );
-  return new_nodes;
+  return newNodes;
 };
 
-const _getDataPathString = function(file_name) {
-  // get full path to a file given the file name
-  const path_obj = { dir: data_path, base: file_name };
-  return path.format(path_obj);
-};
-
-const _nodePathToProject = function(start_node_name, all_nodes) {
+const nodePathToProject = function (startNodeName, allNodes) {
   // BFS to find path to project from a starting node name
   // returns a dict containing nodes keyed by name
-  const nodes_in_path = {};
-  let que = [start_node_name];
+  const nodesInPath = {};
+  let que = [startNodeName];
   while (que.length > 0) {
     const s = que.pop();
     if (s === 'project') {
       break;
     }
-    nodes_in_path[s] = all_nodes[s];
-    que = all_nodes[s].target.concat(que);
+    nodesInPath[s] = allNodes[s];
+    que = allNodes[s].target.concat(que);
   }
-  return nodes_in_path;
+  return nodesInPath;
 };
 
-const _pathWithFileNode = function(all_nodes) {
+const getPathWithFileNode = function (allNodes) {
   // find a node that is a file then follow it to the root (project)
   // return an object which has the path to the file as well as the file itself
-  const all_nodes_clone = _cloneNodes(all_nodes);
-  const file_node_name = Object.keys(all_nodes_clone).find(
-    node_name => all_nodes_clone[node_name].category === 'data_file',
+  const allNodesClone = cloneNodes(allNodes);
+  const fileNodeName = Object.keys(allNodesClone).find(
+    nodeName => allNodesClone[nodeName].category === 'data_file',
   );
-  const nodes_path = _nodePathToProject(file_node_name, all_nodes_clone);
-  const file = all_nodes_clone[file_node_name].clone();
-  delete nodes_path[file_node_name];
+  const nodesPath = nodePathToProject(fileNodeName, allNodesClone);
+  const file = allNodesClone[fileNodeName].clone();
+  delete nodesPath[fileNodeName];
   return {
-    path: nodes_path,
+    path: nodesPath,
     file,
   };
 };
@@ -111,56 +116,83 @@ const _pathWithFileNode = function(all_nodes) {
 /**
  * Nodes helper
  */
-// note that all_nodes should remain unmodified
-const all_nodes = _getAllNodes();
-let path_and_file = _pathWithFileNode(all_nodes);
+const dataMissingError = 'TEST_DATA_PATH env var missing - must set as path to test data to use nodes module';
+// !!allNodes should remain unmodified to allow reloading data nodes without reading files!!
+const canUseNodes = (DATA_PATH !== '' && DATA_PATH !== undefined);
+let allNodes;
+let pathAndFile;
+if (canUseNodes) {
+  allNodes = getAllNodes();
+  pathAndFile = getPathWithFileNode(allNodes);
+}
 
 module.exports = {
-  all: all_nodes,
+  // Note that all function calls must verify we have data nodes to use
+  // This is unfortunately the only way to allow Scenarios to use the module
+  //   and read and process the node files only once.
+  getPathWithFile() {
+    if (!canUseNodes) {
+      throw Error(dataMissingError);
+    }
+    return pathAndFile;
+  },
 
-  allAsList: Object.values(all_nodes),
+  getPathToFile() {
+    if (!canUseNodes) {
+      throw Error(dataMissingError);
+    }
+    return Object.values(pathAndFile.path);
+  },
 
-  pathWithFile: path_and_file,
+  getFileNode() {
+    if (!canUseNodes) {
+      throw Error(dataMissingError);
+    }
+    return pathAndFile.file;
+  },
 
-  toFileAsList: Object.values(path_and_file.path),
-
-  fileNode: path_and_file.file,
-
-  get firstNode() {
+  getFirstNode() {
     return this.ithNodeInPath(0);
   },
 
-  get secondNode() {
+  getSecondNode() {
     return this.ithNodeInPath(1);
   },
 
-  get lastNode() {
+  getLastNode() {
     return this.ithNodeInPath(this.toFileAsList.length - 1);
   },
 
   ithNodeInPath(i) {
+    if (!canUseNodes) {
+      throw Error(dataMissingError);
+    }
     // Return the ith node in the pathWithFile
-    const nodes_list = Object.values(path_and_file.path);
-    if (i > nodes_list.length || i < 0 || i === undefined) {
+    const nodesList = Object.values(pathAndFile.path);
+    if (i > nodesList.length || i < 0 || i === undefined) {
       throw new Error(
-        `Node index out of range. Asked for ${i} but max index is ${
-          nodes_list.length
-        }.`,
+        `Node index out of range. Asked for ${i} but max index is ${nodesList.length}.`,
       );
     }
-    return this.sortNodes(Object.values(all_nodes))[i];
+    return this.sortNodes(Object.values(allNodes))[i];
   },
 
-  sortNodes(nodes_list) {
+  sortNodes(nodesList) {
     // given array of nodes, return them sorted
-    return nodes_list.sort((a, b) => a.order - b.order);
+    if (!canUseNodes) {
+      throw Error(dataMissingError);
+    }
+    return nodesList.sort((a, b) => a.order - b.order);
   },
 
   refreshPathNodes() {
-    // reload the path nodes (useful/necessary for clearing any changes to nodes that were made in tests)
-    path_and_file = _pathWithFileNode(all_nodes);
-    this.pathWithFile = path_and_file;
-    this.toFileAsList = Object.values(path_and_file.path);
-    this.fileNode = path_and_file.file;
+    if (!canUseNodes) {
+      throw Error(dataMissingError);
+    }
+    // reload the path nodes (necessary for clearing any changes to nodes that were made in tests)
+    pathAndFile = getPathWithFileNode(allNodes);
+    this.pathWithFile = pathAndFile;
+    this.toFileAsList = Object.values(pathAndFile.path);
+    this.fileNode = pathAndFile.file;
   },
 };
