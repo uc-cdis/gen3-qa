@@ -1,5 +1,15 @@
 const request = require('request');
 
+// Set hostname according to namespace
+let subdomain = process.env.NAMESPACE;
+if (subdomain === '' || subdomain === undefined) {
+  throw Error('NAMESPACE environment variable must be set.');
+}
+if (subdomain === 'default') {
+  subdomain = 'qa';
+}
+process.env.HOSTNAME = `${subdomain}.planx-pla.net`;
+
 exports.config = {
   output: './output',
   helpers: {
