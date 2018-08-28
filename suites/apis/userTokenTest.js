@@ -3,22 +3,22 @@ Feature('UserTokenAPI');
 let keyId = null;
 let apiKey = null;
 
-Scenario('test create APIKey success', async (fence, commons) => {
+Scenario('test create APIKey success', async (fence, users) => {
   const scope = ['data', 'user'];
   const apiKeyRes = await fence.do.createAPIKey(
     scope,
-    commons.validAccessTokenHeader,
+    users.mainAcct.accessTokenHeader,
   );
   fence.ask.hasAPIKey(apiKeyRes);
   keyId = apiKeyRes.body.keyId;
   apiKey = apiKeyRes.body.apiKey;
 });
 
-Scenario('create APIKey with expired access token', async (fence, commons) => {
+Scenario('create APIKey with expired access token', async (fence, users) => {
   const scope = ['data', 'user'];
   const apiKeyRes = await fence.do.createAPIKey(
     scope,
-    commons.expiredAccessTokenHeader,
+    users.mainAcct.expiredAccessTokenHeader,
   );
   fence.ask.hasError(
     apiKeyRes,

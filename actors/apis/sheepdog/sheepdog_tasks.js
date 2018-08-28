@@ -1,6 +1,6 @@
 const sheepdog_props = require('./sheepdog_props.js');
 const nodes_helper = require('../../nodes_helper.js');
-const commons_helper = require('../../commons_helper.js');
+const users_helper = require('../../users_helper.js');
 
 const I = actor();
 
@@ -35,7 +35,7 @@ const getDidFromFileId = (fileNode) => {
   const getFileEndpoint = `${sheepdog_props.endpoints.describe}?ids=${fileNode.data.id}&format=json`;
   return I.sendGetRequest(
     getFileEndpoint,
-    commons_helper.validAccessTokenHeader,
+    users_helper.mainAcct.accessTokenHeader,
   ).then((res) => {
     fileNode.did = getDidFromResponse(res);
   });
@@ -50,7 +50,7 @@ module.exports = {
     return I.sendPutRequest(
       sheepdog_props.endpoints.add,
       JSON.stringify(node.data),
-      commons_helper.validAccessTokenHeader,
+      users_helper.mainAcct.accessTokenHeader,
     ).then((res) => {
       node.data.id = getIdFromResponse(res);
       node.add_res = res.body || {};
@@ -66,7 +66,7 @@ module.exports = {
     const deleteEndpoint = `${sheepdog_props.endpoints.delete}/${node.data.id}`;
     return I.sendDeleteRequest(
       deleteEndpoint,
-      commons_helper.validAccessTokenHeader,
+      users_helper.mainAcct.accessTokenHeader,
     ).then((res) => {
       node.delete_res = res.body;
     });

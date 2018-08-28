@@ -41,6 +41,7 @@ exports.config = {
     // General Helpers
     commons: './actors/commons_helper.js',
     nodes: './actors/nodes_helper.js',
+    users: './actors/users_helper.js',
 
     // APIs
     sheepdog: './actors/apis/sheepdog/sheepdog_actor.js',

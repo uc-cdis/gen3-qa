@@ -34,6 +34,31 @@ class User {
       password: process.env[this.envGooglePassword],
     };
   }
+
+  get accessTokenHeader() {
+    return {
+      Accept: 'application/json',
+      Authorization: `bearer ${this.accessToken}`,
+    };
+  }
+
+  get expiredAccessTokenHeader() {
+    return {
+      Accept: 'application/json',
+      Authorization: `bearer ${this.expiredAccessToken}`,
+    };
+  }
+
+  get indexdAuthHeader() { // eslint-disable-line
+    const username = process.env.INDEX_USERNAME;
+    const password = process.env.INDEX_PASSWORD;
+    const indexAuth = Buffer.from(`${username}:${password}`).toString('base64');
+    return {
+      Accept: 'application/json',
+      'Content-Type': 'application/json; charset=UTF-8',
+      Authorization: `Basic ${indexAuth}`,
+    };
+  }
 }
 
 module.exports = {

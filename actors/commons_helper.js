@@ -1,34 +1,8 @@
-const chai = require('chai');
-
-const expect = chai.expect;
 const request = require('request');
 
+const users_helper = require('./users_helper');
+
 module.exports = {
-  get validAccessTokenHeader() {
-    return {
-      Accept: 'application/json',
-      Authorization: `bearer ${process.env.ACCESS_TOKEN}`,
-    };
-  },
-
-  get expiredAccessTokenHeader() {
-    return {
-      Accept: 'application/json',
-      Authorization: `bearer ${process.env.EXPIRED_ACCESS_TOKEN}`,
-    };
-  },
-
-  get validIndexAuthHeader() {
-    const username = process.env.INDEX_USERNAME;
-    const password = process.env.INDEX_PASSWORD;
-    const indexAuth = Buffer.from(`${username}:${password}`).toString('base64');
-    return {
-      Accept: 'application/json',
-      'Content-Type': 'application/json; charset=UTF-8',
-      Authorization: `Basic ${indexAuth}`,
-    };
-  },
-
   get program() {
     const program_name = process.env.HOSTNAME.startsWith('qa') ? 'QA' : 'DEV';
     return {
@@ -56,22 +30,28 @@ module.exports = {
     const program_form = {
       url: endpoint,
       method: 'POST',
-      headers: this.validAccessTokenHeader,
+      headers: users_helper.mainAcct.accessTokenHeader,
       form: JSON.stringify(this.program),
     };
     const project_form = {
       url: `${endpoint + program_name}/`,
       method: 'POST',
-      headers: this.validAccessTokenHeader,
+      headers: users_helper.mainAcct.accessTokenHeader,
       form: JSON.stringify(this.project),
     };
 
     return new Promise((resolve, reject) => {
       request.post(program_form, (error, response, body) => {
+        if (error) {
+          reject(error);
+        }
         if (response.statusCode !== 200) {
           reject(body);
         } else {
           request.post(project_form, (err, res, bod) => {
+            if (err) {
+              reject(err);
+            }
             if (res.statusCode !== 200) {
               reject(bod);
             } else {

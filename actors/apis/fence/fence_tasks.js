@@ -1,5 +1,5 @@
 const fence_props = require('./fence_props.js');
-const commons_helper = require('../../commons_helper.js');
+const users_helper = require('../../users_helper.js');
 const portal_helper = require('../../portal/portal_helper.js');
 const google_helper = require('../../google_helper.js');
 
@@ -15,7 +15,7 @@ module.exports = {
         /[?]$/g,
         '',
       ),
-      commons_helper.validAccessTokenHeader,
+      users_helper.mainAcct.accessTokenHeader,
     ).then(res => ({ body: res.body, statusCode: res.statusCode }));
   },
 
@@ -37,7 +37,7 @@ module.exports = {
   deleteAPIKey(api_key) {
     return I.sendDeleteRequest(
       `${fence_props.endpoints.deleteAPIKey}/${api_key}`,
-      commons_helper.validAccessTokenHeader,
+      users_helper.mainAcct.accessTokenHeader,
     ).then(res => res.body);
   },
 
@@ -46,7 +46,7 @@ module.exports = {
     return I.sendPostRequest(
       fence_props.endpoints.getAccessToken,
       JSON.stringify(data),
-      commons_helper.validIndexAuthHeader,
+      users_helper.validIndexAuthHeader,
     ).then(res => ({ body: res.body, statusCode: res.statusCode }));
   },
 
@@ -91,7 +91,7 @@ module.exports = {
   async unlinkGoogleAcct() {
     return I.sendDeleteRequest(
       fence_props.endpoints.deleteGoogleLink,
-      commons_helper.validAccessTokenHeader,
+      users_helper.mainAcct.accessTokenHeader,
     ).then(res => ({
       body: res.body,
       statusCode: res.statusCode,
@@ -99,7 +99,7 @@ module.exports = {
   },
 
   async extendGoogleLink() {
-    I.haveRequestHeaders(commons_helper.validAccessTokenHeader);
+    I.haveRequestHeaders(users_helper.mainAcct.accessTokenHeader);
     return I.sendPatchRequest(fence_props.endpoints.extendGoogleLink).then(
       res => {
         I.resetRequestHeaders();
