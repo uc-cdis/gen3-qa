@@ -114,7 +114,7 @@ genData() {
 #
 _RUN_TESTS=$(dirname "${BASH_SOURCE:-$0}")
 
-cd "{_RUN_TESTS}"
+cd "${_RUN_TESTS}"
 npm install
 
 #
