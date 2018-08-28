@@ -9,7 +9,9 @@ _GEN_DATA="$_ROOT_DIR/data-simulator"
 export TEST_DATA_PATH="$_ROOT_DIR/TestData/"
 
 cd "${_RUN_TESTS}"
+echo "STARTING INSTALL"
 npm install
+echo "FINISHED INSTALL"
 
 namespaceList="${1:-default}"
 
@@ -123,13 +125,15 @@ exitCode=0
 for name in ${namespaceList}; do
   if [[ "$name" == "default" || "$name" =~ ^qa- ]]; then
     # Generate test data
-    genData "$name"
-    if [[ $? -ne 0 ]]; then
+    #genData "$name"
+    #if [[ $? -ne 0 ]]; then
       # Don't run the tests if we fail to generate data
-      exitCode=1
-      continue
-    fi
+      #exitCode=1
+      #continue
+    #fi
     # runTest "$name"
+    echo "TESTING 123"
+    echo $name
     npm ls
     npm test
     if [[ $? -ne 0 ]]; then exitCode=1; fi
