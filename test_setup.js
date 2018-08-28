@@ -15,10 +15,10 @@ function userFromNamespace(namespace) {
 function runCommand(cmd, namespace) {
   if (inJenkins) {
     if (process.env.GEN3_HOME) {
-      const sourceCmd = `. "${process.env.GEN3_HOME}/gen3/lib/utils.sh"`; // eslint-disable-line no-template-curly-in-string
+      const sourceCmd = `source "${process.env.GEN3_HOME}/gen3/lib/utils.sh"`; // eslint-disable-line no-template-curly-in-string
       const gen3LoadCmd = 'gen3_load "gen3/gen3setup"';
       console.log(sourceCmd);
-      return execSync(`${sourceCmd}; ${gen3LoadCmd}; ${cmd};`);
+      return execSync(`${sourceCmd}; ${gen3LoadCmd}; ${cmd};`, { shell: '/bin/bash' });
     }
   }
   const commonsUser = userFromNamespace(namespace);
