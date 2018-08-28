@@ -10,7 +10,7 @@ export TEST_DATA_PATH="$_ROOT_DIR/TestData/"
 
 cd "${_RUN_TESTS}"
 echo "STARTING INSTALL"
-npm install
+npm ci
 echo "FINISHED INSTALL"
 
 namespaceList="${1:-default}"
@@ -114,7 +114,7 @@ genData() {
 #
 # Node Setup
 #
-npm install
+# npm install
 
 #
 # Run Tests
