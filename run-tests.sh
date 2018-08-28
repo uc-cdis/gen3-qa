@@ -109,9 +109,23 @@ genData() {
   fi
 }
 
+#
+# Node Setup
+#
+_RUN_TESTS=$(dirname "${BASH_SOURCE:-$0}")
+
+cd "{_RUN_TESTS}"
+npm install
+
+#
+# Run Tests
+#
+
 exitCode=0
+
 for name in ${namespaceList}; do
   if [[ "$name" == "default" || "$name" =~ ^qa- ]]; then
+    # Generate test data
     genData "$name"
     if [[ $? -ne 0 ]]; then
       # Don't run the tests if we fail to generate data
