@@ -68,14 +68,14 @@ module.exports = async function (done) {
   console.log('SETUP/BOOTSTRAP OPERATIONS');
   // get some vars from the commons
   console.log('Setting environment variables...');
-  const getResult = getCommonsVars(process.env.NAMESPACE);
-  let commonsVarsJson;
-  try {
-    commonsVarsJson = JSON.parse(getResult);
-  } catch (e) {
-    console.log(getResult);
-    throw Error('Unable to fetch variables from commons.');
-  }
+  // const getResult = getCommonsVars(process.env.NAMESPACE);
+  // let commonsVarsJson;
+  // try {
+  //   commonsVarsJson = JSON.parse(getResult);
+  // } catch (e) {
+  //   console.log(getResult);
+  //   throw Error('Unable to fetch variables from commons.');
+  // }
 
   // Export access tokens
   for (const user of Object.values(usersHelper)) {
