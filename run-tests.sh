@@ -112,9 +112,6 @@ genData() {
 #
 # Node Setup
 #
-_RUN_TESTS=$(dirname "${BASH_SOURCE:-$0}")
-
-cd "${_RUN_TESTS}"
 npm install
 
 #
@@ -133,6 +130,7 @@ for name in ${namespaceList}; do
       continue
     fi
     # runTest "$name"
+    npm ls
     npm test
     if [[ $? -ne 0 ]]; then exitCode=1; fi
   fi
