@@ -18,7 +18,7 @@ function runCommand(cmd, namespace) {
       const sourceCmd = `source "${process.env.GEN3_HOME}/gen3/lib/utils.sh"`; // eslint-disable-line no-template-curly-in-string
       const gen3LoadCmd = 'gen3_load "gen3/gen3setup"';
       console.log(sourceCmd);
-      return execSync(`${sourceCmd}; ${gen3LoadCmd}; ${cmd};`, { shell: '/bin/bash' });
+      return execSync(`${sourceCmd}; ${gen3LoadCmd}; ${cmd}`, { shell: '/bin/bash' });
     }
   }
   const commonsUser = userFromNamespace(namespace);
