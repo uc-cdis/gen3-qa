@@ -101,7 +101,7 @@ module.exports = async function (done) {
   process.env.INDEX_PASSWORD = getIndexPassword(process.env.namespace);
 
   // Create configuration values based on hierarchy then export them to the process
-  nconf.overrides(commonsVarsJson);
+  // nconf.overrides(commonsVarsJson);
   nconf.argv()
     .env()
     .file({
