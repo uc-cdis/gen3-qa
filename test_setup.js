@@ -22,31 +22,23 @@ function runCommand(cmd, namespace) {
     }
   }
   const commonsUser = userFromNamespace(namespace);
-  return execSync(`ssh ${commonsUser}@cdistest.csoc 'set -i; source ~/.bashrc; ${cmd}'`);
+  return execSync(`ssh ${commonsUser}@cdistest.csoc 'set -i; source ~/.bashrc; ${cmd}'`, { shell: '/bin/sh' });
 }
 
 function getAccessToken(namespace, username, expiration) {
   const fenceCmd = `g3kubectl exec $(gen3 pod fence ${namespace}) -- fence-create token-create --scopes openid,user,fence,data,credentials --type access_token --exp ${expiration} --username ${username}`;
   const accessToken = runCommand(fenceCmd, namespace);
-  return accessToken.toString('utf8');
+  // const commonsUser = userFromNamespace(namespace);
+  // const at = execSync(`ssh ${commonsUser}@cdistest.csoc < get_access_token.sh ${namespace} ${username} ${expiration}`, { shell: '/bin/bash' });
+  return accessToken.toString('utf8').trim();
 }
 
 function getIndexPassword(namespace) {
-  /* eslint-disable */
-  const qaCredCmd = `qa_cred=$(g3kubectl get secret sheepdog-creds -o json | jq -r '.data["creds.json"]' | base64 --decode | egrep '(\\s+"indexd_password":)' | sed 's/.*\\("[A-Za-z0-9]\\{8,\\}"\\).*/\\1/' )`;
-  const passCmd = '[[ $qa_cred =~ ([A-Za-z0-9]{8,}+) ]] && echo ${BASH_REMATCH[1]}';
-  const fullCmd = `${qaCredCmd}; ${passCmd};`;
-  /* eslint-disable */
-  const indexPassword = runCommand(fullCmd, namespace);
-  return indexPassword.toString('utf8');
-}
-
-function getCommonsVars(namespace) {
-  // ssh into the commons/namespace to get access token and other stuff
-  const commonsUser = userFromNamespace(namespace);
-  const execCommonsVars = `ssh ${commonsUser}@cdistest.csoc 'bash -s' < extract_envs_for_local.sh ${namespace}`;
-  const commonsVars = execSync(execCommonsVars);
-  return commonsVars.toString('utf8');
+  const credsCmd = 'g3kubectl get secret sheepdog-creds -o json';
+  const secret = runCommand(credsCmd, namespace);
+  let credsString = JSON.parse(secret.toString('utf8')).data['creds.json'];
+  credsString = Buffer.from(credsString, 'base64').toString('utf8');
+  return JSON.parse(credsString).indexd_password;
 }
 
 function exportNconfVars() {
@@ -73,21 +65,11 @@ module.exports = async function (done) {
   console.log('SETUP/BOOTSTRAP OPERATIONS');
   // get some vars from the commons
   console.log('Setting environment variables...');
-  // const getResult = getCommonsVars(process.env.NAMESPACE);
-  // let commonsVarsJson;
-  // try {
-  //   commonsVarsJson = JSON.parse(getResult);
-  // } catch (e) {
-  //   console.log(getResult);
-  //   throw Error('Unable to fetch variables from commons.');
-  // }
-
   // Export access tokens
   for (const user of Object.values(usersHelper)) {
     if (inJenkins || !user.jenkinsOnly) {
       const at = getAccessToken(process.env.NAMESPACE, user.username, DEFAULT_TOKEN_EXP);
       process.env[user.envTokenName] = at;
-      console.log("RESULT ", at);
     }
   }
 
@@ -98,10 +80,9 @@ module.exports = async function (done) {
 
   // Export indexd credentials
   process.env.INDEX_USERNAME = 'gdcapi';
-  process.env.INDEX_PASSWORD = getIndexPassword(process.env.namespace);
+  process.env.INDEX_PASSWORD = getIndexPassword(process.env.NAMESPACE);
 
   // Create configuration values based on hierarchy then export them to the process
-  // nconf.overrides(commonsVarsJson);
   nconf.argv()
     .env()
     .file({
