@@ -20,6 +20,7 @@ function runCommand(cmd, namespace) {
       console.log(sourceCmd);
       return execSync(`${sourceCmd}; ${gen3LoadCmd}; ${cmd}`, { shell: '/bin/bash' });
     }
+    throw Error('Env var GEN3_HOME is not defined - required for loading gen3 tools');
   }
   const commonsUser = userFromNamespace(namespace);
   return execSync(`ssh ${commonsUser}@cdistest.csoc 'set -i; source ~/.bashrc; ${cmd}'`, { shell: '/bin/sh' });
