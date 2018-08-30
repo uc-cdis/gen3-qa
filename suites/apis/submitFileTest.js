@@ -1,79 +1,25 @@
 Feature('SubmitFileTest');
 
 // Used to construct valid and invalid file nodes
-let base_file_node;
+let baseFileNode;
 // Used for holding different file versions for testing. Refreshed before every Scenario
 let files;
 // Used adding url to file nodes
-const test_url = 's3://cdis-presigned-url-test/testdata';
+const testUrl = 's3://cdis-presigned-url-test/testdata';
 
-Scenario('submit and delete file', async (sheepdog, indexd) => {
-  // submit basic file without url
-  await sheepdog.complete.addNode(files.valid_file);
-  await indexd.complete.checkFile(files.valid_file);
-  await sheepdog.complete.deleteNode(files.valid_file);
-  await indexd.complete.deleteFile(files.valid_file);
-});
+const makeFiles = function (baseNode) {
+  const validFile = baseNode.clone();
 
-Scenario('submit file with URL', async (sheepdog, indexd) => {
-  // add url and submit
-  files.valid_file.data.urls = test_url;
-  await sheepdog.complete.addNode(files.valid_file);
-  await indexd.complete.checkFile(files.valid_file);
-  await sheepdog.complete.deleteNode(files.valid_file);
-  await indexd.complete.deleteFile(files.valid_file);
-});
+  const invalidProp = baseNode.clone();
+  invalidProp.data.file_size = 'hello';
 
-Scenario('submit file then update with URL', async (sheepdog, indexd) => {
-  // submit basic file without url
-  await sheepdog.complete.addNode(files.valid_file);
-  await indexd.complete.checkFile(files.valid_file);
-
-  // add a url to the data and update it
-  files.valid_file.data.urls = test_url;
-  await sheepdog.complete.updateNode(files.valid_file);
-  await indexd.complete.checkFile(files.valid_file);
-
-  // delete from sheepdog and indexd
-  await sheepdog.complete.deleteNode(files.valid_file);
-  await indexd.complete.deleteFile(files.valid_file);
-});
-
-Scenario('submit file invalid property', async sheepdog => {
-  await sheepdog.do.addNode(files.invalid_prop);
-  sheepdog.ask.hasInternalServerError(files.invalid_prop.add_res);
-});
-
-Scenario('update file with invalid property', async (sheepdog, indexd) => {
-  // submit valid file
-  await sheepdog.complete.addNode(files.valid_file);
-  await indexd.complete.checkFile(files.valid_file);
-
-  // update file with invalid data
-  files.invalid_prop.data.id = files.valid_file.data.id;
-  files.invalid_prop.did = files.valid_file.did;
-  files.invalid_prop.rev = files.valid_file.rev;
-
-  await sheepdog.do.addNode(files.invalid_prop);
-  sheepdog.ask.hasInternalServerError(files.invalid_prop.add_res);
-
-  await sheepdog.complete.deleteNode(files.invalid_prop);
-  await indexd.complete.deleteFile(files.invalid_prop);
-});
-
-const _makeFiles = function(base_node) {
-  const valid_file = base_node.clone();
-
-  const invalid_prop = base_node.clone();
-  invalid_prop.data.file_size = 'hello';
-
-  const missing_required = base_node.clone();
-  delete missing_required.data.md5sum;
+  const missingRequired = baseNode.clone();
+  delete missingRequired.data.md5sum;
 
   return {
-    valid_file,
-    invalid_prop,
-    missing_required,
+    validFile,
+    invalidProp,
+    missingRequired,
   };
 };
 
@@ -83,12 +29,12 @@ BeforeSuite(async (sheepdog, nodes) => {
 
   // add nodes up to, but not including, the file node
   await sheepdog.complete.addNodes(nodes.getPathToFile());
-  base_file_node = nodes.getFileNode();
+  baseFileNode = nodes.getFileNode();
 });
 
 Before(() => {
   // clone the base file for "clean" files to work with before each test
-  files = _makeFiles(base_file_node);
+  files = makeFiles(baseFileNode);
 });
 
 AfterSuite(async (sheepdog, nodes) => {
@@ -96,4 +42,58 @@ AfterSuite(async (sheepdog, nodes) => {
 
   // try to delete anything else that may be remaining
   await sheepdog.complete.findDeleteAllNodes();
+});
+
+Scenario('submit and delete file', async (sheepdog, indexd) => {
+  // submit basic file without url
+  await sheepdog.complete.addNode(files.validFile);
+  await indexd.complete.checkFile(files.validFile);
+  await sheepdog.complete.deleteNode(files.validFile);
+  await indexd.complete.deleteFile(files.validFile);
+});
+
+Scenario('submit file with URL', async (sheepdog, indexd) => {
+  // add url and submit
+  files.validFile.data.urls = testUrl;
+  await sheepdog.complete.addNode(files.validFile);
+  await indexd.complete.checkFile(files.validFile);
+  await sheepdog.complete.deleteNode(files.validFile);
+  await indexd.complete.deleteFile(files.validFile);
+});
+
+Scenario('submit file then update with URL', async (sheepdog, indexd) => {
+  // submit basic file without url
+  await sheepdog.complete.addNode(files.validFile);
+  await indexd.complete.checkFile(files.validFile);
+
+  // add a url to the data and update it
+  files.validFile.data.urls = testUrl;
+  await sheepdog.complete.updateNode(files.validFile);
+  await indexd.complete.checkFile(files.validFile);
+
+  // delete from sheepdog and indexd
+  await sheepdog.complete.deleteNode(files.validFile);
+  await indexd.complete.deleteFile(files.validFile);
+});
+
+Scenario('submit file invalid property', async (sheepdog) => {
+  await sheepdog.do.addNode(files.invalidProp);
+  sheepdog.ask.hasInternalServerError(files.invalidProp.add_res);
+});
+
+Scenario('update file with invalid property', async (sheepdog, indexd) => {
+  // submit valid file
+  await sheepdog.complete.addNode(files.validFile);
+  await indexd.complete.checkFile(files.validFile);
+
+  // update file with invalid data
+  files.invalidProp.data.id = files.validFile.data.id;
+  files.invalidProp.did = files.validFile.did;
+  files.invalidProp.rev = files.validFile.rev;
+
+  await sheepdog.do.addNode(files.invalidProp);
+  sheepdog.ask.hasInternalServerError(files.invalidProp.add_res);
+
+  await sheepdog.complete.deleteNode(files.invalidProp);
+  await indexd.complete.deleteFile(files.invalidProp);
 });
