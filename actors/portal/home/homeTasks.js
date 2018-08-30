@@ -1,5 +1,5 @@
-const home_props = require('./home_props.js');
-const portal_helper = require('../portal_helper.js');
+const homeProps = require('./homeProps.js');
+const portalHelper = require('../portalHelper.js');
 
 const I = actor();
 
@@ -8,7 +8,7 @@ const I = actor();
  */
 module.exports = {
   goTo() {
-    I.amOnPage(home_props.path);
-    portal_helper.seeProp(home_props.ready_cue, 10);
+    I.amOnPage(homeProps.path);
+    portalHelper.seeProp(homeProps.ready_cue, 10);
   },
 };

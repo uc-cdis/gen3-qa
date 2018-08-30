@@ -1,17 +1,17 @@
-const home_tasks = require('./home_tasks.js');
-const home_questions = require('./home_questions.js');
-const home_props = require('./home_props.js');
-const home_sequences = require('./home_sequences.js');
+const homeTasks = require('./homeTasks.js');
+const homeQuestions = require('./homeQuestions.js');
+const homeProps = require('./homeProps.js');
+const homeSequences = require('./homeSequences.js');
 
 /**
  * home Actor
  */
 module.exports = {
-  props: home_props,
+  props: homeProps,
 
-  do: home_tasks,
+  do: homeTasks,
 
-  ask: home_questions,
+  ask: homeQuestions,
 
-  complete: home_sequences,
+  complete: homeSequences,
 };

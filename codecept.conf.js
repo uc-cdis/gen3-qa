@@ -50,8 +50,7 @@ exports.config = {
     fence: './actors/apis/fence/fenceActor.js',
 
     // Pages
-    dict: './actors/portal/dict/dict_actor.js',
-    home: './actors/portal/home/home_actor.js',
+    home: './actors/portal/home/homeActor.js',
   },
   mocha: {
     reporterOptions: {

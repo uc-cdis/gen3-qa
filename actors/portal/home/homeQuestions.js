@@ -1,11 +1,5 @@
-const chai = require('chai');
-
-const expect = chai.expect;
-chai.config.includeStack = true;
-chai.config.truncateThreshold = 0;
-
-const home_props = require('./home_props.js');
-const portal_helper = require('../portal_helper.js');
+const homeProps = require('./homeProps.js');
+const portalHelper = require('../portalHelper.js');
 
 const I = actor();
 
@@ -18,7 +12,7 @@ module.exports = {
   },
 
   seeDetails() {
-    portal_helper.seeProp(home_props.summary, 5, 1);
-    portal_helper.seeProp(home_props.cards, 5, 4);
+    portalHelper.seeProp(homeProps.summary, 5, 1);
+    portalHelper.seeProp(homeProps.cards, 5, 4);
   },
 };

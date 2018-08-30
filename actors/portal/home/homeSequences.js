@@ -1,5 +1,5 @@
-const home_questions = require('./home_questions.js');
-const home_tasks = require('./home_tasks.js');
+// const homeQuestions = require('./homeQuestions.js');
+// const homeTasks = require('./homeTasks.js');
 
 /**
  * home sequences

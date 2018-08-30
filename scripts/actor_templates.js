@@ -42,8 +42,8 @@ module.exports = {
   // Portal Example:
   // goTo() {
   //   homepage_actor.do.goTo();
-  //   portal_helper.clickProp(navbar.props.dictionary_link)
-  //   portal_helper.seeProp(dictionary_props.ready_cue)
+  //   portalHelper.clickProp(navbar.props.dictionary_link)
+  //   portalHelper.seeProp(dictionary_props.ready_cue)
   // }
 };
 `;
