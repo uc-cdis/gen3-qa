@@ -16,7 +16,7 @@ module.exports = {
     if (prop === undefined) {
       throw new Error('Missing property');
     }
-    if (prop.locator.hasOwnProperty('text')) {
+    if ('text' in prop.locator) {
       I.waitForText(prop.locator.text, seconds || DEFAULT_WAIT);
       return;
     }
