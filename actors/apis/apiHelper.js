@@ -5,24 +5,25 @@ chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 
 module.exports = {
-  applyQuestion(obj_list, question, spread) {
-    // call the question on each object in the list, catching and appending any thrown AssertionErrors
-    // Finally, assert there should be no assertion errors in the list
-    // Multiple arguments can be passed to the callback by putting them in an array, then calling with arg spread as true
-    const fail_list = [];
+  applyQuestion(objList, question, spread) {
+    /* All question on each object in the list, catching and appending any thrown AssertionErrors.
+      Assert there should be no assertion errors in the list.
+      Multiple arguments can be passed to the callback by putting them in an array,
+      then calling with arg spread as true. */
+    const failList = [];
 
-    for (const this_obj of obj_list) {
+    for (const thisObj of objList) {
       try {
         if (spread) {
-          question(...this_obj);
+          question(...thisObj);
         } else {
-          question(this_obj);
+          question(thisObj);
         }
       } catch (e) {
-        fail_list.push(e.message);
+        failList.push(e.message);
       }
     }
 
-    expect(fail_list).to.deep.equal([]);
+    expect(failList).to.deep.equal([]);
   },
 };
