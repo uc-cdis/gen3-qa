@@ -27,11 +27,13 @@ async function loginGoogle(googleCreds) {
   }
 
   // fill out username and password
-  I.fillField(fenceProps.googleLogin.emailField.locator, googleCreds.email);
+  portalHelper.waitForVisibleProp(fenceProps.googleLogin.emailField, 5);
+  I.retry({ retries: 3, minTimeout: 2000 })
+    .fillField(fenceProps.googleLogin.emailField.locator, googleCreds.email);
   portalHelper.clickProp(fenceProps.googleLogin.emailNext);
-  portalHelper.seeProp(fenceProps.googleLogin.passwordReadyCue, 10);
-  I.wait(5);
-  I.fillField(fenceProps.googleLogin.passwordField.locator, googleCreds.password);
+  portalHelper.waitForVisibleProp(fenceProps.googleLogin.passwordField);
+  I.retry({ retries: 3, minTimeout: 2000 })
+    .fillField(fenceProps.googleLogin.passwordField.locator, googleCreds.password);
   portalHelper.clickProp(fenceProps.googleLogin.passwordNext);
 }
 

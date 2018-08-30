@@ -30,7 +30,7 @@ module.exports = {
   googleLogin: {
     readyCue: {
       locator: {
-        css: 'h1',
+        text: 'Sign in with Google',
       },
     },
     emailField: {
@@ -51,11 +51,6 @@ module.exports = {
     passwordNext: {
       locator: {
         css: '#passwordNext',
-      },
-    },
-    passwordReadyCue: {
-      locator: {
-        text: 'Welcome',
       },
     },
     useAnotherAcctBtn: {

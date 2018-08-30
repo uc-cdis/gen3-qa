@@ -2,20 +2,22 @@ const I = actor();
 
 const DEFAULT_WAIT = 5;
 
+const validateProp = function (prop) {
+  if (prop === undefined || prop === '') {
+    throw Error('Missing property');
+  }
+};
+
 module.exports = {
   clickProp(prop) {
     // click on a property (locator must be {css: ...} or {xpath: ...})
-    if (prop === undefined) {
-      throw new Error('Missing prop');
-    }
+    validateProp(prop);
     I.click(prop.locator);
   },
 
   seeProp(prop, seconds, num) {
     // checks if a property is on page (locator can be text, css, or xpath
-    if (prop === undefined) {
-      throw new Error('Missing property');
-    }
+    validateProp(prop);
     if ('text' in prop.locator) {
       I.waitForText(prop.locator.text, seconds || DEFAULT_WAIT);
       return;
@@ -29,5 +31,10 @@ module.exports = {
         seconds || DEFAULT_WAIT,
       );
     }
+  },
+
+  waitForVisibleProp(prop, seconds) {
+    validateProp(prop);
+    I.waitForVisible(Object.values(prop.locator)[0], seconds);
   },
 };
