@@ -5,7 +5,7 @@ chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 
 const sheepdogProps = require('./sheepdogProps.js');
-const api_helper = require('../api_helper.js');
+const apiHelper = require('../apiHelper.js');
 
 /**
  * Internal Helpers
@@ -41,11 +41,11 @@ module.exports = {
   },
 
   addNodesSuccess(node_list) {
-    api_helper.applyQuestion(node_list, this.addNodeSuccess);
+    apiHelper.applyQuestion(node_list, this.addNodeSuccess);
   },
 
   deleteNodesSuccess(node_list) {
-    api_helper.applyQuestion(node_list, this.deleteNodeSuccess);
+    apiHelper.applyQuestion(node_list, this.deleteNodeSuccess);
   },
 
   hasEntityError(res, error_type) {

@@ -5,7 +5,7 @@ chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 
 const peregrineProps = require('./peregrineProps.js');
-const api_helper = require('../api_helper.js');
+const apiHelper = require('../apiHelper.js');
 
 /**
  * peregrine helpers
@@ -72,7 +72,7 @@ module.exports = {
 
   queryResultsEqualNodes(results, nodes_list) {
     const result_node_list = nodes_list.map(node => [results[node.name], node]);
-    api_helper.applyQuestion(
+    apiHelper.applyQuestion(
       result_node_list,
       this.queryResultEqualsNode,
       true,
@@ -80,7 +80,7 @@ module.exports = {
   },
 
   queryResultsSuccess(results_list) {
-    api_helper.applyQuestion(results_list, _resultSuccess);
+    apiHelper.applyQuestion(results_list, _resultSuccess);
   },
 
   nodeCountIncrease(node_name, previous_result, new_result) {
@@ -104,6 +104,6 @@ module.exports = {
       previous_counts[node_name],
       new_counts[node_name],
     ]);
-    api_helper.applyQuestion(results_merged_list, this.nodeCountIncrease, true);
+    apiHelper.applyQuestion(results_merged_list, this.nodeCountIncrease, true);
   },
 };
