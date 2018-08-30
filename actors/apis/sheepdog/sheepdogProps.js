@@ -1,10 +1,10 @@
-const commons_helper = require('../../commons_helper.js');
+const commonsHelper = require('../../commonsHelper.js');
 
 /**
  * Sheepdog Properties
  */
-const api_root = `/api/v0/submission/${commons_helper.program.name}/${
-  commons_helper.project.name
+const api_root = `/api/v0/submission/${commonsHelper.program.name}/${
+  commonsHelper.project.name
 }`;
 module.exports = {
   // API Config

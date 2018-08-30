@@ -2,7 +2,7 @@ const nconf = require('nconf');
 const { execSync } = require('child_process');
 const homedir = require('os').homedir();
 
-const commonsHelper = require('./actors/commons_helper');
+const commonsHelper = require('./actors/commonsHelper');
 const usersHelper = require('./actors/users_helper');
 
 const DEFAULT_TOKEN_EXP = 1800;

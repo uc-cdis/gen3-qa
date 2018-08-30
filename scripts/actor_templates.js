@@ -36,7 +36,7 @@ let I = actor();
 module.exports = {
   // API Example:
   // getFiles() {
-  //   I.sendGetRequest(sheepdog.endpoints.getFile, commons_helper.validAccessTokenHeader)
+  //   I.sendGetRequest(sheepdog.endpoints.getFile, commonsHelper.validAccessTokenHeader)
   // }
   //
   // Portal Example:

@@ -39,7 +39,7 @@ exports.config = {
   },
   include: {
     // General Helpers
-    commons: './actors/commons_helper.js',
+    commons: './actors/commonsHelper.js',
     nodes: './actors/nodes_helper.js',
     users: './actors/users_helper.js',
 
