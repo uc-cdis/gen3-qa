@@ -3,16 +3,16 @@ const commonsHelper = require('../../commonsHelper.js');
 /**
  * Sheepdog Properties
  */
-const api_root = `/api/v0/submission/${commonsHelper.program.name}/${
+const apiRoot = `/api/v0/submission/${commonsHelper.program.name}/${
   commonsHelper.project.name
 }`;
 module.exports = {
   // API Config
   endpoints: {
-    root: api_root,
-    add: api_root,
-    delete: `${api_root}/entities`,
-    describe: `${api_root}/export`,
+    root: apiRoot,
+    add: apiRoot,
+    delete: `${apiRoot}/entities`,
+    describe: `${apiRoot}/export`,
   },
 
   resultSuccess: {

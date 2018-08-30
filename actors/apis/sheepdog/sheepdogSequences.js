@@ -6,14 +6,14 @@ const usersHelper = require('../../usersHelper.js');
 
 const I = actor();
 
-const _deleteByIdRecursively = async id => {
-  const delete_endpoint = `${sheepdogProps.endpoints.delete}/${id}`;
+const deleteByIdRecursively = async function (id) {
+  const deleteEndpoint = `${sheepdogProps.endpoints.delete}/${id}`;
   const res = await I.sendDeleteRequest(
-    delete_endpoint,
+    deleteEndpoint,
     usersHelper.mainAcct.accessTokenHeader,
   );
 
-  if (!res.body.hasOwnProperty('dependent_ids')) {
+  if (!('dependent_ids' in res.body)) {
     throw new Error(
       `Error deleting by ID recursively. Result missing 'dependent_ids' property: ${
         res.body
@@ -29,8 +29,8 @@ const _deleteByIdRecursively = async id => {
   // need to delete dependent(s)
   if (res.body.code !== 200 && res.body.dependent_ids !== '') {
     const dependents = res.body.dependent_ids.split(',');
-    await _deleteByIdRecursively(dependents[0]);
-    await _deleteByIdRecursively(id);
+    await deleteByIdRecursively(dependents[0]);
+    await deleteByIdRecursively(id);
   }
 };
 
@@ -53,23 +53,23 @@ module.exports = {
     sheepdogQuestions.updateNodeSuccess(node);
   },
 
-  async addNodes(nodes_list) {
-    await sheepdogTasks.addNodes(nodes_list);
-    sheepdogQuestions.addNodesSuccess(nodes_list);
+  async addNodes(nodesList) {
+    await sheepdogTasks.addNodes(nodesList);
+    sheepdogQuestions.addNodesSuccess(nodesList);
   },
 
-  async deleteNodes(nodes_list) {
-    await sheepdogTasks.deleteNodes(nodes_list);
-    sheepdogQuestions.deleteNodesSuccess(nodes_list);
+  async deleteNodes(nodesList) {
+    await sheepdogTasks.deleteNodes(nodesList);
+    sheepdogQuestions.deleteNodesSuccess(nodesList);
   },
 
   async findDeleteAllNodes() {
     // FIXME: This function doesn't always work and can be optimized
     // Delete all nodes in the program/project
-    const top_node = 'project';
+    const topNode = 'project';
     const q = `
     {
-      ${top_node} {
+      ${topNode} {
         _links {
           id
         }
@@ -78,12 +78,14 @@ module.exports = {
 
     const res = await peregrineActor.do.query(q, null);
     try {
-      while (res.data[top_node].length > 0) {
-        const linked_type = res.data[top_node].pop();
-        while (linked_type._links.length > 0) {
-          const linked_type_instance = linked_type._links.pop();
-          await _deleteByIdRecursively(linked_type_instance.id);
+      while (res.data[topNode].length > 0) {
+        const linkedType = res.data[topNode].pop();
+        /*eslint-disable */
+        while (linkedType._links.length > 0) {
+          const linkedTypeInstance = linkedType._links.pop();
+          await deleteByIdRecursively(linkedTypeInstance.id);
         }
+        /*eslint-disable */
       }
     } catch (e) {
       console.log(

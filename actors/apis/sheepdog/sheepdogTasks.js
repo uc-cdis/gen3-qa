@@ -7,7 +7,7 @@ const I = actor();
 /**
  * Internal Helpers
  */
-const getIdFromResponse = (res) => {
+const getIdFromResponse = function (res) {
   const body = res.body;
   try {
     return body.entities[0].id;
@@ -17,7 +17,7 @@ const getIdFromResponse = (res) => {
   }
 };
 
-const getDidFromResponse = (res) => {
+const getDidFromResponse = function (res) {
   try {
     const body = JSON.parse(res.body);
     return body[0].object_id;
@@ -27,10 +27,10 @@ const getDidFromResponse = (res) => {
   }
 };
 
-const getDidFromFileId = (fileNode) => {
+const getDidFromFileId = function (fileNode) {
   // get did from sheepdog id
   if (fileNode.data.id === '' || fileNode.data.id === undefined) {
-    return;
+    return undefined;
   }
   const getFileEndpoint = `${sheepdogProps.endpoints.describe}?ids=${fileNode.data.id}&format=json`;
   return I.sendGetRequest(
