@@ -4,7 +4,7 @@ const expect = chai.expect;
 chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 
-const indexd_props = require('./indexd_props.js');
+const indexdProps = require('./indexdProps.js');
 
 /**
  *  indexd helpers

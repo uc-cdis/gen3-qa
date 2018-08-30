@@ -45,7 +45,7 @@ exports.config = {
 
     // APIs
     sheepdog: './actors/apis/sheepdog/sheepdog_actor.js',
-    indexd: './actors/apis/indexd/indexd_actor.js',
+    indexd: './actors/apis/indexd/indexdActor.js',
     peregrine: './actors/apis/peregrine/peregrine_actor.js',
     fence: './actors/apis/fence/fenceActor.js',
 

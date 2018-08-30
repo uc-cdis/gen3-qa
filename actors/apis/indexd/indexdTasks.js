@@ -1,4 +1,4 @@
-const indexd_props = require('./indexd_props.js');
+const indexdProps = require('./indexdProps.js');
 const users_helper = require('../../users_helper.js');
 
 const I = actor();
@@ -40,7 +40,7 @@ module.exports = {
       }
 
       const strData = JSON.stringify(data);
-      I.sendPostRequest(indexd_props.endpoints.add, strData, headers).then(
+      I.sendPostRequest(indexdProps.endpoints.add, strData, headers).then(
         res => {
           file.rev = res.body.rev;
         },
@@ -51,7 +51,7 @@ module.exports = {
   async getFile(file_node) {
     // get data from indexd
     return I.sendGetRequest(
-      `${indexd_props.endpoints.get}/${file_node.did}`,
+      `${indexdProps.endpoints.get}/${file_node.did}`,
       users_helper.mainAcct.accessTokenHeader,
     ).then(res => {
       file_node.rev = _getRevFromResponse(res);
@@ -61,7 +61,7 @@ module.exports = {
 
   async deleteFile(file_node) {
     return I.sendDeleteRequest(
-      `${indexd_props.endpoints.delete}/${file_node.did}?rev=${file_node.rev}`,
+      `${indexdProps.endpoints.delete}/${file_node.did}?rev=${file_node.rev}`,
       users_helper.mainAcct.indexdAuthHeader,
     ).then(res => {
       // Note that we use the entire response, not just the response body
