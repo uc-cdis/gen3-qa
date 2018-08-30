@@ -3,57 +3,57 @@ const usersHelper = require('../../usersHelper.js');
 
 const I = actor();
 
-const _fieldsToString = obj => {
-  let fields_string = '';
-  Object.keys(obj).forEach(prop => {
+const fieldsToString = function (obj) {
+  let fieldsString = '';
+  Object.keys(obj).forEach((prop) => {
     if (typeof obj[prop] === 'object') {
       // ignore attributes that are not primitive
       return;
     }
-    fields_string += `\n ${prop}`;
+    fieldsString += `\n ${prop}`;
   });
-  return fields_string;
+  return fieldsString;
 };
 
-const _filtersToString = filters => {
-  const filter_string = Object.keys(filters)
-    .map(filter => {
-      let filter_val = filters[filter];
-      if (typeof filter_val === 'string') {
-        filter_val = `"${filter_val}"`;
+const filtersToString = function (filters) {
+  const filterString = Object.keys(filters)
+    .map((filter) => {
+      let filterVal = filters[filter];
+      if (typeof filterVal === 'string') {
+        filterVal = `"${filterVal}"`;
       }
 
-      return `${filter}: ${filter_val}`;
+      return `${filter}: ${filterVal}`;
     })
     .join(', ');
 
-  return filter_string;
+  return filterString;
 };
 
 /**
  * peregrine Tasks
  */
 module.exports = {
-  async query(query_string, variables_string) {
+  async query(queryString, variablesString) {
     return I.sendPostRequest(
       peregrineProps.endpoints.query,
-      JSON.stringify({ query: query_string, variables: variables_string }),
+      JSON.stringify({ query: queryString, variables: variablesString }),
       usersHelper.mainAcct.accessTokenHeader,
     ).then(res => res.body);
   },
 
   async queryNodeFields(node, filters) {
     // query node type and include ALL fields in node
-    const fields_string = _fieldsToString(node.data);
-    let filter_string = '';
+    const fieldsString = fieldsToString(node.data);
+    let filterString = '';
     if (filters !== undefined && filters !== null) {
-      filter_string = _filtersToString(filters);
-      filter_string = `(${filter_string})`;
+      filterString = filtersToString(filters);
+      filterString = `(${filterString})`;
     }
 
     const q = `{
-      ${node.name} ${filter_string} {
-        ${fields_string}
+      ${node.name} ${filterString} {
+        ${fieldsString}
       }
     }`;
 
@@ -62,22 +62,20 @@ module.exports = {
   },
 
   async queryCount(node) {
-    const type_count = `_${node.name}_count`;
+    const typeCount = `_${node.name}_count`;
     const q = `{
-      ${type_count}
+      ${typeCount}
     }`;
 
     return this.query(q, null);
   },
 
-  async queryWithPathTo(from_node, to_node) {
+  async queryWithPathTo(fromNode, toNode) {
     const q = `query Test {
-    ${from_node.name} (
+    ${fromNode.name} (
         order_by_desc: "created_datetime",
           with_path_to: {
-              type: "${to_node.name}", submitter_id: "${
-      to_node.data.submitter_id
-    }"
+              type: "${toNode.name}", submitter_id: "${toNode.data.submitter_id}"
           }
       ) {
         submitter_id

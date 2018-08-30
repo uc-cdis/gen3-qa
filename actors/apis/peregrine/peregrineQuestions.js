@@ -4,26 +4,21 @@ const expect = chai.expect;
 chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 
-const peregrineProps = require('./peregrineProps.js');
 const apiHelper = require('../apiHelper.js');
 
 /**
  * peregrine helpers
  */
-const _resultSuccess = res => {
+const resultSuccess = function (res) {
   expect(res).to.have.property('data');
   expect(res).to.not.have.property('errors');
-};
-
-const _resultFail = res => {
-  expect(res).to.have.property('errors');
 };
 
 /**
  * peregrine Questions
  */
 const hasField = (res, field) => {
-  _resultSuccess(res);
+  resultSuccess(res);
   expect(res).to.have.nested.property(`data.${field}`);
 };
 
@@ -41,69 +36,47 @@ module.exports = {
 
   queryResultEqualsNode(result, node) {
     hasField(result, node.name);
-    const node_data = node.data; // grab data from node
-    const query_result = result.data[node.name][0]; // grab query response data
-    const fail_list = [];
-    let fields_compared = 0;
+    const nodeData = node.data; // grab data from node
+    const queryResult = result.data[node.name][0]; // grab query response data
 
-    // Iterate through the node data fields.
-    // If the query result also has that field, check that they are equal.
-    Object.keys(node_data).forEach(field => {
-      try {
-        if (
-          node_data.hasOwnProperty(field) &&
-          query_result.hasOwnProperty(field)
-        ) {
-          ++fields_compared;
-          expect(node_data[field]).to.equal(query_result[field]);
-        }
-      } catch (e) {
-        fail_list.push(e.message);
-      }
-    });
-
-    // Check that we were able to compare at least 1 field
-    expect(fields_compared).to.be.above(
-      0,
-      'Query result and Node had no common fields, no comparison made',
-    );
-    expect(fail_list).to.deep.equal([]);
+    // exect the original data to equal our query result
+    expect(nodeData).to.deep.include(queryResult);
   },
 
-  queryResultsEqualNodes(results, nodes_list) {
-    const result_node_list = nodes_list.map(node => [results[node.name], node]);
+  queryResultsEqualNodes(results, nodesList) {
+    const resultNodeList = nodesList.map(node => [results[node.name], node]);
     apiHelper.applyQuestion(
-      result_node_list,
+      resultNodeList,
       this.queryResultEqualsNode,
       true,
     );
   },
 
-  queryResultsSuccess(results_list) {
-    apiHelper.applyQuestion(results_list, _resultSuccess);
+  queryResultsSuccess(resultsList) {
+    apiHelper.applyQuestion(resultsList, resultSuccess);
   },
 
-  nodeCountIncrease(node_name, previous_result, new_result) {
-    _resultSuccess(previous_result);
-    _resultSuccess(new_result);
+  nodeCountIncrease(nodeName, previousResult, newResult) {
+    resultSuccess(previousResult);
+    resultSuccess(newResult);
 
-    const count_name = `_${node_name}_count`;
-    expect(previous_result).to.have.nested.property(`data.${count_name}`);
-    const previous_count = previous_result.data[count_name];
+    const countName = `_${nodeName}_count`;
+    expect(previousResult).to.have.nested.property(`data.${countName}`);
+    const previousCount = previousResult.data[countName];
 
-    expect(new_result).to.nested.include({
-      [`data.${count_name}`]: previous_count + 1,
+    expect(newResult).to.nested.include({
+      [`data.${countName}`]: previousCount + 1,
     });
   },
 
-  allCountsIncrease(previous_counts, new_counts) {
+  allCountsIncrease(previousCounts, newCounts) {
     // assert that the count for each node increased by 1
-    // previous_counts and new_counts are objects with results keyed by the node name
-    const results_merged_list = Object.keys(previous_counts).map(node_name => [
-      node_name,
-      previous_counts[node_name],
-      new_counts[node_name],
+    // previousCounts and newCounts are objects with results keyed by the node name
+    const resultsMergedList = Object.keys(previousCounts).map(nodeName => [
+      nodeName,
+      previousCounts[nodeName],
+      newCounts[nodeName],
     ]);
-    apiHelper.applyQuestion(results_merged_list, this.nodeCountIncrease, true);
+    apiHelper.applyQuestion(resultsMergedList, this.nodeCountIncrease, true);
   },
 };
