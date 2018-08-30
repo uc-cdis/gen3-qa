@@ -1,6 +1,6 @@
 const fenceProps = require('./fenceProps.js');
 const usersHelper = require('../../usersHelper.js');
-const portalHelper = require('../../portal/portal_helper.js');
+const portalHelper = require('../../portal/portalHelper.js');
 const googleHelper = require('../../googleHelper.js');
 
 const container = require('codeceptjs').container;
