@@ -1,7 +1,7 @@
 const fenceProps = require('./fenceProps.js');
 const users_helper = require('../../users_helper.js');
 const portal_helper = require('../../portal/portal_helper.js');
-const google_helper = require('../../google_helper.js');
+const googleHelper = require('../../googleHelper.js');
 
 const container = require('codeceptjs').container;
 
@@ -128,6 +128,6 @@ module.exports = {
   },
 
   async getProjectMembers(someProject) {
-    return google_helper.getProjectMembers(someProject);
+    return googleHelper.getProjectMembers(someProject);
   },
 };

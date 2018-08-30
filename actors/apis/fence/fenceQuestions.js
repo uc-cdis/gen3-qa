@@ -7,7 +7,7 @@ chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 
 const fenceProps = require('./fenceProps.js');
-const google_helper = require('../../google_helper.js');
+const googleHelper = require('../../googleHelper.js');
 
 /**
  * fence Questions
