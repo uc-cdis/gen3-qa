@@ -1,5 +1,5 @@
 const indexdProps = require('./indexdProps.js');
-const users_helper = require('../../users_helper.js');
+const usersHelper = require('../../usersHelper.js');
 
 const I = actor();
 
@@ -20,7 +20,7 @@ const _getRevFromResponse = function(res) {
 module.exports = {
   async addFileIndices(files) {
     const uuid = require('uuid');
-    const headers = users_helper.mainAcct.indexdAuthHeader;
+    const headers = usersHelper.mainAcct.indexdAuthHeader;
     headers['Content-Type'] = 'application/json; charset=UTF-8';
     files.forEach(file => {
       file.did = uuid.v4().toString();
@@ -52,7 +52,7 @@ module.exports = {
     // get data from indexd
     return I.sendGetRequest(
       `${indexdProps.endpoints.get}/${file_node.did}`,
-      users_helper.mainAcct.accessTokenHeader,
+      usersHelper.mainAcct.accessTokenHeader,
     ).then(res => {
       file_node.rev = _getRevFromResponse(res);
       return res.body;
@@ -62,7 +62,7 @@ module.exports = {
   async deleteFile(file_node) {
     return I.sendDeleteRequest(
       `${indexdProps.endpoints.delete}/${file_node.did}?rev=${file_node.rev}`,
-      users_helper.mainAcct.indexdAuthHeader,
+      usersHelper.mainAcct.indexdAuthHeader,
     ).then(res => {
       // Note that we use the entire response, not just the response body
       file_node.indexd_delete_res = res;

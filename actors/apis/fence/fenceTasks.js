@@ -1,5 +1,5 @@
 const fenceProps = require('./fenceProps.js');
-const users_helper = require('../../users_helper.js');
+const usersHelper = require('../../usersHelper.js');
 const portal_helper = require('../../portal/portal_helper.js');
 const googleHelper = require('../../googleHelper.js');
 
@@ -45,7 +45,7 @@ module.exports = {
         /[?]$/g,
         '',
       ),
-      users_helper.mainAcct.accessTokenHeader,
+      usersHelper.mainAcct.accessTokenHeader,
     ).then(res => ({ body: res.body, statusCode: res.statusCode }));
   },
 
@@ -67,7 +67,7 @@ module.exports = {
   deleteAPIKey(api_key) {
     return I.sendDeleteRequest(
       `${fenceProps.endpoints.deleteAPIKey}/${api_key}`,
-      users_helper.mainAcct.accessTokenHeader,
+      usersHelper.mainAcct.accessTokenHeader,
     ).then(res => res.body);
   },
 
@@ -76,7 +76,7 @@ module.exports = {
     return I.sendPostRequest(
       fenceProps.endpoints.getAccessToken,
       JSON.stringify(data),
-      users_helper.validIndexAuthHeader,
+      usersHelper.validIndexAuthHeader,
     ).then(res => ({ body: res.body, statusCode: res.statusCode }));
   },
 

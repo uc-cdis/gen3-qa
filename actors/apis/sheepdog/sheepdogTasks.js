@@ -1,6 +1,6 @@
 const sheepdogProps = require('./sheepdogProps.js');
-const nodes_helper = require('../../nodes_helper.js');
-const users_helper = require('../../users_helper.js');
+const nodesHelper = require('../../nodesHelper.js');
+const usersHelper = require('../../usersHelper.js');
 
 const I = actor();
 
@@ -35,7 +35,7 @@ const getDidFromFileId = (fileNode) => {
   const getFileEndpoint = `${sheepdogProps.endpoints.describe}?ids=${fileNode.data.id}&format=json`;
   return I.sendGetRequest(
     getFileEndpoint,
-    users_helper.mainAcct.accessTokenHeader,
+    usersHelper.mainAcct.accessTokenHeader,
   ).then((res) => {
     fileNode.did = getDidFromResponse(res);
   });
@@ -50,7 +50,7 @@ module.exports = {
     return I.sendPutRequest(
       sheepdogProps.endpoints.add,
       JSON.stringify(node.data),
-      users_helper.mainAcct.accessTokenHeader,
+      usersHelper.mainAcct.accessTokenHeader,
     ).then((res) => {
       node.data.id = getIdFromResponse(res);
       node.add_res = res.body || {};
@@ -66,7 +66,7 @@ module.exports = {
     const deleteEndpoint = `${sheepdogProps.endpoints.delete}/${node.data.id}`;
     return I.sendDeleteRequest(
       deleteEndpoint,
-      users_helper.mainAcct.accessTokenHeader,
+      usersHelper.mainAcct.accessTokenHeader,
     ).then((res) => {
       node.delete_res = res.body;
     });
@@ -74,14 +74,14 @@ module.exports = {
 
   async addNodes(nodesList) {
     // add nodes, in sorted key ascending order
-    for (const node of nodes_helper.sortNodes(nodesList)) {
+    for (const node of nodesHelper.sortNodes(nodesList)) {
       await this.addNode(node);
     }
   },
 
   async deleteNodes(nodesList) {
     // remove nodes, in reverse sorted (descending key) order
-    for (const node of nodes_helper.sortNodes(nodesList).reverse()) {
+    for (const node of nodesHelper.sortNodes(nodesList).reverse()) {
       await this.deleteNode(node);
     }
   },

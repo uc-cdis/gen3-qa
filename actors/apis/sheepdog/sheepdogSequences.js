@@ -2,7 +2,7 @@ const sheepdogQuestions = require('./sheepdogQuestions.js');
 const sheepdogTasks = require('./sheepdogTasks.js');
 const sheepdogProps = require('./sheepdogProps.js');
 const peregrineActor = require('../peregrine/peregrineActor.js');
-const users_helper = require('../../users_helper.js');
+const usersHelper = require('../../usersHelper.js');
 
 const I = actor();
 
@@ -10,7 +10,7 @@ const _deleteByIdRecursively = async id => {
   const delete_endpoint = `${sheepdogProps.endpoints.delete}/${id}`;
   const res = await I.sendDeleteRequest(
     delete_endpoint,
-    users_helper.mainAcct.accessTokenHeader,
+    usersHelper.mainAcct.accessTokenHeader,
   );
 
   if (!res.body.hasOwnProperty('dependent_ids')) {

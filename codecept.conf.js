@@ -40,8 +40,8 @@ exports.config = {
   include: {
     // General Helpers
     commons: './actors/commonsHelper.js',
-    nodes: './actors/nodes_helper.js',
-    users: './actors/users_helper.js',
+    nodes: './actors/nodesHelper.js',
+    users: './actors/usersHelper.js',
 
     // APIs
     sheepdog: './actors/apis/sheepdog/sheepdogActor.js',

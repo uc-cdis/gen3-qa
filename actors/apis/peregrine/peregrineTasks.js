@@ -1,5 +1,5 @@
 const peregrineProps = require('./peregrineProps.js');
-const users_helper = require('../../users_helper.js');
+const usersHelper = require('../../usersHelper.js');
 
 const I = actor();
 
@@ -38,7 +38,7 @@ module.exports = {
     return I.sendPostRequest(
       peregrineProps.endpoints.query,
       JSON.stringify({ query: query_string, variables: variables_string }),
-      users_helper.mainAcct.accessTokenHeader,
+      usersHelper.mainAcct.accessTokenHeader,
     ).then(res => res.body);
   },
 

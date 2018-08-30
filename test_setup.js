@@ -3,7 +3,7 @@ const { execSync } = require('child_process');
 const homedir = require('os').homedir();
 
 const commonsHelper = require('./actors/commonsHelper');
-const usersHelper = require('./actors/users_helper');
+const usersHelper = require('./actors/usersHelper');
 
 const DEFAULT_TOKEN_EXP = 1800;
 const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);

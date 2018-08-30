@@ -1,6 +1,6 @@
 const request = require('request');
 
-const users_helper = require('./users_helper');
+const usersHelper = require('./usersHelper');
 
 module.exports = {
   get program() {
@@ -30,13 +30,13 @@ module.exports = {
     const program_form = {
       url: endpoint,
       method: 'POST',
-      headers: users_helper.mainAcct.accessTokenHeader,
+      headers: usersHelper.mainAcct.accessTokenHeader,
       form: JSON.stringify(this.program),
     };
     const project_form = {
       url: `${endpoint + program_name}/`,
       method: 'POST',
-      headers: users_helper.mainAcct.accessTokenHeader,
+      headers: usersHelper.mainAcct.accessTokenHeader,
       form: JSON.stringify(this.project),
     };
 

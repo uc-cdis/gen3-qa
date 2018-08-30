@@ -1,6 +1,6 @@
 const Helper = codecept_helper;
 const commonsHelper = require('./actors/commonsHelper.js');
-const users_helper = require('./actors/users_helper');
+const usersHelper = require('./actors/usersHelper');
 
 class CDISHelper extends Helper {
   _beforeSuite(suite) {
@@ -10,7 +10,7 @@ class CDISHelper extends Helper {
     // if not doing an API test, set the access token cookie
     if (!(suite.title.indexOf('API') >= 0)) {
       helper.amOnPage('');
-      const access_token = users_helper.mainAcct.accessToken;
+      const access_token = usersHelper.mainAcct.accessToken;
       helper.setCookie({ name: 'access_token', value: access_token });
     }
   }
