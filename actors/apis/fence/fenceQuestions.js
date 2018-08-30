@@ -6,7 +6,7 @@ const expect = chai.expect;
 chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 
-const fence_props = require('./fence_props.js');
+const fenceProps = require('./fenceProps.js');
 const google_helper = require('../../google_helper.js');
 
 /**
@@ -50,8 +50,8 @@ module.exports = {
     const time_buff = 60;
     expect(extend_res).to.have.nested.property('body.exp');
     expect(extend_res.body.exp).to.be.within(
-      time_request + fence_props.linkExtendAmount - time_buff,
-      time_request + fence_props.linkExtendAmount + time_buff,
+      time_request + fenceProps.linkExtendAmount - time_buff,
+      time_request + fenceProps.linkExtendAmount + time_buff,
     );
   },
 

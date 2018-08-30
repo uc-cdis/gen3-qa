@@ -1,4 +1,4 @@
-const fence_props = require('./fence_props.js');
+const fenceProps = require('./fenceProps.js');
 const users_helper = require('../../users_helper.js');
 const portal_helper = require('../../portal/portal_helper.js');
 const google_helper = require('../../google_helper.js');
@@ -10,7 +10,7 @@ const I = actor();
 async function onChooseAcctPage() {
   return new Promise((resolve) => {
     const wdio = container.helpers('WebDriverIO');
-    wdio._locate(fence_props.googleLogin.useAnotherAcctBtn.locator.xpath).then((res) => { // eslint-disable-line
+    wdio._locate(fenceProps.googleLogin.useAnotherAcctBtn.locator.xpath).then((res) => { // eslint-disable-line
       resolve(res.value.length > 0);
     });
   });
@@ -18,21 +18,21 @@ async function onChooseAcctPage() {
 
 async function loginGoogle(googleCreds) {
   I.say('Logging in to Google...');
-  await portal_helper.seeProp(fence_props.googleLogin.readyCue, 10);
+  await portal_helper.seeProp(fenceProps.googleLogin.readyCue, 10);
 
   // if shown option to choose account, just click the choose acct button
   const acctLoaded = await onChooseAcctPage();
   if (acctLoaded) {
-    portal_helper.clickProp(fence_props.googleLogin.useAnotherAcctBtn);
+    portal_helper.clickProp(fenceProps.googleLogin.useAnotherAcctBtn);
   }
 
   // fill out username and password
-  I.fillField(fence_props.googleLogin.emailField.locator, googleCreds.email);
-  portal_helper.clickProp(fence_props.googleLogin.emailNext);
-  portal_helper.seeProp(fence_props.googleLogin.passwordReadyCue, 10);
+  I.fillField(fenceProps.googleLogin.emailField.locator, googleCreds.email);
+  portal_helper.clickProp(fenceProps.googleLogin.emailNext);
+  portal_helper.seeProp(fenceProps.googleLogin.passwordReadyCue, 10);
   I.wait(5);
-  I.fillField(fence_props.googleLogin.passwordField.locator, googleCreds.password);
-  portal_helper.clickProp(fence_props.googleLogin.passwordNext);
+  I.fillField(fenceProps.googleLogin.passwordField.locator, googleCreds.password);
+  portal_helper.clickProp(fenceProps.googleLogin.passwordNext);
 }
 
 /**
@@ -41,7 +41,7 @@ async function loginGoogle(googleCreds) {
 module.exports = {
   createSignedUrl(id, args = []) {
     return I.sendGetRequest(
-      `${fence_props.endpoints.getFile}/${id}?${args.join('&')}`.replace(
+      `${fenceProps.endpoints.getFile}/${id}?${args.join('&')}`.replace(
         /[?]$/g,
         '',
       ),
@@ -56,7 +56,7 @@ module.exports = {
   createAPIKey(scope, access_token_header) {
     access_token_header['Content-Type'] = 'application/json';
     return I.sendPostRequest(
-      fence_props.endpoints.createAPIKey,
+      fenceProps.endpoints.createAPIKey,
       JSON.stringify({
         scope,
       }),
@@ -66,7 +66,7 @@ module.exports = {
 
   deleteAPIKey(api_key) {
     return I.sendDeleteRequest(
-      `${fence_props.endpoints.deleteAPIKey}/${api_key}`,
+      `${fenceProps.endpoints.deleteAPIKey}/${api_key}`,
       users_helper.mainAcct.accessTokenHeader,
     ).then(res => res.body);
   },
@@ -74,7 +74,7 @@ module.exports = {
   getAccessToken(api_key) {
     const data = api_key !== null ? { api_key } : {};
     return I.sendPostRequest(
-      fence_props.endpoints.getAccessToken,
+      fenceProps.endpoints.getAccessToken,
       JSON.stringify(data),
       users_helper.validIndexAuthHeader,
     ).then(res => ({ body: res.body, statusCode: res.statusCode }));
@@ -86,11 +86,11 @@ module.exports = {
     await I.setCookie({ name: 'access_token', value: userAcct.accessToken });
     await I.seeCookie('access_token');
     // visit link endpoint and login to google
-    await I.amOnPage(fence_props.endpoints.linkGoogle);
+    await I.amOnPage(fenceProps.endpoints.linkGoogle);
     await loginGoogle(googleCreds);
 
     // wait until redirected back to root url
-    await I.waitInUrl(fence_props.endpoints.root, 5);
+    await I.waitInUrl(fenceProps.endpoints.root, 5);
     I.wait(5);
 
     // return the body and the current url
@@ -113,7 +113,7 @@ module.exports = {
 
   async unlinkGoogleAcct(userAcct) {
     return I.sendDeleteRequest(
-      fence_props.endpoints.deleteGoogleLink,
+      fenceProps.endpoints.deleteGoogleLink,
       userAcct.accessTokenHeader,
     ).then(res => ({
       body: res.body,
@@ -123,7 +123,7 @@ module.exports = {
 
   async extendGoogleLink(userAcct) {
     return I.sendPatchRequest(
-      fence_props.endpoints.extendGoogleLink, {}, userAcct.accessTokenHeader)
+      fenceProps.endpoints.extendGoogleLink, {}, userAcct.accessTokenHeader)
       .then(res => ({ statusCode: res.statusCode, body: res.body }));
   },
 
