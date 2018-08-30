@@ -6,13 +6,15 @@ const commonsHelper = require('./actors/commons_helper');
 const usersHelper = require('./actors/users_helper');
 
 const DEFAULT_TOKEN_EXP = 1800;
-const inJenkins = (process.env.JENKINS_HOME !== '');
+const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
 
 function userFromNamespace(namespace) {
   return namespace === 'default' ? 'qaplanetv1' : namespace;
 }
 
 function runCommand(cmd, namespace) {
+  // if in jenkins, load gen3 tools before running command
+  // if not in jenkins, ssh into commons and source bashrc before command
   if (inJenkins) {
     if (process.env.GEN3_HOME) {
       const sourceCmd = `source "${process.env.GEN3_HOME}/gen3/lib/utils.sh"`; // eslint-disable-line no-template-curly-in-string
@@ -29,8 +31,6 @@ function runCommand(cmd, namespace) {
 function getAccessToken(namespace, username, expiration) {
   const fenceCmd = `g3kubectl exec $(gen3 pod fence ${namespace}) -- fence-create token-create --scopes openid,user,fence,data,credentials --type access_token --exp ${expiration} --username ${username}`;
   const accessToken = runCommand(fenceCmd, namespace);
-  // const commonsUser = userFromNamespace(namespace);
-  // const at = execSync(`ssh ${commonsUser}@cdistest.csoc < get_access_token.sh ${namespace} ${username} ${expiration}`, { shell: '/bin/bash' });
   return accessToken.toString('utf8').trim();
 }
 
@@ -56,22 +56,25 @@ function exportNconfVars() {
 
 function assertEnvVars(varNames) {
   varNames.forEach((name) => {
-    if (process.env[name] === '') {
-      throw Error(`Missing required environment variable '${name}'`);
+    if (process.env[name] === '' || process.env[name] === undefined) {
+      if (inJenkins) {
+        throw Error(`Missing required environment variable '${name}'`);
+      }
+      console.log(`WARNING: Env var '${name}' not defined...`);
     }
   });
 }
 
 module.exports = async function (done) {
-  console.log('SETUP/BOOTSTRAP OPERATIONS');
+  console.log('SETUP/BOOTSTRAP OPERATIONS\n');
+
   // get some vars from the commons
-  console.log('Setting environment variables...');
+  console.log('Setting environment variables...\n');
+
   // Export access tokens
   for (const user of Object.values(usersHelper)) {
-    if (inJenkins || !user.jenkinsOnly) {
-      const at = getAccessToken(process.env.NAMESPACE, user.username, DEFAULT_TOKEN_EXP);
-      process.env[user.envTokenName] = at;
-    }
+    const at = getAccessToken(process.env.NAMESPACE, user.username, DEFAULT_TOKEN_EXP);
+    process.env[user.envTokenName] = at;
   }
 
   // Export expired access token for main acct
@@ -95,22 +98,24 @@ module.exports = async function (done) {
   exportNconfVars();
 
   // Assert required env vars are defined
-  const localVars = [mainAcct.envTokenName, mainAcct.envExpTokenName, 'INDEX_USERNAME', 'INDEX_PASSWORD', 'HOSTNAME'];
-  const jenkinsVars = [
-    'GOOGLE_ACCT1_EMAIL',
-    'GOOGLE_ACCT1_PASSWORD',
-    'GOOGLE_ACCT2_EMAIL',
-    'GOOGLE_ACCT2_PASSWORD',
+  const basicVars = [mainAcct.envTokenName, mainAcct.envExpTokenName, 'INDEX_USERNAME', 'INDEX_PASSWORD', 'HOSTNAME'];
+  const googleVars = [
+    usersHelper.auxAcct1.envGoogleEmail,
+    usersHelper.auxAcct2.envGoogleEmail,
+    usersHelper.auxAcct1.envGooglePassword,
+    usersHelper.auxAcct2.envGooglePassword,
     'GOOGLE_APP_CREDS_JSON',
+  ];
+  const submitDataVars = [
     'TEST_DATA_PATH',
   ];
-  assertEnvVars(localVars);
-  if (inJenkins) {
-    assertEnvVars(jenkinsVars);
-  }
+
+  assertEnvVars(basicVars);
+  assertEnvVars(submitDataVars);
+  assertEnvVars(googleVars);
 
   // Create a program and project (does nothing if already exists)
-  console.log('Creating program/project');
+  console.log('Creating program/project\n');
   await commonsHelper.createProgramProject();
   done();
 };
