@@ -4,7 +4,7 @@ const expect = chai.expect;
 chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 
-const peregrine_props = require('./peregrine_props.js');
+const peregrineProps = require('./peregrineProps.js');
 const api_helper = require('../api_helper.js');
 
 /**

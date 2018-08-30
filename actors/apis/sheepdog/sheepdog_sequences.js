@@ -1,7 +1,7 @@
 const sheepdog_questions = require('./sheepdog_questions.js');
 const sheepdog_tasks = require('./sheepdog_tasks.js');
 const sheepdog_props = require('./sheepdog_props.js');
-const peregrine_actor = require('../peregrine/peregrine_actor.js');
+const peregrineActor = require('../peregrine/peregrineActor.js');
 const users_helper = require('../../users_helper.js');
 
 const I = actor();
@@ -76,7 +76,7 @@ module.exports = {
       }
     }`;
 
-    const res = await peregrine_actor.do.query(q, null);
+    const res = await peregrineActor.do.query(q, null);
     try {
       while (res.data[top_node].length > 0) {
         const linked_type = res.data[top_node].pop();
