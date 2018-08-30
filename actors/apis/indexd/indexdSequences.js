@@ -5,13 +5,13 @@ const indexdTasks = require('./indexdTasks.js');
  * Sheepdog sequences
  */
 module.exports = {
-  async checkFile(file_node) {
-    const res = await indexdTasks.getFile(file_node);
-    indexdQuestions.fileEquals(res, file_node);
+  async checkFile(fileNode) {
+    const res = await indexdTasks.getFile(fileNode);
+    indexdQuestions.fileEquals(res, fileNode);
   },
 
-  async deleteFile(file_node) {
-    await indexdTasks.deleteFile(file_node);
-    indexdQuestions.deleteFileSuccess(file_node);
+  async deleteFile(fileNode) {
+    await indexdTasks.deleteFile(fileNode);
+    indexdQuestions.deleteFileSuccess(fileNode);
   },
 };

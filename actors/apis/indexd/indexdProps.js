@@ -1,12 +1,12 @@
 /**
  * indexd Properties
  */
-const api_root = '/index/index';
+const apiRoot = '/index/index';
 module.exports = {
   endpoints: {
-    root: api_root,
-    add: `${api_root}/`,
-    get: api_root,
-    delete: api_root,
+    root: apiRoot,
+    add: `${apiRoot}/`,
+    get: apiRoot,
+    delete: apiRoot,
   },
 };

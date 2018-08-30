@@ -4,12 +4,10 @@ const expect = chai.expect;
 chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 
-const indexdProps = require('./indexdProps.js');
-
 /**
  *  indexd helpers
  */
-const _resultSuccess = function(res) {
+const resultSuccess = function (res) {
   expect(res).to.not.have.property('error');
   expect(res).to.have.property('updated_date'); // used elsewhere so making sure it exists
 };
@@ -18,19 +16,19 @@ const _resultSuccess = function(res) {
  * indexd Questions
  */
 module.exports = {
-  fileEquals(res, file_node) {
-    _resultSuccess(res);
+  fileEquals(res, fileNode) {
+    resultSuccess(res);
 
-    expect(res).to.nested.include({ 'hashes.md5': file_node.data.md5sum });
-    expect(res).to.have.property('size', file_node.data.file_size);
+    expect(res).to.nested.include({ 'hashes.md5': fileNode.data.md5sum });
+    expect(res).to.have.property('size', fileNode.data.file_size);
     expect(res).to.have.property('urls');
-    if (file_node.data.urls !== undefined) {
-      expect(res).to.nested.include({ 'urls[0]': file_node.data.urls });
+    if (fileNode.data.urls !== undefined) {
+      expect(res).to.nested.include({ 'urls[0]': fileNode.data.urls });
     }
   },
 
-  deleteFileSuccess(file_node) {
+  deleteFileSuccess(fileNode) {
     // Note that the delete res is the entire response, not just the body
-    expect(file_node).to.nested.include({ 'indexd_delete_res.raw_body': '' });
+    expect(fileNode).to.nested.include({ 'indexd_delete_res.raw_body': '' });
   },
 };

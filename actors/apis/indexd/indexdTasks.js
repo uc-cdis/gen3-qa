@@ -1,3 +1,5 @@
+const uuid = require('uuid');
+
 const indexdProps = require('./indexdProps.js');
 const usersHelper = require('../../usersHelper.js');
 
@@ -6,7 +8,7 @@ const I = actor();
 /**
  * indexd Helpers
  */
-const _getRevFromResponse = function(res) {
+const getRevFromResponse = function (res) {
   try {
     return res.body.rev;
   } catch (e) {
@@ -19,10 +21,9 @@ const _getRevFromResponse = function(res) {
  */
 module.exports = {
   async addFileIndices(files) {
-    const uuid = require('uuid');
     const headers = usersHelper.mainAcct.indexdAuthHeader;
     headers['Content-Type'] = 'application/json; charset=UTF-8';
-    files.forEach(file => {
+    files.forEach((file) => {
       file.did = uuid.v4().toString();
       const data = {
         file_name: file.filename,
@@ -41,37 +42,37 @@ module.exports = {
 
       const strData = JSON.stringify(data);
       I.sendPostRequest(indexdProps.endpoints.add, strData, headers).then(
-        res => {
+        (res) => {
           file.rev = res.body.rev;
         },
       );
     });
   },
 
-  async getFile(file_node) {
+  async getFile(fileNode) {
     // get data from indexd
     return I.sendGetRequest(
-      `${indexdProps.endpoints.get}/${file_node.did}`,
+      `${indexdProps.endpoints.get}/${fileNode.did}`,
       usersHelper.mainAcct.accessTokenHeader,
-    ).then(res => {
-      file_node.rev = _getRevFromResponse(res);
+    ).then((res) => {
+      fileNode.rev = getRevFromResponse(res);
       return res.body;
     });
   },
 
-  async deleteFile(file_node) {
+  async deleteFile(fileNode) {
     return I.sendDeleteRequest(
-      `${indexdProps.endpoints.delete}/${file_node.did}?rev=${file_node.rev}`,
+      `${indexdProps.endpoints.delete}/${fileNode.did}?rev=${fileNode.rev}`,
       usersHelper.mainAcct.indexdAuthHeader,
-    ).then(res => {
+    ).then((res) => {
       // Note that we use the entire response, not just the response body
-      file_node.indexd_delete_res = res;
+      fileNode.indexd_delete_res = res;
       return res;
     });
   },
 
   async deleteFileIndices(files) {
-    files.forEach(file => {
+    files.forEach((file) => {
       this.deleteFile(file);
     });
   },
