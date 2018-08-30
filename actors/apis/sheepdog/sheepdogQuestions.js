@@ -4,18 +4,18 @@ const expect = chai.expect;
 chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 
-const sheepdog_props = require('./sheepdog_props.js');
+const sheepdogProps = require('./sheepdogProps.js');
 const api_helper = require('../api_helper.js');
 
 /**
  * Internal Helpers
  */
 const _resultSuccess = res => {
-  expect(res).to.deep.include(sheepdog_props.resultSuccess);
+  expect(res).to.deep.include(sheepdogProps.resultSuccess);
 };
 
 const _resultFail = res => {
-  expect(res).to.deep.include(sheepdog_props.resultFail);
+  expect(res).to.deep.include(sheepdogProps.resultFail);
 };
 
 /**
@@ -50,12 +50,12 @@ module.exports = {
 
   hasEntityError(res, error_type) {
     const expected_prop = {};
-    expected_prop[sheepdog_props.resLocators.entityErrorType] = error_type;
+    expected_prop[sheepdogProps.resLocators.entityErrorType] = error_type;
     expect(res).to.nested.include(expected_prop);
   },
 
   hasInternalServerError(res) {
-    expect(sheepdog_props.internalServerErrorMsg).to.be.oneOf(
+    expect(sheepdogProps.internalServerErrorMsg).to.be.oneOf(
       res.transactional_errors,
     );
   },

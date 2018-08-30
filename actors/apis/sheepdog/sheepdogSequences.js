@@ -1,13 +1,13 @@
-const sheepdog_questions = require('./sheepdog_questions.js');
-const sheepdog_tasks = require('./sheepdog_tasks.js');
-const sheepdog_props = require('./sheepdog_props.js');
+const sheepdogQuestions = require('./sheepdogQuestions.js');
+const sheepdogTasks = require('./sheepdogTasks.js');
+const sheepdogProps = require('./sheepdogProps.js');
 const peregrineActor = require('../peregrine/peregrineActor.js');
 const users_helper = require('../../users_helper.js');
 
 const I = actor();
 
 const _deleteByIdRecursively = async id => {
-  const delete_endpoint = `${sheepdog_props.endpoints.delete}/${id}`;
+  const delete_endpoint = `${sheepdogProps.endpoints.delete}/${id}`;
   const res = await I.sendDeleteRequest(
     delete_endpoint,
     users_helper.mainAcct.accessTokenHeader,
@@ -39,28 +39,28 @@ const _deleteByIdRecursively = async id => {
  */
 module.exports = {
   async addNode(node) {
-    await sheepdog_tasks.addNode(node);
-    sheepdog_questions.addNodeSuccess(node);
+    await sheepdogTasks.addNode(node);
+    sheepdogQuestions.addNodeSuccess(node);
   },
 
   async deleteNode(node) {
-    await sheepdog_tasks.deleteNode(node);
-    sheepdog_questions.deleteNodeSuccess(node);
+    await sheepdogTasks.deleteNode(node);
+    sheepdogQuestions.deleteNodeSuccess(node);
   },
 
   async updateNode(node) {
-    await sheepdog_tasks.addNode(node);
-    sheepdog_questions.updateNodeSuccess(node);
+    await sheepdogTasks.addNode(node);
+    sheepdogQuestions.updateNodeSuccess(node);
   },
 
   async addNodes(nodes_list) {
-    await sheepdog_tasks.addNodes(nodes_list);
-    sheepdog_questions.addNodesSuccess(nodes_list);
+    await sheepdogTasks.addNodes(nodes_list);
+    sheepdogQuestions.addNodesSuccess(nodes_list);
   },
 
   async deleteNodes(nodes_list) {
-    await sheepdog_tasks.deleteNodes(nodes_list);
-    sheepdog_questions.deleteNodesSuccess(nodes_list);
+    await sheepdogTasks.deleteNodes(nodes_list);
+    sheepdogQuestions.deleteNodesSuccess(nodes_list);
   },
 
   async findDeleteAllNodes() {

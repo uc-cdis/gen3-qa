@@ -44,7 +44,7 @@ exports.config = {
     users: './actors/users_helper.js',
 
     // APIs
-    sheepdog: './actors/apis/sheepdog/sheepdog_actor.js',
+    sheepdog: './actors/apis/sheepdog/sheepdogActor.js',
     indexd: './actors/apis/indexd/indexdActor.js',
     peregrine: './actors/apis/peregrine/peregrineActor.js',
     fence: './actors/apis/fence/fenceActor.js',
