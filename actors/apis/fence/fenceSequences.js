@@ -11,10 +11,10 @@ const fenceTasks = require('./fenceTasks.js');
  * fence sequences
  */
 module.exports = {
-  async checkFileEquals(signed_url_res, contents) {
-    fenceQuestions.hasUrl(signed_url_res);
-    const file_contents = await fenceTasks.getFile(signed_url_res.body.url);
-    expect(file_contents).to.equal(contents);
+  async checkFileEquals(signedUrlRes, contents) {
+    fenceQuestions.hasUrl(signedUrlRes);
+    const fileContents = await fenceTasks.getFile(signedUrlRes.body.url);
+    expect(fileContents).to.equal(contents);
   },
 
   async linkGoogleAcct(userAcct, acctWithGoogleCreds) {

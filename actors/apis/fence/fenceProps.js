@@ -1,17 +1,17 @@
 /**
  * fence Properties
  */
-const root_endpoint = '/user';
+const rootEndpoint = '/user';
 module.exports = {
   endpoints: {
-    root: root_endpoint,
-    getFile: `${root_endpoint}/data/download`,
-    createAPIKey: `${root_endpoint}/credentials/api/`,
-    deleteAPIKey: `${root_endpoint}/credentials/api/cdis`,
-    getAccessToken: `${root_endpoint}/credentials/api/access_token`,
-    linkGoogle: `${root_endpoint}/link/google?redirect=.`,
-    deleteGoogleLink: `${root_endpoint}/link/google`,
-    extendGoogleLink: `${root_endpoint}/link/google`,
+    root: rootEndpoint,
+    getFile: `${rootEndpoint}/data/download`,
+    createAPIKey: `${rootEndpoint}/credentials/api/`,
+    deleteAPIKey: `${rootEndpoint}/credentials/api/cdis`,
+    getAccessToken: `${rootEndpoint}/credentials/api/access_token`,
+    linkGoogle: `${rootEndpoint}/link/google?redirect=.`,
+    deleteGoogleLink: `${rootEndpoint}/link/google`,
+    extendGoogleLink: `${rootEndpoint}/link/google`,
   },
 
   linkErrors: {

@@ -1,6 +1,6 @@
 const fenceProps = require('./fenceProps.js');
 const usersHelper = require('../../usersHelper.js');
-const portal_helper = require('../../portal/portal_helper.js');
+const portalHelper = require('../../portal/portal_helper.js');
 const googleHelper = require('../../googleHelper.js');
 
 const container = require('codeceptjs').container;
@@ -18,21 +18,21 @@ async function onChooseAcctPage() {
 
 async function loginGoogle(googleCreds) {
   I.say('Logging in to Google...');
-  await portal_helper.seeProp(fenceProps.googleLogin.readyCue, 10);
+  await portalHelper.seeProp(fenceProps.googleLogin.readyCue, 10);
 
   // if shown option to choose account, just click the choose acct button
   const acctLoaded = await onChooseAcctPage();
   if (acctLoaded) {
-    portal_helper.clickProp(fenceProps.googleLogin.useAnotherAcctBtn);
+    portalHelper.clickProp(fenceProps.googleLogin.useAnotherAcctBtn);
   }
 
   // fill out username and password
   I.fillField(fenceProps.googleLogin.emailField.locator, googleCreds.email);
-  portal_helper.clickProp(fenceProps.googleLogin.emailNext);
-  portal_helper.seeProp(fenceProps.googleLogin.passwordReadyCue, 10);
+  portalHelper.clickProp(fenceProps.googleLogin.emailNext);
+  portalHelper.seeProp(fenceProps.googleLogin.passwordReadyCue, 10);
   I.wait(5);
   I.fillField(fenceProps.googleLogin.passwordField.locator, googleCreds.password);
-  portal_helper.clickProp(fenceProps.googleLogin.passwordNext);
+  portalHelper.clickProp(fenceProps.googleLogin.passwordNext);
 }
 
 /**
@@ -53,26 +53,26 @@ module.exports = {
     return I.sendGetRequest(url).then(res => res.body);
   },
 
-  createAPIKey(scope, access_token_header) {
-    access_token_header['Content-Type'] = 'application/json';
+  createAPIKey(scope, accessTokenHeader) {
+    accessTokenHeader['Content-Type'] = 'application/json';
     return I.sendPostRequest(
       fenceProps.endpoints.createAPIKey,
       JSON.stringify({
         scope,
       }),
-      access_token_header,
+      accessTokenHeader,
     ).then(res => ({ body: res.body, statusCode: res.statusCode }));
   },
 
-  deleteAPIKey(api_key) {
+  deleteAPIKey(apiKey) {
     return I.sendDeleteRequest(
-      `${fenceProps.endpoints.deleteAPIKey}/${api_key}`,
+      `${fenceProps.endpoints.deleteAPIKey}/${apiKey}`,
       usersHelper.mainAcct.accessTokenHeader,
     ).then(res => res.body);
   },
 
-  getAccessToken(api_key) {
-    const data = api_key !== null ? { api_key } : {};
+  getAccessToken(apiKey) {
+    const data = apiKey !== null ? { apiKey } : {};
     return I.sendPostRequest(
       fenceProps.endpoints.getAccessToken,
       JSON.stringify(data),
@@ -96,15 +96,15 @@ module.exports = {
     // return the body and the current url
     const url = await I.grabCurrentUrl();
     const body = await I.grabSource();
-    // FIXME: Why is access_token not there anymore??
-    // I.seeCookie('access_token');
-    let access_token;
+    // FIXME: Why is accessToken not there anymore??
+    // I.seeCookie('accessToken');
+    let accessToken;
     try {
-      access_token = await I.grabCookie('access_token');
+      accessToken = await I.grabCookie('access_token');
     } catch (e) {
       console.log(e);
     }
-    console.log('ACCESS_TOKEN', access_token);
+    console.log('ACCESS_TOKEN', accessToken);
     return {
       body,
       url,
