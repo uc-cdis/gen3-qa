@@ -4,11 +4,11 @@ const usersHelper = require('./usersHelper');
 
 module.exports = {
   get program() {
-    const program_name = process.env.HOSTNAME.startsWith('qa') ? 'QA' : 'DEV';
+    const programName = process.env.HOSTNAME.startsWith('qa') ? 'QA' : 'DEV';
     return {
-      name: program_name,
+      name: programName,
       type: 'program',
-      dbgap_accession_number: program_name,
+      dbgap_accession_number: programName,
     };
   },
 
@@ -25,30 +25,30 @@ module.exports = {
     // add program and project
     const hostname = process.env.HOSTNAME;
     const endpoint = `https://${hostname}/api/v0/submission/`;
-    const program_name = this.program.name;
+    const programName = this.program.name;
 
-    const program_form = {
+    const programForm = {
       url: endpoint,
       method: 'POST',
       headers: usersHelper.mainAcct.accessTokenHeader,
       form: JSON.stringify(this.program),
     };
-    const project_form = {
-      url: `${endpoint + program_name}/`,
+    const projectForm = {
+      url: `${endpoint + programName}/`,
       method: 'POST',
       headers: usersHelper.mainAcct.accessTokenHeader,
       form: JSON.stringify(this.project),
     };
 
     return new Promise((resolve, reject) => {
-      request.post(program_form, (error, response, body) => {
+      request.post(programForm, (error, response, body) => {
         if (error) {
           reject(error);
         }
         if (response.statusCode !== 200) {
           reject(body);
         } else {
-          request.post(project_form, (err, res, bod) => {
+          request.post(projectForm, (err, res, bod) => {
             if (err) {
               reject(err);
             }
@@ -70,12 +70,12 @@ module.exports = {
       portal: '/',
       fence: '/user/jwt/keys',
     };
-    const health_results = Object.values(endpoints).map(
+    const healthResults = Object.values(endpoints).map(
       endpoint =>
-        new Promise((resolve, reject) => {
+        new Promise((resolve) => {
           request.get(
             `https://${process.env.HOSTNAME}${endpoint}`,
-            (error, res, body) => {
+            (error, res) => {
               resolve(
                 `${`\nHealth ${endpoint}`.padEnd(30)}: ${res.statusCode}`,
               );
@@ -83,6 +83,6 @@ module.exports = {
           );
         }),
     );
-    return health_results;
+    return healthResults;
   },
 };

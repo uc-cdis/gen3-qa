@@ -1,6 +1,6 @@
 const { google } = require('googleapis');
 
-const fence_app = {
+const fenceApp = {
   scopes: [
     'https://www.googleapis.com/auth/admin.directory.group',
     'https://www.googleapis.com/auth/admin.directory.group.readonly',
@@ -48,6 +48,7 @@ async function auth(jwt, callback, args) {
 async function getProjectMembers(jwt, project) {
   // Get Google Admin API
   const admin = google.admin('directory_v1');
+  console.log('TODO: implement using project', project);
 
   // List members in the project
   return new Promise((resolve) => {
@@ -69,10 +70,10 @@ async function getProjectMembers(jwt, project) {
 
 module.exports = {
   async getProjectMembers(project) {
-    if (!fence_app.jwt) {
-      fence_app.init();
-      return auth(fence_app.jwt, getProjectMembers, project);
+    if (!fenceApp.jwt) {
+      fenceApp.init();
+      return auth(fenceApp.jwt, getProjectMembers, project);
     }
-    return getProjectMembers(fence_app.jwt, project);
+    return getProjectMembers(fenceApp.jwt, project);
   },
 };

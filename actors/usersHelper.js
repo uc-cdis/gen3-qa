@@ -64,5 +64,5 @@ class User {
 module.exports = {
   mainAcct: new User({ username: 'cdis.autotest@gmail.com', envVarsName: 'MAIN', jenkinsOnly: false }),
   auxAcct1: new User({ username: 'dummy-one@planx-pla.net', envVarsName: 'AUX1', jenkinsOnly: true }),
-  auxAcct2: new User({ username: 'smarty-two@planx-pla.net', envVarsName: 'AUX2', jenkinsOnly: true}),
+  auxAcct2: new User({ username: 'smarty-two@planx-pla.net', envVarsName: 'AUX2', jenkinsOnly: true }),
 };
