@@ -31,12 +31,12 @@ module.exports = {
     expect(res.body).to.have.string(error_message);
   },
 
-  linkSuccess(link_res, linked_acct) {
-    const link_url = new URL(link_res.url);
-    expect(link_url.searchParams.get('linked_email')).to.equal(
-      linked_acct.email,
+  linkSuccess(linkRes, linkedAcct) {
+    const linkUrl = new URL(linkRes.url);
+    expect(linkUrl.searchParams.get('linked_email')).to.equal(
+      linkedAcct.googleCreds.email,
     );
-    expect(link_url.searchParams.get('exp')).to.not.be.null;
+    expect(linkUrl.searchParams.get('exp')).to.not.be.null; // eslint-disable-line
   },
 
   unlinkSuccess(unlink_res) {
@@ -55,13 +55,22 @@ module.exports = {
     );
   },
 
-  linkHasError(link_res, error_prop) {
-    expect(link_res).to.have.property('statusCode', error_prop.statusCode);
-    expect(link_res).to.have.nested.property('body.error', error_prop.error);
-    expect(link_res).to.have.nested.property(
-      'body.error_description',
-      error_prop.error_description,
-    );
+  linkHasError(linkRes, errorProp) {
+    const linkUrl = new URL(linkRes.url);
+    expect(linkUrl.searchParams.get('error')).to.equal(errorProp.error);
+    expect(linkUrl.searchParams.get('error_description')).to.equal(errorProp.error_description);
+  },
+
+  unlinkHasError(unlinkRes, errorProp) {
+    expect(unlinkRes).to.have.property('statusCode', errorProp.statusCode);
+    expect(unlinkRes).to.have.nested.property('body.error', errorProp.error);
+    expect(unlinkRes).to.have.nested.property('body.error_description', errorProp.error_description);
+  },
+
+  linkExtendHasError(linkExtendRes, errorProp) {
+    expect(linkExtendRes).to.have.property('statusCode', errorProp.statusCode);
+    expect(linkExtendRes).to.have.nested.property('body.error', errorProp.error);
+    expect(linkExtendRes).to.have.nested.property('body.error_description', errorProp.error_description);
   },
 
   membersHasUser(members, someUser) {

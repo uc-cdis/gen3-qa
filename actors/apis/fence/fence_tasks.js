@@ -3,7 +3,37 @@ const users_helper = require('../../users_helper.js');
 const portal_helper = require('../../portal/portal_helper.js');
 const google_helper = require('../../google_helper.js');
 
+const container = require('codeceptjs').container;
+
 const I = actor();
+
+async function onChooseAcctPage() {
+  return new Promise((resolve) => {
+    const wdio = container.helpers('WebDriverIO');
+    wdio._locate(fence_props.googleLogin.useAnotherAcctBtn.locator.xpath).then((res) => { // eslint-disable-line
+      resolve(res.value.length > 0);
+    });
+  });
+}
+
+async function loginGoogle(googleCreds) {
+  I.say('Logging in to Google...');
+  await portal_helper.seeProp(fence_props.googleLogin.readyCue, 10);
+
+  // if shown option to choose account, just click the choose acct button
+  const acctLoaded = await onChooseAcctPage();
+  if (acctLoaded) {
+    portal_helper.clickProp(fence_props.googleLogin.useAnotherAcctBtn);
+  }
+
+  // fill out username and password
+  I.fillField(fence_props.googleLogin.emailField.locator, googleCreds.email);
+  portal_helper.clickProp(fence_props.googleLogin.emailNext);
+  portal_helper.seeProp(fence_props.googleLogin.passwordReadyCue, 10);
+  I.wait(5);
+  I.fillField(fence_props.googleLogin.passwordField.locator, googleCreds.password);
+  portal_helper.clickProp(fence_props.googleLogin.passwordNext);
+}
 
 /**
  * fence Tasks
@@ -50,28 +80,22 @@ module.exports = {
     ).then(res => ({ body: res.body, statusCode: res.statusCode }));
   },
 
-  async linkGoogleAcct(linking_acct) {
-    // expects that we have already set the access token
-    I.seeCookie('access_token');
-    // hit link endpoint and wait for redirect to google auth
-    I.amOnPage(fence_props.endpoints.linkGoogle);
-    portal_helper.seeProp(fence_props.googleLoginReadyCue, 10);
+  async linkGoogleAcct(userAcct, acctWithGoogleCreds) {
+    const googleCreds = acctWithGoogleCreds.googleCreds;
+    // set users access token
+    await I.setCookie({ name: 'access_token', value: userAcct.accessToken });
+    await I.seeCookie('access_token');
+    // visit link endpoint and login to google
+    await I.amOnPage(fence_props.endpoints.linkGoogle);
+    await loginGoogle(googleCreds);
 
-    // fill out username and password
-    I.fillField(fence_props.googleEmailField.locator, linking_acct.email);
-    portal_helper.clickProp(fence_props.googleEmailNext);
-    portal_helper.seeProp(fence_props.googlePasswordReadyCue, 10);
-    I.wait(5);
-    I.fillField(fence_props.googlePasswordField.locator, linking_acct.password);
-    portal_helper.clickProp(fence_props.googlePasswordNext);
-
-    // wait until redirected back to root
+    // wait until redirected back to root url
     await I.waitInUrl(fence_props.endpoints.root, 5);
     I.wait(5);
+
+    // return the body and the current url
     const url = await I.grabCurrentUrl();
-    const res = await I.grabSource();
-    console.log('link res', res);
-    console.log('link url', url);
+    const body = await I.grabSource();
     // FIXME: Why is access_token not there anymore??
     // I.seeCookie('access_token');
     let access_token;
@@ -82,33 +106,25 @@ module.exports = {
     }
     console.log('ACCESS_TOKEN', access_token);
     return {
-      body: res,
+      body,
       url,
-      // access_token: access_token
     };
   },
 
-  async unlinkGoogleAcct() {
+  async unlinkGoogleAcct(userAcct) {
     return I.sendDeleteRequest(
       fence_props.endpoints.deleteGoogleLink,
-      users_helper.mainAcct.accessTokenHeader,
+      userAcct.accessTokenHeader,
     ).then(res => ({
       body: res.body,
       statusCode: res.statusCode,
     }));
   },
 
-  async extendGoogleLink() {
-    I.haveRequestHeaders(users_helper.mainAcct.accessTokenHeader);
-    return I.sendPatchRequest(fence_props.endpoints.extendGoogleLink).then(
-      res => {
-        I.resetRequestHeaders();
-        return {
-          statusCode: res.statusCode,
-          body: res.body,
-        };
-      },
-    );
+  async extendGoogleLink(userAcct) {
+    return I.sendPatchRequest(
+      fence_props.endpoints.extendGoogleLink, {}, userAcct.accessTokenHeader)
+      .then(res => ({ statusCode: res.statusCode, body: res.body }));
   },
 
   async getProjectMembers(someProject) {

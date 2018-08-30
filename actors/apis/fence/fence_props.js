@@ -21,46 +21,47 @@ module.exports = {
       error_description:
         "Couldn't unlink account for user, no linked Google account found.",
     },
-  },
-
-  googleAcct2: {
-    email: process.env.SECONDARY_USERNAME,
-    password: process.env.SECONDARY_PASSWORD,
-  },
-
-  googleLoginReadyCue: {
-    locator: {
-      text: 'Email',
+    linkedToAnotherAcct: {
+      error: 'g_acnt_link_error',
+      error_description: 'Could not link Google account. The account specified is already linked to a different user.',
     },
   },
 
-  googleEmailField: {
-    locator: {
-      css: '#identifierId',
+  googleLogin: {
+    readyCue: {
+      locator: {
+        css: 'h1',
+      },
     },
-  },
-
-  googleEmailNext: {
-    locator: {
-      css: '#identifierNext',
+    emailField: {
+      locator: {
+        css: '#identifierId',
+      },
     },
-  },
-
-  googlePasswordField: {
-    locator: {
-      css: 'input[type="password"]',
+    emailNext: {
+      locator: {
+        css: '#identifierNext',
+      },
     },
-  },
-
-  googlePasswordNext: {
-    locator: {
-      css: '#passwordNext',
+    passwordField: {
+      locator: {
+        css: 'input[type="password"]',
+      },
     },
-  },
-
-  googlePasswordReadyCue: {
-    locator: {
-      text: 'Welcome',
+    passwordNext: {
+      locator: {
+        css: '#passwordNext',
+      },
+    },
+    passwordReadyCue: {
+      locator: {
+        text: 'Welcome',
+      },
+    },
+    useAnotherAcctBtn: {
+      locator: {
+        xpath: '//div[contains(text(), \'Use another account\')]',
+      },
     },
   },
 

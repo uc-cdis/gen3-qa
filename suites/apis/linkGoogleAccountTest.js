@@ -1,53 +1,53 @@
 Feature('LinkGoogleAccount');
 
-// TODO: Do I need to check the proxy groups in google to see if the account was added?
-function _timeNow() {
+BeforeSuite(async (fence, users) => {
+  // Cleanup before suite
+  const unlinkResults = Object.values(users).map(user => fence.do.unlinkGoogleAcct(user));
+  await Promise.all(unlinkResults);
+});
+
+After(async (fence, users) => {
+  // Cleanup after each scenario
+  const unlinkResults = Object.values(users).map(user => fence.do.unlinkGoogleAcct(user));
+  await Promise.all(unlinkResults);
+});
+
+function timeNow() {
   return Math.floor(new Date() / 1000);
 }
 
-Scenario('link and unlink google account @reqGoogle', async (I, fence) => {
-  await fence.complete.linkGoogleAcct(fence.props.googleAcct2);
-  await fence.complete.unlinkGoogleAcct();
+Scenario('link and unlink google account @reqGoogle', async (fence, users) => {
+  await fence.complete.linkGoogleAcct(users.mainAcct, users.auxAcct1);
+  await fence.complete.unlinkGoogleAcct(users.mainAcct);
 });
 
-Scenario('extend account link expiration @reqGoogle', async fence => {
-  await fence.complete.linkGoogleAcct(fence.props.googleAcct2);
-  const time_request = _timeNow();
-  const extend_res = await fence.do.extendGoogleLink();
-  fence.ask.linkExtendSuccess(extend_res, time_request);
-  await fence.complete.unlinkGoogleAcct();
+Scenario('extend account link expiration @reqGoogle', async (fence, users) => {
+  await fence.complete.linkGoogleAcct(users.mainAcct, users.auxAcct1);
+  const requestTime = timeNow();
+  const extendRes = await fence.do.extendGoogleLink(users.mainAcct);
+  fence.ask.linkExtendSuccess(extendRes, requestTime);
+  await fence.complete.unlinkGoogleAcct(users.mainAcct);
 });
 
-Scenario('try to link acct already linked to another acct @reqGoogle', async fence => {
-  // Need to create 2 more google accounts...
-  // need to verify that it's ok to use the google login like I am
-  // link acct1 to acct2
-  // try to link acct3 to acct2
-  // expect link to fail with that error message
-
-  // fence.do.linkGoogleAccount(users.primaryAcct, users.googleAcct2)
-  // fence.do.linkGoogleAccount(users.googleAcct1, users.googleAcct2)
-  // expect an error
+Scenario('try to link acct already linked to another acct @reqGoogle', async (fence, users) => {
+  await fence.complete.linkGoogleAcct(users.mainAcct, users.auxAcct1);
+  const secondLinkRes = await fence.do.linkGoogleAcct(users.auxAcct2, users.auxAcct1);
+  fence.ask.linkHasError(secondLinkRes, fence.props.linkErrors.linkedToAnotherAcct);
 });
 
-Scenario('try to unlink when acct is not linked @reqGoogle', async fence => {
-  // without doing anything, call fence.do.unlinkGoogleAcct()
-  // expect it to say it's not linked
-  const link_res = await fence.do.unlinkGoogleAcct(fence.props.googleAcct2);
-  fence.ask.linkHasError(link_res, fence.props.linkErrors.noGoogleAcctLinked);
+Scenario('try to unlink when acct is not linked @reqGoogle', async (fence, users) => {
+  const linkRes = await fence.do.unlinkGoogleAcct(users.auxAcct2);
+  fence.ask.unlinkHasError(linkRes, fence.props.linkErrors.noGoogleAcctLinked);
 });
 
-Scenario('try to extend link when acct is not linked @reqGoogle', async fence => {
-  // without linking, call fence.do.extendGoogleLink();
-  // expect it to say we have not linked acct
-  const extend_res = await fence.do.extendGoogleLink();
-  fence.ask.linkHasError(extend_res, fence.props.linkErrors.noGoogleAcctLinked);
+Scenario('try to extend link when acct is not linked @reqGoogle', async (fence, users) => {
+  const extendRes = await fence.do.extendGoogleLink(users.mainAcct);
+  fence.ask.linkExtendHasError(extendRes, fence.props.linkErrors.noGoogleAcctLinked);
 });
 
-Scenario('link then unlink then try to extend @reqGoogle', async (fence) => {
-  console.log('doing nothing');
-});
-
-BeforeSuite(fence => {
-  fence.do.unlinkGoogleAcct();
+Scenario('link then unlink then try to extend @reqGoogle', async (fence, users) => {
+  await fence.complete.linkGoogleAcct(users.mainAcct, users.auxAcct1);
+  await fence.complete.unlinkGoogleAcct(users.mainAcct);
+  const extendRes = await fence.do.extendGoogleLink(users.mainAcct);
+  fence.ask.linkExtendHasError(extendRes, fence.props.linkErrors.noGoogleAcctLinked);
 });

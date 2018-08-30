@@ -17,15 +17,15 @@ module.exports = {
     expect(file_contents).to.equal(contents);
   },
 
-  async linkGoogleAcct(linking_acct) {
-    const link_res = await fence_tasks.linkGoogleAcct(linking_acct);
-    fence_questions.linkSuccess(link_res, linking_acct);
-    return link_res;
+  async linkGoogleAcct(userAcct, acctWithGoogleCreds) {
+    const linkRes = await fence_tasks.linkGoogleAcct(userAcct, acctWithGoogleCreds);
+    fence_questions.linkSuccess(linkRes, acctWithGoogleCreds);
+    return linkRes;
   },
 
-  async unlinkGoogleAcct() {
-    const unlink_res = await fence_tasks.unlinkGoogleAcct();
-    fence_questions.unlinkSuccess(unlink_res);
+  async unlinkGoogleAcct(userAcct) {
+    const unlinkRes = await fence_tasks.unlinkGoogleAcct(userAcct);
+    fence_questions.unlinkSuccess(unlinkRes);
   },
 
   async getProjectMembers(projectName) {
