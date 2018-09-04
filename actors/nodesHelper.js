@@ -1,30 +1,46 @@
+/**
+ * Helper providing nodes (graph data) access from local files to submit, delete, sort, etc
+ * @module nodesHelper
+ */
+
 const fs = require('fs');
 const path = require('path');
 
 /**
- * Node object definition
+ * Class for a node data
  */
 class Node {
+  /**
+   *
+   * @param {Object} props - node properties
+   * @param {Object} props.data - JSON object of node data
+   * @param {number} props.order - Sort index
+   * @param {string} props.category - Category of the node (e.g. file, clinical, administrative...)
+   * @param {string[]} props.target - Array of names of nodes this node points to in graph
+   * @param {Object} props.orig_props - Copy of props for cloning node properties
+   */
   constructor(props) {
-    // actual json data for node
     this.data = props.data;
-    // position in submission order
     this.order = props.order;
-    // node category (administrative, data_file, etc...)
     this.category = props.category;
-    // node name (participant, read_group, submitted_unaligned_reads, etc...)
     this.name = props.name;
-    // array of names for direct parent nodes
     this.target = props.target;
-    // used for duplicating instances
     this.orig_props = props;
   }
 
+  /**
+   * Deep clones the properties and returns a new node
+   * @returns {Node}
+   */
   clone() {
-    // deep clone the properties and create a new node
     return new Node(JSON.parse(JSON.stringify(this.orig_props)));
   }
 
+  /**
+   * Searches for a field in the node data
+   * @param {string} fieldType
+   * @returns {string | undefined}
+   */
   getFieldOfType(fieldType) {
     // find a field of specified type in the node's data
     return Object.keys(this.data).find(
@@ -34,18 +50,19 @@ class Node {
 }
 
 /**
- * Nodes helper internal functions
+ * Util for getting full path to data file
+ * @param {string} fileName
+ * @returns {string}
  */
-const DATA_PATH = process.env.TEST_DATA_PATH;
-
 const getDataPathString = function (fileName) {
-  // get full path to a file given the file name
   const pathObj = { dir: DATA_PATH, base: fileName };
   return path.format(pathObj);
 };
 
+/**
+ * Loads all node data files and returns them as an object keyed by node name
+ */
 const getAllNodes = function () {
-  // return an object of data nodes, keyed by node name
   try {
     const nodes = JSON.parse(
       fs.readFileSync(getDataPathString('NodeDescriptions.json')),
@@ -71,6 +88,11 @@ const getAllNodes = function () {
   }
 };
 
+/**
+ * Deep clones all nodes
+ * @param {Object} originalNodes - Nodes keyed by node name
+ * @returns {Object}
+ */
 const cloneNodes = function (originalNodes) {
   const newNodes = {};
   Object.keys(originalNodes).forEach(
@@ -81,6 +103,11 @@ const cloneNodes = function (originalNodes) {
   return newNodes;
 };
 
+/**
+ * Uses BFS to find a path to project node from given starting node
+ * @param {string} startNodeName - node to start search from
+ * @param {Object} allNodes - Nodes keyed by node name
+ */
 const nodePathToProject = function (startNodeName, allNodes) {
   // BFS to find path to project from a starting node name
   // returns a dict containing nodes keyed by name
@@ -97,9 +124,12 @@ const nodePathToProject = function (startNodeName, allNodes) {
   return nodesInPath;
 };
 
+/**
+ * Finds a file node and gets a path to the project node
+ * @param {Object} allNodes - Nodes keyed by node name
+ * @returns {{path: Node[], file: Node}} - Path up to the node, and file node itself
+ */
 const getPathWithFileNode = function (allNodes) {
-  // find a node that is a file then follow it to the root (project)
-  // return an object which has the path to the file as well as the file itself
   const allNodesClone = cloneNodes(allNodes);
   const fileNodeName = Object.keys(allNodesClone).find(
     nodeName => allNodesClone[nodeName].category === 'data_file',
@@ -113,23 +143,24 @@ const getPathWithFileNode = function (allNodes) {
   };
 };
 
-/**
- * Nodes helper
- */
+// Path to the root directory where node data files are located
+const DATA_PATH = process.env.TEST_DATA_PATH;
 const dataMissingError = 'TEST_DATA_PATH env var missing - must set as path to test data to use nodes module';
-// !!allNodes should remain unmodified to allow reloading data nodes without reading files!!
-const canUseNodes = (DATA_PATH !== '' && DATA_PATH !== undefined);
+// IMPORTANT: allNodes is immutable after init; allows refreshing nodes without reading files
 let allNodes;
 let pathAndFile;
+const canUseNodes = (DATA_PATH !== '' && DATA_PATH !== undefined);
+// Check that the data path is defined and load the nodes
 if (canUseNodes) {
   allNodes = getAllNodes();
   pathAndFile = getPathWithFileNode(allNodes);
 }
 
 module.exports = {
-  // Note that all function calls must verify we have data nodes to use
-  // This is unfortunately the only way to allow Scenarios to use the module
-  //   and read and process the node files only once.
+  /**
+   * Get a file node and its path to the root node
+   * @returns {{path: Node[], file: Node}}
+   */
   getPathWithFile() {
     if (!canUseNodes) {
       throw Error(dataMissingError);
@@ -137,6 +168,10 @@ module.exports = {
     return pathAndFile;
   },
 
+  /**
+   * Returns a path from root node to a file node (not including file node)
+   * @returns {Node[]}
+   */
   getPathToFile() {
     if (!canUseNodes) {
       throw Error(dataMissingError);
@@ -144,6 +179,10 @@ module.exports = {
     return Object.values(pathAndFile.path);
   },
 
+  /**
+   * Returns a file node which corresponds to the path from getPathToFile
+   * @returns {Node}
+   */
   getFileNode() {
     if (!canUseNodes) {
       throw Error(dataMissingError);
@@ -151,18 +190,35 @@ module.exports = {
     return pathAndFile.file;
   },
 
+  /**
+   * Returns the first node in path to a file node
+   * @returns {Node}
+   */
   getFirstNode() {
     return this.ithNodeInPath(0);
   },
 
+  /**
+   * Returns the second node in path to a file node
+   * @returns {Node}
+   */
   getSecondNode() {
     return this.ithNodeInPath(1);
   },
 
+  /**
+   * Returns the last node in path to file node (ie node before file node)
+   * @returns {Node}
+   */
   getLastNode() {
     return this.ithNodeInPath(this.toFileAsList.length - 1);
   },
 
+  /**
+   * Returns the ith node in path to file node
+   * @param i
+   * @returns {Node}
+   */
   ithNodeInPath(i) {
     if (!canUseNodes) {
       throw Error(dataMissingError);
@@ -177,6 +233,11 @@ module.exports = {
     return this.sortNodes(Object.values(allNodes))[i];
   },
 
+  /**
+   * Returns list of nodes sorted by submission order
+   * @param {Node[]} nodesList
+   * @returns {Node[]}
+   */
   sortNodes(nodesList) {
     // given array of nodes, return them sorted
     if (!canUseNodes) {
@@ -185,11 +246,13 @@ module.exports = {
     return nodesList.sort((a, b) => a.order - b.order);
   },
 
+  /**
+   * Refreshes the path nodes used in other functions. Necessary when modifying nodes in tests
+   */
   refreshPathNodes() {
     if (!canUseNodes) {
       throw Error(dataMissingError);
     }
-    // reload the path nodes (necessary for clearing any changes to nodes that were made in tests)
     pathAndFile = getPathWithFileNode(allNodes);
     this.pathWithFile = pathAndFile;
     this.toFileAsList = Object.values(pathAndFile.path);

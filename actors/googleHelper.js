@@ -1,3 +1,8 @@
+/**
+ * A module providing helper functions using Google's Admin API
+ * @module googleHelper
+ */
+
 const { google } = require('googleapis');
 
 const fenceApp = {
@@ -69,6 +74,11 @@ async function getProjectMembers(jwt, project) {
 }
 
 module.exports = {
+  /**
+   * Gets the memebers of a project
+   * @param {string} project Project email/name
+   * @returns {Promise<Object[]>}
+   */
   async getProjectMembers(project) {
     if (!fenceApp.jwt) {
       fenceApp.init();

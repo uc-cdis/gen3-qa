@@ -1,22 +1,49 @@
+/**
+ * Helper for performing actions in portal using actor props
+ * @module portalHelper
+ */
+
 const I = actor();
 
+// Default seconds to wait to see a prop
 const DEFAULT_WAIT = 5;
 
+/**
+ * Verifies a prop is defined
+ * @param {Object} prop
+ */
 const validateProp = function (prop) {
   if (prop === undefined || prop === '') {
     throw Error('Missing property');
   }
+  if (!prop.locator) {
+    throw Error('No locator for given prop');
+  }
 };
 
 module.exports = {
+  /**
+   * Clicks on a given prop
+   * @param {Object} prop
+   */
   clickProp(prop) {
-    // click on a property (locator must be {css: ...} or {xpath: ...})
     validateProp(prop);
-    I.click(prop.locator);
+    if (prop.container) {
+      within(prop.container, () => {
+        I.click(prop.locator);
+      });
+    } else {
+      I.click(prop.locator);
+    }
   },
 
+  /**
+   * Waits for prop(s) to exist in DOM after given seconds
+   * @param {Object} prop
+   * @param {number} seconds - max number of seconds to wait for prop
+   * @param {number} num - (css/xpath only) number times prop should be on page
+   */
   seeProp(prop, seconds, num) {
-    // checks if a property is on page (locator can be text, css, or xpath
     validateProp(prop);
     if ('text' in prop.locator) {
       I.waitForText(prop.locator.text, seconds || DEFAULT_WAIT);
@@ -33,6 +60,11 @@ module.exports = {
     }
   },
 
+  /**
+   * Wait for prop to be visible in DOM after given seconds
+   * @param {Object} prop
+   * @param {number} seconds
+   */
   waitForVisibleProp(prop, seconds) {
     validateProp(prop);
     I.waitForVisible(Object.values(prop.locator)[0], seconds);

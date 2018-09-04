@@ -1,3 +1,8 @@
+/**
+ * A module providing utility functions for high level commons info
+ * @module commonsHelper
+ */
+
 const request = require('request');
 
 const usersHelper = require('./usersHelper');
@@ -21,6 +26,10 @@ module.exports = {
     releasable: true,
   },
 
+  /**
+   * Attempts to create a program and project. If already exists does nothing.
+   * @returns {Promise<any>}
+   */
   async createProgramProject() {
     // add program and project
     const hostname = process.env.HOSTNAME;
@@ -63,7 +72,11 @@ module.exports = {
     });
   },
 
-  async makeHealthCheck() {
+  /**
+   * Hit commons service health endpoints for health check
+   * @returns {Promise<string>[]} Array of strings with health status for each service
+   */
+  makeHealthCheck() {
     const endpoints = {
       sheepdog: '/api/_status',
       peregrine: '/peregrine/_status',
