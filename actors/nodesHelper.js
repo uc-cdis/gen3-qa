@@ -6,6 +6,10 @@
 const fs = require('fs');
 const path = require('path');
 
+// Path to the root directory where node data files are located
+const DATA_PATH = process.env.TEST_DATA_PATH;
+const dataMissingError = 'TEST_DATA_PATH env var missing - must set as path to test data to use nodes module';
+
 /**
  * Class for a node data
  */
@@ -143,10 +147,7 @@ const getPathWithFileNode = function (allNodes) {
   };
 };
 
-// Path to the root directory where node data files are located
-const DATA_PATH = process.env.TEST_DATA_PATH;
-const dataMissingError = 'TEST_DATA_PATH env var missing - must set as path to test data to use nodes module';
-// IMPORTANT: allNodes is immutable after init; allows refreshing nodes without reading files
+// IMPORTANT: treat allNodes as immutable after init; allows refreshing nodes without reading files
 let allNodes;
 let pathAndFile;
 const canUseNodes = (DATA_PATH !== '' && DATA_PATH !== undefined);

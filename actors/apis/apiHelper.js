@@ -62,6 +62,29 @@ class Gen3Response {
   }
 }
 
+/**
+ * Chai utility method for asserting a Gen3Result matches an expected Gen3Result
+ * Use by including chai.use(apiHelper.gen3Res) at the top of a module.
+ * example: expect(res).to.be.a.gen3Res(expectedRes)
+ * @param _chai
+ */
+const gen3Res = function (_chai) {
+  const Assertion = _chai.Assertion;
+
+  // language chain method
+  Assertion.addMethod('gen3Res', function (expectedRes) {
+    const obj = this._obj; // eslint-disable-line
+
+    new Assertion(obj).to.be.instanceof(Gen3Response);
+    if (expectedRes.parsedFenceError) {
+      new Assertion(obj.parsedFenceError).to.deep.include(expectedRes.parsedFenceError);
+    } else {
+      new Assertion(obj.body).to.deep.include(expectedRes.body);
+    }
+    new Assertion(obj.statusCode).to.equal(expectedRes.statusCode);
+  });
+};
+
 module.exports = {
   /**
    * Apply a question to an array of responses. Expect no errors to be thrown
@@ -91,4 +114,6 @@ module.exports = {
    * Wrapper for API responses
    */
   Gen3Response,
+
+  gen3Res,
 };

@@ -1,39 +1,28 @@
+/**
+ * Sheepdog Questions
+ * @module sheepdogQuestions
+ */
+
 const chai = require('chai');
+const sheepdogProps = require('./sheepdogProps.js');
+const apiHelper = require('../apiHelper.js');
 
 const expect = chai.expect;
 chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
+chai.use(apiHelper.gen3Res);
 
-const sheepdogProps = require('./sheepdogProps.js');
-const apiHelper = require('../apiHelper.js');
-
-/**
- * Internal Helpers
- */
-const resultSuccess = function (res) {
-  expect(res).to.deep.include(sheepdogProps.resultSuccess);
-};
-
-/**
- * Sheepdog Questions
- */
 module.exports = {
   addNodeSuccess(node) {
-    expect(node).to.have.property('add_res');
-    resultSuccess(node.add_res);
-    expect(node.add_res).to.have.property('created_entity_count', 1);
+    expect(node.addRes).to.be.a.gen3Res(sheepdogProps.resAddSuccess);
   },
 
   deleteNodeSuccess(node) {
-    expect(node).to.have.property('delete_res');
-    resultSuccess(node.delete_res);
-    expect(node.delete_res).to.have.property('deleted_entity_count', 1);
+    expect(node.deleteRes).to.be.a.gen3Res(sheepdogProps.resDeleteSuccess);
   },
 
   updateNodeSuccess(node) {
-    expect(node).to.have.property('add_res');
-    resultSuccess(node.add_res);
-    expect(node.add_res).to.have.property('updated_entity_count', 1);
+    expect(node.addRes).to.be.a.gen3Res(sheepdogProps.resUpdateSuccess);
   },
 
   addNodesSuccess(nodeList) {
@@ -51,8 +40,13 @@ module.exports = {
   },
 
   hasInternalServerError(res) {
+    expect(res).to.have.nested.property('body.transactional_errors');
     expect(sheepdogProps.internalServerErrorMsg).to.be.oneOf(
-      res.transactional_errors,
+      res.body.transactional_errors,
     );
+  },
+
+  hasNoAuthError(res) {
+    expect(res).to.be.a.gen3Res(sheepdogProps.resNoAuth);
   },
 };

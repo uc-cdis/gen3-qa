@@ -1,6 +1,12 @@
 Feature('SubmitAndQueryNodesTest');
 
-Scenario('submit and delete node', async (I, sheepdog, nodes) => {
+Scenario('submit node unauthenticated @lookitme', async (sheepdog, nodes, users) => {
+  await sheepdog.do.addNode(nodes.getFirstNode(), users.mainAcct.expiredAccessTokenHeader);
+  sheepdog.ask.hasNoAuthError(nodes.getFirstNode().addRes);
+  await sheepdog.do.deleteNode(nodes.getFirstNode());
+});
+
+Scenario('submit and delete node @lookitme', async (I, sheepdog, nodes) => {
   await sheepdog.complete.addNode(nodes.getFirstNode());
   await sheepdog.complete.deleteNode(nodes.getFirstNode());
 });
@@ -45,8 +51,7 @@ Scenario('submit node without parent', async (sheepdog, peregrine, nodes) => {
 
   // try adding the second node
   await sheepdog.do.addNode(nodes.getSecondNode());
-  console.log('RESULT', JSON.stringify(nodes.getSecondNode().add_res));
-  sheepdog.ask.hasEntityError(nodes.getSecondNode().add_res, 'INVALID_LINK');
+  sheepdog.ask.hasEntityError(nodes.getSecondNode().addRes, 'INVALID_LINK');
 });
 
 Scenario('query on invalid field', async (peregrine, nodes) => {

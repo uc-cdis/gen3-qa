@@ -1,13 +1,30 @@
-const commonsHelper = require('../../commonsHelper.js');
-
 /**
- * Sheepdog Properties
+ * Sheepdog service properties
+ * @module sheepdogProps
  */
+
+const commonsHelper = require('../../commonsHelper.js');
+const { Gen3Response } = require('../apiHelper.js');
+
 const apiRoot = `/api/v0/submission/${commonsHelper.program.name}/${
   commonsHelper.project.name
 }`;
+
+// Base properties for a successful result (add/delete/etc)
+const resSuccessBase = {
+  statusCode: 200,
+  body: {
+    code: 200,
+    success: true,
+    entity_error_count: 0,
+    transactional_error_count: 0,
+  },
+};
+
 module.exports = {
-  // API Config
+  /**
+   * API endpoints
+   */
   endpoints: {
     root: apiRoot,
     add: apiRoot,
@@ -15,20 +32,40 @@ module.exports = {
     describe: `${apiRoot}/export`,
   },
 
-  resultSuccess: {
-    code: 200,
-    success: true,
-    entity_error_count: 0,
-    transactional_error_count: 0,
-  },
+  /**
+   * Gen3Response when added node successfully
+   */
+  resAddSuccess: new Gen3Response({
+    ...resSuccessBase,
+    ...{ body: { ...resSuccessBase.body, created_entity_count: 1 } },
+  }),
 
-  resultFail: {
-    code: 400,
-    success: false,
-  },
+  /**
+   * Gen3Response when deleted node successfully
+   */
+  resDeleteSuccess: new Gen3Response({
+    ...resSuccessBase,
+    ...{ body: { ...resSuccessBase.body, deleted_entity_count: 1 } },
+  }),
+
+  /**
+   * Gen3Response when deleted node successfully
+   */
+  resUpdateSuccess: new Gen3Response({
+    ...resSuccessBase,
+    ...{ body: { ...resSuccessBase.body, updated_entity_count: 1 } },
+  }),
+
+  /**
+   * Gen3Response when no authentication provided
+   */
+  resNoAuth: new Gen3Response({
+    statusCode: 401,
+    body: { message: 'Authentication Error: Signature has expired' },
+  }),
 
   resLocators: {
-    entityErrorType: 'entities[0].errors[0].type',
+    entityErrorType: 'body.entities[0].errors[0].type',
   },
 
   internalServerErrorMsg:

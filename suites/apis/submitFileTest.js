@@ -78,7 +78,7 @@ Scenario('submit file then update with URL', async (sheepdog, indexd) => {
 
 Scenario('submit file invalid property', async (sheepdog) => {
   await sheepdog.do.addNode(files.invalidProp);
-  sheepdog.ask.hasInternalServerError(files.invalidProp.add_res);
+  sheepdog.ask.hasInternalServerError(files.invalidProp.addRes);
 });
 
 Scenario('update file with invalid property', async (sheepdog, indexd) => {
@@ -92,7 +92,7 @@ Scenario('update file with invalid property', async (sheepdog, indexd) => {
   files.invalidProp.rev = files.validFile.rev;
 
   await sheepdog.do.addNode(files.invalidProp);
-  sheepdog.ask.hasInternalServerError(files.invalidProp.add_res);
+  sheepdog.ask.hasInternalServerError(files.invalidProp.addRes);
 
   await sheepdog.complete.deleteNode(files.invalidProp);
   await indexd.complete.deleteFile(files.invalidProp);
