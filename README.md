@@ -6,8 +6,14 @@ Frameworks/Tools:
 - Chai: additional assertion writing ([docs](http://www.chaijs.com/api/))
 - Jenkins: CI, automated builds and tests 
 
-# Test Development
-## Local setup
+# Setup
+## General Info
+The testsuite is is run either in Jenkins, when testing a build, or on a local machine, when developing tests. The setup is slightly different for each and is explained below.
+### Environent Variables
+Tests require access tokens, usernames, passwords, etc., which we store in environment variables. The process of fetching these variables is automated by the script set for `bootstrap` in the CodeceptJS configuration file.
+
+TODO: Document difference in running tests locally and running in Jenkins, and as a result the difference in setup requirements (environment variables, .gen3/auto-qa-config.json, etc).
+## Local
 After cloning this repo, get the required packages by running `npm install`.
 ### Selenium
 To automate web browser actions, CodeceptJS requires a Selenium webserver. You have two options here: Docker or npm. Note that for both methods, you can visit `localhost:4444/wd/hub/sessions` to see current Selenium session/check that the server is running.
@@ -27,22 +33,20 @@ Once this is done, you can run `npm run selenium-start`, and the server will sta
 
 You can kill the server with `npm run selenium-kill`
 
-### Data
-Some tests need data to submit, so it's required to generate test data.
+### Data _(optional)_
+Some tests need data to submit, so this step is required only if you plan on running/writing tests that submit, delete, or query graph data (aka nodes). If your test doesn't need this stuff, just skip this step.
 _WIP_ Currently you have to clone the occ/data-simulator repo, install R, install the required packages, and manually run the command for generating simulated data. This is to be automated soon. Please just ask for help until this is resolved.
 
-### Environent Variables
-Mosts tests require authorization, which we store in environment variables. These are: `ACCESS_TOKEN, EXPIRED_ACCESS_TOKEN, INDEX_USERNAME, INDEX_PASSWORD`. The process of fetching these variables is automated by the script `local_run.sh`. This process is run automatically when you use one of the commands below for running tests (i.e. don't worry 'bout it)
-
+# Test Development
 ## Running Tests
 Once everything is setup and your Selenium server is running, you should be able to successfully run the tests. Try running the following
 ```
-npm run test
+npm test
 ```
 If all the tests start running (and passing), everything should be good to go for you to start writing your own tests. 
 Note that you can also run a selection of tests with `@Tags` (explained below) by running the following:
 ```
-npm run grep-test -- "@MyTag"
+npm test -- --grep "@MyTag"
 ```
 
 ## Writing Tests
