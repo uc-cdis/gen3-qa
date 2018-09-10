@@ -73,6 +73,23 @@ async function getProjectMembers(jwt, project) {
   });
 }
 
+async function getGCPMembers(jwt, gcp) {
+  console.log(gcp);
+  // Get cloud resource manager
+  const cloudResourceManager = google.cloudresourcemanager('v1');
+  const request = {
+    resource_: 'project',
+    auth: jwt,
+  };
+  cloudResourceManager.projects.getIamPolicy(request, (err, res) => {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    console.log(JSON.stringify(res, null, 2));
+  });
+}
+
 module.exports = {
   /**
    * Gets the memebers of a project
@@ -85,5 +102,13 @@ module.exports = {
       return auth(fenceApp.jwt, getProjectMembers, project);
     }
     return getProjectMembers(fenceApp.jwt, project);
+  },
+
+  async getGCPMembers(gcp) {
+    if (!fenceApp.jwt) {
+      fenceApp.init();
+      return auth(fenceApp.jwt, getGCPMembers, gcp);
+    }
+    return getGCPMembers(fenceApp.jwt, gcp);
   },
 };
