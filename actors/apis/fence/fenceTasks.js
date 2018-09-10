@@ -49,7 +49,7 @@ module.exports = {
         '',
       ),
       usersHelper.mainAcct.accessTokenHeader,
-    ).then(res => ({ body: res.body, statusCode: res.statusCode }));
+    ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
   },
 
   getFile(url) {

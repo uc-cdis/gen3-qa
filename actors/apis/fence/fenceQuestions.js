@@ -1,8 +1,11 @@
 const chai = require('chai');
 
+const { gen3Res, Gen3Response } = require('../apiHelper');
+
 const expect = chai.expect;
 chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
+chai.use(gen3Res);
 
 const fenceProps = require('./fenceProps.js');
 
@@ -23,9 +26,11 @@ module.exports = {
   },
 
   hasError(res, statusCode, errorMessage) {
-    expect(res).to.have.property('statusCode', statusCode);
-    expect(res).to.have.property('body');
-    expect(res.body).to.have.string(errorMessage);
+    const asdf = new Gen3Response({ fenceError: errorMessage, statusCode });
+    expect(res).to.be.a.gen3Res(asdf);
+    // expect(res).to.have.property('statusCode', statusCode);
+    // expect(res).to.have.property('body');
+    // expect(res.body).to.have.string(errorMessage);
   },
 
   linkSuccess(linkRes, linkedAcct) {
@@ -74,5 +79,9 @@ module.exports = {
     expect(members).to.have.lengthOf.above(0);
     const memberEmails = members.map(member => member.email);
     expect(memberEmails).to.include(someUser.email);
+  },
+
+  equalsResult(actualRes, expectedRes) {
+    expect(actualRes).to.be.a.gen3Res(expectedRes);
   },
 };

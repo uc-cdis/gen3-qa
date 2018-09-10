@@ -1,3 +1,5 @@
+const { Gen3Response } = require('../apiHelper');
+
 /**
  * fence Properties
  */
@@ -61,4 +63,34 @@ module.exports = {
   },
 
   linkExtendAmount: 86400, // 24 hours (in seconds)
+
+  resExpiredAccessToken: new Gen3Response({
+    fenceError: 'Authentication Error: Signature has expired',
+    statusCode: 401,
+  }),
+
+  resInvalidAPIKey: new Gen3Response({
+    fenceError: 'Not enough segments',
+    statusCode: 401,
+  }),
+
+  resMissingAPIKey: new Gen3Response({
+    fenceError: 'Please provide an api_key in payload',
+    statusCode: 400,
+  }),
+
+  resMissingFilePermission: new Gen3Response({
+    fenceError: "You don't have access permission on this file",
+    statusCode: 401,
+  }),
+
+  resInvalidFileProtocol: new Gen3Response({
+    fenceError: 'The specified protocol s2 is not supported',
+    statusCode: 400,
+  }),
+
+  resNoFileProtocol: new Gen3Response({
+    fenceError: "Can't find any file locations.",
+    statusCode: 404,
+  }),
 };

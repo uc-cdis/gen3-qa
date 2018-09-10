@@ -33,4 +33,10 @@ module.exports = {
     expect(members).to.not.have.property('error');
     return members;
   },
+
+  async createAPIKey(scope, accessTokenHeaders) {
+    const apiKeyRes = await fenceTasks.createAPIKey(scope, accessTokenHeaders);
+    fenceQuestions.hasAPIKey(apiKeyRes);
+    return apiKeyRes;
+  },
 };
