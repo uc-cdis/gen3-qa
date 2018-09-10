@@ -17,7 +17,7 @@ nData=1
 dictURL=$(g3kubectl get configmaps global -o json | jq -r '.data.dictionary_url')
 if [[ $? -ne 0 || -z "dictURL" ]]; then
     echo "ERROR: failed to retrieve dictionary_url for namespace $namespace"
-    return 1
+    exit 1
 fi
 
 mkdir -p $TEST_DATA_PATH
@@ -26,6 +26,6 @@ rCMD="Rscript GenTestDataCmd.R $dictURL $projectName $nData $TEST_DATA_PATH"
 echo $rCMD
 eval $rCMD
 if [[ $? -ne 0 ]]; then
-echo "ERROR: Failed to generate test data for $namespace"
-return 1
+  echo "ERROR: Failed to generate test data for $namespace"
+  exit 1
 fi
