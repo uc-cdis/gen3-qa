@@ -10,7 +10,7 @@ export TEST_DATA_PATH="$_ROOT_DIR/TestData/"
 
 cd "${_RUN_TESTS}"
 echo "STARTING INSTALL"
-npm ci
+npm install
 echo "FINISHED INSTALL"
 
 namespaceList="${1:-default}"
