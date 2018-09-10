@@ -106,7 +106,7 @@ module.exports = async function (done) {
 
   // Export access tokens
   for (const user of Object.values(usersHelper)) {
-    if (!user.jenkinsOnly || inJenkins) {
+    if (!user.jenkinsOnly || inJenkins || process.env.NAMESPACE === 'default') {
       const at = getAccessToken(process.env.NAMESPACE, user.username, DEFAULT_TOKEN_EXP);
       process.env[user.envTokenName] = at;
     }
