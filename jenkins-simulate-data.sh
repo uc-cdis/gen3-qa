@@ -3,8 +3,16 @@
 namespace="${1:-default}"
 echo $namespace
 
+if [[ -n "$GEN3_HOME" ]]; then  # load gen3 tools from cloud-automation
+  source "${GEN3_HOME}/gen3/lib/utils.sh"
+  gen3_load "gen3/gen3setup"
+else
+  echo "Env var GEN3_HOME is required for simulating data"
+  exit 1
+fi
+
 if [[ -z "$TEST_DATA_PATH" ]]; then
-    echo "Need to set environment variable TEST_DATA_PATH"
+    echo "Env var TEST_DATA_PATH is required for simulating data"
     exit 1
 fi
 
