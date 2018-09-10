@@ -106,8 +106,10 @@ module.exports = async function (done) {
 
   // Export access tokens
   for (const user of Object.values(usersHelper)) {
-    const at = getAccessToken(process.env.NAMESPACE, user.username, DEFAULT_TOKEN_EXP);
-    process.env[user.envTokenName] = at;
+    if (!user.jenkinsOnly || inJenkins) {
+      const at = getAccessToken(process.env.NAMESPACE, user.username, DEFAULT_TOKEN_EXP);
+      process.env[user.envTokenName] = at;
+    }
   }
 
   // Export expired access token for main acct
