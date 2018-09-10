@@ -28,9 +28,7 @@ function isErrorPage(responseBody) {
 function parseFenceError(responseBody) {
   const dom = new JSDOM(responseBody);
   const errorContainer = dom.window.document.querySelector('.error-page__information');
-  const errors = errorContainer.querySelectorAll('.introduction');
-  // actual error message is the second occurrence of .introduction
-  return errors.length === 2 ? errors[1] : errorContainer;
+  return errorContainer.textContent;
 }
 
 /**
@@ -77,7 +75,7 @@ const gen3Res = function (_chai) {
 
     new Assertion(obj).to.be.instanceof(Gen3Response);
     if (expectedRes.parsedFenceError) {
-      new Assertion(obj.parsedFenceError).to.deep.include(expectedRes.parsedFenceError);
+      new Assertion(obj.parsedFenceError).to.contain.string(expectedRes.parsedFenceError);
     } else {
       new Assertion(obj.body).to.deep.include(expectedRes.body);
     }
