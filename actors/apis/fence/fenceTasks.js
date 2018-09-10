@@ -2,6 +2,7 @@ const fenceProps = require('./fenceProps.js');
 const usersHelper = require('../../usersHelper.js');
 const portalHelper = require('../../portal/portalHelper.js');
 const googleHelper = require('../../googleHelper.js');
+const { Gen3Response } = require('../apiHelper');
 
 const container = require('codeceptjs').container;
 
@@ -63,7 +64,7 @@ module.exports = {
         scope,
       }),
       accessTokenHeader,
-    ).then(res => ({ body: res.body, statusCode: res.statusCode }));
+    ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
   },
 
   deleteAPIKey(apiKey) {
@@ -74,12 +75,11 @@ module.exports = {
   },
 
   getAccessToken(apiKey) {
-    const data = apiKey !== null ? { apiKey } : {};
+    const data = apiKey !== null ? { api_key: apiKey } : {};
     return I.sendPostRequest(
       fenceProps.endpoints.getAccessToken,
-      JSON.stringify(data),
-      usersHelper.validIndexAuthHeader,
-    ).then(res => ({ body: res.body, statusCode: res.statusCode }));
+      data,
+    ).then(res => new Gen3Response(res));
   },
 
   async linkGoogleAcct(userAcct, acctWithGoogleCreds) {
