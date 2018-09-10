@@ -16,7 +16,7 @@ Scenario('create APIKey with expired access token', async (fence, users) => {
     scope,
     users.mainAcct.expiredAccessTokenHeader,
   );
-  fence.ask.equalsResult(apiKeyRes, fence.props.resExpiredAccessToken);
+  fence.ask.responsesEqual(apiKeyRes, fence.props.resExpiredAccessToken);
 });
 
 Scenario('refresh access token with apiKey', async (fence, users) => {
@@ -29,10 +29,10 @@ Scenario('refresh access token with apiKey', async (fence, users) => {
 
 Scenario('refresh access token with invalid apiKey', async (fence) => {
   const accessTokenRes = await fence.do.getAccessToken('invalid');
-  fence.ask.equalsResult(accessTokenRes, fence.props.resInvalidAPIKey);
+  fence.ask.responsesEqual(accessTokenRes, fence.props.resInvalidAPIKey);
 });
 
 Scenario('refresh access token without apiKey', async (fence) => {
   const accessTokenRes = await fence.do.getAccessToken(null);
-  fence.ask.equalsResult(accessTokenRes, fence.props.resMissingAPIKey);
+  fence.ask.responsesEqual(accessTokenRes, fence.props.resMissingAPIKey);
 });

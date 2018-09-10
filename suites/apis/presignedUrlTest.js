@@ -49,7 +49,7 @@ Scenario('get presigned-url', async (I, fence) => {
 
 Scenario('get presigned-url user does not have permission', async (fence) => {
   const signedUrlRes = await fence.do.createSignedUrl(files.not_allowed.did);
-  fence.ask.equalsResult(signedUrlRes, fence.props.resMissingFilePermission);
+  fence.ask.responsesEqual(signedUrlRes, fence.props.resMissingFilePermission);
 });
 
 Scenario('get presigned-url with invalid protocol', async (fence) => {
@@ -57,14 +57,14 @@ Scenario('get presigned-url with invalid protocol', async (fence) => {
     files.invalid_protocol.did,
     ['protocol=s2'],
   );
-  fence.ask.equalsResult(signedUrlRes, fence.props.resInvalidFileProtocol);
+  fence.ask.responsesEqual(signedUrlRes, fence.props.resInvalidFileProtocol);
 });
 
 Scenario('get presigned-url with protocol not available in indexed document', async (fence) => {
   const signedUrlRes = await fence.do.createSignedUrl(files.allowed.did, [
     'protocol=s2',
   ]);
-  fence.ask.equalsResult(
+  fence.ask.responsesEqual(
     signedUrlRes,
     new Gen3Response({
       statusCode: 404,
@@ -77,7 +77,7 @@ Scenario('get presigned-url with protocol not exist for file', async (fence) => 
   const signedUrlRes = await fence.do.createSignedUrl(files.http_link.did, [
     'protocol=s3',
   ]);
-  fence.ask.equalsResult(
+  fence.ask.responsesEqual(
     signedUrlRes,
     new Gen3Response({
       statusCode: 404,
@@ -90,7 +90,7 @@ Scenario('get presigned-url no data', async (fence) => {
   const signedUrlRes = await fence.do.createSignedUrl(files.no_link.did, [
     'protocol=s3',
   ]);
-  fence.ask.equalsResult(
+  fence.ask.responsesEqual(
     signedUrlRes,
     new Gen3Response({
       statusCode: 404,
@@ -101,7 +101,7 @@ Scenario('get presigned-url no data', async (fence) => {
 
 Scenario('get presigned-url no requested protocol, no data', async (fence) => {
   const signedUrlRes = await fence.do.createSignedUrl(files.no_link.did);
-  fence.ask.equalsResult(signedUrlRes, fence.props.resNoFileProtocol);
+  fence.ask.responsesEqual(signedUrlRes, fence.props.resNoFileProtocol);
 });
 
 BeforeSuite((indexd) => {

@@ -32,7 +32,7 @@ async function loginGoogle(googleCreds) {
   I.retry({ retries: 3, minTimeout: 2000 })
     .fillField(fenceProps.googleLogin.emailField.locator, googleCreds.email);
   portalHelper.clickProp(fenceProps.googleLogin.emailNext);
-  portalHelper.waitForVisibleProp(fenceProps.googleLogin.passwordField);
+  portalHelper.waitForVisibleProp(fenceProps.googleLogin.passwordField, 5);
   I.retry({ retries: 3, minTimeout: 2000 })
     .fillField(fenceProps.googleLogin.passwordField.locator, googleCreds.password);
   portalHelper.clickProp(fenceProps.googleLogin.passwordNext);
@@ -100,33 +100,22 @@ module.exports = {
     const body = await I.grabSource();
     // FIXME: Why is accessToken not there anymore??
     // I.seeCookie('accessToken');
-    let accessToken;
-    try {
-      accessToken = await I.grabCookie('access_token');
-    } catch (e) {
-      console.log(e);
-    }
-    console.log('ACCESS_TOKEN', accessToken);
-    return {
-      body,
-      url,
-    };
+    const res = new Gen3Response({ body });
+    res.finalURL = url;
+    return res;
   },
 
   async unlinkGoogleAcct(userAcct) {
     return I.sendDeleteRequest(
       fenceProps.endpoints.deleteGoogleLink,
       userAcct.accessTokenHeader,
-    ).then(res => ({
-      body: res.body,
-      statusCode: res.statusCode,
-    }));
+    ).then(res => new Gen3Response(res));
   },
 
   async extendGoogleLink(userAcct) {
     return I.sendPatchRequest(
       fenceProps.endpoints.extendGoogleLink, {}, userAcct.accessTokenHeader)
-      .then(res => ({ statusCode: res.statusCode, body: res.body }));
+      .then(res => new Gen3Response(res));
   },
 
   async getProjectMembers(someProject) {

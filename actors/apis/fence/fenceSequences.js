@@ -6,6 +6,7 @@ chai.config.truncateThreshold = 0;
 
 const fenceQuestions = require('./fenceQuestions.js');
 const fenceTasks = require('./fenceTasks.js');
+const fenceProps = require('./fenceProps.js');
 
 /**
  * fence sequences
@@ -25,7 +26,7 @@ module.exports = {
 
   async unlinkGoogleAcct(userAcct) {
     const unlinkRes = await fenceTasks.unlinkGoogleAcct(userAcct);
-    fenceQuestions.unlinkSuccess(unlinkRes);
+    fenceQuestions.responsesEqual(unlinkRes, fenceProps.resUnlinkSuccess);
   },
 
   async getProjectMembers(projectName) {

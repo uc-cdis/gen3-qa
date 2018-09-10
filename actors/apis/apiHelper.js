@@ -17,7 +17,7 @@ const { JSDOM } = jsdom;
  * @returns {boolean}
  */
 function isErrorPage(responseBody) {
-  return (typeof responseBody === 'string') && /<.*>/.test(responseBody);
+  return (typeof responseBody === 'string') && /<body.*>/.test(responseBody);
 }
 
 /**
@@ -27,8 +27,12 @@ function isErrorPage(responseBody) {
  */
 function parseFenceError(responseBody) {
   const dom = new JSDOM(responseBody);
-  const errorContainer = dom.window.document.querySelector('.error-page__information');
-  return errorContainer.textContent;
+  try {
+    const errorContainer = dom.window.document.querySelector('.error-page__information');
+    return errorContainer.textContent;
+  } catch (e) {
+    return dom.window.document.querySelector('body').textContent;
+  }
 }
 
 /**
@@ -53,7 +57,7 @@ class Gen3Response {
       this.requestMethod = request.method;
       this.requestHeaders = request.headers;
       this.requestBody = request.body;
-      this.requestUrl = request.uri.href;
+      this.requestURL = request.uri.href;
     } catch (e) {
       // ignore if missing request attribute
     }
@@ -76,7 +80,7 @@ const gen3Res = function (_chai) {
     new Assertion(obj).to.be.instanceof(Gen3Response);
     if (expectedRes.parsedFenceError) {
       new Assertion(obj.parsedFenceError).to.contain.string(expectedRes.parsedFenceError);
-    } else {
+    } else if (expectedRes.body) {
       new Assertion(obj.body).to.deep.include(expectedRes.body);
     }
     new Assertion(obj.statusCode).to.equal(expectedRes.statusCode);

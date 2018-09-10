@@ -1,6 +1,6 @@
 const chai = require('chai');
 
-const { gen3Res, Gen3Response } = require('../apiHelper');
+const { gen3Res } = require('../apiHelper');
 
 const expect = chai.expect;
 chai.config.includeStack = true;
@@ -25,16 +25,9 @@ module.exports = {
     expect(accessTokenRes).has.nested.property('body.access_token');
   },
 
-  hasError(res, statusCode, errorMessage) {
-    const asdf = new Gen3Response({ fenceError: errorMessage, statusCode });
-    expect(res).to.be.a.gen3Res(asdf);
-    // expect(res).to.have.property('statusCode', statusCode);
-    // expect(res).to.have.property('body');
-    // expect(res.body).to.have.string(errorMessage);
-  },
-
   linkSuccess(linkRes, linkedAcct) {
-    const linkUrl = new URL(linkRes.url);
+    expect(linkRes).to.have.property('finalURL');
+    const linkUrl = new URL(linkRes.finalURL);
     expect(linkUrl.searchParams.get('linked_email')).to.equal(
       linkedAcct.googleCreds.email,
     );
@@ -58,7 +51,8 @@ module.exports = {
   },
 
   linkHasError(linkRes, errorProp) {
-    const linkUrl = new URL(linkRes.url);
+    expect(linkRes).to.have.property('finalURL');
+    const linkUrl = new URL(linkRes.finalURL);
     expect(linkUrl.searchParams.get('error')).to.equal(errorProp.error);
     expect(linkUrl.searchParams.get('error_description')).to.equal(errorProp.error_description);
   },
@@ -81,7 +75,7 @@ module.exports = {
     expect(memberEmails).to.include(someUser.email);
   },
 
-  equalsResult(actualRes, expectedRes) {
+  responsesEqual(actualRes, expectedRes) {
     expect(actualRes).to.be.a.gen3Res(expectedRes);
   },
 };
