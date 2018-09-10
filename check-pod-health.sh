@@ -3,7 +3,11 @@
 # curl service endpoints; exit failure if any service returns status code != 200
 
 # Service Health Endpoints
-commons_url="https://${KUBECTL_NAMESPACE}.planx-pla.net"
+commons_name=KUBECTL_NAMESPACE
+if [[ "$KUBECTL_NAMESPACE" == "default" ]]; then
+  commons_name="qa"
+fi
+commons_url="https://${commons_name}.planx-pla.net"
 sheepdog="${commons_url}/api/_status"
 peregrine="${commons_url}/peregrine/_status"
 portal="${commons_url}/"
