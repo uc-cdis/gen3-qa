@@ -1,5 +1,7 @@
 Feature('PresignedUrlAPI');
 
+const { Gen3Response } = require('../../actors/apis/apiHelper');
+
 const files = {
   allowed: {
     filename: 'test_valid',
@@ -47,11 +49,7 @@ Scenario('get presigned-url', async (I, fence) => {
 
 Scenario('get presigned-url user does not have permission', async (fence) => {
   const signedUrlRes = await fence.do.createSignedUrl(files.not_allowed.did);
-  fence.ask.hasError(
-    signedUrlRes,
-    401,
-    'You don&#39;t have access permission on this file',
-  );
+  fence.ask.equalsResult(signedUrlRes, fence.props.resMissingFilePermission);
 });
 
 Scenario('get presigned-url with invalid protocol', async (fence) => {
@@ -59,23 +57,19 @@ Scenario('get presigned-url with invalid protocol', async (fence) => {
     files.invalid_protocol.did,
     ['protocol=s2'],
   );
-  fence.ask.hasError(
-    signedUrlRes,
-    400,
-    'The specified protocol s2 is not supported',
-  );
+  fence.ask.equalsResult(signedUrlRes, fence.props.resInvalidFileProtocol);
 });
 
 Scenario('get presigned-url with protocol not available in indexed document', async (fence) => {
   const signedUrlRes = await fence.do.createSignedUrl(files.allowed.did, [
     'protocol=s2',
   ]);
-  fence.ask.hasError(
+  fence.ask.equalsResult(
     signedUrlRes,
-    404,
-    `File ${
-      files.allowed.did
-    } does not have a location with specified protocol s2.`,
+    new Gen3Response({
+      statusCode: 404,
+      fenceError: `File ${files.allowed.did} does not have a location with specified protocol s2.`,
+    }),
   );
 });
 
@@ -83,12 +77,12 @@ Scenario('get presigned-url with protocol not exist for file', async (fence) => 
   const signedUrlRes = await fence.do.createSignedUrl(files.http_link.did, [
     'protocol=s3',
   ]);
-  fence.ask.hasError(
+  fence.ask.equalsResult(
     signedUrlRes,
-    404,
-    `File ${
-      files.http_link.did
-    } does not have a location with specified protocol s3.`,
+    new Gen3Response({
+      statusCode: 404,
+      fenceError: `File ${files.http_link.did} does not have a location with specified protocol s3.`,
+    }),
   );
 });
 
@@ -96,18 +90,18 @@ Scenario('get presigned-url no data', async (fence) => {
   const signedUrlRes = await fence.do.createSignedUrl(files.no_link.did, [
     'protocol=s3',
   ]);
-  fence.ask.hasError(
+  fence.ask.equalsResult(
     signedUrlRes,
-    404,
-    `File ${
-      files.no_link.did
-    } does not have a location with specified protocol s3.`,
+    new Gen3Response({
+      statusCode: 404,
+      fenceError: `File ${files.no_link.did} does not have a location with specified protocol s3.`,
+    }),
   );
 });
 
 Scenario('get presigned-url no requested protocol, no data', async (fence) => {
   const signedUrlRes = await fence.do.createSignedUrl(files.no_link.did);
-  fence.ask.hasError(signedUrlRes, 404, 'Can&#39;t find any file locations.');
+  fence.ask.equalsResult(signedUrlRes, fence.props.resNoFileProtocol);
 });
 
 BeforeSuite((indexd) => {

@@ -1,8 +1,5 @@
 Feature('UserTokenAPI');
 
-let keyId = null;
-let apiKey = null;
-
 Scenario('test create APIKey success', async (fence, users) => {
   const scope = ['data', 'user'];
   const apiKeyRes = await fence.do.createAPIKey(
@@ -10,8 +7,7 @@ Scenario('test create APIKey success', async (fence, users) => {
     users.mainAcct.accessTokenHeader,
   );
   fence.ask.hasAPIKey(apiKeyRes);
-  keyId = apiKeyRes.body.keyId;
-  apiKey = apiKeyRes.body.apiKey;
+  fence.do.deleteAPIKey(apiKeyRes.key_id);
 });
 
 Scenario('create APIKey with expired access token', async (fence, users) => {
@@ -20,34 +16,23 @@ Scenario('create APIKey with expired access token', async (fence, users) => {
     scope,
     users.mainAcct.expiredAccessTokenHeader,
   );
-  fence.ask.hasError(
-    apiKeyRes,
-    401,
-    'Authentication Error: Signature has expired',
-  );
+  fence.ask.equalsResult(apiKeyRes, fence.props.resExpiredAccessToken);
 });
 
-Scenario('refresh access token with apiKey', async (fence) => {
-  const accessTokenRes = await fence.do.getAccessToken(apiKey);
+Scenario('refresh access token with apiKey', async (fence, users) => {
+  const scope = ['data', 'user'];
+  const apiKeyRes = await fence.complete.createAPIKey(scope, users.mainAcct.accessTokenHeader);
+  const accessTokenRes = await fence.do.getAccessToken(apiKeyRes.body.api_key);
   fence.ask.hasAccessToken(accessTokenRes);
+  fence.do.deleteAPIKey(apiKeyRes.body.key_id);
 });
 
 Scenario('refresh access token with invalid apiKey', async (fence) => {
   const accessTokenRes = await fence.do.getAccessToken('invalid');
-  fence.ask.hasError(accessTokenRes, 401, 'Not enough segments');
+  fence.ask.equalsResult(accessTokenRes, fence.props.resInvalidAPIKey);
 });
 
 Scenario('refresh access token without apiKey', async (fence) => {
   const accessTokenRes = await fence.do.getAccessToken(null);
-  fence.ask.hasError(
-    accessTokenRes,
-    400,
-    'Please provide an apiKey in payload',
-  );
-});
-
-AfterSuite((fence) => {
-  if (keyId !== null) {
-    fence.do.deleteAPIKey(keyId);
-  }
+  fence.ask.equalsResult(accessTokenRes, fence.props.resMissingAPIKey);
 });
