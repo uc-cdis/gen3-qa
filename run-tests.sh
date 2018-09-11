@@ -2,13 +2,6 @@
 #
 #
 
-_RUN_TESTS="$PWD"
-_ROOT_DIR="$(dirname "$PWD")"
-_GEN_DATA="$_ROOT_DIR/data-simulator"
-
-export TEST_DATA_PATH="$_ROOT_DIR/TestData/"
-cd "${_RUN_TESTS}"
-
 npm install
 
 namespaceList="${1:-default}"
