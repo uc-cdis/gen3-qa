@@ -9,6 +9,8 @@ if (subdomain === 'default') {
   subdomain = 'qa';
 }
 process.env.HOSTNAME = `${subdomain}.planx-pla.net`;
+console.log(`NAMESPACE: ${process.env.NAMESPACE}`);
+console.log(`HOSTNAME: ${process.env.HOSTNAME}`);
 
 exports.config = {
   output: './output',
