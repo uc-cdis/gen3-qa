@@ -19,6 +19,7 @@ async function onChooseAcctPage() {
 async function loginGoogle(googleCreds) {
   I.say('Logging in to Google...');
   await portalUtil.seeProp(fenceProps.googleLogin.readyCue, 10);
+  I.saveScreenshot('login1');
 
   // if shown option to choose account, just click the choose acct button
   const acctLoaded = await onChooseAcctPage();
@@ -30,11 +31,16 @@ async function loginGoogle(googleCreds) {
   portalUtil.waitForVisibleProp(fenceProps.googleLogin.emailField, 5);
   I.retry({ retries: 3, minTimeout: 2000 })
     .fillField(fenceProps.googleLogin.emailField.locator, googleCreds.email);
+  I.saveScreenshot('login2');
   portalUtil.clickProp(fenceProps.googleLogin.emailNext);
+  I.saveScreenshot('login3');
   portalUtil.waitForVisibleProp(fenceProps.googleLogin.passwordField, 5);
+  I.saveScreenshot('login4');
   I.retry({ retries: 3, minTimeout: 2000 })
     .fillField(fenceProps.googleLogin.passwordField.locator, googleCreds.password);
+  I.saveScreenshot('login5');
   portalUtil.clickProp(fenceProps.googleLogin.passwordNext);
+  I.saveScreenshot('login6');
 }
 
 /**
@@ -89,6 +95,7 @@ module.exports = {
     // visit link endpoint and login to google
     await I.amOnPage(fenceProps.endpoints.linkGoogle);
     await loginGoogle(googleCreds);
+    I.saveScreenshot('login7');
 
     // wait until redirected back to root url
     await I.waitInUrl(fenceProps.endpoints.root, 5);
