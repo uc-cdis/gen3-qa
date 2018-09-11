@@ -1,6 +1,6 @@
 Feature('PresignedUrlAPI');
 
-const { Gen3Response } = require('../../actors/apis/apiHelper');
+const { Gen3Response } = require('../../utils/apiUtil');
 
 const files = {
   allowed: {

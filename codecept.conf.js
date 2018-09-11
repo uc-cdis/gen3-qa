@@ -34,23 +34,23 @@ exports.config = {
       defaultHeaders: '',
     },
     CDISHelper: {
-      require: './cdisHelper.js',
+      require: './helpers/cdisHelper.js',
     },
   },
   include: {
-    // General Helpers
-    commons: './actors/commonsHelper.js',
-    nodes: './actors/nodesHelper.js',
-    users: './actors/usersHelper.js',
+    // General Utils
+    commons: './utils/commonsUtil.js',
+    nodes: './utils/nodesUtil.js',
+    users: './utils/usersUtil.js',
 
     // APIs
-    sheepdog: './actors/apis/sheepdog/sheepdogActor.js',
-    indexd: './actors/apis/indexd/indexdActor.js',
-    peregrine: './actors/apis/peregrine/peregrineActor.js',
-    fence: './actors/apis/fence/fenceActor.js',
+    sheepdog: './services/apis/sheepdog/sheepdogService.js',
+    indexd: './services/apis/indexd/indexdService.js',
+    peregrine: './services/apis/peregrine/peregrineService.js',
+    fence: './services/apis/fence/fenceService.js',
 
     // Pages
-    home: './actors/portal/home/homeActor.js',
+    home: './services/portal/home/homeService.js',
   },
   mocha: {
     reporterOptions: {

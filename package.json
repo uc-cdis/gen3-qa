@@ -43,6 +43,6 @@
     "pretest": "eslint --ignore-path .gitignore .",
     "test": "codeceptjs run --verbose",
     "grep-test": ". local_run.sh && codeceptjs run --verbose --grep",
-    "create-actor": "node scripts/create_actor.js"
+    "create-service": "node scripts/create_service.js"
   }
 }

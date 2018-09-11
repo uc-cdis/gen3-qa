@@ -8,8 +8,8 @@ const nconf = require('nconf');
 const { execSync } = require('child_process');
 const homedir = require('os').homedir();
 
-const commonsHelper = require('./actors/commonsHelper');
-const usersHelper = require('./actors/usersHelper');
+const commonsUtil = require('./utils/commonsUtil');
+const usersUtil = require('./utils/usersUtil');
 
 const DEFAULT_TOKEN_EXP = 1800;
 const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
@@ -105,7 +105,7 @@ module.exports = async function (done) {
   console.log('Setting environment variables...\n');
 
   // Export access tokens
-  for (const user of Object.values(usersHelper)) {
+  for (const user of Object.values(usersUtil)) {
     if (!user.jenkinsOnly || inJenkins || process.env.NAMESPACE === 'default') {
       const at = getAccessToken(process.env.NAMESPACE, user.username, DEFAULT_TOKEN_EXP);
       process.env[user.envTokenName] = at;
@@ -113,7 +113,7 @@ module.exports = async function (done) {
   }
 
   // Export expired access token for main acct
-  const mainAcct = usersHelper.mainAcct;
+  const mainAcct = usersUtil.mainAcct;
   const expAccessToken = getAccessToken(process.env.NAMESPACE, mainAcct.username, 1);
   process.env[mainAcct.envExpTokenName] = expAccessToken;
 
@@ -135,10 +135,10 @@ module.exports = async function (done) {
   // Assert required env vars are defined
   const basicVars = [mainAcct.envTokenName, mainAcct.envExpTokenName, 'INDEX_USERNAME', 'INDEX_PASSWORD', 'HOSTNAME'];
   const googleVars = [
-    usersHelper.auxAcct1.envGoogleEmail,
-    usersHelper.auxAcct2.envGoogleEmail,
-    usersHelper.auxAcct1.envGooglePassword,
-    usersHelper.auxAcct2.envGooglePassword,
+    usersUtil.auxAcct1.envGoogleEmail,
+    usersUtil.auxAcct2.envGoogleEmail,
+    usersUtil.auxAcct1.envGooglePassword,
+    usersUtil.auxAcct2.envGooglePassword,
     'GOOGLE_APP_CREDS_JSON',
   ];
   const submitDataVars = [
@@ -149,6 +149,6 @@ module.exports = async function (done) {
 
   // Create a program and project (does nothing if already exists)
   console.log('Creating program/project\n');
-  await commonsHelper.createProgramProject();
+  await commonsUtil.createProgramProject();
   done();
 };
