@@ -6,5 +6,5 @@ Scenario('Test add SA to project @special123', async (fence, google) => {
     members: ['user:ted.summer2@gmail.com'],
   };
   const updateRes = await google.updateUserRole(fence.props.googleProjectAID, binding);
-  console.log(updateRes;
+  console.log(updateRes);
 });

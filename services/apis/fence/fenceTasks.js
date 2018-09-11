@@ -1,7 +1,6 @@
 const fenceProps = require('./fenceProps.js');
 const usersUtil = require('../../../utils/usersUtil.js');
 const portalUtil = require('../../../utils/portalUtil.js');
-const googleUtil = require('../../../utils/googleUtil.js');
 const { Gen3Response } = require('../../../utils/apiUtil');
 
 const container = require('codeceptjs').container;
