@@ -16,6 +16,9 @@ module.exports = {
     extendGoogleLink: `${rootEndpoint}/link/google`,
   },
 
+  googleGroupKey: 'dcf-integration-qa_read_gbag@planx-pla.net',
+  googleProjectAID: 'projecta-215714',
+
   errorLinkedToAnotherAcct: {
     error: 'g_acnt_link_error',
     error_description: 'Could not link Google account. The account specified is already linked to a different user.',

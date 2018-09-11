@@ -42,6 +42,7 @@ exports.config = {
     commons: './utils/commonsUtil.js',
     nodes: './utils/nodesUtil.js',
     users: './utils/usersUtil.js',
+    google: './utils/googleUtil.js',
 
     // APIs
     sheepdog: './services/apis/sheepdog/sheepdogService.js',

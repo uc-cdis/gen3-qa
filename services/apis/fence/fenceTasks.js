@@ -117,8 +117,4 @@ module.exports = {
       fenceProps.endpoints.extendGoogleLink, {}, userAcct.accessTokenHeader)
       .then(res => new Gen3Response(res));
   },
-
-  async getProjectMembers(someProject) {
-    return googleUtil.getProjectMembers(someProject);
-  },
 };
