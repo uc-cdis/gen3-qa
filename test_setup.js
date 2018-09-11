@@ -95,7 +95,9 @@ function assertEnvVars(varNames) {
       if (inJenkins) {
         throw Error(`Missing required environment variable '${name}'`);
       }
-      console.log(`WARNING: Env var '${name}' not defined...`);
+      console.log(`WARNING: Env var '${name}' not defined!`);
+    } else {
+      console.log(`${name}: ${process.env[name]}`);
     }
   });
 }
