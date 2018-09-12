@@ -4,8 +4,20 @@
  */
 
 const request = require('request');
+const { execSync } = require('child_process');
 
 const usersUtil = require('./usersUtil');
+
+const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
+
+/**
+ * Gets commons username from a namespace
+ * @param {string} namespace
+ * @returns {string}
+ */
+function userFromNamespace(namespace) {
+  return namespace === 'default' ? 'qaplanetv1' : namespace;
+}
 
 module.exports = {
   get program() {
@@ -97,5 +109,27 @@ module.exports = {
         }),
     );
     return healthResults;
+  },
+
+  /**
+   * Generates a child process and runs the given command in a kubernetes namespace
+   * @param {string} cmd - command to execute in the commons
+   * @param {string} namespace - namespace to execute command in
+   * @returns {string}
+   */
+  runCommand(cmd, namespace) {
+    // if in jenkins, load gen3 tools before running command
+    // if not in jenkins, ssh into commons and source bashrc before command
+    if (inJenkins) {
+      if (process.env.GEN3_HOME) {
+        const sourceCmd = `source "${process.env.GEN3_HOME}/gen3/lib/utils.sh"`; // eslint-disable-line no-template-curly-in-string
+        const gen3LoadCmd = 'gen3_load "gen3/gen3setup"';
+        return execSync(`${sourceCmd}; ${gen3LoadCmd}; ${cmd}`, { shell: '/bin/bash' });
+      }
+      throw Error('Env var GEN3_HOME is not defined - required for loading gen3 tools');
+    }
+    const commonsUser = userFromNamespace(namespace);
+    const out = execSync(`ssh ${commonsUser}@cdistest.csoc 'set -i; source ~/.bashrc; ${cmd}'`, { shell: '/bin/sh' });
+    return out.toString('utf8');
   },
 };

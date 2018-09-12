@@ -5,7 +5,6 @@
  */
 
 const nconf = require('nconf');
-const { execSync } = require('child_process');
 const homedir = require('os').homedir();
 
 const commonsUtil = require('./utils/commonsUtil');
@@ -13,36 +12,6 @@ const usersUtil = require('./utils/usersUtil');
 
 const DEFAULT_TOKEN_EXP = 1800;
 const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
-
-/**
- * Gets ssh username from a namespace
- * @param {string} namespace
- * @returns {string}
- */
-function userFromNamespace(namespace) {
-  return namespace === 'default' ? 'qaplanetv1' : namespace;
-}
-
-/**
- * Generates a child process and runs the given command in a kubernetes namespace
- * @param {string} cmd - command to execute in the commons
- * @param {string} namespace - namespace to execute command in
- * @returns {string}
- */
-function runCommand(cmd, namespace) {
-  // if in jenkins, load gen3 tools before running command
-  // if not in jenkins, ssh into commons and source bashrc before command
-  if (inJenkins) {
-    if (process.env.GEN3_HOME) {
-      const sourceCmd = `source "${process.env.GEN3_HOME}/gen3/lib/utils.sh"`; // eslint-disable-line no-template-curly-in-string
-      const gen3LoadCmd = 'gen3_load "gen3/gen3setup"';
-      return execSync(`${sourceCmd}; ${gen3LoadCmd}; ${cmd}`, { shell: '/bin/bash' });
-    }
-    throw Error('Env var GEN3_HOME is not defined - required for loading gen3 tools');
-  }
-  const commonsUser = userFromNamespace(namespace);
-  return execSync(`ssh ${commonsUser}@cdistest.csoc 'set -i; source ~/.bashrc; ${cmd}'`, { shell: '/bin/sh' });
-}
 
 /**
  * Runs a fence command for fetching access token for a user
@@ -53,8 +22,8 @@ function runCommand(cmd, namespace) {
  */
 function getAccessToken(namespace, username, expiration) {
   const fenceCmd = `g3kubectl exec $(gen3 pod fence ${namespace}) -- fence-create token-create --scopes openid,user,fence,data,credentials --type access_token --exp ${expiration} --username ${username}`;
-  const accessToken = runCommand(fenceCmd, namespace);
-  return accessToken.toString('utf8').trim();
+  const accessToken = commonsUtil.runCommand(fenceCmd, namespace);
+  return accessToken.trim();
 }
 
 /**
@@ -64,8 +33,8 @@ function getAccessToken(namespace, username, expiration) {
  */
 function getIndexPassword(namespace) {
   const credsCmd = 'g3kubectl get secret sheepdog-creds -o json';
-  const secret = runCommand(credsCmd, namespace);
-  let credsString = JSON.parse(secret.toString('utf8')).data['creds.json'];
+  const secret = commonsUtil.runCommand(credsCmd, namespace);
+  let credsString = JSON.parse(secret).data['creds.json'];
   credsString = Buffer.from(credsString, 'base64').toString('utf8');
   return JSON.parse(credsString).indexd_password;
 }
