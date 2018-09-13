@@ -23,8 +23,6 @@ const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !
 function getAccessToken(namespace, username, expiration) {
   const fenceCmd = `g3kubectl exec $(gen3 pod fence ${namespace}) -- fence-create token-create --scopes openid,user,fence,data,credentials --type access_token --exp ${expiration} --username ${username}`;
   const accessToken = commonsUtil.runCommand(fenceCmd, namespace);
-  console.log('fetched access token: ', accessToken);
-  console.log('at type: ', `${typeof accessToken === 'string'}`);
   return accessToken.trim();
 }
 
