@@ -10,7 +10,7 @@ exitCode=0
 
 for name in ${namespaceList}; do
   if [[ "$name" == "default" || "$name" =~ ^qa- ]]; then
-    npm test
+    npm test -- --debug --verbose --reporter mocha-junit-reporter
     if [[ $? -ne 0 ]]; then exitCode=1; fi
   fi
 done
