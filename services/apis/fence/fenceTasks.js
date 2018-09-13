@@ -1,6 +1,7 @@
 const fenceProps = require('./fenceProps.js');
 const usersUtil = require('../../../utils/usersUtil.js');
 const portalUtil = require('../../../utils/portalUtil.js');
+const commonsUtil = require('../../../utils/commonsUtil.js');
 const { Gen3Response } = require('../../../utils/apiUtil');
 
 const container = require('codeceptjs').container;
@@ -108,6 +109,17 @@ module.exports = {
     // I.seeCookie('accessToken');
     const res = new Gen3Response({ body });
     res.finalURL = url;
+    return res;
+  },
+
+  async forceLinkGoogleAcct(userAcct, acctWithGoogleCreds) {
+    // hit link endpoint to ensure a proxy group is created for user
+    I.sendGetRequest(fenceProps.endpoints.linkGoogle, userAcct.accessTokenHeader);
+
+    // run fence-create command to circumvent google and add user link to fence
+    const cmd = `g3kubectl exec $(gen3 pod fence ${process.env.NAMESPACE}) -- fence-create force-link-google --username ${userAcct.username} --google-email ${acctWithGoogleCreds.googleCreds.email}`;
+    const res = commonsUtil.runCommand(cmd, process.env.NAMESPACE);
+    console.log('Forced link res: ', res);
     return res;
   },
 

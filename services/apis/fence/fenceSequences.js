@@ -24,6 +24,13 @@ module.exports = {
     return linkRes;
   },
 
+  async forceLinkGoogleAcct(userAcct, acctWithGoogleCreds) {
+    const linkRes = await fenceTasks.forceLinkGoogleAcct(userAcct, acctWithGoogleCreds);
+    console.log('omg here it is', linkRes);
+    fenceQuestions.forceLinkSuccess(linkRes);
+    return linkRes;
+  },
+
   async unlinkGoogleAcct(userAcct) {
     const unlinkRes = await fenceTasks.unlinkGoogleAcct(userAcct);
     fenceQuestions.responsesEqual(unlinkRes, fenceProps.resUnlinkSuccess);

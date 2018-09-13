@@ -34,6 +34,13 @@ module.exports = {
     expect(linkUrl.searchParams.get('exp')).to.not.be.null; // eslint-disable-line
   },
 
+  forceLinkSuccess(linkRes) {
+    // Expect res to be some non-zero integer
+    const num = Number(linkRes);
+    expect(num).to.not.be.NaN; // eslint-disable-line
+    expect(num).to.not.equal(0);
+  },
+
   unlinkSuccess(unlinkRes) {
     expect(unlinkRes).to.have.property('statusCode', 200);
   },
