@@ -9,6 +9,7 @@
 - [ ] Wrapped failing tests (from known bugs) in try/catch blocks, made comment next to fail with link to bug issue
 - [ ] Avoided putting questions (assertions) inside of any Tasks you wrote
 - [ ] Implemented cleanup in `After()` for any test that modified state shared across Tests/Suites
+- [ ] Added appropriate `@tags` to tests that require/do something *special* (e.g. requires simulated data)
 - [ ] Successfully ran _all_ tests on a qa commons which uses the feature (qa-kidsfirst, qa-bloodpac, qa-brain, qa-niaid)
 - [ ] Successfully completed a Jenkins build on a qa commons with my gen3-qa test branch
 (See below for details)
