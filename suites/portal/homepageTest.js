@@ -1,6 +1,6 @@
 Feature('Login');
 
-Scenario('login @rabbit', (home) => {
+Scenario('login', (home) => {
   home.do.goTo();
   home.ask.haveAccessToken();
   home.ask.seeDetails();

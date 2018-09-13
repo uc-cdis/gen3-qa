@@ -1,12 +1,12 @@
 Feature('SubmitAndQueryNodesTest');
 
-Scenario('submit node unauthenticated @lookitme', async (sheepdog, nodes, users) => {
+Scenario('submit node unauthenticated', async (sheepdog, nodes, users) => {
   await sheepdog.do.addNode(nodes.getFirstNode(), users.mainAcct.expiredAccessTokenHeader);
   sheepdog.ask.hasNoAuthError(nodes.getFirstNode().addRes);
   await sheepdog.do.deleteNode(nodes.getFirstNode());
 });
 
-Scenario('submit and delete node @lookitme', async (I, sheepdog, nodes) => {
+Scenario('submit and delete node', async (I, sheepdog, nodes) => {
   await sheepdog.complete.addNode(nodes.getFirstNode());
   await sheepdog.complete.deleteNode(nodes.getFirstNode());
 });

@@ -1,6 +1,6 @@
 Feature('GoogleServiceAccount');
 
-Scenario('Test add SA to project @special123', async (fence, google) => {
+Scenario('Test add SA to project', async (fence, google) => {
   const binding = {
     role: 'roles/viewer',
     members: ['user:ted.summer2@gmail.com'],
