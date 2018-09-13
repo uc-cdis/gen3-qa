@@ -3,7 +3,7 @@
 # curl service endpoints; exit failure if any service returns status code != 200
 
 # Service Health Endpoints
-commons_name=KUBECTL_NAMESPACE
+commons_name=$KUBECTL_NAMESPACE
 if [[ "$KUBECTL_NAMESPACE" == "default" ]]; then
   commons_name="qa"
 fi
