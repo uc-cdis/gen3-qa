@@ -8,7 +8,7 @@ Frameworks/Tools:
 
 # Setup
 ## General Info
-The testsuite is is run either in Jenkins, when testing a build, or on a local machine, when developing tests. The setup is slightly different for each and is explained below.
+The testsuite is run either in Jenkins, when testing a build, or on a local machine, when developing tests. The setup is slightly different for each and is explained below.
 ### Environent Variables
 Tests require access tokens, usernames, passwords, etc., which we store in environment variables.
 
@@ -60,27 +60,36 @@ Rscript GenTestDataCmd.R https://my.dictionary.url/ test 1 ~/testData/
 
 # Test Development
 ## Running Tests
-Once everything is setup and your Selenium server is running, you should be able to successfully run the tests. Try running the following
-```
-npm test
-```
-If all the tests start running (and passing), everything should be good to go for you to start writing your own tests. 
-Note that you can also run a selection of tests with certain tags by running the following:
-```
-npm test -- --grep "@MyTag"
-```
-You can also run a specific suite by doing the following:
-```
-npm test ./suites/apis/myApiTest.js
-```
+Once you have your environment variables configured and the Selenium server is running, you should be able to successfully run the tests. To execute all tests, run `npm test`. But as mentioned above, some tests have special requirements so you may not want to run them. Instead, you can run a selection of tests that have certain tag by running `npm test -- --grep "@MyTag"` (see info about tags in the Writing Tests section). You can also run a specific suite by adding the path to the test you want to run: `npm test ./suites/apis/myApiTest.js`.
 
 ## Writing Tests
-Tests are single .js files that test a group of closely related features. They are stored in `suites/apis` and `suites/portal`, with filenames matching the pattern `*Test.js`.
+Each API or web page feature is contained in a singe .js file. They are stored in `suites/apis` and `suites/portal`, with filenames matching the pattern `*Test.js`.
 
-Refer to the [CodeceptJS docs](https://codecept.io/basics/) and tests already written for how to write them.
+Refer to the [CodeceptJS docs](https://codecept.io/basics/) existing tests for info and writing patterns. TLDR for the basics:
+- A `*Test.js` file tests a single `Feature`
+- A `Feature` is a collection of `Scenario`s
+- A `Scenario` is a single use case/flow of a feature (e.g. a flow with good input, a flow with bad input) 
+
+Here's what it looks like in code:
+```js
+// in myFeatureTest.js
+Feature('MyFeature');
+
+Scenario('use feature good input', () => {
+  // do something with good input and expect success!
+});
+
+Scenario('use feature bad input', () => {
+  // do something with bad input and expect some error!
+});
+```
+
+`Scenario`s are where we actually do things and ask questions about the results. So what does the 'doing' and the 'asking'? That's the job of a `service`!
 
 ### Services
-Service objects directly translate to a gen3 service or web page for use in a test (e.g. sheepdog service or dictionary page service). Services allow you to perform actions and ask about the state of it's subject. Rather than making direct API calls or clicking around on a page within a test, we use services to abstract away the specifics.
+A `service` directly translates to a single gen3 API or web page (e.g. sheepdog API or dictionary web page). They allow you to perform actions and ask about the state of it's subject. Rather than making direct API calls or clicking around on a page within a test, we create a `service` to abstract away the details (e.g. specific endpoints, css locators for HTML elements, etc) for doing a task or making an assertion about state.
+
+`service`s are located in the directories `service/api` and `service/portal`. To include a service in a `Scenario`, see [Using services in Scenarios](#using-services-in-scenarios) below.
 
 #### Attributes
 Services have the following attributes
@@ -92,41 +101,63 @@ Services have the following attributes
 | questions | makes assertions about the service/page | ask | homepage.ask.seeProp(homepage.props.chart)
 | sequences | sequence of multiple tasks and questions | complete | sheepdog.complete.addNodes(allNodesList) |
 
-It's recommended that you only make assertions about state in `questions`, keep 'em out of any `tasks`. If you're tempted to write an assertion in a `task`, think about whether you are really doing a fundamental action of the service/page.
-There are exceptions of course, one being loading a web page.
+##### task
+A task is usually composed of calls to CodeceptJS's `actor()`, which is referenced as `I`. CodeceptJS's actor gives us easy access to things like navigating webpages and making REST API calls (e.g. `I.click('.my-button')` and `I.sendGetRequest('/user/user')`). Get familiar with the CodeceptJS helpers and their functions:
+- [WebdriverIO](https://codecept.io/helpers/WebDriverIO/) (web page stuff)
+- [REST](https://codecept.io/helpers/REST/) (API stuff)
 
-`tasks` are usually composed of calls to CodeceptJS's actor(), which is referenced as `I`. CodeceptJS's actor gives us easy access to things like navigating webpages and making REST API calls (e.g. `I.click('.my-button')` and `I.sendGetRequest('/user/user')`). Get familiar with the CodeceptJS helpers and their functions ([WebdriverIO](https://codecept.io/helpers/WebDriverIO/), [REST](https://codecept.io/helpers/REST/)) .
+##### question
+A question is a method that makes an assertion. For web pages, they are usually written using CodeceptJS's `actor()` (e.g. `I.seeNumberOfElements('.header1', 2)`). For everything that we can't use CodeceptJS's actor for (API assertions) we use Chai. Checkout the Chai expect [documentation here](http://www.chaijs.com/api/bdd/).
 
-`questions` for web pages are usually also written using CodeceptJS's actor() (e.g. `I.seeNumberOfElements('.header1', 2)`). For everything that we can't use CodeceptJS's actor for (usually API assertions) we use Chai. Checkout the Chai expect [documentation here](http://www.chaijs.com/api/bdd/).
+##### props
+A `service`'s props is just a collection of values that are used when performing tasks and asking questions. This would include:
+- API endpoints
+- Expected API results
+- Web page URL
+- Locators for HTML elements 
 
-#### Using services in tests
-To use a service in a test, insert it in the `Scenario` callback
+##### sequence
+A sequence is just a collection of tasks and questions. For example, if you had a series of tasks and questions you were repeating in your tests (e.g. submitting something then validating it was submitted successfully) you can just create a sequence to wrap this up into one call.
+
+It's recommended that you only make assertions about state in questions, keep 'em out of any tasks. If you're tempted to write an assertion in a task, think about whether you are really doing a fundamental action of the service/page. Just write it into a sequence if you really need to do both a task and question.
+
+#### Using `service`s in `Scenario`s
+To use a service in a `Scenario`, insert it in the `Scenario` callback:
 ```js
-Scenario('submit and delete node'), (sheepdog) => {
-  let node = { ... node data structure ... };
-  await sheepdog.do.addNode(node); // appends request result to node object
-  sheepdog.ask.addNodeSuccess(node); // check the node add_res
-})
+// in file myTest.js
+Feature('MyFeatureA')
+
+// See codeceptjs docs for info on Before/BeforeSuite/After/AfterSuite
+BeforeSuite((myService) => {
+  myService.complete.someSetup();
+});
+
+Scenario('use feature with good input', (myService) => {
+  const result = myService.do.someTask(goodInput);
+  myService.ask.resultSuccess(result);
+});
+
+Scenario('use feature with bad input', (myService) => {
+  const result = myService.do.someTask(badInput);
+  myService.ask.resultHasError(result, 'invalid input!');
+});
 ```
 
-#### Creating new services
+#### Creating a new `service`
 To create a new service, use the command `npm create-service`.
-A couple of files will be generated with the given service name in either `services/apis` or `services/portal` depending on the service type.
-After running the command, you must add the service to the codecept.conf.js file for it to be accessible by Scenarios:
+A couple of files will be generated with the given service name in either `services/apis` or `services/portal` depending on the service type you select.
+After running the command, you must add the service to the codecept.conf.js file for it to be accessible by `Scenario`s:
 ```js
-// codecept.conf.js
+// in codecept.conf.js
 ...
   include: {
-    myService: "./path/to/myService.js"
+    myService: "./services/apis/myService.js"
   }
 ...
-
-// myTest.js
-Scenario('test 123', (myService) => {...})
 ```
 
 #### Async tasks/questions
-Most `tasks` are asynchronous, so asking `questions` about their state require a little async/await work. For most funcitons, you can return another funciton's promise and `await` for the promise to resolve in the Scenario. For example
+Most tasks are asynchronous, so asking questions about their state require a little async/await work. For most funcitons, you can return another funciton's promise and `await` for the promise to resolve in the Scenario. For example
 ```js
 // myServiceTasks.js
 module.exports = {
