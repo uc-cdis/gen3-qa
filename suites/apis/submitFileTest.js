@@ -44,7 +44,7 @@ AfterSuite(async (sheepdog, nodes) => {
   await sheepdog.complete.findDeleteAllNodes();
 });
 
-Scenario('submit and delete file', async (sheepdog, indexd) => {
+Scenario('submit and delete file @reqData', async (sheepdog, indexd) => {
   // submit basic file without url
   await sheepdog.complete.addNode(files.validFile);
   await indexd.complete.checkFile(files.validFile);
@@ -52,7 +52,7 @@ Scenario('submit and delete file', async (sheepdog, indexd) => {
   await indexd.complete.deleteFile(files.validFile);
 });
 
-Scenario('submit file with URL', async (sheepdog, indexd) => {
+Scenario('submit file with URL @reqData', async (sheepdog, indexd) => {
   // add url and submit
   files.validFile.data.urls = testUrl;
   await sheepdog.complete.addNode(files.validFile);
@@ -61,7 +61,7 @@ Scenario('submit file with URL', async (sheepdog, indexd) => {
   await indexd.complete.deleteFile(files.validFile);
 });
 
-Scenario('submit file then update with URL', async (sheepdog, indexd) => {
+Scenario('submit file then update with URL @reqData', async (sheepdog, indexd) => {
   // submit basic file without url
   await sheepdog.complete.addNode(files.validFile);
   await indexd.complete.checkFile(files.validFile);
@@ -76,12 +76,12 @@ Scenario('submit file then update with URL', async (sheepdog, indexd) => {
   await indexd.complete.deleteFile(files.validFile);
 });
 
-Scenario('submit file invalid property', async (sheepdog) => {
+Scenario('submit file invalid property @reqData', async (sheepdog) => {
   await sheepdog.do.addNode(files.invalidProp);
   sheepdog.ask.hasInternalServerError(files.invalidProp.addRes);
 });
 
-Scenario('update file with invalid property', async (sheepdog, indexd) => {
+Scenario('update file with invalid property @reqData', async (sheepdog, indexd) => {
   // submit valid file
   await sheepdog.complete.addNode(files.validFile);
   await indexd.complete.checkFile(files.validFile);

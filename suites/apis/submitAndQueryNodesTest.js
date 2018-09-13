@@ -1,22 +1,22 @@
 Feature('SubmitAndQueryNodesTest');
 
-Scenario('submit node unauthenticated', async (sheepdog, nodes, users) => {
+Scenario('submit node unauthenticated @reqData', async (sheepdog, nodes, users) => {
   await sheepdog.do.addNode(nodes.getFirstNode(), users.mainAcct.expiredAccessTokenHeader);
   sheepdog.ask.hasNoAuthError(nodes.getFirstNode().addRes);
   await sheepdog.do.deleteNode(nodes.getFirstNode());
 });
 
-Scenario('submit and delete node', async (I, sheepdog, nodes) => {
+Scenario('submit and delete node @reqData', async (I, sheepdog, nodes) => {
   await sheepdog.complete.addNode(nodes.getFirstNode());
   await sheepdog.complete.deleteNode(nodes.getFirstNode());
 });
 
-Scenario('submit and delete node path', async (sheepdog, nodes) => {
+Scenario('submit and delete node path @reqData', async (sheepdog, nodes) => {
   await sheepdog.complete.addNodes(nodes.getPathToFile());
   await sheepdog.complete.deleteNodes(nodes.getPathToFile());
 });
 
-Scenario('make simple query', async (sheepdog, peregrine, nodes) => {
+Scenario('make simple query @reqData', async (sheepdog, peregrine, nodes) => {
   await sheepdog.complete.addNode(nodes.getFirstNode());
 
   const q = `query Test { alias1: ${nodes.getFirstNode().data.type} { id } }`;
@@ -26,7 +26,7 @@ Scenario('make simple query', async (sheepdog, peregrine, nodes) => {
   await sheepdog.complete.deleteNode(nodes.getFirstNode());
 });
 
-Scenario('query all node fields', async (sheepdog, peregrine, nodes) => {
+Scenario('query all node fields @reqData', async (sheepdog, peregrine, nodes) => {
   // add all nodes
   await sheepdog.do.addNodes(nodes.getPathToFile());
 
@@ -44,7 +44,7 @@ Scenario('query all node fields', async (sheepdog, peregrine, nodes) => {
   await sheepdog.complete.deleteNodes(nodes.getPathToFile());
 });
 
-Scenario('submit node without parent', async (sheepdog, peregrine, nodes) => {
+Scenario('submit node without parent @reqData', async (sheepdog, peregrine, nodes) => {
   // verify parent node does not exist
   const parentRes = await peregrine.do.queryNodeFields(nodes.getFirstNode());
   peregrine.ask.hasFieldCount(parentRes, nodes.getFirstNode().name, 0);
@@ -54,7 +54,7 @@ Scenario('submit node without parent', async (sheepdog, peregrine, nodes) => {
   sheepdog.ask.hasEntityError(nodes.getSecondNode().addRes, 'INVALID_LINK');
 });
 
-Scenario('query on invalid field', async (peregrine, nodes) => {
+Scenario('query on invalid field @reqData', async (peregrine, nodes) => {
   const invalidField = 'abcdefg';
   const nodeType = nodes.getFirstNode().data.type;
   const q = `{
@@ -70,7 +70,7 @@ Scenario('query on invalid field', async (peregrine, nodes) => {
   );
 });
 
-Scenario('filter query by string attribute', async (sheepdog, peregrine, nodes) => {
+Scenario('filter query by string attribute @reqData', async (sheepdog, peregrine, nodes) => {
   await sheepdog.complete.addNodes(nodes.getPathToFile());
 
   const testField = nodes.getFirstNode().getFieldOfType('string');
@@ -86,7 +86,7 @@ Scenario('filter query by string attribute', async (sheepdog, peregrine, nodes) 
 });
 
 // FIXME: This is a known bug that needs to be fixed. See PXD-1195
-Scenario('filter query by boolean attribute', async (commons, peregrine) => {
+Scenario('filter query by boolean attribute @reqData', async (commons, peregrine) => {
   // This test assumes that projects in all commons will have a boolean attribute 'releasable'
   const booleanState = commons.project.releasable;
   const q = `
@@ -109,7 +109,7 @@ Scenario('filter query by boolean attribute', async (commons, peregrine) => {
   }
 });
 
-Scenario('test _[field]_count filter', async (peregrine, sheepdog, nodes) => {
+Scenario('test _[field]_count filter @reqData', async (peregrine, sheepdog, nodes) => {
   // Count number of each node type
   const previousCounts = {};
   for (const node of nodes.getPathToFile()) {
@@ -131,7 +131,7 @@ Scenario('test _[field]_count filter', async (peregrine, sheepdog, nodes) => {
   await sheepdog.complete.deleteNodes(nodes.getPathToFile());
 });
 
-Scenario('filter by project_id', async (peregrine, sheepdog, nodes, commons) => {
+Scenario('filter by project_id @reqData', async (peregrine, sheepdog, nodes, commons) => {
   // add the nodes
   await sheepdog.complete.addNodes(nodes.getPathToFile());
 
@@ -148,7 +148,7 @@ Scenario('filter by project_id', async (peregrine, sheepdog, nodes, commons) => 
   await sheepdog.complete.deleteNodes(nodes.getPathToFile());
 });
 
-Scenario('filter by invalid project_id', async (peregrine, sheepdog, nodes) => {
+Scenario('filter by invalid project_id @reqData', async (peregrine, sheepdog, nodes) => {
   await sheepdog.complete.addNode(nodes.getFirstNode());
 
   // filter by a nonexistent project id
@@ -161,7 +161,7 @@ Scenario('filter by invalid project_id', async (peregrine, sheepdog, nodes) => {
   await sheepdog.do.deleteNode(nodes.getFirstNode());
 });
 
-Scenario('test with_path_to - first to last node', async (peregrine, sheepdog, nodes) => {
+Scenario('test with_path_to - first to last node @reqData', async (peregrine, sheepdog, nodes) => {
   await sheepdog.complete.addNodes(nodes.getPathToFile());
 
   const res = await peregrine.do.queryWithPathTo(
@@ -174,7 +174,7 @@ Scenario('test with_path_to - first to last node', async (peregrine, sheepdog, n
 });
 
 // FIXME: This is a known bug that needs to be fixed. See PXD-1196
-Scenario('test with_path_to - last to first node', async (peregrine, sheepdog, nodes) => {
+Scenario('test with_path_to - last to first node @reqData', async (peregrine, sheepdog, nodes) => {
   await sheepdog.complete.addNodes(nodes.getPathToFile());
 
   // TODO: remove try/catch once bug is fixed
