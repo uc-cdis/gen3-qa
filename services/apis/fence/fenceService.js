@@ -8,10 +8,7 @@ const fenceSequences = require('./fenceSequences.js');
  */
 module.exports = {
   props: fenceProps,
-
   do: fenceTasks,
-
   ask: fenceQuestions,
-
   complete: fenceSequences,
 };

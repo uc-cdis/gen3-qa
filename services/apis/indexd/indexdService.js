@@ -8,10 +8,7 @@ const indexdSequences = require('./indexdSequences.js');
  */
 module.exports = {
   props: indexdProps,
-
   do: indexdTasks,
-
   ask: indexdQuestions,
-
   complete: indexdSequences,
 };

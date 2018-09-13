@@ -5,6 +5,9 @@ const { Gen3Response } = require('../../../utils/apiUtil');
  */
 const rootEndpoint = '/user';
 module.exports = {
+  /**
+   * Fence endpoints
+   */
   endpoints: {
     root: rootEndpoint,
     getFile: `${rootEndpoint}/data/download`,
@@ -16,6 +19,9 @@ module.exports = {
     extendGoogleLink: `${rootEndpoint}/link/google`,
   },
 
+  /**
+   * Google project and group properties
+   */
   googleGroupKey: 'dcf-integration-qa_read_gbag@planx-pla.net',
   googleProjectAID: 'projecta-215714',
 
@@ -24,6 +30,65 @@ module.exports = {
     error_description: 'Could not link Google account. The account specified is already linked to a different user.',
   },
 
+  linkExtendAmount: 86400, // 24 hours (in seconds)
+
+  /**
+   * Create Access Token Responses
+   */
+  resExpiredAccessToken: new Gen3Response({
+    fenceError: 'Authentication Error: Signature has expired',
+    statusCode: 401,
+  }),
+
+  resInvalidAPIKey: new Gen3Response({
+    fenceError: 'Not enough segments',
+    statusCode: 401,
+  }),
+
+  resMissingAPIKey: new Gen3Response({
+    fenceError: 'Please provide an api_key in payload',
+    statusCode: 400,
+  }),
+
+  /**
+   * Presigned URL responses
+   */
+  resMissingFilePermission: new Gen3Response({
+    fenceError: "You don't have access permission on this file",
+    statusCode: 401,
+  }),
+
+  resInvalidFileProtocol: new Gen3Response({
+    fenceError: 'The specified protocol s2 is not supported',
+    statusCode: 400,
+  }),
+
+  resNoFileProtocol: new Gen3Response({
+    fenceError: "Can't find any file locations.",
+    statusCode: 404,
+  }),
+
+  /**
+   * Link Google responses
+   */
+  resUnlinkSuccess: new Gen3Response({ statusCode: 200 }),
+
+  resExtendNoGoogleAcctLinked: new Gen3Response({
+    fenceError: 'User does not have a linked Google account.',
+    statusCode: 404,
+  }),
+
+  resUnlinkNoGoogleAcctLinked: new Gen3Response({
+    body: {
+      error: 'g_acnt_link_error',
+      error_description: "Couldn't unlink account for user, no linked Google account found.",
+    },
+    statusCode: 404,
+  }),
+
+  /**
+   * Google login page elements
+   */
   googleLogin: {
     readyCue: {
       locator: {
@@ -56,54 +121,4 @@ module.exports = {
       },
     },
   },
-
-  linkExtendAmount: 86400, // 24 hours (in seconds)
-
-  // Create Access Token Responses
-  resExpiredAccessToken: new Gen3Response({
-    fenceError: 'Authentication Error: Signature has expired',
-    statusCode: 401,
-  }),
-
-  resInvalidAPIKey: new Gen3Response({
-    fenceError: 'Not enough segments',
-    statusCode: 401,
-  }),
-
-  resMissingAPIKey: new Gen3Response({
-    fenceError: 'Please provide an api_key in payload',
-    statusCode: 400,
-  }),
-
-  // Presigned URL responses
-  resMissingFilePermission: new Gen3Response({
-    fenceError: "You don't have access permission on this file",
-    statusCode: 401,
-  }),
-
-  resInvalidFileProtocol: new Gen3Response({
-    fenceError: 'The specified protocol s2 is not supported',
-    statusCode: 400,
-  }),
-
-  resNoFileProtocol: new Gen3Response({
-    fenceError: "Can't find any file locations.",
-    statusCode: 404,
-  }),
-
-  // Link Google responses
-  resUnlinkSuccess: new Gen3Response({ statusCode: 200 }),
-
-  resExtendNoGoogleAcctLinked: new Gen3Response({
-    fenceError: 'User does not have a linked Google account.',
-    statusCode: 404,
-  }),
-
-  resUnlinkNoGoogleAcctLinked: new Gen3Response({
-    body: {
-      error: 'g_acnt_link_error',
-      error_description: "Couldn't unlink account for user, no linked Google account found.",
-    },
-    statusCode: 404,
-  }),
 };

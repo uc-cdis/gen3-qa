@@ -8,6 +8,10 @@ const container = require('codeceptjs').container;
 
 const I = actor();
 
+/**
+ * Determines if browser is on Google's "Choose account" page
+ * @returns {Promise<boolean>}
+ */
 async function onChooseAcctPage() {
   return new Promise((resolve) => {
     const wdio = container.helpers('WebDriverIO');
@@ -17,6 +21,11 @@ async function onChooseAcctPage() {
   });
 }
 
+/**
+ * Goes through google oauth flow in the browser (saving screenshots along the way)
+ * @param {Object} googleCreds - google credentials (email and password)
+ * @returns {Promise<void>}
+ */
 async function loginGoogle(googleCreds) {
   I.say('Logging in to Google...');
   await portalUtil.seeProp(fenceProps.googleLogin.readyCue, 10);
@@ -48,6 +57,12 @@ async function loginGoogle(googleCreds) {
  * fence Tasks
  */
 module.exports = {
+  /**
+   * Hits fence's signed url endpoint
+   * @param {string} id - id/did of an indexd file
+   * @param {string[]} args - additional args for endpoint
+   * @returns {Promise<Gen3Response>}
+   */
   createSignedUrl(id, args = []) {
     return I.sendGetRequest(
       `${fenceProps.endpoints.getFile}/${id}?${args.join('&')}`.replace(
@@ -58,10 +73,21 @@ module.exports = {
     ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
   },
 
+  /**
+   * Fetch signed URL contents
+   * @param {string} url - url for the file
+   * @returns {string | Object} response.body - file contents
+   */
   getFile(url) {
     return I.sendGetRequest(url).then(res => res.body);
   },
 
+  /**
+   * Hits fence's endoint to create an api, given an access token
+   * @param {string[]} scope - scope of the access token
+   * @param {Object} accessTokenHeader
+   * @returns {Promise<Gen3Response>}
+   */
   createAPIKey(scope, accessTokenHeader) {
     accessTokenHeader['Content-Type'] = 'application/json';
     return I.sendPostRequest(
@@ -73,6 +99,11 @@ module.exports = {
     ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
   },
 
+  /**
+   * Deletes a given API Key
+   * @param {string} apiKey
+   * @returns {Promise<Object>}
+   */
   deleteAPIKey(apiKey) {
     return I.sendDeleteRequest(
       `${fenceProps.endpoints.deleteAPIKey}/${apiKey}`,
@@ -80,6 +111,11 @@ module.exports = {
     ).then(res => res.body);
   },
 
+  /**
+   * Requests an access token given an api key
+   * @param {string} apiKey
+   * @returns {Promise<Gen3Response>}
+   */
   getAccessToken(apiKey) {
     const data = apiKey !== null ? { api_key: apiKey } : {};
     return I.sendPostRequest(
@@ -88,6 +124,14 @@ module.exports = {
     ).then(res => new Gen3Response(res));
   },
 
+  /**
+   * WARNING: not guaranteed to work since google might challenge the login
+   * with a captcha.
+   * Goes through the full, proper process for linking a google account
+   * @param userAcct
+   * @param acctWithGoogleCreds
+   * @returns {Promise<Gen3Response|*>}
+   */
   async linkGoogleAcct(userAcct, acctWithGoogleCreds) {
     const googleCreds = acctWithGoogleCreds.googleCreds;
     // set users access token
@@ -105,13 +149,19 @@ module.exports = {
     // return the body and the current url
     const url = await I.grabCurrentUrl();
     const body = await I.grabSource();
-    // FIXME: Why is accessToken not there anymore??
-    // I.seeCookie('accessToken');
+
     const res = new Gen3Response({ body });
     res.finalURL = url;
     return res;
   },
 
+  /**
+   * WARNING: circumvents google authentication (ie not like true linking process)
+   * Updates fence databases to link an account to a google email
+   * @param {User} userAcct - Commons User to link with
+   * @param {User} acctWithGoogleCreds - User to link to; must have google credentials
+   * @returns {Promise<string>} - std out from the fence-create script
+   */
   async forceLinkGoogleAcct(userAcct, acctWithGoogleCreds) {
     // hit link endpoint to ensure a proxy group is created for user
     I.sendGetRequest(fenceProps.endpoints.linkGoogle, userAcct.accessTokenHeader);
@@ -119,10 +169,14 @@ module.exports = {
     // run fence-create command to circumvent google and add user link to fence
     const cmd = `g3kubectl exec $(gen3 pod fence ${process.env.NAMESPACE}) -- fence-create force-link-google --username ${userAcct.username} --google-email ${acctWithGoogleCreds.googleCreds.email}`;
     const res = commonsUtil.runCommand(cmd, process.env.NAMESPACE);
-    console.log('Forced link res: ', res);
     return res;
   },
 
+  /**
+   * Hits fences DELETE google link endpont
+   * @param {User} userAcct - User to delete the link for
+   * @returns {Promise<Gen3Response>}
+   */
   async unlinkGoogleAcct(userAcct) {
     return I.sendDeleteRequest(
       fenceProps.endpoints.deleteGoogleLink,
@@ -130,6 +184,11 @@ module.exports = {
     ).then(res => new Gen3Response(res));
   },
 
+  /**
+   * Hits fences EXTEND google link endpoint
+   * @param {User} userAcct - commons user to extend the link for
+   * @returns {Promise<Gen3Response>}
+   */
   async extendGoogleLink(userAcct) {
     return I.sendPatchRequest(
       fenceProps.endpoints.extendGoogleLink, {}, userAcct.accessTokenHeader)

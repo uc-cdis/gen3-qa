@@ -16,6 +16,11 @@ const resultSuccess = function (res) {
  * indexd Questions
  */
 module.exports = {
+  /**
+   * Asserts an indexd get file result is equal to a given file node
+   * @param {} res
+   * @param fileNode
+   */
   fileEquals(res, fileNode) {
     resultSuccess(res);
 

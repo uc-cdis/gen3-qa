@@ -38,31 +38,62 @@ const deleteByIdRecursively = async function (id) {
  * Sheepdog sequences
  */
 module.exports = {
+  /**
+   * Submits a node to sheepdog and asserts it was submitted successfully
+   * @param {Node} node
+   * @returns {Promise<void>}
+   */
   async addNode(node) {
     await sheepdogTasks.addNode(node);
     sheepdogQuestions.addNodeSuccess(node);
   },
 
+  /**
+   * Deletes a node from sheepdog and asserts it was deleted successfully
+   * @param {Node} node
+   * @returns {Promise<void>}
+   */
   async deleteNode(node) {
     await sheepdogTasks.deleteNode(node);
     sheepdogQuestions.deleteNodeSuccess(node);
   },
 
+  /**
+   * Updates a node in sheepdog and asserts it was updated successfully
+   * @param {Node} node
+   * @returns {Promise<void>}
+   */
   async updateNode(node) {
     await sheepdogTasks.addNode(node);
     sheepdogQuestions.updateNodeSuccess(node);
   },
 
+  /**
+   * Adds an array of nodes and asserts they were added successfully
+   * @param {Node[]} nodesList
+   * @returns {Promise<void>}
+   */
   async addNodes(nodesList) {
     await sheepdogTasks.addNodes(nodesList);
     sheepdogQuestions.addNodesSuccess(nodesList);
   },
 
+  /**
+   * Deletes an array of nodes and asserts they were deleted successfully
+   * @param {Node[]} nodesList
+   * @returns {Promise<void>}
+   */
   async deleteNodes(nodesList) {
     await sheepdogTasks.deleteNodes(nodesList);
     sheepdogQuestions.deleteNodesSuccess(nodesList);
   },
 
+  /**
+   * Makes query for nodes in project and attempts to delete them all
+   * Not to be used when there are many nodes in the database
+   * For small cleanup only
+   * @returns {Promise<void>}
+   */
   async findDeleteAllNodes() {
     // FIXME: This function doesn't always work and can be optimized
     // Delete all nodes in the program/project

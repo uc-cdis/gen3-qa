@@ -20,6 +20,11 @@ const getRevFromResponse = function (res) {
  * indexd Tasks
  */
 module.exports = {
+  /**
+   * Adds files to indexd
+   * @param {Object[]} files - array of indexd files
+   * @returns {Promise<void>}
+   */
   async addFileIndices(files) {
     const headers = usersUtil.mainAcct.indexdAuthHeader;
     headers['Content-Type'] = 'application/json; charset=UTF-8';
@@ -49,28 +54,44 @@ module.exports = {
     });
   },
 
-  async getFile(fileNode) {
+  /**
+   * Fetches indexd data for file and assigns 'rev', given an indexd file object with a did
+   * @param {Object} fileNode - Assumed to have a did property
+   * @returns {Promise<Gen3Response>}
+   */
+  async getFile(file) {
     // get data from indexd
     return I.sendGetRequest(
-      `${indexdProps.endpoints.get}/${fileNode.did}`,
+      `${indexdProps.endpoints.get}/${file.did}`,
       usersUtil.mainAcct.accessTokenHeader,
     ).then((res) => {
-      fileNode.rev = getRevFromResponse(res);
+      file.rev = getRevFromResponse(res);
       return res.body;
     });
   },
 
-  async deleteFile(fileNode) {
+  /**
+   * Deletes the file from indexd, given an indexd file object with did and rev
+   * Response is added to the file object
+   * @param {Object} file
+   * @returns {Promise<Promise|*|PromiseLike<T>|Promise<T>>}
+   */
+  async deleteFile(file) {
     return I.sendDeleteRequest(
-      `${indexdProps.endpoints.delete}/${fileNode.did}?rev=${fileNode.rev}`,
+      `${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`,
       usersUtil.mainAcct.indexdAuthHeader,
     ).then((res) => {
       // Note that we use the entire response, not just the response body
-      fileNode.indexd_delete_res = res;
+      file.indexd_delete_res = res;
       return res;
     });
   },
 
+  /**
+   * Deletes multiple files from indexd
+   * @param {Object[]} files
+   * @returns {Promise<void>}
+   */
   async deleteFileIndices(files) {
     files.forEach((file) => {
       this.deleteFile(file);

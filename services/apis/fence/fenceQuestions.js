@@ -13,18 +13,35 @@ const fenceProps = require('./fenceProps.js');
  * fence Questions
  */
 module.exports = {
+  /**
+   * Asserts a res has url property
+   * @param createUrlRes
+   */
   hasUrl(createUrlRes) {
     expect(createUrlRes).to.have.nested.property('body.url');
   },
 
+  /**
+   * Asserts a res has api key property
+   * @param apiKeyRes
+   */
   hasAPIKey(apiKeyRes) {
     expect(apiKeyRes).to.have.nested.property('body.api_key');
   },
 
+  /**
+   * Asserts a res has access token property
+   * @param accessTokenRes
+   */
   hasAccessToken(accessTokenRes) {
     expect(accessTokenRes).has.nested.property('body.access_token');
   },
 
+  /**
+   * Asserts google link res was successful
+   * @param {Gen3Response} linkRes - linking response
+   * @param {User} linkedAcct - the account that was linked TO (ie their google email)
+   */
   linkSuccess(linkRes, linkedAcct) {
     expect(linkRes).to.have.property('finalURL');
     const linkUrl = new URL(linkRes.finalURL);
@@ -34,6 +51,10 @@ module.exports = {
     expect(linkUrl.searchParams.get('exp')).to.not.be.null; // eslint-disable-line
   },
 
+  /**
+   * Asserts that a forced linking was successful
+   * @param linkRes
+   */
   forceLinkSuccess(linkRes) {
     // Expect res to be some non-zero integer
     const num = Number(linkRes);
@@ -41,10 +62,19 @@ module.exports = {
     expect(num).to.not.equal(0);
   },
 
+  /**
+   * Asserts that deleting google link was successful
+   * @param unlinkRes
+   */
   unlinkSuccess(unlinkRes) {
     expect(unlinkRes).to.have.property('statusCode', 200);
   },
 
+  /**
+   * Asserts that extending google link was successful
+   * @param extendRes
+   * @param timeRequest
+   */
   linkExtendSuccess(extendRes, timeRequest) {
     expect(extendRes).to.have.property('statusCode', 200);
 
@@ -57,31 +87,11 @@ module.exports = {
     );
   },
 
-  linkHasError(linkRes, errorProp) {
-    expect(linkRes).to.have.property('finalURL');
-    const linkUrl = new URL(linkRes.finalURL);
-    expect(linkUrl.searchParams.get('error')).to.equal(errorProp.error);
-    expect(linkUrl.searchParams.get('error_description')).to.equal(errorProp.error_description);
-  },
-
-  unlinkHasError(unlinkRes, errorProp) {
-    expect(unlinkRes).to.have.property('statusCode', errorProp.statusCode);
-    expect(unlinkRes).to.have.nested.property('body.error', errorProp.error);
-    expect(unlinkRes).to.have.nested.property('body.error_description', errorProp.error_description);
-  },
-
-  linkExtendHasError(linkExtendRes, errorProp) {
-    expect(linkExtendRes).to.have.property('statusCode', errorProp.statusCode);
-    expect(linkExtendRes).to.have.nested.property('body.error', errorProp.error);
-    expect(linkExtendRes).to.have.nested.property('body.error_description', errorProp.error_description);
-  },
-
-  membersHasUser(members, someUser) {
-    expect(members).to.have.lengthOf.above(0);
-    const memberEmails = members.map(member => member.email);
-    expect(memberEmails).to.include(someUser.email);
-  },
-
+  /**
+   * Asserts the Gen3Responses are equal
+   * @param {Gen3Response} actualRes
+   * @param {Gen3Response} expectedRes
+   */
   responsesEqual(actualRes, expectedRes) {
     expect(actualRes).to.be.a.gen3Res(expectedRes);
   },
