@@ -1,5 +1,5 @@
-// Feature('Data Explorer');
-//
+Feature('Data Explorer');
+
 // Scenario('test exploring data using filters and sqon view @explorer-only', async (I) => {
 //   await I.openDataExplorer();
 //   I.seeVisualizations();

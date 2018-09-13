@@ -1,10 +1,5 @@
-// 'use strict';
-//
-// let assert = require('assert');
-// let util = require('./utilApis');
-//
-// Feature('GetCoreMetadata');
-//
+Feature('GetCoreMetadata');
+
 // // test data
 // let valid_file;
 // let invalid_id_file;
