@@ -47,7 +47,7 @@ rl.question(
   (answer) => {
     rl.question('Type in the service name: ', (serviceName) => {
       const allFiles = getFiles(serviceName);
-      const serviceTypeDir = answer === 1 ? './services/apis' : './services/portal';
+      const serviceTypeDir = answer === '1' ? './services/apis' : './services/portal';
       createService(serviceName, serviceTypeDir, allFiles);
 
       rl.close();

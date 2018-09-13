@@ -1,12 +1,10 @@
 module.exports.getFiles = function (serviceName) {
-  const tasks = `${serviceName}_tasks`;
-  const questions = `${serviceName}_questions`;
-  const props = `${serviceName}_props`;
-  const sequences = `${serviceName}_sequences`;
+  const tasks = `${serviceName}Tasks`;
+  const questions = `${serviceName}Questions`;
+  const props = `${serviceName}Props`;
+  const sequences = `${serviceName}Sequences`;
 
-  const serviceTemplate = `'use strict';
-  
-const ${tasks} = require('./${tasks}.js');
+  const serviceTemplate = `const ${tasks} = require('./${tasks}.js');
 const ${questions} = require('./${questions}.js');
 const ${props} = require('./${props}.js');
 const ${sequences} = require('./${sequences}.js');
@@ -20,15 +18,13 @@ module.exports = {
   do: ${tasks},
 
   ask: ${questions},
-  
-  complete: ${sequences}
+
+  complete: ${sequences},
 };
 `;
 
-  const tasksTemplate = `'use strict';
-  
-const ${props} = require('./${props}.js');
-let I = actor();
+  const tasksTemplate = `// const ${props} = require('./${props}.js');
+// let I = actor();
 
 /**
  * ${serviceName} Tasks
@@ -36,26 +32,24 @@ let I = actor();
 module.exports = {
   // API Example:
   // getFiles() {
-  //   I.sendGetRequest(sheepdog.endpoints.getFile, commonsUtil.validAccessTokenHeader)
+  //   I.sendGetRequest(sheepdog.endpoints.getFile, accessTokenHeaders)
   // }
   //
   // Portal Example:
   // goTo() {
   //   homepage_service.do.goTo();
   //   portalUtil.clickProp(navbar.props.dictionary_link)
-  //   portalUtil.seeProp(dictionary_props.ready_cue)
+  //   portalUtil.seeProp(dictionaryProps.ready_cue)
   // }
 };
 `;
 
-  const questionsTemplate = `'use strict';
-  
-let chai = require('chai');
-let expect = chai.expect;
-chai.config.includeStack = true;
-chai.config.truncateThreshold = 0;
+  const questionsTemplate = `// let chai = require('chai');
+// let expect = chai.expect;
+// chai.config.includeStack = true;
+// chai.config.truncateThreshold = 0;
 
-const ${props} = require('./${props}.js');
+// const ${props} = require('./${props}.js');
 
 /**
  * ${serviceName} Questions
@@ -66,13 +60,11 @@ module.exports = {
 
 `;
 
-  const propsTemplate = `'use strict';
-
-/**
+  const propsTemplate = `/**
  * ${serviceName} Properties
  */
 module.exports = {
-  // API Example: 
+  // API Example:
   // endpoints: {
   //   root: 'API_ROOT',
   // },
@@ -88,7 +80,7 @@ module.exports = {
   //   code: 400,
   //   success: false
   // }
-  
+  //
   // Portal Page Example:
   // path: '/explorer',
   //
@@ -107,10 +99,8 @@ module.exports = {
 };
 `;
 
-  const sequencesTemplate = `'use strict';
-
-const ${questions} = require('./${questions}.js');
-const ${tasks} = require('./${tasks}.js');
+  const sequencesTemplate = `// const ${questions} = require('./${questions}.js');
+// const ${tasks} = require('./${tasks}.js');
 
 /**
  * ${serviceName} sequences
@@ -123,7 +113,7 @@ module.exports = {
   return {
     service_file: {
       template: serviceTemplate,
-      name: `${serviceName}_service.js`,
+      name: `${serviceName}Service.js`,
     },
     tasks_file: {
       template: tasksTemplate,
