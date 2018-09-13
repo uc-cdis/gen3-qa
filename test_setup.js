@@ -64,8 +64,6 @@ function assertEnvVars(varNames) {
         throw Error(`Missing required environment variable '${name}'`);
       }
       console.log(`WARNING: Env var '${name}' not defined!`);
-    } else {
-      console.log(`${name}: ${process.env[name]}`);
     }
   });
 }
@@ -116,6 +114,7 @@ module.exports = async function (done) {
   ];
 
   assertEnvVars(basicVars.concat(googleVars, submitDataVars));
+  console.log('TEST_DATA_PATH: ', process.env.TEST_DATA_PATH);
 
   // Create a program and project (does nothing if already exists)
   console.log('Creating program/project\n');
