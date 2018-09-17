@@ -79,7 +79,7 @@ module.exports = {
    * @returns {string | Object} response.body - file contents
    */
   getFile(url) {
-    return I.sendGetRequest(url).then(res => res.body);
+    return I.sendGetRequest(url).then(res => new Gen3Response(res));
   },
 
   /**
@@ -108,7 +108,7 @@ module.exports = {
     return I.sendDeleteRequest(
       `${fenceProps.endpoints.deleteAPIKey}/${apiKey}`,
       usersUtil.mainAcct.accessTokenHeader,
-    ).then(res => res.body);
+    ).then(res => new Gen3Response(res));
   },
 
   /**

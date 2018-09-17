@@ -20,8 +20,8 @@ module.exports = {
    */
   async checkFileEquals(signedUrlRes, contents) {
     fenceQuestions.hasUrl(signedUrlRes);
-    const fileContents = await fenceTasks.getFile(signedUrlRes.body.url);
-    expect(fileContents).to.equal(contents);
+    const fileRes = await fenceTasks.getFile(signedUrlRes.body.url);
+    expect(fileRes).to.have.property('body', contents);
   },
 
   /**
