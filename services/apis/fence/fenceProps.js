@@ -17,6 +17,7 @@ module.exports = {
     linkGoogle: `${rootEndpoint}/link/google?redirect=.`,
     deleteGoogleLink: `${rootEndpoint}/link/google`,
     extendGoogleLink: `${rootEndpoint}/link/google`,
+    registerGoogleServiceAccount: `${rootEndpoint}/google/service_accounts/`,
   },
 
   /**
@@ -120,5 +121,15 @@ module.exports = {
         xpath: '//div[contains(text(), \'Use another account\')]',
       },
     },
+  },
+
+  /**
+   * Google Projects
+   */
+  googleProjectA: {
+    id: 'projecta-215714',
+    serviceAccountEmail: 'projaserviceacct@projecta-215714.iam.gserviceaccount.com',
+    linkedToFence: true,
+    hasParentOrganization: false,
   },
 };

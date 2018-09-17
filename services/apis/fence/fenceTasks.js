@@ -1,3 +1,5 @@
+const request = require('request');
+
 const fenceProps = require('./fenceProps.js');
 const usersUtil = require('../../../utils/usersUtil.js');
 const portalUtil = require('../../../utils/portalUtil.js');
@@ -193,5 +195,26 @@ module.exports = {
     return I.sendPatchRequest(
       fenceProps.endpoints.extendGoogleLink, {}, userAcct.accessTokenHeader)
       .then(res => new Gen3Response(res));
+  },
+
+  async registerGoogleServiceAccount(userAcct, googleProject, projectAccess) {
+    return I.sendPostRequest(
+      '/user/google/service_accounts/',
+      // fenceProps.endpoints.registerGoogleServiceAccount,
+      // JSON.stringify({
+      //   service_account_email: googleProject.serviceAccountEmail,
+      //   google_project_id: googleProject.id,
+      //   project_access: projectAccess,
+      // }),
+      // service_account_email: 'projaserviceacct@projecta-215714.iam.gserviceaccount.com',
+      {
+        service_account_email: 'projaserviceacct@projecta-215714.iam.gserviceaccount.com',
+        google_project_id: 'projecta-215714',
+        project_access: [
+          'test',
+        ],
+      },
+      userAcct.accessTokenHeader,
+    ).then(res => new Gen3Response(res));
   },
 };
