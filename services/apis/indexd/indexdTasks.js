@@ -2,6 +2,7 @@ const uuid = require('uuid');
 
 const indexdProps = require('./indexdProps.js');
 const usersUtil = require('../../../utils/usersUtil.js');
+const { Gen3Response } = require('../../../utils/apiUtil.js');
 
 const I = actor();
 
@@ -66,7 +67,7 @@ module.exports = {
       usersUtil.mainAcct.accessTokenHeader,
     ).then((res) => {
       file.rev = getRevFromResponse(res);
-      return res.body;
+      return new Gen3Response(res);
     });
   },
 
@@ -82,8 +83,9 @@ module.exports = {
       usersUtil.mainAcct.indexdAuthHeader,
     ).then((res) => {
       // Note that we use the entire response, not just the response body
-      file.indexd_delete_res = res;
-      return res;
+      const g3res = new Gen3Response(res);
+      file.indexdDeleteRes = g3res;
+      return g3res;
     });
   },
 
