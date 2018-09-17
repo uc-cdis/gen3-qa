@@ -109,8 +109,8 @@ module.exports = {
 
     const res = await peregrineService.do.query(q, null);
     try {
-      while (res.data[topNode].length > 0) {
-        const linkedType = res.data[topNode].pop();
+      while (res.body.data[topNode].length > 0) {
+        const linkedType = res.body.data[topNode].pop();
         /*eslint-disable */
         while (linkedType._links.length > 0) {
           const linkedTypeInstance = linkedType._links.pop();

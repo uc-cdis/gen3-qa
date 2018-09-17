@@ -1,5 +1,6 @@
 const peregrineProps = require('./peregrineProps.js');
 const usersUtil = require('../../../utils/usersUtil.js');
+const { Gen3Response } = require('../../../utils/apiUtil.js');
 
 const I = actor();
 
@@ -55,7 +56,7 @@ module.exports = {
       peregrineProps.endpoints.query,
       JSON.stringify({ query: queryString, variables: variablesString }),
       usersUtil.mainAcct.accessTokenHeader,
-    ).then(res => res.body);
+    ).then(res => new Gen3Response(res));
   },
 
   /**

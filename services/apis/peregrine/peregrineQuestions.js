@@ -10,8 +10,8 @@ const apiUtil = require('../../../utils/apiUtil.js');
  * internal utils
  */
 const resultSuccess = function (res) {
-  expect(res).to.have.property('data');
-  expect(res).to.not.have.property('errors');
+  expect(res).to.have.nested.property('body.data');
+  expect(res).to.not.have.nested.property('body.errors');
 };
 
 /**
@@ -25,7 +25,7 @@ const resultSuccess = function (res) {
  */
 const hasField = (res, field) => {
   resultSuccess(res);
-  expect(res).to.have.nested.property(`data.${field}`);
+  expect(res).to.have.nested.property(`body.data.${field}`);
 };
 
 module.exports = {
@@ -39,7 +39,7 @@ module.exports = {
    */
   hasFieldCount(res, field, count) {
     this.hasField(res, field);
-    expect(res.data[field]).to.have.lengthOf(count);
+    expect(res.body.data[field]).to.have.lengthOf(count);
   },
 
   /**
@@ -48,7 +48,7 @@ module.exports = {
    * @param {string} error
    */
   hasError(res, error) {
-    expect(res).to.nested.include({ 'errors[0]': error });
+    expect(res).to.nested.include({ 'body.errors[0]': error });
   },
 
   /**
@@ -59,9 +59,9 @@ module.exports = {
   queryResultEqualsNode(result, node) {
     hasField(result, node.name);
     const nodeData = node.data; // grab data from node
-    const queryResult = result.data[node.name][0]; // grab query response data
+    const queryResult = result.body.data[node.name][0]; // grab query response data
 
-    // exect the original data to equal our query result
+    // expect the original data to equal our query result
     expect(nodeData).to.deep.include(queryResult);
   },
 
@@ -90,11 +90,11 @@ module.exports = {
     resultSuccess(newResult);
 
     const countName = `_${nodeName}_count`;
-    expect(previousResult).to.have.nested.property(`data.${countName}`);
-    const previousCount = previousResult.data[countName];
+    expect(previousResult).to.have.nested.property(`body.data.${countName}`);
+    const previousCount = previousResult.body.data[countName];
 
     expect(newResult).to.nested.include({
-      [`data.${countName}`]: previousCount + 1,
+      [`body.data.${countName}`]: previousCount + 1,
     });
   },
 
