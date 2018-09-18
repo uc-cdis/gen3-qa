@@ -81,12 +81,13 @@ const gen3Res = function (_chai) {
     const obj = this._obj; // eslint-disable-line
 
     new Assertion(obj).to.be.instanceof(Gen3Response);
+    new Assertion(obj).to.have.property('statusCode', expectedRes.statusCode);
     if (expectedRes.fenceError) {
       new Assertion(obj).to.have.property('parsedFenceError');
       new Assertion(obj.parsedFenceError).to.have.string(expectedRes.fenceError);
-      new Assertion(obj).to.have.property('statusCode', expectedRes.statusCode);
-    } else {
-      _chai.expect(obj).to.containSubset(expectedRes);
+    } else if (expectedRes.body) {
+      new Assertion(obj).to.have.property('body');
+      _chai.expect(obj.body).to.containSubset(expectedRes.body);
     }
   });
 };
