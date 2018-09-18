@@ -41,11 +41,11 @@ module.exports = {
    * WARNING: circumvents google authentication (ie not like true linking process)
    * Forces a linking in fences databases then asserts success
    * @param {User} userAcct - commons account to link with
-   * @param {User} acctWithGoogleCreds - account whose google email to link to
+   * @param {string} googleEmail - email to link to
    * @returns {Promise<string>}
    */
-  async forceLinkGoogleAcct(userAcct, acctWithGoogleCreds) {
-    const linkRes = await fenceTasks.forceLinkGoogleAcct(userAcct, acctWithGoogleCreds);
+  async forceLinkGoogleAcct(userAcct, googleEmail) {
+    const linkRes = await fenceTasks.forceLinkGoogleAcct(userAcct, googleEmail);
     fenceQuestions.forceLinkSuccess(linkRes);
     return linkRes;
   },

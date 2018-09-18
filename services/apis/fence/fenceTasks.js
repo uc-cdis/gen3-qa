@@ -159,15 +159,15 @@ module.exports = {
    * WARNING: circumvents google authentication (ie not like true linking process)
    * Updates fence databases to link an account to a google email
    * @param {User} userAcct - Commons User to link with
-   * @param {User} acctWithGoogleCreds - User to link to; must have google credentials
+   * @param {string} googleEmail - email to link to
    * @returns {Promise<string>} - std out from the fence-create script
    */
-  async forceLinkGoogleAcct(userAcct, acctWithGoogleCreds) {
+  async forceLinkGoogleAcct(userAcct, googleEmail) {
     // hit link endpoint to ensure a proxy group is created for user
     I.sendGetRequest(fenceProps.endpoints.linkGoogle, userAcct.accessTokenHeader);
 
     // run fence-create command to circumvent google and add user link to fence
-    const cmd = `g3kubectl exec $(gen3 pod fence ${process.env.NAMESPACE}) -- fence-create force-link-google --username ${userAcct.username} --google-email ${acctWithGoogleCreds.googleCreds.email}`;
+    const cmd = `g3kubectl exec $(gen3 pod fence ${process.env.NAMESPACE}) -- fence-create force-link-google --username ${userAcct.username} --google-email ${googleEmail}`;
     const res = commonsUtil.runCommand(cmd, process.env.NAMESPACE);
     return res;
   },

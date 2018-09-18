@@ -17,7 +17,7 @@ Scenario('Test add SA to project @reqGoogle', async (fence, google) => {
 });
 
 Scenario('Register SA successfully @reqGoogle @WIP', async (fence, users) => {
-  await fence.complete.forceLinkGoogleAcct(users.mainAcct, { googleCreds: { email: 'ted.summer2@gmail.com' } });
+  await fence.complete.forceLinkGoogleAcct(users.mainAcct, fence.props.googleProjectA.owner);
   const deleteRes = await fence.do.deleteGoogleServiceAccount(
     users.mainAcct,
     fence.props.googleProjectA.serviceAccountEmail,
