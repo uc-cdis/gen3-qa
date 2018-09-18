@@ -198,16 +198,18 @@ module.exports = {
   /**
    * Registers a new service account
    * @param {User} userAcct - User to make request with
-   * @param {Object} googleProject - google project which has service account to register
+   * @param {Object} googleProjectParams
+   * @param {string} googleProjectParams.serviceAccountEmail - service account email to register
+   * @param {string} googleProjectParams.id - google project ID for the service account registering
    * @param {string[]} projectAccess - projects service account will have access to
    * @returns {Promise<Gen3Response>}
    */
-  async registerGoogleServiceAccount(userAcct, googleProject, projectAccessList) {
+  async registerGoogleServiceAccount(userAcct, { serviceAccountEmail, id }, projectAccessList) {
     return I.sendPostRequest(
       fenceProps.endpoints.registerGoogleServiceAccount,
       {
-        service_account_email: googleProject.serviceAccountEmail,
-        google_project_id: googleProject.id,
+        service_account_email: serviceAccountEmail,
+        google_project_id: id,
         project_access: projectAccessList,
       },
       {

@@ -54,7 +54,6 @@ const googleApp = {
           console.error(err);
           throw Error(err);
         }
-        console.log('get policy res', JSON.stringify(response.data, null, 2));
         resolve(response.data);
       });
     });
@@ -130,7 +129,6 @@ module.exports = {
             return iamPolicy;
           }
           // remove members
-          console.log('tb: ', targetBinding);
           for (const member of members) {
             const memberIdx = targetBinding.members.indexOf(member);
             if (memberIdx > -1) {
@@ -139,6 +137,26 @@ module.exports = {
           }
 
           // submit the updated policy
+          return googleApp.setIAMPolicy(projectID, iamPolicy, authClient);
+        })
+        .catch((err) => {
+          console.log(err);
+          return err;
+        }),
+    );
+  },
+
+  async removeAllOptionalUsers(projectID) {
+    return googleApp.authorize(googleApp.cloudManagerConfig, authClient =>
+      googleApp.getIAMPolicy(projectID, authClient)
+        .then((iamPolicy) => {
+          const requiredRoles = [
+            'roles/owner',
+            'roles/resourcemanager.projectIamAdmin',
+            'roles/editor',
+          ];
+          const bindings = iamPolicy.bindings;
+          iamPolicy.bindings = bindings.filter(binding => requiredRoles.indexOf(binding.role) > -1);
           return googleApp.setIAMPolicy(projectID, iamPolicy, authClient);
         })
         .catch((err) => {

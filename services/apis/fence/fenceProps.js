@@ -127,13 +127,138 @@ module.exports = {
   },
 
   /**
+   * Google Service Account responses
+   */
+  resRegisterServiceAccountSuccess: new Gen3Response({ statusCode: 200 }),
+
+  resDeleteServiceAccountSuccess: new Gen3Response({ statusCode: 200 }),
+
+  resRegisterServiceAccountNotLinked: new Gen3Response({
+    statusCode: 400,
+    body: {
+      errors: {
+        google_project_id: {
+          status: 403,
+          service_account_validity: {},
+          error_description: 'Current user is not an authorized member on the provided Google Project.',
+          membership_validity: {},
+          error: 'unauthorized_user',
+        },
+      },
+      success: false,
+    },
+  }),
+
+  resRegisterServiceAccountHasParentOrg: new Gen3Response({
+    statusCode: 400,
+    body: {
+      errors: {
+        google_project_id: {
+          status: 403,
+          service_account_validity: {},
+          error_description: 'Project has parent organization. ',
+          membership_validity: {
+            members_exist_in_fence: true,
+            valid_member_types: true,
+          },
+          error: 'unauthorized',
+        },
+      },
+      success: false,
+    },
+  }),
+
+  resRegisterServiceAccountFenceNoAccess: new Gen3Response({
+    statusCode: 400,
+    body: {
+      errors: {
+        google_project_id: {
+          status: 404,
+          service_account_validity: {},
+          error_description: "Fence's monitoring service account does not have access to the project.",
+          membership_validity: {},
+          error: 'monitor_not_found',
+        },
+      },
+      success: false,
+    },
+  }),
+
+  resRegisterServiceAccountInvalidServiceAcct: new Gen3Response({
+    statusCode: 400,
+    body: {
+      errors: {
+        service_account_email: {
+          status: 403,
+          error_description: 'Service account requested for registration is invalid.',
+          error: 'unauthorized',
+        },
+      },
+      success: false,
+    },
+  }),
+
+  resRegisterServiceAccountInvalidProject: new Gen3Response({
+    statusCode: 400,
+    body: {
+      errors: {
+        project_access: {
+          status: 404,
+          error_description: 'A project requested for access could not be found by the given identifier. ',
+          error: 'project_not_found',
+        },
+      },
+      success: false,
+    },
+  }),
+
+  resRegisterServiceAccountMissingProjectPrivilege: new Gen3Response({
+    statusCode: 400,
+    body: {
+      errors: {
+        project_access: {
+          status: 403,
+          error_description: 'Not all users have necessary access to project(s). ',
+          error: 'unauthorized',
+        },
+      },
+      success: false,
+    },
+  }),
+
+  /**
    * Google Projects
    */
   googleProjectA: {
-    id: 'projecta-215714',
-    serviceAccountEmail: 'projaserviceacct@projecta-215714.iam.gserviceaccount.com',
+    id: 'simpleprojectalpha',
+    serviceAccountEmail: 'serviceaccount@simpleprojectalpha.iam.gserviceaccount.com',
     linkedToFence: true,
     hasParentOrganization: false,
-    owner: 'ted.summer2@gmail.com',
+    owner: 'gen3.autotest@gmail.com',
+    computeServiceAccountEmail: '264606384811-compute@developer.gserviceaccount.com',
+  },
+
+  googleProjectWithParentOrg: {
+    id: 'planxparentproject',
+    serviceAccountEmail: 'serviceaccount@planxparentproject.iam.gserviceaccount.com',
+    linkedToFence: true,
+    hasParentOrganization: true,
+    owner: 'dummy-one@planx-pla.net',
+  },
+
+  googleProjectFenceNotRegistered: {
+    id: 'projectfencenoaccess',
+    serviceAccountEmail: 'serviceaccount@projectfencenoaccess.iam.gserviceaccount.com',
+    linkedToFence: false,
+    hasParentOrganization: false,
+    owner: 'gen3.autotest@gmail.com',
+  },
+
+  googleProjectServiceAcctHasKey: {
+    id: 'projectserviceaccthaskey',
+    serviceAccountEmail: 'serviceaccount@projectserviceaccthaskey.iam.gserviceaccount.com',
+    linkedToFence: true,
+    hasParentOrganization: true,
+    owner: 'gen3.autotest@gmail.com',
   },
 };
