@@ -17,7 +17,13 @@ Scenario('Test add SA to project @reqGoogle', async (fence, google) => {
 });
 
 Scenario('Register SA successfully @reqGoogle @WIP', async (fence, users) => {
-  const linkRes = await fence.complete.forceLinkGoogleAcct(users.mainAcct, { googleCreds: { email: 'ted.summer2@gmail.com' } });
+  await fence.complete.forceLinkGoogleAcct(users.mainAcct, { googleCreds: { email: 'ted.summer2@gmail.com' } });
+  const deleteRes = await fence.do.deleteGoogleServiceAccount(
+    users.mainAcct,
+    fence.props.googleProjectA.serviceAccountEmail,
+  );
+  console.log('delete sa res:\n', JSON.stringify(deleteRes, null, 2));
+
   const registerRes = await fence.do.registerGoogleServiceAccount(
     users.mainAcct,
     fence.props.googleProjectA,
@@ -25,5 +31,18 @@ Scenario('Register SA successfully @reqGoogle @WIP', async (fence, users) => {
   );
   console.log('Register Service Account Result:\n', JSON.stringify(registerRes, null, 2));
 
+  const getRes = await fence.do.getGoogleServiceAccounts(
+    users.mainAcct,
+    [fence.props.googleProjectA.id],
+  );
+  console.log('Get sa result:\n ', JSON.stringify(getRes, null, 2));
+
   fence.complete.unlinkGoogleAcct(users.mainAcct);
+
+  const monitorRes = await fence.do.getGoogleServiceAccountMonitor(users.mainAcct);
+  console.log('monitor res:\n', monitorRes);
 });
+
+// try without proper scope
+// try to delete when google acct is not linked
+// try to delete a non linked service account email

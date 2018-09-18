@@ -1,5 +1,3 @@
-const request = require('request');
-
 const fenceProps = require('./fenceProps.js');
 const usersUtil = require('../../../utils/usersUtil.js');
 const portalUtil = require('../../../utils/portalUtil.js');
@@ -197,24 +195,84 @@ module.exports = {
       .then(res => new Gen3Response(res));
   },
 
-  async registerGoogleServiceAccount(userAcct, googleProject, projectAccess) {
+  /**
+   * Registers a new service account
+   * @param {User} userAcct - User to make request with
+   * @param {Object} googleProject - google project which has service account to register
+   * @param {string[]} projectAccess - projects service account will have access to
+   * @returns {Promise<Gen3Response>}
+   */
+  async registerGoogleServiceAccount(userAcct, googleProject, projectAccessList) {
     return I.sendPostRequest(
-      '/user/google/service_accounts/',
-      // fenceProps.endpoints.registerGoogleServiceAccount,
-      // JSON.stringify({
-      //   service_account_email: googleProject.serviceAccountEmail,
-      //   google_project_id: googleProject.id,
-      //   project_access: projectAccess,
-      // }),
-      // service_account_email: 'projaserviceacct@projecta-215714.iam.gserviceaccount.com',
+      fenceProps.endpoints.registerGoogleServiceAccount,
       {
-        service_account_email: 'projaserviceacct@projecta-215714.iam.gserviceaccount.com',
-        google_project_id: 'projecta-215714',
-        project_access: [
-          'test',
-        ],
+        service_account_email: googleProject.serviceAccountEmail,
+        google_project_id: googleProject.id,
+        project_access: projectAccessList,
       },
+      {
+        ...userAcct.accessTokenHeader,
+        'Content-Type': 'application/json',
+      },
+    ).then(res => new Gen3Response(res));
+  },
+
+  /**
+   * Deletes a service account
+   * @param {User} userAcct - User to make request with
+   * @param {string} serviceAccountEmail - email of service account to delete
+   * @returns {Promise<Gen3Response>}
+   */
+  async deleteGoogleServiceAccount(userAcct, serviceAccountEmail) {
+    return I.sendDeleteRequest(
+      `${fenceProps.endpoints.deleteGoogleServiceAccount}/${serviceAccountEmail}`,
       userAcct.accessTokenHeader,
+    ).then(res => new Gen3Response(res));
+  },
+
+  /**
+   * Gets service accounts for given google project IDs
+   * @param {User} userAcct - User to make request with
+   * @param {string[]} googleProjectIDList - google project IDs to get the service accounts of
+   * @returns {Promise<Gen3Response>}
+   */
+  async getGoogleServiceAccounts(userAcct, googleProjectIDList) {
+    const formattedIDList = googleProjectIDList.join();
+    return I.sendGetRequest(
+      `${fenceProps.endpoints.getGoogleServiceAccounts}/?google_project_ids=${formattedIDList}`,
+      userAcct.accessTokenHeader,
+    ).then(res => new Gen3Response(res));
+  },
+
+  /**
+   * Gets the fence service account used for monitoring users' Google Cloud Projects
+   * @param userAcct
+   * @returns {Promise<Gen3Response>}
+   */
+  async getGoogleServiceAccountMonitor(userAcct) {
+    return I.sendGetRequest(
+      fenceProps.endpoints.getGoogleServiceAccountMonitor,
+      userAcct.accessTokenHeader,
+    ).then(res => new Gen3Response(res));
+  },
+
+  /**
+   * Updates a google service account
+   * @param {User} userAcct - User to make request with
+   * @param {string} serviceAccountEmail - email of service account to update
+   * @param {string[]} projectAccessList - list of project names to set for service account's access
+   * @returns {Promise<Gen3Response>}
+   */
+  async updateGoogleServiceAccount(userAcct, serviceAccountEmail, projectAccessList) {
+    return I.sendPatchRequest(
+      fenceProps.endpoints.updateGoogleServiceAccount,
+      {
+        project_access: projectAccessList,
+      },
+      {
+        ...userAcct.accessTokenHeader,
+        'Content-Type': 'application/json',
+      },
     ).then(res => new Gen3Response(res));
   },
 };

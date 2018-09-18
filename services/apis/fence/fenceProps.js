@@ -17,7 +17,10 @@ module.exports = {
     linkGoogle: `${rootEndpoint}/link/google?redirect=.`,
     deleteGoogleLink: `${rootEndpoint}/link/google`,
     extendGoogleLink: `${rootEndpoint}/link/google`,
-    registerGoogleServiceAccount: `${rootEndpoint}/google/service_accounts/`,
+    registerGoogleServiceAccount: `${rootEndpoint}/google/service_accounts`,
+    deleteGoogleServiceAccount: `${rootEndpoint}/google/service_accounts`,
+    getGoogleServiceAccounts: `${rootEndpoint}/google/service_accounts`,
+    getGoogleServiceAccountMonitor: `${rootEndpoint}/google/service_accounts/monitor`,
   },
 
   /**
@@ -131,5 +134,6 @@ module.exports = {
     serviceAccountEmail: 'projaserviceacct@projecta-215714.iam.gserviceaccount.com',
     linkedToFence: true,
     hasParentOrganization: false,
+    owner: 'ted.summer2@gmail.com',
   },
 };
