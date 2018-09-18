@@ -217,7 +217,6 @@ Scenario('Register Google Service Account for invalid commons project @WIP', asy
     googleProject,
     ['FakeProject'],
   );
-  console.log('register res: ', JSON.stringify(registerRes, null, 2));
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidProject);
 });
 
@@ -254,7 +253,6 @@ Scenario('Register Google Service Account for commons project without privilege 
     googleProject,
     ['DEV'],
   );
-  console.log('register res: ', JSON.stringify(registerRes, null, 2));
   fence.ask.responsesEqual(
     registerRes,
     fence.props.resRegisterServiceAccountMissingProjectPrivilege,
