@@ -220,24 +220,6 @@ Scenario('Register Google Service Account for invalid commons project @WIP', asy
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidProject);
 });
 
-Scenario('Register Google Service Account for invalid commons project @WIP', async (fence, users) => {
-  const googleProject = fence.props.googleProjectA;
-
-  // Setup
-  await fence.complete.forceLinkGoogleAcct(
-    users.mainAcct,
-    googleProject.owner,
-  );
-
-  // Register account with an invalid type service account
-  const registerRes = await fence.do.registerGoogleServiceAccount(
-    users.mainAcct,
-    googleProject,
-    ['FakeProject'],
-  );
-  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidProject);
-});
-
 Scenario('Register Google Service Account for commons project without privilege @WIP', async (fence, users) => {
   const googleProject = fence.props.googleProjectA;
 
