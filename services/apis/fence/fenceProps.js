@@ -168,6 +168,22 @@ module.exports = {
     },
   }),
 
+  resRegisterServiceAccountInvalidMemberType: new Gen3Response({
+    statusCode: 400,
+    body: {
+      errors: {
+        google_project_id: {
+          status: 403,
+          membership_validity: {
+            valid_member_types: false,
+          },
+          error: 'unauthorized',
+        },
+      },
+      success: false,
+    },
+  }),
+
   resRegisterServiceAccountFenceNoAccess: new Gen3Response({
     statusCode: 400,
     body: {

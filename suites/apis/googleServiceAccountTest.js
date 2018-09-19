@@ -122,6 +122,29 @@ Scenario('Register Google Service Account with GCP not linked to fence @reqGoogl
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountFenceNoAccess);
 });
 
+Scenario('Register Google Service Account with GCP having invalid member type @reqGoogle', async (fence, users, google) => {
+  const googleProject = fence.props.googleProjectA;
+
+  // Setup
+  await fence.complete.forceLinkGoogleAcct(
+    users.mainAcct,
+    googleProject.owner,
+  );
+  const bindingWithGroup = {
+    role: 'roles/viewer',
+    members: ['group:gen3-autoqa@googlegroups.com'],
+  };
+  await google.updateUserRole(googleProject.id, bindingWithGroup);
+
+  // Register account
+  const registerRes = await fence.do.registerGoogleServiceAccount(
+    users.mainAcct,
+    googleProject,
+    ['test'],
+  );
+  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidMemberType);
+});
+
 /**
  * Service Account validity
  */
