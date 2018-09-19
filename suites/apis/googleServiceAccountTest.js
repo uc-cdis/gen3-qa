@@ -1,75 +1,52 @@
 Feature('RegisterGoogleServiceAccount');
 
 BeforeSuite(async (google, fence, users) => {
-  // unlink all google accounts
-  const unlinkPromises = Object.values(users).map(user => fence.do.unlinkGoogleAcct(user));
-
   const googleProjects = [fence.props.googleProjectA];
   // remove unimportant roles from google projects
   const removeUsersPromises = googleProjects.map(proj => google.removeAllOptionalUsers(proj.id));
   // delete all service accounts from fence
-  const deletePromises = googleProjects.map(proj =>
-    fence.do.deleteGoogleServiceAccount(users.mainAcct, proj.serviceAccountEmail),
-  );
-  await Promise.all(deletePromises.concat(removeUsersPromises, unlinkPromises));
+  const deletePromises = googleProjects.map((proj) => {
+    if (proj.registerUser) {
+      if (!proj.registerUser.linkedGoogleAccount) {
+        return fence.do.forceLinkGoogleAcct(proj.registerUser, proj.owner)
+          .then(() =>
+            fence.do.deleteGoogleServiceAccount(proj.registerUser, proj.serviceAccountEmail),
+          );
+      }
+      return fence.do.deleteGoogleServiceAccount(proj.registerUser, proj.serviceAccountEmail);
+    }
+    return null;
+  });
+  await Promise.all(deletePromises.concat(removeUsersPromises));
+
+  // unlink all google accounts
+  const unlinkPromises = Object.values(users).map(user => fence.do.unlinkGoogleAcct(user));
+  await Promise.all(unlinkPromises);
 });
 
 After(async (google, fence, users) => {
-  // unlink all google accounts
-  const unlinkPromises = Object.values(users).map(user => fence.do.unlinkGoogleAcct(user));
-
   const googleProjects = [fence.props.googleProjectA];
   // remove unimportant roles from google projects
   const removeUsersPromises = googleProjects.map(proj => google.removeAllOptionalUsers(proj.id));
   // delete all service accounts from fence
-  const deletePromises = googleProjects.map(proj =>
-    fence.do.deleteGoogleServiceAccount(users.mainAcct, proj.serviceAccountEmail),
-  );
-  await Promise.all(deletePromises.concat(removeUsersPromises, unlinkPromises));
+  const deletePromises = googleProjects.map((proj) => {
+    if (proj.registerUser) {
+      if (!proj.registerUser.linkedGoogleAccount) {
+        return fence.do.forceLinkGoogleAcct(proj.registerUser, proj.owner)
+          .then(() =>
+            fence.do.deleteGoogleServiceAccount(proj.registerUser, proj.serviceAccountEmail),
+          );
+      }
+      return fence.do.deleteGoogleServiceAccount(proj.registerUser, proj.serviceAccountEmail);
+    }
+    return null;
+  });
+  await Promise.all(deletePromises.concat(removeUsersPromises));
+
+  // unlink all google accounts
+  const unlinkPromises = Object.values(users).map(user => fence.do.unlinkGoogleAcct(user));
+  await Promise.all(unlinkPromises);
 });
-
-// Scenario('Test add SA to project', async (fence, google) => {
-//   const binding = {
-//     role: 'roles/viewer',
-//     members: ['user:tsummer2@uchicago.edu'],
-//   };
-//   const updateRes = await google.updateUserRole(fence.props.googleProjectAID, binding);
-//   console.log('update res', JSON.stringify(updateRes, null, 2));
-//
-//   const removeBinding = {
-//     role: 'roles/viewer',
-//     members: ['user:tsummer2@uchicago.edu'],
-//   };
-//   const removeRes = await google.removeUserRole(fence.props.googleProjectAID, removeBinding);
-//   console.log('remove res', JSON.stringify(removeRes, null, 2));
-// });
-
-// Scenario('Developing features', async (fence, users) => {
-//   await fence.complete.forceLinkGoogleAcct(users.mainAcct, fence.props.googleProjectA.owner);
-//   const deleteRes = await fence.do.deleteGoogleServiceAccount(
-//     users.mainAcct,
-//     fence.props.googleProjectA.serviceAccountEmail,
-//   );
-//   console.log('delete sa res:\n', JSON.stringify(deleteRes, null, 2));
-//
-//   const registerRes = await fence.do.registerGoogleServiceAccount(
-//     users.mainAcct,
-//     fence.props.googleProjectA,
-//     ['test'],
-//   );
-//   console.log('Register Service Account Result:\n', JSON.stringify(registerRes, null, 2));
-//
-//   const getRes = await fence.do.getGoogleServiceAccounts(
-//     users.mainAcct,
-//     [fence.props.googleProjectA.id],
-//   );
-//   console.log('Get sa result:\n ', JSON.stringify(getRes, null, 2));
-//
-//   fence.complete.unlinkGoogleAcct(users.mainAcct);
-//
-//   const monitorRes = await fence.do.getGoogleServiceAccountMonitor(users.mainAcct);
-//   console.log('monitor res:\n', monitorRes);
-// });
 
 Scenario('Register Google Service Account successfully @WIP', async (fence, users) => {
   const googleProject = fence.props.googleProjectA;
@@ -92,6 +69,10 @@ Scenario('Register Google Service Account successfully @WIP', async (fence, user
   );
   fence.ask.responsesEqual(deleteRes, fence.props.resDeleteServiceAccountSuccess);
 });
+
+/**
+ * Google Project validity
+ */
 
 Scenario('Register Google Service Account with unlinked account Failure', async (fence, users) => {
   // note that we are not linking here, so the GCP owner is unlinked
@@ -140,6 +121,10 @@ Scenario('Register Google Service Account with GCP not linked to fence @WIP', as
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountFenceNoAccess);
 });
+
+/**
+ * Service Account validity
+ */
 
 Scenario('Register Google Service Account that does not belong to GCP @WIP', async (fence, users) => {
   const projectA = fence.props.googleProjectA;
@@ -202,6 +187,10 @@ Scenario('Register Google Service Account which has key @WIP', async (fence, use
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidServiceAcct);
 });
 
+/**
+ * Commons project validity
+ */
+
 Scenario('Register Google Service Account for invalid commons project @WIP', async (fence, users) => {
   const googleProject = fence.props.googleProjectA;
 
@@ -241,6 +230,52 @@ Scenario('Register Google Service Account for commons project without privilege 
   );
 });
 
-// try without proper scope
-// try to delete when google acct is not linked
-// try to delete a non linked service account email
+/**
+ * Delete Service Account tests
+ */
+Scenario('Delete Service Account when not linked Fail @WIP', async (fence, users) => {
+  const googleProject = fence.props.googleProjectA;
+
+  // Setup
+  await fence.complete.forceLinkGoogleAcct(users.mainAcct, googleProject.owner);
+
+  // Register account
+  const registerRes = await fence.do.registerGoogleServiceAccount(
+    users.mainAcct,
+    googleProject,
+    ['test'],
+  );
+  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
+
+  // Unlink account
+  await fence.complete.unlinkGoogleAcct(users.mainAcct);
+
+  // Try to delete registration
+  const deleteRes = await fence.do.deleteGoogleServiceAccount(
+    users.mainAcct,
+    googleProject.serviceAccountEmail,
+  );
+  fence.ask.responsesEqual(deleteRes, fence.props.resDeleteServiceAccountWhenNotLinked);
+
+  // Clean up by relinking and deleting SA
+  await fence.complete.forceLinkGoogleAcct(users.mainAcct, googleProject.owner);
+  const actuallyDeleteRes = await fence.do.deleteGoogleServiceAccount(
+    users.mainAcct,
+    googleProject.serviceAccountEmail,
+  );
+  fence.ask.responsesEqual(actuallyDeleteRes, fence.props.resDeleteServiceAccountSuccess);
+});
+
+Scenario('Delete an invalid service account @WIP', async (fence, users) => {
+  const googleProject = fence.props.googleProjectA;
+
+  // Setup
+  await fence.complete.forceLinkGoogleAcct(users.mainAcct, googleProject.owner);
+
+  // Try to delete a fake registration
+  const deleteRes = await fence.do.deleteGoogleServiceAccount(
+    users.mainAcct,
+    'notARealServiceAccount@fake.com',
+  );
+  fence.ask.responsesEqual(deleteRes, fence.props.resDeleteServiceAccountNotRegistered);
+});

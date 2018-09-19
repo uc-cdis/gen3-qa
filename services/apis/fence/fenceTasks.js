@@ -198,25 +198,29 @@ module.exports = {
   /**
    * Registers a new service account
    * @param {User} userAcct - User to make request with
-   * @param {Object} googleProjectParams
-   * @param {string} googleProjectParams.serviceAccountEmail - service account email to register
-   * @param {string} googleProjectParams.id - google project ID for the service account registering
-   * @param {string[]} projectAccess - projects service account will have access to
+   * @param {Object} googleProject
+   * @param {string} googleProject.serviceAccountEmail - service account email to register
+   * @param {string} googleProject.id - google project ID for the service account registering
+   * @param {string[]} projectAccessList - projects service account will have access to
    * @returns {Promise<Gen3Response>}
    */
-  async registerGoogleServiceAccount(userAcct, { serviceAccountEmail, id }, projectAccessList) {
+  async registerGoogleServiceAccount(userAcct, googleProject, projectAccessList) {
     return I.sendPostRequest(
       fenceProps.endpoints.registerGoogleServiceAccount,
       {
-        service_account_email: serviceAccountEmail,
-        google_project_id: id,
+        service_account_email: googleProject.serviceAccountEmail,
+        google_project_id: googleProject.id,
         project_access: projectAccessList,
       },
       {
         ...userAcct.accessTokenHeader,
         'Content-Type': 'application/json',
       },
-    ).then(res => new Gen3Response(res));
+    ).then((res) => {
+      // add user it was registered with for later deletion if necessary
+      googleProject.registerUser = userAcct;
+      return new Gen3Response(res);
+    });
   },
 
   /**

@@ -226,6 +226,13 @@ module.exports = {
     },
   }),
 
+  resDeleteServiceAccountWhenNotLinked: new Gen3Response({ statusCode: 403 }),
+
+  resDeleteServiceAccountNotRegistered: new Gen3Response({
+    statusCode: 404,
+    fenceError: 'Could not find a registered service account from given email',
+  }),
+
   /**
    * Google Projects
    */
