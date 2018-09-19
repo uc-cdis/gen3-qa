@@ -281,7 +281,7 @@ module.exports = {
     id: 'projectserviceaccthaskey',
     serviceAccountEmail: 'serviceaccount@projectserviceaccthaskey.iam.gserviceaccount.com',
     linkedToFence: true,
-    hasParentOrganization: true,
+    hasParentOrganization: false,
     owner: 'gen3.autotest@gmail.com',
   },
 };
