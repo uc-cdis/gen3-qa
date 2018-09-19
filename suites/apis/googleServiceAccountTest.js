@@ -48,7 +48,7 @@ After(async (google, fence, users) => {
   await Promise.all(unlinkPromises);
 });
 
-Scenario('Register Google Service Account successfully @WIP', async (fence, users) => {
+Scenario('Register Google Service Account successfully @reqGoogle', async (fence, users) => {
   const googleProject = fence.props.googleProjectA;
 
   // Setup
@@ -74,7 +74,7 @@ Scenario('Register Google Service Account successfully @WIP', async (fence, user
  * Google Project validity
  */
 
-Scenario('Register Google Service Account with unlinked account Failure', async (fence, users) => {
+Scenario('Register Google Service Account with unlinked account Failure @reqGoogle', async (fence, users) => {
   // note that we are not linking here, so the GCP owner is unlinked
 
   // Register account
@@ -86,7 +86,7 @@ Scenario('Register Google Service Account with unlinked account Failure', async 
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountNotLinked);
 });
 
-Scenario('Register Google Service Account with GCP has parent org Failure', async (fence, users) => {
+Scenario('Register Google Service Account with GCP has parent org Failure @reqGoogle', async (fence, users) => {
   const googleProject = fence.props.googleProjectWithParentOrg;
 
   // Setup
@@ -104,7 +104,7 @@ Scenario('Register Google Service Account with GCP has parent org Failure', asyn
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountHasParentOrg);
 });
 
-Scenario('Register Google Service Account with GCP not linked to fence @WIP', async (fence, users) => {
+Scenario('Register Google Service Account with GCP not linked to fence @reqGoogle', async (fence, users) => {
   const googleProject = fence.props.googleProjectFenceNotRegistered;
 
   // Setup
@@ -126,7 +126,7 @@ Scenario('Register Google Service Account with GCP not linked to fence @WIP', as
  * Service Account validity
  */
 
-Scenario('Register Google Service Account that does not belong to GCP @WIP', async (fence, users) => {
+Scenario('Register Google Service Account that does not belong to GCP @reqGoogle', async (fence, users) => {
   const projectA = fence.props.googleProjectA;
   const projectB = fence.props.googleProjectFenceNotRegistered;
 
@@ -148,7 +148,7 @@ Scenario('Register Google Service Account that does not belong to GCP @WIP', asy
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidServiceAcct);
 });
 
-Scenario('Register Google Service Account of invalid type @WIP', async (fence, users) => {
+Scenario('Register Google Service Account of invalid type @reqGoogle', async (fence, users) => {
   const googleProject = fence.props.googleProjectA;
 
   // Setup
@@ -169,7 +169,7 @@ Scenario('Register Google Service Account of invalid type @WIP', async (fence, u
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidServiceAcct);
 });
 
-Scenario('Register Google Service Account which has key @WIP', async (fence, users) => {
+Scenario('Register Google Service Account which has key @reqGoogle', async (fence, users) => {
   const googleProject = fence.props.googleProjectServiceAcctHasKey;
 
   // Setup
@@ -191,7 +191,7 @@ Scenario('Register Google Service Account which has key @WIP', async (fence, use
  * Commons project validity
  */
 
-Scenario('Register Google Service Account for invalid commons project @WIP', async (fence, users) => {
+Scenario('Register Google Service Account for invalid commons project @reqGoogle', async (fence, users) => {
   const googleProject = fence.props.googleProjectA;
 
   // Setup
@@ -209,7 +209,7 @@ Scenario('Register Google Service Account for invalid commons project @WIP', asy
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidProject);
 });
 
-Scenario('Register Google Service Account for commons project without privilege @WIP', async (fence, users) => {
+Scenario('Register Google Service Account for commons project without privilege @reqGoogle', async (fence, users) => {
   const googleProject = fence.props.googleProjectA;
 
   // Setup
@@ -233,7 +233,7 @@ Scenario('Register Google Service Account for commons project without privilege 
 /**
  * Delete Service Account tests
  */
-Scenario('Delete Service Account when not linked Fail @WIP', async (fence, users) => {
+Scenario('Delete Service Account when not linked Fail @reqGoogle', async (fence, users) => {
   const googleProject = fence.props.googleProjectA;
 
   // Setup
@@ -266,7 +266,7 @@ Scenario('Delete Service Account when not linked Fail @WIP', async (fence, users
   fence.ask.responsesEqual(actuallyDeleteRes, fence.props.resDeleteServiceAccountSuccess);
 });
 
-Scenario('Delete an invalid service account @WIP', async (fence, users) => {
+Scenario('Delete an invalid service account @reqGoogle', async (fence, users) => {
   const googleProject = fence.props.googleProjectA;
 
   // Setup
