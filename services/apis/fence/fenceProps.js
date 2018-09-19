@@ -257,6 +257,7 @@ module.exports = {
     serviceAccountEmail: 'serviceaccount@simpleprojectalpha.iam.gserviceaccount.com',
     linkedToFence: true,
     hasParentOrganization: false,
+    serviceAcctHasKey: false,
     owner: 'gen3.autotest@gmail.com',
     computeServiceAccountEmail: '264606384811-compute@developer.gserviceaccount.com',
   },
@@ -266,6 +267,7 @@ module.exports = {
     serviceAccountEmail: 'serviceaccount@planxparentproject.iam.gserviceaccount.com',
     linkedToFence: true,
     hasParentOrganization: true,
+    serviceAcctHasKey: false,
     owner: 'dummy-one@planx-pla.net',
   },
 
@@ -274,6 +276,7 @@ module.exports = {
     serviceAccountEmail: 'serviceaccount@projectfencenoaccess.iam.gserviceaccount.com',
     linkedToFence: false,
     hasParentOrganization: false,
+    serviceAcctHasKey: false,
     owner: 'gen3.autotest@gmail.com',
   },
 
@@ -282,6 +285,7 @@ module.exports = {
     serviceAccountEmail: 'serviceaccount@projectserviceaccthaskey.iam.gserviceaccount.com',
     linkedToFence: true,
     hasParentOrganization: false,
+    serviceAcctHasKey: true,
     owner: 'gen3.autotest@gmail.com',
   },
 };
