@@ -140,7 +140,6 @@ module.exports = {
         google_project_id: {
           status: 403,
           service_account_validity: {},
-          error_description: 'Current user is not an authorized member on the provided Google Project.',
           membership_validity: {},
           error: 'unauthorized_user',
         },
@@ -156,7 +155,6 @@ module.exports = {
         google_project_id: {
           status: 403,
           service_account_validity: {},
-          error_description: 'Project has parent organization. ',
           membership_validity: {
             members_exist_in_fence: true,
             valid_member_types: true,
@@ -191,7 +189,6 @@ module.exports = {
         google_project_id: {
           status: 404,
           service_account_validity: {},
-          error_description: "Fence's monitoring service account does not have access to the project.",
           membership_validity: {},
           error: 'monitor_not_found',
         },
@@ -206,7 +203,6 @@ module.exports = {
       errors: {
         service_account_email: {
           status: 403,
-          error_description: 'Service account requested for registration is invalid.',
           error: 'unauthorized',
         },
       },
@@ -220,7 +216,6 @@ module.exports = {
       errors: {
         project_access: {
           status: 404,
-          error_description: 'A project requested for access could not be found by the given identifier. ',
           error: 'project_not_found',
         },
       },
@@ -234,7 +229,6 @@ module.exports = {
       errors: {
         project_access: {
           status: 403,
-          error_description: 'Not all users have necessary access to project(s). ',
           error: 'unauthorized',
         },
       },
