@@ -247,39 +247,68 @@ module.exports = {
    * Google Projects
    */
   googleProjectA: {
+    // -fence SA in project:                  true
+    // -has a parent organization:            false
+    // -has service acct with invalid type:   false
+    // -has a service acct with key:          false
     id: 'simpleprojectalpha',
     serviceAccountEmail: 'serviceaccount@simpleprojectalpha.iam.gserviceaccount.com',
-    linkedToFence: true,
-    hasParentOrganization: false,
-    serviceAcctHasKey: false,
+    defaultIsValidGCP: true,
     owner: 'gen3.autotest@gmail.com',
-    computeServiceAccountEmail: '264606384811-compute@developer.gserviceaccount.com',
+  },
+
+  googleProjectWithComputeServiceAcct: {
+    // -fence SA in project:                  true
+    // -has a parent organization:            false
+    // -has service acct with invalid type:   false
+    // -has a service acct with key:          false
+    id: 'simpleprojectalpha',
+    serviceAccountEmail: '264606384811-compute@developer.gserviceaccount.com',
+    defaultIsValidGCP: true,
+    owner: 'gen3.autotest@gmail.com',
+  },
+
+  googleProjectWithInvalidServiceAcct: {
+    // -fence SA in project:                  true
+    // -has a parent organization:            false
+    // -has service acct with invalid type:   true - default cause of failure
+    // -has a service acct with key:          false
+    id: 'simpleprojectalpha',
+    serviceAccountEmail: 'simpleprojectalpha@appspot.gserviceaccount.com',
+    defaultIsValidGCP: false,
+    owner: 'gen3.autotest@gmail.com',
   },
 
   googleProjectWithParentOrg: {
+    // -fence SA in project:                  true
+    // -has a parent organization:            true - default cause of failure
+    // -has service acct with invalid type:   false
+    // -has a service acct with key:          false
     id: 'planxparentproject',
     serviceAccountEmail: 'serviceaccount@planxparentproject.iam.gserviceaccount.com',
-    linkedToFence: true,
-    hasParentOrganization: true,
-    serviceAcctHasKey: false,
+    defaultIsValidGCP: false,
     owner: 'dummy-one@planx-pla.net',
   },
 
   googleProjectFenceNotRegistered: {
+    // -fence SA in project:                  false - default cause of failure
+    // -has a parent organization:            false
+    // -has service acct with invalid type:   false
+    // -has a service acct with key:          false
     id: 'projectfencenoaccess',
     serviceAccountEmail: 'serviceaccount@projectfencenoaccess.iam.gserviceaccount.com',
-    linkedToFence: false,
-    hasParentOrganization: false,
-    serviceAcctHasKey: false,
+    defaultIsValidGCP: false,
     owner: 'gen3.autotest@gmail.com',
   },
 
   googleProjectServiceAcctHasKey: {
+    // -fence SA in project:                  true
+    // -has a parent organization:            false
+    // -has service acct with invalid type:   false
+    // -has a service acct with key:          true - default cause of failure
     id: 'projectserviceaccthaskey',
     serviceAccountEmail: 'serviceaccount@projectserviceaccthaskey.iam.gserviceaccount.com',
-    linkedToFence: true,
-    hasParentOrganization: false,
-    serviceAcctHasKey: true,
+    defaultIsValidGCP: false,
     owner: 'gen3.autotest@gmail.com',
   },
 };

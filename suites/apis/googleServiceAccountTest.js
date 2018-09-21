@@ -1,23 +1,46 @@
 Feature('RegisterGoogleServiceAccount');
 
 BeforeSuite(async (google, fence, users) => {
-  const googleProjects = [fence.props.googleProjectA];
+  // google projects to 'clean up'
+  const googleProjects = [
+    fence.props.googleProjectA,
+    fence.props.googleProjectWithComputeServiceAcct,
+  ];
   // remove unimportant roles from google projects
-  const removeUsersPromises = googleProjects.map(proj => google.removeAllOptionalUsers(proj.id));
+  for (const proj of googleProjects) {
+    await google.removeAllOptionalUsers(proj.id);
+  }
+
   // delete all service accounts from fence
-  const deletePromises = googleProjects.map((proj) => {
+  for (const proj of googleProjects) {
+    // If project has been registered by a user, TRY to delete the service account
+    // NOTE: the service account might have been registered unsuccessfully or deleted,
+    //  we are just hitting the endpoints as if it still exists and ignoring errors
     if (proj.registerUser) {
-      if (!proj.registerUser.linkedGoogleAccount) {
-        return fence.do.forceLinkGoogleAcct(proj.registerUser, proj.owner)
+      const projUser = proj.registerUser;
+
+      if (!projUser.linkedGoogleAccount) {
+        // If the project user is not linked, link to project owner then delete
+        await fence.do.forceLinkGoogleAcct(projUser, proj.owner)
           .then(() =>
-            fence.do.deleteGoogleServiceAccount(proj.registerUser, proj.serviceAccountEmail),
+            fence.do.deleteGoogleServiceAccount(projUser, proj.serviceAccountEmail),
           );
+      } else if (projUser.linkedGoogleAccount !== proj.owner) {
+        // If the project user is linked, but not to project owner,
+        // unlink user, then link to project owner and delete service account
+        await fence.complete.unlinkGoogleAcct(projUser)
+          .then(() =>
+            fence.do.forceLinkGoogleAcct(projUser, proj.owner),
+          )
+          .then(() =>
+            fence.do.deleteGoogleServiceAccount(projUser, proj.serviceAccountEmail),
+          );
+      } else {
+        // If project user is linked to the project owner, delete the service account
+        await fence.do.deleteGoogleServiceAccount(projUser, proj.serviceAccountEmail);
       }
-      return fence.do.deleteGoogleServiceAccount(proj.registerUser, proj.serviceAccountEmail);
     }
-    return null;
-  });
-  await Promise.all(deletePromises.concat(removeUsersPromises));
+  }
 
   // unlink all google accounts
   const unlinkPromises = Object.values(users).map(user => fence.do.unlinkGoogleAcct(user));
@@ -25,23 +48,46 @@ BeforeSuite(async (google, fence, users) => {
 });
 
 After(async (google, fence, users) => {
-  const googleProjects = [fence.props.googleProjectA];
+  // google projects to 'clean up'
+  const googleProjects = [
+    fence.props.googleProjectA,
+    fence.props.googleProjectWithComputeServiceAcct,
+  ];
   // remove unimportant roles from google projects
-  const removeUsersPromises = googleProjects.map(proj => google.removeAllOptionalUsers(proj.id));
+  for (const proj of googleProjects) {
+    await google.removeAllOptionalUsers(proj.id);
+  }
+
   // delete all service accounts from fence
-  const deletePromises = googleProjects.map((proj) => {
+  for (const proj of googleProjects) {
+    // If project has been registered by a user, TRY to delete the service account
+    // NOTE: the service account might have been registered unsuccessfully or deleted,
+    //  we are just hitting the endpoints as if it still exists and ignoring errors
     if (proj.registerUser) {
-      if (!proj.registerUser.linkedGoogleAccount) {
-        return fence.do.forceLinkGoogleAcct(proj.registerUser, proj.owner)
+      const projUser = proj.registerUser;
+
+      if (!projUser.linkedGoogleAccount) {
+        // If the project user is not linked, link to project owner then delete
+        await fence.do.forceLinkGoogleAcct(projUser, proj.owner)
           .then(() =>
-            fence.do.deleteGoogleServiceAccount(proj.registerUser, proj.serviceAccountEmail),
+            fence.do.deleteGoogleServiceAccount(projUser, proj.serviceAccountEmail),
           );
+      } else if (projUser.linkedGoogleAccount !== proj.owner) {
+        // If the project user is linked, but not to project owner,
+        // unlink user, then link to project owner and delete service account
+        await fence.complete.unlinkGoogleAcct(projUser)
+          .then(() =>
+            fence.do.forceLinkGoogleAcct(projUser, proj.owner),
+          )
+          .then(() =>
+            fence.do.deleteGoogleServiceAccount(projUser, proj.serviceAccountEmail),
+          );
+      } else {
+        // If project user is linked to the project owner, delete the service account
+        await fence.do.deleteGoogleServiceAccount(projUser, proj.serviceAccountEmail);
       }
-      return fence.do.deleteGoogleServiceAccount(proj.registerUser, proj.serviceAccountEmail);
     }
-    return null;
-  });
-  await Promise.all(deletePromises.concat(removeUsersPromises));
+  }
 
   // unlink all google accounts
   const unlinkPromises = Object.values(users).map(user => fence.do.unlinkGoogleAcct(user));
@@ -81,6 +127,30 @@ Scenario('Register Google Service Account with unlinked account Failure @reqGoog
   const registerRes = await fence.do.registerGoogleServiceAccount(
     users.mainAcct,
     fence.props.googleProjectA,
+    ['test'],
+  );
+  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountNotLinked);
+});
+
+Scenario('Register Google Service Account with linked account not in GCP @reqGoogle', async (fence, users) => {
+  const googleProject = fence.props.googleProjectA;
+  const currentUser = users.mainAcct;
+
+  // Setup
+  // Find a user's google email that's NOT in the GCP, meaning
+  //   an email that is NOT the owner of the google project and NOT the current user
+  // It is assumed that all users' usernames are google account emails
+  const userNotInGCP = Object.values(users).find(user =>
+    user.googleCreds.email !== currentUser.username &&
+    user.googleCreds.email !== googleProject.owner,
+  );
+  // Link user to an email NOT in the GCP
+  await fence.complete.forceLinkGoogleAcct(currentUser, userNotInGCP.username);
+
+  // Register account
+  const registerRes = await fence.do.registerGoogleServiceAccount(
+    currentUser,
+    googleProject,
     ['test'],
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountNotLinked);
@@ -171,8 +241,8 @@ Scenario('Register Google Service Account that does not belong to GCP @reqGoogle
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidServiceAcct);
 });
 
-Scenario('Register Google Service Account of invalid type @reqGoogle', async (fence, users) => {
-  const googleProject = fence.props.googleProjectA;
+Scenario('Register Google Service Account for compute service email Success @reqGoogle', async (fence, users) => {
+  const googleProject = fence.props.googleProjectWithComputeServiceAcct;
 
   // Setup
   await fence.complete.forceLinkGoogleAcct(
@@ -183,14 +253,33 @@ Scenario('Register Google Service Account of invalid type @reqGoogle', async (fe
   // Register account with an invalid type service account
   const registerRes = await fence.do.registerGoogleServiceAccount(
     users.mainAcct,
-    {
-      serviceAccountEmail: googleProject.computeServiceAccountEmail,
-      id: googleProject.id,
-    },
+    googleProject,
     ['test'],
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidServiceAcct);
 });
+
+// Scenario('Register Google Service Account of invalid type (app engine) Failure @reqGoogle',
+// async (fence, users) => {
+//   const googleProject = fence.props.googleProjectA;
+//
+//   // Setup
+//   await fence.complete.forceLinkGoogleAcct(
+//     users.mainAcct,
+//     googleProject.owner,
+//   );
+//
+//   // Register account with an invalid type service account
+//   const registerRes = await fence.do.registerGoogleServiceAccount(
+//     users.mainAcct,
+//     {
+//       serviceAccountEmail: googleProject.appEngineServiceAccountEmail,
+//       id: googleProject.id,
+//     },
+//     ['test'],
+//   );
+//   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidServiceAcct);
+// });
 
 Scenario('Register Google Service Account which has key @reqGoogle', async (fence, users) => {
   const googleProject = fence.props.googleProjectServiceAcctHasKey;
@@ -252,6 +341,50 @@ Scenario('Register Google Service Account for commons project without privilege 
     fence.props.resRegisterServiceAccountMissingProjectPrivilege,
   );
 });
+
+// Scenario('Register Google Service Account for commons project
+// where one member does not have privilege @reqGoogle', async (fence, users, google) => {
+//   const googleProject = fence.props.googleProjectA;
+//   const userWithPrivilege = users.mainAcct;
+//   const userWithoutPrivilege = users.auxAcct1;
+// //does NOT have privilege for requested commons proj
+//   const commonsProjectAccessList = ['DEV'];
+//
+//   // Setup
+//   await fence.complete.forceLinkGoogleAcct(
+//     userWithPrivilege,
+//     googleProject.owner,
+//   );
+//   // Add another email to the GCP for us to link to
+//   // Find a user's google email meeting following conditions
+//   //   -an email that is NOT the owner of the google project
+//   //   -an email that is NOT the email of the userWithoutPrivilege
+//   //   -an email that is NOT the email of the userWithPrivilege
+//   // It is assumed that all users' usernames are google account emails
+//   const differentGoogleEmail = Object.values(users).find(user =>
+//     user.username !== googleProject.owner &&
+//     user.username !== userWithoutPrivilege.username &&
+//     user.username !== userWithPrivilege.username,
+//   ).username;
+//   const newRole = {
+//     role: 'roles/viewer',
+//     members: [`user:${differentGoogleEmail}`],
+//   };
+//   await google.updateUserRole(googleProject.id, newRole);
+//   // Link to the email
+//   await fence.complete.forceLinkGoogleAcct(userWithoutPrivilege, differentGoogleEmail);
+//
+//   // Register account for a commons project one user does not have access to
+//   const registerRes = await fence.do.registerGoogleServiceAccount(
+//     userWithPrivilege,
+//     googleProject,
+//     commonsProjectAccessList,
+//   );
+//   fence.ask.responsesEqual(
+//     registerRes,
+//     fence.props.resRegisterServiceAccountMissingProjectPrivilege,
+//   );
+// });
 
 /**
  * Delete Service Account tests

@@ -169,6 +169,7 @@ module.exports = {
     // run fence-create command to circumvent google and add user link to fence
     const cmd = `g3kubectl exec $(gen3 pod fence ${process.env.NAMESPACE}) -- fence-create force-link-google --username ${userAcct.username} --google-email ${googleEmail}`;
     const res = commonsUtil.runCommand(cmd, process.env.NAMESPACE);
+    userAcct.linkedGoogleAccount = googleEmail;
     return res;
   },
 
@@ -181,7 +182,10 @@ module.exports = {
     return I.sendDeleteRequest(
       fenceProps.endpoints.deleteGoogleLink,
       userAcct.accessTokenHeader,
-    ).then(res => new Gen3Response(res));
+    ).then((res) => {
+      delete userAcct.linkedGoogleAccount;
+      return new Gen3Response(res);
+    });
   },
 
   /**
