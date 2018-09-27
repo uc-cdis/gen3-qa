@@ -1,9 +1,6 @@
-let chai = require('chai');
-let chaiAsPromised = require('chai-as-promised');
-chai.use(chaiAsPromised);
-let expect = chai.expect;
-
 Feature('PresignedUrlAPI');
+
+const { Gen3Response } = require('../../utils/apiUtil');
 
 const files = {
   allowed: {
@@ -42,83 +39,75 @@ const files = {
   },
 };
 
-Scenario('test presigned-url', async(I) => {
-  let signed_url_res = await I.createSignedUrl('/user/data/download/', files.allowed.did);
-  expect(signed_url_res).to.have.nested.property('body.url');
-
-  let get_url_res = await I.sendGetRequest(signed_url_res.body.url);
-  expect(get_url_res).to.have.property('body', 'Hi Zac!\ncdis-data-client uploaded this!\n');
+Scenario('get presigned-url', async (I, fence) => {
+  const signedUrlRes = await fence.do.createSignedUrl(files.allowed.did);
+  await fence.complete.checkFileEquals(
+    signedUrlRes,
+    'Hi Zac!\ncdis-data-client uploaded this!\n',
+  );
 });
 
-Scenario('test presigned-url with file user does not have permission', async(I) => {
-  let signed_url_res = await I.createSignedUrl('/user/data/download/', files.not_allowed.did);
-  I.seeFenceHasError(signed_url_res, 401, 'You don&#39;t have access permission on this file');
+Scenario('get presigned-url user does not have permission', async (fence) => {
+  const signedUrlRes = await fence.do.createSignedUrl(files.not_allowed.did);
+  fence.ask.responsesEqual(signedUrlRes, fence.props.resMissingFilePermission);
 });
 
-Scenario('test presigned-url with invalid protocol', async(I) => {
-  let signed_url_res = await I.createSignedUrl(
-    '/user/data/download/',
+Scenario('get presigned-url with invalid protocol', async (fence) => {
+  const signedUrlRes = await fence.do.createSignedUrl(
     files.invalid_protocol.did,
-    ['protocol=s2']
+    ['protocol=s2'],
   );
-  I.seeFenceHasError(signed_url_res, 400, 'The specified protocol s2 is not supported')
+  fence.ask.responsesEqual(signedUrlRes, fence.props.resInvalidFileProtocol);
 });
 
-Scenario('test presigned-url with protocol not available in indexed document', async(I) => {
-  let signed_url_res = await I.createSignedUrl(
-    '/user/data/download/',
-    files.allowed.did,
-    ['protocol=s2']
-  );
-  I.seeFenceHasError(
-    signed_url_res,
-    404,
-    `File ${files.allowed.did} does not have a location with specified protocol s2.`
+Scenario('get presigned-url with protocol not available in indexed document', async (fence) => {
+  const signedUrlRes = await fence.do.createSignedUrl(files.allowed.did, [
+    'protocol=s2',
+  ]);
+  fence.ask.responsesEqual(
+    signedUrlRes,
+    new Gen3Response({
+      statusCode: 404,
+      fenceError: `File ${files.allowed.did} does not have a location with specified protocol s2.`,
+    }),
   );
 });
 
-Scenario('test presigned-url with protocol not exist for file', async(I) => {
-  let signed_url_res = await I.createSignedUrl(
-    '/user/data/download/',
-    files.http_link.did,
-    ['protocol=s3']
+Scenario('get presigned-url with protocol not exist for file', async (fence) => {
+  const signedUrlRes = await fence.do.createSignedUrl(files.http_link.did, [
+    'protocol=s3',
+  ]);
+  fence.ask.responsesEqual(
+    signedUrlRes,
+    new Gen3Response({
+      statusCode: 404,
+      fenceError: `File ${files.http_link.did} does not have a location with specified protocol s3.`,
+    }),
   );
-  I.seeFenceHasError(
-    signed_url_res,
-    404,
-    `File ${files.http_link.did} does not have a location with specified protocol s3.`
-  )
 });
 
-Scenario('test presigned-url no data', async(I) => {
-  let signed_url_res = await I.createSignedUrl(
-    '/user/data/download/',
-    files.no_link.did,
-    ['protocol=s3']
+Scenario('get presigned-url no data', async (fence) => {
+  const signedUrlRes = await fence.do.createSignedUrl(files.no_link.did, [
+    'protocol=s3',
+  ]);
+  fence.ask.responsesEqual(
+    signedUrlRes,
+    new Gen3Response({
+      statusCode: 404,
+      fenceError: `File ${files.no_link.did} does not have a location with specified protocol s3.`,
+    }),
   );
-  I.seeFenceHasError(
-    signed_url_res,
-    404,
-    `File ${files.no_link.did} does not have a location with specified protocol s3.`
-  )
 });
 
-Scenario('test presigned-url no requested protocol, no data', async(I) => {
-  let signed_url_res = await I.createSignedUrl(
-    '/user/data/download/',
-    files.no_link.did
-  );
-  I.seeFenceHasError(
-    signed_url_res,
-    404,
-    'Can&#39;t find any file locations.'
-  )
+Scenario('get presigned-url no requested protocol, no data', async (fence) => {
+  const signedUrlRes = await fence.do.createSignedUrl(files.no_link.did);
+  fence.ask.responsesEqual(signedUrlRes, fence.props.resNoFileProtocol);
 });
 
-BeforeSuite((I) => {
-  I.addFileIndices('/index/index/', Object.values(files))
+BeforeSuite((indexd) => {
+  indexd.do.addFileIndices(Object.values(files));
 });
 
-AfterSuite((I) => {
-  I.deleteFileIndices('/index/index/', Object.values(files))
+AfterSuite((indexd) => {
+  indexd.do.deleteFileIndices(Object.values(files));
 });
