@@ -35,6 +35,7 @@ def gen_test_data(args):
     submission_order = submission_order.split('\n')
 
     for fname in (submission_order):
+        chunk_size = int(args.chunk_size) if args.chunk_size else  CHUNK_SIZE
         if fname is None or fname == '':
             print('There is no {} in input directory'.format(fname))
             continue
@@ -48,7 +49,14 @@ def gen_test_data(args):
             while index < len(data):
                 response = requests.put(api_endpoint, data=json.dumps(list(data[index:min(index+chunk_size, len(data))])), headers={
                                         'content-type': 'application/json', 'Authorization': 'bearer ' + token})
-                if response.status_code != 200:
+                if response.status_code == 504:
+                    chunk_size = chunk_size/2
+                    print("Reduce the chunk size by half. {}".format(chunk_size))
+                    if chunk_size == 0:
+                        break
+                    continue
+
+                elif response.status_code != 200:
                     print(
                         "\n\n==============================={}=======================================".format(fname))
                     print('Failed at chunk {}'.format(index/chunk_size))
