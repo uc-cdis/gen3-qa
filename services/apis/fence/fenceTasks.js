@@ -220,11 +220,7 @@ module.exports = {
         ...userAcct.accessTokenHeader,
         'Content-Type': 'application/json',
       },
-    ).then((res) => {
-      // add user it was registered with for later deletion if necessary
-      googleProject.registerUser = userAcct;
-      return new Gen3Response(res);
-    });
+    ).then(res => new Gen3Response(res));
   },
 
   /**
