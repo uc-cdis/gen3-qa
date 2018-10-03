@@ -81,14 +81,16 @@ const gen3Res = function (_chai) {
     const obj = this._obj; // eslint-disable-line
 
     new Assertion(obj).to.be.instanceof(Gen3Response);
-    new Assertion(obj).to.have.property('statusCode', expectedRes.statusCode);
     if (expectedRes.fenceError) {
+      // assert fence errors are equal
       new Assertion(obj).to.have.property('parsedFenceError');
       new Assertion(obj.parsedFenceError).to.have.string(expectedRes.fenceError);
     } else if (expectedRes.body) {
+      // assert body has the subset of attributes
       new Assertion(obj).to.have.property('body');
       _chai.expect(obj.body).to.containSubset(expectedRes.body);
     }
+    new Assertion(obj).to.have.property('statusCode', expectedRes.statusCode);
   });
 };
 
