@@ -215,12 +215,12 @@ Scenario('Register Google Service Account for compute service email Success @req
     googleProject,
     ['test'],
   );
-  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidServiceAcct);
+  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
 });
 
-// Scenario('Register Google Service Account of invalid type (app engine) Failure @reqGoogle',
+// Scenario('Register Google Service Account of invalid type Failure @reqGoogle',
 // async (fence, users) => {
-//   const googleProject = fence.props.googleProjectA;
+//   const googleProject = fence.props.googleProjectWithInvalidServiceAcct;
 //
 //   // Setup
 //   await fence.complete.forceLinkGoogleAcct(
@@ -231,10 +231,7 @@ Scenario('Register Google Service Account for compute service email Success @req
 //   // Register account with an invalid type service account
 //   const registerRes = await fence.do.registerGoogleServiceAccount(
 //     users.mainAcct,
-//     {
-//       serviceAccountEmail: googleProject.appEngineServiceAccountEmail,
-//       id: googleProject.id,
-//     },
+//     googleProject,
 //     ['test'],
 //   );
 //   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidServiceAcct);

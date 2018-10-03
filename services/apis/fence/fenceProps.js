@@ -262,8 +262,8 @@ module.exports = {
     // -has a parent organization:            false
     // -has service acct with invalid type:   false
     // -has a service acct with key:          false
-    id: 'simpleprojectalpha',
-    serviceAccountEmail: '264606384811-compute@developer.gserviceaccount.com',
+    id: 'projectwithcomputeapi',
+    serviceAccountEmail: '796412374583-compute@developer.gserviceaccount.com',
     defaultIsValidGCP: true,
     owner: 'gen3.autotest@gmail.com',
   },
@@ -273,8 +273,8 @@ module.exports = {
     // -has a parent organization:            false
     // -has service acct with invalid type:   true - default cause of failure
     // -has a service acct with key:          false
-    id: 'simpleprojectalpha',
-    serviceAccountEmail: 'simpleprojectalpha@appspot.gserviceaccount.com',
+    id: 'projectwithcomputeapi',
+    serviceAccountEmail: '796412374583@cloudservices.gserviceaccount.com',
     defaultIsValidGCP: false,
     owner: 'gen3.autotest@gmail.com',
   },
