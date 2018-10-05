@@ -30,7 +30,7 @@ function createProjectAndServiceAcct {
   local account=$2
   local saName=$3
   printf "\n=================================\n"
-  printf "\nCreating project ${projID} for account ${account}\n"
+  printf "Creating project ${projID} for account ${account}\n"
   printf "=================================\n"
   gcloud projects create ${projID} --account ${account}
   printf "\n=================================\n"
