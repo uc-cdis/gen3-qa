@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+set -e
 #
 # This script helps automate creating and configuring GCP projects to be used
 # with the gen3-qa tests
@@ -18,7 +18,9 @@ function addFenceServiceAccount {
   local projID=$1
   local fenceSA=$2
   local account=$3
-  echo "=== Adding fence service account to ${projID} ==="
+  printf "\n=================================\n"
+  printf "Adding fence service account to ${projID}\n"
+  printf "=================================\n"
   gcloud projects add-iam-policy-binding ${projID} --member="serviceAccount:${fenceSA}" --role="roles/editor" --account ${account}
   gcloud projects add-iam-policy-binding ${projID} --member="serviceAccount:${fenceSA}" --role="roles/resourcemanager.projectIamAdmin" --account ${account}
 }
@@ -27,9 +29,13 @@ function createProjectAndServiceAcct {
   local projID=$1
   local account=$2
   local saName=$3
-  echo "=== Creating project ${projID} for account ${account} ==="
+  printf "\n=================================\n"
+  printf "\nCreating project ${projID} for account ${account}\n"
+  printf "=================================\n"
   gcloud projects create ${projID} --account ${account}
-  echo "=== Creating service account for project ${projID} ==="
+  printf "\n=================================\n"
+  printf "Creating service account for project ${projID}\n"
+  printf "=================================\n"
   gcloud iam service-accounts create ${saName} --project ${projID} --account ${account}
 
 }
@@ -44,11 +50,11 @@ read -p "Fence service account email: " fenceServiceAcct
 #
 # Authenticate accounts
 #
-echo "*** Authenticate with account NOT WITHIN an organization ***"
+printf "\n*** Authenticate with account NOT WITHIN an organization ***\n"
 read -p "Account email: " noOrgAcct
 gcloud auth login ${noOrgAcct} --force --no-launch-browser
 
-echo "*** Authenticate with account WITHIN an organization ***"
+printf "\n*** Authenticate with account WITHIN an organization ***\n"
 read -p "Account email: " inOrgAcct
 gcloud auth login ${inOrgAcct} --force --no-launch-browser
 
