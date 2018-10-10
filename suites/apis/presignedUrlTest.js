@@ -7,7 +7,7 @@ const files = {
     filename: 'test_valid',
     link: 's3://cdis-presigned-url-test/testdata',
     md5: '73d643ec3f4beb9020eef0beed440ad0',
-    acl: ['test'],
+    acl: ['jenkins'],
     size: 9,
   },
   not_allowed: {
@@ -20,21 +20,21 @@ const files = {
   no_link: {
     filename: 'test_no_link',
     md5: '73d643ec3f4beb9020eef0beed440ad0',
-    acl: ['test'],
+    acl: ['jenkins'],
     size: 9,
   },
   http_link: {
     filename: 'test_protocol',
     link: 'http://cdis-presigned-url-test/testdata',
     md5: '73d643ec3f4beb9020eef0beed440ad0',
-    acl: ['test'],
+    acl: ['jenkins'],
     size: 9,
   },
   invalid_protocol: {
     filename: 'test_invalid_protocol',
     link: 's2://cdis-presigned-url-test/testdata',
     md5: '73d643ec3f4beb9020eef0beed440ad0',
-    acl: ['test'],
+    acl: ['jenkins'],
     size: 9,
   },
 };
