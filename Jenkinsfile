@@ -26,6 +26,9 @@ pipeline {
             url: 'https://github.com/uc-cdis/cloud-automation.git',
             branch: 'master'
           )
+          script {
+            env.GEN3_HOME = env.WORKSPACE + '/cloud-automation';
+          }
         }
         dir('data-simulator') {
           git(
