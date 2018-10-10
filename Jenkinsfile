@@ -99,11 +99,7 @@ pipeline {
     }
     always {
       script {
-        def testResults = findFiles(glob: 'gen3-qa/output/*.xml')
-        for(xml in testResults) {
-            // junit filters old files
-            touch xml.getPath()
-        }
+        sh("touch gen3-qa/output/*.xml")
         uid = BUILD_TAG.replaceAll(' ', '_').replaceAll('%2F', '_')
         sh("bash cloud-automation/gen3/bin/klock.sh unlock jenkins "+uid)
       }
