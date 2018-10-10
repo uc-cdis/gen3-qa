@@ -35,6 +35,23 @@ pipeline {
         }
       }
     }
+    stage('SelectNamespace') {
+      steps {
+        script {
+          String[] namespaces = ['qa-bloodpac', 'qa-brain', 'qa-kidsfirst', 'qa-niaid']
+          int modNum = namespaces.length/2
+          int randNum = 0;  // always use bloodpac for now (new Random().nextInt(modNum) + ((env.EXECUTOR_NUMBER as Integer) * 2)) % namespaces.length
+
+          if( ! env.KUBECTL_NAMESPACE ) {
+            env.KUBECTL_NAMESPACE = namespaces[randNum];
+          }
+          println "selected namespace $env.KUBECTL_NAMESPACE on executor $env.EXECUTOR_NUMBER"
+          println "attempting to lock namespace with a wait time of 5 minutes"
+          uid = BUILD_TAG.replaceAll(' ', '_').replaceAll('%2F', '_')
+          sh("bash cloud-automation/gen3/bin/klock.sh lock jenkins "+uid+" 3600 -w 300")
+        }
+      }
+    }
     stage('K8sDeploy') {
       when {
         environment name: 'DEPLOY_K8S', value: "true"
@@ -78,6 +95,15 @@ pipeline {
       //slackSend color: 'bad', message: "https://jenkins.planx-pla.net $env.JOB_NAME pipeline unstable"
     }
     always {
+      script {
+        def testResults = findFiles(glob: 'gen3-qa/output/*.xml')
+        for(xml in testResults) {
+            // junit filters old files
+            touch xml.getPath()
+        }
+        uid = BUILD_TAG.replaceAll(' ', '_').replaceAll('%2F', '_')
+        sh("bash cloud-automation/gen3/bin/klock.sh unlock jenkins "+uid)
+      }
       junit "gen3-qa/output/*.xml"
     }
   }
