@@ -41,9 +41,9 @@ pipeline {
     stage('SelectNamespace') {
       steps {
         script {
-          String[] namespaces = ['qa-bloodpac', 'qa-brain', 'qa-kidsfirst', 'qa-niaid']
+          String[] namespaces = ['jenkins-brain']
           int modNum = namespaces.length/2
-          int randNum = 0;  // always use bloodpac for now (new Random().nextInt(modNum) + ((env.EXECUTOR_NUMBER as Integer) * 2)) % namespaces.length
+          int randNum = 0;  // always use jenkins-brain for now (new Random().nextInt(modNum) + ((env.EXECUTOR_NUMBER as Integer) * 2)) % namespaces.length
 
           if( ! env.KUBECTL_NAMESPACE ) {
             env.KUBECTL_NAMESPACE = namespaces[randNum];
@@ -99,6 +99,7 @@ pipeline {
     }
     always {
       script {
+        // junit archiver does not like old looking files
         sh("touch gen3-qa/output/*.xml")
         uid = BUILD_TAG.replaceAll(' ', '_').replaceAll('%2F', '_')
         sh("bash cloud-automation/gen3/bin/klock.sh unlock jenkins "+uid)
