@@ -99,8 +99,6 @@ pipeline {
     }
     always {
       script {
-        // junit archiver does not like old looking files
-        sh("touch gen3-qa/output/*.xml")
         uid = BUILD_TAG.replaceAll(' ', '_').replaceAll('%2F', '_')
         sh("bash cloud-automation/gen3/bin/klock.sh unlock jenkins "+uid)
       }
