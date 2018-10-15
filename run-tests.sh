@@ -2,10 +2,9 @@
 #
 #
 
-npm install
+npm ci
 
-namespaceList="${1:-default}"
-
+namespaceList="${1:-${KUBECTL_NAMESPACE:-default}}"
 exitCode=0
 
 for name in ${namespaceList}; do
@@ -14,6 +13,7 @@ for name in ${namespaceList}; do
     # run all tests except for those that require google configuration
     testArgs="${testArgs} --grep @reqGoogle --invert"
   fi
+  export NAMESPACE="$name"
   npm test -- $testArgs
   if [[ $? -ne 0 ]]; then exitCode=1; fi
 done
