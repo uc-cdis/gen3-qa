@@ -41,9 +41,9 @@ pipeline {
     stage('SelectNamespace') {
       steps {
         script {
-          String[] namespaces = ['jenkins-brain']
+          String[] namespaces = ['jenkins-brain', 'jenkins-niaid']
           int modNum = namespaces.length/2
-          int randNum = 0;  // always use jenkins-brain for now (new Random().nextInt(modNum) + ((env.EXECUTOR_NUMBER as Integer) * 2)) % namespaces.length
+          int randNum = (new Random().nextInt(modNum) + ((env.EXECUTOR_NUMBER as Integer) * 2)) % namespaces.length
 
           if( ! env.KUBECTL_NAMESPACE ) {
             env.KUBECTL_NAMESPACE = namespaces[randNum];
