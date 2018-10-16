@@ -21,7 +21,7 @@ function userFromNamespace(namespace) {
 
 module.exports = {
   get program() {
-    const programName = process.env.HOSTNAME.startsWith('qa') ? 'QA' : 'DEV';
+    const programName = 'jnkns';
     return {
       name: programName,
       type: 'program',
@@ -31,9 +31,9 @@ module.exports = {
 
   project: {
     type: 'project',
-    code: 'test',
-    name: 'test',
-    dbgap_accession_number: 'test',
+    code: 'jenkins',
+    name: 'jenkins',
+    dbgap_accession_number: 'jenkins',
     state: 'open',
     releasable: true,
   },
