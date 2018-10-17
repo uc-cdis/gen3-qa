@@ -26,12 +26,32 @@ pipeline {
             url: 'https://github.com/uc-cdis/cloud-automation.git',
             branch: 'master'
           )
+          script {
+            env.GEN3_HOME = env.WORKSPACE + '/cloud-automation';
+          }
         }
         dir('data-simulator') {
           git(
             url: 'https://github.com/occ-data/data-simulator.git',
             branch: 'fix/descr-files'
           )
+        }
+      }
+    }
+    stage('SelectNamespace') {
+      steps {
+        script {
+          String[] namespaces = ['jenkins-brain', 'jenkins-niaid']
+          int modNum = namespaces.length/2
+          int randNum = (new Random().nextInt(modNum) + ((env.EXECUTOR_NUMBER as Integer) * 2)) % namespaces.length
+
+          if( ! env.KUBECTL_NAMESPACE ) {
+            env.KUBECTL_NAMESPACE = namespaces[randNum];
+          }
+          println "selected namespace $env.KUBECTL_NAMESPACE on executor $env.EXECUTOR_NUMBER"
+          println "attempting to lock namespace with a wait time of 5 minutes"
+          uid = BUILD_TAG.replaceAll(' ', '_').replaceAll('%2F', '_')
+          sh("bash cloud-automation/gen3/bin/klock.sh lock jenkins "+uid+" 3600 -w 300")
         }
       }
     }
@@ -78,6 +98,10 @@ pipeline {
       //slackSend color: 'bad', message: "https://jenkins.planx-pla.net $env.JOB_NAME pipeline unstable"
     }
     always {
+      script {
+        uid = BUILD_TAG.replaceAll(' ', '_').replaceAll('%2F', '_')
+        sh("bash cloud-automation/gen3/bin/klock.sh unlock jenkins "+uid)
+      }
       junit "gen3-qa/output/*.xml"
     }
   }

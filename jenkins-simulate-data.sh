@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
-namespace="${1:-default}"
+namespace="${1:-${KUBECTL_NAMESPACE:-default}}"
 echo $namespace
+export GEN3_HOME="${GEN3_HOME:-${WORKSPACE}/cloud-automation}"
+export TEST_DATA_PATH="${TEST_DATA_PATH:-${WORKSPACE}/testData/}"
 
-if [[ -n "$GEN3_HOME" ]]; then  # load gen3 tools from cloud-automation
+if [[ -n "$GEN3_HOME" && -d "$GEN3_HOME" ]]; then  # load gen3 tools from cloud-automation
   source "${GEN3_HOME}/gen3/lib/utils.sh"
   gen3_load "gen3/gen3setup"
 else
@@ -20,9 +22,9 @@ _GEN_DATA="$WORKSPACE/data-simulator"
 
 cd "${_GEN_DATA}"
 
-projectName=test
+projectName=jenkins
 nData=1
-dictURL=$(g3kubectl get configmaps global -o json | jq -r '.data.dictionary_url')
+dictURL=$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.dictionary_url')
 if [[ $? -ne 0 || -z "dictURL" ]]; then
     echo "ERROR: failed to retrieve dictionary_url for namespace $namespace"
     exit 1
