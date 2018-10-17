@@ -17,19 +17,20 @@ module.exports = {
     linkGoogle: `${rootEndpoint}/link/google?redirect=.`,
     deleteGoogleLink: `${rootEndpoint}/link/google`,
     extendGoogleLink: `${rootEndpoint}/link/google`,
+    registerGoogleServiceAccount: `${rootEndpoint}/google/service_accounts`,
+    deleteGoogleServiceAccount: `${rootEndpoint}/google/service_accounts`,
+    getGoogleServiceAccounts: `${rootEndpoint}/google/service_accounts`,
+    getGoogleServiceAccountMonitor: `${rootEndpoint}/google/service_accounts/monitor`,
   },
 
   /**
-   * Google project and group properties
+   * Google group for testing
    */
-  googleGroupKey: 'dcf-integration-qa_read_gbag@planx-pla.net',
-  googleProjectAID: 'projecta-215714',
+  googleGroupTestEmail: 'gen3-autoqa@googlegroups.com',
 
-  errorLinkedToAnotherAcct: {
-    error: 'g_acnt_link_error',
-    error_description: 'Could not link Google account. The account specified is already linked to a different user.',
-  },
-
+  /**
+   * Link google account duration
+   */
   linkExtendAmount: 86400, // 24 hours (in seconds)
 
   /**
@@ -120,5 +121,191 @@ module.exports = {
         xpath: '//div[contains(text(), \'Use another account\')]',
       },
     },
+  },
+
+  /**
+   * Google Service Account responses
+   */
+  resRegisterServiceAccountSuccess: new Gen3Response({ statusCode: 200 }),
+
+  resDeleteServiceAccountSuccess: new Gen3Response({ statusCode: 200 }),
+
+  resRegisterServiceAccountNotLinked: new Gen3Response({
+    statusCode: 400,
+    body: {
+      errors: {
+        google_project_id: {
+          status: 403,
+          service_account_validity: {},
+          membership_validity: {},
+          error: 'unauthorized_user',
+        },
+      },
+      success: false,
+    },
+  }),
+
+  resRegisterServiceAccountHasParentOrg: new Gen3Response({
+    statusCode: 400,
+    body: {
+      errors: {
+        google_project_id: {
+          status: 403,
+          service_account_validity: {},
+          membership_validity: {
+            members_exist_in_fence: true,
+            valid_member_types: true,
+          },
+          error: 'unauthorized',
+        },
+      },
+      success: false,
+    },
+  }),
+
+  resRegisterServiceAccountInvalidMemberType: new Gen3Response({
+    statusCode: 400,
+    body: {
+      errors: {
+        google_project_id: {
+          status: 403,
+          membership_validity: {
+            valid_member_types: false,
+          },
+          error: 'unauthorized',
+        },
+      },
+      success: false,
+    },
+  }),
+
+  resRegisterServiceAccountFenceNoAccess: new Gen3Response({
+    statusCode: 400,
+    body: {
+      errors: {
+        google_project_id: {
+          status: 404,
+          service_account_validity: {},
+          membership_validity: {},
+          error: 'monitor_not_found',
+        },
+      },
+      success: false,
+    },
+  }),
+
+  resRegisterServiceAccountInvalidServiceAcct: new Gen3Response({
+    statusCode: 400,
+    body: {
+      errors: {
+        service_account_email: {
+          status: 403,
+          error: 'unauthorized',
+        },
+      },
+      success: false,
+    },
+  }),
+
+  resRegisterServiceAccountInvalidProject: new Gen3Response({
+    statusCode: 400,
+    body: {
+      errors: {
+        project_access: {
+          status: 404,
+          error: 'project_not_found',
+        },
+      },
+      success: false,
+    },
+  }),
+
+  resRegisterServiceAccountMissingProjectPrivilege: new Gen3Response({
+    statusCode: 400,
+    body: {
+      errors: {
+        project_access: {
+          status: 403,
+          error: 'unauthorized',
+        },
+      },
+      success: false,
+    },
+  }),
+
+  resDeleteServiceAccountWhenNotLinked: new Gen3Response({ statusCode: 403 }),
+
+  resDeleteServiceAccountNotRegistered: new Gen3Response({
+    statusCode: 404,
+    fenceError: 'Could not find a registered service account from given email',
+  }),
+
+  /**
+   * Google Projects
+   */
+  googleProjectA: {
+    // -fence SA in project:                  true
+    // -has a parent organization:            false
+    // -has service acct with invalid type:   false
+    // -has a service acct with key:          false
+    id: 'simpleprojectalpha',
+    serviceAccountEmail: 'serviceaccount@simpleprojectalpha.iam.gserviceaccount.com',
+    defaultIsValidGCP: true,
+    owner: 'gen3.autotest@gmail.com',
+  },
+
+  googleProjectWithComputeServiceAcct: {
+    // -fence SA in project:                  true
+    // -has a parent organization:            false
+    // -has service acct with invalid type:   false
+    // -has a service acct with key:          false
+    id: 'projectwithcomputeapi',
+    serviceAccountEmail: '796412374583-compute@developer.gserviceaccount.com',
+    defaultIsValidGCP: true,
+    owner: 'gen3.autotest@gmail.com',
+  },
+
+  googleProjectWithInvalidServiceAcct: {
+    // -fence SA in project:                  true
+    // -has a parent organization:            false
+    // -has service acct with invalid type:   true - default cause of failure
+    // -has a service acct with key:          false
+    id: 'projectwithcomputeapi',
+    serviceAccountEmail: '796412374583@cloudservices.gserviceaccount.com',
+    defaultIsValidGCP: false,
+    owner: 'gen3.autotest@gmail.com',
+  },
+
+  googleProjectWithParentOrg: {
+    // -fence SA in project:                  true
+    // -has a parent organization:            true - default cause of failure
+    // -has service acct with invalid type:   false
+    // -has a service acct with key:          false
+    id: 'planxparentproject',
+    serviceAccountEmail: 'serviceaccount@planxparentproject.iam.gserviceaccount.com',
+    defaultIsValidGCP: false,
+    owner: 'dummy-one@planx-pla.net',
+  },
+
+  googleProjectFenceNotRegistered: {
+    // -fence SA in project:                  false - default cause of failure
+    // -has a parent organization:            false
+    // -has service acct with invalid type:   false
+    // -has a service acct with key:          false
+    id: 'projectfencenoaccess',
+    serviceAccountEmail: 'serviceaccount@projectfencenoaccess.iam.gserviceaccount.com',
+    defaultIsValidGCP: false,
+    owner: 'gen3.autotest@gmail.com',
+  },
+
+  googleProjectServiceAcctHasKey: {
+    // -fence SA in project:                  true
+    // -has a parent organization:            false
+    // -has service acct with invalid type:   false
+    // -has a service acct with key:          true - default cause of failure
+    id: 'projectserviceaccthaskey',
+    serviceAccountEmail: 'serviceaccount@projectserviceaccthaskey.iam.gserviceaccount.com',
+    defaultIsValidGCP: false,
+    owner: 'gen3.autotest@gmail.com',
   },
 };

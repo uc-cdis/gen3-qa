@@ -5,6 +5,7 @@
 
 const chai = require('chai');
 const jsdom = require('jsdom');
+const chaiSubset = require('chai-subset');
 
 const expect = chai.expect;
 chai.config.includeStack = true;
@@ -50,7 +51,8 @@ class Gen3Response {
    * @param {string} [fenceError] Parsed from body if determined to be an error page
    */
   constructor({ body, statusCode, request, fenceError }) {
-    this.parsedFenceError = fenceError || (isErrorPage(body) ? parseFenceError(body) : undefined);
+    this.fenceError = fenceError;
+    this.parsedFenceError = (isErrorPage(body) ? parseFenceError(body) : undefined);
     this.body = this.parsedFenceError ? undefined : body; // include body if not error page
     this.statusCode = statusCode;
     try {
@@ -71,6 +73,7 @@ class Gen3Response {
  * @param _chai
  */
 const gen3Res = function (_chai) {
+  _chai.use(chaiSubset);
   const Assertion = _chai.Assertion;
 
   // language chain method
@@ -78,12 +81,16 @@ const gen3Res = function (_chai) {
     const obj = this._obj; // eslint-disable-line
 
     new Assertion(obj).to.be.instanceof(Gen3Response);
-    if (expectedRes.parsedFenceError) {
-      new Assertion(obj.parsedFenceError).to.contain.string(expectedRes.parsedFenceError);
+    if (expectedRes.fenceError) {
+      // assert fence errors are equal
+      new Assertion(obj).to.have.property('parsedFenceError');
+      new Assertion(obj.parsedFenceError).to.have.string(expectedRes.fenceError);
     } else if (expectedRes.body) {
-      new Assertion(obj.body).to.deep.include(expectedRes.body);
+      // assert body has the subset of attributes
+      new Assertion(obj).to.have.property('body');
+      _chai.expect(obj.body).to.containSubset(expectedRes.body);
     }
-    new Assertion(obj.statusCode).to.equal(expectedRes.statusCode);
+    new Assertion(obj).to.have.property('statusCode', expectedRes.statusCode);
   });
 };
 
