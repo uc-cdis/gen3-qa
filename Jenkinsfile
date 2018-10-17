@@ -33,7 +33,7 @@ pipeline {
         dir('data-simulator') {
           git(
             url: 'https://github.com/occ-data/data-simulator.git',
-            branch: 'fix/descr-files'
+            branch: 'master'
           )
         }
       }

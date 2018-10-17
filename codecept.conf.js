@@ -7,8 +7,8 @@ if (subdomain === '' || subdomain === undefined) {
 }
 if (subdomain === 'default') {
   subdomain = 'qa';
-} else if (!subdomain.startsWith('qa') && !subdomain.startsWith('dev')) {
-  throw Error(`Invalid NAMESPACE: ${process.env.NAMESPACE}\nNAMESPACE must be a 'qa-' or 'dev-' namespace`);
+} else if (!subdomain.startsWith('jenkins')) {
+  throw Error(`Invalid NAMESPACE: ${subdomain}\nNAMESPACE must be 'default' or a 'jenkins-' namespace`);
 }
 process.env.HOSTNAME = `${subdomain}.planx-pla.net`;
 console.log(`NAMESPACE: ${process.env.NAMESPACE}`);
