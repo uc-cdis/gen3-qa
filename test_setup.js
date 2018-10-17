@@ -9,6 +9,7 @@ const homedir = require('os').homedir();
 
 const commonsUtil = require('./utils/commonsUtil');
 const usersUtil = require('./utils/usersUtil');
+const fenceActor = require('./services/apis/fence/fenceService');
 
 const DEFAULT_TOKEN_EXP = 1800;
 const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
@@ -68,6 +69,41 @@ function assertEnvVars(varNames) {
   });
 }
 
+/**
+ * Checks if two arrays are equal
+ */
+function arraysEqual(arr1, arr2) {
+  if (arr1.length !== arr2.length) {
+    return false;
+  }
+  for (const elem in arr1) {
+    if (!arr2.includes(elem)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Asserts a user has access to its projects
+ */
+async function assertProjectAccess(user) {
+  const accessErrorMessage = `User ${user} does not have proper project access/permissions. User access of the commons must be updated according to the userUtils before tests can be run.`;
+  const res = await fenceActor.do.getUserInfo(user);
+  const projectAccess = res.body.project_access;
+  for (const project of Object.keys(user.projects)) {
+    const projectPermissions = projectAccess[project];
+    if (projectPermissions === undefined) {
+      // user does not have access to the project
+      throw Error(accessErrorMessage);
+    }
+    if (!arraysEqual(projectPermissions, user.projects[project])) {
+      // user does not have correct permission to the project
+      throw Error(accessErrorMessage);
+    }
+  }
+}
+
 module.exports = async function (done) {
   // get some vars from the commons
   console.log('Setting environment variables...\n');
@@ -119,5 +155,10 @@ module.exports = async function (done) {
   // Create a program and project (does nothing if already exists)
   console.log('Creating program/project\n');
   await commonsUtil.createProgramProject();
+
+  // verify users have correct project permissions
+  for (const user of Object.values(usersUtil)) {
+    assertProjectAccess(user);
+  }
   done();
 };

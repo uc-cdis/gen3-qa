@@ -9,6 +9,16 @@ const container = require('codeceptjs').container;
 const I = actor();
 
 /**
+ *
+ * @param user
+ * @returns {Promise<*>}
+ */
+async function getUserInfo(user) {
+  return I.sendGetRequest(fenceProps.endpoints.userInfo, user.accessTokenHeader)
+    .then(res => new Gen3Response(res));
+}
+
+/**
  * Determines if browser is on Google's "Choose account" page
  * @returns {Promise<boolean>}
  */

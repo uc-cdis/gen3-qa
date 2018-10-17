@@ -10,6 +10,7 @@ module.exports = {
    */
   endpoints: {
     root: rootEndpoint,
+    userInfo: `${rootEndpoint}/user`,
     getFile: `${rootEndpoint}/data/download`,
     createAPIKey: `${rootEndpoint}/credentials/api/`,
     deleteAPIKey: `${rootEndpoint}/credentials/api/cdis`,
