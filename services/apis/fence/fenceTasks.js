@@ -281,4 +281,34 @@ module.exports = {
       },
     ).then(res => new Gen3Response(res));
   },
+
+  /**
+   * Hits fences EXTEND google link endpoint
+   * @param {User} userAcct - commons user to extend the link for
+   * @returns {Promise<Gen3Response>}
+   */
+  async getConsentCode(clientId, responseType, scope) {
+    const fullURL = `${fenceProps.endpoints.authorizeOAuth2Client}?response_type=${responseType}&client_id=${clientId}&redirect_uri=https://${process.env.HOSTNAME}&scope=${scope}`;
+    // const helper = this.helpers.WebDriverIO;
+    //await I.openUrl(fullURL);
+    await I.amOnPage(fullURL);
+    //console.log('Here we are');
+    //await I.waitInUrl('code=', 10);
+    const urlStr = await I.grabCurrentUrl();
+    const match = urlStr.match(RegExp('/?code=(.*)'))
+    return match ? match[1] : null;
+  },
+
+  /**
+   * Hits fences EXTEND google link endpoint
+   * @param {User} userAcct - commons user to extend the link for
+   * @returns {Promise<Gen3Response>}
+   */
+  async getTokensWithAuthCode(clientId, clientSecret, code) {
+    const fullURL = `https://${process.env.HOSTNAME}${fenceProps.endpoints.tokenOAuth2Client}?code=${code}&grant_type=authorization_code&redirect_uri=https%3A%2F%2F${process.env.HOSTNAME}`;
+    const data = {'client_id': clientId, 'client_secret': clientSecret};
+    const response = await I.sendPostRequest(fullURL, data);
+    return response;
+  },
+
 };

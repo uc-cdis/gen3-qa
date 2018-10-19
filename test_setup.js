@@ -9,6 +9,7 @@ const homedir = require('os').homedir();
 
 const commonsUtil = require('./utils/commonsUtil');
 const usersUtil = require('./utils/usersUtil');
+const fenceProps = require('./services/apis/fence/fenceProps');
 
 const DEFAULT_TOKEN_EXP = 1800;
 const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
@@ -24,6 +25,18 @@ function getAccessToken(namespace, username, expiration) {
   const fenceCmd = `g3kubectl exec $(gen3 pod fence ${namespace}) -- fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account --type access_token --exp ${expiration} --username ${username}`;
   const accessToken = commonsUtil.runCommand(fenceCmd, namespace);
   return accessToken.trim();
+}
+
+function createClient(namespace, clientName, userName) {
+  const fenceCmd = `g3kubectl exec $(gen3 pod fence ${namespace}) -- fence-create client-create --client ${clientName} --user ${userName} --urls https://${process.env.HOSTNAME} --auto-approve`;
+  const resCmd = commonsUtil.runCommand(fenceCmd, namespace);
+  const arr = resCmd.replace(/[()']/g, '').split(',').map(val => val.trim());
+  return { client_id: arr[0], client_secret: arr[1] };
+}
+
+function deleteClient(namespace, clientName) {
+  const cmdDelete = `g3kubectl exec $(gen3 pod fence ${namespace}) -- fence-create client-delete --client ${clientName}`;
+  commonsUtil.runCommand(cmdDelete, namespace);
 }
 
 /**
@@ -79,6 +92,18 @@ module.exports = async function (done) {
       process.env[user.envTokenName] = at;
     }
   }
+
+  // delete client
+  deleteClient(process.env.NAMESPACE, 'basic-test-client');
+  // create client
+  const client = createClient(process.env.NAMESPACE, 'basic-test-client', 'test-client@example.com');
+  //console.log(`'${client.client_id}'`);
+  //console.log(`'${client.client_secret}'`);
+
+  process.env[`${fenceProps.clients.client.envVarsName}_ID`] = client.client_id;
+  process.env[`${fenceProps.clients.client.envVarsName}_SECRET`] = client.client_secret;
+  process.env[`${fenceProps.clients.clientImplicit.envVarsName}_ID`] = '6lBQA5HvMTVqNhKfEwaV5DEw1VEkPitri9kwj34X';
+  process.env[`${fenceProps.clients.clientImplicit.envVarsName}_SECRET`] = 'CByukkaXyviVGpnVRHaI41F1jdhl2WlwuIi78afD4hon7F236YMpBr8';
 
   // Export expired access token for main acct
   const mainAcct = usersUtil.mainAcct;

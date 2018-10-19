@@ -95,4 +95,20 @@ module.exports = {
   responsesEqual(actualRes, expectedRes) {
     expect(actualRes).to.be.a.gen3Res(expectedRes);
   },
+
+  authorizeClientSuccess(code) {
+    expect(code).not.null;
+  },
+
+  authorizeClientFail(code) {
+    expect(code).is.null;
+  },
+
+  getTokensSuccess(response) {
+    expect(response).to.have.property("statusCode", 200);
+    expect(response).to.have.nested.property('body.access_token');
+    expect(response).to.have.nested.property('body.refresh_token');
+    expect(response).to.have.nested.property('body.id_token');
+    expect(response).to.have.nested.property('body.expires_in');
+  }
 };
