@@ -27,8 +27,11 @@ function getAccessToken(namespace, username, expiration) {
   return accessToken.trim();
 }
 
-function createClient(namespace, clientName, userName) {
-  const fenceCmd = `g3kubectl exec $(gen3 pod fence ${namespace}) -- fence-create client-create --client ${clientName} --user ${userName} --urls https://${process.env.HOSTNAME} --auto-approve`;
+function createClient(namespace, clientName, userName, clientType) {
+  var fenceCmd = `g3kubectl exec $(gen3 pod fence ${namespace}) -- fence-create client-create --client ${clientName} --user ${userName} --urls https://${process.env.HOSTNAME} --auto-approve`;
+  if (clientType == "implicit") {
+    fenceCmd = `${fenceCmd} --grant-types implicit`;
+  }
   const resCmd = commonsUtil.runCommand(fenceCmd, namespace);
   const arr = resCmd.replace(/[()']/g, '').split(',').map(val => val.trim());
   return { client_id: arr[0], client_secret: arr[1] };
@@ -93,15 +96,17 @@ module.exports = async function (done) {
     }
   }
 
-  // delete client
+  // Delete then create basic client
   deleteClient(process.env.NAMESPACE, 'basic-test-client');
-  // create client
-  const client = createClient(process.env.NAMESPACE, 'basic-test-client', 'test-client@example.com');
-  //console.log(`'${client.client_id}'`);
-  //console.log(`'${client.client_secret}'`);
+  const basicClient = createClient(process.env.NAMESPACE, 'basic-test-client', 'test-client@example.com');
 
-  process.env[`${fenceProps.clients.client.envVarsName}_ID`] = client.client_id;
-  process.env[`${fenceProps.clients.client.envVarsName}_SECRET`] = client.client_secret;
+  // Delete then create implicit client
+  deleteClient(process.env.NAMESPACE, 'implicit-test-client');
+  //const basicClient = createClient(process.env.NAMESPACE, 'implicit-test-client', 'test-client@example.com');
+
+  // Setup enviroiment variables
+  process.env[`${fenceProps.clients.client.envVarsName}_ID`] = basicClient.client_id;
+  process.env[`${fenceProps.clients.client.envVarsName}_SECRET`] = basicClient.client_secret;
   process.env[`${fenceProps.clients.clientImplicit.envVarsName}_ID`] = '6lBQA5HvMTVqNhKfEwaV5DEw1VEkPitri9kwj34X';
   process.env[`${fenceProps.clients.clientImplicit.envVarsName}_SECRET`] = 'CByukkaXyviVGpnVRHaI41F1jdhl2WlwuIi78afD4hon7F236YMpBr8';
 

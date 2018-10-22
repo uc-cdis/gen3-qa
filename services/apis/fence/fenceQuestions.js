@@ -96,14 +96,26 @@ module.exports = {
     expect(actualRes).to.be.a.gen3Res(expectedRes);
   },
 
+  /**
+   * Assert the code is not null
+   * @param {string} code 
+   */
   authorizeClientSuccess(code) {
     expect(code).not.null;
   },
 
+  /**
+   * Assert the code is null
+   * @param {string} code 
+   */
   authorizeClientFail(code) {
     expect(code).is.null;
   },
 
+  /**
+   * Assert that the response has tokens
+   * @param {Gen3Response} response 
+   */
   getTokensSuccess(response) {
     expect(response).to.have.property("statusCode", 200);
     expect(response).to.have.nested.property('body.access_token');
