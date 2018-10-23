@@ -200,6 +200,7 @@ module.exports = {
   },
 
   /**
+<<<<<<< HEAD
    * Registers a new service account
    * @param {User} userAcct - User to make request with
    * @param {Object} googleProject
@@ -286,29 +287,64 @@ module.exports = {
    * Hits fences EXTEND google link endpoint
    * @param {User} userAcct - commons user to extend the link for
    * @returns {Promise<Gen3Response>}
+=======
+   * Hits fences /authorize endpoint
+   * @param {string} clientId - client id
+   * @param {string} responseType - response type
+   * @param {string} scope - request scope
+   * @returns {string}
+>>>>>>> fix(implicit_client): fix implicit client creation
    */
   async getConsentCode(clientId, responseType, scope) {
     const fullURL = `${fenceProps.endpoints.authorizeOAuth2Client}?response_type=${responseType}&client_id=${clientId}&redirect_uri=https://${process.env.HOSTNAME}&scope=${scope}`;
-    // const helper = this.helpers.WebDriverIO;
-    //await I.openUrl(fullURL);
     await I.amOnPage(fullURL);
-    //console.log('Here we are');
-    //await I.waitInUrl('code=', 10);
     const urlStr = await I.grabCurrentUrl();
-    const match = urlStr.match(RegExp('/?code=(.*)'))
-    return match ? match[1] : null;
+    return urlStr;
   },
 
   /**
-   * Hits fences EXTEND google link endpoint
-   * @param {User} userAcct - commons user to extend the link for
+   * Hits fences /token endpoint
+   * @param {string} clientId - client id
+   * @param {string} clientSecret - client secret
+   * @param {string} code - authorization code
+   * @param {string} grantType - grant type
    * @returns {Promise<Gen3Response>}
    */
-  async getTokensWithAuthCode(clientId, clientSecret, code) {
-    const fullURL = `https://${process.env.HOSTNAME}${fenceProps.endpoints.tokenOAuth2Client}?code=${code}&grant_type=authorization_code&redirect_uri=https%3A%2F%2F${process.env.HOSTNAME}`;
-    const data = {'client_id': clientId, 'client_secret': clientSecret};
+  async getTokensWithAuthCode(clientId, clientSecret, code, grantType) {
+    const fullURL = `https://${process.env.HOSTNAME}${fenceProps.endpoints.tokenOAuth2Client}?code=${code}&grant_type=${grantType}&redirect_uri=https%3A%2F%2F${process.env.HOSTNAME}`;
+    const data = { client_id: clientId, client_secret: clientSecret };
     const response = await I.sendPostRequest(fullURL, data);
     return response;
+  },
+
+  /**
+   * Hits fences /token endpoint
+   * @param {string} clientId - client id
+   * @param {string} clientSecret - client secret
+   * @param {string} refreshToken - refresh token
+   * @param {string} scope - scope
+   * @param {string} grantType - grant type
+   * @returns {Promise<Gen3Response>}
+   */
+  async refreshAccessToken(clientId, clientSecret, refreshToken, scope, grantType) {
+    const fullURL = `https://${process.env.HOSTNAME}${fenceProps.endpoints.tokenOAuth2Client}?grant_type=${grantType}&scope=${scope}`;
+    const data = { client_id: clientId, client_secret: clientSecret, refresh_token: refreshToken };
+    const response = await I.sendPostRequest(fullURL, data);
+    return response;
+  },
+
+  /**
+   * Hits fences /authorize endpoint for implicit flow
+   * @param {string} clientId - client id
+   * @param {string} responseType - response type
+   * @param {string} scope - scope
+   * @returns {string}
+   */
+  async getTokensImplicitFlow(clientId, responseType, scope) {
+    const fullURL = `https://${process.env.HOSTNAME}${fenceProps.endpoints.authorizeOAuth2Client}?response_type=${responseType}&client_id=${clientId}&redirect_uri=https://${process.env.HOSTNAME}&scope=${scope}&nonce=n-0S6_WzA2Mj`;
+    await I.amOnPage(fullURL);
+    const urlStr = await I.grabCurrentUrl();
+    return urlStr;
   },
 
 };

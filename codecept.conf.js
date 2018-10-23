@@ -69,7 +69,7 @@ exports.config = {
     request.del(`http://localhost:4444/wd/hub/session/${seleniumSessionId}`);
   },
   hooks: [],
-  tests: './suites/*/oAuth2Test.js', // './suites/*/*.js',
+  tests: './suites/*/*.js',
   timeout: 10000,
   name: 'selenium',
 };

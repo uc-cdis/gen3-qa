@@ -97,30 +97,39 @@ module.exports = {
   },
 
   /**
-   * Assert the code is not null
-   * @param {string} code 
-   */
-  authorizeClientSuccess(code) {
-    expect(code).not.null;
-  },
-
-  /**
-   * Assert the code is null
-   * @param {string} code 
-   */
-  authorizeClientFail(code) {
-    expect(code).is.null;
-  },
-
-  /**
    * Assert that the response has tokens
-   * @param {Gen3Response} response 
+   * @param {Gen3Response} response
    */
   getTokensSuccess(response) {
-    expect(response).to.have.property("statusCode", 200);
+    expect(response).to.have.property('statusCode', 200);
     expect(response).to.have.nested.property('body.access_token');
     expect(response).to.have.nested.property('body.refresh_token');
     expect(response).to.have.nested.property('body.id_token');
     expect(response).to.have.nested.property('body.expires_in');
-  }
+  },
+
+  /**
+   * Assert that the response does not have tokens
+   * @param {Gen3Response} response
+   */
+  getTokensFail(response) {
+    expect(response).to.have.property('statusCode', 400);
+  },
+
+  /**
+   * Assert that the stringURL contians tokens
+   * @param {string} resURL - response url
+   * @param {array} containSubStr
+   * @param {array} notContainSubStr
+   */
+  assertURLString(resURL, containSubStr, notContainSubStr) {
+    let i;
+    for (i = 0; i < containSubStr.length; i += 1) {
+      expect(resURL).to.contain(containSubStr[i]);
+    }
+    for (i = 0; i < notContainSubStr.length; i += 1) {
+      expect(resURL).to.not.contain(notContainSubStr[i]);
+    }
+  },
+
 };
