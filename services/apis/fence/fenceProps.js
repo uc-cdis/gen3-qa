@@ -36,6 +36,7 @@ module.exports = {
     getGoogleServiceAccountMonitor: `${rootEndpoint}/google/service_accounts/monitor`,
     authorizeOAuth2Client: `${rootEndpoint}/oauth2/authorize`,
     tokenOAuth2Client: `${rootEndpoint}/oauth2/token`,
+    userEndPoint: `${rootEndpoint}/user`,
 
   },
 

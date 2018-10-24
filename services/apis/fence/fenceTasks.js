@@ -347,4 +347,17 @@ module.exports = {
     return urlStr;
   },
 
+  /**
+   * Hits fences /user endpoint
+   * @param {string} accessToken - access token
+   */
+  async getUserInfo(accessToken) {
+    const header = {
+      Accept: 'application/json',
+      Authorization: `bearer ${accessToken}`,
+    };
+    const response = await I.sendGetRequest(fenceProps.endpoints.userEndPoint, header);
+    return response;
+  },
+
 };
