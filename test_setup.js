@@ -109,7 +109,7 @@ module.exports = async function (done) {
     }
   }
 
-  console.log('Delete then create basic clients...\n');
+  console.log('Delete then create basic client...\n');
   deleteClient(process.env.NAMESPACE, 'basic-test-client');
   const basicClient = createClient(process.env.NAMESPACE, 'basic-test-client', 'test-client@example.com');
 
