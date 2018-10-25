@@ -36,7 +36,7 @@ function getAccessToken(namespace, username, expiration) {
  * @returns {json}
  */
 function createClient(namespace, clientName, userName, clientType) {
-  let fenceCmd = `g3kubectl exec $(gen3 pod fence ${namespace}) -- fence-create client-create --client ${clientName} --user ${userName} --urls https://${process.env.HOSTNAME} --auto-approve`;
+  let fenceCmd = `g3kubectl exec $(gen3 pod fence ${namespace}) -- fence-create client-create --client ${clientName} --user ${userName} --urls https://${process.env.HOSTNAME}`;
   if (clientType === 'implicit') {
     fenceCmd = `${fenceCmd} --grant-types implicit --public`;
   }
@@ -121,7 +121,6 @@ module.exports = async function (done) {
   process.env[`${fenceProps.clients.client.envVarsName}_ID`] = basicClient.client_id;
   process.env[`${fenceProps.clients.client.envVarsName}_SECRET`] = basicClient.client_secret;
   process.env[`${fenceProps.clients.clientImplicit.envVarsName}_ID`] = implicitClient.client_id;
-  process.env[`${fenceProps.clients.clientImplicit.envVarsName}_SECRET`] = implicitClient.client_secret;
 
   // Export expired access token for main acct
   const mainAcct = usersUtil.mainAcct;

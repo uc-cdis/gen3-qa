@@ -37,6 +37,7 @@ module.exports = {
     authorizeOAuth2Client: `${rootEndpoint}/oauth2/authorize`,
     tokenOAuth2Client: `${rootEndpoint}/oauth2/token`,
     userEndPoint: `${rootEndpoint}/user`,
+    adminEndPoint: `${rootEndpoint}/admin`,
 
   },
 
@@ -103,6 +104,27 @@ module.exports = {
     },
     statusCode: 404,
   }),
+
+  /**
+   * Consent page
+   */
+  consentPage: {
+    readyCue: {
+      locator: {
+        text: 'Gen3 Data Commons',
+      },
+    },
+    cancelBtn: {
+      locator: {
+        xpath: '//button[contains(text(), \'Cancel\')]',
+      },
+    },
+    consentBtn: {
+      locator: {
+        xpath: '//button[contains(text(), \'Yes, I authorize.\')]',
+      },
+    },
+  },
 
   /**
    * Google login page elements

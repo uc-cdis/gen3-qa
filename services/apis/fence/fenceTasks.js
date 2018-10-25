@@ -22,6 +22,19 @@ async function onChooseAcctPage() {
 }
 
 /**
+ * Determines if browser is on consent page
+ * @returns {Promise<boolean>}
+ */
+async function onConsentPage() {
+  return new Promise((resolve) => {
+    const wdio = container.helpers('WebDriverIO');
+    wdio._locate(fenceProps.consentPage.consentBtn.locator.xpath).then((res) => { // eslint-disable-line
+      resolve(res.value.length > 0);
+    });
+  });
+}
+
+/**
  * Goes through google oauth flow in the browser (saving screenshots along the way)
  * @param {Object} googleCreds - google credentials (email and password)
  * @returns {Promise<void>}
@@ -295,9 +308,18 @@ module.exports = {
    * @returns {string}
 >>>>>>> fix(implicit_client): fix implicit client creation
    */
-  async getConsentCode(clientId, responseType, scope) {
+  async getConsentCode(clientId, responseType, scope, consent) {
     const fullURL = `${fenceProps.endpoints.authorizeOAuth2Client}?response_type=${responseType}&client_id=${clientId}&redirect_uri=https://${process.env.HOSTNAME}&scope=${scope}`;
     await I.amOnPage(fullURL);
+    const consentPageLoaded = await onConsentPage();
+    if (consentPageLoaded) {
+      if (consent === 'cancel') {
+        portalUtil.clickProp(fenceProps.consentPage.cancelBtn);
+      } else {
+        portalUtil.clickProp(fenceProps.consentPage.consentBtn);
+      }
+      I.saveScreenshot('consent1.png');
+    }
     const urlStr = await I.grabCurrentUrl();
     return urlStr;
   },
@@ -327,8 +349,14 @@ module.exports = {
    * @returns {Promise<Gen3Response>}
    */
   async refreshAccessToken(clientId, clientSecret, refreshToken, scope, grantType) {
-    const fullURL = `https://${process.env.HOSTNAME}${fenceProps.endpoints.tokenOAuth2Client}?grant_type=${grantType}&scope=${scope}`;
-    const data = { client_id: clientId, client_secret: clientSecret, refresh_token: refreshToken };
+    const fullURL = `https://${process.env.HOSTNAME}${fenceProps.endpoints.tokenOAuth2Client}`;
+    const data = {
+      client_id: clientId,
+      client_secret: clientSecret,
+      refresh_token: refreshToken,
+      grant_type: grantType,
+      scope,
+    };
     const response = await I.sendPostRequest(fullURL, data);
     return response;
   },
@@ -340,9 +368,18 @@ module.exports = {
    * @param {string} scope - scope
    * @returns {string}
    */
-  async getTokensImplicitFlow(clientId, responseType, scope) {
+  async getTokensImplicitFlow(clientId, responseType, scope, consent) {
     const fullURL = `https://${process.env.HOSTNAME}${fenceProps.endpoints.authorizeOAuth2Client}?response_type=${responseType}&client_id=${clientId}&redirect_uri=https://${process.env.HOSTNAME}&scope=${scope}&nonce=n-0S6_WzA2Mj`;
     await I.amOnPage(fullURL);
+    const consentPageLoaded = await onConsentPage();
+    if (consentPageLoaded) {
+      if (consent === 'cancel') {
+        portalUtil.clickProp(fenceProps.consentPage.cancelBtn);
+      } else {
+        portalUtil.clickProp(fenceProps.consentPage.consentBtn);
+      }
+      I.saveScreenshot('consent1.png');
+    }
     const urlStr = await I.grabCurrentUrl();
     return urlStr;
   },
@@ -360,4 +397,16 @@ module.exports = {
     return response;
   },
 
+  /**
+   * Hits fences /admin endpoint
+   * @param {string} accessToken - access token
+   */
+  async getAdminInfo(accessToken) {
+    const header = {
+      Accept: 'application/json',
+      Authorization: `bearer ${accessToken}`,
+    };
+    const response = await I.sendGetRequest(fenceProps.endpoints.adminEndPoint, header);
+    return response;
+  },
 };

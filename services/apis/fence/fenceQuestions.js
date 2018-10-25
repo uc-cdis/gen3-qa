@@ -134,7 +134,7 @@ module.exports = {
 
   /**
    * Assert that response have user info
-   * @param {Gen3Response} response 
+   * @param {Gen3Response} response
    */
   getUserInfo(response) {
     expect(response).to.have.property('statusCode', 200);
@@ -144,7 +144,7 @@ module.exports = {
 
   /**
    * Assert that response have new access token
-   * @param {Gen3Response} response 
+   * @param {Gen3Response} response
    */
   getRefreshAccessToken(response) {
     expect(response).to.have.property('statusCode', 200);
