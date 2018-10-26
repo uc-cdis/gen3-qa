@@ -315,7 +315,7 @@ module.exports = {
       } else {
         portalUtil.clickProp(fenceProps.consentPage.consentBtn);
       }
-      I.saveScreenshot('consent1.png');
+      I.saveScreenshot('consent_auth_code_flow.png');
     }
     const urlStr = await I.grabCurrentUrl();
     return urlStr;
@@ -375,7 +375,7 @@ module.exports = {
       } else {
         portalUtil.clickProp(fenceProps.consentPage.consentBtn);
       }
-      I.saveScreenshot('consent1.png');
+      I.saveScreenshot('consent_implicit_flow.png');
     }
     const urlStr = await I.grabCurrentUrl();
     return urlStr;
