@@ -213,7 +213,6 @@ module.exports = {
   },
 
   /**
-<<<<<<< HEAD
    * Registers a new service account
    * @param {User} userAcct - User to make request with
    * @param {Object} googleProject
@@ -300,13 +299,11 @@ module.exports = {
    * Hits fences EXTEND google link endpoint
    * @param {User} userAcct - commons user to extend the link for
    * @returns {Promise<Gen3Response>}
-=======
    * Hits fences /authorize endpoint
    * @param {string} clientId - client id
    * @param {string} responseType - response type
    * @param {string} scope - request scope
    * @returns {string}
->>>>>>> fix(implicit_client): fix implicit client creation
    */
   async getConsentCode(clientId, responseType, scope, consent) {
     const fullURL = `${fenceProps.endpoints.authorizeOAuth2Client}?response_type=${responseType}&client_id=${clientId}&redirect_uri=https://${process.env.HOSTNAME}&scope=${scope}`;
