@@ -95,4 +95,72 @@ module.exports = {
   responsesEqual(actualRes, expectedRes) {
     expect(actualRes).to.be.a.gen3Res(expectedRes);
   },
+
+  /**
+   * Assert that the response has tokens
+   * @param {Gen3Response} response
+   */
+  asssertTokensSuccess(response) {
+    expect(response).to.have.property('statusCode', 200);
+    expect(response).to.have.nested.property('body.access_token');
+    expect(response).to.have.nested.property('body.refresh_token');
+    expect(response).to.have.nested.property('body.id_token');
+    expect(response).to.have.nested.property('body.expires_in');
+  },
+
+  /**
+   * Assert that the response status code
+   * @param {Gen3Response} response
+   */
+  assertStatusCode(response, statusCode) {
+    expect(response).to.have.property('statusCode', statusCode);
+  },
+
+  /**
+   * Assert that the stringURL contains sub-strings
+   * @param {string} resURL - response url
+   * @param {array} containSubStr
+   * @param {array} notContainSubStr
+   */
+  assertContainSubStr(resURL, containSubStr) {
+    let i;
+    for (i = 0; i < containSubStr.length; i += 1) {
+      expect(resURL).to.contain(containSubStr[i]);
+    }
+  },
+
+  /**
+   * Assert that the stringURL contains sub-strings
+   * @param {string} resURL - response url
+   * @param {array} containSubStr
+   * @param {array} notContainSubStr
+   */
+  assertNotContainSubStr(resURL, notContainSubStr) {
+    let i;
+    for (i = 0; i < notContainSubStr.length; i += 1) {
+      expect(resURL).to.not.contain(notContainSubStr[i]);
+    }
+  },
+
+  /**
+   * Assert that response have user info
+   * @param {Gen3Response} response
+   */
+  assertUserInfo(response) {
+    expect(response).to.have.property('statusCode', 200);
+    expect(response).to.have.nested.property('body.username');
+    expect(response).to.have.nested.property('body.user_id');
+  },
+
+  /**
+   * Assert that response have new access token
+   * @param {Gen3Response} response
+   */
+  assertRefreshAccessToken(response) {
+    expect(response).to.have.property('statusCode', 200);
+    expect(response).to.have.nested.property('body.access_token');
+    expect(response).to.have.nested.property('body.refresh_token');
+    expect(response).to.have.nested.property('body.expires_in');
+  },
+
 };

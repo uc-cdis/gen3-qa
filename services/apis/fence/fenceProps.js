@@ -4,6 +4,19 @@ const { Gen3Response } = require('../../../utils/apiUtil');
  * fence Properties
  */
 const rootEndpoint = '/user';
+
+class Client {
+  constructor({ envVarsName }) {
+    this.envVarsName = envVarsName;
+  }
+  get id() {
+    return process.env[`${this.envVarsName}_ID`];
+  }
+  get secret() {
+    return process.env[`${this.envVarsName}_SECRET`];
+  }
+}
+
 module.exports = {
   /**
    * Fence endpoints
@@ -21,6 +34,11 @@ module.exports = {
     deleteGoogleServiceAccount: `${rootEndpoint}/google/service_accounts`,
     getGoogleServiceAccounts: `${rootEndpoint}/google/service_accounts`,
     getGoogleServiceAccountMonitor: `${rootEndpoint}/google/service_accounts/monitor`,
+    authorizeOAuth2Client: `${rootEndpoint}/oauth2/authorize`,
+    tokenOAuth2Client: `${rootEndpoint}/oauth2/token`,
+    userEndPoint: `${rootEndpoint}/user`,
+    adminEndPoint: `${rootEndpoint}/admin`,
+
   },
 
   /**
@@ -86,6 +104,27 @@ module.exports = {
     },
     statusCode: 404,
   }),
+
+  /**
+   * Consent page
+   */
+  consentPage: {
+    readyCue: {
+      locator: {
+        text: 'Gen3 Data Commons',
+      },
+    },
+    cancelBtn: {
+      locator: {
+        xpath: '//button[contains(text(), \'Cancel\')]',
+      },
+    },
+    consentBtn: {
+      locator: {
+        xpath: '//button[contains(text(), \'Yes, I authorize.\')]',
+      },
+    },
+  },
 
   /**
    * Google login page elements
@@ -307,5 +346,14 @@ module.exports = {
     serviceAccountEmail: 'serviceaccount@projectserviceaccthaskey.iam.gserviceaccount.com',
     defaultIsValidGCP: false,
     owner: 'gen3.autotest@gmail.com',
+  },
+
+  clients: {
+    client: new Client({
+      envVarsName: 'CLIENT',
+    }),
+    clientImplicit: new Client({
+      envVarsName: 'CLIENTB',
+    }),
   },
 };
