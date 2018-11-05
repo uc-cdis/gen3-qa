@@ -11,7 +11,7 @@ for name in ${namespaceList}; do
   testArgs="--debug --verbose --reporter mocha-junit-reporter"
   if [[ "$name" != "default" ]]; then
     # run all tests except for those that require google configuration
-    testArgs="${testArgs} --grep @reqGoogle --invert"
+    testArgs="${testArgs} --grep @reqGoogleLogin"
   fi
   export NAMESPACE="$name"
   npm test -- $testArgs
