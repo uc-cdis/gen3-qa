@@ -103,24 +103,29 @@ module.exports = async function (done) {
 
   // Export access tokens
   for (const user of Object.values(usersUtil)) {
-    if (!user.jenkinsOnly || inJenkins || process.env.NAMESPACE === 'default') {
+    if ((!user.jenkinsOnly || inJenkins || process.env.NAMESPACE === 'default') && process.env[user.envTokenName] !== undefined) {
       const at = getAccessToken(process.env.NAMESPACE, user.username, DEFAULT_TOKEN_EXP);
       process.env[user.envTokenName] = at;
     }
   }
 
-  console.log('Delete then create basic client...\n');
-  deleteClient(process.env.NAMESPACE, 'basic-test-client');
-  const basicClient = createClient(process.env.NAMESPACE, 'basic-test-client', 'test-client@example.com');
 
-  console.log('Delete then create implicit client...\n');
-  deleteClient(process.env.NAMESPACE, 'implicit-test-client');
-  const implicitClient = createClient(process.env.NAMESPACE, 'implicit-test-client', 'test@example.com', 'implicit');
 
-  // Setup enviroiment variables
-  process.env[`${fenceProps.clients.client.envVarsName}_ID`] = basicClient.client_id;
-  process.env[`${fenceProps.clients.client.envVarsName}_SECRET`] = basicClient.client_secret;
-  process.env[`${fenceProps.clients.clientImplicit.envVarsName}_ID`] = implicitClient.client_id;
+  if (process.env[fenceProps.clients.client.id] !== undefined) {
+    console.log('Delete then create basic client...\n');
+    deleteClient(process.env.NAMESPACE, 'basic-test-client');
+    const basicClient = createClient(process.env.NAMESPACE, 'basic-test-client', 'test-client@example.com');
+    // Setup enviroiment variables
+    process.env[fenceProps.clients.client.id] = basicClient.client_id;
+    process.env[fenceProps.clients.client.secret] = basicClient.client_secret;
+  }
+
+  if (process.env[fenceProps.clients.clientImplicit.id] !== undefined) {
+    console.log('Delete then create implicit client...\n');
+    deleteClient(process.env.NAMESPACE, 'implicit-test-client');
+    const implicitClient = createClient(process.env.NAMESPACE, 'implicit-test-client', 'test@example.com', 'implicit');
+    process.env[fenceProps.clients.clientImplicit.id] = implicitClient.client_id;
+  }
 
   // Export expired access token for main acct
   const mainAcct = usersUtil.mainAcct;

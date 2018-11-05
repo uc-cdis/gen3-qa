@@ -21,6 +21,11 @@ Scenario('link and unlink google account @reqGoogle', async (fence, users) => {
   await fence.complete.unlinkGoogleAcct(users.mainAcct);
 });
 
+Scenario('real link and unlink google account @reqGoogleLogin', async (fence, users) => {
+  await fence.complete.linkGoogleAcct(users.mainAcct, users.auxAcct1);
+  await fence.complete.unlinkGoogleAcct(users.mainAcct);
+});
+
 Scenario('extend account link expiration @reqGoogle', async (fence, users) => {
   await fence.complete.forceLinkGoogleAcct(users.mainAcct, users.auxAcct1.googleCreds.email);
   const requestTime = timeNow();

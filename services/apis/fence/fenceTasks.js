@@ -147,10 +147,11 @@ module.exports = {
    */
   async linkGoogleAcct(userAcct, acctWithGoogleCreds) {
     const googleCreds = acctWithGoogleCreds.googleCreds;
+    // visit link endpoint and login to google
     // set users access token
+    await I.amOnPage(fenceProps.endpoints.root);
     await I.setCookie({ name: 'access_token', value: userAcct.accessToken });
     await I.seeCookie('access_token');
-    // visit link endpoint and login to google
     await I.amOnPage(fenceProps.endpoints.linkGoogle);
     await loginGoogle(googleCreds);
     I.saveScreenshot('login7.png');
@@ -162,7 +163,6 @@ module.exports = {
     // return the body and the current url
     const url = await I.grabCurrentUrl();
     const body = await I.grabSource();
-
     const res = new Gen3Response({ body });
     res.finalURL = url;
     return res;

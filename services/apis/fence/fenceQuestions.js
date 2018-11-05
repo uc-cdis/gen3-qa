@@ -1,6 +1,7 @@
 const chai = require('chai');
 
 const { gen3Res } = require('../../../utils/apiUtil');
+const { URL } = require('url');
 
 const expect = chai.expect;
 chai.config.includeStack = true;
