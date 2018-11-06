@@ -101,9 +101,20 @@ module.exports = async function (done) {
   // get some vars from the commons
   console.log('Setting environment variables...\n');
 
+  // Create configuration values based on hierarchy then export them to the process
+  nconf.argv()
+    .env()
+    .file({
+      file: 'auto-qa-config.json',
+      dir: `${homedir}/.gen3`,
+      search: true,
+    });
+
+  exportNconfVars();
+
   // Export access tokens
   for (const user of Object.values(usersUtil)) {
-    if ((!user.jenkinsOnly || inJenkins || process.env.NAMESPACE === 'default') && process.env[user.envTokenName] !== undefined) {
+    if ((!user.jenkinsOnly || inJenkins || process.env.NAMESPACE === 'default') && process.env[user.envTokenName] === undefined) {
       const at = getAccessToken(process.env.NAMESPACE, user.username, DEFAULT_TOKEN_EXP);
       process.env[user.envTokenName] = at;
     }
@@ -136,16 +147,6 @@ module.exports = async function (done) {
   process.env.INDEX_USERNAME = 'gdcapi';
   process.env.INDEX_PASSWORD = getIndexPassword(process.env.NAMESPACE);
 
-  // Create configuration values based on hierarchy then export them to the process
-  nconf.argv()
-    .env()
-    .file({
-      file: 'auto-qa-config.json',
-      dir: `${homedir}/.gen3`,
-      search: true,
-    });
-
-  exportNconfVars();
 
   // Assert required env vars are defined
   const basicVars = [mainAcct.envTokenName, mainAcct.envExpTokenName, 'INDEX_USERNAME', 'INDEX_PASSWORD', 'HOSTNAME'];
