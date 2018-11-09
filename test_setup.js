@@ -97,6 +97,32 @@ function assertEnvVars(varNames) {
   });
 }
 
+/**
+ * Attempts to create a program and project
+ * Throws an error if unable to do so
+ * @param {string} nAttempts - number of times to try creating the program/project
+ * @returns {Promise<void>}
+ */
+async function tryCreateProgramProject(nAttempts) {
+  let success = false;
+  for (const i of [...Array(nAttempts).keys()]) {
+    if (success === true) {
+      break;
+    }
+    await commonsUtil.createProgramProject()
+      .then(() => {         // eslint-disable-line
+        console.log(`Successfully created program/project on attempt ${i}`);
+        success = true;
+      })
+      .catch((err) => {
+        console.log(`Failed to create program/project on attempt ${i}:\n`, JSON.stringify(err));
+        if (i === nAttempts - 1) {
+          throw err;
+        }
+      });
+  }
+}
+
 module.exports = async function (done) {
   // get some vars from the commons
   console.log('Setting environment variables...\n');
@@ -160,6 +186,6 @@ module.exports = async function (done) {
 
   // Create a program and project (does nothing if already exists)
   console.log('Creating program/project\n');
-  await commonsUtil.createProgramProject();
+  await tryCreateProgramProject(3);
   done();
 };
