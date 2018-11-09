@@ -3,7 +3,7 @@ Feature('OAuth2 flow');
 
 Scenario('Authorization code flow: Test that fails to generate code due to no user consent', async (fence) => {
   const resULR = await fence.do.getConsentCode(
-    fence.props.clients.client.id, 'code', 'openid+user', 'cancel',
+    fence.props.clients.client.id, 'code', 'openid+user', 'cancel', false
   );
   fence.ask.assertNotContainSubStr(resULR, ['code=']);
 });
@@ -17,20 +17,21 @@ Scenario('Authorization code flow: Test that successfully generates code', async
 
 Scenario('Authorization code flow: Test that fail to generate code due to not provided openid scope', async (fence) => {
   const resULR = await fence.do.getConsentCode(
-    fence.props.clients.client.id, 'code', 'user',
+    fence.props.clients.client.id, 'code', 'user', 'ok', false
   );
   fence.ask.assertNotContainSubStr(resULR, ['code=']);
 });
 
 Scenario('Authorization code flow: Test that fail to generate code due to wrong response type', async (fence) => {
   const resULR = await fence.do.getConsentCode(
-    fence.props.clients.client.id, 'wrong_code', 'user', 'yes',
+    fence.props.clients.client.id, 'wrong_code', 'user', 'yes', false
   );
   fence.ask.assertNotContainSubStr(resULR, ['code=']);
 });
 
 Scenario('Authorization code flow: Test that successfully generate tokens', async (fence) => {
   const urlStr = await fence.do.getConsentCode(fence.props.clients.client.id, 'code', 'openid+user');
+  fence.ask.assertContainSubStr(urlStr, ['code=']);
   const match = urlStr.match(RegExp('/?code=(.*)'));
   const code = match[1];
   const res = await fence.do.getTokensWithAuthCode(
@@ -52,6 +53,7 @@ Scenario('Authorization code flow: Test that fails to generate tokens due to inv
   const urlStr = await fence.do.getConsentCode(
     fence.props.clients.client.id, 'code', 'openid+user',
   );
+  fence.ask.assertContainSubStr(urlStr, ['code=']);
   const match = urlStr.match(RegExp('/?code=(.*)'));
   const code = match[1];
   const res = await fence.do.getTokensWithAuthCode(
@@ -63,6 +65,7 @@ Scenario('Authorization code flow: Test that fails to generate tokens due to inv
 Scenario('Authorization code flow: Test that can create an access token which can be used in fence', async (fence) => {
   const urlStr = await fence.do.getConsentCode(
     fence.props.clients.client.id, 'code', 'openid+user');
+  fence.ask.assertContainSubStr(urlStr, ['code=']);
   const match = urlStr.match(RegExp('/?code=(.*)'));
   const code = match[1];
   let res = await fence.do.getTokensWithAuthCode(
