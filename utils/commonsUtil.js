@@ -66,14 +66,14 @@ module.exports = {
         if (error) {
           reject(error);
         }
-        if (response.statusCode !== 200) {
+        if (!response || response.statusCode !== 200) {
           reject(body);
         } else {
           request.post(projectForm, (err, res, bod) => {
             if (err) {
               reject(err);
             }
-            if (res.statusCode !== 200) {
+            if (!res || res.statusCode !== 200) {
               reject(bod);
             } else {
               resolve();
