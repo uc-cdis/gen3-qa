@@ -120,6 +120,7 @@ module.exports = {
   runCommand(cmd, namespace) {
     // if in jenkins, load gen3 tools before running command
     // if not in jenkins, ssh into commons and source bashrc before command
+    console.log(`Running command: ${cmd}`);
     if (inJenkins) {
       if (process.env.GEN3_HOME) {
         const sourceCmd = `source "${process.env.GEN3_HOME}/gen3/lib/utils.sh"`; // eslint-disable-line no-template-curly-in-string
