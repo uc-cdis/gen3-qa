@@ -163,4 +163,8 @@ module.exports = {
     expect(response).to.have.nested.property('body.expires_in');
   },
 
+  assertTruethyResult(result) {
+    expect(!!result).to.be.true;
+  },
+
 };

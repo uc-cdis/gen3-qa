@@ -8,6 +8,10 @@ Scenario('Authorization code flow: Test that fails to generate code due to no us
   fence.ask.assertNotContainSubStr(resULR, ['code=']);
 });
 
+/**
+ * DISABLED!!!
+ * OAUTH with Google 
+ */
 Scenario('Authorization code flow: Test that successfully generates code', async (fence) => {
   const resULR = await fence.do.getConsentCode(
     fence.props.clients.client.id, 'code', 'openid+user',
@@ -33,7 +37,8 @@ Scenario('Authorization code flow: Test that successfully generate tokens', asyn
   const urlStr = await fence.do.getConsentCode(fence.props.clients.client.id, 'code', 'openid+user');
   fence.ask.assertContainSubStr(urlStr, ['code=']);
   const match = urlStr.match(RegExp('/?code=(.*)'));
-  const code = match[1];
+  const code = match && match[1];
+  fence.ask.assertTruethyResult(code);
   const res = await fence.do.getTokensWithAuthCode(
     fence.props.clients.client.id,
     fence.props.clients.client.secret, code, 'authorization_code',
@@ -55,7 +60,8 @@ Scenario('Authorization code flow: Test that fails to generate tokens due to inv
   );
   fence.ask.assertContainSubStr(urlStr, ['code=']);
   const match = urlStr.match(RegExp('/?code=(.*)'));
-  const code = match[1];
+  const code = match && match[1];
+  fence.ask.assertTruethyResult(code);
   const res = await fence.do.getTokensWithAuthCode(
     fence.props.clients.client.id, fence.props.clients.client.secret, code, 'not_supported',
   );
@@ -67,7 +73,8 @@ Scenario('Authorization code flow: Test that can create an access token which ca
     fence.props.clients.client.id, 'code', 'openid+user');
   fence.ask.assertContainSubStr(urlStr, ['code=']);
   const match = urlStr.match(RegExp('/?code=(.*)'));
-  const code = match[1];
+  const code = match && match[1];
+  fence.ask.assertTruethyResult(code);
   let res = await fence.do.getTokensWithAuthCode(
     fence.props.clients.client.id,
     fence.props.clients.client.secret, code, 'authorization_code',
@@ -82,7 +89,7 @@ Scenario('Authorization code flow: Test that can create an access token which ca
 //     'code', 'openid+user',
 //   );
 //   const match = urlStr.match(RegExp('/?code=(.*)'));
-//   const code = match[1];
+//   const code = match && match[1];
 //   let res = await fence.do.getTokensWithAuthCode(
 //     fence.props.clients.client.id,
 //     fence.props.clients.client.secret,
@@ -100,7 +107,7 @@ Scenario('Authorization code flow: Test that can create an access token which ca
 
 Scenario('Implicit flow: Test that fails to generate tokens due to no user consent', async (fence) => {
   const resULR = await fence.do.getTokensImplicitFlow(
-    fence.props.clients.clientImplicit.id, 'id_token+token', 'openid+user', 'cancel');
+    fence.props.clients.clientImplicit.id, 'id_token+token', 'openid+user', 'cancel', false);
   fence.ask.assertNotContainSubStr(resULR, ['token_type=Bearer', 'id_token=', 'access_token=']);
 });
 
@@ -116,7 +123,7 @@ Scenario('Implicit flow: Test that successfully generates id and access tokens',
 
 Scenario('Implicit flow: Test that fails to generate tokens due to wrong grant types', async (fence) => {
   const resULR = await fence.do.getTokensImplicitFlow(
-    fence.props.clients.clientImplicit.id, 'not_supported_grant', 'openid+user');
+    fence.props.clients.clientImplicit.id, 'not_supported_grant', 'openid+user', 'ok', false);
   fence.ask.assertNotContainSubStr(resULR, ['token_type=Bearer', 'id_token=', 'access_token=']);
 });
 
@@ -129,7 +136,7 @@ Scenario('Implicit flow: Test that successfully generates only id token', async 
 
 Scenario('Implicit flow: Test that fails to generate tokens due to openid scope not provided', async (fence) => {
   const resULR = await fence.do.getTokensImplicitFlow(
-    fence.props.clients.clientImplicit.id, 'id_token', 'user');
+    fence.props.clients.clientImplicit.id, 'id_token', 'user', 'ok', false);
   fence.ask.assertNotContainSubStr(resULR, ['token_type=Bearer', 'id_token=', 'access_token=']);
 });
 
@@ -138,7 +145,8 @@ Scenario('Implicit flow: Test that can create an access token which can be used 
   const resULR = await fence.do.getTokensImplicitFlow(
     fence.props.clients.clientImplicit.id, 'id_token+token', 'openid+user');
   const match = resULR.match(RegExp('access_token=(.*)&expires'));
-  const token = match[1];
+  const token = match && match[1];
+  fence.ask.assertTruethyResult(token);
   const res = await fence.do.getUserInfo(token.trim());
   fence.ask.assertUserInfo(res);
 });

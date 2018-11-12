@@ -372,7 +372,7 @@ module.exports = {
    * @param {string} scope - scope
    * @returns {string}
    */
-  async getTokensImplicitFlow(clientId, responseType, scope, consent) {
+  async getTokensImplicitFlow(clientId, responseType, scope, consent='yes', expectToken=true) {
     const fullURL = `https://${process.env.HOSTNAME}${fenceProps.endpoints.authorizeOAuth2Client}?response_type=${responseType}&client_id=${clientId}&redirect_uri=https://${process.env.HOSTNAME}&scope=${scope}&nonce=n-0S6_WzA2Mj`;
     await I.amOnPage(fullURL);
     const consentPageLoaded = await onConsentPage();
@@ -384,6 +384,12 @@ module.exports = {
       }
       I.saveScreenshot('consent_implicit_flow.png');
     }
+    if (expectToken) {
+      await I.waitInUrl('token=', 3);
+    } else {
+      await I.wait(5);
+    }
+
     const urlStr = await I.grabCurrentUrl();
     return urlStr;
   },
