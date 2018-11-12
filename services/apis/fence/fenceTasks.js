@@ -177,7 +177,7 @@ module.exports = {
    */
   async forceLinkGoogleAcct(userAcct, googleEmail) {
     // hit link endpoint to ensure a proxy group is created for user
-    I.sendGetRequest(fenceProps.endpoints.linkGoogle, userAcct.accessTokenHeader);
+    await I.sendGetRequest(fenceProps.endpoints.linkGoogle, userAcct.accessTokenHeader);
 
     // run fence-create command to circumvent google and add user link to fence
     const cmd = `g3kubectl exec $(gen3 pod fence ${process.env.NAMESPACE}) -- fence-create force-link-google --username ${userAcct.username} --google-email ${googleEmail}`;

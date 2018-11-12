@@ -123,6 +123,12 @@ async function tryCreateProgramProject(nAttempts) {
   }
 }
 
+function parseJwt (token) {
+  var base64Url = token.split('.')[1];
+  var base64 = base64Url.replace('-', '+').replace('_', '/');
+  return JSON.parse(window.atob(base64));
+}
+
 module.exports = async function (done) {
   // get some vars from the commons
   console.log('Setting environment variables...\n');
@@ -131,6 +137,8 @@ module.exports = async function (done) {
   for (const user of Object.values(usersUtil)) {
     if (!user.jenkinsOnly || inJenkins || process.env.NAMESPACE === 'default') {
       const at = getAccessToken(process.env.NAMESPACE, user.username, DEFAULT_TOKEN_EXP);
+      // make sure the access token looks valid - base64 encoded JSON :-p
+      const token = parseJWT(at);
       process.env[user.envTokenName] = at;
     }
   }
