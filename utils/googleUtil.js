@@ -26,7 +26,12 @@ const googleApp = {
 
   get creds() {
     // written as a 'get' b/c env vars will not be set when module is loaded
-    return JSON.parse(process.env.GOOGLE_APP_CREDS_JSON);
+    try {
+      return JSON.parse(process.env.GOOGLE_APP_CREDS_JSON);
+    } catch (err) {
+      console.error(`ERROR: google creds not valid in GOOGLE_APP_CREDS_JSON env variable: ${process.env.GOOGLE_APP_CREDS_JSON}`, err);
+      throw new Error('Invalid Google Creds');
+    }
   },
 
   authorize({ scopes, subject }, callback) {
