@@ -88,13 +88,14 @@ dryrun npm ci
 exitCode=0
 lockUser=""
 
+testArgs="--debug --verbose --reporter mocha-junit-reporter"
 if [[ "$service" != "fence" ]]; then
-  # run all tests except for those that require google configuration
+  # run all tests except for those that require dcf google configuration
   testArgs="${testArgs} --grep @reqGoogle --invert"
   echo 'INFO: disabling DCF tests for testing non-fence service'
 else
+  # Run tests including dcf google backend
   # Note - need to acquire the freakin' global DCF lock
-  testArgs="${testArgs} --grep @reqGoogle"
   lockUser="testRunner-${namespaceList}-$$"
   echo 'INFO: enabling DCF tests for testing fence service'
   if ! (
@@ -117,7 +118,6 @@ else
 fi
 
 for name in ${namespaceList}; do
-  testArgs="--debug --verbose --reporter mocha-junit-reporter"
   (
     export NAMESPACE="$name"
     cat - <<EOM
