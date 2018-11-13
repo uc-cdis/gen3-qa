@@ -35,7 +35,7 @@ To automate web browser actions, CodeceptJS requires a Selenium webserver. You h
 #### Docker ([link](https://github.com/SeleniumHQ/docker-selenium))
 If you have docker, you can just run the preconfigured container
 ```
-docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome
+docker run -d -p 4444:4444 --name selenium --rm -v /dev/shm:/dev/shm selenium/standalone-chrome
 ```
 To kill the server just kill the container.
 #### npm ([link](https://www.npmjs.com/package/selenium-standalone))
