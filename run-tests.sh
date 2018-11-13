@@ -61,7 +61,8 @@ while [[ $# -gt 0 ]]; do
       isDryRun=true
       ;;
     *)
-      if [[ -z "$key" && -n "$value" ]]; then
+      if [[ -n "$value" && "$value" == "$key" ]]; then
+        # treat dangling option as namespace for backward compatability
         namespaceList="$value"
       else
         echo "ERROR: unknown option $1"
