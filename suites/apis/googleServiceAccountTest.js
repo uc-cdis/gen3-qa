@@ -426,6 +426,9 @@ Scenario('Register SA for data access where one Project member does not have pri
     user.username !== userWithoutPrivilege.username &&
     user.username !== userWithPrivilege.username,
   ).username;
+  if (differentGoogleEmail === undefined) {
+    throw "Unable to find a user to add to Google project";
+  }
   const newRole = {
     role: 'roles/viewer',
     members: [`user:${differentGoogleEmail}`],
