@@ -246,6 +246,19 @@ module.exports = {
     },
   }),
 
+  resRegisterServiceAccountInaccessibleServiceAcct: new Gen3Response({
+    statusCode: 400,
+    body: {
+      errors: {
+        service_account_email: {
+          status: 404,
+          error: 'policy_not_accessible',
+        },
+      },
+      success: false,
+    },
+  }),
+
   resRegisterServiceAccountInvalidProject: new Gen3Response({
     statusCode: 400,
     body: {

@@ -99,9 +99,11 @@ Scenario('Register Google Service Account Success @reqGoogle', async (fence, use
  * Google Project validity
  */
 
-Scenario('Register Google Service Account with unlinked account Fail @reqGoogle', async (fence, users) => {
+Scenario('Register SA with a user that hasn’t linked their Google Account @reqGoogle', async (fence, users) => {
   // Without linking to member in google project, try to register the project's service account
   // Registration should fail
+
+  // check members_exist_in_fence
 
   // Register account
   const registerRes = await fence.do.registerGoogleServiceAccount(
@@ -112,10 +114,12 @@ Scenario('Register Google Service Account with unlinked account Fail @reqGoogle'
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountNotLinked);
 });
 
-Scenario('Register Google Service Account with linked account not in GCP Fail @reqGoogle', async (fence, users) => {
+Scenario('Register SA with a user that has linked their Google Account @reqGoogle', async (fence, users) => {
   // Link to a google account, but an account that is not a member of the
   // google project we are trying to register.
   // Registration should fail
+
+  // check user_has_access
 
   const googleProject = fence.props.googleProjectA;
   const currentUser = users.mainAcct;
@@ -140,9 +144,11 @@ Scenario('Register Google Service Account with linked account not in GCP Fail @r
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountNotLinked);
 });
 
-Scenario('Register Google Service Account with GCP has parent org Fail @reqGoogle', async (fence, users) => {
-  // Try to register a service account in a google project that has a parent organization.
+Scenario('Register SA from Google Project that has a parent org @reqGoogle', async (fence, users) => {
+  // Try to register a service account in Google project that has a parent organization.
   // Registration should fail
+
+  // check valid_parent_org
 
   const googleProject = fence.props.googleProjectWithParentOrg;
 
@@ -161,9 +167,13 @@ Scenario('Register Google Service Account with GCP has parent org Fail @reqGoogl
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountHasParentOrg);
 });
 
-Scenario('Register Google Service Account with GCP not linked to fence Fail @reqGoogle', async (fence, users) => {
+
+
+Scenario('Register SA from Google Project that doesn’t have fence’s monitoring SA @reqGoogle', async (fence, users) => {
   // Try to register a google project that doesn't have fence's service account in it
   // Registration should fail
+
+  // check monitor_has_access
 
   const googleProject = fence.props.googleProjectFenceNotRegistered;
 
@@ -182,9 +192,11 @@ Scenario('Register Google Service Account with GCP not linked to fence Fail @req
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountFenceNoAccess);
 });
 
-Scenario('Register Google Service Account with GCP having invalid member type Fail @reqGoogle', async (fence, users, google) => {
+Scenario('Register SA from Google Project with invalid members @reqGoogle', async (fence, users, google) => {
   // Register a google project service account that has a member that's an invalid type
   // Registration should fail
+
+  // check valid_member_types
 
   const googleProject = fence.props.googleProjectA;
 
@@ -212,12 +224,14 @@ Scenario('Register Google Service Account with GCP having invalid member type Fa
  * Service Account validity
  */
 
-Scenario('Register Google Service Account that does not belong to GCP Fail @reqGoogle', async (fence, users) => {
+Scenario('Register SA in a Google Project that is NOT from that Project @reqGoogle', async (fence, users) => {
   // Try to register a service account from one google project for a DIFFERENT google project
   // Registration should fail
 
+  // check owned_by_project
+
   const projectA = fence.props.googleProjectA;
-  const projectB = fence.props.googleProjectFenceNotRegistered;
+  const projectB = fence.props.googleProjectWithComputeServiceAcct;
 
   // Setup
   await fence.complete.forceLinkGoogleAcct(
@@ -237,9 +251,39 @@ Scenario('Register Google Service Account that does not belong to GCP Fail @reqG
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidServiceAcct);
 });
 
-Scenario('Register Google Service Account for compute service email Success @reqGoogle', async (fence, users) => {
+
+Scenario('Register SA that looks like its from the Google Project but doesnt actually exist @reqGoogle', async (fence, users) => {
+  // Try to register a service account with an email that looks like it's from the project
+  // but the SA doesn't actually exist
+  // Registration should fail
+
+  // check policy_accessible
+
+  const projectA = fence.props.googleProjectA;
+
+  // Setup
+  await fence.complete.forceLinkGoogleAcct(
+    users.mainAcct,
+    projectA.owner,
+  );
+
+  // Register account with mismatched service account email and project ID
+  const registerRes = await fence.do.registerGoogleServiceAccount(
+    users.mainAcct,
+    {
+      serviceAccountEmail: "thisdoesntexist123" + projectA.serviceAccountEmail.split("@").pop(),
+      id: projectA.id,
+    },
+    ['test'],
+  );
+  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInaccessibleServiceAcct);
+});
+
+Scenario('Register allowed Google-Managed SA @reqGoogle', async (fence, users) => {
   // Register google's compute service account from a google project with the compute API
   // Registration should succeed
+
+  // check valid_type true
 
   const googleProject = fence.props.googleProjectWithComputeServiceAcct;
 
@@ -258,28 +302,34 @@ Scenario('Register Google Service Account for compute service email Success @req
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
 });
 
-// Scenario('Register Google Service Account of invalid type Fail @reqGoogle',
-// async (fence, users) => {
-//   const googleProject = fence.props.googleProjectWithInvalidServiceAcct;
-//
-//   // Setup
-//   await fence.complete.forceLinkGoogleAcct(
-//     users.mainAcct,
-//     googleProject.owner,
-//   );
-//
-//   // Register account with an invalid type service account
-//   const registerRes = await fence.do.registerGoogleServiceAccount(
-//     users.mainAcct,
-//     googleProject,
-//     ['test'],
-//   );
-//   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidServiceAcct);
-// });
+Scenario('Register SA of invalid type @reqGoogle', async (fence, users) => {
+  // Register a google managed service account that is not allowed
+  // Registration should fail
 
-Scenario('Register Google Service Account which has key Fail @reqGoogle', async (fence, users) => {
+  // check valid_type false
+
+  const googleProject = fence.props.googleProjectWithInvalidServiceAcct;
+
+  // Setup
+  await fence.complete.forceLinkGoogleAcct(
+    users.mainAcct,
+    googleProject.owner,
+  );
+
+  // Register account with an invalid type service account
+  const registerRes = await fence.do.registerGoogleServiceAccount(
+    users.mainAcct,
+    googleProject,
+    ['test'],
+  );
+  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidServiceAcct);
+});
+
+Scenario('Register SA that has a key generated @reqGoogle', async (fence, users) => {
   // Register a service account that has a key generated
   // Registration should fail
+
+  // check no_external_access
 
   const googleProject = fence.props.googleProjectServiceAcctHasKey;
 
@@ -298,13 +348,16 @@ Scenario('Register Google Service Account which has key Fail @reqGoogle', async 
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidServiceAcct);
 });
 
+
 /**
- * Commons project validity
+ * Data Access validity
  */
 
-Scenario('Register Google Service Account for invalid commons project Fail @reqGoogle', async (fence, users) => {
-  // Register service account for an invalid commons project
+Scenario('Register SA for invalid data access @reqGoogle', async (fence, users) => {
+  // Register service account for an invalid data access
   // Registration should fail
+
+  // check project_access
 
   const googleProject = fence.props.googleProjectA;
 
@@ -323,9 +376,11 @@ Scenario('Register Google Service Account for invalid commons project Fail @reqG
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidProject);
 });
 
-Scenario('Register Google Service Account for commons project without privilege Fail @reqGoogle', async (fence, users) => {
-  // Register service account for a commons project the user does not have access to
+Scenario('Register SA for data access when requesting user does not have privilege @reqGoogle', async (fence, users) => {
+  // Register service account for a data access the user does not have access to
   // Registration should fail
+
+  // check project_access
 
   const googleProject = fence.props.googleProjectA;
 
@@ -347,55 +402,56 @@ Scenario('Register Google Service Account for commons project without privilege 
   );
 });
 
-// Scenario('Register Google Service Account for commons project
-// where one member does not have privilege @reqGoogle', async (fence, users, google) => {
-//   const googleProject = fence.props.googleProjectA;
-//   const userWithPrivilege = users.mainAcct;
-//   const userWithoutPrivilege = users.auxAcct1;
-// //does NOT have privilege for requested commons proj
-//   const commonsProjectAccessList = ['DEV'];
-//
-//   // Setup
-//   await fence.complete.forceLinkGoogleAcct(
-//     userWithPrivilege,
-//     googleProject.owner,
-//   );
-//   // Add another email to the GCP for us to link to
-//   // Find a user's google email meeting following conditions
-//   //   -an email that is NOT the owner of the google project
-//   //   -an email that is NOT the email of the userWithoutPrivilege
-//   //   -an email that is NOT the email of the userWithPrivilege
-//   // It is assumed that all users' usernames are google account emails
-//   const differentGoogleEmail = Object.values(users).find(user =>
-//     user.username !== googleProject.owner &&
-//     user.username !== userWithoutPrivilege.username &&
-//     user.username !== userWithPrivilege.username,
-//   ).username;
-//   const newRole = {
-//     role: 'roles/viewer',
-//     members: [`user:${differentGoogleEmail}`],
-//   };
-//   await google.updateUserRole(googleProject.id, newRole);
-//   // Link to the email
-//   await fence.complete.forceLinkGoogleAcct(userWithoutPrivilege, differentGoogleEmail);
-//
-//   // Register account for a commons project one user does not have access to
-//   const registerRes = await fence.do.registerGoogleServiceAccount(
-//     userWithPrivilege,
-//     googleProject,
-//     commonsProjectAccessList,
-//   );
-//   fence.ask.responsesEqual(
-//     registerRes,
-//     fence.props.resRegisterServiceAccountMissingProjectPrivilege,
-//   );
-// });
+Scenario('Register SA for data access where one Project member does not have privilege @reqGoogle', async (fence, users, google) => {
+  const googleProject = fence.props.googleProjectA;
+  const userWithPrivilege = users.mainAcct;
+  const userWithoutPrivilege = users.auxAcct1;
+
+  //does NOT have privilege for requested commons proj
+  const commonsProjectAccessList = ['DEV'];
+
+  // Setup
+  await fence.complete.forceLinkGoogleAcct(
+    userWithPrivilege,
+    googleProject.owner,
+  );
+  // Add another email to the GCP for us to link to
+  // Find a user's google email meeting following conditions
+  //   -an email that is NOT the owner of the google project
+  //   -an email that is NOT the email of the userWithoutPrivilege
+  //   -an email that is NOT the email of the userWithPrivilege
+  // It is assumed that all users' usernames are google account emails
+  const differentGoogleEmail = Object.values(users).find(user =>
+    user.username !== googleProject.owner &&
+    user.username !== userWithoutPrivilege.username &&
+    user.username !== userWithPrivilege.username,
+  ).username;
+  const newRole = {
+    role: 'roles/viewer',
+    members: [`user:${differentGoogleEmail}`],
+  };
+  await google.updateUserRole(googleProject.id, newRole);
+
+  // Link to the email
+  await fence.complete.forceLinkGoogleAcct(userWithoutPrivilege, differentGoogleEmail);
+
+  // Register account for a commons project one user does not have access to
+  const registerRes = await fence.do.registerGoogleServiceAccount(
+    userWithPrivilege,
+    googleProject,
+    commonsProjectAccessList,
+  );
+  fence.ask.responsesEqual(
+    registerRes,
+    fence.props.resRegisterServiceAccountMissingProjectPrivilege,
+  );
+});
 
 /**
  * Delete Service Account tests
  */
-Scenario('Delete Service Account when not linked Fail @reqGoogle', async (fence, users) => {
-  // Delete a service account when commons user is not linked to a member of the google project
+Scenario('Attempt delete Registered SA for Google Project when user isnt on the Project @reqGoogle', async (fence, users) => {
+  // Delete a service account when user is not linked to a member of the google project
   // Deletion should fail
 
   const googleProject = fence.props.googleProjectA;
@@ -430,7 +486,7 @@ Scenario('Delete Service Account when not linked Fail @reqGoogle', async (fence,
   fence.ask.responsesEqual(actuallyDeleteRes, fence.props.resDeleteServiceAccountSuccess);
 });
 
-Scenario('Delete an invalid service account Fail @reqGoogle', async (fence, users) => {
+Scenario('Attempt delete an SA that doesnt exist @reqGoogle', async (fence, users) => {
   // Delete a service account that doesn't exist
   // Deletion should fail
 
@@ -445,4 +501,37 @@ Scenario('Delete an invalid service account Fail @reqGoogle', async (fence, user
     'notARealServiceAccount@fake.com',
   );
   fence.ask.responsesEqual(deleteRes, fence.props.resDeleteServiceAccountNotRegistered);
+});
+
+Scenario('Delete a SA that was successfully registered before but was deleted from Google @reqGoogle', async (fence, users, google) => {
+  // Delete a service account that doesn't exist
+
+  const googleProject = fence.props.googleProjectA;
+  const serviceAccountName = 'tmp-service-account'
+
+  // setup
+  const createRes = await google.createServiceAccount(googleProject.id, serviceAccountName)
+  fence.ask.createServiceAccountSuccess(createRes, serviceAccountName)
+
+  await fence.complete.forceLinkGoogleAcct(users.mainAcct, googleProject.owner);
+
+  // Register account
+  const registerRes = await fence.do.registerGoogleServiceAccount(
+    users.mainAcct,
+    googleProject,
+    ['test'],
+  );
+  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
+
+  // Remove account from Google but NOT through fence
+  const deleteResGoogle = await google.deleteServiceAccount(googleProject.id, createRes.email)
+  fence.ask.deleteServiceAccountSuccess(deleteResGoogle)
+
+  // Delete registration through fence
+  // this should succeed even though the account doesn't exist in google
+  const deleteRes = await fence.do.deleteGoogleServiceAccount(
+    users.mainAcct,
+    googleProject.serviceAccountEmail,
+  );
+  fence.ask.responsesEqual(deleteRes, fence.props.resDeleteServiceAccountSuccess);
 });
