@@ -15,8 +15,8 @@
 (See below for details)
 
 ## Making Pull Requests
-Before making a pull request, you should verify that your new tests work on commons that use the feature you wrote the test for. First, test it on your own qa commons. Once you have that passing, run the tests on another qa-commons (e.g. qa-kidsfirst).
+Before making a pull request, you should verify that your new tests work on commons that use the feature you wrote the test for. First, test it on your own dev namespace. Don't run the tests on a jenkins-* or qa-* namespace, this could mess up other tests!
 
-Once you have gotten the tests to pass when running from your local machine, you want to make sure Jenkins will build it successfully as well.
+Once you have gotten the tests to pass when running from your local machine, make a PR and it should trigger a jenkins build.
 
 If your test exposes a bug (i.e. it fails every time) and it won't be fixed any time soon, wrap the failing assertion in a try/catch and write a comment next it with a reference to the bug's issue. This isn't a great thing to do, so if you find a better solution please change this recommendation!
