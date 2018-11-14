@@ -66,14 +66,14 @@ module.exports = {
         if (error) {
           reject(error);
         }
-        if (response.statusCode !== 200) {
+        if (!response || response.statusCode !== 200) {
           reject(body);
         } else {
           request.post(projectForm, (err, res, bod) => {
             if (err) {
               reject(err);
             }
-            if (res.statusCode !== 200) {
+            if (!res || res.statusCode !== 200) {
               reject(bod);
             } else {
               resolve();
@@ -120,6 +120,7 @@ module.exports = {
   runCommand(cmd, namespace) {
     // if in jenkins, load gen3 tools before running command
     // if not in jenkins, ssh into commons and source bashrc before command
+    console.log(`Running command: ${cmd}`);
     if (inJenkins) {
       if (process.env.GEN3_HOME) {
         const sourceCmd = `source "${process.env.GEN3_HOME}/gen3/lib/utils.sh"`; // eslint-disable-line no-template-curly-in-string

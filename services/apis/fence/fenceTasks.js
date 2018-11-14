@@ -177,7 +177,7 @@ module.exports = {
    */
   async forceLinkGoogleAcct(userAcct, googleEmail) {
     // hit link endpoint to ensure a proxy group is created for user
-    I.sendGetRequest(fenceProps.endpoints.linkGoogle, userAcct.accessTokenHeader);
+    await I.sendGetRequest(fenceProps.endpoints.linkGoogle, userAcct.accessTokenHeader);
 
     // run fence-create command to circumvent google and add user link to fence
     const cmd = `g3kubectl exec $(gen3 pod fence ${process.env.NAMESPACE}) -- fence-create force-link-google --username ${userAcct.username} --google-email ${googleEmail}`;
@@ -303,9 +303,11 @@ module.exports = {
    * @param {string} clientId - client id
    * @param {string} responseType - response type
    * @param {string} scope - request scope
+   * @param {string} consent - whether to click ok or cancel in consent form
+   * @param {boolean} expectCode - true to check for 'code=' in post submit url
    * @returns {string}
    */
-  async getConsentCode(clientId, responseType, scope, consent) {
+  async getConsentCode(clientId, responseType, scope, consent='ok', expectCode=true) {
     const fullURL = `${fenceProps.endpoints.authorizeOAuth2Client}?response_type=${responseType}&client_id=${clientId}&redirect_uri=https://${process.env.HOSTNAME}&scope=${scope}`;
     await I.amOnPage(fullURL);
     const consentPageLoaded = await onConsentPage();
@@ -316,6 +318,11 @@ module.exports = {
         portalUtil.clickProp(fenceProps.consentPage.consentBtn);
       }
       I.saveScreenshot('consent_auth_code_flow.png');
+    }
+    if (expectCode) {
+      await I.waitInUrl('code=', 3);
+    } else {
+      await I.wait(5);
     }
     const urlStr = await I.grabCurrentUrl();
     return urlStr;
@@ -365,7 +372,7 @@ module.exports = {
    * @param {string} scope - scope
    * @returns {string}
    */
-  async getTokensImplicitFlow(clientId, responseType, scope, consent) {
+  async getTokensImplicitFlow(clientId, responseType, scope, consent='yes', expectToken=true) {
     const fullURL = `https://${process.env.HOSTNAME}${fenceProps.endpoints.authorizeOAuth2Client}?response_type=${responseType}&client_id=${clientId}&redirect_uri=https://${process.env.HOSTNAME}&scope=${scope}&nonce=n-0S6_WzA2Mj`;
     await I.amOnPage(fullURL);
     const consentPageLoaded = await onConsentPage();
@@ -377,6 +384,12 @@ module.exports = {
       }
       I.saveScreenshot('consent_implicit_flow.png');
     }
+    if (expectToken) {
+      await I.waitInUrl('token=', 3);
+    } else {
+      await I.wait(5);
+    }
+
     const urlStr = await I.grabCurrentUrl();
     return urlStr;
   },
