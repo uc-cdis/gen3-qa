@@ -1,3 +1,28 @@
+# TL;DR
+
+gen3 integration tests - run by https://jenkins.planx-pla.net/ via a `Jenkinsfile` pipeline in each github repo
+
+## Basic test run
+
+Run a test locally against a dev environment like this:
+```
+# start selenium
+docker run -d -p 4444:4444 --name=selenium --rm -v /dev/shm:/dev/shm selenium/standalone-chrome
+
+# basic run - some tests require more setup than this
+NAMESPACE=yourDevNamespace npm test -- suites/.../myTest.js
+```
+
+## Basic test writing
+
+• a test suite goes in `suites/../test.js`
+• `test.js` imports a tasks and a questions module
+• basic test structure:
+```
+run some task
+ask questions about whether the task result matches expectations
+```
+
 # Gen3 Automated Integration Test
 This is the repository for managing integration tests used for Gen3 data commons. 
 
