@@ -10,7 +10,7 @@ const { google } = require('googleapis');
  */
 const googleApp = {
   cloudManagerConfig: {
-    scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+    scopes: ['https://www.googleapis.com/auth/cloud-platform', 'https://www.googleapis.com/auth/iam'],
   },
 
   adminConfig: {
@@ -164,5 +164,44 @@ module.exports = {
           return err;
         }),
     );
+  },
+
+  async createServiceAccount(projectID, serviceAccountName) {
+    return new Promise((resolve) => {
+      return googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
+        const cloudResourceManager = google.iam('v1');
+        const request = {
+          resource: {
+            accountId: serviceAccountName,
+          },
+          name: `projects/${projectID}`,
+          auth: authClient,
+        };
+        cloudResourceManager.projects.serviceAccounts.create(request, (err, res) => {
+          if (err) {
+            resolve(Error(err));
+          }
+          resolve(res.data);
+        });
+      });
+    })
+  },
+
+  async deleteServiceAccount(projectID, serviceAccountID) {
+    return new Promise((resolve) => {
+      return googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
+        const cloudResourceManager = google.iam('v1');
+        const request = {
+          name: `projects/-/serviceAccounts/${serviceAccountID}`,
+          auth: authClient,
+        };
+        cloudResourceManager.projects.serviceAccounts.delete(request, (err, res) => {
+          if (err) {
+            resolve(Error(err));
+          }
+          resolve(res.data);
+        });
+      });
+    })
   },
 };

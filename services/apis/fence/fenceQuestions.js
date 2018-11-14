@@ -97,6 +97,24 @@ module.exports = {
   },
 
   /**
+   *
+   * @param createRes - response from google api for creating service account
+   * @param name - expected name for new service account
+   */
+  createServiceAccountSuccess(createRes, name) {
+    expect(createRes).to.have.property('email');
+    expect(createRes.email).to.contain(name);
+  },
+
+  /**
+   *
+   * @param deleteRes - response from google api for creating service account
+   */
+  deleteServiceAccountSuccess(deleteRes) {
+    expect(deleteRes).to.be.empty;
+  },
+
+  /**
    * Assert that the response has tokens
    * @param {Gen3Response} response
    */
