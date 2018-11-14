@@ -89,16 +89,21 @@ exitCode=0
 lockUser=""
 
 testArgs="--debug --verbose --reporter mocha-junit-reporter"
-if [[ "$service" != "fence" ]]; then
+if [[ "$service" != "fence" && "$service" != "gen3-qa" ]]; then
   # run all tests except for those that require dcf google configuration
   testArgs="${testArgs} --grep @reqGoogle --invert"
   echo 'INFO: disabling DCF tests for testing non-fence service'
 else
   # Run tests including dcf google backend
-  # Note - need to acquire the freakin' global DCF lock
   lockUser="testRunner-${namespaceList}-$$"
   echo 'INFO: enabling DCF tests for testing fence service'
   if ! (
+    #
+    # acquire the freakin' global DCF lock
+    # all of our test environment's share the same
+    # backend DCF google project and CloudIdentity,
+    # so only want one DCF test running globally at a time
+    #
     export KUBECTL_NAMESPACE=default
     count=0
     gotLock=false

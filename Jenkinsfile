@@ -1,10 +1,8 @@
 #!groovy
 
-@Library('cdis-jenkins-lib@fix/dcf') _
+@Library('cdis-jenkins-lib@master') _
 
 testPipeline {
-  // doing this will kick the DCF tests to run (which only run for fence)
-  JOB_NAME = 'fence'
-  // fence:master image
-  GIT_BRANCH = 'master'
+  // tell the pipeline to not checkout `gen3-qa:master`
+  JOB_NAME = 'gen3-qa'
 }
