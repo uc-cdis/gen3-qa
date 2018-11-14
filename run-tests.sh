@@ -104,7 +104,7 @@ else
     gotLock=false
     while [[ $count -lt 10 && $gotLock == false ]]; do
       echo 'INFO: waiting to lock the DCF test google project'
-      if dryrun gen3 klock lock dcftest "$lockUser" 300 60; then
+      if dryrun gen3 klock lock dcftest "$lockUser" 300 -w 60; then
         gotLock=true
       fi
     done
