@@ -65,6 +65,15 @@ module.exports = {
   },
 
   /**
+   * Asserts sheepdog response has status
+   * @param {Gen3Response} res
+   * @param {int} statusCode HTTP response code
+   */
+  hasStatusCode(res, statusCode) {
+    expect(res.statusCode).to.equal(statusCode);
+  },
+
+  /**
    * Asserts sheepdog response has an internal server error
    * @param {Gen3Response} res
    */

@@ -60,7 +60,7 @@ Scenario('submit node without parent @reqData', async (sheepdog, peregrine, node
 
   // try adding the second node
   await sheepdog.do.addNode(nodes.getSecondNode());
-  sheepdog.ask.hasEntityError(nodes.getSecondNode().addRes, 'INVALID_LINK');
+  sheepdog.ask.hasStatusCode(nodes.getSecondNode().addRes, 400);
 });
 
 Scenario('query on invalid field @reqData', async (peregrine, nodes) => {
