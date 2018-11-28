@@ -31,26 +31,26 @@ databases in your dev environment, so that old data does not interfere with new 
 
 ## Basic test writing
 
-• a test suite goes in `suites/../test.js`
-• `test.js` imports a tasks and a questions module
-• basic test structure:
+- a test suite goes in `suites/../test.js`
+- `test.js` imports a tasks and a questions module
+- basic test structure:
 ```
 run some task
 ask questions about whether the task result matches expectations
 ```
 
 # Gen3 Automated Integration Test
-This is the repository for managing integration tests used for Gen3 data commons. 
+This is the repository for managing integration tests used for Gen3 data commons.
 
 Frameworks/Tools:
 - CodeceptJS: primary testing framework ([docs](https://codecept.io/))
 - Chai: additional assertion writing ([docs](http://www.chaijs.com/api/))
-- Jenkins: CI, automated builds and tests 
+- Jenkins: CI, automated builds and tests
 
 # Setup
 ## General Info
 The testsuite is run either in Jenkins, when testing a build, or on a local machine, when developing tests. The setup is slightly different for each and is explained below.
-### Environent Variables
+### Environment Variables
 Tests require access tokens, usernames, passwords, etc., which we store in environment variables.
 
 The environment variable `NAMESPACE` must be defined in your shell running the tests. This variable defines the data commons to run the test on. Note that this variable must be a variable in your shell, not in your auto-qa-config file (explained below).
@@ -80,7 +80,7 @@ docker run -d -p 4444:4444 --name=selenium --rm -v /dev/shm:/dev/shm selenium/st
 ```
 To kill the server just kill the container.
 #### npm ([link](https://www.npmjs.com/package/selenium-standalone))
-If you'd rather not fool with docker, you can run the server yourself with an npm package. 
+If you'd rather not fool with docker, you can run the server yourself with an npm package.
 If you already ran `npm install`, the package selenium-standalone should have been installed. You'll also need to install the webdriver, just run `npm run selenium-install`.
 
 You'll need the Java SDK, version 8, to use Selenium so make sure you have that installed as well (check output of `javac -version`, e.g. javac 1.8.0_171 means I have version 8.0_171)
@@ -104,7 +104,7 @@ Each API or web page feature is contained in a singe .js file. They are stored i
 Refer to the [CodeceptJS docs](https://codecept.io/basics/) existing tests for info and writing patterns. TLDR for the basics:
 - A `*Test.js` file tests a single `Feature`
 - A `Feature` is a collection of `Scenario`s
-- A `Scenario` is a single use case/flow of a feature (e.g. a flow with good input, a flow with bad input) 
+- A `Scenario` is a single use case/flow of a feature (e.g. a flow with good input, a flow with bad input)
 
 Here's what it looks like in code:
 ```js
@@ -150,7 +150,7 @@ A `service`'s props is just a collection of values that are used when performing
 - API endpoints
 - Expected API results
 - Web page URL
-- Locators for HTML elements 
+- Locators for HTML elements
 
 ##### sequence
 A sequence is just a collection of tasks and questions. For example, if you had a series of tasks and questions you were repeating in your tests (e.g. submitting something then validating it was submitted successfully) you can just create a sequence to wrap this up into one call.
