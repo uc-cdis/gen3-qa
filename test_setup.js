@@ -6,6 +6,7 @@
 
 const nconf = require('nconf');
 const homedir = require('os').homedir();
+const fs = require('fs');
 
 const { Commons } = require('./utils/commons');
 const { Bash } = require('./utils/bash');
@@ -140,6 +141,18 @@ function parseJwt (token) {
   return JSON.parse(atob(base64));
 }
 
+function assertGen3Client() {
+  // check if the client is installed in the home directory
+  let path = `${homedir}/gen3-client`;
+  if (!fs.existsSync(path)) {
+    let msg = 'Missing gen3-client executable in home dir. It can be found at https://github.com/uc-cdis/cdis-data-client/releases'
+    if (inJenkins) {
+      throw Error(msg);
+    }
+    console.log('WARNING: ' + msg);
+  }
+}
+
 module.exports = async function (done) {
   // get some vars from the commons
   console.log('Setting environment variables...\n');
@@ -162,7 +175,7 @@ module.exports = async function (done) {
   deleteClient('implicit-test-client');
   const implicitClient = createClient('implicit-test-client', 'test@example.com', 'implicit');
 
-  // Setup enviroiment variables
+  // Setup environment variables
   process.env[`${fenceProps.clients.client.envVarsName}_ID`] = basicClient.client_id;
   process.env[`${fenceProps.clients.client.envVarsName}_SECRET`] = basicClient.client_secret;
   process.env[`${fenceProps.clients.clientImplicit.envVarsName}_ID`] = implicitClient.client_id;
@@ -203,6 +216,8 @@ module.exports = async function (done) {
 
   assertEnvVars(basicVars.concat(googleVars, submitDataVars));
   console.log('TEST_DATA_PATH: ', process.env.TEST_DATA_PATH);
+
+  // assertGen3Client();
 
   // Create a program and project (does nothing if already exists)
   console.log('Creating program/project\n');
