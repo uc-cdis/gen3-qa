@@ -24,6 +24,7 @@ module.exports = {
   endpoints: {
     root: rootEndpoint,
     getFile: `${rootEndpoint}/data/download`,
+    googleCredentials: `${rootEndpoint}/credentials/google/`
     createAPIKey: `${rootEndpoint}/credentials/api/`,
     deleteAPIKey: `${rootEndpoint}/credentials/api/cdis`,
     getAccessToken: `${rootEndpoint}/credentials/api/access_token`,
@@ -40,6 +41,24 @@ module.exports = {
     adminEndPoint: `${rootEndpoint}/admin`,
 
   },
+
+  /**
+   * Project.auth_ids to bucket info
+   */
+   googleBucketInfo: {
+     qa: {
+        googleProjectId: 'dcf-integration',
+        bucketId: 'dcf-integration-qa',
+        fileName: 'file.txt',
+        fileContents: 'dcf-integration-qa'
+     },
+     test: {
+        googleProjectId: 'dcf-integration',
+        bucketId: 'dcf-integration-test',
+        fileName: 'file.txt',
+        fileContents: 'dcf-integration-test'
+     }
+   }
 
   /**
    * Google group for testing

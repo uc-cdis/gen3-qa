@@ -113,4 +113,16 @@ module.exports = {
    * Auxiliary User account 2
    */
   auxAcct2: new User({ username: 'smarty-two@planx-pla.net', envVarsName: 'AUX2', jenkinsOnly: true }),
+  /**
+   * User.yaml User account 0
+   */
+  user0: new User({ username: 'dcf-integration-test-0@planx-pla.net', envVarsName: 'USER0', jenkinsOnly: true }),
+  /**
+   * User.yaml User account 1
+   */
+  user1: new User({ username: 'dcf-integration-test-1@planx-pla.net', envVarsName: 'USER1', jenkinsOnly: true }),
+  /**
+   * User.yaml User account 2
+   */
+  user2: new User({ username: 'dcf-integration-test-2@planx-pla.net', envVarsName: 'USER2', jenkinsOnly: true }),
 };

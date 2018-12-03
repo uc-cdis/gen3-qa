@@ -181,6 +181,23 @@ module.exports = {
     expect(response).to.have.nested.property('body.expires_in');
   },
 
+  /**
+   * Assert that we can access a file in a bucket with given creds
+   * @param {string} pathToCredsKeyFile
+   * @param bucketInfo - see fence.props.googleBucketInfo
+   */
+  assertCanAccessBucket(pathToCredsKeyFile, bucketInfo) {
+    // attempt to access a file in the bucket
+    expect(
+      googleUtil.getFileFromBucket(
+        bucketInfo.googleProjectId,
+        pathToCredsKeyFile,
+        bucketInfo.bucketName,
+        bucketInfo.fileName
+      )
+    ).to.not.throw()
+  }
+
   assertTruethyResult(result) {
     expect(!!result).to.be.true;
   },

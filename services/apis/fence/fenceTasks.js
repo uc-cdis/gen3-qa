@@ -113,6 +113,19 @@ module.exports = {
   },
 
   /**
+   * Hits fence's endoint to create a temp Google credentials
+   * @param {string[]} scope - scope of the access token
+   * @param {Object} accessTokenHeader
+   * @returns {Promise<Gen3Response>}
+   */
+  createTempGoogleCreds(user) {
+    return I.sendPostRequest(
+      fenceProps.endpoints.googleCredentials,
+      user.accessTokenHeader,
+    ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
+  },
+
+  /**
    * Deletes a given API Key
    * @param {string} apiKey
    * @returns {Promise<Object>}
@@ -154,6 +167,33 @@ module.exports = {
     await I.amOnPage(fenceProps.endpoints.linkGoogle);
     await loginGoogle(googleCreds);
     I.saveScreenshot('login7.png');
+
+    // wait until redirected back to root url
+    await I.waitInUrl(fenceProps.endpoints.root, 5);
+    I.wait(5);
+
+    // return the body and the current url
+    const url = await I.grabCurrentUrl();
+    const body = await I.grabSource();
+
+    const res = new Gen3Response({ body });
+    res.finalURL = url;
+    return res;
+  },
+
+  /**
+   * Goes through the full, proper process for linking a google account assuming env
+   * is set to mock Google response
+   * @param userAcct
+   * @returns {Promise<Gen3Response|*>}
+   */
+  async linkGoogleAcctMocked(userAcct) {
+    // set users access token
+    await I.setCookie({ name: 'access_token', value: userAcct.accessToken });
+    await I.seeCookie('access_token');
+    // visit link endpoint and login to google
+    await I.amOnPage(fenceProps.endpoints.linkGoogle);
+    I.saveScreenshot('login_mocked.png');
 
     // wait until redirected back to root url
     await I.waitInUrl(fenceProps.endpoints.root, 5);
@@ -418,5 +458,35 @@ module.exports = {
     };
     const response = await I.sendGetRequest(fenceProps.endpoints.adminEndPoint, header);
     return response;
+  },
+
+  // TODO
+  async backupFenceConfigMap(backupFile) {
+    const cmd = `rm ${backupFile}`;
+    const res = commonsUtil.runCommand(cmd, process.env.NAMESPACE);
+
+    const cmd = `g3kubectl get configmap fence -o json | jq -r '.data."user.yaml"' > ${backupFile}`;
+    const res = commonsUtil.runCommand(cmd, process.env.NAMESPACE);
+    return res;
+  },
+
+  // TODO
+  async setFenceConfigMap(useryaml) {
+    const cmd = `rm user.yaml`;
+    const res = commonsUtil.runCommand(cmd, process.env.NAMESPACE);
+
+    const cmd = `cp ${useryaml} user.yaml`;
+    const res = commonsUtil.runCommand(cmd, process.env.NAMESPACE);
+
+    const cmd = `gen3 update_config fence user.yaml`;
+    const res = commonsUtil.runCommand(cmd, process.env.NAMESPACE);
+    return res;
+  },
+
+  // TODO
+  async runUseryamlJob() {
+    const cmd = `gen3 runjob useryaml`;
+    const res = commonsUtil.runCommand(cmd, process.env.NAMESPACE);
+    return res;
   },
 };

@@ -25,6 +25,17 @@ module.exports = {
   },
 
   /**
+   * Links a google account then asserts it was successful
+   * @param {User} userAcct - commons account to link with
+   * @returns {Promise<Gen3Response>}
+   */
+  async linkGoogleAcctMocked(userAcct) {
+    const linkRes = await fenceTasks.linkGoogleAcctMocked(userAcct);
+    fenceQuestions.linkSuccess(linkRes);
+    return linkRes;
+  },
+
+  /**
    * WARNING: not functional currently since google may challenge login with a captcha
    * Links a google account then asserts it was successful
    * @param {User} userAcct - commons account to link with
@@ -70,5 +81,17 @@ module.exports = {
     const apiKeyRes = await fenceTasks.createAPIKey(scope, accessTokenHeaders);
     fenceQuestions.hasAPIKey(apiKeyRes);
     return apiKeyRes;
+  },
+
+  /**
+   * Creates temporary Google Access creds then asserts it was successful
+   * @param {string[]} scope - access token scopes
+   * @param {Object} accessTokenHeader
+   * @returns {Promise<Gen3Response>}
+   */
+  async createTempGoogleCreds(accessTokenHeader) {
+    const response = await fenceTasks.createGoogleAccessKey(accessTokenHeader);
+    expect(response).has.nested.property('body.private_key');
+    return response;
   },
 };
