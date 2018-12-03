@@ -513,7 +513,14 @@ Scenario('Delete a SA that was successfully registered before but was deleted fr
   const serviceAccountName = 'tmp-service-account'
 
   // setup
+  // ignore failure here - just cleaning up possible mess from previous tests
+  await fence.do.deleteGoogleServiceAccount(
+    users.mainAcct,
+    googleProject.serviceAccountEmail,
+  );
+
   const createRes = await google.createServiceAccount(googleProject.id, serviceAccountName)
+  
   fence.ask.createServiceAccountSuccess(createRes, serviceAccountName)
 
   await fence.complete.forceLinkGoogleAcct(users.mainAcct, googleProject.owner);

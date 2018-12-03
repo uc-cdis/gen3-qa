@@ -238,8 +238,7 @@ module.exports = {
     body: {
       errors: {
         service_account_email: {
-          status: 403,
-          error: 'unauthorized',
+          status: 404
         },
       },
       success: false,
@@ -251,8 +250,7 @@ module.exports = {
     body: {
       errors: {
         service_account_email: {
-          status: 404,
-          error: 'policy_not_accessible',
+          status: 404
         },
       },
       success: false,
