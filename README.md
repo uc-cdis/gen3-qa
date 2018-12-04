@@ -10,7 +10,7 @@ Run a test locally against a dev environment like this:
 docker run -d -p 4444:4444 --name=selenium --rm -v /dev/shm:/dev/shm selenium/standalone-chrome
 
 # basic run - some tests require more setup than this
-NAMESPACE=yourDevNamespace npm test -- suites/.../myTest.js
+NAMESPACE=yourDevNamespace npm test --  --verbose suites/.../myTest.js
 ```
 
 ## Basic test writing

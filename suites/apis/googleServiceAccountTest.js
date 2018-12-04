@@ -95,9 +95,9 @@ Scenario('Register Google Service Account Success @reqGoogle', async (fence, use
   fence.ask.responsesEqual(deleteRes, fence.props.resDeleteServiceAccountSuccess);
 });
 
-/**
- * Google Project validity
- */
+//
+// Google Project validity
+//
 
 Scenario('Register SA with a user that hasn’t linked their Google Account @reqGoogle', async (fence, users) => {
   // Without linking to member in google project, try to register the project's service account
@@ -220,9 +220,9 @@ Scenario('Register SA from Google Project with invalid members @reqGoogle', asyn
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidMemberType);
 });
 
-/**
- * Service Account validity
- */
+//
+// Service Account validity
+//
 
 Scenario('Register SA in a Google Project that is NOT from that Project @reqGoogle', async (fence, users) => {
   // Try to register a service account from one google project for a DIFFERENT google project
@@ -250,7 +250,6 @@ Scenario('Register SA in a Google Project that is NOT from that Project @reqGoog
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidServiceAcct);
 });
-
 
 Scenario('Register SA that looks like its from the Google Project but doesnt actually exist @reqGoogle', async (fence, users) => {
   // Try to register a service account with an email that looks like it's from the project
@@ -349,9 +348,9 @@ Scenario('Register SA that has a key generated @reqGoogle', async (fence, users)
 });
 
 
-/**
- * Data Access validity
- */
+//
+// Data Access validity
+//
 
 Scenario('Register SA for invalid data access @reqGoogle', async (fence, users) => {
   // Register service account for an invalid data access
@@ -450,9 +449,9 @@ Scenario('Register SA for data access where one Project member does not have pri
   );
 });
 
-/**
- * Delete Service Account tests
- */
+//
+// Delete Service Account tests
+//
 Scenario('Attempt delete Registered SA for Google Project when user isnt on the Project @reqGoogle', async (fence, users) => {
   // Delete a service account when user is not linked to a member of the google project
   // Deletion should fail
@@ -545,3 +544,4 @@ Scenario('Delete a SA that was successfully registered before but was deleted fr
   );
   fence.ask.responsesEqual(deleteRes, fence.props.resDeleteServiceAccountSuccess);
 });
+
