@@ -93,5 +93,5 @@ module.exports = {
     const response = await fenceTasks.createGoogleAccessKey(accessTokenHeader);
     expect(response).has.nested.property('body.private_key');
     return response;
-  },
+  }
 };

@@ -69,7 +69,7 @@ const googleApp = {
         resolve(file);
       });
     });
-  }
+  },
 
   getIAMPolicy(projectID, authClient) {
     return new Promise((resolve) => {

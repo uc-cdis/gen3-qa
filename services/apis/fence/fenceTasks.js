@@ -488,5 +488,5 @@ module.exports = {
     const cmd = `gen3 runjob useryaml`;
     const res = commonsUtil.runCommand(cmd, process.env.NAMESPACE);
     return res;
-  },
+  }
 };

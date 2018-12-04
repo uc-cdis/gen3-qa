@@ -195,11 +195,11 @@ module.exports = {
         bucketInfo.bucketName,
         bucketInfo.fileName
       )
-    ).to.not.throw()
-  }
+    ).to.not.throw();
+  },
 
   assertTruethyResult(result) {
     expect(!!result).to.be.true;
-  },
+  }
 
 };

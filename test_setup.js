@@ -179,8 +179,14 @@ module.exports = async function (done) {
   // Assert required env vars are defined
   const basicVars = [mainAcct.envTokenName, mainAcct.envExpTokenName, 'INDEX_USERNAME', 'INDEX_PASSWORD', 'HOSTNAME'];
   const googleVars = [
+    usersUtil.user0.envGoogleEmail,
+    usersUtil.user1.envGoogleEmail,
+    usersUtil.user2.envGoogleEmail,
     usersUtil.auxAcct1.envGoogleEmail,
     usersUtil.auxAcct2.envGoogleEmail,
+    usersUtil.user0.envGooglePassword,
+    usersUtil.user1.envGooglePassword,
+    usersUtil.user2.envGooglePassword,
     usersUtil.auxAcct1.envGooglePassword,
     usersUtil.auxAcct2.envGooglePassword,
     'GOOGLE_APP_CREDS_JSON',

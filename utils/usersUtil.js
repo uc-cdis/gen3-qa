@@ -124,5 +124,5 @@ module.exports = {
   /**
    * User.yaml User account 2
    */
-  user2: new User({ username: 'dcf-integration-test-2@planx-pla.net', envVarsName: 'USER2', jenkinsOnly: true }),
+  user2: new User({ username: 'dcf-integration-test-2@planx-pla.net', envVarsName: 'USER2', jenkinsOnly: true })
 };

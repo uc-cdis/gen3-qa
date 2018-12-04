@@ -24,7 +24,7 @@ module.exports = {
   endpoints: {
     root: rootEndpoint,
     getFile: `${rootEndpoint}/data/download`,
-    googleCredentials: `${rootEndpoint}/credentials/google/`
+    googleCredentials: `${rootEndpoint}/credentials/google/`,
     createAPIKey: `${rootEndpoint}/credentials/api/`,
     deleteAPIKey: `${rootEndpoint}/credentials/api/cdis`,
     getAccessToken: `${rootEndpoint}/credentials/api/access_token`,
@@ -38,27 +38,26 @@ module.exports = {
     authorizeOAuth2Client: `${rootEndpoint}/oauth2/authorize`,
     tokenOAuth2Client: `${rootEndpoint}/oauth2/token`,
     userEndPoint: `${rootEndpoint}/user`,
-    adminEndPoint: `${rootEndpoint}/admin`,
-
+    adminEndPoint: `${rootEndpoint}/admin`
   },
 
   /**
    * Project.auth_ids to bucket info
    */
-   googleBucketInfo: {
-     qa: {
-        googleProjectId: 'dcf-integration',
-        bucketId: 'dcf-integration-qa',
-        fileName: 'file.txt',
-        fileContents: 'dcf-integration-qa'
-     },
-     test: {
-        googleProjectId: 'dcf-integration',
-        bucketId: 'dcf-integration-test',
-        fileName: 'file.txt',
-        fileContents: 'dcf-integration-test'
-     }
-   }
+  googleBucketInfo: {
+    qa: {
+       googleProjectId: 'dcf-integration',
+       bucketId: 'dcf-integration-qa',
+       fileName: 'file.txt',
+       fileContents: 'dcf-integration-qa'
+    },
+    test: {
+       googleProjectId: 'dcf-integration',
+       bucketId: 'dcf-integration-test',
+       fileName: 'file.txt',
+       fileContents: 'dcf-integration-test'
+    }
+  },
 
   /**
    * Google group for testing
