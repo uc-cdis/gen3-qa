@@ -130,9 +130,29 @@ function parseJwt (token) {
 }
 
 module.exports = async function (done) {
+  console.log('Backing up current user.yaml...\n');
+  // transfer user.yaml's and run sync on first one
+  const backupUsersFileName = 'user.yaml.bak';
+  const newUsersFile1 = 'test1_user.yaml';
+  const newUsersFile2 = 'test2_user.yaml';
+  backupUserYaml(backupUsersFileName);
+
+  console.log('Transferring new user.yaml files...\n');
+  scpFile(newUsersFile1);
+  scpFile(newUsersFile2);
+
+  console.log('Running user sync to create users for integration tests...\n');
+  // bootstrap: make sure users in this file exist in fence db before tests
+  setUserYaml(newUsersFile1);
+  runUseryamlJob();
+
+  console.log('Running user sync on backed up user.yaml...\n');
+  // return back to original user.yaml
+  setUserYaml(backupUsersFileName);
+  runUseryamlJob();
+
   // get some vars from the commons
   console.log('Setting environment variables...\n');
-
   // Export access tokens
   for (const user of Object.values(usersUtil)) {
     if (!user.jenkinsOnly || inJenkins || process.env.NAMESPACE === 'default') {
