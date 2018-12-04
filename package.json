@@ -4,6 +4,7 @@
   "description": "Bionimbus Data Portal",
   "main": "index.js",
   "dependencies": {
+    "@google-cloud/storage": "^2.3.1",
     "atob": "^2.1.2",
     "mocha-junit-reporter": "^1.17.0",
     "node-ssh": "^5.1.2",
