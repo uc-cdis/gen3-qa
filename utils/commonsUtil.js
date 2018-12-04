@@ -164,14 +164,14 @@ module.exports = {
 
   // TODO
   runUseryamlJob() {
-    const cmd = `gen3 runjob useryaml`;
+    const cmd = `gen3 runjob useryaml && kubectl wait --for=condition=complete --timeout=30s job/useryaml`;
     const res = this.runCommand(cmd, process.env.NAMESPACE);
     return res;
   },
 
   // TODO
   runUsersyncJob() {
-    const cmd = `gen3 runjob usersync`;
+    const cmd = `gen3 runjob usersync && kubectl wait --for=condition=complete --timeout=30s job/usersync`;
     const res = this.runCommand(cmd, process.env.NAMESPACE);
     return res;
   }
