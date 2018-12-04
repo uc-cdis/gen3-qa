@@ -134,4 +134,45 @@ module.exports = {
     const out = execSync(`ssh ${commonsUser}@cdistest.csoc 'set -i; source ~/.bashrc; ${cmd}'`, { shell: '/bin/sh' });
     return out.toString('utf8');
   },
+
+  // TODO
+  backupUserYaml(backupFile) {
+    this.runCommand(`rm -f ~/${backupFile}`, process.env.NAMESPACE);
+
+    const cmd = `g3kubectl get configmap fence -o json | jq -r '.data."user.yaml"' > ~/${backupFile}`;
+    const res = this.runCommand(cmd, process.env.NAMESPACE);
+    return res;
+  },
+
+  // TODO
+  scpFile(file) {
+    const commonsUser = userFromNamespace(process.env.NAMESPACE);
+    const cmd = `scp ${file} ${commonsUser}@cdistest.csoc:~/${file}`;
+    const res = execSync(cmd);
+    return res.toString('utf8');
+  },
+
+  // TODO
+  setUserYaml(useryaml) {
+    this.runCommand(`rm -f ~/user.yaml`, process.env.NAMESPACE);
+    this.runCommand(`cp ~/${useryaml} ~/user.yaml`, process.env.NAMESPACE);
+
+    var cmd = `gen3 update_config fence ~/user.yaml`;
+    const res = this.runCommand(cmd, process.env.NAMESPACE);
+    return res;
+  },
+
+  // TODO
+  runUseryamlJob() {
+    const cmd = `gen3 runjob useryaml`;
+    const res = this.runCommand(cmd, process.env.NAMESPACE);
+    return res;
+  },
+
+  // TODO
+  runUsersyncJob() {
+    const cmd = `gen3 runjob usersync`;
+    const res = this.runCommand(cmd, process.env.NAMESPACE);
+    return res;
+  }
 };

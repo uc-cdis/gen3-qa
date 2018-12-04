@@ -459,42 +459,4 @@ module.exports = {
     const response = await I.sendGetRequest(fenceProps.endpoints.adminEndPoint, header);
     return response;
   },
-
-  // TODO
-  async backupUserYaml(backupFile) {
-    const cmd = `rm -f ~/${backupFile}`;
-    const res = commonsUtil.runCommand(cmd, process.env.NAMESPACE);
-
-    const cmd = `g3kubectl get configmap fence -o json | jq -r '.data."user.yaml"' > ~/${backupFile}`;
-    const res = commonsUtil.runCommand(cmd, process.env.NAMESPACE);
-    return res;
-  },
-
-  // TODO
-  async scpFile(file) {
-    const commonsUser = commonsUtil.userFromNamespace(namespace);
-    const cmd = `scp ${file} ${commonsUser}@cdistest.csoc:~/${file}`;
-    const res = commonsUtil.runCommand(cmd, process.env.NAMESPACE);
-    return res;
-  },
-
-  // TODO
-  async setUserYaml(useryaml) {
-    const cmd = `rm -f ~/user.yaml`;
-    const res = commonsUtil.runCommand(cmd, process.env.NAMESPACE);
-
-    const cmd = `cp ~/${useryaml} ~/user.yaml`;
-    const res = commonsUtil.runCommand(cmd, process.env.NAMESPACE);
-
-    const cmd = `gen3 update_config fence ~/user.yaml`;
-    const res = commonsUtil.runCommand(cmd, process.env.NAMESPACE);
-    return res;
-  },
-
-  // TODO
-  async runUseryamlJob() {
-    const cmd = `gen3 runjob useryaml`;
-    const res = commonsUtil.runCommand(cmd, process.env.NAMESPACE);
-    return res;
-  }
 };
