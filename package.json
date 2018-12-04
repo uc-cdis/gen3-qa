@@ -4,7 +4,6 @@
   "description": "Bionimbus Data Portal",
   "main": "index.js",
   "dependencies": {
-    "@google-cloud/storage": "^2.3.1",
     "atob": "^2.1.2",
     "mocha-junit-reporter": "^1.17.0",
     "node-ssh": "^5.1.2",
@@ -21,6 +20,7 @@
     "url": "https://github.com/uc-cdis/auto-qa/issues"
   },
   "devDependencies": {
+    "@google-cloud/storage": "^2.3.1",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "chai-subset": "^1.6.0",
