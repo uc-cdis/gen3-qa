@@ -186,7 +186,11 @@ module.exports = {
           if (err) {
             resolve(Error(err));
           }
-          resolve(res.data);
+          if (res && res.data) {
+            resolve(res.data);
+          } else {
+            resolve(Error(`Unexpected create service account result: ${JSON.stringify(res)}`));
+          }
         });
       });
     })
