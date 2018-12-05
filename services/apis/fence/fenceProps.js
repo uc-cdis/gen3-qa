@@ -256,8 +256,7 @@ module.exports = {
     body: {
       errors: {
         service_account_email: {
-          status: 403,
-          error: 'unauthorized',
+          status: 403
         },
       },
       success: false,
@@ -269,8 +268,7 @@ module.exports = {
     body: {
       errors: {
         service_account_email: {
-          status: 404,
-          error: 'policy_not_accessible',
+          status: 404
         },
       },
       success: false,
@@ -289,6 +287,19 @@ module.exports = {
       success: false,
     },
   }),
+
+  resRegisterServiceAccountWrongProject: new Gen3Response({
+    statusCode: 400,
+    body: {
+      errors: {
+        service_account_email: {
+          status: 404,
+        },
+      },
+      success: false,
+    },
+  }),
+
 
   resRegisterServiceAccountMissingProjectPrivilege: new Gen3Response({
     statusCode: 400,

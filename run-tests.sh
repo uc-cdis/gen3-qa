@@ -94,7 +94,7 @@ testArgs="--debug --verbose --reporter mocha-junit-reporter"
 # so just enable in gen3-qa PR's for now
 #
 #if [[ "$service" != "fence" && "$service" != "gen3-qa" ]]; then
-if [[ "$service" != "gen3-qa" ]]; then
+if [[ "$service" != "gen3-qa" && "$service" != "fence" ]]; then
   # run all tests except for those that require dcf google configuration
   testArgs="${testArgs} --grep @reqGoogle --invert"
   echo 'INFO: disabling DCF tests for testing non-fence service'
