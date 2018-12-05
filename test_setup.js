@@ -133,17 +133,11 @@ module.exports = async function (done) {
   console.log('Backing up current user.yaml...\n');
   // transfer user.yaml's and run sync on first one
   const backupUsersFileName = 'user.yaml.bak';
-  const newUsersFile1 = 'test1_user.yaml';
-  const newUsersFile2 = 'test2_user.yaml';
   commonsUtil.backupUserYaml(backupUsersFileName);
-
-  console.log('Transferring new user.yaml files...\n');
-  commonsUtil.scpFile(newUsersFile1);
-  commonsUtil.scpFile(newUsersFile2);
 
   console.log('Running useryaml job to create users for integration tests...\n');
   // bootstrap: make sure users in this file exist in fence db before tests
-  commonsUtil.setUserYaml(newUsersFile1);
+  commonsUtil.setUserYaml(commonsUtil.newUserAccessFile1);
   commonsUtil.runJob('useryaml');
 
   console.log('Running usersync job...\n');

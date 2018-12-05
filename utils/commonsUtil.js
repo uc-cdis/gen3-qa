@@ -10,6 +10,10 @@ const usersUtil = require('./usersUtil');
 
 const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
 
+// Make sure these files exist in GEN3_HOME/files/integration_testing/
+const newUserAccessFile1 = 'test1_user.yaml';
+const newUserAccessFile2 = 'test2_user.yaml';
+
 /**
  * Gets commons username from a namespace
  * @param {string} namespace
@@ -131,7 +135,7 @@ module.exports = {
       throw Error('Env var GEN3_HOME is not defined - required for loading gen3 tools');
     }
     const commonsUser = userFromNamespace(namespace);
-    const out = execSync(`ssh ${commonsUser}@cdistest.csoc 'set -i; source ~/.bashrc; ${cmd}'`, { shell: '/bin/sh' });
+    const out = execSync(`ssh ${commonsUser}@cdistest.csoc 'set -i; source ${process.env.GEN3_HOME}/files/integration_testing/.bashrc; ${cmd}'`, { shell: '/bin/sh' });
     return out.toString('utf8');
   },
 
@@ -142,39 +146,25 @@ module.exports = {
    * @returns {string}
    */
   backupUserYaml(backupFile) {
-    this.runCommand(`rm -f ~/${backupFile}`, process.env.NAMESPACE);
+    this.runCommand(`rm -f ${process.env.GEN3_HOME}/files/integration_testing/${backupFile}`, process.env.NAMESPACE);
 
-    const cmd = `g3kubectl get configmap fence -o json | jq -r '.data."user.yaml"' > ~/${backupFile}`;
+    const cmd = `g3kubectl get configmap fence -o json | jq -r '.data."user.yaml"' > ${process.env.GEN3_HOME}/files/integration_testing/${backupFile}`;
     const res = this.runCommand(cmd, process.env.NAMESPACE);
     return res;
   },
 
   /**
-   * scp the given file to the remote environment
-   *  Note: Generates a child process and runs the given command in a kubernetes namespace
-   * @param {string} file - name of file to scp
-   * @returns {string}
-   */
-  scpFile(file) {
-    const commonsUser = userFromNamespace(process.env.NAMESPACE);
-    const cmd = `scp ${file} ${commonsUser}@cdistest.csoc:~/${file}`;
-    const res = execSync(cmd);
-    return res.toString('utf8');
-  },
-
-  /**
    * Sets the configured User Access in the remote environment to be the provided filename
-   * WARNING: It is recommended to run backupUserYaml() first. If you're transfering a
-   *          User Access file, you'll need to use scpFile()
+   * WARNING: It is recommended to run backupUserYaml() first
    * Note: Generates a child process and runs the given command in a kubernetes namespace
    * @param {string} useryaml - name of User Access file to set as main user.yaml
    * @returns {string}
    */
   setUserYaml(useryaml) {
-    this.runCommand(`rm -f ~/user.yaml`, process.env.NAMESPACE);
-    this.runCommand(`cp ~/${useryaml} ~/user.yaml`, process.env.NAMESPACE);
+    this.runCommand(`rm -f ${process.env.GEN3_HOME}/files/integration_testing/user.yaml`, process.env.NAMESPACE);
+    this.runCommand(`cp ${process.env.GEN3_HOME}/files/integration_testing/${useryaml} ${process.env.GEN3_HOME}/files/integration_testing/user.yaml`, process.env.NAMESPACE);
 
-    var cmd = `gen3 update_config fence ~/user.yaml`;
+    var cmd = `gen3 update_config fence ${process.env.GEN3_HOME}/files/integration_testing/user.yaml`;
     const res = this.runCommand(cmd, process.env.NAMESPACE);
     return res;
   },
