@@ -135,7 +135,7 @@ module.exports = {
       throw Error('Env var GEN3_HOME is not defined - required for loading gen3 tools');
     }
     const commonsUser = userFromNamespace(namespace);
-    const out = execSync(`ssh ${commonsUser}@cdistest.csoc 'set -i; source ${process.env.GEN3_HOME}/files/integration_testing/.bashrc; ${cmd}'`, { shell: '/bin/sh' });
+    const out = execSync(`ssh ${commonsUser}@cdistest.csoc 'set -i; source ~/.bashrc; ${cmd}'`, { shell: '/bin/sh' });
     return out.toString('utf8');
   },
 
@@ -146,9 +146,9 @@ module.exports = {
    * @returns {string}
    */
   backupUserYaml(backupFile) {
-    this.runCommand(`rm -f ${process.env.GEN3_HOME}/files/integration_testing/${backupFile}`, process.env.NAMESPACE);
+    this.runCommand(`rm -f ~/cloud-automation/files/integration_testing/${backupFile}`, process.env.NAMESPACE);
 
-    const cmd = `g3kubectl get configmap fence -o json | jq -r '.data."user.yaml"' > ${process.env.GEN3_HOME}/files/integration_testing/${backupFile}`;
+    const cmd = `g3kubectl get configmap fence -o json | jq -r '.data."user.yaml"' > ~/cloud-automation/files/integration_testing/${backupFile}`;
     const res = this.runCommand(cmd, process.env.NAMESPACE);
     return res;
   },
@@ -161,10 +161,10 @@ module.exports = {
    * @returns {string}
    */
   setUserYaml(useryaml) {
-    this.runCommand(`rm -f ${process.env.GEN3_HOME}/files/integration_testing/user.yaml`, process.env.NAMESPACE);
-    this.runCommand(`cp ${process.env.GEN3_HOME}/files/integration_testing/${useryaml} ${process.env.GEN3_HOME}/files/integration_testing/user.yaml`, process.env.NAMESPACE);
+    this.runCommand(`rm -f ~/cloud-automation/files/integration_testing/user.yaml`, process.env.NAMESPACE);
+    this.runCommand(`cp ~/cloud-automation/files/integration_testing/${useryaml} ~/cloud-automation/files/integration_testing/user.yaml`, process.env.NAMESPACE);
 
-    var cmd = `gen3 update_config fence ${process.env.GEN3_HOME}/files/integration_testing/user.yaml`;
+    var cmd = `gen3 update_config fence ~/cloud-automation/files/integration_testing/user.yaml`;
     const res = this.runCommand(cmd, process.env.NAMESPACE);
     return res;
   },
