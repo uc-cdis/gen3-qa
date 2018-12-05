@@ -11,7 +11,7 @@ module.exports = {
    * @returns {Promise<void>}
    */
   async checkFile(indexdFile) {
-    const res = await indexdTasks.getFile(indexdFile);
+    const res = await indexdTasks.getFile(indexdFile.data);
     indexdQuestions.fileEquals(res, indexdFile);
   },
 
