@@ -1,3 +1,7 @@
+const chai = require('chai');
+const expect = chai.expect;
+
+
 Feature('RegisterGoogleServiceAccount');
 
 /**
@@ -70,6 +74,7 @@ After(async (google, fence, users) => {
   await suiteCleanup(google, fence, users);
 });
 
+
 Scenario('Register Google Service Account Success @reqGoogle', async (fence, users) => {
   // Link to a member in a valid google project and register the SA
   // Registration should succeed
@@ -95,9 +100,9 @@ Scenario('Register Google Service Account Success @reqGoogle', async (fence, use
   fence.ask.responsesEqual(deleteRes, fence.props.resDeleteServiceAccountSuccess);
 });
 
-/**
- * Google Project validity
- */
+//
+// Google Project validity
+//
 
 Scenario('Register SA with a user that hasn’t linked their Google Account @reqGoogle', async (fence, users) => {
   // Without linking to member in google project, try to register the project's service account
@@ -220,10 +225,9 @@ Scenario('Register SA from Google Project with invalid members @reqGoogle', asyn
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidMemberType);
 });
 
-/**
- * Service Account validity
- */
-
+//
+// Service Account validity
+//
 Scenario('Register SA in a Google Project that is NOT from that Project @reqGoogle', async (fence, users) => {
   // Try to register a service account from one google project for a DIFFERENT google project
   // Registration should fail
@@ -248,7 +252,7 @@ Scenario('Register SA in a Google Project that is NOT from that Project @reqGoog
     },
     ['test'],
   );
-  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidServiceAcct);
+  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountWrongProject);
 });
 
 
@@ -278,6 +282,7 @@ Scenario('Register SA that looks like its from the Google Project but doesnt act
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInaccessibleServiceAcct);
 });
+
 
 Scenario('Register allowed Google-Managed SA @reqGoogle', async (fence, users) => {
   // Register google's compute service account from a google project with the compute API
@@ -349,9 +354,9 @@ Scenario('Register SA that has a key generated @reqGoogle', async (fence, users)
 });
 
 
-/**
- * Data Access validity
- */
+//
+// Data Access validity
+//
 
 Scenario('Register SA for invalid data access @reqGoogle', async (fence, users) => {
   // Register service account for an invalid data access
@@ -450,9 +455,9 @@ Scenario('Register SA for data access where one Project member does not have pri
   );
 });
 
-/**
- * Delete Service Account tests
- */
+//
+// Delete Service Account tests
+//
 Scenario('Attempt delete Registered SA for Google Project when user isnt on the Project @reqGoogle', async (fence, users) => {
   // Delete a service account when user is not linked to a member of the google project
   // Deletion should fail
@@ -506,16 +511,21 @@ Scenario('Attempt delete an SA that doesnt exist @reqGoogle', async (fence, user
   fence.ask.responsesEqual(deleteRes, fence.props.resDeleteServiceAccountNotRegistered);
 });
 
+
 Scenario('Delete a SA that was successfully registered before but was deleted from Google @reqGoogle', async (fence, users, google) => {
   // Delete a service account that doesn't exist
 
   const googleProject = fence.props.googleProjectA;
-  const serviceAccountName = 'tmp-service-account'
-
-  // setup
-  const createRes = await google.createServiceAccount(googleProject.id, serviceAccountName)
-  fence.ask.createServiceAccountSuccess(createRes, serviceAccountName)
-
+  const serviceAccountName = 'tmp-service-account';
+  const serviceAccountEmail = `${serviceAccountName}@${googleProject.serviceAccountEmail.substring(googleProject.serviceAccountEmail.indexOf('@')+1)}`;
+  
+  const createRes = await google.createServiceAccount(googleProject.id, serviceAccountName);
+  if (typeof createRes === 'object' && createRes instanceof Error && createRes.message.match(/already exist/)) {
+    console.log(`${serviceAccountEmail} service account already exists`);
+  } else {
+    fence.ask.createServiceAccountSuccess(createRes, serviceAccountName)
+    expect(createRes.email).to.equal(serviceAccountEmail);
+  }
   await fence.complete.forceLinkGoogleAcct(users.mainAcct, googleProject.owner);
 
   // Register account
@@ -527,8 +537,8 @@ Scenario('Delete a SA that was successfully registered before but was deleted fr
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
 
   // Remove account from Google but NOT through fence
-  const deleteResGoogle = await google.deleteServiceAccount(googleProject.id, createRes.email)
-  fence.ask.deleteServiceAccountSuccess(deleteResGoogle)
+  const deleteResGoogle = await google.deleteServiceAccount(googleProject.id, serviceAccountEmail);
+  fence.ask.deleteServiceAccountSuccess(deleteResGoogle);
 
   // Delete registration through fence
   // this should succeed even though the account doesn't exist in google
@@ -538,3 +548,4 @@ Scenario('Delete a SA that was successfully registered before but was deleted fr
   );
   fence.ask.responsesEqual(deleteRes, fence.props.resDeleteServiceAccountSuccess);
 });
+

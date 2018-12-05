@@ -70,7 +70,7 @@ module.exports = {
    * @param {int} statusCode HTTP response code
    */
   hasStatusCode(res, statusCode) {
-    expect(res.statusCode).to.equal(statusCode);
+    expect(res && res.statusCode).to.equal(statusCode);
   },
 
   /**

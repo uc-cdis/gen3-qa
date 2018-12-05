@@ -102,7 +102,7 @@ module.exports = {
             `https://${process.env.HOSTNAME}${endpoint}`,
             (error, res) => {
               resolve(
-                `${`\nHealth ${endpoint}`.padEnd(30)}: ${res.statusCode}`,
+                `${`\nHealth ${endpoint}`.padEnd(30)}: ${(res && res.statusCode) || error}`,
               );
             },
           );
