@@ -135,7 +135,12 @@ module.exports = {
     return out.toString('utf8');
   },
 
-  // TODO
+  /**
+   * Backup the current User Access into a file
+   *  Note: Generates a child process and runs the given command in a kubernetes namespace
+   * @param {string} backupFile - name of file to backup to
+   * @returns {string}
+   */
   backupUserYaml(backupFile) {
     this.runCommand(`rm -f ~/${backupFile}`, process.env.NAMESPACE);
 
@@ -144,7 +149,12 @@ module.exports = {
     return res;
   },
 
-  // TODO
+  /**
+   * scp the given file to the remote environment
+   *  Note: Generates a child process and runs the given command in a kubernetes namespace
+   * @param {string} file - name of file to scp
+   * @returns {string}
+   */
   scpFile(file) {
     const commonsUser = userFromNamespace(process.env.NAMESPACE);
     const cmd = `scp ${file} ${commonsUser}@cdistest.csoc:~/${file}`;
@@ -152,7 +162,14 @@ module.exports = {
     return res.toString('utf8');
   },
 
-  // TODO
+  /**
+   * Sets the configured User Access in the remote environment to be the provided filename
+   * WARNING: It is recommended to run backupUserYaml() first. If you're transfering a
+   *          User Access file, you'll need to use scpFile()
+   * Note: Generates a child process and runs the given command in a kubernetes namespace
+   * @param {string} useryaml - name of User Access file to set as main user.yaml
+   * @returns {string}
+   */
   setUserYaml(useryaml) {
     this.runCommand(`rm -f ~/user.yaml`, process.env.NAMESPACE);
     this.runCommand(`cp ~/${useryaml} ~/user.yaml`, process.env.NAMESPACE);
@@ -162,16 +179,14 @@ module.exports = {
     return res;
   },
 
-  // TODO
-  runUseryamlJob() {
-    const cmd = `gen3 runjob useryaml && kubectl wait --for=condition=complete --timeout=30s job/useryaml`;
-    const res = this.runCommand(cmd, process.env.NAMESPACE);
-    return res;
-  },
-
-  // TODO
-  runUsersyncJob() {
-    const cmd = `gen3 runjob usersync && kubectl wait --for=condition=complete --timeout=30s job/usersync`;
+  /**
+   * Run given job and wait for it to complete
+   * NOTE: Generates a child process and runs the given command in a kubernetes namespace
+   * @param {string} jobName - name of k8s job to run in remote environment
+   * @returns {string}
+   */
+  runJob(jobName) {
+    const cmd = `gen3 runjob ${jobName} && kubectl wait --for=condition=complete --timeout=30s job/${jobName}`;
     const res = this.runCommand(cmd, process.env.NAMESPACE);
     return res;
   }

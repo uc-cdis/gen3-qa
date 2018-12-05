@@ -144,11 +144,11 @@ module.exports = async function (done) {
   console.log('Running useryaml job to create users for integration tests...\n');
   // bootstrap: make sure users in this file exist in fence db before tests
   commonsUtil.setUserYaml(newUsersFile1);
-  commonsUtil.runUseryamlJob();
+  commonsUtil.runJob('useryaml');
 
   console.log('Running usersync job...\n');
   // return back to original user.yaml
-  commonsUtil.runUsersyncJob();
+  commonsUtil.runJob('usersync');
 
   // get some vars from the commons
   console.log('Setting environment variables...\n');
