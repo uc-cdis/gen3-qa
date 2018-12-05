@@ -280,7 +280,6 @@ Scenario('Register SA that looks like its from the Google Project but doesnt act
     },
     ['test'],
   );
-  console.log(`Checking registerSA response for thisdoesnotexist123: ${JSON.stringify(registerRes)}`)
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInaccessibleServiceAcct);
 });
 
@@ -521,7 +520,6 @@ Scenario('Delete a SA that was successfully registered before but was deleted fr
   const serviceAccountEmail = `${serviceAccountName}@${googleProject.serviceAccountEmail.substring(googleProject.serviceAccountEmail.indexOf('@')+1)}`;
   
   const createRes = await google.createServiceAccount(googleProject.id, serviceAccountName);
-  console.log(`createServiceAccount got response ${typeof createRes} - ${createRes}`);
   if (typeof createRes === 'object' && createRes instanceof Error && createRes.message.match(/already exist/)) {
     console.log(`${serviceAccountEmail} service account already exists`);
   } else {
