@@ -270,6 +270,19 @@ module.exports = {
     },
   }),
 
+  resRegisterServiceAccountWrongProject: new Gen3Response({
+    statusCode: 400,
+    body: {
+      errors: {
+        service_account_email: {
+          status: 404,
+        },
+      },
+      success: false,
+    },
+  }),
+
+
   resRegisterServiceAccountMissingProjectPrivilege: new Gen3Response({
     statusCode: 400,
     body: {

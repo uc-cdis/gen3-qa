@@ -70,6 +70,7 @@ After(async (google, fence, users) => {
   await suiteCleanup(google, fence, users);
 });
 
+
 Scenario('Register Google Service Account Success @reqGoogle', async (fence, users) => {
   // Link to a member in a valid google project and register the SA
   // Registration should succeed
@@ -223,7 +224,6 @@ Scenario('Register SA from Google Project with invalid members @reqGoogle', asyn
 //
 // Service Account validity
 //
-
 Scenario('Register SA in a Google Project that is NOT from that Project @reqGoogle', async (fence, users) => {
   // Try to register a service account from one google project for a DIFFERENT google project
   // Registration should fail
@@ -248,8 +248,9 @@ Scenario('Register SA in a Google Project that is NOT from that Project @reqGoog
     },
     ['test'],
   );
-  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidServiceAcct);
+  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountWrongProject);
 });
+
 
 Scenario('Register SA that looks like its from the Google Project but doesnt actually exist @reqGoogle', async (fence, users) => {
   // Try to register a service account with an email that looks like it's from the project
@@ -275,8 +276,10 @@ Scenario('Register SA that looks like its from the Google Project but doesnt act
     },
     ['test'],
   );
+  console.log(`Checking registerSA response for thisdoesnotexist123: ${JSON.stringify(registerRes)}`)
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInaccessibleServiceAcct);
 });
+
 
 Scenario('Register allowed Google-Managed SA @reqGoogle', async (fence, users) => {
   // Register google's compute service account from a google project with the compute API
@@ -505,23 +508,22 @@ Scenario('Attempt delete an SA that doesnt exist @reqGoogle', async (fence, user
   fence.ask.responsesEqual(deleteRes, fence.props.resDeleteServiceAccountNotRegistered);
 });
 
+
 Scenario('Delete a SA that was successfully registered before but was deleted from Google @reqGoogle', async (fence, users, google) => {
   // Delete a service account that doesn't exist
 
   const googleProject = fence.props.googleProjectA;
-  const serviceAccountName = 'tmp-service-account'
-
-  // setup
-  // ignore failure here - just cleaning up possible mess from previous tests
-  await fence.do.deleteGoogleServiceAccount(
-    users.mainAcct,
-    googleProject.serviceAccountEmail,
-  );
-
-  const createRes = await google.createServiceAccount(googleProject.id, serviceAccountName)
+  const serviceAccountName = 'tmp-service-account';
+  const serviceAccountEmail = `${serviceAccountName}@${googleProject.serviceAccountEmail.substring(googleProject.serviceAccountEmail.indexOf('@')+1)}`;
   
-  fence.ask.createServiceAccountSuccess(createRes, serviceAccountName)
-
+  const createRes = await google.createServiceAccount(googleProject.id, serviceAccountName);
+  console.log(`createServiceAccount got response ${typeof createRes} - ${createRes}`);
+  if (typeof createRes === 'object' && createRes instanceof Error && createRes.message.match(/already exist/)) {
+    console.log(`${serviceAccountEmail} service account already exists`);
+  } else {
+    fence.ask.createServiceAccountSuccess(createRes, serviceAccountName)
+    expect(createRes.email).to.equal(serviceAccountEmail);
+  }
   await fence.complete.forceLinkGoogleAcct(users.mainAcct, googleProject.owner);
 
   // Register account
@@ -533,8 +535,8 @@ Scenario('Delete a SA that was successfully registered before but was deleted fr
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
 
   // Remove account from Google but NOT through fence
-  const deleteResGoogle = await google.deleteServiceAccount(googleProject.id, createRes.email)
-  fence.ask.deleteServiceAccountSuccess(deleteResGoogle)
+  const deleteResGoogle = await google.deleteServiceAccount(googleProject.id, serviceAccountEmail);
+  fence.ask.deleteServiceAccountSuccess(deleteResGoogle);
 
   // Delete registration through fence
   // this should succeed even though the account doesn't exist in google

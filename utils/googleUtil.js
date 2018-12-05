@@ -184,7 +184,11 @@ module.exports = {
         };
         cloudResourceManager.projects.serviceAccounts.create(request, (err, res) => {
           if (err) {
-            resolve(Error(err));
+            if(err instanceof Error) {
+              resolve(err)
+            } else {
+              resolve(Error(err));
+            }
           }
           if (res && res.data) {
             resolve(res.data);
