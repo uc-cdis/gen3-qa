@@ -10,10 +10,6 @@ const usersUtil = require('./usersUtil');
 
 const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
 
-// Make sure these files exist in GEN3_HOME/files/integration_testing/
-const newUserAccessFile1 = 'test1_user.yaml';
-const newUserAccessFile2 = 'test2_user.yaml';
-
 /**
  * Gets commons username from a namespace
  * @param {string} namespace
@@ -40,6 +36,12 @@ module.exports = {
     dbgap_accession_number: 'jenkins',
     state: 'open',
     releasable: true,
+  },
+
+  // Make sure these files exist in GEN3_HOME/files/integration_testing/
+  userAccessFiles: {
+    newUserAccessFile1: 'test1_user.yaml',
+    newUserAccessFile2: 'test2_user.yaml'
   },
 
   /**
@@ -140,16 +142,31 @@ module.exports = {
   },
 
   /**
+   * Generates a child process and runs the given command in a kubernetes namespace
+   * @param {string} cmd - command to execute in the commons
+   * @param {string} namespace - namespace to execute command in
+   * @returns {string}
+   */
+  runCommandInRemoteEnv(cmd, namespace) {
+    // if in jenkins, load gen3 tools before running command
+    // if not in jenkins, ssh into commons and source bashrc before command
+    console.log(`Running command: ${cmd}`);
+    const commonsUser = userFromNamespace(namespace);
+    const out = execSync(`ssh ${commonsUser}@cdistest.csoc 'set -i; source ~/.bashrc; ${cmd}'`, { shell: '/bin/sh' });
+    return out.toString('utf8');
+  },
+
+  /**
    * Backup the current User Access into a file
    *  Note: Generates a child process and runs the given command in a kubernetes namespace
    * @param {string} backupFile - name of file to backup to
    * @returns {string}
    */
   backupUserYaml(backupFile) {
-    this.runCommand(`rm -f ~/cloud-automation/files/integration_testing/${backupFile}`, process.env.NAMESPACE);
+    this.runCommandInRemoteEnv(`rm -f ~/cloud-automation/files/integration_testing/${backupFile}`, process.env.NAMESPACE);
 
     const cmd = `g3kubectl get configmap fence -o json | jq -r '.data."user.yaml"' > ~/cloud-automation/files/integration_testing/${backupFile}`;
-    const res = this.runCommand(cmd, process.env.NAMESPACE);
+    const res = this.runCommandInRemoteEnv(cmd, process.env.NAMESPACE);
     return res;
   },
 
@@ -161,11 +178,11 @@ module.exports = {
    * @returns {string}
    */
   setUserYaml(useryaml) {
-    this.runCommand(`rm -f ~/cloud-automation/files/integration_testing/user.yaml`, process.env.NAMESPACE);
-    this.runCommand(`cp ~/cloud-automation/files/integration_testing/${useryaml} ~/cloud-automation/files/integration_testing/user.yaml`, process.env.NAMESPACE);
+    this.runCommandInRemoteEnv(`rm -f ~/cloud-automation/files/integration_testing/user.yaml`, process.env.NAMESPACE);
+    this.runCommandInRemoteEnv(`cp ~/cloud-automation/files/integration_testing/${useryaml} ~/cloud-automation/files/integration_testing/user.yaml`, process.env.NAMESPACE);
 
     var cmd = `gen3 update_config fence ~/cloud-automation/files/integration_testing/user.yaml`;
-    const res = this.runCommand(cmd, process.env.NAMESPACE);
+    const res = this.runCommandInRemoteEnv(cmd, process.env.NAMESPACE);
     return res;
   },
 
@@ -176,8 +193,8 @@ module.exports = {
    * @returns {string}
    */
   runJob(jobName) {
-    const cmd = `gen3 runjob ${jobName} && kubectl wait --for=condition=complete --timeout=30s job/${jobName}`;
-    const res = this.runCommand(cmd, process.env.NAMESPACE);
+    const cmd = `gen3 runjob ${jobName} && g3kubectl wait --for=condition=complete --timeout=30s job/${jobName}`;
+    const res = this.runCommandInRemoteEnv(cmd, process.env.NAMESPACE);
     return res;
   }
 };
