@@ -1,0 +1,4 @@
+/**
+ * dataClient Questions
+ */
+module.exports = {};

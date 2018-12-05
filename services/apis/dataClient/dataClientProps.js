@@ -1,0 +1,4 @@
+/**
+ * dataClient Properties
+ */
+module.exports = {};

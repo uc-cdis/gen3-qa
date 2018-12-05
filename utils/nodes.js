@@ -64,6 +64,27 @@ const getDataPathString = function (fileName) {
 };
 
 /**
+ * TODO could be better... convert 'nodes' to reusable dict?
+ */
+const nodeFromData = function (jsonData) {
+  const nodes = JSON.parse(
+    fs.readFileSync(getDataPathString('NodeDescriptions.json')),
+  );
+  for (const node of nodes) {
+    if (node.NODE == jsonData.type) {
+      return new Node({
+        data: jsonData,
+        order: node.ORDER,
+        category: node.CATEGORY,
+        name: node.NODE,
+        target: node.TARGET,
+      });
+    }
+  }
+  throw new Error(`Node type ${jsonData.type} not in NodeDescriptions.json`);
+};
+
+/**
  * Loads all node data files and returns them as an object keyed by node name
  */
 const getAllNodes = function () {
@@ -164,6 +185,16 @@ if (canUseNodes) {
 }
 
 module.exports = {
+  /**
+   *
+   */
+  getNodeFromData(jsonData) {
+    if (!canUseNodes) {
+      throw Error(dataMissingError);
+    }
+    return nodeFromData(jsonData);
+  },
+
   /**
    * Get a file node and its path to the root node
    * @returns {{path: Node[], file: Node}}
