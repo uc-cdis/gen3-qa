@@ -1,4 +1,5 @@
 #!groovy
+import groovy.time.*
 
 @Library('cdis-jenkins-lib@feat/perf') _
 
@@ -124,6 +125,14 @@ pipeline {
         }
       }
     }
+  
+    stages {
+      stage('FetchCode') {
+        steps {
+          script {
+            // env.service = "$env.JOB_NAME".split('/')[1]
+            // env.quaySuffix = "$env.GIT_BRANCH".replaceAll("/", "_")
+            fetchCode([:])
 
     stage('Query') {
       stages {
@@ -170,6 +179,22 @@ pipeline {
                 sh "bash ./run-queries.sh $env.KUBECTL_NAMESPACE --service=$env.service"
               }
             }
+          }
+        }
+      }
+      stage('PostPRComment') {
+        steps {
+          script {
+            String user = 'PlanXCyborg'
+            String token = 'env.BOT_TOKEN'
+            String repo_url = 'https://github.com/uc-cdis/Gen3TestingPR'
+            int pr_id = 2
+
+            String message = 'It takes ${time}'
+            echo "The Current Build duration : ${currentBuild.duration}"
+            echo "Difference between Current and the Previous Build duration : ${currentBuild.duration - currentBuild.previousBuild.duration}"
+            // Code to post to Github PR comment
+            // prComments(['user': 'PlanXCyborg', 'token': env.BOT_TOKEN, 'message': 'It takes 30 seconds'])
           }
         }
       }
@@ -257,6 +282,20 @@ pipeline {
       }
       script {
         uninstallGen3Client()
+      always {
+        // script {
+        //   uid = env.service+"-"+"$env.GIT_BRANCH".replaceAll("/", "_")+"-"+env.BUILD_NUMBER
+        //   withEnv(['GEN3_NOPROXY=true', "GEN3_HOME=$env.WORKSPACE/cloud-automation"]) {         
+        //     sh("bash cloud-automation/gen3/bin/klock.sh unlock jenkins "+uid)
+        //   }
+        // }
+        script {
+          if (env.CHANGE_ID) {
+            pullRequest.comment("Jenkins Build ${env.BUILD_NUMBER} : time taken ${currentBuild.durationString.replace(' and counting', '')}")
+          }
+        }
+        echo "done"
+        // junit "gen3-qa/output/*.xml"
       }
       echo "done"
       junit "gen3-qa/output/*.xml"
