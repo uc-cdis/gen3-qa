@@ -11,7 +11,7 @@ module.exports = {
    * @returns {Promise<void>}
    */
   async checkFile(indexdFile) {
-    const res = await indexdTasks.getFile(indexdFile.data);
+    const res = await indexdTasks.getFile(indexdFile);
     indexdQuestions.fileEquals(res, indexdFile);
   },
 
@@ -23,5 +23,14 @@ module.exports = {
   async deleteFile(indexdFile) {
     await indexdTasks.deleteFile(indexdFile);
     indexdQuestions.deleteFileSuccess(indexdFile);
+  },
+
+  /**
+   * Check if a record exists in indexd
+   */
+  async checkRecord(indexdFile) {
+    const res = await indexdTasks.getFile(indexdFile);
+    indexdQuestions.recordExists(res, indexdFile);
+    return res;
   },
 };

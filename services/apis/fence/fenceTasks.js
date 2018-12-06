@@ -420,4 +420,22 @@ module.exports = {
     const response = await I.sendGetRequest(fenceProps.endpoints.adminEndPoint, header);
     return response;
   },
+
+  /**
+   *
+   */
+  async getUrlForDataUpload(file_name, accessToken) {
+    const header = accessToken
+    header['Content-Type'] = 'application/json';
+    data = {
+      'file_name': file_name
+    };
+    return I.sendPostRequest(
+      fenceProps.endpoints.upload,
+      JSON.stringify({
+        file_name,
+      }),
+      header,
+    ).then(res => new Gen3Response(res));
+  },
 };

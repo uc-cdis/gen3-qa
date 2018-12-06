@@ -38,7 +38,7 @@ module.exports = {
     tokenOAuth2Client: `${rootEndpoint}/oauth2/token`,
     userEndPoint: `${rootEndpoint}/user`,
     adminEndPoint: `${rootEndpoint}/admin`,
-
+    upload: `${rootEndpoint}/data/upload`,
   },
 
   /**

@@ -34,6 +34,14 @@ module.exports = {
 
   deleteFileSuccess(fileNode) {
     // Note that the delete res is the entire response, not just the body
-    expect(fileNode).to.nested.include({ 'indexd_delete_res.raw_body': '' });
+    expect(fileNode).to.have.property('data');
+    expect(fileNode.data).to.have.property('indexd_delete_res');
+    expect(fileNode.data.indexd_delete_res).to.have.property('raw_body', '');
+    // expect(fileNode).to.nested.include({ 'indexd_delete_res.raw_body': '' });
+  },
+
+  recordExists(res, fileNode) {
+    resultSuccess(res);
+    expect(fileNode.data).to.have.property('rev');
   },
 };

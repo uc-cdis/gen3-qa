@@ -1,9 +1,58 @@
+const fs = require('fs')
+
 const fileUtil = require('../../utils/fileUtil.js');
 
-Feature('Data upload flow');
+Feature('Data file upload flow');
 
-const dataClientProfileName = 'qa-user'
-const fileToUploadPath = './qa-upload-file.txt'
+const dataClientProfileName = 'qa-user';
+const fileToUploadPath = './qa-upload-file.txt';
+var fileSize, fileMd5;
+
+Scenario('File upload via API calls', async (fence, users, nodes, indexd) => {
+  // get file name from file path
+  var pathParts = fileToUploadPath.split('/');
+  var fileToUploadName = pathParts.pop();
+
+  // get a presigned URL from fence
+  let token = users.mainAcct.accessTokenHeader;
+  let res = await fence.do.getUrlForDataUpload(fileToUploadName, token);
+  fence.ask.hasUploadUrl(res);
+
+  // check that a (blank) record was created in indexd
+  // if success, 'rev' is added to the fileNode data
+  fileNode = {
+    data: {
+      did: res.body.guid
+    }
+  };
+  await indexd.complete.checkRecord(fileNode);
+
+  // upload the file to the S3 bucket using the presigned URL
+  fs.createReadStream(fileToUploadPath).pipe(require('request')({
+    method: 'PUT',
+    url: res.body.url,
+    headers: {
+      'Content-Length': fileSize
+    }
+  }, function (err, res, body) {
+    if (err) {
+      throw new Error(err);
+    }
+    console.log('Successfully uploaded file to bucket');
+  }));
+
+  // check if the file is in the bucket
+
+  // check if indexd was updated with the correct hash and size
+  // TODO: the check fails because the indexd listener is not set up
+  // await indexd.complete.checkFile(fileNode);
+
+  // delete file in indexd
+  // 'rev' was added to fileNode by checkRecord()
+  await indexd.complete.deleteFile(fileNode);
+
+  // delete file in bucket (?)
+});
 
 Scenario('File upload via client', async (dataClient, indexd, nodes) => {
   // use gen3 client to upload a file (TODO: upload-new does not exist yet)
@@ -89,8 +138,8 @@ BeforeSuite(async (dataClient, fence, users, sheepdog) => {
   await fileUtil.createTmpFile(fileToUploadPath);
   // const hash = require('crypto').createHash('md5').update(data).digest();
   // console.log(hash);
-  var fileSize = await fileUtil.getFileSize(fileToUploadPath);
-  var fileMd5 = await fileUtil.getFileHash(fileToUploadPath);
+  fileSize = await fileUtil.getFileSize(fileToUploadPath);
+  fileMd5 = await fileUtil.getFileHash(fileToUploadPath);
   if (fileSize == 0) {
     console.log('*** WARNING: file size is 0') // TODO remove
   }
@@ -98,7 +147,9 @@ BeforeSuite(async (dataClient, fence, users, sheepdog) => {
 
 AfterSuite(() => {
   // delete the temp file
-  fileUtil.deleteFile(fileToUploadPath);
+  if (fs.existsSync(fileToUploadPath)) {
+    fileUtil.deleteFile(fileToUploadPath);
+  }
 });
 
 Before((nodes) => {

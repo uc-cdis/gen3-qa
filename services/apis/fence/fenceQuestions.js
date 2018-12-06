@@ -185,4 +185,12 @@ module.exports = {
     expect(!!result).to.be.true;
   },
 
+  /**
+   *
+   */
+  hasUploadUrl(UploadRes) {
+    expect(UploadRes).to.have.property('body');
+    expect(UploadRes.body).to.have.property('guid');
+    expect(UploadRes.body).to.have.property('url');
+  },
 };
