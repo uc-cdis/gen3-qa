@@ -10,8 +10,8 @@ Feature('Export Performance Tests');
 * The nodes in this file will be 
 */
 
-var nodes = require('../../utils/nodesUtil.js');
-const usersUtil = require('../../utils/usersUtil.js');
+var nodes = require('../../utils/nodes');
+const usersUtil = require('../../utils/user');
 var fs = require('fs');
 var assert = require('assert');
 const chai = require('chai');

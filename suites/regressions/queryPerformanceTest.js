@@ -13,7 +13,7 @@ Feature('Query Performance Tests');
 * top-level node called "program". Everything else should be portable between different commons. 
 */
 
-var nodes = require('../../utils/nodesUtil.js');
+var nodes = require('../../utils/nodes');
 var fs = require('fs');
 
 // The file generateQueries.js builds these text files

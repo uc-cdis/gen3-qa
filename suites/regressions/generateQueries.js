@@ -6,7 +6,7 @@ Feature('Generate queries for performance testing');
 * top-level nodes "program" and "project". Everything else should be portable between different commons. 
 */
 
-var nodes = require('../../utils/nodesUtil.js');
+var nodes = require('../../utils/nodes');
 var fs = require('fs');
 
 var backrefTranslator = {'program' : 'programs'};
@@ -128,6 +128,8 @@ function generateBottomUpSubQuery(nodesList, indexOfStartNode, pluralFormBool) {
 
 	// Filter out all non-scalar types
 	nodeProperties = nodeProperties.filter(item => !allNodeTypes.includes(item));
+	nodeProperties = nodeProperties.filter(item => item !== "submitted_aligned_reads_files");
+	nodeProperties = nodeProperties.filter(item => item !== "submitted_unaligned_reads_files");
 
 	return nodeName + ' { ' + nodeProperties.join(' ') + ' ' + subQuery + ' }';
 }
@@ -161,6 +163,8 @@ function generateTopDownSubQuery(nodesList, indexOfStartNode, pluralFormBool, st
 
 	// Filter out all non-scalar types
 	nodeProperties = nodeProperties.filter(item => !allNodeTypes.includes(item));
+	nodeProperties = nodeProperties.filter(item => item !== "submitted_aligned_reads_files");
+	nodeProperties = nodeProperties.filter(item => item !== "submitted_unaligned_reads_files");
 	
 	return nodeName + ' { ' + nodeProperties.join(' ') + ' ' + subQuery + ' }';
 }
@@ -281,7 +285,3 @@ Scenario('building test data', async (peregrine) => {
 		});
 	});
 });
-
-
-
-
