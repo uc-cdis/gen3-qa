@@ -42,6 +42,7 @@ exports.config = {
     indexd: './services/apis/indexd/indexdService.js',
     peregrine: './services/apis/peregrine/peregrineService.js',
     fence: './services/apis/fence/fenceService.js',
+    dataClient: './services/apis/dataClient/dataClientService.js',
     etl: './services/apis/etl/etlService.js',
 
     // Pages
