@@ -163,9 +163,9 @@ module.exports = {
    * @returns {string}
    */
   backupUserYaml(backupFile) {
-    this.runCommand(`rm -f ${backupFile}`, process.env.NAMESPACE);
+    this.runCommand(`rm -f ${process.env.GEN3_HOME}/files/integration_testing/${backupFile}`, process.env.NAMESPACE);
 
-    const cmd = `g3kubectl get configmap fence -o json | jq -r '.data."user.yaml"' > ${backupFile}`;
+    const cmd = `g3kubectl get configmap fence -o json | jq -r '.data."user.yaml"' > ${process.env.GEN3_HOME}/files/integration_testing/${backupFile}`;
     const res = this.runCommand(cmd, process.env.NAMESPACE);
     return res;
   },
@@ -178,10 +178,10 @@ module.exports = {
    * @returns {string}
    */
   setUserYaml(useryaml) {
-    this.runCommand(`rm -f user.yaml`, process.env.NAMESPACE);
-    this.runCommand(`cp ${useryaml} user.yaml`, process.env.NAMESPACE);
+    this.runCommand(`rm -f ${process.env.GEN3_HOME}/files/integration_testing/user.yaml`, process.env.NAMESPACE);
+    this.runCommand(`cp ${process.env.GEN3_HOME}/files/integration_testing/${useryaml} ${process.env.GEN3_HOME}/files/integration_testing/user.yaml`, process.env.NAMESPACE);
 
-    var cmd = `gen3 update_config fence user.yaml`;
+    var cmd = `gen3 update_config fence ${process.env.GEN3_HOME}/files/integration_testing/user.yaml`;
     const res = this.runCommand(cmd, process.env.NAMESPACE);
     return res;
   },
