@@ -39,10 +39,10 @@ python setup.py develop --user
 echo "PATH:\n $PATH"
 # rCMD="Rscript GenTestDataCmd.R $dictURL $projectName $nData $TEST_DATA_PATH"
 echo $PYTHONPATH
-pyCMD="/var/jenkins_home/.local/bin/data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
+pyCMD="$JENKINS_HOME/.local/bin/data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
 echo $pyCMD
 eval $pyCMD
-pyCMD2="data-simulator submission_order --url $dictURL --path $TEST_DATA_PATH --node_name submitted_unaligned_reads"
+pyCMD2="$JENKINS_HOME/.local/bin/data-simulator submission_order --url $dictURL --path $TEST_DATA_PATH --node_name submitted_unaligned_reads"
 eval $pyCMD2
 if [[ $? -ne 0 ]]; then
   echo "ERROR: Failed to generate test data for $namespace"
