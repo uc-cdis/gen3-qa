@@ -32,9 +32,10 @@ fi
 
 mkdir -p $TEST_DATA_PATH
 
-rCMD="Rscript GenTestDataCmd.R $dictURL $projectName $nData $TEST_DATA_PATH"
-echo $rCMD
-eval $rCMD
+# rCMD="Rscript GenTestDataCmd.R $dictURL $projectName $nData $TEST_DATA_PATH"
+pyCMD="data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
+echo $pyCMD
+eval $pyCMD
 if [[ $? -ne 0 ]]; then
   echo "ERROR: Failed to generate test data for $namespace"
   exit 1
