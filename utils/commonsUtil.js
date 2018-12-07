@@ -148,8 +148,6 @@ module.exports = {
    * @returns {string}
    */
   runCommandInRemoteEnv(cmd, namespace) {
-    // if in jenkins, load gen3 tools before running command
-    // if not in jenkins, ssh into commons and source bashrc before command
     console.log(`Running command: ${cmd}`);
     const commonsUser = userFromNamespace(namespace);
     const out = execSync(`ssh ${commonsUser}@cdistest.csoc 'set -i; source ~/.bashrc; ${cmd}'`, { shell: '/bin/sh' });
@@ -163,9 +161,16 @@ module.exports = {
    * @returns {string}
    */
   backupUserYaml(backupFile) {
-    this.runCommand(`rm -f ${process.env.GEN3_HOME}/files/integration_testing/${backupFile}`, process.env.NAMESPACE);
+    var dir;
+    if (inJenkins) {
+      dir = `${process.env.GEN3_HOME}/files/integration_testing`;
+    } else {
+      dir = `~/cloud-automation/files/integration_testing`;
+    }
 
-    const cmd = `g3kubectl get configmap fence -o json | jq -r '.data."user.yaml"' > ${process.env.GEN3_HOME}/files/integration_testing/${backupFile}`;
+    this.runCommand(`rm -f ${dir}/${backupFile}`, process.env.NAMESPACE);
+
+    const cmd = `g3kubectl get configmap fence -o json | jq -r '.data."user.yaml"' > ${dir}/${backupFile}`;
     const res = this.runCommand(cmd, process.env.NAMESPACE);
     return res;
   },
@@ -178,10 +183,17 @@ module.exports = {
    * @returns {string}
    */
   setUserYaml(useryaml) {
-    this.runCommand(`rm -f ${process.env.GEN3_HOME}/files/integration_testing/user.yaml`, process.env.NAMESPACE);
-    this.runCommand(`cp ${process.env.GEN3_HOME}/files/integration_testing/${useryaml} ${process.env.GEN3_HOME}/files/integration_testing/user.yaml`, process.env.NAMESPACE);
+    var dir;
+    if (inJenkins) {
+      dir = `${process.env.GEN3_HOME}/files/integration_testing`;
+    } else {
+      dir = `~/cloud-automation/files/integration_testing`;
+    }
 
-    var cmd = `gen3 update_config fence ${process.env.GEN3_HOME}/files/integration_testing/user.yaml`;
+    this.runCommand(`rm -f ${dir}/user.yaml`, process.env.NAMESPACE);
+    this.runCommand(`cp ${dir}/${useryaml} ${dir}/user.yaml`, process.env.NAMESPACE);
+
+    var cmd = `gen3 update_config fence ${dir}/user.yaml`;
     const res = this.runCommand(cmd, process.env.NAMESPACE);
     return res;
   },
