@@ -28,7 +28,7 @@ const makeFiles = function (baseNode) {
 // addNodes() does not work reliably with brain commons dictionary
 // disabling all these tests as they make the test suite useless
 //
-/*
+
 BeforeSuite(async (sheepdog, nodes) => {
   // Cleanup any leftover nodes from previous Suites
   await sheepdog.complete.findDeleteAllNodes();
@@ -89,4 +89,3 @@ Scenario('update file with invalid property @reqData', async (sheepdog, indexd) 
   await sheepdog.complete.deleteNode(files.invalidProp);
   await indexd.complete.deleteFile(files.invalidProp);
 });
-*/
