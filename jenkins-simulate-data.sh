@@ -34,9 +34,10 @@ mkdir -p $TEST_DATA_PATH
 
 # assume that we are running in the data-simulator directory
 pip install -r requirements.txt
-python setup.py install
+python setup.py install --user
 
 # rCMD="Rscript GenTestDataCmd.R $dictURL $projectName $nData $TEST_DATA_PATH"
+echo $PYTHONPATH
 pyCMD="data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
 echo $pyCMD
 eval $pyCMD
