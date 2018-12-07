@@ -163,10 +163,10 @@ module.exports = {
    * @returns {string}
    */
   backupUserYaml(backupFile) {
-    this.runCommandInRemoteEnv(`rm -f ~/cloud-automation/files/integration_testing/${backupFile}`, process.env.NAMESPACE);
+    this.runCommand(`rm -f ~/cloud-automation/files/integration_testing/${backupFile}`, process.env.NAMESPACE);
 
     const cmd = `g3kubectl get configmap fence -o json | jq -r '.data."user.yaml"' > ~/cloud-automation/files/integration_testing/${backupFile}`;
-    const res = this.runCommandInRemoteEnv(cmd, process.env.NAMESPACE);
+    const res = this.runCommand(cmd, process.env.NAMESPACE);
     return res;
   },
 
@@ -178,11 +178,11 @@ module.exports = {
    * @returns {string}
    */
   setUserYaml(useryaml) {
-    this.runCommandInRemoteEnv(`rm -f ~/cloud-automation/files/integration_testing/user.yaml`, process.env.NAMESPACE);
-    this.runCommandInRemoteEnv(`cp ~/cloud-automation/files/integration_testing/${useryaml} ~/cloud-automation/files/integration_testing/user.yaml`, process.env.NAMESPACE);
+    this.runCommand(`rm -f ~/cloud-automation/files/integration_testing/user.yaml`, process.env.NAMESPACE);
+    this.runCommand(`cp ~/cloud-automation/files/integration_testing/${useryaml} ~/cloud-automation/files/integration_testing/user.yaml`, process.env.NAMESPACE);
 
     var cmd = `gen3 update_config fence ~/cloud-automation/files/integration_testing/user.yaml`;
-    const res = this.runCommandInRemoteEnv(cmd, process.env.NAMESPACE);
+    const res = this.runCommand(cmd, process.env.NAMESPACE);
     return res;
   },
 
@@ -194,7 +194,7 @@ module.exports = {
    */
   runJob(jobName) {
     const cmd = `gen3 runjob ${jobName} && g3kubectl wait --for=condition=complete --timeout=30s job/${jobName}`;
-    const res = this.runCommandInRemoteEnv(cmd, process.env.NAMESPACE);
+    const res = this.runCommand(cmd, process.env.NAMESPACE);
     return res;
   }
 };
