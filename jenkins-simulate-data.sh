@@ -36,11 +36,7 @@ mkdir -p $TEST_DATA_PATH
 pip install -r requirements.txt
 python setup.py develop --user
 
-echo "PATH:\n $PATH"
-# rCMD="Rscript GenTestDataCmd.R $dictURL $projectName $nData $TEST_DATA_PATH"
-echo $PYTHONPATH
 pyCMD="$JENKINS_HOME/.local/bin/data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
-echo $pyCMD
 eval $pyCMD
 pyCMD2="$JENKINS_HOME/.local/bin/data-simulator submission_order --url $dictURL --path $TEST_DATA_PATH --node_name submitted_unaligned_reads"
 eval $pyCMD2
