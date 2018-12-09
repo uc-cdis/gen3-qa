@@ -102,7 +102,6 @@ gcloud iam service-accounts keys create ~/googleProjKey.json --iam-account ${ser
 
 cat << EOM
 
-
 !!IMPORTANT!!
 To finish setup, you need to manually do the following:
     -Enable the Compute API for the gen3projectwithcompute

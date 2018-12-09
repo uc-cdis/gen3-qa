@@ -3,11 +3,11 @@
  * @module sheepdogProps
  */
 
-const commonsUtil = require('../../../utils/commonsUtil.js');
+const { Commons } = require('../../../utils/commons.js');
 const { Gen3Response } = require('../../../utils/apiUtil.js');
 
-const apiRoot = `/api/v0/submission/${commonsUtil.program.name}/${
-  commonsUtil.project.name
+const apiRoot = `/api/v0/submission/${Commons.program.name}/${
+  Commons.project.name
 }`;
 
 // Base properties for a successful result (add/delete/etc)

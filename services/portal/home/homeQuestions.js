@@ -1,5 +1,5 @@
 const homeProps = require('./homeProps.js');
-const portalUtil = require('../../../utils/portalUtil.js');
+const portal = require('../../../utils/portal.js');
 
 const I = actor();
 
@@ -12,7 +12,7 @@ module.exports = {
   },
 
   seeDetails() {
-    portalUtil.seeProp(homeProps.summary, 5, 1);
-    portalUtil.seeProp(homeProps.cards, 5, 4);
+    portal.seeProp(homeProps.summary, 5, 1);
+    portal.seeProp(homeProps.cards, 5, 4);
   },
 };

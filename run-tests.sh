@@ -79,7 +79,6 @@ cat - <<EOM
 Running with:
   namespace=$namespaceList
   service=$service
-
 EOM
 
 echo 'INFO: installing dependencies'

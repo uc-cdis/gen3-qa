@@ -67,9 +67,11 @@ const getDataPathString = function (fileName) {
  * Loads all node data files and returns them as an object keyed by node name
  */
 const getAllNodes = function () {
+  console.error('Before looking for DataImportOrderPath.txt')
   var lines = fs.readFileSync(
     getDataPathString('DataImportOrderPath.txt'), 'utf-8'
   ).split('\n').filter(Boolean);
+  console.error('After looking for DataImportOrderPath.txt')
 
   const nodesDict = {};
   try {

@@ -1,18 +1,9 @@
 const request = require('request');
+const { Env } = require('./utils/env');
+
+Env.setupEnvVariables();
 
 // Set hostname according to namespace
-let subdomain = process.env.NAMESPACE;
-if (subdomain === '' || subdomain === undefined) {
-  throw Error('NAMESPACE environment variable must be set.');
-}
-if (subdomain === 'default') {
-  subdomain = 'qa';
-}
-
-process.env.HOSTNAME = `${subdomain}.planx-pla.net`;
-console.log(`NAMESPACE: ${process.env.NAMESPACE}`);
-console.log(`HOSTNAME: ${process.env.HOSTNAME}`);
-
 exports.config = {
   output: './output',
   helpers: {
@@ -42,16 +33,16 @@ exports.config = {
   },
   include: {
     // General Utils
-    commons: './utils/commonsUtil.js',
-    nodes: './utils/nodesUtil.js',
-    users: './utils/usersUtil.js',
-    google: './utils/googleUtil.js',
+    nodes: './utils/nodes.js',
+    users: './utils/user.js',
+    google: './utils/google.js',
 
     // APIs
     sheepdog: './services/apis/sheepdog/sheepdogService.js',
     indexd: './services/apis/indexd/indexdService.js',
     peregrine: './services/apis/peregrine/peregrineService.js',
     fence: './services/apis/fence/fenceService.js',
+    etl: './services/apis/etl/etlService.js',
 
     // Pages
     home: './services/portal/home/homeService.js',
@@ -63,9 +54,12 @@ exports.config = {
   },
   bootstrap: './test_setup.js',
   teardown() {
-    // session id is a global var retrieved in the helper
-    console.log(`Killing Selenium session ${seleniumSessionId}`);
-    request.del(`http://localhost:4444/wd/hub/session/${seleniumSessionId}`);
+    if (seleniumSessionId !== undefined)
+    {
+      // session id is a global var retrieved in the helper
+      console.log(`Killing Selenium session ${seleniumSessionId}`);
+      request.del(`http://localhost:4444/wd/hub/session/${seleniumSessionId}`);
+    }
   },
   hooks: [],
   tests: './suites/*/*.js',
