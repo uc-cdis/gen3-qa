@@ -14,10 +14,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     nginx \
     vim \
-    python2.7 \
-    python-dev \
-    python-pip \
-    python-setuptools \
     && pip install pip==9.0.3 \
     && pip install requests \
     && curl -sL https://deb.nodesource.com/setup_8.x | bash - \
