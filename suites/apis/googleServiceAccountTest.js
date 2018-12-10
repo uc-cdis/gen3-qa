@@ -275,7 +275,7 @@ Scenario('Register SA that looks like its from the Google Project but doesnt act
   const registerRes = await fence.do.registerGoogleServiceAccount(
     users.mainAcct,
     {
-      serviceAccountEmail: "thisdoesntexist123" + projectA.serviceAccountEmail.split("@").pop(),
+      serviceAccountEmail: 'thisdoesntexist123@' + projectA.serviceAccountEmail.split('@')[1],
       id: projectA.id,
     },
     ['test'],
