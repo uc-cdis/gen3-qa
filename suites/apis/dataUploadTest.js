@@ -19,15 +19,14 @@ Scenario('File upload via API calls', async (fence, users, nodes, indexd) => {
   fence.ask.hasUploadUrl(res);
 
   // check that a (blank) record was created in indexd
-  // if success, 'rev' is added to the fileNode data
+  // if success, 'rev' is added to the fileNode
   fileNode = {
-    data: {
-      did: res.body.guid
-    }
+    did: res.body.guid
   };
   await indexd.complete.checkRecord(fileNode);
 
   // upload the file to the S3 bucket using the presigned URL
+  // console.log(res.body.url)
   fs.createReadStream(fileToUploadPath).pipe(require('request')({
     method: 'PUT',
     url: res.body.url,
@@ -42,13 +41,49 @@ Scenario('File upload via API calls', async (fence, users, nodes, indexd) => {
   }));
 
   // check if the file is in the bucket
+  // var params = {
+  //   Bucket: config.get('s3bucket'),
+  //   Key: path
+  // };
+  // url = 'https://qaplanetv1-data-bucket.s3.amazonaws.com/52c57a22-2316-433a-8b4a-e58808ec1123/qa-upload-file.txt'
+  // s3.headObject(params, function (err, metadata) {
+  //   if (err && err.code === 'NotFound') {
+  //     // Handle no object on cloud here
+  //   } else {
+  //     s3.getSignedUrl('getObject', params, callback);
+  //   }
+  // });
+
+  // const I = actor();
+  // I.sendGetRequest(
+  //   ',
+  // ).then((res) => {
+  //   console.log(res.body)
+  //   return res.body;
+  // });
+  // require('https').get(, (resp) => {
+  //   let data = '';
+  //
+  //   // A chunk of data has been recieved.
+  //   resp.on('data', (chunk) => {
+  //     data += chunk;
+  //   });
+  //
+  //   // The whole response has been received. Print out the result.
+  //   resp.on('end', () => {
+  //     console.log(JSON.parse(data).explanation);
+  //   });
+  //
+  // }).on("error", (err) => {
+  //   console.log("Error: " + err.message);
+  // });
 
   // check if indexd was updated with the correct hash and size
   // TODO: the check fails because the indexd listener is not set up
   // await indexd.complete.checkFile(fileNode);
 
   // delete file in indexd
-  // 'rev' was added to fileNode by checkRecord()
+  // this is possible because 'rev' was added to fileNode by checkRecord()
   await indexd.complete.deleteFile(fileNode);
 
   // delete file in bucket (?)

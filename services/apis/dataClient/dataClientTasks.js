@@ -54,8 +54,8 @@ module.exports = {
     let downloadCmd = `${homedir}/gen3-client download --profile ${profileName} --guid ${guid} --file=${fileName}`;
     out = execSync(`${downloadCmd}`);
     // console.log(out.toString('utf8'));
-    if (out.includes('panic:')) {
-      throw new Error(out)
-    }
+    // if (out.includes('panic:')) {
+    //   throw new Error(out)
+    // }
   },
 };
