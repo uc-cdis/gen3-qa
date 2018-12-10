@@ -100,7 +100,6 @@ module.exports = {
       accessTokenHeader || usersUtil.mainAcct.accessTokenHeader,
     ).then((res) => {
       node.deleteRes = new Gen3Response(res);
-      console.log('DELETE RESPONSE: ', JSON.stringify(node.deleteRes))
     });
   },
 

@@ -69,6 +69,6 @@ exports.config = {
   },
   hooks: [],
   tests: './suites/*/*.js',
-  timeout: 10000,
+  timeout: 30000,
   name: 'selenium',
 };
