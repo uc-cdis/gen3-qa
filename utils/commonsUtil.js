@@ -35,6 +35,7 @@ module.exports = {
     name: 'jenkins',
     dbgap_accession_number: 'jenkins',
     state: 'open',
+    availability_type: 'Open',
     releasable: true,
   },
 
@@ -131,7 +132,7 @@ module.exports = {
       throw Error('Env var GEN3_HOME is not defined - required for loading gen3 tools');
     }
     const commonsUser = userFromNamespace(namespace);
-    const out = execSync(`ssh ${commonsUser}@cdistest.csoc 'set -i; source ~/.bashrc; ${cmd}'`, { shell: '/bin/sh' });
+    const out = execSync(`ssh ${commonsUser}@cdistest_dev.csoc 'set -i; source ~/.bashrc; ${cmd}'`, { shell: '/bin/sh' });
     return out.toString('utf8');
   },
 };

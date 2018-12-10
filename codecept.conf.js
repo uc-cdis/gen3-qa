@@ -12,6 +12,8 @@ if (subdomain === 'default') {
 process.env.HOSTNAME = `${subdomain}.planx-pla.net`;
 console.log(`NAMESPACE: ${process.env.NAMESPACE}`);
 console.log(`HOSTNAME: ${process.env.HOSTNAME}`);
+console.log(`DATAURL: ${process.env.DATAURL}`);
+console.log(`TEST_DATA_PATH: ${process.env.TEST_DATA_PATH}`);
 
 exports.config = {
   output: './output',
@@ -64,8 +66,10 @@ exports.config = {
   bootstrap: './test_setup.js',
   teardown() {
     // session id is a global var retrieved in the helper
-    console.log(`Killing Selenium session ${seleniumSessionId}`);
-    request.del(`http://localhost:4444/wd/hub/session/${seleniumSessionId}`);
+    if ( typeof seleniumSessionId !== 'undefined' && seleniumSessionId ) {
+      console.log(`Killing Selenium session ${seleniumSessionId}`);
+      request.del(`http://localhost:4444/wd/hub/session/${seleniumSessionId}`);
+    }
   },
   hooks: [],
   tests: './suites/*/*.js',
