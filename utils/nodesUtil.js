@@ -67,25 +67,32 @@ const getDataPathString = function (fileName) {
  * Loads all node data files and returns them as an object keyed by node name
  */
 const getAllNodes = function () {
+  var lines = fs.readFileSync(
+    getDataPathString('DataImportOrderPath.txt'), 'utf-8'
+  ).split('\n').filter(Boolean);
+
+  const nodesDict = {};
   try {
-    const nodes = JSON.parse(
-      fs.readFileSync(getDataPathString('NodeDescriptions.json')),
-    );
-    const nodesDict = {};
-    for (const node of nodes) {
-      const nodeName = node.NODE;
+    var order = 1;
+    var target = 'project'; // first node (project) is related to program
+    for (line of lines) {
+      parts = line.split('\t');
+      const nodeName = parts[0];
+      if (nodeName == 'project') continue; // project.json is not simulated
       nodesDict[nodeName] = new Node({
         data: JSON.parse(
           fs.readFileSync(getDataPathString(`${nodeName}.json`)),
         )[0],
-        order: node.ORDER,
-        category: node.CATEGORY,
+        order: order,
+        category: parts[1],
         name: nodeName,
-        target: node.TARGET,
+        target: target,
       });
-    }
-
+      target = nodeName;
+      order++;
+    };
     return nodesDict;
+    // console.log(nodesDict);
   } catch (e) {
     console.log(e);
     throw new Error(`Unable to get node(s) from file(s): ${e.message}`);
@@ -138,11 +145,10 @@ const getPathWithFileNode = function (allNodes) {
   const fileNodeName = Object.keys(allNodesClone).find(
     nodeName => allNodesClone[nodeName].category === 'data_file',
   );
-  const nodesPath = nodePathToProject(fileNodeName, allNodesClone);
   const file = allNodesClone[fileNodeName].clone();
-  delete nodesPath[fileNodeName];
+  delete allNodesClone[fileNodeName];
   return {
-    path: nodesPath,
+    path: allNodesClone,
     file,
   };
 };
