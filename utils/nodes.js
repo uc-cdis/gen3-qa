@@ -5,9 +5,11 @@
 
 const fs = require('fs');
 const path = require('path');
+const request = require('request');
 
 // Path to the root directory where node data files are located
 const DATA_PATH = process.env.TEST_DATA_PATH;
+
 const dataMissingError = 'TEST_DATA_PATH env var missing - must set as path to test data to use nodes module';
 
 /**
@@ -156,20 +158,44 @@ const getPathWithFileNode = function (allNodes) {
 // IMPORTANT: treat allNodes as immutable after init; allows refreshing nodes without reading files
 let allNodes;
 let pathAndFile;
-const canUseNodes = (DATA_PATH !== '' && DATA_PATH !== undefined);
+
+const localTestDataPresent = (DATA_PATH !== '' && DATA_PATH !== undefined);
+
 // Check that the data path is defined and load the nodes
-if (canUseNodes) {
+if (localTestDataPresent) {
   allNodes = getAllNodes();
   pathAndFile = getPathWithFileNode(allNodes);
 }
 
 module.exports = {
+  allTheNodes() {
+    return Object.values(allNodes);
+  },
+
+  downloadFile(url) {
+    return new Promise((resolve, reject) => {
+      request(url, { json: true }, (err, res, body) => {
+        if (err) { return reject(err); }
+        resolve(body);
+      })
+    });
+  },
+
+  getNodeFromURL: async function(dataUrl) {
+    let fileContents = await this.downloadFile(dataUrl);
+    let nodeObj = JSON.parse(JSON.stringify(fileContents));
+    var node = new Node({});
+    node.data = nodeObj;
+    node.orig_props = {'data': nodeObj};
+    return node;
+  },
+
   /**
    * Get a file node and its path to the root node
    * @returns {{path: Node[], file: Node}}
    */
   getPathWithFile() {
-    if (!canUseNodes) {
+    if (!localTestDataPresent) {
       throw Error(dataMissingError);
     }
     return pathAndFile;
@@ -180,7 +206,7 @@ module.exports = {
    * @returns {Node[]}
    */
   getPathToFile() {
-    if (!canUseNodes) {
+    if (!localTestDataPresent) {
       throw Error(dataMissingError);
     }
     return Object.values(pathAndFile.path);
@@ -191,7 +217,7 @@ module.exports = {
    * @returns {Node}
    */
   getFileNode() {
-    if (!canUseNodes) {
+    if (!localTestDataPresent) {
       throw Error(dataMissingError);
     }
     return pathAndFile.file;
@@ -227,7 +253,7 @@ module.exports = {
    * @returns {Node}
    */
   ithNodeInPath(i) {
-    if (!canUseNodes) {
+    if (!localTestDataPresent) {
       throw Error(dataMissingError);
     }
     // Return the ith node in the pathWithFile
@@ -247,7 +273,7 @@ module.exports = {
    */
   sortNodes(nodesList) {
     // given array of nodes, return them sorted
-    if (!canUseNodes) {
+    if (!localTestDataPresent) {
       throw Error(dataMissingError);
     }
     return nodesList.sort((a, b) => a.order - b.order);
@@ -257,7 +283,7 @@ module.exports = {
    * Refreshes the path nodes used in other functions. Necessary when modifying nodes in tests
    */
   refreshPathNodes() {
-    if (!canUseNodes) {
+    if (!localTestDataPresent) {
       throw Error(dataMissingError);
     }
     pathAndFile = getPathWithFileNode(allNodes);
