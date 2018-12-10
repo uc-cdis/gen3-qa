@@ -14,7 +14,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     nginx \
     vim \
-    r-base \
     python2.7 \
     python-dev \
     python-pip \
@@ -26,18 +25,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && ln -sf /dev/stdout /var/log/nginx/access.log \
     && ln -sf /dev/stderr /var/log/nginx/error.log
 
-RUN Rscript -e 'install.packages("yaml",repos="http://cran.us.r-project.org");' \
-    && Rscript -e 'install.packages("curl",repos="http://cran.us.r-project.org");' \
-    && Rscript -e 'install.packages("httr",repos="http://cran.us.r-project.org");' \
-    && Rscript -e 'install.packages("stringr",repos="http://cran.us.r-project.org");' \
-    && Rscript -e 'install.packages("pryr",repos="http://cran.us.r-project.org");'
-
 COPY . /gen3-qa
 
-WORKDIR /gen3-qa/python-scripts
-
-RUN mkdir -p sim-data-code \
-    && git clone https://github.com/occ-data/data-simulator /gen3-qa/python-scripts/sim-data-code
+WORKDIR /gen3-qa
 
 ARG APP=dev
 ARG BASENAME
