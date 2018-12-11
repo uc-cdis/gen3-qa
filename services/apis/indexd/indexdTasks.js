@@ -98,4 +98,26 @@ module.exports = {
       this.deleteFile(file);
     });
   },
+
+  /**
+   * TODO: Remove when indexd-listener works
+   */
+  async sendUpdateBlankRequest(file) {
+    auth = (process.env.INDEX_USERNAME, process.env.INDEX_PASSWORD);
+    // console.log(auth)
+    data = {
+      hashes: {
+        md5: file.md5
+      },
+      size: file.size
+    };
+    return I.sendPutRequest(
+      `${indexdProps.endpoints.updateBlank}/${file.did}?rev=${file.rev}`,
+      JSON.stringify(data),
+      usersUtil.mainAcct.indexdAuthHeader,
+    ).then((res) => {
+      return res;
+    });
+  },
+
 };

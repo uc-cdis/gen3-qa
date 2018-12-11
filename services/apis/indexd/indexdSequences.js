@@ -33,4 +33,13 @@ module.exports = {
     indexdQuestions.recordExists(res, indexdFile);
     return res;
   },
+
+  /**
+   * TODO: Remove when indexd-listener works
+   */
+  async updateBlankRecord(indexdFile) {
+    const res = await indexdTasks.sendUpdateBlankRequest(indexdFile);
+    indexdQuestions.updateFileSuccess(res, indexdFile);
+    return res;
+  },
 };

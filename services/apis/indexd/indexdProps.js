@@ -11,5 +11,6 @@ module.exports = {
     add: `${apiRoot}/`,
     get: apiRoot,
     delete: apiRoot,
+    updateBlank: `${apiRoot}/blank`, // TODO: Remove when indexd-listener works
   },
 };

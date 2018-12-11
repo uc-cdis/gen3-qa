@@ -6,17 +6,15 @@ Feature('Data file upload flow');
 
 const dataClientProfileName = 'qa-user';
 const fileToUploadPath = './qa-upload-file.txt';
-var fileSize, fileMd5;
+var fileName, fileSize, fileMd5;
 
 Scenario('File upload via API calls', async (fence, users, nodes, indexd) => {
-  // get file name from file path
-  var pathParts = fileToUploadPath.split('/');
-  var fileToUploadName = pathParts.pop();
-
   // get a presigned URL from fence
   let token = users.mainAcct.accessTokenHeader;
-  let res = await fence.do.getUrlForDataUpload(fileToUploadName, token);
+  let res = await fence.do.getUrlForDataUpload(fileName, token);
   fence.ask.hasUploadUrl(res);
+  // console.log(res.body.guid)
+  // console.log(res.body.url)
 
   // check that a (blank) record was created in indexd
   // if success, 'rev' is added to the fileNode
@@ -37,7 +35,7 @@ Scenario('File upload via API calls', async (fence, users, nodes, indexd) => {
     if (err) {
       throw new Error(err);
     }
-    console.log('Successfully uploaded file to bucket');
+    // console.log('Successfully uploaded file to bucket');
   }));
 
   // check if the file is in the bucket
@@ -78,8 +76,16 @@ Scenario('File upload via API calls', async (fence, users, nodes, indexd) => {
   //   console.log("Error: " + err.message);
   // });
 
+  // TODO: Remove when indexd-listener works
+  fileNode = {
+    did: fileGuid,
+    md5: fileMd5,
+    size: fileSize
+  };
+  await indexd.do.getFile(fileNode); // add 'rev' to fileNode
+  var indexd_res = await indexd.complete.updateBlankRecord(fileNode);
+
   // check if indexd was updated with the correct hash and size
-  // TODO: the check fails because the indexd listener is not set up
   // await indexd.complete.checkFile(fileNode);
 
   // delete file in indexd
@@ -111,36 +117,81 @@ Scenario('File upload via client', async (dataClient, indexd, nodes) => {
 
 });
 
-Scenario('Link file to metadata and download', async (dataClient, sheepdog, indexd, nodes) => {
+Scenario('Link metadata to file and download', async (dataClient, sheepdog, indexd, nodes, users, fence) => {
   // upload a file
-  // fileGuid = dataClient.do.upload_file(dataClientProfileName, fileToUploadPath);
 
-  // // prepare graph for metadata upload (upload parent nodes)
-  // await sheepdog.complete.addNodes(nodes.getPathToFile());
-  //
-  // // submit metadata with object id via sheepdog TODO: use real values
-  // metadataFile = nodes.getFileNode().clone();
-  // // metadataFile.data.object_id = fileGuid;
-  // metadataFile.data.file_size = fileSize;
-  // metadataFile.data.md5sum = fileMd5;
-  // await sheepdog.complete.addNode(metadataFile);
-  // // await indexd.complete.checkFile(metadataFile); // ??
-  //
-  // // try downloading
-  // // TODO: also try with different user
-  // // fileGuid = '1a25798d-44d6-47a3-a0f6-c95e6f17666a'
-  // fileName = 'someFileDestination.txt'
+  // when data-client works: remove users & fence params
+  // fileGuid = dataClient.do.upload_file(dataClientProfileName, fileToUploadPath);
+  let token = users.mainAcct.accessTokenHeader;
+  let fence_res = await fence.do.getUrlForDataUpload(fileName, token);
+  fence.ask.hasUploadUrl(fence_res);
+  // upload the file to the S3 bucket using the presigned URL
+  fs.createReadStream(fileToUploadPath).pipe(require('request')({
+    method: 'PUT',
+    url: fence_res.body.url,
+    headers: {
+      'Content-Length': fileSize
+    }
+  }, function (err, fence_res, body) {
+    if (err) {
+      throw new Error(err);
+    }
+  }));
+  var fileGuid = fence_res.body.guid;
+
+  // TODO: Remove when indexd-listener works
+  fileNode = {
+    did: fileGuid,
+    md5: fileMd5,
+    size: fileSize
+  };
+  await indexd.do.getFile(fileNode); // add 'rev' to fileNode
+  console.log(fileGuid)
+  var indexd_res = await indexd.complete.updateBlankRecord(fileNode);
+
+  // prepare graph for metadata upload (upload parent nodes)
+  await sheepdog.complete.addNodes(nodes.getPathToFile());
+
+  // submit metadata with object id via sheepdog
+  metadataFile = nodes.getFileNode().clone();
+  metadataFile.data.object_id = fileGuid;
+  metadataFile.data.file_size = fileSize;
+  metadataFile.data.md5sum = fileMd5;
+  await sheepdog.complete.addNode(metadataFile);
+
+  // check that uploader and acl have been updated in indexd
+  indexd_record = await indexd.do.getFile(fileNode);
+  indexd.ask.metadataLinkingSuccess(indexd_record);
+
+  // try downloading
+  // TODO: also try with different user
+  // fileName = 'someFileDestination.txt';
   // dataClient.do.download_file(dataClientProfileName, fileGuid, fileName);
   // if (!require('fs').existsSync(fileName)) {
   //   throw new Error(`Download failed for ${fileGuid}`)
   // }
   // fileUtil.deleteFile(fileName);
-  //
-  // // clean up
-  // nodesToDelete = nodes.getPathToFile().push(metadataFile);
-  // // await sheepdog.complete.deleteNodes(nodesToDelete);
+
+  // clean up
+  nodesToDelete = nodes.getPathToFile().push(metadataFile);
+  // await sheepdog.complete.deleteNodes(nodesToDelete);
 
   // delete file in indexd
+  await indexd.complete.deleteFile(fileNode);
+
+});
+
+/**
+ * The linking should fail
+ */
+Scenario('Link metadata to file that already has metadata', async () => {
+
+});
+
+/**
+ * The linking should fail
+ */
+Scenario('Link metadata to file without hash and size', async () => {
 
 });
 
@@ -178,13 +229,31 @@ BeforeSuite(async (dataClient, fence, users, sheepdog) => {
   if (fileSize == 0) {
     console.log('*** WARNING: file size is 0') // TODO remove
   }
+  // get file name from file path
+  fileName = fileToUploadPath.split('/').pop();
 });
 
-AfterSuite(() => {
+AfterSuite(async (indexd) => {
+  // clean up any leftover nodes
+  await sheepdog.complete.findDeleteAllNodes();
+
   // delete the temp file
   if (fs.existsSync(fileToUploadPath)) {
     fileUtil.deleteFile(fileToUploadPath);
   }
+
+  // TODO remove this block and indexd param
+  // remove a list of record GUIDs from indexd
+  // var guids = [];
+  // var fileGuid, i;
+  // for (i = 0; i < guids.length; ++i) {
+  //   fileGuid = guids[i];
+  //   var fileNode = {
+  //     did: fileGuid
+  //   };
+  //   await indexd.do.getFile(fileNode); // add 'rev' to fileNode
+  //   await indexd.complete.deleteFile(fileNode);
+  // }
 });
 
 Before((nodes) => {
