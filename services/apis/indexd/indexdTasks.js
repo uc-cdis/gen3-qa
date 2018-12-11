@@ -107,9 +107,9 @@ module.exports = {
     // console.log(auth)
     data = {
       hashes: {
-        md5: file.md5
+        md5: file.data.md5sum
       },
-      size: file.size
+      size: file.data.file_size
     };
     return I.sendPutRequest(
       `${indexdProps.endpoints.updateBlank}/${file.did}?rev=${file.rev}`,
@@ -117,6 +117,22 @@ module.exports = {
       usersUtil.mainAcct.indexdAuthHeader,
     ).then((res) => {
       return res;
+    });
+  },
+
+  /**
+   * Remove the records created in indexd by the test suite
+   * by filtering by file name
+   */
+  async deleteTestFiles(fileName) {
+    return I.sendGetRequest(
+      `${indexdProps.endpoints.get}/?file_name=${fileName}`,
+      usersUtil.mainAcct.accessTokenHeader,
+    ).then((res) => {
+      res = JSON.parse(res.raw_body.replace('\n', ''));
+      res.records.forEach((file) => {
+        this.deleteFile(file);
+      });
     });
   },
 

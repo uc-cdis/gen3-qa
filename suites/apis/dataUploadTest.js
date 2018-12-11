@@ -79,8 +79,10 @@ Scenario('File upload via API calls', async (fence, users, nodes, indexd) => {
   // TODO: Remove when indexd-listener works
   fileNode = {
     did: res.body.guid,
-    md5: fileMd5,
-    size: fileSize
+    data: {
+      md5sum: fileMd5,
+      file_size: fileSize
+    }
   };
   await indexd.do.getFile(fileNode); // add 'rev' to fileNode
   var indexd_res = await indexd.complete.updateBlankRecord(fileNode);
@@ -88,7 +90,7 @@ Scenario('File upload via API calls', async (fence, users, nodes, indexd) => {
   // check if indexd was updated with the correct hash and size
   await indexd.complete.checkFile(fileNode);
 
-  // delete file in indexd
+  // clean up in indexd
   // this is possible because 'rev' was added to fileNode by checkRecord()
   await indexd.complete.deleteFile(fileNode);
 
@@ -113,7 +115,7 @@ Scenario('File upload via client', async (dataClient, indexd, nodes) => {
   // });
   // await indexd.complete.checkFile(fileNode);
 
-  // delete file in indexd
+  // clean up in indexd
 
 });
 
@@ -142,12 +144,12 @@ Scenario('Link metadata to file and download', async (dataClient, sheepdog, inde
   // TODO: Remove when indexd-listener works
   fileNode = {
     did: fileGuid,
-    md5: fileMd5,
-    size: fileSize
+    data: {
+      md5sum: fileMd5,
+      file_size: fileSize
+    }
   };
-  console.log(fileNode);
   await indexd.do.getFile(fileNode); // add 'rev' to fileNode
-  console.log(fileGuid)
   var indexd_res = await indexd.complete.updateBlankRecord(fileNode);
 
   // prepare graph for metadata upload (upload parent nodes)
@@ -173,11 +175,10 @@ Scenario('Link metadata to file and download', async (dataClient, sheepdog, inde
   // }
   // fileUtil.deleteFile(fileName);
 
-  // clean up
-  nodesToDelete = nodes.getPathToFile().push(metadataFile);
-  await sheepdog.complete.deleteNodes(nodesToDelete);
+  // clean up in sheepdog
+  await sheepdog.complete.findDeleteAllNodes();
 
-  // delete file in indexd
+  // clean up in indexd
   await indexd.complete.deleteFile(fileNode);
 
 });
@@ -214,11 +215,11 @@ Scenario('Data deletion', async () => {
   // no metadata linking after delete
 });
 
-BeforeSuite(async (dataClient, fence, users, sheepdog) => {
+BeforeSuite(async (dataClient, fence, users, sheepdog, indexd) => {
   // configure gen3-client: temporary solution
   // dataClient.do.configure_client(fence, users, dataClientProfileName);
 
-  // clean up any leftover nodes
+  // clean up in sheepdog
   await sheepdog.complete.findDeleteAllNodes();
 
   // create a file to upload and store the size and hash
@@ -235,10 +236,13 @@ BeforeSuite(async (dataClient, fence, users, sheepdog) => {
   }
   // get file name from file path
   fileName = fileToUploadPath.split('/').pop();
+
+  // clean up in indexd (remove the records created by this test suite)
+  await indexd.do.deleteTestFiles(fileName);
 });
 
-AfterSuite(async (sheepdog) => {
-  // clean up any leftover nodes
+AfterSuite(async (sheepdog, indexd) => {
+  // clean up in sheepdog
   await sheepdog.complete.findDeleteAllNodes();
 
   // delete the temp file
@@ -246,18 +250,8 @@ AfterSuite(async (sheepdog) => {
     fileUtil.deleteFile(fileToUploadPath);
   }
 
-  // TODO remove this block and indexd param
-  // remove a list of record GUIDs from indexd
-  // var guids = [];
-  // var fileGuid, i;
-  // for (i = 0; i < guids.length; ++i) {
-  //   fileGuid = guids[i];
-  //   var fileNode = {
-  //     did: fileGuid
-  //   };
-  //   await indexd.do.getFile(fileNode); // add 'rev' to fileNode
-  //   await indexd.complete.deleteFile(fileNode);
-  // }
+  // clean up in indexd (remove the records created by this test suite)
+  await indexd.do.deleteTestFiles(fileName);
 });
 
 Before((nodes) => {
@@ -265,7 +259,10 @@ Before((nodes) => {
   nodes.refreshPathNodes();
 });
 
-After(async (sheepdog) => {
-  // clean up any leftover nodes
+After(async (sheepdog, indexd) => {
+  // clean up in sheepdog
   await sheepdog.complete.findDeleteAllNodes();
+
+  // clean up in indexd (remove the records created by this test suite)
+  await indexd.do.deleteTestFiles(fileName);
 });
