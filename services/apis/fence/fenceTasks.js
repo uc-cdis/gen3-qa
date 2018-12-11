@@ -114,14 +114,15 @@ module.exports = {
 
   /**
    * Hits fence's endoint to create a temp Google credentials
-   * @param {string[]} scope - scope of the access token
    * @param {Object} accessTokenHeader
    * @returns {Promise<Gen3Response>}
    */
-  createTempGoogleCreds(user) {
+  createTempGoogleCreds(accessTokenHeader) {
+    accessTokenHeader['Content-Type'] = 'application/json';
     return I.sendPostRequest(
       fenceProps.endpoints.googleCredentials,
-      user.accessTokenHeader,
+      {},
+      accessTokenHeader,
     ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
   },
 
@@ -191,12 +192,12 @@ module.exports = {
     // set users access token
     await I.setCookie({ name: 'access_token', value: userAcct.accessToken });
     await I.seeCookie('access_token');
-    // visit link endpoint and login to google
-    await I.amOnPage(fenceProps.endpoints.linkGoogle);
+    // visit link endpoint. Google login is mocked
+    await I.amOnPage('/user/link/google?redirect=/login');
     I.saveScreenshot('login_mocked.png');
 
-    // wait until redirected back to root url
-    await I.waitInUrl(fenceProps.endpoints.root, 5);
+    // wait until redirected back to login url
+    await I.waitInUrl(fenceProps.endpoints.login, 5);
     I.wait(5);
 
     // return the body and the current url

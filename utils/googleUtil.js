@@ -48,29 +48,6 @@ const googleApp = {
     return callback(jwt);
   },
 
-  getFileFromBucket(googleProject, pathToCredsKeyFile, bucketName, fileName) {
-    return new Promise((resolve) => {
-      // returns a https://cloud.google.com/nodejs/docs/reference/storage/2.0.x/File
-      // see https://cloud.google.com/docs/authentication/production for info about
-      // passing creds
-      const storage = new Storage({
-        projectId: googleProject,
-        keyFilename: pathToCredsKeyFile
-      });
-
-      const file = storage.bucket(bucketName).file(fileName);
-
-      file.get(function(err, file, apiResponse) {
-        // file.metadata` has been populated.
-        if (err) {
-          console.error(err);
-          throw Error(err);
-        }
-        resolve(file);
-      });
-    });
-  },
-
   getIAMPolicy(projectID, authClient) {
     return new Promise((resolve) => {
       const cloudResourceManager = google.cloudresourcemanager('v1');
@@ -113,6 +90,34 @@ const googleApp = {
  * Exported google util functions
  */
 module.exports = {
+  async getFileFromBucket(googleProject, pathToCredsKeyFile, bucketName, fileName) {
+    return new Promise((resolve) => {
+      // returns a https://cloud.google.com/nodejs/docs/reference/storage/2.0.x/File
+      // see https://cloud.google.com/docs/authentication/production for info about
+      // passing creds
+      const storage = new Storage({
+        projectId: googleProject,
+        keyFilename: pathToCredsKeyFile,
+        bucketName: bucketName
+      });
+
+      const file = storage.bucket(bucketName).file(fileName);
+
+      file.get(function(err, file, apiResponse) {
+        // file.metadata` has been populated.
+        console.log(err)
+        console.log(file)
+        if (err) {
+          if(err instanceof Error) {
+            resolve(err.response)
+          }
+          resolve(Error(err));
+        }
+        resolve(file);
+      });
+    });
+  },
+
   async getGroupMembers(groupKey) {
     return googleApp.authorize(googleApp.adminConfig, (authClient) => {
       // Get Google Admin API

@@ -52,6 +52,26 @@ module.exports = {
   },
 
   /**
+   * Asserts google link res was successful
+   * @param {Gen3Response} linkRes - linking response
+   */
+  mockedLinkSuccess(linkRes) {
+    expect(linkRes,
+      'response after Google linking doesnt have finalURL prop'
+    ).to.have.property('finalURL');
+
+    const linkUrl = new URL(linkRes.finalURL);
+
+    expect(linkUrl.searchParams.get('linked_email'),
+      'response after Google linking doesnt include linked_email'
+    ).to.not.be.null;
+
+    expect(linkUrl.searchParams.get('exp'),
+      'response after Google linking doesnt include exp'
+    ).to.not.be.null; // eslint-disable-line
+  },
+
+  /**
    * Asserts that a forced linking was successful
    * @param linkRes
    */

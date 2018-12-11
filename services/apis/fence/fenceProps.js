@@ -22,6 +22,7 @@ module.exports = {
    * Fence endpoints
    */
   endpoints: {
+    login: '/login',
     root: rootEndpoint,
     getFile: `${rootEndpoint}/data/download`,
     googleCredentials: `${rootEndpoint}/credentials/google/`,
@@ -45,7 +46,7 @@ module.exports = {
    * Project.auth_ids to bucket info
    */
   googleBucketInfo: {
-    qa: {
+    QA: {
        googleProjectId: 'dcf-integration',
        bucketId: 'dcf-integration-qa',
        fileName: 'file.txt',

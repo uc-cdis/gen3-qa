@@ -22,7 +22,7 @@ const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !
  * @returns {string}
  */
 function getAccessToken(namespace, username, expiration) {
-  const fenceCmd = `g3kubectl exec $(gen3 pod fence ${namespace}) -- fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account --type access_token --exp ${expiration} --username ${username}`;
+  const fenceCmd = `g3kubectl exec $(gen3 pod fence ${namespace}) -- fence-create token-create --scopes openid,user,fence,data,credentials,google_credentials,google_service_account --type access_token --exp ${expiration} --username ${username}`;
   const accessToken = commonsUtil.runCommand(fenceCmd, namespace);
   return accessToken.trim();
 }
@@ -135,14 +135,14 @@ module.exports = async function (done) {
   const backupUsersFileName = 'user.yaml.bak';
   commonsUtil.backupUserYaml(backupUsersFileName);
 
-  console.log('Running useryaml job to create users for integration tests...\n');
-  // bootstrap: make sure users in this file exist in fence db before tests
-  commonsUtil.setUserYaml(commonsUtil.userAccessFiles.newUserAccessFile1);
-  commonsUtil.runJob('useryaml');
+  // console.log('Running useryaml job to create users for integration tests...\n');
+  // // bootstrap: make sure users in this file exist in fence db before tests
+  // commonsUtil.setUserYaml(commonsUtil.userAccessFiles.newUserAccessFile1);
+  // commonsUtil.runJob('useryaml');
 
-  console.log('Running usersync job...\n');
-  // return back to original user.yaml
-  commonsUtil.runJob('usersync');
+  // console.log('Running usersync job...\n');
+  // // return back to original user.yaml
+  // commonsUtil.runJob('usersync');
 
   // get some vars from the commons
   console.log('Setting environment variables...\n');
@@ -156,18 +156,18 @@ module.exports = async function (done) {
     }
   }
 
-  console.log('Delete then create basic client...\n');
-  deleteClient(process.env.NAMESPACE, 'basic-test-client');
-  const basicClient = createClient(process.env.NAMESPACE, 'basic-test-client', 'test-client@example.com');
+  // console.log('Delete then create basic client...\n');
+  // deleteClient(process.env.NAMESPACE, 'basic-test-client');
+  // const basicClient = createClient(process.env.NAMESPACE, 'basic-test-client', 'test-client@example.com');
 
-  console.log('Delete then create implicit client...\n');
-  deleteClient(process.env.NAMESPACE, 'implicit-test-client');
-  const implicitClient = createClient(process.env.NAMESPACE, 'implicit-test-client', 'test@example.com', 'implicit');
+  // console.log('Delete then create implicit client...\n');
+  // deleteClient(process.env.NAMESPACE, 'implicit-test-client');
+  // const implicitClient = createClient(process.env.NAMESPACE, 'implicit-test-client', 'test@example.com', 'implicit');
 
-  // Setup enviroiment variables
-  process.env[`${fenceProps.clients.client.envVarsName}_ID`] = basicClient.client_id;
-  process.env[`${fenceProps.clients.client.envVarsName}_SECRET`] = basicClient.client_secret;
-  process.env[`${fenceProps.clients.clientImplicit.envVarsName}_ID`] = implicitClient.client_id;
+  // // Setup enviroiment variables
+  // process.env[`${fenceProps.clients.client.envVarsName}_ID`] = basicClient.client_id;
+  // process.env[`${fenceProps.clients.client.envVarsName}_SECRET`] = basicClient.client_secret;
+  // process.env[`${fenceProps.clients.clientImplicit.envVarsName}_ID`] = implicitClient.client_id;
 
   // Export expired access token for main acct
   const mainAcct = usersUtil.mainAcct;
