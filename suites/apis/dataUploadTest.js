@@ -78,7 +78,7 @@ Scenario('File upload via API calls', async (fence, users, nodes, indexd) => {
 
   // TODO: Remove when indexd-listener works
   fileNode = {
-    did: fileGuid,
+    did: res.body.guid,
     md5: fileMd5,
     size: fileSize
   };
@@ -145,6 +145,7 @@ Scenario('Link metadata to file and download', async (dataClient, sheepdog, inde
     md5: fileMd5,
     size: fileSize
   };
+  console.log(fileNode);
   await indexd.do.getFile(fileNode); // add 'rev' to fileNode
   console.log(fileGuid)
   var indexd_res = await indexd.complete.updateBlankRecord(fileNode);
@@ -222,18 +223,21 @@ BeforeSuite(async (dataClient, fence, users, sheepdog) => {
 
   // create a file to upload and store the size and hash
   await fileUtil.createTmpFile(fileToUploadPath);
+  if (!fs.existsSync(fileToUploadPath)) {
+    console.log('The temp file was not created');
+  }
   // const hash = require('crypto').createHash('md5').update(data).digest();
   // console.log(hash);
   fileSize = await fileUtil.getFileSize(fileToUploadPath);
   fileMd5 = await fileUtil.getFileHash(fileToUploadPath);
   if (fileSize == 0) {
-    console.log('*** WARNING: file size is 0') // TODO remove
+    console.log('*** WARNING: file size is 0'); // TODO remove
   }
   // get file name from file path
   fileName = fileToUploadPath.split('/').pop();
 });
 
-AfterSuite(async (indexd) => {
+AfterSuite(async (sheepdog) => {
   // clean up any leftover nodes
   await sheepdog.complete.findDeleteAllNodes();
 

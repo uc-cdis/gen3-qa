@@ -21,6 +21,7 @@ module.exports = {
     while (!fs.existsSync(filePath)) {
       await sleep(50);
     }
+    console.log('Created temp file');
   },
 
   /**
