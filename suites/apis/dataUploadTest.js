@@ -86,7 +86,7 @@ Scenario('File upload via API calls', async (fence, users, nodes, indexd) => {
   var indexd_res = await indexd.complete.updateBlankRecord(fileNode);
 
   // check if indexd was updated with the correct hash and size
-  // await indexd.complete.checkFile(fileNode);
+  await indexd.complete.checkFile(fileNode);
 
   // delete file in indexd
   // this is possible because 'rev' was added to fileNode by checkRecord()
@@ -174,7 +174,7 @@ Scenario('Link metadata to file and download', async (dataClient, sheepdog, inde
 
   // clean up
   nodesToDelete = nodes.getPathToFile().push(metadataFile);
-  // await sheepdog.complete.deleteNodes(nodesToDelete);
+  await sheepdog.complete.deleteNodes(nodesToDelete);
 
   // delete file in indexd
   await indexd.complete.deleteFile(fileNode);
