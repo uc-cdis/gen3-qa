@@ -40,8 +40,20 @@ module.exports = {
     expect(fileNode).to.nested.include({ 'indexd_delete_res.raw_body': '' });
   },
 
+  // TODO: Remove when indexd-listener works
+  updateFileSuccess(res, fileNode) {
+    expect(res).to.have.property('raw_body');
+    expect(res.raw_body).to.include(fileNode.did);
+  },
+
   recordExists(res, fileNode) {
     resultSuccess(res);
     expect(fileNode).to.have.property('rev');
+  },
+
+  metadataLinkingSuccess(record) {
+    expect(record).to.have.property('acl');
+    expect(record.acl).to.not.equal('[]')
+    expect(record).to.have.property('uploader', null);
   },
 };

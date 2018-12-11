@@ -189,7 +189,10 @@ module.exports = {
    *
    */
   hasUploadUrl(UploadRes) {
+    console.log('**hasUploadUrl');
+    console.log(UploadRes);
     expect(UploadRes).to.have.property('body');
+    expect(UploadRes.body, 'Fence failed to provide a presigned URL').to.exist;
     expect(UploadRes.body).to.have.property('guid');
     expect(UploadRes.body).to.have.property('url');
   },
