@@ -53,7 +53,15 @@ module.exports = {
 
   metadataLinkingSuccess(record) {
     expect(record).to.have.property('acl');
-    expect(record.acl).to.not.equal('[]')
-    expect(record).to.have.property('uploader', null);
+    expect(record.acl).to.not.be.empty;
+    expect(record).to.have.property('uploader');
+    expect(record.uploader).to.not.exist;
+  },
+
+  metadataLinkingFailure(record) {
+    expect(record).to.have.property('acl');
+    expect(record.acl).to.be.empty;
+    expect(record).to.have.property('uploader');
+    expect(record.uploader).to.exist;
   },
 };

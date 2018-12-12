@@ -12,7 +12,7 @@ Scenario('File upload via API calls', async (fence, users, nodes, indexd) => {
   // get a presigned URL from fence
   let token = users.mainAcct.accessTokenHeader;
   let res = await fence.do.getUrlForDataUpload(fileName, token);
-  fence.ask.hasUploadUrl(res);
+  fence.ask.hasUrl(res);
   // console.log(res.body.guid)
   // console.log(res.body.url)
 
@@ -76,7 +76,6 @@ Scenario('File upload via API calls', async (fence, users, nodes, indexd) => {
   //   console.log("Error: " + err.message);
   // });
 
-  // TODO: Remove when indexd-listener works
   fileNode = {
     did: res.body.guid,
     data: {
@@ -84,15 +83,13 @@ Scenario('File upload via API calls', async (fence, users, nodes, indexd) => {
       file_size: fileSize
     }
   };
+  // TODO: Remove when indexd-listener works
   await indexd.do.getFile(fileNode); // add 'rev' to fileNode
   var indexd_res = await indexd.complete.updateBlankRecord(fileNode);
 
   // check if indexd was updated with the correct hash and size
+  // TODO: when indexd-listener works, wait for hash compute before proceeding
   await indexd.complete.checkFile(fileNode);
-
-  // clean up in indexd
-  // this is possible because 'rev' was added to fileNode by checkRecord()
-  await indexd.complete.deleteFile(fileNode);
 
   // delete file in bucket (?)
 });
@@ -114,9 +111,6 @@ Scenario('File upload via client', async (dataClient, indexd, nodes) => {
   //   type: 'submitted_unaligned_reads',
   // });
   // await indexd.complete.checkFile(fileNode);
-
-  // clean up in indexd
-
 });
 
 Scenario('Link metadata to file and download', async (dataClient, sheepdog, indexd, nodes, users, fence) => {
@@ -126,7 +120,7 @@ Scenario('Link metadata to file and download', async (dataClient, sheepdog, inde
   // fileGuid = dataClient.do.upload_file(dataClientProfileName, fileToUploadPath);
   let token = users.mainAcct.accessTokenHeader;
   let fence_res = await fence.do.getUrlForDataUpload(fileName, token);
-  fence.ask.hasUploadUrl(fence_res);
+  fence.ask.hasUrl(fence_res);
   // upload the file to the S3 bucket using the presigned URL
   fs.createReadStream(fileToUploadPath).pipe(require('request')({
     method: 'PUT',
@@ -141,16 +135,20 @@ Scenario('Link metadata to file and download', async (dataClient, sheepdog, inde
   }));
   var fileGuid = fence_res.body.guid;
 
-  // TODO: Remove when indexd-listener works
   fileNode = {
     did: fileGuid,
     data: {
       md5sum: fileMd5,
-      file_size: fileSize
+      file_size: fileSize,
+      urls: ['url-to-file-in-s3']
     }
   };
+
+  // TODO: Remove when indexd-listener works
   await indexd.do.getFile(fileNode); // add 'rev' to fileNode
   var indexd_res = await indexd.complete.updateBlankRecord(fileNode);
+
+  // TODO: when indexd-listener works, wait for hash compute before proceeding
 
   // prepare graph for metadata upload (upload parent nodes)
   await sheepdog.complete.addNodes(nodes.getPathToFile());
@@ -168,19 +166,21 @@ Scenario('Link metadata to file and download', async (dataClient, sheepdog, inde
 
   // try downloading
   // TODO: also try with different user
+
+  // API call
+  // const signedUrlRes = await fence.do.createSignedUrl(fileGuid);
+  // await fence.complete.checkFileEquals(
+  //   signedUrlRes,
+  //   'this fake data file was generated and uploaded by the integration test suite\n',
+  // );
+
+  // // data client
   // fileName = 'someFileDestination.txt';
   // dataClient.do.download_file(dataClientProfileName, fileGuid, fileName);
   // if (!require('fs').existsSync(fileName)) {
   //   throw new Error(`Download failed for ${fileGuid}`)
   // }
   // fileUtil.deleteFile(fileName);
-
-  // clean up in sheepdog
-  await sheepdog.complete.findDeleteAllNodes();
-
-  // clean up in indexd
-  await indexd.complete.deleteFile(fileNode);
-
 });
 
 /**
@@ -193,8 +193,53 @@ Scenario('Link metadata to file that already has metadata', async () => {
 /**
  * The linking should fail
  */
-Scenario('Link metadata to file without hash and size', async () => {
+Scenario('Link metadata to file without hash and size', async (dataClient, users, fence, sheepdog, nodes, indexd) => {
+  // upload a file
 
+  // when data-client works: remove users & fence params
+  // fileGuid = dataClient.do.upload_file(dataClientProfileName, fileToUploadPath);
+  let token = users.mainAcct.accessTokenHeader;
+  let fence_res = await fence.do.getUrlForDataUpload(fileName, token);
+  fence.ask.hasUrl(fence_res);
+  // upload the file to the S3 bucket using the presigned URL
+  fs.createReadStream(fileToUploadPath).pipe(require('request')({
+    method: 'PUT',
+    url: fence_res.body.url,
+    headers: {
+      'Content-Length': fileSize
+    }
+  }, function (err, fence_res, body) {
+    if (err) {
+      throw new Error(err);
+    }
+  }));
+  var fileGuid = fence_res.body.guid;
+
+  fileNode = {
+    did: fileGuid,
+    data: {
+      md5sum: fileMd5,
+      file_size: fileSize,
+      urls: ['url-to-file-in-s3']
+    }
+  };
+
+  // TODO: when indexd-listener works, find a way to NOT wait for hash compute before proceeding (maybe by not uploading the file to S3?)
+
+  // prepare graph for metadata upload (upload parent nodes)
+  await sheepdog.complete.addNodes(nodes.getPathToFile());
+
+  // check that metadata CANNOT be submitted
+  metadataFile = nodes.getFileNode().clone();
+  metadataFile.data.object_id = fileGuid;
+  metadataFile.data.file_size = fileSize;
+  metadataFile.data.md5sum = fileMd5;
+  await sheepdog.do.addNode(metadataFile);
+  await sheepdog.ask.hasStatusCode(metadataFile.addRes, 400);
+
+  // check that uploader and acl have NOT been updated in indexd
+  indexd_record = await indexd.do.getFile(fileNode);
+  indexd.ask.metadataLinkingFailure(indexd_record);
 });
 
 /**
@@ -224,9 +269,6 @@ BeforeSuite(async (dataClient, fence, users, sheepdog, indexd) => {
 
   // create a file to upload and store the size and hash
   await fileUtil.createTmpFile(fileToUploadPath);
-  if (!fs.existsSync(fileToUploadPath)) {
-    console.log('The temp file was not created');
-  }
   // const hash = require('crypto').createHash('md5').update(data).digest();
   // console.log(hash);
   fileSize = await fileUtil.getFileSize(fileToUploadPath);
@@ -242,13 +284,13 @@ BeforeSuite(async (dataClient, fence, users, sheepdog, indexd) => {
 });
 
 AfterSuite(async (sheepdog, indexd) => {
-  // clean up in sheepdog
-  await sheepdog.complete.findDeleteAllNodes();
-
   // delete the temp file
   if (fs.existsSync(fileToUploadPath)) {
     fileUtil.deleteFile(fileToUploadPath);
   }
+
+  // clean up in sheepdog
+  await sheepdog.complete.findDeleteAllNodes();
 
   // clean up in indexd (remove the records created by this test suite)
   await indexd.do.deleteTestFiles(fileName);

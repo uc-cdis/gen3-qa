@@ -18,7 +18,7 @@ module.exports = {
    * @param createUrlRes
    */
   hasUrl(createUrlRes) {
-    expect(createUrlRes).to.have.nested.property('body.url');
+    expect(createUrlRes, 'Fence did not return a URL').to.have.nested.property('body.url');
   },
 
   /**
@@ -183,15 +183,5 @@ module.exports = {
 
   assertTruethyResult(result) {
     expect(!!result).to.be.true;
-  },
-
-  /**
-   *
-   */
-  hasUploadUrl(UploadRes) {
-    expect(UploadRes).to.have.property('body');
-    expect(UploadRes.body, 'Fence failed to provide a presigned URL').to.exist;
-    expect(UploadRes.body).to.have.property('guid');
-    expect(UploadRes.body).to.have.property('url');
   },
 };
