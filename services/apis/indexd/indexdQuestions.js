@@ -34,34 +34,31 @@ module.exports = {
 
   deleteFileSuccess(fileNode) {
     // Note that the delete res is the entire response, not just the body
-    // expect(fileNode).to.have.property('data');
-    // expect(fileNode.data).to.have.property('indexd_delete_res');
-    // expect(fileNode.data.indexd_delete_res).to.have.property('raw_body', '');
-    expect(fileNode).to.nested.include({ 'indexd_delete_res.raw_body': '' });
+    expect(fileNode, 'The record was not deleted from indexd').to.nested.include({ 'indexd_delete_res.raw_body': '' });
   },
 
   // TODO: Remove when indexd-listener works
   updateFileSuccess(res, fileNode) {
     expect(res).to.have.property('raw_body');
-    expect(res.raw_body).to.include(fileNode.did);
+    expect(res.raw_body, 'The blank record was not successfully updated in indexd').to.include(fileNode.did);
   },
 
   recordExists(res, fileNode) {
     resultSuccess(res);
-    expect(fileNode).to.have.property('rev');
+    expect(fileNode, 'The specified record does not exist in indexd').to.have.property('rev');
   },
 
   metadataLinkingSuccess(record) {
     expect(record).to.have.property('acl');
-    expect(record.acl).to.not.be.empty;
+    expect(record.acl, 'The ACL should not be empty anymore after linking metadata to the indexd record').to.not.be.empty;
     expect(record).to.have.property('uploader');
-    expect(record.uploader).to.not.exist;
+    expect(record.uploader, 'The uploader should be empty after linking metadata to the indexd record').to.not.exist;
   },
 
   metadataLinkingFailure(record) {
     expect(record).to.have.property('acl');
-    expect(record.acl).to.be.empty;
+    expect(record.acl, 'The ACL should be empty before metadata is linked to the indexd record').to.be.empty;
     expect(record).to.have.property('uploader');
-    expect(record.uploader).to.exist;
+    expect(record.uploader, 'The uploader should be not empty before metadata is linked to the indexd record').to.exist;
   },
 };
