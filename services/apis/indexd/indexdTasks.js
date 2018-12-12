@@ -110,7 +110,7 @@ module.exports = {
         md5: file.data.md5sum
       },
       size: file.data.file_size,
-      urls: file.data.urls
+      urls: [file.data.urls]
     };
     return I.sendPutRequest(
       `${indexdProps.endpoints.updateBlank}/${file.did}?rev=${file.rev}`,
