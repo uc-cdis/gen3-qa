@@ -16,11 +16,6 @@ module.exports = {
       stream.write('this fake data file was generated and uploaded by the integration test suite\n');
       stream.end();
     });
-
-    // wait for file to be created
-    while (!fs.existsSync(filePath)) {
-      await sleep(50);
-    }
   },
 
   /**
@@ -36,7 +31,12 @@ module.exports = {
    * /!\ returns 0 if the file was created during a different session (?)
    */
   async getFileSize(filePath) {
-    var fileSize = fs.statSync(filePath).size;
+    var fileSize = 0;
+    // wait for file to be created
+    do {
+      await sleep(10);
+      fileSize = fs.statSync(filePath).size;
+    } while (fileSize == 0);
     return fileSize;
   },
 
@@ -56,7 +56,7 @@ module.exports = {
 
     // wait for hash to be computed
     while (fileMd5 == -1) {
-      await sleep(50);
+      await sleep(10);
     }
     return fileMd5;
   },

@@ -273,9 +273,8 @@ BeforeSuite(async (dataClient, fence, users, sheepdog, indexd) => {
   // console.log(hash);
   fileSize = await fileUtil.getFileSize(fileToUploadPath);
   fileMd5 = await fileUtil.getFileHash(fileToUploadPath);
-  if (fileSize == 0) {
+  if (fileSize == 0)
     console.log('*** WARNING: file size is 0'); // TODO remove
-  }
   // get file name from file path
   fileName = fileToUploadPath.split('/').pop();
 
