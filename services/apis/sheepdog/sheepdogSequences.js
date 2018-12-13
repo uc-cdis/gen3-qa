@@ -6,6 +6,8 @@ const user = require('../../../utils/user.js');
 
 const I = actor();
 
+// Note that 'dependent_ids' now only contains 1 ID for optimization reasons.
+// So this function only works if there is only one entity for each node.
 const deleteByIdRecursively = async function (id) {
   const deleteEndpoint = `${sheepdogProps.endpoints.delete}/${id}`;
   const res = await I.sendDeleteRequest(

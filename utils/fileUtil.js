@@ -15,10 +15,10 @@ module.exports = {
   /**
    *
    */
-  async createTmpFile(filePath) {
+  async createTmpFile(filePath, dataString) {
     let stream = fs.createWriteStream(filePath);
     stream.once('open', function(fd) {
-      stream.write('this fake data file was generated and uploaded by the integration test suite\n');
+      stream.write(dataString);
       stream.end();
     });
   },

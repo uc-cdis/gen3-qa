@@ -7,10 +7,12 @@ Feature('Data file upload flow');
 
 
 const dataClientProfileName = 'qa-user';
-const fileToUploadPath = './qa-upload-file.txt'; // TODO: use a random name unique to this session
+const fileContents = 'this fake data file was generated and uploaded by the integration test suite\n'
+
+// UTIL FUNCTIONS
 
 // the following global variables are set as part of the BeforeSuite step:
-var fileName, fileSize, fileMd5;
+var fileName, filePath, fileSize, fileMd5;
 
 // request a  presigned URL from fence
 const getUploadUrlFromFence = async function (fence, users, indexd) {
@@ -22,7 +24,7 @@ const getUploadUrlFromFence = async function (fence, users, indexd) {
 
 // upload a file to an S3 bucket using a presigned URL
 const uploadFileToS3 = async function (presignedUrl) {
-  fs.createReadStream(fileToUploadPath).pipe(require('request')({
+  fs.createReadStream(filePath).pipe(require('request')({
     method: 'PUT',
     url: presignedUrl,
     headers: {
@@ -151,7 +153,7 @@ Scenario('File upload via API calls', async (fence, users, nodes, indexd) => {
 
 Scenario('File upload via client', async (dataClient, indexd, nodes) => {
   // use gen3 client to upload a file (TODO: upload-new does not exist yet)
-  // fileGuid = dataClient.do.upload_file(dataClientProfileName, fileToUploadPath);
+  // fileGuid = dataClient.do.upload_file(dataClientProfileName, filePath);
 
   // // TODO: set to GUID returned from upload
   // var fileGuid = '65817c30-ee9c-44e1-81e6-c44a1fbeda3b';
@@ -181,15 +183,14 @@ Scenario('Link metadata to file and download', async (sheepdog, indexd, nodes, u
     did: fileGuid,
     data: {
       md5sum: fileMd5,
-      file_size: fileSize,
-      urls: 'url-to-file-in-s3'
+      file_size: fileSize
     }
   };
 
   /////////
   // TODO: remove when indexd-listener is set up on the QA environments
   /////////
-  return
+  // return
 
   // wait for the indexd listener to add size, hashes and URL to the record
   await waitForIndexdListener(indexd, fileNode);
@@ -202,17 +203,14 @@ Scenario('Link metadata to file and download', async (sheepdog, indexd, nodes, u
   let indexd_record = await indexd.do.getFile(fileNode);
   indexd.ask.metadataLinkingSuccess(indexd_record);
 
-  // try downloading
-  // TODO: also try with different user
+  // download the file via fence
+  const signedUrlRes = await fence.do.createSignedUrl(fileGuid);
+  await fence.complete.checkFileEquals(
+    signedUrlRes,
+    fileContents,
+  );
 
-  // API call
-  // const signedUrlRes = await fence.do.createSignedUrl(fileGuid);
-  // await fence.complete.checkFileEquals(
-  //   signedUrlRes,
-  //   'this fake data file was generated and uploaded by the integration test suite\n',
-  // );
-
-  // // data client
+  // download the file via the data client
   // fileName = 'someFileDestination.txt';
   // dataClient.do.download_file(dataClientProfileName, fileGuid, fileName);
   // if (!require('fs').existsSync(fileName)) {
@@ -357,22 +355,23 @@ BeforeSuite(async (dataClient, fence, users, sheepdog, indexd, files) => {
   // clean up in sheepdog
   await sheepdog.complete.findDeleteAllNodes();
 
-  // create a file to upload and store the size and hash
-  await files.createTmpFile(fileToUploadPath);
-  fileSize = await files.getFileSize(fileToUploadPath);
-  fileMd5 = await files.getFileHash(fileToUploadPath);
+  // TODO: use a random name unique to this session
+  fileName = 'qa-upload-file.txt';
+  filePath = './' + fileName;
 
-  // get file name from file path
-  fileName = fileToUploadPath.split('/').pop();
+  // create a local file to upload and store its size and hash
+  await files.createTmpFile(filePath, fileContents);
+  fileSize = await files.getFileSize(filePath);
+  fileMd5 = await files.getFileHash(filePath);
 
   // clean up in indexd (remove the records created by this test suite)
   await indexd.do.deleteTestFiles(fileName);
 });
 
 AfterSuite(async (files) => {
-  // delete the temp file
-  if (fs.existsSync(fileToUploadPath)) {
-    files.deleteFile(fileToUploadPath);
+  // delete the temp file from local storage
+  if (fs.existsSync(filePath)) {
+    files.deleteFile(filePath);
   }
 });
 
