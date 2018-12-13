@@ -1,3 +1,8 @@
+/**
+ * A module providing util functions to handle files
+ * @module fileUtil
+ */
+
 const fs = require('fs');
 
 const I = actor();

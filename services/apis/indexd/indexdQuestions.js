@@ -37,12 +37,6 @@ module.exports = {
     expect(fileNode, 'The record was not deleted from indexd').to.nested.include({ 'indexd_delete_res.raw_body': '' });
   },
 
-  // TODO: Remove when indexd-listener works
-  updateFileSuccess(res, fileNode) {
-    expect(res).to.have.property('raw_body');
-    expect(res.raw_body, 'The blank record was not successfully updated in indexd').to.include(fileNode.did);
-  },
-
   recordExists(res, fileNode) {
     resultSuccess(res);
     expect(fileNode, 'The specified record does not exist in indexd').to.have.property('rev');

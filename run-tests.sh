@@ -134,7 +134,7 @@ for name in ${namespaceList}; do
 ---------------------------
 Launching test in $NAMESPACE
 EOM
-    dryrun npm test -- $testArgs
+    dryrun npm test -- $testArgs suites/apis/dataUploadTest.js
   )
   if [[ $? -ne 0 ]]; then exitCode=1; fi
 done

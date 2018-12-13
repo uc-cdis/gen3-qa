@@ -100,28 +100,6 @@ module.exports = {
   },
 
   /**
-   * TODO: Remove when indexd-listener works
-   */
-  async sendUpdateBlankRequest(file) {
-    auth = (process.env.INDEX_USERNAME, process.env.INDEX_PASSWORD);
-    // console.log(auth)
-    data = {
-      hashes: {
-        md5: file.data.md5sum
-      },
-      size: file.data.file_size,
-      urls: [file.data.urls]
-    };
-    return I.sendPutRequest(
-      `${indexdProps.endpoints.updateBlank}/${file.did}?rev=${file.rev}`,
-      JSON.stringify(data),
-      usersUtil.mainAcct.indexdAuthHeader,
-    ).then((res) => {
-      return res;
-    });
-  },
-
-  /**
    * Remove the records created in indexd by the test suite
    * by filtering by file name
    */

@@ -1,6 +1,6 @@
 const fs = require('fs')
 
-const fileUtil = require('../../utils/fileUtil.js');
+const { sleep } = require('../../utils/util.js');
 
 
 Feature('Data file upload flow');
@@ -8,6 +8,8 @@ Feature('Data file upload flow');
 
 const dataClientProfileName = 'qa-user';
 const fileToUploadPath = './qa-upload-file.txt'; // TODO: use a random name unique to this session
+
+// the following global variables are set as part of the BeforeSuite step:
 var fileName, fileSize, fileMd5;
 
 // request a  presigned URL from fence
@@ -19,10 +21,10 @@ const getUploadUrlFromFence = async function (fence, users, indexd) {
 };
 
 // upload a file to an S3 bucket using a presigned URL
-const uploadFileToS3 = async function (fenceUploadRes) {
+const uploadFileToS3 = async function (presignedUrl) {
   fs.createReadStream(fileToUploadPath).pipe(require('request')({
     method: 'PUT',
-    url: fenceUploadRes.body.url,
+    url: presignedUrl,
     headers: {
       'Content-Length': fileSize
     }
@@ -73,7 +75,28 @@ const checkFileInS3 = async function () {
   // });
 };
 
+/**
+ *
+ */
+const waitForIndexdListener = async function(indexd, fileNode) {
+  let i = 0;
+  const stop = 15; // max number of seconds to wait
+  while (i < stop) {
+    try {
+      // check if indexd was updated with the correct hash and size
+      await indexd.complete.checkFile(fileNode);
+      return;
+    }
+    catch (e) {
+      await sleep(1000);
+      i++;
+    }
+  }
+  throw new Error(`The indexd listener did not complete the record after ${stop} seconds`);
+};
+
 // link metadata to an indexd file via sheepdog
+//!\\ this function does not include a check for success or failure of the submission
 const submitFileMetadata = async function (sheepdog, nodes, fileGuid) {
   // prepare graph for metadata upload (upload parent nodes)
   await sheepdog.complete.addNodes(nodes.getPathToFile());
@@ -92,39 +115,36 @@ const submitFileMetadata = async function (sheepdog, nodes, fileGuid) {
 
 Scenario('File upload via API calls', async (fence, users, nodes, indexd) => {
   // request a  presigned URL from fence
-  fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
-  var fileGuid = fenceUploadRes.body.guid;
+  let fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
+  let fileGuid = fenceUploadRes.body.guid;
+  let presignedUrl = fenceUploadRes.body.url;
 
   await checkFileInS3();
 
   // check that a (blank) record was created in indexd
-  // if checkRecord() succeeds, 'rev' is added to the fileNode
-  fileNode = {
+  let fileNode = {
     did: fileGuid
   };
   await indexd.complete.checkRecord(fileNode);
 
   // upload the file to the S3 bucket using the presigned URL
-  await uploadFileToS3(fenceUploadRes);
+  await uploadFileToS3(presignedUrl);
 
   fileNode = {
     did: fileGuid,
     data: {
       md5sum: fileMd5,
-      file_size: fileSize,
-      urls: 'url-to-file-in-s3'
+      file_size: fileSize
     }
   };
 
   /////////
-  // TODO: when indexd-listener works:
-  // remove the following and wait for hash compute before proceeding
+  // TODO: remove when indexd-listener is set up on the QA environments
   /////////
-  await indexd.do.getFile(fileNode); // adds 'rev' to fileNode
-  await indexd.complete.updateBlankRecord(fileNode);
+  return
 
-  // check if indexd was updated with the correct hash and size
-  await indexd.complete.checkFile(fileNode);
+  // wait for the indexd listener to add size, hashes and URL to the record
+  await waitForIndexdListener(indexd, fileNode);
 
   // delete file in bucket (?)
 });
@@ -150,13 +170,14 @@ Scenario('File upload via client', async (dataClient, indexd, nodes) => {
 
 Scenario('Link metadata to file and download', async (sheepdog, indexd, nodes, users, fence) => {
   // request a  presigned URL from fence
-  fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
-  var fileGuid = fenceUploadRes.body.guid;
+  let fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
+  let fileGuid = fenceUploadRes.body.guid;
+  let presignedUrl = fenceUploadRes.body.url;
 
   // upload the file to the S3 bucket using the presigned URL
-  await uploadFileToS3(fenceUploadRes);
+  await uploadFileToS3(presignedUrl);
 
-  fileNode = {
+  let fileNode = {
     did: fileGuid,
     data: {
       md5sum: fileMd5,
@@ -166,11 +187,12 @@ Scenario('Link metadata to file and download', async (sheepdog, indexd, nodes, u
   };
 
   /////////
-  // TODO: when indexd-listener works:
-  // remove the following and wait for hash compute before proceeding
+  // TODO: remove when indexd-listener is set up on the QA environments
   /////////
-  await indexd.do.getFile(fileNode); // adds 'rev' to fileNode
-  await indexd.complete.updateBlankRecord(fileNode);
+  return
+
+  // wait for the indexd listener to add size, hashes and URL to the record
+  await waitForIndexdListener(indexd, fileNode);
 
   // submit metadata for this file
   let sheepdog_res = await submitFileMetadata(sheepdog, nodes, fileGuid);
@@ -196,7 +218,6 @@ Scenario('Link metadata to file and download', async (sheepdog, indexd, nodes, u
   // if (!require('fs').existsSync(fileName)) {
   //   throw new Error(`Download failed for ${fileGuid}`)
   // }
-  // fileUtil.deleteFile(fileName);
 });
 
 /**
@@ -210,35 +231,29 @@ Scenario('Link metadata to file that already has metadata', async () => {
  * The linking should fail
  */
 Scenario('Link metadata to file without hash and size', async (users, fence, sheepdog, nodes, indexd) => {
-  // request a  presigned URL from fence
-  fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
-  var fileGuid = fenceUploadRes.body.guid;
+ // request a  presigned URL from fence
+ let fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
+ let fileGuid = fenceUploadRes.body.guid;
+ let presignedUrl = fenceUploadRes.body.url;
 
-  // upload the file to the S3 bucket using the presigned URL
-  await uploadFileToS3(fenceUploadRes);
+ // simulate NOT waiting for the indexd listener to add size, hashes and
+ // URL to the record by not uploading the file to the S3 bucket at all
 
-  fileNode = {
-    did: fileGuid,
-    data: {
-      md5sum: fileMd5,
-      file_size: fileSize,
-      urls: 'url-to-file-in-s3'
-    }
-  };
+ let fileNode = {
+   did: fileGuid,
+   data: {
+     md5sum: fileMd5,
+     file_size: fileSize
+   }
+ };
 
-  /////////
-  // TODO: when indexd-listener works:
-  // find a way to NOT wait for hash compute before proceeding
-  // (maybe by not uploading the file to S3?)
-  /////////
+ // fail to submit metadata for this file
+ let sheepdog_res = await submitFileMetadata(sheepdog, nodes, fileGuid);
+ await sheepdog.ask.hasStatusCode(sheepdog_res.addRes, 400);
 
-  // fail to submit metadata for this file
-  let sheepdog_res = await submitFileMetadata(sheepdog, nodes, fileGuid);
-  await sheepdog.ask.hasStatusCode(sheepdog_res.addRes, 400);
-
-  // check that uploader and acl have NOT been updated in indexd
-  let indexd_record = await indexd.do.getFile(fileNode);
-  indexd.ask.metadataLinkingFailure(indexd_record);
+ // check that uploader and acl have NOT been updated in indexd
+ let indexd_record = await indexd.do.getFile(fileNode);
+ indexd.ask.metadataLinkingFailure(indexd_record);
 });
 
 /**
@@ -265,34 +280,35 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
   ////////////
 
   // request a  presigned URL from fence
-  fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
-  var fileGuid1 = fenceUploadRes.body.guid;
+  let fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
+  let fileGuid = fenceUploadRes.body.guid;
+  let presignedUrl = fenceUploadRes.body.url;
 
   // upload the file to the S3 bucket using the presigned URL
-  await uploadFileToS3(fenceUploadRes);
+  await uploadFileToS3(presignedUrl);
 
-  fileNode1 = {
-    did: fileGuid1,
+  let fileNode = {
+    did: fileGuid,
     data: {
       md5sum: fileMd5,
-      file_size: fileSize,
-      urls: 'url-to-file-in-s3'
+      file_size: fileSize
     }
   };
 
   /////////
-  // TODO: when indexd-listener works:
-  // remove the following and wait for hash compute before proceeding
+  // TODO: remove when indexd-listener is set up on the QA environments
   /////////
-  await indexd.do.getFile(fileNode1); // adds 'rev' to fileNode
-  await indexd.complete.updateBlankRecord(fileNode1);
+  return
+
+  // wait for the indexd listener to add size, hashes and URL to the record
+  await waitForIndexdListener(indexd, fileNode);
 
   // submit metadata for this file
-  let sheepdog_res = await submitFileMetadata(sheepdog, nodes, fileGuid1);
+  let sheepdog_res = await submitFileMetadata(sheepdog, nodes, fileGuid);
   await sheepdog.ask.addNodeSuccess(sheepdog_res);
 
   // check that uploader and acl have been updated in indexd
-  let indexd_record = await indexd.do.getFile(fileNode1);
+  let indexd_record = await indexd.do.getFile(fileNode);
   indexd.ask.metadataLinkingSuccess(indexd_record);
 
   ////////////
@@ -301,32 +317,28 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
 
   // request a  presigned URL from fence
   fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
-  var fileGuid2 = fenceUploadRes.body.guid;
+  fileGuid = fenceUploadRes.body.guid;
+  presignedUrl = fenceUploadRes.body.url;
 
   // upload the file to the S3 bucket using the presigned URL
-  await uploadFileToS3(fenceUploadRes);
+  await uploadFileToS3(presignedUrl);
 
-  fileNode2 = {
-    did: fileGuid2,
+  fileNode = {
+    did: fileGuid,
     data: {
       md5sum: fileMd5,
-      file_size: fileSize,
-      urls: 'url-to-file-in-s3'
+      file_size: fileSize
     }
   };
 
-  /////////
-  // TODO: when indexd-listener works:
-  // remove the following and wait for hash compute before proceeding
-  /////////
-  await indexd.do.getFile(fileNode2); // adds 'rev' to fileNode
-  await indexd.complete.updateBlankRecord(fileNode2);
+  // wait for the indexd listener to add size, hashes and URL to the record
+  await waitForIndexdListener(indexd, fileNode);
 
   // submit metadata for this file. not using the util function here because:
   // 1- there is no need to submit the parent nodes again
   // 2- a different submitter_id must be used
   metadata = nodes.getFileNode().clone();
-  metadata.data.object_id = fileGuid2;
+  metadata.data.object_id = fileGuid;
   metadata.data.file_size = fileSize;
   metadata.data.md5sum = fileMd5;
   metadata.data.submitter_id = 'submitted_unaligned_reads_new_value';
@@ -334,11 +346,11 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
   await sheepdog.ask.addNodeSuccess(metadata);
 
   // check that uploader and acl have been updated in indexd
-  indexd_record = await indexd.do.getFile(fileNode2);
+  indexd_record = await indexd.do.getFile(fileNode);
   indexd.ask.metadataLinkingSuccess(indexd_record);
 });
 
-BeforeSuite(async (dataClient, fence, users, sheepdog, indexd) => {
+BeforeSuite(async (dataClient, fence, users, sheepdog, indexd, files) => {
   // configure gen3-client: temporary solution
   // dataClient.do.configure_client(fence, users, dataClientProfileName);
 
@@ -346,9 +358,9 @@ BeforeSuite(async (dataClient, fence, users, sheepdog, indexd) => {
   await sheepdog.complete.findDeleteAllNodes();
 
   // create a file to upload and store the size and hash
-  await fileUtil.createTmpFile(fileToUploadPath);
-  fileSize = await fileUtil.getFileSize(fileToUploadPath);
-  fileMd5 = await fileUtil.getFileHash(fileToUploadPath);
+  await files.createTmpFile(fileToUploadPath);
+  fileSize = await files.getFileSize(fileToUploadPath);
+  fileMd5 = await files.getFileHash(fileToUploadPath);
 
   // get file name from file path
   fileName = fileToUploadPath.split('/').pop();
@@ -357,10 +369,10 @@ BeforeSuite(async (dataClient, fence, users, sheepdog, indexd) => {
   await indexd.do.deleteTestFiles(fileName);
 });
 
-AfterSuite(async (sheepdog, indexd) => {
+AfterSuite(async (files) => {
   // delete the temp file
   if (fs.existsSync(fileToUploadPath)) {
-    fileUtil.deleteFile(fileToUploadPath);
+    files.deleteFile(fileToUploadPath);
   }
 });
 

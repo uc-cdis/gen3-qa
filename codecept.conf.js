@@ -36,6 +36,7 @@ exports.config = {
     nodes: './utils/nodes.js',
     users: './utils/user.js',
     google: './utils/google.js',
+    files: './utils/fileUtil.js',
 
     // APIs
     sheepdog: './services/apis/sheepdog/sheepdogService.js',
