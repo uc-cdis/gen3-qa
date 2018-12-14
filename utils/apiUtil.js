@@ -120,6 +120,13 @@ module.exports = {
   },
 
   /**
+   * Wait for the specified number of milliseconds
+   */
+   sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  },
+
+  /**
    * Wrapper for API responses
    */
   Gen3Response,

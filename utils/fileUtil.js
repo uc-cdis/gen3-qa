@@ -5,11 +5,9 @@
 
 const fs = require('fs');
 
-const I = actor();
+const { sleep } = require('./apiUtil.js');
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+const I = actor();
 
 module.exports = {
   /**

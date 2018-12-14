@@ -1,6 +1,6 @@
 const fs = require('fs')
 
-const { sleep } = require('../../utils/util.js');
+const { sleep } = require('../../utils/apiUtil.js');
 
 
 Feature('Data file upload flow');
@@ -47,46 +47,6 @@ const uploadFileToS3 = async function (presignedUrl) {
   }));
 };
 
-// TODO: check if the file is in the bucket
-const checkFileInS3 = async function () {
-  // var params = {
-  //   Bucket: config.get('s3bucket'),
-  //   Key: path
-  // };
-  // url = 'https://qaplanetv1-data-bucket.s3.amazonaws.com/52c57a22-2316-433a-8b4a-e58808ec1123/qa-upload-file.txt'
-  // s3.headObject(params, function (err, metadata) {
-  //   if (err && err.code === 'NotFound') {
-  //     // Handle no object on cloud here
-  //   } else {
-  //     s3.getSignedUrl('getObject', params, callback);
-  //   }
-  // });
-
-  // const I = actor();
-  // I.sendGetRequest(
-  //   ',
-  // ).then((res) => {
-  //   console.log(res.body)
-  //   return res.body;
-  // });
-  // require('https').get(, (resp) => {
-  //   let data = '';
-  //
-  //   // A chunk of data has been recieved.
-  //   resp.on('data', (chunk) => {
-  //     data += chunk;
-  //   });
-  //
-  //   // The whole response has been received. Print out the result.
-  //   resp.on('end', () => {
-  //     console.log(JSON.parse(data).explanation);
-  //   });
-  //
-  // }).on("error", (err) => {
-  //   console.log("Error: " + err.message);
-  // });
-};
-
 /**
  *
  */
@@ -106,7 +66,8 @@ const waitForIndexdListener = async function(indexd, fileNode) {
 };
 
 // link metadata to an indexd file via sheepdog
-//!\\ this function does not include a check for success or failure of the submission
+// /!\ this function does not include a check for success or
+// failure of the data_file node's submission
 const submitFileMetadata = async function (sheepdog, nodes, fileGuid) {
   // prepare graph for metadata upload (upload parent nodes)
   await sheepdog.complete.addNodes(nodes.getPathToFile());
@@ -129,8 +90,6 @@ Scenario('File upload via API calls', async (fence, users, nodes, indexd) => {
   let fileGuid = fenceUploadRes.body.guid;
   createdGuids.push(fileGuid);
   let presignedUrl = fenceUploadRes.body.url;
-
-  await checkFileInS3();
 
   // check that a (blank) record was created in indexd
   let fileNode = {
@@ -216,7 +175,9 @@ Scenario('Link metadata to file and download', async (sheepdog, indexd, nodes, u
     fileContents,
   );
 
-  // download the file via the data client
+  // TODO: check that a user who is not the uploader can download the file
+
+  // TODO: download the file via the data client
   // fileName = 'someFileDestination.txt';
   // dataClient.do.download_file(dataClientProfileName, fileGuid, fileName);
   // if (!require('fs').existsSync(fileName)) {
@@ -264,11 +225,47 @@ Scenario('Link metadata to file without hash and size', async (users, fence, she
 /**
  * The download should fail
  */
-Scenario('Download before metadata linking', async () => {
+Scenario('Download before metadata linking', async (fence, users, indexd) => {
   // register files, but no metadata
 
   // try downloading by this user and by another user
 
+
+  // request a  presigned URL from fence
+  let fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
+  let fileGuid = fenceUploadRes.body.guid;
+  createdGuids.push(fileGuid);
+  let presignedUrl = fenceUploadRes.body.url;
+
+  // upload the file to the S3 bucket using the presigned URL
+  await uploadFileToS3(presignedUrl);
+
+  let fileNode = {
+    did: fileGuid,
+    data: {
+      md5sum: fileMd5,
+      file_size: fileSize
+    }
+  };
+
+  /////////
+  // TODO: remove when indexd-listener is set up on the QA environments
+  /////////
+  return
+
+  // wait for the indexd listener to add size, hashes and URL to the record
+  await waitForIndexdListener(indexd, fileNode);
+
+  // do NOT submit metadata for this file
+
+  // download the file via fence
+  const signedUrlRes = await fence.do.createSignedUrl(fileGuid);
+  await fence.complete.checkFileEquals(
+    signedUrlRes,
+    fileContents,
+  );
+
+  // TODO: check that a user who is not the uploader CANNOT download the file
 });
 
 Scenario('Data deletion', async () => {
