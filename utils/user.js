@@ -108,9 +108,9 @@ module.exports = {
   /**
    * Auxiliary User account 1
    */
-  auxAcct1: new User({ username: 'dummy-one@planx-pla.net', envVarsName: 'AUX1', jenkinsOnly: true }),
+  auxAcct1: new User({ username: 'dummy-one@planx-pla.net', envVarsName: 'AUX1', jenkinsOnly: false }),
   /**
    * Auxiliary User account 2
    */
-  auxAcct2: new User({ username: 'smarty-two@planx-pla.net', envVarsName: 'AUX2', jenkinsOnly: true }),
+  auxAcct2: new User({ username: 'smarty-two@planx-pla.net', envVarsName: 'AUX2', jenkinsOnly: false }),
 };
