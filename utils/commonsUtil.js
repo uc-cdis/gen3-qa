@@ -142,19 +142,6 @@ module.exports = {
   },
 
   /**
-   * Generates a child process and runs the given command in a kubernetes namespace
-   * @param {string} cmd - command to execute in the commons
-   * @param {string} namespace - namespace to execute command in
-   * @returns {string}
-   */
-  runCommandInRemoteEnv(cmd, namespace) {
-    console.log(`Running command: ${cmd}`);
-    const commonsUser = userFromNamespace(namespace);
-    const out = execSync(`ssh ${commonsUser}@cdistest.csoc 'set -i; source ~/.bashrc; ${cmd}'`, { shell: '/bin/sh' });
-    return out.toString('utf8');
-  },
-
-  /**
    * Backup the current User Access into a file
    *  Note: Generates a child process and runs the given command in a kubernetes namespace
    * @param {string} backupFile - name of file to backup to
@@ -205,8 +192,18 @@ module.exports = {
    * @returns {string}
    */
   runJob(jobName) {
-    const cmd = `gen3 runjob ${jobName} && g3kubectl wait --for=condition=complete --timeout=60s job/${jobName}`;
-    const res = this.runCommand(cmd, process.env.NAMESPACE);
+    var cmd = `gen3 runjob ${jobName} && g3kubectl wait --for=condition=complete --timeout=180s job/${jobName}`;
+    var res = this.runCommand(cmd, process.env.NAMESPACE);
+
+    // TODO: Make sure job succeeds
+    // cmd = `kubectl logs job/${jobName} | grep -q "Exit code: 1"`;
+    // err = this.runCommand(cmd, process.env.NAMESPACE);
+
+    // if (err) {
+    //   cmd = `kubectl logs job/${jobName}`;
+    //   joblogs = this.runCommand(cmd, process.env.NAMESPACE);
+    //   throw Error(`runJob for ${jobName} failed, found "Exit code: 1" in logs: ${joblogs}.`);
+    // }
     return res;
   }
 };

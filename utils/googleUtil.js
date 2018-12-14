@@ -105,8 +105,6 @@ module.exports = {
 
       file.get(function(err, file, apiResponse) {
         // file.metadata` has been populated.
-        console.log(err)
-        console.log(file)
         if (err) {
           if(err instanceof Error) {
             resolve(err.response)

@@ -18,7 +18,9 @@ module.exports = {
    * @param createUrlRes
    */
   hasUrl(createUrlRes) {
-    expect(createUrlRes).to.have.nested.property('body.url');
+    expect(createUrlRes,
+      'response does not have a "url" field in the body'
+    ).to.have.nested.property('body.url');
   },
 
   /**
@@ -26,7 +28,9 @@ module.exports = {
    * @param apiKeyRes
    */
   hasAPIKey(apiKeyRes) {
-    expect(apiKeyRes).to.have.nested.property('body.api_key');
+    expect(apiKeyRes,
+      'response does not have a "api_key" field in the body'
+    ).to.have.nested.property('body.api_key');
   },
 
   /**
@@ -34,7 +38,9 @@ module.exports = {
    * @param accessTokenRes
    */
   hasAccessToken(accessTokenRes) {
-    expect(accessTokenRes).has.nested.property('body.access_token');
+    expect(accessTokenRes,
+      'response does not have a "access_token" field in the body'
+    ).has.nested.property('body.access_token');
   },
 
   /**
@@ -61,6 +67,8 @@ module.exports = {
     ).to.have.property('finalURL');
 
     const linkUrl = new URL(linkRes.finalURL);
+
+    console.log(`when checking mocked Google Linking success, got final URL: ${linkUrl}`)
 
     expect(linkUrl.searchParams.get('linked_email'),
       'response after Google linking doesnt include linked_email'

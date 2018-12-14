@@ -15,15 +15,13 @@ class User {
    * @param {Object} options
    * @param {string} options.username - Gen3 commons username/email
    * @param {string} options.envVarsName - Suffix for getting environment variables for user
-   * @param {boolean} options.jenkinsOnly - true if not configured for local testing by default
    */
-  constructor({ username, envVarsName, jenkinsOnly }) {
+  constructor({ username, envVarsName }) {
     this.username = username;
     this.envTokenName = `ACCESS_TOKEN_${envVarsName}`;
     this.envExpTokenName = `EXPIRED_ACCESS_TOKEN_${envVarsName}`;
     this.envGoogleEmail = `GOOGLE_EMAIL_${envVarsName}`;
     this.envGooglePassword = `GOOGLE_PASSWORD_${envVarsName}`;
-    this.jenkinsOnly = jenkinsOnly;
   }
 
   /**
@@ -104,25 +102,25 @@ module.exports = {
   /**
    * Main User account
    */
-  mainAcct: new User({ username: 'cdis.autotest@gmail.com', envVarsName: 'MAIN', jenkinsOnly: false }),
+  mainAcct: new User({ username: 'cdis.autotest@gmail.com', envVarsName: 'MAIN' }),
   /**
    * Auxiliary User account 1
    */
-  auxAcct1: new User({ username: 'dummy-one@planx-pla.net', envVarsName: 'AUX1', jenkinsOnly: true }),
+  auxAcct1: new User({ username: 'dummy-one@planx-pla.net', envVarsName: 'AUX1' }),
   /**
    * Auxiliary User account 2
    */
-  auxAcct2: new User({ username: 'smarty-two@planx-pla.net', envVarsName: 'AUX2', jenkinsOnly: true }),
+  auxAcct2: new User({ username: 'smarty-two@planx-pla.net', envVarsName: 'AUX2' }),
   /**
    * User.yaml User account 0
    */
-  user0: new User({ username: 'dcf-integration-test-0@planx-pla.net', envVarsName: 'USER0', jenkinsOnly: true }),
+  user0: new User({ username: 'dcf-integration-test-0@planx-pla.net', envVarsName: 'USER0' }),
   /**
    * User.yaml User account 1
    */
-  user1: new User({ username: 'dcf-integration-test-1@planx-pla.net', envVarsName: 'USER1', jenkinsOnly: true }),
+  user1: new User({ username: 'dcf-integration-test-1@planx-pla.net', envVarsName: 'USER1' }),
   /**
    * User.yaml User account 2
    */
-  user2: new User({ username: 'dcf-integration-test-2@planx-pla.net', envVarsName: 'USER2', jenkinsOnly: true })
+  user2: new User({ username: 'dcf-integration-test-2@planx-pla.net', envVarsName: 'USER2' })
 };

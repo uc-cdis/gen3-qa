@@ -34,9 +34,20 @@ const chai = require('chai');
 const fs = require('fs');
 
 BeforeSuite(async (fence, users) => {
-  // Cleanup before suite
-  const unlinkResults = Object.values(users).map(user => fence.do.unlinkGoogleAcct(user));
-  await Promise.all(unlinkResults);
+  console.log('Ensure test buckets are linked to projects in this commons...\n');
+  const namespace = process.env.NAMESPACE
+
+  var bucketId = fence.props.googleBucketInfo.QA.bucketId
+  var googleProjectId = fence.props.googleBucketInfo.QA.googleProjectId
+  var projectAuthId = 'QA'
+  var fenceCmd = `g3kubectl exec $(gen3 pod fence ${namespace}) -- fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
+  var response = commonsUtil.runCommand(fenceCmd, namespace);
+
+  bucketId = fence.props.googleBucketInfo.test.bucketId
+  googleProjectId = fence.props.googleBucketInfo.test.googleProjectId
+  projectAuthId = 'test'
+  fenceCmd = `g3kubectl exec $(gen3 pod fence ${namespace}) -- fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
+  response = commonsUtil.runCommand(fenceCmd, namespace);
 });
 
 After(async (fence, users) => {
