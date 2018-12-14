@@ -191,8 +191,8 @@ module.exports = {
    * @param {string} jobName - name of k8s job to run in remote environment
    * @returns {string}
    */
-  runJob(jobName) {
-    var cmd = `gen3 runjob ${jobName} && g3kubectl wait --for=condition=complete --timeout=180s job/${jobName}`;
+  runJob(jobName, timeout_seconds) {
+    var cmd = `gen3 runjob ${jobName} && g3kubectl wait --for=condition=complete --timeout=${timeout_seconds}s job/${jobName}`;
     var res = this.runCommand(cmd, process.env.NAMESPACE);
 
     // TODO: Make sure job succeeds

@@ -59,7 +59,7 @@ After(async (fence, users) => {
 Scenario('test usersync on access file 1, Google link, temp creds, bucket access, delete temp creds @reqGoogle @googleAccess', async (fence, users, google) => {
   console.log(`Running useryaml job with ${commonsUtil.userAccessFiles.newUserAccessFile1}`);
   commonsUtil.setUserYaml(commonsUtil.userAccessFiles.newUserAccessFile1);
-  commonsUtil.runJob('useryaml');
+  commonsUtil.runJob('useryaml', 180);
 
   console.log('make sure users google accounts are unlinked');
   await fence.complete.forceUnlinkGoogleAcct(users.user0);
@@ -217,7 +217,7 @@ Scenario('test usersync on access file 1, Google link, temp creds, bucket access
 Scenario('test usersync on access file 2, Google link, temp creds, bucket access, delete temp creds @reqGoogle @googleAccess', async (fence, users, google) => {
   console.log(`Running useryaml job with ${commonsUtil.userAccessFiles.newUserAccessFile2}`);
   commonsUtil.setUserYaml(commonsUtil.userAccessFiles.newUserAccessFile2);
-  commonsUtil.runJob('useryaml');
+  commonsUtil.runJob('useryaml', 180);
 
   console.log('make sure users google accounts are unlinked');
   await fence.complete.forceUnlinkGoogleAcct(users.user0);
@@ -375,7 +375,7 @@ Scenario('test usersync access file 1, Google link, temp creds, bucket access, t
   async (fence, users, google) => {
     console.log(`Running useryaml job with ${commonsUtil.userAccessFiles.newUserAccessFile1}`);
   commonsUtil.setUserYaml(commonsUtil.userAccessFiles.newUserAccessFile1);
-  commonsUtil.runJob('useryaml');
+  commonsUtil.runJob('useryaml', 180);
 
   console.log('make sure users google accounts are unlinked');
   await fence.complete.forceUnlinkGoogleAcct(users.user0);
@@ -497,7 +497,7 @@ Scenario('test usersync access file 1, Google link, temp creds, bucket access, t
 
   console.log(`Running useryaml job with ${commonsUtil.userAccessFiles.newUserAccessFile2}`);
   commonsUtil.setUserYaml(commonsUtil.userAccessFiles.newUserAccessFile2);
-  commonsUtil.runJob('useryaml');
+  commonsUtil.runJob('useryaml', 180);
 
   console.log('using saved google creds to access google bucket!! Save responses to check later');
   // use Google's client libraries to attempt to read a controlled access file with the
