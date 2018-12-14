@@ -27,11 +27,7 @@ User Access Files and which projects the users have access to:
       - test
     User2
       - QA
-
-
-
 */
-
 const commonsUtil = require('../../utils/commonsUtil');
 const chai = require('chai');
 
@@ -65,10 +61,7 @@ Scenario('test usersync on access file 1, Google link, temp creds, bucket access
   await fence.complete.linkGoogleAcctMocked(users.user2);
 
   console.log('creating temporary google creds');
-  console.log(
-    'NOTE: If the following fails and you do not know why, it *might* be that we have '
-    'hit our limit for SA keys on given Service Account in Google.'
-  )
+  console.log('NOTE: If the following fails and you do not know why, it *might* be that we have hit our limit for SA keys on given Service Account in Google.');
   // call our endpoint to get temporary creds
   // NOTE: If this fails and you don't know why, it *might* be that we've hit our limit
   //       for SA keys on this user's Google Service Account. They *should* be cleaned
@@ -113,8 +106,7 @@ Scenario('test usersync on access file 1, Google link, temp creds, bucket access
     console.log(`Google creds file ${pathToCreds2KeyFile} saved!`);
   });
 
-  console.log('using saved google creds to access google bucket!! Save responses to '
-    'check later');
+  console.log('using saved google creds to access google bucket!! Save responses to check later');
   // use Google's client libraries to attempt to read a controlled access file with the
   // creds we just saved (based on the user's permissions)
   // attempt to access a file in the bucket
@@ -227,10 +219,7 @@ Scenario('test usersync on access file 2, Google link, temp creds, bucket access
   await fence.complete.linkGoogleAcctMocked(users.user2);
 
   console.log('creating temporary google creds');
-  console.log(
-    'NOTE: If the following fails and you do not know why, it *might* be that we have '
-    'hit our limit for SA keys on given Service Account in Google.'
-  )
+  console.log('NOTE: If the following fails and you do not know why, it *might* be that we have hit our limit for SA keys on given Service Account in Google.');
   // call our endpoint to get temporary creds
   // NOTE: If this fails and you don't know why, it *might* be that we've hit our limit
   //       for SA keys on this user's Google Service Account. They *should* be cleaned
@@ -371,8 +360,7 @@ Scenario('test usersync on access file 2, Google link, temp creds, bucket access
   ).to.have.property('statusCode', 204);
 });
 
-Scenario('test usersync access file 1, Google link, temp creds, bucket access, '
-  'test usersync access file 2, bucket access, delete temp creds @reqGoogle @googleAccess',
+Scenario('test usersync access file 1, Google link, temp creds, bucket access, test usersync access file 2, bucket access, delete temp creds @reqGoogle @googleAccess',
   async (fence, users, google) => {
     console.log(`Running useryaml job with ${commonsUtil.userAccessFiles.newUserAccessFile1}`);
   commonsUtil.setUserYaml(commonsUtil.userAccessFiles.newUserAccessFile1);
@@ -389,10 +377,7 @@ Scenario('test usersync access file 1, Google link, temp creds, bucket access, '
   await fence.complete.linkGoogleAcctMocked(users.user2);
 
   console.log('creating temporary google creds');
-  console.log(
-    'NOTE: If the following fails and you do not know why, it *might* be that we have '
-    'hit our limit for SA keys on given Service Account in Google.'
-  )
+  console.log('NOTE: If the following fails and you do not know why, it *might* be that we have hit our limit for SA keys on given Service Account in Google.');
   // call our endpoint to get temporary creds
   // NOTE: If this fails and you don't know why, it *might* be that we've hit our limit
   //       for SA keys on this user's Google Service Account. They *should* be cleaned
@@ -437,8 +422,7 @@ Scenario('test usersync access file 1, Google link, temp creds, bucket access, '
     console.log(`Google creds file ${pathToCreds2KeyFile} saved!`);
   });
 
-  console.log('using saved google creds to access google bucket!! Save responses to '
-    'check later');
+  console.log('using saved google creds to access google bucket!! Save responses to check later');
   // use Google's client libraries to attempt to read a controlled access file with the
   // creds we just saved (based on the user's permissions)
   // attempt to access a file in the bucket
