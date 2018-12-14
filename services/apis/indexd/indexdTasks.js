@@ -103,16 +103,16 @@ module.exports = {
    * Remove the records created in indexd by the test suite
    * by filtering by file name
    */
-  async deleteTestFiles(fileName) {
-    return I.sendGetRequest(
-      `${indexdProps.endpoints.get}/?file_name=${fileName}`,
-      usersUtil.mainAcct.accessTokenHeader,
-    ).then((res) => {
-      res = JSON.parse(res.raw_body.replace('\n', ''));
-      res.records.forEach((file) => {
-        this.deleteFile(file);
-      });
-    });
-  },
+  // async deleteTestFiles(fileName) {
+  //   return I.sendGetRequest(
+  //     `${indexdProps.endpoints.get}/?file_name=${fileName}`,
+  //     usersUtil.mainAcct.accessTokenHeader,
+  //   ).then((res) => {
+  //     res = JSON.parse(res.raw_body.replace('\n', ''));
+  //     res.records.forEach((file) => {
+  //       this.deleteFile(file);
+  //     });
+  //   });
+  // },
 
 };

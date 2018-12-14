@@ -8,6 +8,7 @@ chai.config.truncateThreshold = 0;
 chai.use(gen3Res);
 
 const fenceProps = require('./fenceProps.js');
+const apiUtil = require('../../../utils/apiUtil.js');
 
 /**
  * fence Questions
@@ -19,6 +20,14 @@ module.exports = {
    */
   hasUrl(createUrlRes) {
     expect(createUrlRes, 'Fence did not return a URL').to.have.nested.property('body.url');
+  },
+
+  /**
+   * Asserts a res does not have url property
+   * @param createUrlRes
+   */
+  hasNoUrl(createUrlRes) {
+    expect(createUrlRes, 'Fence should not have returned a URL').to.not.have.nested.property('body.url');
   },
 
   /**
@@ -183,5 +192,16 @@ module.exports = {
 
   assertTruethyResult(result) {
     expect(!!result).to.be.true;
+  },
+
+  /**
+   *
+   */
+  deleteFilesSuccess(resList) {
+    const resListWithStatusCode = resList.map(res => [
+      res,
+      204 // expect all deletions to have succeeded with status 204
+    ]);
+    apiUtil.applyQuestion(resListWithStatusCode, this.assertStatusCode, true);
   },
 };

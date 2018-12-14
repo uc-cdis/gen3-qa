@@ -41,18 +41,4 @@ module.exports = {
     resultSuccess(res);
     expect(fileNode, 'The specified record does not exist in indexd').to.have.property('rev');
   },
-
-  metadataLinkingSuccess(record) {
-    expect(record).to.have.property('acl');
-    expect(record.acl, 'The ACL should not be empty anymore after linking metadata to the indexd record').to.not.be.empty;
-    expect(record).to.have.property('uploader');
-    expect(record.uploader, 'The uploader should be empty after linking metadata to the indexd record').to.not.exist;
-  },
-
-  metadataLinkingFailure(record) {
-    expect(record).to.have.property('acl');
-    expect(record.acl, 'The ACL should be empty before metadata is linked to the indexd record').to.be.empty;
-    expect(record).to.have.property('uploader');
-    expect(record.uploader, 'The uploader should be not empty before metadata is linked to the indexd record').to.exist;
-  },
 };

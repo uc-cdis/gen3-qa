@@ -6,13 +6,23 @@ const { sleep } = require('../../utils/util.js');
 Feature('Data file upload flow');
 
 
+/////////////
+// GLOBALS //
+/////////////
+
 const dataClientProfileName = 'qa-user';
-const fileContents = 'this fake data file was generated and uploaded by the integration test suite\n'
+const fileContents = 'this fake data file was generated and uploaded by the integration test suite\n';
 
-// UTIL FUNCTIONS
+// maintain a list of GUIDs to delete in indexd and the S3 bucket at the end
+var createdGuids = [];
 
-// the following global variables are set as part of the BeforeSuite step:
+// the following variables are set as part of the BeforeSuite step:
 var fileName, filePath, fileSize, fileMd5;
+
+
+////////////////////
+// UTIL FUNCTIONS //
+////////////////////
 
 // request a  presigned URL from fence
 const getUploadUrlFromFence = async function (fence, users, indexd) {
@@ -81,9 +91,8 @@ const checkFileInS3 = async function () {
  *
  */
 const waitForIndexdListener = async function(indexd, fileNode) {
-  let i = 0;
-  const stop = 15; // max number of seconds to wait
-  while (i < stop) {
+  const timeout = 20; // max number of seconds to wait
+  for (var i = 0; i < timeout; i++) {
     try {
       // check if indexd was updated with the correct hash and size
       await indexd.complete.checkFile(fileNode);
@@ -91,10 +100,9 @@ const waitForIndexdListener = async function(indexd, fileNode) {
     }
     catch (e) {
       await sleep(1000);
-      i++;
     }
   }
-  throw new Error(`The indexd listener did not complete the record after ${stop} seconds`);
+  throw new Error(`The indexd listener did not complete the record after ${timeout} seconds`);
 };
 
 // link metadata to an indexd file via sheepdog
@@ -119,6 +127,7 @@ Scenario('File upload via API calls', async (fence, users, nodes, indexd) => {
   // request a  presigned URL from fence
   let fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
   let fileGuid = fenceUploadRes.body.guid;
+  createdGuids.push(fileGuid);
   let presignedUrl = fenceUploadRes.body.url;
 
   await checkFileInS3();
@@ -174,6 +183,7 @@ Scenario('Link metadata to file and download', async (sheepdog, indexd, nodes, u
   // request a  presigned URL from fence
   let fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
   let fileGuid = fenceUploadRes.body.guid;
+  createdGuids.push(fileGuid);
   let presignedUrl = fenceUploadRes.body.url;
 
   // upload the file to the S3 bucket using the presigned URL
@@ -190,7 +200,7 @@ Scenario('Link metadata to file and download', async (sheepdog, indexd, nodes, u
   /////////
   // TODO: remove when indexd-listener is set up on the QA environments
   /////////
-  // return
+  return
 
   // wait for the indexd listener to add size, hashes and URL to the record
   await waitForIndexdListener(indexd, fileNode);
@@ -198,10 +208,6 @@ Scenario('Link metadata to file and download', async (sheepdog, indexd, nodes, u
   // submit metadata for this file
   let sheepdog_res = await submitFileMetadata(sheepdog, nodes, fileGuid);
   await sheepdog.ask.addNodeSuccess(sheepdog_res);
-
-  // check that uploader and acl have been updated in indexd
-  let indexd_record = await indexd.do.getFile(fileNode);
-  indexd.ask.metadataLinkingSuccess(indexd_record);
 
   // download the file via fence
   const signedUrlRes = await fence.do.createSignedUrl(fileGuid);
@@ -232,6 +238,7 @@ Scenario('Link metadata to file without hash and size', async (users, fence, she
  // request a  presigned URL from fence
  let fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
  let fileGuid = fenceUploadRes.body.guid;
+ createdGuids.push(fileGuid);
  let presignedUrl = fenceUploadRes.body.url;
 
  // simulate NOT waiting for the indexd listener to add size, hashes and
@@ -249,9 +256,9 @@ Scenario('Link metadata to file without hash and size', async (users, fence, she
  let sheepdog_res = await submitFileMetadata(sheepdog, nodes, fileGuid);
  await sheepdog.ask.hasStatusCode(sheepdog_res.addRes, 400);
 
- // check that uploader and acl have NOT been updated in indexd
- let indexd_record = await indexd.do.getFile(fileNode);
- indexd.ask.metadataLinkingFailure(indexd_record);
+ // check that we CANNOT download the file
+ const signedUrlRes = await fence.do.createSignedUrl(fileGuid);
+ await fence.ask.hasNoUrl(signedUrlRes);
 });
 
 /**
@@ -270,6 +277,10 @@ Scenario('Data deletion', async () => {
   // no match in indexd after delete
   // no download after delete
   // no metadata linking after delete
+
+  // upload file
+  // link to metadata
+  // delete file --> should this work?
 });
 
 Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fence) => {
@@ -280,6 +291,7 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
   // request a  presigned URL from fence
   let fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
   let fileGuid = fenceUploadRes.body.guid;
+  createdGuids.push(fileGuid);
   let presignedUrl = fenceUploadRes.body.url;
 
   // upload the file to the S3 bucket using the presigned URL
@@ -305,9 +317,12 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
   let sheepdog_res = await submitFileMetadata(sheepdog, nodes, fileGuid);
   await sheepdog.ask.addNodeSuccess(sheepdog_res);
 
-  // check that uploader and acl have been updated in indexd
-  let indexd_record = await indexd.do.getFile(fileNode);
-  indexd.ask.metadataLinkingSuccess(indexd_record);
+  // check that the file can be downloaded
+  let signedUrlRes = await fence.do.createSignedUrl(fileGuid);
+  await fence.complete.checkFileEquals(
+    signedUrlRes,
+    fileContents,
+  );
 
   ////////////
   // FILE 2 //
@@ -316,6 +331,7 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
   // request a  presigned URL from fence
   fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
   fileGuid = fenceUploadRes.body.guid;
+  createdGuids.push(fileGuid);
   presignedUrl = fenceUploadRes.body.url;
 
   // upload the file to the S3 bucket using the presigned URL
@@ -343,9 +359,12 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
   await sheepdog.do.addNode(metadata);
   await sheepdog.ask.addNodeSuccess(metadata);
 
-  // check that uploader and acl have been updated in indexd
-  indexd_record = await indexd.do.getFile(fileNode);
-  indexd.ask.metadataLinkingSuccess(indexd_record);
+  // check that the file can be downloaded
+  signedUrlRes = await fence.do.createSignedUrl(fileGuid);
+  await fence.complete.checkFileEquals(
+    signedUrlRes,
+    fileContents,
+  );
 });
 
 BeforeSuite(async (dataClient, fence, users, sheepdog, indexd, files) => {
@@ -365,14 +384,17 @@ BeforeSuite(async (dataClient, fence, users, sheepdog, indexd, files) => {
   fileMd5 = await files.getFileHash(filePath);
 
   // clean up in indexd (remove the records created by this test suite)
-  await indexd.do.deleteTestFiles(fileName);
+  // await indexd.do.deleteTestFiles(fileName);
 });
 
-AfterSuite(async (files) => {
+AfterSuite(async (files, fence) => {
   // delete the temp file from local storage
   if (fs.existsSync(filePath)) {
     files.deleteFile(filePath);
   }
+
+  // clean up in indexd and S3 (remove the records created by this test suite)
+  await fence.complete.deleteFiles(createdGuids);
 });
 
 Before((nodes) => {
@@ -380,10 +402,7 @@ Before((nodes) => {
   nodes.refreshPathNodes();
 });
 
-After(async (sheepdog, indexd) => {
+After(async (sheepdog) => {
   // clean up in sheepdog
   await sheepdog.complete.findDeleteAllNodes();
-
-  // clean up in indexd (remove the records created by this test suite)
-  await indexd.do.deleteTestFiles(fileName);
 });

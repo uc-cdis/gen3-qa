@@ -431,11 +431,29 @@ module.exports = {
       'file_name': file_name
     };
     return I.sendPostRequest(
-      fenceProps.endpoints.upload,
+      fenceProps.endpoints.uploadFile,
       JSON.stringify({
         file_name,
       }),
       header,
     ).then(res => new Gen3Response(res));
+  },
+
+  /**
+   * Delete a list of file GUIDs from indexd and S3
+   */
+  async deleteFiles(guidList) {
+    var resList = []
+    for (guid of guidList) {
+      var file = {
+        did: guid
+      };
+      var res = await I.sendDeleteRequest(
+        `${fenceProps.endpoints.deleteFile}/${guid}`,
+        usersUtil.mainAcct.accessTokenHeader,
+      );
+      resList.push(new Gen3Response(res))
+    }
+    return resList;
   },
 };

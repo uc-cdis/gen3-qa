@@ -71,4 +71,12 @@ module.exports = {
     fenceQuestions.hasAPIKey(apiKeyRes);
     return apiKeyRes;
   },
+
+  /**
+   *
+   */
+  async deleteFiles(guidList) {
+    const resList = await fenceTasks.deleteFiles(guidList);
+    fenceQuestions.deleteFilesSuccess(resList);
+  },
 };
