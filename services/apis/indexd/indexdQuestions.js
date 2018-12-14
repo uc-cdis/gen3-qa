@@ -32,11 +32,20 @@ module.exports = {
     }
   },
 
+  /**
+   * Asserts a record was successfully deleted from indexd
+   * @param {Object} ffileNode
+   */
   deleteFileSuccess(fileNode) {
     // Note that the delete res is the entire response, not just the body
     expect(fileNode, 'The record was not deleted from indexd').to.nested.include({ 'indexd_delete_res.raw_body': '' });
   },
 
+  /**
+   * Asserts a record exists in indexd
+   * @param {Gen3Response} res - getFile result
+   * @param {Object} fileNode
+   */
   recordExists(res, fileNode) {
     resultSuccess(res);
     expect(fileNode, 'The specified record does not exist in indexd').to.have.property('rev');

@@ -77,13 +77,13 @@ module.exports = {
    * @param {string[]} args - additional args for endpoint
    * @returns {Promise<Gen3Response>}
    */
-  createSignedUrl(id, args = []) {
+  createSignedUrl(id, args = [], userToken = usersUtil.mainAcct.accessTokenHeader) {
     return I.sendGetRequest(
       `${fenceProps.endpoints.getFile}/${id}?${args.join('&')}`.replace(
         /[?]$/g,
         '',
       ),
-      user.mainAcct.accessTokenHeader,
+      userToken,
     ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
   },
 
@@ -422,14 +422,14 @@ module.exports = {
   },
 
   /**
-   *
+   * Hits fence's signed url for data upload endpoint
+   * @param {string} file_name - name of the file what will be uploaded
+   * @param {string} accessToken - access token
+   * @returns {Promise<Gen3Response>}
    */
   async getUrlForDataUpload(file_name, accessToken) {
     const header = accessToken
     header['Content-Type'] = 'application/json';
-    data = {
-      'file_name': file_name
-    };
     return I.sendPostRequest(
       fenceProps.endpoints.uploadFile,
       JSON.stringify({
@@ -440,7 +440,8 @@ module.exports = {
   },
 
   /**
-   * Delete a list of file GUIDs from indexd and S3
+   * Deletes files by wiping records from indexd and files from S3
+   * @param {array} guidList - list of GUIDs of the files to delete
    */
   async deleteFiles(guidList) {
     var resList = []

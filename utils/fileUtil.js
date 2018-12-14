@@ -11,7 +11,9 @@ const I = actor();
 
 module.exports = {
   /**
-   *
+   * Create a file in local storage
+   * @param {string} filePath - where to save the file
+   * @param {string} dataString - file contents
    */
   async createTmpFile(filePath, dataString) {
     let stream = fs.createWriteStream(filePath);
@@ -22,7 +24,8 @@ module.exports = {
   },
 
   /**
-   *
+   * Delete a file from local storage
+   * @param {string} filePath - file location
    */
   async deleteFile(filePath) {
     fs.unlink(filePath, (err) => {
@@ -31,7 +34,9 @@ module.exports = {
   },
 
   /**
-   * /!\ returns 0 if the file was created during a different session (?)
+   * Get the size of a file in local storage
+   * @param {string} filePath - file location
+   * @returns {int}
    */
   async getFileSize(filePath) {
     var fileSize = 0;
@@ -44,7 +49,9 @@ module.exports = {
   },
 
   /**
-   *
+   * Get the md5 hash of a file in local storage
+   * @param {string} filePath - file location
+   * @returns {string}
    */
   async getFileHash(filePath) {
     var fileMd5 = -1;

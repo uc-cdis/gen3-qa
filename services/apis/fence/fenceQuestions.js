@@ -19,7 +19,7 @@ module.exports = {
    * @param createUrlRes
    */
   hasUrl(createUrlRes) {
-    expect(createUrlRes, 'Fence did not return a URL').to.have.nested.property('body.url');
+    expect(createUrlRes, 'Fence did not return a URL (check fence logs for more info on why)').to.have.nested.property('body.url');
   },
 
   /**
@@ -195,7 +195,8 @@ module.exports = {
   },
 
   /**
-   *
+   * Assert a list of responses from file deletions are all successful
+   * @param {array} resList - list of Gen3Responses
    */
   deleteFilesSuccess(resList) {
     const resListWithStatusCode = resList.map(res => [

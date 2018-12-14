@@ -165,16 +165,6 @@ if (canUseNodes) {
 
 module.exports = {
   /**
-   *
-   */
-  getNodeFromData(jsonData) {
-    if (!canUseNodes) {
-      throw Error(dataMissingError);
-    }
-    return nodeFromData(jsonData);
-  },
-
-  /**
    * Get a file node and its path to the root node
    * @returns {{path: Node[], file: Node}}
    */

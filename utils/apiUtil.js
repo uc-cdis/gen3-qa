@@ -121,6 +121,7 @@ module.exports = {
 
   /**
    * Wait for the specified number of milliseconds
+   * @param {int} ms
    */
    sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));

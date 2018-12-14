@@ -73,7 +73,8 @@ module.exports = {
   },
 
   /**
-   *
+   * Deletes files by wiping records from indexd and files from S3
+   * @param {array} guidList - list of GUIDs of the files to delete
    */
   async deleteFiles(guidList) {
     const resList = await fenceTasks.deleteFiles(guidList);

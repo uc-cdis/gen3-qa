@@ -26,7 +26,9 @@ module.exports = {
   },
 
   /**
-   * Check if a record exists in indexd
+   * Checks if a record exists in indexd
+   * @param {Object} indexdFile
+   * @returns {Promise<Gen3Response>}
    */
   async checkRecord(indexdFile) {
     const res = await indexdTasks.getFile(indexdFile);
