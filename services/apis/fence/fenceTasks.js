@@ -77,14 +77,27 @@ module.exports = {
    * @param {string[]} args - additional args for endpoint
    * @returns {Promise<Gen3Response>}
    */
-  createSignedUrl(id, args = [], userToken = usersUtil.mainAcct.accessTokenHeader) {
+  createSignedUrl(id, args = []) {
     return I.sendGetRequest(
       `${fenceProps.endpoints.getFile}/${id}?${args.join('&')}`.replace(
         /[?]$/g,
         '',
       ),
-      userToken,
+      usersUtil.mainAcct.accessTokenHeader,
     ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
+  },
+
+  /**
+   * Hits fence's signed url endpoint
+   * @param {string} id - id/did of an indexd file
+   * @param {string[]} userHeader - a user's access token header
+   * @returns {Promise<Gen3Response>}
+   */
+  createSignedUrlForUser(id, userHeader=usersUtil.mainAcct.accessTokenHeader) {
+    return I.sendGetRequest(
+      `${fenceProps.endpoints.getFile}/${id}`,
+      userHeader,
+    ).then(res => new Gen3Response(res));
   },
 
   /**

@@ -55,7 +55,7 @@ const uploadFileToS3 = async function (presignedUrl) {
  * wait until a file's hash and size are updated in indexd
  */
 const waitForIndexdListener = async function(indexd, fileNode) {
-  const timeout = 20; // max number of seconds to wait
+  const timeout = 30; // max number of seconds to wait
   for (var i = 0; i < timeout; i++) {
     try {
       // check if indexd was updated with the correct hash and size
@@ -195,15 +195,14 @@ Scenario('Link metadata to file and download', async (sheepdog, indexd, nodes, u
   await sheepdog.ask.addNodeSuccess(sheepdog_res);
 
   // download the file via fence
-  var signedUrlRes = await fence.do.createSignedUrl(fileGuid);
+  var signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid);
   await fence.complete.checkFileEquals(
     signedUrlRes,
     fileContents,
   );
 
   // check that a user who is not the uploader can download the file
-  let auxUserToken = users.auxAcct1.accessTokenHeader;
-  signedUrlRes = await fence.do.createSignedUrl(fileGuid, userToken=auxUserToken);
+  signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid, userToken=users.auxAcct1.accessTokenHeader);
   await fence.complete.checkFileEquals(
     signedUrlRes,
     fileContents,
@@ -245,7 +244,7 @@ Scenario('Link metadata to file without hash and size', async (users, fence, she
 
   // check that we CANNOT download the file
   // TODO: should uploader be able to download before linking, but not others?
-  const signedUrlRes = await fence.do.createSignedUrl(fileGuid);
+  const signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid);
   await fence.ask.hasNoUrl(signedUrlRes);
 });
 
@@ -281,20 +280,15 @@ Scenario('Download before metadata linking', async (fence, users, indexd) => {
   // do NOT submit metadata for this file
 
   // download the file via fence
-  const signedUrlRes = await fence.do.createSignedUrl(fileGuid);
+  var signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid);
   await fence.complete.checkFileEquals(
     signedUrlRes,
     fileContents,
   );
 
   // check that a user who is not the uploader CANNOT download the file
-  let auxUserToken = users.auxAcct1.accessTokenHeader;
-  signedUrlRes = await fence.do.createSignedUrl(fileGuid, userToken=auxUserToken);
-  // TODO change this:
-  await fence.complete.checkFileEquals(
-    signedUrlRes,
-    fileContents,
-  );
+  signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid, userToken=users.auxAcct1.accessTokenHeader);
+  fence.ask.assertStatusCode(signedUrlRes, 401);
 });
 
 Scenario('Data deletion', async () => {
@@ -348,7 +342,7 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
   await sheepdog.ask.addNodeSuccess(sheepdog_res);
 
   // check that the file can be downloaded
-  let signedUrlRes = await fence.do.createSignedUrl(fileGuid);
+  let signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid);
   await fence.complete.checkFileEquals(
     signedUrlRes,
     fileContents,
@@ -390,7 +384,7 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
   await sheepdog.ask.addNodeSuccess(metadata);
 
   // check that the file can be downloaded
-  signedUrlRes = await fence.do.createSignedUrl(fileGuid);
+  signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid);
   await fence.complete.checkFileEquals(
     signedUrlRes,
     fileContents,
