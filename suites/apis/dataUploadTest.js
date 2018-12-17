@@ -1,6 +1,6 @@
 const fs = require('fs')
 
-const { sleep } = require('../../utils/apiUtil.js');
+const { smartWait } = require('../../utils/apiUtil.js');
 
 
 Feature('Data file upload flow');
@@ -55,18 +55,24 @@ const uploadFileToS3 = async function (presignedUrl) {
  * wait until a file's hash and size are updated in indexd
  */
 const waitForIndexdListener = async function(indexd, fileNode) {
-  const timeout = 30; // max number of seconds to wait
-  for (var i = 0; i < timeout; i++) {
+  /**
+   * return true if the record has been updated in indexd, false otherwise
+   */
+  const isRecordUpdated = async function(indexd, fileNode) {
     try {
       // check if indexd was updated with the correct hash and size
       await indexd.complete.checkFile(fileNode);
-      return;
+      return true;
     }
-    catch (e) {
-      await sleep(1000);
+    catch {
+      return false;
     }
-  }
-  throw new Error(`The indexd listener did not complete the record after ${timeout} seconds`);
+  };
+
+  const timeout = 30; // max number of seconds to wait
+  let errorMessage = `The indexd listener did not complete the record after ${timeout} seconds`;
+
+  await smartWait(isRecordUpdated, [indexd, fileNode], timeout, errorMessage);
 };
 
 /**
@@ -89,6 +95,10 @@ const submitFileMetadata = async function (sheepdog, nodes, fileGuid) {
   return metadata;
 };
 
+
+const deleteFromS3 = async function (guidList) {
+  // TODO: how to do this without access to the aws creds in fence-config?
+};
 
 /**
  * Use an API call to fence to upload a file to S3 and check that the
@@ -338,6 +348,10 @@ Scenario('Download before metadata linking', async (fence, users, indexd) => {
   fence.ask.assertStatusCode(signedUrlRes, 401);
 });
 
+/**
+ * Upload a file, then delete it through fence. The file should not be
+ * accessible for metadata linking or download after deletion
+ */
 Scenario('Data file deletion', async (fence, users, indexd, sheepdog, nodes) => {
   // request a  presigned URL from fence
   let fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
@@ -485,6 +499,7 @@ BeforeSuite(async (dataClient, fence, users, sheepdog, indexd, files) => {
   fileMd5 = await files.getFileHash(filePath);
 
   // clean up in indexd (remove the records created by this test suite)
+  // TODO: remove
   // await indexd.do.deleteTestFiles(fileName);
 });
 
@@ -496,8 +511,8 @@ AfterSuite(async (files, indexd) => {
 
   // clean up in indexd and S3 (remove the records created by this test suite)
   console.log('deleting: ' + createdGuids); // TODO: remove this debug log
-  // await fence.complete.deleteFiles(createdGuids);
   await indexd.complete.deleteFiles(createdGuids);
+  await deleteFromS3(createdGuids);
 });
 
 Before((nodes) => {

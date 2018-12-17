@@ -120,6 +120,7 @@ module.exports = {
   /**
    * Remove the records created in indexd by the test suite
    * by filtering by file name
+   * TODO: remove this function?
    * @param {array} fileName - file name to delete
    */
   async deleteTestFiles(fileName) {

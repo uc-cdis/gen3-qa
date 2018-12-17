@@ -5,7 +5,7 @@
 
 const fs = require('fs');
 
-const { sleep } = require('./apiUtil.js');
+const { smartWait } = require('./apiUtil.js');
 
 const I = actor();
 
@@ -39,13 +39,19 @@ module.exports = {
    * @returns {int}
    */
   async getFileSize(filePath) {
-    var fileSize = 0;
-    // wait for file to be created
-    do {
-      await sleep(10);
-      fileSize = fs.statSync(filePath).size;
-    } while (fileSize == 0);
-    return fileSize;
+    /**
+     * return true if the contents of file have been written, false otherwise
+     */
+    const isFileCreated = async function(filePath) {
+      let fileSize = fs.statSync(filePath).size;
+      return !(fileSize == 0);
+    };
+
+    const timeout = 5; // max number of seconds to wait
+    let errorMessage = `The temp file was not created after ${timeout} seconds`;
+    await smartWait(isFileCreated, [filePath], timeout, errorMessage);
+
+    return fs.statSync(filePath).size;
   },
 
   /**
@@ -54,20 +60,16 @@ module.exports = {
    * @returns {string}
    */
   async getFileHash(filePath) {
-    var fileMd5 = -1;
     var fd = fs.createReadStream(filePath);
     var hash = require('crypto').createHash('md5');
     hash.setEncoding('hex');
     fd.on('end', function() {
         hash.end();
-        fileMd5 = hash.read();
     });
     fd.pipe(hash);
 
-    // wait for hash to be computed
-    while (fileMd5 == -1) {
-      await sleep(10);
-    }
-    return fileMd5;
+    return new Promise(function(resolve, reject) {
+      fd.on('end', ()=>resolve(hash.read()));
+    });
   },
 };
