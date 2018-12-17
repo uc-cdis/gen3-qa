@@ -10,7 +10,6 @@ Feature('Data file upload flow');
 // GLOBALS //
 /////////////
 
-const dataClientProfileName = 'qa-user';
 const fileContents = 'this fake data file was generated and uploaded by the integration test suite\n';
 
 // maintain a list of GUIDs to delete in indexd and the S3 bucket at the end
@@ -131,40 +130,6 @@ Scenario('File upload via API calls', async (fence, users, nodes, indexd) => {
 
   // wait for the indexd listener to add size, hashes and URL to the record
   await waitForIndexdListener(indexd, fileNode);
-
-  // delete file in bucket (?)
-});
-
-/**
- * This time, use the gen3 data client to upload and download the file
- */
-Scenario('File upload and download via client', async (dataClient, indexd, nodes) => {
-  // use gen3 client to upload a file (TODO: upload-new does not exist yet)
-  // fileGuid = dataClient.do.upload_file(dataClientProfileName, filePath);
-
-  // // TODO: set to GUID returned from upload
-  // var fileGuid = '65817c30-ee9c-44e1-81e6-c44a1fbeda3b';
-  // fileSize = 5; // TODO remove
-  // fileMd5 = '003396a33b18d21379c19cc405273910'; // TODO remove
-  //
-  // // check if correct hash and size in indexd
-  // fileNode = nodes.getNodeFromData({
-  //   did: fileGuid,
-  //   file_size: fileSize,
-  //   md5sum: fileMd5,
-  //   type: 'submitted_unaligned_reads',
-  // });
-  // await indexd.complete.checkFile(fileNode);
-
-
-
-  // TODO: download the file via the data client
-  // TODO: download before metadata linking OK??
-  // fileName = 'someFileDestination.txt';
-  // dataClient.do.download_file(dataClientProfileName, fileGuid, fileName);
-  // if (!require('fs').existsSync(fileName)) {
-  //   throw new Error(`Download failed for ${fileGuid}`)
-  // }
 });
 
 /**
@@ -178,7 +143,8 @@ Scenario('User without role cannot upload', async (fence, users, nodes, indexd) 
   return
 
   // request a  presigned URL from fence
-  let token = users.mainAcct.accessTokenHeader; // TODO: change user
+  // this user does not have the appropriate role
+  let token = users.auxAcct1.accessTokenHeader;
   let fenceUploadRes = await fence.do.getUrlForDataUpload(fileName, token);
   fence.ask.hasNoUrl(fenceUploadRes);
 });
@@ -229,6 +195,44 @@ Scenario('Link metadata to file and download', async (sheepdog, indexd, nodes, u
     signedUrlRes,
     fileContents,
   );
+});
+
+/**
+ * This time, use the gen3 data client to upload and download the file
+ */
+Scenario('File upload and download via client', async (dataClient, indexd, nodes) => {
+  /////////
+  // TODO: remove when the gen3 client's new release is set up in jenkins
+  /////////
+  return
+
+  // use gen3 client to upload a file (TODO: upload-new does not exist yet)
+  let fileGuid = dataClient.do.upload_file(filePath);
+
+  // check that a (blank) record was created in indexd
+  fileNode = {
+    did: fileGuid,
+    data: {
+      md5sum: fileMd5,
+      file_size: fileSize
+    }
+  };
+  await indexd.complete.checkRecord(fileNode);
+
+  // upload the file to the S3 bucket using the presigned URL
+  await uploadFileToS3(presignedUrl);
+
+  /////////
+  // TODO: remove when indexd-listener is set up on the QA environments
+  /////////
+  return
+
+  // wait for the indexd listener to add size, hashes and URL to the record
+  await waitForIndexdListener(indexd, fileNode);
+
+  // download the file via the data client
+  filePath = './tmpFileDestination.txt';
+  await dataClient.complete.download_file(fileGuid, filePath);
 });
 
 /**
@@ -349,8 +353,8 @@ Scenario('Download before metadata linking', async (fence, users, indexd) => {
 });
 
 /**
- * Upload a file, then delete it through fence. The file should not be
- * accessible for metadata linking or download after deletion
+ * Upload a file, then delete it through fence. Aftert deletion, the file
+ * should not be accessible for metadata linking or download
  */
 Scenario('Data file deletion', async (fence, users, indexd, sheepdog, nodes) => {
   // request a  presigned URL from fence
@@ -483,7 +487,7 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
 
 BeforeSuite(async (dataClient, fence, users, sheepdog, indexd, files) => {
   // configure gen3-client: temporary solution
-  // dataClient.do.configure_client(fence, users, dataClientProfileName);
+  // dataClient.do.configure_client(fence, users, files);
 
   // clean up in sheepdog
   await sheepdog.complete.findDeleteAllNodes();

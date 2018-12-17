@@ -1,4 +1,6 @@
 /**
  * dataClient Properties
  */
-module.exports = {};
+module.exports = {
+  profileName: 'qa-user',
+};

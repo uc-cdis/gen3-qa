@@ -12,48 +12,75 @@ const homedir = require('os').homedir();
  */
 module.exports = {
   /**
-   * Overwrite the gen3-client config file. This should append to the current config after checking that the profile_name does not already exist, but it would duplicate the gen3-client code -> maybe we can change the gen3-client to accept the api endpoint as a param to configure?
+   * Configure the gen3 client
    */
-  async configure_client(fence, users, profileName) {
-    const scope = ['data', 'user'];
-    const apiKeyRes = await fence.do.createAPIKey(
-      scope,
-      users.mainAcct.accessTokenHeader,
-    );
-    apiKey = apiKeyRes['body']['api_key'];
-    keyId = apiKeyRes['body']['key_id'];
-    apiEndpoint = `https://${process.env.HOSTNAME}`;
-    configPath = `${homedir}/.gen3/config`;
+  async configure_client(fence, users, files) {
+    try {
 
-    var stream = fs.createWriteStream(configPath); //, {'flags': 'a'});
-    stream.once('open', function(fd) {
-      stream.write("[" + profileName + "]\n");
-      stream.write("key_id=" + keyId + "\n");
-      stream.write("api_key=" + apiKey + "\n");
-      stream.write("access_key=\n");
-      stream.write("api_endpoint=" + apiEndpoint + "\n\n");
-      stream.end();
-    });
+      // create a creds file
+      const scope = ['data', 'user'];
+      const apiKeyRes = await fence.do.createAPIKey(
+        scope,
+        users.mainAcct.accessTokenHeader,
+      );
+      let data = {
+        api_key: apiKeyRes['body']['api_key'],
+        key_id: apiKeyRes['body']['key_id'],
+      };
+      const credsPath = './tmp_creds.json';
+      await files.createTmpFile(credsPath, JSON.stringify(data));
+
+      // configure the gen3 client
+      let apiEndpoint = `https://${process.env.HOSTNAME}`;
+      let configComd = `${homedir}/gen3-client configure --profile ${dataClientProps.profileName} --cred ${credsPath} --apiendpoint ${apiEndpoint}`;
+      execSync(configComd, (error, stdout, stderr) => {
+        // console.log(`${stdout}`);
+        // console.log(`${stderr}`);
+        if (error !== null) {
+            console.log(`exec error: ${error}`);
+        }
+      });
+
+      // delete the creds files
+      files.deleteFile(credsPath);
+
+      } catch (err) {
+        throw err.toString('utf8');
+      }
   },
 
   /**
    * TODO: this should return a GUID
    */
-  async upload_file(profileName, filePath) {
-    let uploadCmd = `${homedir}/gen3-client upload-new --profile ${profileName} --file=${filePath}`;
-    out = execSync(uploadCmd).catch((e) => console.log(e));
-    // console.log(out.toString('utf8'));
-    resGuid = 'xxx';
-    return resGuid;
+  async upload_file(filePath) {
+    let uploadCmd = `${homedir}/gen3-client upload-new --profile ${dataClientProps.profileName} --file=${filePath}`;
+    try {
+      out = execSync(uploadCmd).catch((e) => console.log(e));
+      // console.log(out.toString('utf8'));
+      resGuid = 'xxx';
+      return resGuid;
+    }
+    catch(e) {
+      let msg = e.stderr.toString('utf8');
+      throw new Error('Error uploading file with the data client:\n' + msg);
+    }
   },
 
   /**
-   *
+   * Download a file
+   * @param {string} guid - GUID of the file to download
+   * @param {string} filePath - location to store the file
    */
-  async download_file(profileName, guid, fileName) {
-    let downloadCmd = `${homedir}/gen3-client download --profile ${profileName} --guid ${guid} --file=${fileName}`;
-    out = execSync(`${downloadCmd}`);
-    // console.log(out.toString('utf8'));
+  async download_file(guid, filePath) {
+    let downloadCmd = `${homedir}/gen3-client download --profile ${dataClientProps.profileName} --guid ${guid} --file=${filePath}`;
+    try {
+      out = execSync(`${downloadCmd}`);
+      // console.log(out.toString('utf8'));
+    }
+    catch(e) {
+      let msg = e.stderr.toString('utf8');
+      throw new Error('Error downloading file with the data client:\n' + msg);
+    }
     // if (out.includes('panic:')) {
     //   throw new Error(out)
     // }

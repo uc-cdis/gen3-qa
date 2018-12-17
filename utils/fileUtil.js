@@ -27,7 +27,7 @@ module.exports = {
    * Delete a file from local storage
    * @param {string} filePath - file location
    */
-  async deleteFile(filePath) {
+  deleteFile(filePath) {
     fs.unlink(filePath, (err) => {
       if (err) throw err;
     });
