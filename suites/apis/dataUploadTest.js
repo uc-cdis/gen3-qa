@@ -338,7 +338,7 @@ Scenario('Download before metadata linking', async (fence, users, indexd) => {
   fence.ask.assertStatusCode(signedUrlRes, 401);
 });
 
-Scenario('Data deletion', async (fence, users, indexd, sheepdog, nodes) => {
+Scenario('Data file deletion', async (fence, users, indexd, sheepdog, nodes) => {
   // request a  presigned URL from fence
   let fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
   let fileGuid = fenceUploadRes.body.guid;
@@ -406,9 +406,9 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
   };
 
   /////////
-  //
+  // TODO: remove when indexd-listener is set up on the QA environments
   /////////
-  // return
+  return
 
   // wait for the indexd listener to add size, hashes and URL to the record
   await waitForIndexdListener(indexd, fileNode);
