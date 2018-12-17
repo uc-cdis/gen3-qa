@@ -102,14 +102,6 @@ Scenario('File upload via API calls', async (fence, users, nodes, indexd) => {
   let presignedUrl = fenceUploadRes.body.url;
 
   // check that a (blank) record was created in indexd
-  let fileNode = {
-    did: fileGuid
-  };
-  await indexd.complete.checkRecord(fileNode);
-
-  // upload the file to the S3 bucket using the presigned URL
-  await uploadFileToS3(presignedUrl);
-
   fileNode = {
     did: fileGuid,
     data: {
@@ -117,6 +109,10 @@ Scenario('File upload via API calls', async (fence, users, nodes, indexd) => {
       file_size: fileSize
     }
   };
+  await indexd.complete.checkRecord(fileNode);
+
+  // upload the file to the S3 bucket using the presigned URL
+  await uploadFileToS3(presignedUrl);
 
   /////////
   // TODO: remove when indexd-listener is set up on the QA environments
@@ -162,6 +158,22 @@ Scenario('File upload and download via client', async (dataClient, indexd, nodes
 });
 
 /**
+ * A user who does not have upload access should not be able to upload
+ * or download files
+ */
+Scenario('User without role cannot upload', async (fence, users, nodes, indexd) => {
+  /////////
+  // TODO: remove when new role is created
+  /////////
+  return
+
+  // request a  presigned URL from fence
+  let token = users.mainAcct.accessTokenHeader; // TODO: change user
+  let fenceUploadRes = await fence.do.getUrlForDataUpload(fileName, token);
+  fence.ask.hasNoUrl(fenceUploadRes);
+});
+
+/**
  * Upload a file, link metadata to it via sheepdog and download it
  */
 Scenario('Link metadata to file and download', async (sheepdog, indexd, nodes, users, fence) => {
@@ -191,8 +203,8 @@ Scenario('Link metadata to file and download', async (sheepdog, indexd, nodes, u
   await waitForIndexdListener(indexd, fileNode);
 
   // submit metadata for this file
-  let sheepdog_res = await submitFileMetadata(sheepdog, nodes, fileGuid);
-  await sheepdog.ask.addNodeSuccess(sheepdog_res);
+  let sheepdogRes = await submitFileMetadata(sheepdog, nodes, fileGuid);
+  sheepdog.ask.addNodeSuccess(sheepdogRes);
 
   // download the file via fence
   var signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid);
@@ -212,8 +224,44 @@ Scenario('Link metadata to file and download', async (sheepdog, indexd, nodes, u
 /**
  * The linking should fail
  */
-Scenario('Link metadata to file that already has metadata', async () => {
+Scenario('Link metadata to file that already has metadata', async (fence, users, indexd, sheepdog, nodes) => {
+  // request a  presigned URL from fence
+  let fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
+  let fileGuid = fenceUploadRes.body.guid;
+  createdGuids.push(fileGuid);
+  let presignedUrl = fenceUploadRes.body.url;
 
+  // upload the file to the S3 bucket using the presigned URL
+  await uploadFileToS3(presignedUrl);
+
+  let fileNode = {
+    did: fileGuid,
+    data: {
+      md5sum: fileMd5,
+      file_size: fileSize
+    }
+  };
+
+  /////////
+  // TODO: remove when indexd-listener is set up on the QA environments
+  /////////
+  return
+
+  // wait for the indexd listener to add size, hashes and URL to the record
+  await waitForIndexdListener(indexd, fileNode);
+
+  // submit metadata for this file
+  let sheepdogRes = await submitFileMetadata(sheepdog, nodes, fileGuid);
+  sheepdog.ask.addNodeSuccess(sheepdogRes);
+
+  // fail to submit metadata for this file again
+  metadata = nodes.getFileNode().clone();
+  metadata.data.object_id = fileGuid;
+  metadata.data.file_size = fileSize;
+  metadata.data.md5sum = fileMd5;
+  metadata.data.submitter_id = 'submitted_unaligned_reads_new_value';
+  sheepdogRes = await sheepdog.do.addNode(metadata);
+  sheepdog.ask.hasStatusCode(metadata.addRes, 400);
 });
 
 /**
@@ -239,17 +287,16 @@ Scenario('Link metadata to file without hash and size', async (users, fence, she
   };
 
   // fail to submit metadata for this file
-  let sheepdog_res = await submitFileMetadata(sheepdog, nodes, fileGuid);
-  await sheepdog.ask.hasStatusCode(sheepdog_res.addRes, 400);
+  let sheepdogRes = await submitFileMetadata(sheepdog, nodes, fileGuid);
+  sheepdog.ask.hasStatusCode(sheepdogRes.addRes, 400);
 
-  // check that we CANNOT download the file
-  // TODO: should uploader be able to download before linking, but not others?
+  // check that we CANNOT download the file (there is no URL in indexd yet)
   const signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid);
-  await fence.ask.hasNoUrl(signedUrlRes);
+  fence.ask.hasNoUrl(signedUrlRes);
 });
 
 /**
- * The download should fail (??)
+ * The download should success for the uploader but fail for other users
  */
 Scenario('Download before metadata linking', async (fence, users, indexd) => {
   // request a  presigned URL from fence
@@ -279,28 +326,57 @@ Scenario('Download before metadata linking', async (fence, users, indexd) => {
 
   // do NOT submit metadata for this file
 
-  // download the file via fence
+  // the uploader can download the file
   var signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid);
   await fence.complete.checkFileEquals(
     signedUrlRes,
     fileContents,
   );
 
-  // check that a user who is not the uploader CANNOT download the file
+  // a user who is not the uploader CANNOT download the file
   signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid, userToken=users.auxAcct1.accessTokenHeader);
   fence.ask.assertStatusCode(signedUrlRes, 401);
 });
 
-Scenario('Data deletion', async () => {
-  // upload file
-  // delete file
-  // no match in indexd after delete
-  // no download after delete
-  // no metadata linking after delete
+Scenario('Data deletion', async (fence, users, indexd, sheepdog, nodes) => {
+  // request a  presigned URL from fence
+  let fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
+  let fileGuid = fenceUploadRes.body.guid;
+  let presignedUrl = fenceUploadRes.body.url;
 
-  // upload file
-  // link to metadata
-  // delete file --> should this work?
+  // upload the file to the S3 bucket using the presigned URL
+  await uploadFileToS3(presignedUrl);
+
+  fileNode = {
+    did: fileGuid,
+    data: {
+      md5sum: fileMd5,
+      file_size: fileSize
+    }
+  };
+
+  /////////
+  // TODO: remove when indexd-listener is set up on the QA environments
+  /////////
+  return
+
+  // wait for the indexd listener to add size, hashes and URL to the record
+  await waitForIndexdListener(indexd, fileNode);
+
+  // delete file
+  await fence.complete.deleteFile(fileGuid);
+
+  // no match in indexd after delete
+  let indexdRes = await indexd.do.getFile(fileNode);
+  indexd.ask.resultFailure(indexdRes);
+
+  // no metadata linking after delete
+  let sheepdogRes = await submitFileMetadata(sheepdog, nodes, fileGuid);
+  sheepdog.ask.hasStatusCode(sheepdogRes.addRes, 400);
+
+  // no download after delete
+  var signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid);
+  fence.ask.assertStatusCode(signedUrlRes, 404);
 });
 
 /**
@@ -330,16 +406,16 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
   };
 
   /////////
-  // TODO: remove when indexd-listener is set up on the QA environments
+  //
   /////////
-  return
+  // return
 
   // wait for the indexd listener to add size, hashes and URL to the record
   await waitForIndexdListener(indexd, fileNode);
 
   // submit metadata for this file
-  let sheepdog_res = await submitFileMetadata(sheepdog, nodes, fileGuid);
-  await sheepdog.ask.addNodeSuccess(sheepdog_res);
+  let sheepdogRes = await submitFileMetadata(sheepdog, nodes, fileGuid);
+  sheepdog.ask.addNodeSuccess(sheepdogRes);
 
   // check that the file can be downloaded
   let signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid);
@@ -381,7 +457,7 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
   metadata.data.md5sum = fileMd5;
   metadata.data.submitter_id = 'submitted_unaligned_reads_new_value';
   await sheepdog.do.addNode(metadata);
-  await sheepdog.ask.addNodeSuccess(metadata);
+  sheepdog.ask.addNodeSuccess(metadata);
 
   // check that the file can be downloaded
   signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid);
@@ -398,8 +474,9 @@ BeforeSuite(async (dataClient, fence, users, sheepdog, indexd, files) => {
   // clean up in sheepdog
   await sheepdog.complete.findDeleteAllNodes();
 
-  // TODO: use a random name unique to this session
-  fileName = 'qa-upload-file.txt';
+  // generate a file name unique to this session
+  let rand = (Math.random() + 1).toString(36).substring(2,7); // 5 random chars
+  fileName = `qa-upload-file_${rand}.txt`;
   filePath = './' + fileName;
 
   // create a local file to upload and store its size and hash

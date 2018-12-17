@@ -193,16 +193,4 @@ module.exports = {
   assertTruethyResult(result) {
     expect(!!result).to.be.true;
   },
-
-  /**
-   * Assert a list of responses from file deletions are all successful
-   * @param {array} resList - list of Gen3Responses
-   */
-  deleteFilesSuccess(resList) {
-    const resListWithStatusCode = resList.map(res => [
-      res,
-      204 // expect all deletions to have succeeded with status 204
-    ]);
-    apiUtil.applyQuestion(resListWithStatusCode, this.assertStatusCode, true);
-  },
 };

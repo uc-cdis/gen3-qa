@@ -453,21 +453,13 @@ module.exports = {
   },
 
   /**
-   * Deletes files by wiping records from indexd and files from S3
-   * @param {array} guidList - list of GUIDs of the files to delete
+   * Delete a file from indexd and S3
+   * @param {string} guid - GUID of the file to delete
    */
-  async deleteFiles(guidList) {
-    var resList = []
-    for (guid of guidList) {
-      var file = {
-        did: guid
-      };
-      var res = await I.sendDeleteRequest(
-        `${fenceProps.endpoints.deleteFile}/${guid}`,
-        usersUtil.mainAcct.accessTokenHeader,
-      );
-      resList.push(new Gen3Response(res))
-    }
-    return resList;
+  async deleteFile(guid) {
+    return I.sendDeleteRequest(
+      `${fenceProps.endpoints.deleteFile}/${guid}`,
+      usersUtil.mainAcct.accessTokenHeader,
+    ).then(res => new Gen3Response(res));
   },
 };

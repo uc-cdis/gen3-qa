@@ -60,4 +60,8 @@ module.exports = {
   deleteFilesSuccess(resList) {
     apiUtil.applyQuestion(resList, this.deleteFileSuccess);
   },
+
+  resultFailure(res) {
+    expect(res).to.have.property('error');
+  },
 };
