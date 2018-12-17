@@ -2,6 +2,7 @@ const uuid = require('uuid');
 
 const indexdProps = require('./indexdProps.js');
 const user = require('../../../utils/user.js');
+const { Gen3Response } = require('../../../utils/apiUtil.js');
 
 const I = actor();
 
@@ -96,6 +97,40 @@ module.exports = {
   async deleteFileIndices(files) {
     files.forEach((file) => {
       this.deleteFile(file);
+    });
+  },
+
+  /**
+   * Remove the records created in indexd by the test suite
+   * @param {array} guidList - list of GUIDs of the files to delete
+   */
+  async deleteFiles(guidList) {
+    var fileList = []
+    for (guid of guidList) {
+      var file = {
+        did: guid
+      };
+      await this.getFile(file); // adds 'rev' to the file
+      var res = await this.deleteFile(file);
+      fileList.push(file)
+    }
+    return fileList;
+  },
+
+  /**
+   * Remove the records created in indexd by the test suite
+   * by filtering by file name
+   * @param {array} fileName - file name to delete
+   */
+  async deleteTestFiles(fileName) {
+    return I.sendGetRequest(
+      `${indexdProps.endpoints.get}/?file_name=${fileName}`,
+      usersUtil.mainAcct.accessTokenHeader,
+    ).then((res) => {
+      res = JSON.parse(res.raw_body.replace('\n', ''));
+      res.records.forEach((file) => {
+        this.deleteFile(file);
+      });
     });
   },
 };

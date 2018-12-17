@@ -4,6 +4,8 @@ const expect = chai.expect;
 chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 
+const apiUtil = require('../../../utils/apiUtil.js');
+
 /**
  *  indexd utils
  */
@@ -49,5 +51,13 @@ module.exports = {
   recordExists(res, fileNode) {
     resultSuccess(res);
     expect(fileNode, 'The specified record does not exist in indexd').to.have.property('rev');
+  },
+
+  /**
+   * Assert a list of responses from file deletions are all successful
+   * @param {array} resList - list of Gen3Responses
+   */
+  deleteFilesSuccess(resList) {
+    apiUtil.applyQuestion(resList, this.deleteFileSuccess);
   },
 };

@@ -168,7 +168,7 @@ Scenario('Link metadata to file and download', async (sheepdog, indexd, nodes, u
   // request a  presigned URL from fence
   let fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
   let fileGuid = fenceUploadRes.body.guid;
-  // createdGuids.push(fileGuid); // TODO: delete after metatada submission
+  createdGuids.push(fileGuid);
   let presignedUrl = fenceUploadRes.body.url;
 
   // upload the file to the S3 bucket using the presigned URL
@@ -315,7 +315,7 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
   // request a  presigned URL from fence
   let fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
   let fileGuid = fenceUploadRes.body.guid;
-  // createdGuids.push(fileGuid); // TODO: delete after metatada submission
+  createdGuids.push(fileGuid);
   let presignedUrl = fenceUploadRes.body.url;
 
   // upload the file to the S3 bucket using the presigned URL
@@ -355,7 +355,7 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
   // request a  presigned URL from fence
   fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
   fileGuid = fenceUploadRes.body.guid;
-  // createdGuids.push(fileGuid); // TODO: delete after metatada submission
+  createdGuids.push(fileGuid);
   presignedUrl = fenceUploadRes.body.url;
 
   // upload the file to the S3 bucket using the presigned URL
@@ -411,7 +411,7 @@ BeforeSuite(async (dataClient, fence, users, sheepdog, indexd, files) => {
   // await indexd.do.deleteTestFiles(fileName);
 });
 
-AfterSuite(async (files, fence) => {
+AfterSuite(async (files, indexd) => {
   // delete the temp file from local storage
   if (fs.existsSync(filePath)) {
     files.deleteFile(filePath);
@@ -419,7 +419,8 @@ AfterSuite(async (files, fence) => {
 
   // clean up in indexd and S3 (remove the records created by this test suite)
   console.log('deleting: ' + createdGuids); // TODO: remove this debug log
-  await fence.complete.deleteFiles(createdGuids);
+  // await fence.complete.deleteFiles(createdGuids);
+  await indexd.complete.deleteFiles(createdGuids);
 });
 
 Before((nodes) => {

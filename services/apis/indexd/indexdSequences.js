@@ -35,4 +35,13 @@ module.exports = {
     indexdQuestions.recordExists(res, indexdFile);
     return res;
   },
+
+  /**
+   * Remove the records created in indexd by the test suite
+   * @param {array} guidList - list of GUIDs of the files to delete
+   */
+  async deleteFiles(guidList) {
+    const fileList = await indexdTasks.deleteFiles(guidList);
+    indexdQuestions.deleteFilesSuccess(fileList);
+  },
 };
