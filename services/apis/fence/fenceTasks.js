@@ -456,10 +456,10 @@ module.exports = {
    * Delete a file from indexd and S3
    * @param {string} guid - GUID of the file to delete
    */
-  async deleteFile(guid) {
+  async deleteFile(guid, userHeader=usersUtil.mainAcct.accessTokenHeader) {
     return I.sendDeleteRequest(
       `${fenceProps.endpoints.deleteFile}/${guid}`,
-      usersUtil.mainAcct.accessTokenHeader,
+      userHeader,
     ).then(res => new Gen3Response(res));
   },
 };

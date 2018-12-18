@@ -44,8 +44,9 @@ module.exports = {
       // delete the creds files
       files.deleteFile(credsPath);
 
-      } catch (err) {
-        throw err.toString('utf8');
+      } catch (e) {
+        let msg = e.stderr.toString('utf8');
+        throw new Error('Error configuring the data client:\n' + msg);
       }
   },
 
@@ -54,15 +55,18 @@ module.exports = {
    * @param {string} filePath - file location
    */
   async upload_file(filePath) {
-    let uploadCmd = `${homedir}/gen3-client upload-new --profile ${dataClientProps.profileName} --file=${filePath}`;
+    let uploadCmd = `${homedir}/gen3-client upload --profile=${dataClientProps.profileName} --upload-path=${filePath}`;
     try {
-      out = execSync(uploadCmd).catch((e) => console.log(e));
-      // console.log(out.toString('utf8'));
-      resGuid = 'xxx'; // TODO: the upload command should return a GUID
-      return resGuid;
+      let out = execSync(uploadCmd).toString('utf8');
+      // parse the output to find the file's new GUID
+      var matches = out.match(/to GUID (.*)./);
+      if (matches.length < 2 || matches[1].length != 36) {
+        throw new Error('Did not find a GUID in the following output from the gen3-client:\n' + out)
+      }
+      return matches[1];
     }
     catch(e) {
-      let msg = e.stderr.toString('utf8');
+      let msg = e.toString('utf8');
       throw new Error('Error uploading file with the data client:\n' + msg);
     }
   },
@@ -73,9 +77,9 @@ module.exports = {
    * @param {string} filePath - location to store the file
    */
   async download_file(guid, filePath) {
-    let downloadCmd = `${homedir}/gen3-client download --profile ${dataClientProps.profileName} --guid ${guid} --file=${filePath}`;
+    let downloadCmd = `${homedir}/gen3-client download --profile=${dataClientProps.profileName} --guid=${guid} --file=${filePath}`;
     try {
-      out = execSync(`${downloadCmd}`);
+      out = execSync(downloadCmd);
       // console.log(out.toString('utf8'));
     }
     catch(e) {

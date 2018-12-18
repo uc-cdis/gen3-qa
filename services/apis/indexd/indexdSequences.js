@@ -30,7 +30,7 @@ module.exports = {
    * @param {Object} indexdFile
    * @returns {Promise<Gen3Response>}
    */
-  async checkRecord(indexdFile) {
+  async checkRecordExists(indexdFile) {
     const res = await indexdTasks.getFile(indexdFile);
     indexdQuestions.recordExists(res, indexdFile);
     return res;

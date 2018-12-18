@@ -141,6 +141,10 @@ function parseJwt (token) {
   return JSON.parse(atob(base64));
 }
 
+/**
+ * Checks if the gen3-client executable is present in home dir.
+ * It is needed for the data upload test suite
+ */
 function assertGen3Client() {
   // check if the client is installed in the home directory
   let path = `${homedir}/gen3-client`;
@@ -217,6 +221,9 @@ module.exports = async function (done) {
   assertEnvVars(basicVars.concat(googleVars, submitDataVars));
   console.log('TEST_DATA_PATH: ', process.env.TEST_DATA_PATH);
 
+  /////////
+  // TODO: uncomment when the gen3 client's new release is set up in jenkins
+  /////////
   // assertGen3Client();
 
   // Create a program and project (does nothing if already exists)

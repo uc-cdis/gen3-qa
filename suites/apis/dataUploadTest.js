@@ -118,7 +118,7 @@ Scenario('File upload via API calls', async (fence, users, nodes, indexd) => {
       file_size: fileSize
     }
   };
-  await indexd.complete.checkRecord(fileNode);
+  await indexd.complete.checkRecordExists(fileNode);
 
   // upload the file to the S3 bucket using the presigned URL
   await uploadFileToS3(presignedUrl);
@@ -200,14 +200,15 @@ Scenario('Link metadata to file and download', async (sheepdog, indexd, nodes, u
 /**
  * This time, use the gen3 data client to upload and download the file
  */
-Scenario('File upload and download via client', async (dataClient, indexd, nodes) => {
+Scenario('File upload and download via client', async (dataClient, indexd, nodes, files) => {
   /////////
   // TODO: remove when the gen3 client's new release is set up in jenkins
   /////////
   return
 
   // use gen3 client to upload a file
-  let fileGuid = dataClient.do.upload_file(filePath);
+  let fileGuid = await dataClient.do.upload_file(filePath);
+  createdGuids.push(fileGuid);
 
   // check that a (blank) record was created in indexd
   fileNode = {
@@ -217,10 +218,7 @@ Scenario('File upload and download via client', async (dataClient, indexd, nodes
       file_size: fileSize
     }
   };
-  await indexd.complete.checkRecord(fileNode);
-
-  // upload the file to the S3 bucket using the presigned URL
-  await uploadFileToS3(presignedUrl);
+  await indexd.complete.checkRecordExists(fileNode);
 
   /////////
   // TODO: remove when indexd-listener is set up on the QA environments
@@ -232,7 +230,7 @@ Scenario('File upload and download via client', async (dataClient, indexd, nodes
 
   // download the file via the data client
   filePath = './tmpFileDestination.txt';
-  await dataClient.complete.download_file(fileGuid, filePath, fileContents);
+  await dataClient.complete.download_file(files, fileGuid, filePath, fileContents);
 });
 
 /**
@@ -381,7 +379,11 @@ Scenario('Data file deletion', async (fence, users, indexd, sheepdog, nodes) => 
   // wait for the indexd listener to add size, hashes and URL to the record
   await waitForIndexdListener(indexd, fileNode);
 
-  // delete file
+  // check that a user who is not the uploader cannot delete the file
+  let fenceRes = await fence.do.deleteFile(fileGuid, userHeader=users.auxAcct1.accessTokenHeader);
+  fence.ask.assertStatusCode(fenceRes, 403);
+
+  // delete the file
   await fence.complete.deleteFile(fileGuid);
 
   // no match in indexd after delete
@@ -486,7 +488,10 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
 });
 
 BeforeSuite(async (dataClient, fence, users, sheepdog, indexd, files) => {
-  // configure gen3-client: temporary solution
+  /////////
+  // TODO: uncomment when the gen3 client's new release is set up in jenkins
+  /////////
+  // configure the gen3-client
   // dataClient.do.configure_client(fence, users, files);
 
   // clean up in sheepdog
