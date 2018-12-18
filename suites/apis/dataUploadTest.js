@@ -1,4 +1,4 @@
-const fs = require('fs')
+const fs = require('fs');
 
 const { smartWait } = require('../../utils/apiUtil.js');
 
@@ -206,7 +206,7 @@ Scenario('File upload and download via client', async (dataClient, indexd, nodes
   /////////
   return
 
-  // use gen3 client to upload a file (TODO: upload-new does not exist yet)
+  // use gen3 client to upload a file
   let fileGuid = dataClient.do.upload_file(filePath);
 
   // check that a (blank) record was created in indexd
@@ -232,7 +232,7 @@ Scenario('File upload and download via client', async (dataClient, indexd, nodes
 
   // download the file via the data client
   filePath = './tmpFileDestination.txt';
-  await dataClient.complete.download_file(fileGuid, filePath);
+  await dataClient.complete.download_file(fileGuid, filePath, fileContents);
 });
 
 /**

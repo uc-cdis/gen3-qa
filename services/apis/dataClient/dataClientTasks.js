@@ -50,14 +50,15 @@ module.exports = {
   },
 
   /**
-   * TODO: this should return a GUID
+   * Upload a file
+   * @param {string} filePath - file location
    */
   async upload_file(filePath) {
     let uploadCmd = `${homedir}/gen3-client upload-new --profile ${dataClientProps.profileName} --file=${filePath}`;
     try {
       out = execSync(uploadCmd).catch((e) => console.log(e));
       // console.log(out.toString('utf8'));
-      resGuid = 'xxx';
+      resGuid = 'xxx'; // TODO: the upload command should return a GUID
       return resGuid;
     }
     catch(e) {

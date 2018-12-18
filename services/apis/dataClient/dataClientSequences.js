@@ -10,7 +10,7 @@ module.exports = {
    * @param {string} guid - GUID of the file to download
    * @param {string} filePath - location to store the file
    */
-  async download_file(guid, filePath) {
+  async download_file(guid, filePath, expectedContents) {
     await dataClientTasks.download_file(guid, filePath);
     await dataClientQuestions.fileContains(filePath, expectedContents);
     files.deleteFile(filePath);
