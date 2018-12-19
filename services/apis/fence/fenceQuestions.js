@@ -222,7 +222,8 @@ module.exports = {
         pathToCredsKeyFile,
         bucketInfo.bucketName,
         bucketInfo.fileName
-      )
+      ),
+      'error was thrown when attempting to get a file from a Google bucket'
     ).to.not.throw();
   },
 
@@ -239,7 +240,9 @@ module.exports = {
         pathToCredsKeyFile,
         bucketInfo.bucketName,
         bucketInfo.fileName
-      )
+      ),
+      'error was NOT thrown when attempting to get a file from a Google bucket. ' +
+      'We expected the error because the user should NOT have access.'
     ).to.throw();
   },
 

@@ -46,7 +46,9 @@ module.exports = {
    */
   async forceUnlinkGoogleAcct(userAcct) {
     const unlinkRes = await fenceTasks.unlinkGoogleAcct(userAcct);
-    expect(unlinkRes).to.have.property('statusCode');
+    expect(unlinkRes,
+      'response from unlinking Google Account does not have expected statusCode property'
+    ).to.have.property('statusCode');
     // can be 200 or 404
   },
 
@@ -106,7 +108,10 @@ module.exports = {
    */
   async createTempGoogleCreds(accessTokenHeaders) {
     const response = await fenceTasks.createTempGoogleCreds(accessTokenHeaders);
-    expect(response).has.nested.property('body.private_key');
+    expect(response,
+      'response from creating temporary Google credentials does not have nested ' +
+      'property body.private_key (which means we didn\'t get back valid Google credentials.'
+    ).has.nested.property('body.private_key');
     return response;
   },
 
