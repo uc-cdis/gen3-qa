@@ -205,5 +205,17 @@ module.exports = {
     //   throw Error(`runJob for ${jobName} failed, found "Exit code: 1" in logs: ${joblogs}.`);
     // }
     return res;
+  },
+
+  /**
+   * Run given job and DO NOT wait for it to complete
+   * NOTE: Generates a child process and runs the given command in a kubernetes namespace
+   * @param {string} jobName - name of k8s job to run in remote environment
+   * @returns {string}
+   */
+  runBackgroundJob(jobName) {
+    var cmd = `gen3 runjob ${jobName}`;
+    var res = this.runCommand(cmd, process.env.NAMESPACE);
+    return res;
   }
 };
