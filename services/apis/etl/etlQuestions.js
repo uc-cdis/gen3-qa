@@ -12,6 +12,6 @@ module.exports = {
    */
   hasVersionIncreased(index, previousVersion) {
     let no = index.match(RegExp('.*?([0-9]+)$'))
-    expect(Number.parseInt(no[1])).to.equal(previousVersion + 1);
+    expect(Number.parseInt(no[1]), 'Fails to increase function').to.equal(previousVersion + 1);
   },
 };

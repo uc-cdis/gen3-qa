@@ -12,7 +12,7 @@ const { Bash } = require('./utils/bash');
 const users = require('./utils/user');
 const fenceProps = require('./services/apis/fence/fenceProps');
 const atob = require('atob');
-const DEFAULT_TOKEN_EXP = 1800;
+const DEFAULT_TOKEN_EXP = 3600;
 const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
 const bash = new Bash();
 
@@ -36,6 +36,7 @@ const bash = new Bash();
 function getAccessToken(username, expiration) {
   const fenceCmd = `fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account --type access_token --exp ${expiration} --username ${username}`;
   const accessToken = bash.runCommand(fenceCmd, 'fence');
+  console.error(accessToken);
   return accessToken.trim();
 }
 

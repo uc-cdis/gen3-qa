@@ -85,7 +85,11 @@ Rscript GenTestDataCmd.R https://my.dictionary.url/ test 1 ~/testData/
 
 # Test Development
 ## Running Tests
-Once you have your environment variables configured and the Selenium server is running, you should be able to successfully run the tests. To execute all tests, run `npm test`. But as mentioned above, some tests have special requirements so you may not want to run them. Instead, you can run a selection of tests that have certain tag by running `npm test -- --grep "@MyTag"` (see info about tags in the Writing Tests section). You can also run a specific suite by adding the path to the test you want to run: `npm test ./suites/apis/myApiTest.js`.
+Once you have your environment variables configured and the Selenium server is running, you should be able to successfully run the tests.
+
+If you want to run `gen3-qa` against a dev environment, you just need to set the environment variable `NAMESPACE={dev env namespace}` and the `GOOGLE_APP_CREDS_JSON` to the credentials getting from Google, then run `./run-tests-localsh`
+
+But as mentioned above, some tests have special requirements so you may not want to run them. Instead, you can run a selection of tests that have certain tag by altering the line in `run-tests-local.sh` file `npm test -- --grep "@MyTag"` (see info about tags in the Writing Tests section).
 
 ## Writing Tests
 Each API or web page feature is contained in a singe .js file. They are stored in `suites/apis` and `suites/portal`, with filenames matching the pattern `*Test.js`.
