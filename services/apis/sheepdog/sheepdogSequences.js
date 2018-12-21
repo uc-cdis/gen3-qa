@@ -2,7 +2,7 @@ const sheepdogQuestions = require('./sheepdogQuestions.js');
 const sheepdogTasks = require('./sheepdogTasks.js');
 const sheepdogProps = require('./sheepdogProps.js');
 const peregrineService = require('../peregrine/peregrineService.js');
-const usersUtil = require('../../../utils/usersUtil.js');
+const user = require('../../../utils/user.js');
 
 const I = actor();
 
@@ -10,7 +10,7 @@ const deleteByIdRecursively = async function (id) {
   const deleteEndpoint = `${sheepdogProps.endpoints.delete}/${id}`;
   const res = await I.sendDeleteRequest(
     deleteEndpoint,
-    usersUtil.mainAcct.accessTokenHeader,
+    user.mainAcct.accessTokenHeader,
   );
 
   if (!('dependent_ids' in res.body)) {

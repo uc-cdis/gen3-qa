@@ -1,3 +1,5 @@
+const { Commons } = require('../../utils/commons.js');
+
 Feature('SubmitAndQueryNodesTest');
 
 Scenario('submit node unauthenticated @reqData', async (sheepdog, nodes, users) => {
@@ -95,9 +97,9 @@ Scenario('filter query by string attribute @reqData', async (sheepdog, peregrine
 });
 
 // FIXME: This is a known bug that needs to be fixed. See PXD-1195
-Scenario('filter query by boolean attribute @reqData', async (commons, peregrine) => {
+Scenario('filter query by boolean attribute @reqData', async (peregrine) => {
   // This test assumes that projects in all commons will have a boolean attribute 'releasable'
-  const booleanState = commons.project.releasable;
+  const booleanState = Commons.project.releasable;
   const q = `
   {
    project(releasable: ${booleanState}) {
@@ -140,13 +142,13 @@ Scenario('test _[field]_count filter @reqData', async (peregrine, sheepdog, node
   await sheepdog.complete.deleteNodes(nodes.getPathToFile());
 });
 
-Scenario('filter by project_id @reqData', async (peregrine, sheepdog, nodes, commons) => {
+Scenario('filter by project_id @reqData', async (peregrine, sheepdog, nodes) => {
   // add the nodes
   await sheepdog.complete.addNodes(nodes.getPathToFile());
 
   const results = {};
   const filters = {
-    project_id: `${commons.program.name}-${commons.project.name}`,
+    project_id: `${Commons.program.name}-${Commons.project.name}`,
   };
   for (const node of nodes.getPathToFile()) {
     results[node.name] = await peregrine.do.queryNodeFields(node, filters);

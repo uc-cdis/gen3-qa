@@ -1,10 +1,11 @@
 const fenceProps = require('./fenceProps.js');
-const usersUtil = require('../../../utils/usersUtil.js');
-const portalUtil = require('../../../utils/portalUtil.js');
-const commonsUtil = require('../../../utils/commonsUtil.js');
+const user = require('../../../utils/user.js');
+const portal = require('../../../utils/portal.js');
 const { Gen3Response } = require('../../../utils/apiUtil');
+const { Bash } = require('../../../utils/bash');
 
-const container = require('codeceptjs').container;
+const { container } = require('codeceptjs');
+const bash = new Bash();
 
 const I = actor();
 
@@ -41,28 +42,28 @@ async function onConsentPage() {
  */
 async function loginGoogle(googleCreds) {
   I.say('Logging in to Google...');
-  await portalUtil.seeProp(fenceProps.googleLogin.readyCue, 10);
+  await portal.seeProp(fenceProps.googleLogin.readyCue, 10);
   I.saveScreenshot('login1.png');
 
   // if shown option to choose account, just click the choose acct button
   const acctLoaded = await onChooseAcctPage();
   if (acctLoaded) {
-    portalUtil.clickProp(fenceProps.googleLogin.useAnotherAcctBtn);
+    portal.clickProp(fenceProps.googleLogin.useAnotherAcctBtn);
   }
 
   // fill out username and password
-  portalUtil.waitForVisibleProp(fenceProps.googleLogin.emailField, 5);
+  portal.waitForVisibleProp(fenceProps.googleLogin.emailField, 5);
   I.retry({ retries: 3, minTimeout: 2000 })
     .fillField(fenceProps.googleLogin.emailField.locator, googleCreds.email);
   I.saveScreenshot('login2.png');
-  portalUtil.clickProp(fenceProps.googleLogin.emailNext);
+  portal.clickProp(fenceProps.googleLogin.emailNext);
   I.saveScreenshot('login3.png');
-  portalUtil.waitForVisibleProp(fenceProps.googleLogin.passwordField, 5);
+  portal.waitForVisibleProp(fenceProps.googleLogin.passwordField, 5);
   I.saveScreenshot('login4.png');
   I.retry({ retries: 3, minTimeout: 2000 })
     .fillField(fenceProps.googleLogin.passwordField.locator, googleCreds.password);
   I.saveScreenshot('login5.png');
-  portalUtil.clickProp(fenceProps.googleLogin.passwordNext);
+  portal.clickProp(fenceProps.googleLogin.passwordNext);
   I.saveScreenshot('login6.png');
 }
 
@@ -82,7 +83,7 @@ module.exports = {
         /[?]$/g,
         '',
       ),
-      usersUtil.mainAcct.accessTokenHeader,
+      user.mainAcct.accessTokenHeader,
     ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
   },
 
@@ -120,7 +121,7 @@ module.exports = {
   deleteAPIKey(apiKey) {
     return I.sendDeleteRequest(
       `${fenceProps.endpoints.deleteAPIKey}/${apiKey}`,
-      usersUtil.mainAcct.accessTokenHeader,
+      user.mainAcct.accessTokenHeader,
     ).then(res => res.body);
   },
 
@@ -180,8 +181,8 @@ module.exports = {
     await I.sendGetRequest(fenceProps.endpoints.linkGoogle, userAcct.accessTokenHeader);
 
     // run fence-create command to circumvent google and add user link to fence
-    const cmd = `g3kubectl exec $(gen3 pod fence ${process.env.NAMESPACE}) -- fence-create force-link-google --username ${userAcct.username} --google-email ${googleEmail}`;
-    const res = commonsUtil.runCommand(cmd, process.env.NAMESPACE);
+    const cmd = `fence-create force-link-google --username ${userAcct.username} --google-email ${googleEmail}`;
+    const res = bash.runCommand(cmd, 'fence');
     userAcct.linkedGoogleAccount = googleEmail;
     return res;
   },
@@ -313,9 +314,9 @@ module.exports = {
     const consentPageLoaded = await onConsentPage();
     if (consentPageLoaded) {
       if (consent === 'cancel') {
-        portalUtil.clickProp(fenceProps.consentPage.cancelBtn);
+        portal.clickProp(fenceProps.consentPage.cancelBtn);
       } else {
-        portalUtil.clickProp(fenceProps.consentPage.consentBtn);
+        portal.clickProp(fenceProps.consentPage.consentBtn);
       }
       I.saveScreenshot('consent_auth_code_flow.png');
     }
@@ -378,9 +379,9 @@ module.exports = {
     const consentPageLoaded = await onConsentPage();
     if (consentPageLoaded) {
       if (consent === 'cancel') {
-        portalUtil.clickProp(fenceProps.consentPage.cancelBtn);
+        portal.clickProp(fenceProps.consentPage.cancelBtn);
       } else {
-        portalUtil.clickProp(fenceProps.consentPage.consentBtn);
+        portal.clickProp(fenceProps.consentPage.consentBtn);
       }
       I.saveScreenshot('consent_implicit_flow.png');
     }
