@@ -10,8 +10,24 @@ Run a test locally against a dev environment like this:
 docker run -d -p 4444:4444 --name=selenium --rm -v /dev/shm:/dev/shm selenium/standalone-chrome
 
 # basic run - some tests require more setup than this
-NAMESPACE=yourDevNamespace npm test --  --verbose suites/.../myTest.js
+RUNNING_LOCAL=true NAMESPACE=yourDevNamespace npm test --  --verbose suites/.../myTest.js
 ```
+
+## Generating test data for sheepdog tests
+
+```
+export TEST_DATA_PATH="$(pwd)/testData"
+mkdir -p "$TEST_DATA_PATH"
+
+docker run -it -v "${TEST_DATA_PATH}:/mnt/data" --rm --name=dsim --entrypoint=data-simulator quay.io/cdis/data-simulator:master simulate --url https://s3.amazonaws.com/dictionary-artifacts/datadictionary/develop/schema.json --path /mnt/data --program jnkns --project jenkins --max_samples 10
+
+docker run -it -v "${TEST_DATA_PATH}:/mnt/data" --rm --name=dsim --entrypoint=data-simulator quay.io/cdis/data-simulator:master submission_order --url https://s3.amazonaws.com/dictionary-artifacts/datadictionary/develop/schema.json --path /mnt/data --node_name submitted_unaligned_reads
+
+RUNNING_LOCAL=true NAMESPACE=reuben npm test -- --verbose suites/apis/submitAndQueryNodesTest.js
+```
+
+After running the test suite several times (or once) you may need to clear out the
+databases in your dev environment, so that old data does not interfere with new test runs.  The `gen3 reset` command automates the process to reset the `fence`, `indexd`, and `sheepdog` databases, but should only be run against a personal copy of the database (most of our dev environments point at a personal database schema).
 
 ## Basic test writing
 
@@ -72,15 +88,6 @@ You'll need the Java SDK, version 8, to use Selenium so make sure you have that 
 Once this is done, you can run `npm run selenium-start`, and the server will start running on port 4444 by default.
 
 You can kill the server with `npm run selenium-kill`
-
-### Data _(optional)_
-Some tests need data to submit, so this step is required only if you plan on running/writing tests that submit, delete, or query graph data (aka nodes). If your test doesn't need this stuff, just skip this step.
-Currently you have to clone the [occ/data-simulator](https://github.com/occ-data/data-simulator) repo, install R, install the required packages, and manually run the command for generating simulated data.
-
-The tests assume that data is simulated for project `test`, and that only 1 sample is simulated for each node type. Here's an example command of what that would look like if we were saving the data to `~/testData/`:
-```
-Rscript GenTestDataCmd.R https://my.dictionary.url/ test 1 ~/testData/
-```
 
 
 # Test Development
