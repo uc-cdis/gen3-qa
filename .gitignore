@@ -2,6 +2,8 @@ node_modules/*
 output/*
 .idea/*
 *.log
+*.bak
+testData/
 .DS_Store
 codecept.json
 local_vars.txt

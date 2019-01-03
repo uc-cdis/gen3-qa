@@ -10,7 +10,18 @@ Run a test locally against a dev environment like this:
 docker run -d -p 4444:4444 --name=selenium --rm -v /dev/shm:/dev/shm selenium/standalone-chrome
 
 # basic run - some tests require more setup than this
-NAMESPACE=yourDevNamespace npm test --  --verbose suites/.../myTest.js
+RUNNING_LOCAL=true NAMESPACE=yourDevNamespace npm test --  --verbose suites/.../myTest.js
+```
+
+## Generating test data for sheepdog tests
+
+```
+export TEST_DATA_PATH="$(pwd)/testData"
+mkdir -p "$TEST_DATA_PATH"
+
+docker run -it -v "${TEST_DATA_PATH}:/mnt/data" --rm --name=dsim --entrypoint=data-simulator quay.io/cdis/data-simulator:master simulate --url https://s3.amazonaws.com/dictionary-artifacts/datadictionary/develop/schema.json --path /mnt/data --program jnkns --project jenkins --max_samples 10
+
+docker run -it -v "${TEST_DATA_PATH}:/mnt/data" --rm --name=dsim --entrypoint=data-simulator quay.io/cdis/data-simulator:master submission_order --url https://s3.amazonaws.com/dictionary-artifacts/datadictionary/develop/schema.json --path /mnt/data --node_name submitted_unaligned_reads
 ```
 
 ## Basic test writing
