@@ -440,15 +440,14 @@ module.exports = {
    * @param {string} accessToken - access token
    * @returns {Promise<Gen3Response>}
    */
-  async getUrlForDataUpload(file_name, accessToken) {
-    const header = accessToken
-    header['Content-Type'] = 'application/json';
+  async getUrlForDataUpload(file_name, accessHeader) {
+    accessHeader['Content-Type'] = 'application/json';
     return I.sendPostRequest(
       fenceProps.endpoints.uploadFile,
       JSON.stringify({
         file_name,
       }),
-      header,
+      accessHeader,
     ).then(res => new Gen3Response(res));
   },
 

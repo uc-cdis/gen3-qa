@@ -27,8 +27,8 @@ var fileName, filePath, fileSize, fileMd5;
  * request a  presigned URL from fence
  */
 const getUploadUrlFromFence = async function (fence, users, indexd) {
-  let token = users.mainAcct.accessTokenHeader;
-  let res = await fence.do.getUrlForDataUpload(fileName, token);
+  let accessHeader = users.mainAcct.accessTokenHeader;
+  let res = await fence.do.getUrlForDataUpload(fileName, accessHeader);
   fence.ask.hasUrl(res);
   return res;
 };
