@@ -1,6 +1,6 @@
 const sheepdogProps = require('./sheepdogProps.js');
-const nodesUtil = require('../../../utils/nodesUtil.js');
-const usersUtil = require('../../../utils/usersUtil.js');
+const nodes = require('../../../utils/nodes.js');
+const user = require('../../../utils/user.js');
 const { Gen3Response } = require('../../../utils/apiUtil');
 
 const I = actor();
@@ -70,12 +70,12 @@ module.exports = {
    * @param {Object} accessTokenHeader
    * @returns {Promise<Gen3Response>} - sheepdog submit response
    */
-  async addNode(node, accessTokenHeader = usersUtil.mainAcct.accessTokenHeader) {
+  async addNode(node, accessTokenHeader = user.mainAcct.accessTokenHeader) {
     // PUT to sheepdog
     return I.sendPutRequest(
       sheepdogProps.endpoints.add,
       JSON.stringify(node.data),
-      accessTokenHeader || usersUtil.mainAcct.accessTokenHeader,
+      accessTokenHeader || user.mainAcct.accessTokenHeader,
     ).then((res) => {
       node.data.id = getIdFromResponse(res);
       node.addRes = new Gen3Response(res);
@@ -93,11 +93,11 @@ module.exports = {
    * @param accessTokenHeader
    * @returns {Promise<Gen3Response>}
    */
-  async deleteNode(node, accessTokenHeader = usersUtil.mainAcct.accessTokenHeader) {
+  async deleteNode(node, accessTokenHeader = user.mainAcct.accessTokenHeader) {
     const deleteEndpoint = `${sheepdogProps.endpoints.delete}/${node.data.id}`;
     return I.sendDeleteRequest(
       deleteEndpoint,
-      accessTokenHeader || usersUtil.mainAcct.accessTokenHeader,
+      accessTokenHeader || user.mainAcct.accessTokenHeader,
     ).then((res) => {
       node.deleteRes = new Gen3Response(res);
     });
@@ -110,9 +110,9 @@ module.exports = {
    * @param accessTokenHeader
    * @returns {Promise<void>}
    */
-  async addNodes(nodesList, accessTokenHeader = usersUtil.mainAcct.accessTokenHeader) {
+  async addNodes(nodesList, accessTokenHeader = user.mainAcct.accessTokenHeader) {
     // add nodes, in sorted key ascending order
-    for (const node of nodesUtil.sortNodes(nodesList)) {
+    for (const node of nodes.sortNodes(nodesList)) {
       await this.addNode(node, accessTokenHeader);
     }
   },
@@ -123,9 +123,9 @@ module.exports = {
    * @param accessTokenHeader
    * @returns {Promise<void>}
    */
-  async deleteNodes(nodesList, accessTokenHeader = usersUtil.mainAcct.accessTokenHeader) {
+  async deleteNodes(nodesList, accessTokenHeader = user.mainAcct.accessTokenHeader) {
     // remove nodes, in reverse sorted (descending key) order
-    for (const node of nodesUtil.sortNodes(nodesList).reverse()) {
+    for (const node of nodes.sortNodes(nodesList).reverse()) {
       await this.deleteNode(node, accessTokenHeader);
     }
   },

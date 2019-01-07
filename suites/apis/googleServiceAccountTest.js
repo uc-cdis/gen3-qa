@@ -75,7 +75,7 @@ After(async (google, fence, users) => {
 });
 
 
-Scenario('Register Google Service Account Success @reqGoogle', async (fence, users) => {
+Scenario('Register Google Service Account Success @reqGoogle @first', async (fence, users) => {
   // Link to a member in a valid google project and register the SA
   // Registration should succeed
 

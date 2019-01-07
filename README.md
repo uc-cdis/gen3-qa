@@ -10,8 +10,24 @@ Run a test locally against a dev environment like this:
 docker run -d -p 4444:4444 --name=selenium --rm -v /dev/shm:/dev/shm selenium/standalone-chrome
 
 # basic run - some tests require more setup than this
-NAMESPACE=yourDevNamespace npm test --  --verbose suites/.../myTest.js
+RUNNING_LOCAL=true NAMESPACE=yourDevNamespace npm test --  --verbose suites/.../myTest.js
 ```
+
+## Generating test data for sheepdog tests
+
+```
+export TEST_DATA_PATH="$(pwd)/testData"
+mkdir -p "$TEST_DATA_PATH"
+
+docker run -it -v "${TEST_DATA_PATH}:/mnt/data" --rm --name=dsim --entrypoint=data-simulator quay.io/cdis/data-simulator:master simulate --url https://s3.amazonaws.com/dictionary-artifacts/datadictionary/develop/schema.json --path /mnt/data --program jnkns --project jenkins --max_samples 10
+
+docker run -it -v "${TEST_DATA_PATH}:/mnt/data" --rm --name=dsim --entrypoint=data-simulator quay.io/cdis/data-simulator:master submission_order --url https://s3.amazonaws.com/dictionary-artifacts/datadictionary/develop/schema.json --path /mnt/data --node_name submitted_unaligned_reads
+
+RUNNING_LOCAL=true NAMESPACE=reuben npm test -- --verbose suites/apis/submitAndQueryNodesTest.js
+```
+
+After running the test suite several times (or once) you may need to clear out the
+databases in your dev environment, so that old data does not interfere with new test runs.  The `gen3 reset` command automates the process to reset the `fence`, `indexd`, and `sheepdog` databases, but should only be run against a personal copy of the database (most of our dev environments point at a personal database schema).
 
 ## Basic test writing
 
@@ -73,19 +89,14 @@ Once this is done, you can run `npm run selenium-start`, and the server will sta
 
 You can kill the server with `npm run selenium-kill`
 
-### Data _(optional)_
-Some tests need data to submit, so this step is required only if you plan on running/writing tests that submit, delete, or query graph data (aka nodes). If your test doesn't need this stuff, just skip this step.
-Currently you have to clone the [occ/data-simulator](https://github.com/occ-data/data-simulator) repo, install R, install the required packages, and manually run the command for generating simulated data.
-
-The tests assume that data is simulated for project `test`, and that only 1 sample is simulated for each node type. Here's an example command of what that would look like if we were saving the data to `~/testData/`:
-```
-Rscript GenTestDataCmd.R https://my.dictionary.url/ test 1 ~/testData/
-```
-
 
 # Test Development
 ## Running Tests
-Once you have your environment variables configured and the Selenium server is running, you should be able to successfully run the tests. To execute all tests, run `npm test`. But as mentioned above, some tests have special requirements so you may not want to run them. Instead, you can run a selection of tests that have certain tag by running `npm test -- --grep "@MyTag"` (see info about tags in the Writing Tests section). You can also run a specific suite by adding the path to the test you want to run: `npm test ./suites/apis/myApiTest.js`.
+Once you have your environment variables configured and the Selenium server is running, you should be able to successfully run the tests.
+
+If you want to run `gen3-qa` against a dev environment, you just need to set the environment variable `NAMESPACE={dev env namespace}` and the `GOOGLE_APP_CREDS_JSON` to the credentials getting from Google, then run `./run-tests-localsh`
+
+But as mentioned above, some tests have special requirements so you may not want to run them. Instead, you can run a selection of tests that have certain tag by altering the line in `run-tests-local.sh` file `npm test -- --grep "@MyTag"` (see info about tags in the Writing Tests section).
 
 ## Writing Tests
 Each API or web page feature is contained in a singe .js file. They are stored in `suites/apis` and `suites/portal`, with filenames matching the pattern `*Test.js`.

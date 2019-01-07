@@ -7,12 +7,24 @@
 const nconf = require('nconf');
 const homedir = require('os').homedir();
 
-const commonsUtil = require('./utils/commonsUtil');
-const usersUtil = require('./utils/usersUtil');
+const { Commons } = require('./utils/commons');
+const { Bash } = require('./utils/bash');
+const users = require('./utils/user');
 const fenceProps = require('./services/apis/fence/fenceProps');
 const atob = require('atob');
-const DEFAULT_TOKEN_EXP = 1800;
+const DEFAULT_TOKEN_EXP = 3600;
 const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
+const bash = new Bash();
+
+'use strict';
+
+// let rootCas = require('ssl-root-cas/latest').create();
+// rootCas
+//   .addFile(__dirname + '/../compose-services/temp_creds/ca.pem')
+// ;
+//
+// // will work with all https requests will all libraries (i.e. request.js)
+// require('https').globalAgent.options.ca = rootCas;
 
 /**
  * Runs a fence command for fetching access token for a user
@@ -21,51 +33,50 @@ const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !
  * @param {number} expiration - life duration for token
  * @returns {string}
  */
-function getAccessToken(namespace, username, expiration) {
-  const fenceCmd = `g3kubectl exec $(gen3 pod fence ${namespace}) -- fence-create token-create --scopes openid,user,fence,data,credentials,google_credentials,google_service_account --type access_token --exp ${expiration} --username ${username}`;
-  const accessToken = commonsUtil.runCommand(fenceCmd, namespace);
+function getAccessToken(username, expiration) {
+  const fenceCmd = `fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account --type access_token --exp ${expiration} --username ${username}`;
+  const accessToken = bash.runCommand(fenceCmd, 'fence');
+  console.error(accessToken);
   return accessToken.trim();
 }
 
 /**
  * Runs a fence command for creating a client
- * @param {string} namespace - namespace to get token from
  * @param {string} clientName - client name
  * @param {string} userName - user name
  * @param {string} clientType - client type (implicit or basic)
  * @returns {json}
  */
-function createClient(namespace, clientName, userName, clientType) {
-  let fenceCmd = `g3kubectl exec $(gen3 pod fence ${namespace}) -- fence-create client-create --client ${clientName} --user ${userName} --urls https://${process.env.HOSTNAME}`;
+function createClient(clientName, userName, clientType) {
+  let fenceCmd = `fence-create client-create --client ${clientName} --user ${userName} --urls https://${process.env.HOSTNAME}`;
   if (clientType === 'implicit') {
     fenceCmd = `${fenceCmd} --grant-types implicit --public`;
   }
-  const resCmd = commonsUtil.runCommand(fenceCmd, namespace);
+  const resCmd = bash.runCommand(fenceCmd, 'fence');
   const arr = resCmd.replace(/[()']/g, '').split(',').map(val => val.trim());
   return { client_id: arr[0], client_secret: arr[1] };
 }
 
 /**
  * Runs a fence command for delete a client
- * @param {string} namespace - namespace to get token from
  * @param {string} clientName - client name
  */
-function deleteClient(namespace, clientName) {
-  const cmdDelete = `g3kubectl exec $(gen3 pod fence ${namespace}) -- fence-create client-delete --client ${clientName}`;
-  commonsUtil.runCommand(cmdDelete, namespace);
+function deleteClient(clientName) {
+  bash.runCommand(`fence-create client-delete --client ${clientName}`, 'fence');
 }
 
 /**
  * Gets indexd password for a commons
- * @param {string} namespace
  * @returns {string}
  */
-function getIndexPassword(namespace) {
-  const credsCmd = 'g3kubectl get secret sheepdog-creds -o json';
-  const secret = commonsUtil.runCommand(credsCmd, namespace);
-  let credsString = JSON.parse(secret).data['creds.json'];
-  credsString = Buffer.from(credsString, 'base64').toString('utf8');
-  return JSON.parse(credsString).indexd_password;
+function getIndexPassword() {
+  const credsCmd = 'cat /var/www/sheepdog/creds.json';
+  const secret = bash.runCommand(credsCmd,'sheepdog');
+  console.error(secret);
+  return {
+    client: JSON.parse(secret).indexd_client != undefined ? JSON.parse(secret).indexd_client : 'gdcapi',
+    password: JSON.parse(secret).indexd_password
+  };
 }
 
 /**
@@ -109,7 +120,7 @@ async function tryCreateProgramProject(nAttempts) {
     if (success === true) {
       break;
     }
-    await commonsUtil.createProgramProject()
+    await Commons.createProgramProject()
       .then(() => {         // eslint-disable-line
         console.log(`Successfully created program/project on attempt ${i}`);
         success = true;
@@ -155,12 +166,12 @@ module.exports = async function (done) {
   }
 
   console.log('Delete then create basic client...\n');
-  deleteClient(process.env.NAMESPACE, 'basic-test-client');
-  const basicClient = createClient(process.env.NAMESPACE, 'basic-test-client', 'test-client@example.com');
+  deleteClient('basic-test-client');
+  const basicClient = createClient('basic-test-client', 'test-client@example.com', 'basic');
 
   console.log('Delete then create implicit client...\n');
-  deleteClient(process.env.NAMESPACE, 'implicit-test-client');
-  const implicitClient = createClient(process.env.NAMESPACE, 'implicit-test-client', 'test@example.com', 'implicit');
+  deleteClient('implicit-test-client');
+  const implicitClient = createClient('implicit-test-client', 'test@example.com', 'implicit');
 
   // Setup enviroiment variables
   process.env[`${fenceProps.clients.client.envVarsName}_ID`] = basicClient.client_id;
@@ -168,13 +179,14 @@ module.exports = async function (done) {
   process.env[`${fenceProps.clients.clientImplicit.envVarsName}_ID`] = implicitClient.client_id;
 
   // Export expired access token for main acct
-  const mainAcct = usersUtil.mainAcct;
-  const expAccessToken = getAccessToken(process.env.NAMESPACE, mainAcct.username, 1);
+  const mainAcct = users.mainAcct;
+  const expAccessToken = getAccessToken(mainAcct.username, 1);
   process.env[mainAcct.envExpTokenName] = expAccessToken;
 
   // Export indexd credentials
-  process.env.INDEX_USERNAME = 'gdcapi';
-  process.env.INDEX_PASSWORD = getIndexPassword(process.env.NAMESPACE);
+  let indexd_cred = getIndexPassword();
+  process.env.INDEX_USERNAME = indexd_cred.client;
+  process.env.INDEX_PASSWORD = indexd_cred.password;
 
   // Create configuration values based on hierarchy then export them to the process
   nconf.argv()
@@ -190,10 +202,10 @@ module.exports = async function (done) {
   // Assert required env vars are defined
   const basicVars = [mainAcct.envTokenName, mainAcct.envExpTokenName, 'INDEX_USERNAME', 'INDEX_PASSWORD', 'HOSTNAME'];
   const googleVars = [
-    usersUtil.auxAcct1.envGoogleEmail,
-    usersUtil.auxAcct2.envGoogleEmail,
-    usersUtil.auxAcct1.envGooglePassword,
-    usersUtil.auxAcct2.envGooglePassword,
+    users.auxAcct1.envGoogleEmail,
+    users.auxAcct2.envGoogleEmail,
+    users.auxAcct1.envGooglePassword,
+    users.auxAcct2.envGooglePassword,
     'GOOGLE_APP_CREDS_JSON',
   ];
   const submitDataVars = [
