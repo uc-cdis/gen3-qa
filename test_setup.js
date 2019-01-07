@@ -149,16 +149,16 @@ module.exports = async function (done) {
   console.log('Running useryaml job to create users for integration tests...\n');
   // bootstrap: make sure users in this file exist in fence db before tests
   Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile1);
-  bash.runJob('useryaml', 180);
+  bash.runJob('useryaml');
 
   console.log('Running usersync job...\n');
   // return back to original user.yaml
-  bash.runJob('usersync', 300);
+  bash.runJob('usersync');
 
   // get some vars from the commons
   console.log('Setting environment variables...\n');
   // Export access tokens
-  for (const user of Object.values(usersUtil)) {
+  for (const user of Object.values(users)) {
     const at = getAccessToken(process.env.NAMESPACE, user.username, DEFAULT_TOKEN_EXP);
     // make sure the access token looks valid - base64 encoded JSON :-p
     const token = parseJwt(at);

@@ -62,7 +62,7 @@ After(async (fence, users) => {
 Scenario('test usersync on access file 1, Google link, temp creds, bucket access, delete temp creds @reqGoogle @googleAccess', async (fence, users, google) => {
   console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile1}`);
   Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile1);
-  bash.runJob('useryaml', 180);
+  bash.runJob('useryaml');
 
   console.log('make sure users google accounts are unlinked');
   await fence.complete.forceUnlinkGoogleAcct(users.user0);
@@ -220,7 +220,7 @@ Scenario('test usersync on access file 1, Google link, temp creds, bucket access
 Scenario('test usersync on access file 2, Google link, temp creds, bucket access, delete temp creds @reqGoogle @googleAccess', async (fence, users, google) => {
   console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
   Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
-  bash.runJob('useryaml', 180);
+  bash.runJob('useryaml');
 
   console.log('make sure users google accounts are unlinked');
   await fence.complete.forceUnlinkGoogleAcct(users.user0);
@@ -378,7 +378,7 @@ Scenario('test usersync access file 1, Google link, temp creds, bucket access, t
   async (fence, users, google) => {
     console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile1}`);
   Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile1);
-  bash.runJob('useryaml', 180);
+  bash.runJob('useryaml');
 
   console.log('make sure users google accounts are unlinked');
   await fence.complete.forceUnlinkGoogleAcct(users.user0);
@@ -500,7 +500,7 @@ Scenario('test usersync access file 1, Google link, temp creds, bucket access, t
 
   console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
   Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
-  bash.runJob('useryaml', 180);
+  bash.runJob('useryaml');
 
   console.log('using saved google creds to access google bucket!! Save responses to check later');
   // use Google's client libraries to attempt to read a controlled access file with the
