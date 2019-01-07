@@ -1,7 +1,7 @@
 Feature('GoogleDataAccess');
 /*
 Test a full flow for a user accessing data on Google. Also test that when permissions
-chance on the User Access file, the user's access to data on Google changes correctly.
+change on the User Access file, the user's access to data on Google changes correctly.
 
 - Sync a User Access File
 - Generate temporary Google credentials
@@ -11,7 +11,7 @@ chance on the User Access file, the user's access to data on Google changes corr
 
 User Access Files and which projects the users have access to:
 
-  commonsUtil.userAccessFiles.newUserAccessFile1 =>
+  Commons.userAccessFiles.newUserAccessFile1 =>
     User0
       - QA
     User1
@@ -20,7 +20,7 @@ User Access Files and which projects the users have access to:
     User2
       -
 
-  commonsUtil.userAccessFiles.newUserAccessFile2 =>
+  Commons.userAccessFiles.newUserAccessFile2 =>
     User0
       -
     User1
@@ -28,8 +28,11 @@ User Access Files and which projects the users have access to:
     User2
       - QA
 */
-const commonsUtil = require('../../utils/commonsUtil');
+const Commons = require('../../utils/Commons');
 const chai = require('chai');
+const { Bash } = require('../../../utils/bash.js');
+
+const bash = new Bash();
 
 const fs = require('fs');
 
@@ -40,14 +43,14 @@ BeforeSuite(async (fence, users) => {
   var bucketId = fence.props.googleBucketInfo.QA.bucketId
   var googleProjectId = fence.props.googleBucketInfo.QA.googleProjectId
   var projectAuthId = 'QA'
-  var fenceCmd = `g3kubectl exec $(gen3 pod fence ${namespace}) -- fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
-  var response = commonsUtil.runCommand(fenceCmd, namespace);
+  var fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
+  var response = bash.runCommand(fenceCmd, 'fence');
 
   bucketId = fence.props.googleBucketInfo.test.bucketId
   googleProjectId = fence.props.googleBucketInfo.test.googleProjectId
   projectAuthId = 'test'
-  fenceCmd = `g3kubectl exec $(gen3 pod fence ${namespace}) -- fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
-  response = commonsUtil.runCommand(fenceCmd, namespace);
+  fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
+  response = bash.runCommand(fenceCmd, 'fence');
 });
 
 After(async (fence, users) => {
@@ -57,9 +60,9 @@ After(async (fence, users) => {
 });
 
 Scenario('test usersync on access file 1, Google link, temp creds, bucket access, delete temp creds @reqGoogle @googleAccess', async (fence, users, google) => {
-  console.log(`Running useryaml job with ${commonsUtil.userAccessFiles.newUserAccessFile1}`);
-  commonsUtil.setUserYaml(commonsUtil.userAccessFiles.newUserAccessFile1);
-  commonsUtil.runJob('useryaml', 180);
+  console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile1}`);
+  Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile1);
+  bash.runJob('useryaml', 180);
 
   console.log('make sure users google accounts are unlinked');
   await fence.complete.forceUnlinkGoogleAcct(users.user0);
@@ -215,9 +218,9 @@ Scenario('test usersync on access file 1, Google link, temp creds, bucket access
 
 
 Scenario('test usersync on access file 2, Google link, temp creds, bucket access, delete temp creds @reqGoogle @googleAccess', async (fence, users, google) => {
-  console.log(`Running useryaml job with ${commonsUtil.userAccessFiles.newUserAccessFile2}`);
-  commonsUtil.setUserYaml(commonsUtil.userAccessFiles.newUserAccessFile2);
-  commonsUtil.runJob('useryaml', 180);
+  console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
+  Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
+  bash.runJob('useryaml', 180);
 
   console.log('make sure users google accounts are unlinked');
   await fence.complete.forceUnlinkGoogleAcct(users.user0);
@@ -373,9 +376,9 @@ Scenario('test usersync on access file 2, Google link, temp creds, bucket access
 
 Scenario('test usersync access file 1, Google link, temp creds, bucket access, test usersync access file 2, bucket access, delete temp creds @reqGoogle @googleAccess',
   async (fence, users, google) => {
-    console.log(`Running useryaml job with ${commonsUtil.userAccessFiles.newUserAccessFile1}`);
-  commonsUtil.setUserYaml(commonsUtil.userAccessFiles.newUserAccessFile1);
-  commonsUtil.runJob('useryaml', 180);
+    console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile1}`);
+  Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile1);
+  bash.runJob('useryaml', 180);
 
   console.log('make sure users google accounts are unlinked');
   await fence.complete.forceUnlinkGoogleAcct(users.user0);
@@ -495,9 +498,9 @@ Scenario('test usersync access file 1, Google link, temp creds, bucket access, t
     'Check User2 access CAN NOT bucket for project: test'
   ).to.have.property('statusCode', 403);
 
-  console.log(`Running useryaml job with ${commonsUtil.userAccessFiles.newUserAccessFile2}`);
-  commonsUtil.setUserYaml(commonsUtil.userAccessFiles.newUserAccessFile2);
-  commonsUtil.runJob('useryaml', 180);
+  console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
+  Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
+  bash.runJob('useryaml', 180);
 
   console.log('using saved google creds to access google bucket!! Save responses to check later');
   // use Google's client libraries to attempt to read a controlled access file with the
