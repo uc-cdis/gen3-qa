@@ -126,7 +126,7 @@ Scenario('File upload via API calls', async (fence, users, nodes, indexd) => {
   /////////
   // TODO: remove when indexd-listener is set up on the QA environments
   /////////
-  return
+  // return
 
   // wait for the indexd listener to add size, hashes and URL to the record
   await waitForIndexdListener(indexd, fileNode);
