@@ -159,10 +159,12 @@ module.exports = async function (done) {
   console.log('Setting environment variables...\n');
   // Export access tokens
   for (const user of Object.values(users)) {
-    const at = getAccessToken(process.env.NAMESPACE, user.username, DEFAULT_TOKEN_EXP);
-    // make sure the access token looks valid - base64 encoded JSON :-p
-    const token = parseJwt(at);
-    process.env[user.envTokenName] = at;
+    if (inJenkins || process.env.NAMESPACE === 'default') {
+      const at = getAccessToken(process.env.NAMESPACE, user.username, DEFAULT_TOKEN_EXP);
+      // make sure the access token looks valid - base64 encoded JSON :-p
+      const token = parseJwt(at);
+      process.env[user.envTokenName] = at;
+    }
   }
 
   console.log('Delete then create basic client...\n');
