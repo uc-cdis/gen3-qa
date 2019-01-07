@@ -51,6 +51,9 @@ BeforeSuite(async (fence, users) => {
   projectAuthId = 'test'
   fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
   response = bash.runCommand(fenceCmd, 'fence');
+
+  console.log('Clean up Google Bucket Access Groups from previous runs...\n');
+  bash.runJob('google-verify-bucket-access-group');
 });
 
 After(async (fence, users) => {
