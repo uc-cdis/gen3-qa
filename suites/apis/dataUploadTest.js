@@ -137,16 +137,15 @@ Scenario('File upload via API calls', async (fence, users, nodes, indexd) => {
  * or download files
  */
 Scenario('User without role cannot upload', async (fence, users, nodes, indexd) => {
-  /////////
-  // TODO: remove when new role is created
-  /////////
-  return
-
-  // request a  presigned URL from fence
   // this user does not have the appropriate role
   let token = users.auxAcct1.accessTokenHeader;
+
+  // request a  presigned URL from fence
   let fenceUploadRes = await fence.do.getUrlForDataUpload(fileName, token);
+
+  // fence should not let this user upload
   fence.ask.hasNoUrl(fenceUploadRes);
+  fence.ask.assertStatusCode(fenceUploadRes, 403);
 });
 
 /**
