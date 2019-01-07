@@ -28,9 +28,9 @@ User Access Files and which projects the users have access to:
     User2
       - QA
 */
-const Commons = require('../../utils/Commons');
+const { Commons } = require('../../utils/commons.js');
 const chai = require('chai');
-const { Bash } = require('../../../utils/bash.js');
+const { Bash } = require('../../utils/bash.js');
 
 const bash = new Bash();
 
@@ -59,7 +59,7 @@ After(async (fence, users) => {
   await Promise.all(unlinkResults);
 });
 
-Scenario('test usersync on access file 1, Google link, temp creds, bucket access, delete temp creds @reqGoogle @googleAccess', async (fence, users, google) => {
+Scenario('test usersync on access file 1, Google link, temp creds, bucket access, delete temp creds @reqGoogle @googleDataAccess', async (fence, users, google) => {
   console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile1}`);
   Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile1);
   bash.runJob('useryaml');
@@ -217,7 +217,7 @@ Scenario('test usersync on access file 1, Google link, temp creds, bucket access
 });
 
 
-Scenario('test usersync on access file 2, Google link, temp creds, bucket access, delete temp creds @reqGoogle @googleAccess', async (fence, users, google) => {
+Scenario('test usersync on access file 2, Google link, temp creds, bucket access, delete temp creds @reqGoogle @googleDataAccess', async (fence, users, google) => {
   console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
   Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
   bash.runJob('useryaml');
@@ -374,7 +374,7 @@ Scenario('test usersync on access file 2, Google link, temp creds, bucket access
   ).to.have.property('statusCode', 204);
 });
 
-Scenario('test usersync access file 1, Google link, temp creds, bucket access, test usersync access file 2, bucket access, delete temp creds @reqGoogle @googleAccess',
+Scenario('test usersync access file 1, Google link, temp creds, bucket access, test usersync access file 2, bucket access, delete temp creds @reqGoogle @googleDataAccess',
   async (fence, users, google) => {
     console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile1}`);
   Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile1);
