@@ -2,7 +2,7 @@ const fs = require("fs");
 const { execSync } = require('child_process');
 
 const dataClientProps = require('./dataClientProps.js');
-const usersUtil = require('../../../utils/usersUtil.js');
+const usersUtil = require('../../../utils/user.js');
 
 const I = actor();
 const homedir = require('os').homedir();
