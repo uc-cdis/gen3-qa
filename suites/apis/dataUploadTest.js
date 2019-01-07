@@ -207,7 +207,7 @@ Scenario('File upload and download via client', async (dataClient, indexd, nodes
   return
 
   // use gen3 client to upload a file
-  let fileGuid = await dataClient.do.upload_file(filePath);
+  let fileGuid = await dataClient.do.uploadFile(filePath);
   createdGuids.push(fileGuid);
 
   // check that a (blank) record was created in indexd
@@ -229,8 +229,8 @@ Scenario('File upload and download via client', async (dataClient, indexd, nodes
   await waitForIndexdListener(indexd, fileNode);
 
   // download the file via the data client
-  filePath = './tmpFileDestination.txt';
-  await dataClient.complete.download_file(files, fileGuid, filePath, fileContents);
+  downloadPath = './tmpFileDestination.txt';
+  await dataClient.complete.downloadFile(files, fileGuid, downloadPath, fileContents);
 });
 
 /**
@@ -492,7 +492,7 @@ BeforeSuite(async (dataClient, fence, users, sheepdog, indexd, files) => {
   // TODO: uncomment when the gen3 client's new release is set up in jenkins
   /////////
   // configure the gen3-client
-  // dataClient.do.configure_client(fence, users, files);
+  // dataClient.do.configureClient(fence, users, files);
 
   // clean up in sheepdog
   await sheepdog.complete.findDeleteAllNodes();

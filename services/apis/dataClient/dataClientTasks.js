@@ -14,7 +14,7 @@ module.exports = {
   /**
    * Configure the gen3 client
    */
-  async configure_client(fence, users, files) {
+  async configureClient(fence, users, files) {
     try {
 
       // create a creds file
@@ -54,7 +54,7 @@ module.exports = {
    * Upload a file
    * @param {string} filePath - file location
    */
-  async upload_file(filePath) {
+  async uploadFile(filePath) {
     let uploadCmd = `${homedir}/gen3-client upload --profile=${dataClientProps.profileName} --upload-path=${filePath}`;
     try {
       let out = execSync(uploadCmd).toString('utf8');
@@ -76,7 +76,7 @@ module.exports = {
    * @param {string} guid - GUID of the file to download
    * @param {string} filePath - location to store the file
    */
-  async download_file(guid, filePath) {
+  async downloadFile(guid, filePath) {
     let downloadCmd = `${homedir}/gen3-client download --profile=${dataClientProps.profileName} --guid=${guid} --file=${filePath}`;
     try {
       out = execSync(downloadCmd);
