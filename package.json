@@ -20,7 +20,7 @@
     "url": "https://github.com/uc-cdis/auto-qa/issues"
   },
   "devDependencies": {
-    "@google-cloud/storage": "^2.3.1",
+    "@google-cloud/storage": "^2.3.4",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "chai-subset": "^1.6.0",
@@ -30,7 +30,7 @@
     "eslint-plugin-codeceptjs": "^0.4.0",
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-jsx-a11y": "^5.1.1",
-    "eslint-plugin-react": "^7.4.0",
+    "eslint-plugin-react": "^7.12.3",
     "googleapis": "^32.0.0",
     "jsdom": "^12.0.0",
     "nconf": "^0.10.0",
