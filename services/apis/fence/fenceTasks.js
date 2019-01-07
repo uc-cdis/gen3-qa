@@ -83,7 +83,7 @@ module.exports = {
         /[?]$/g,
         '',
       ),
-      usersUtil.mainAcct.accessTokenHeader,
+      user.mainAcct.accessTokenHeader,
     ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
   },
 
@@ -93,7 +93,7 @@ module.exports = {
    * @param {string[]} userHeader - a user's access token header
    * @returns {Promise<Gen3Response>}
    */
-  createSignedUrlForUser(id, userHeader=usersUtil.mainAcct.accessTokenHeader) {
+  createSignedUrlForUser(id, userHeader=user.mainAcct.accessTokenHeader) {
     return I.sendGetRequest(
       `${fenceProps.endpoints.getFile}/${id}`,
       userHeader,
@@ -455,7 +455,7 @@ module.exports = {
    * Delete a file from indexd and S3
    * @param {string} guid - GUID of the file to delete
    */
-  async deleteFile(guid, userHeader=usersUtil.mainAcct.accessTokenHeader) {
+  async deleteFile(guid, userHeader=user.mainAcct.accessTokenHeader) {
     return I.sendDeleteRequest(
       `${fenceProps.endpoints.deleteFile}/${guid}`,
       userHeader,
