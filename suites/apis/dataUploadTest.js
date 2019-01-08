@@ -137,6 +137,12 @@ Scenario('File upload via API calls', async (fence, users, nodes, indexd) => {
  * or download files
  */
 Scenario('User without role cannot upload', async (fence, users, nodes, indexd) => {
+
+  /////////
+  // TODO: remove when new role is created
+  /////////
+  return
+
   // this user does not have the appropriate role
   let token = users.auxAcct1.accessTokenHeader;
 
@@ -172,7 +178,7 @@ Scenario('Link metadata to file and download', async (sheepdog, indexd, nodes, u
   /////////
   // TODO: remove when indexd-listener is set up on the QA environments
   /////////
-  return
+  // return
 
   // wait for the indexd listener to add size, hashes and URL to the record
   await waitForIndexdListener(indexd, fileNode);
@@ -222,7 +228,7 @@ Scenario('File upload and download via client', async (dataClient, indexd, nodes
   /////////
   // TODO: remove when indexd-listener is set up on the QA environments
   /////////
-  return
+  // return
 
   // wait for the indexd listener to add size, hashes and URL to the record
   await waitForIndexdListener(indexd, fileNode);
@@ -256,7 +262,7 @@ Scenario('Link metadata to file that already has metadata', async (fence, users,
   /////////
   // TODO: remove when indexd-listener is set up on the QA environments
   /////////
-  return
+  // return
 
   // wait for the indexd listener to add size, hashes and URL to the record
   await waitForIndexdListener(indexd, fileNode);
@@ -330,7 +336,7 @@ Scenario('Download before metadata linking', async (fence, users, indexd) => {
   /////////
   // TODO: remove when indexd-listener is set up on the QA environments
   /////////
-  return
+  // return
 
   // wait for the indexd listener to add size, hashes and URL to the record
   await waitForIndexdListener(indexd, fileNode);
@@ -373,7 +379,7 @@ Scenario('Data file deletion', async (fence, users, indexd, sheepdog, nodes) => 
   /////////
   // TODO: remove when indexd-listener is set up on the QA environments
   /////////
-  return
+  // return
 
   // wait for the indexd listener to add size, hashes and URL to the record
   await waitForIndexdListener(indexd, fileNode);
@@ -427,7 +433,7 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
   /////////
   // TODO: remove when indexd-listener is set up on the QA environments
   /////////
-  return
+  // return
 
   // wait for the indexd listener to add size, hashes and URL to the record
   await waitForIndexdListener(indexd, fileNode);
