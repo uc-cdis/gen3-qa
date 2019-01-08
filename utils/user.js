@@ -103,6 +103,7 @@ class User {
 module.exports = {
   /**
    * Main User account
+   * Note that only this user has the "data-upload" role
    */
   mainAcct: new User({ username: 'cdis.autotest@gmail.com', envVarsName: 'MAIN', jenkinsOnly: false }),
   /**
