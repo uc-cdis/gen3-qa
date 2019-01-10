@@ -436,16 +436,16 @@ module.exports = {
 
   /**
    * Hits fence's signed url for data upload endpoint
-   * @param {string} file_name - name of the file what will be uploaded
+   * @param {string} fileName - name of the file that will be uploaded
    * @param {string} accessToken - access token
    * @returns {Promise<Gen3Response>}
    */
-  async getUrlForDataUpload(file_name, accessHeader) {
+  async getUrlForDataUpload(fileName, accessHeader) {
     accessHeader['Content-Type'] = 'application/json';
     return I.sendPostRequest(
       fenceProps.endpoints.uploadFile,
       JSON.stringify({
-        file_name,
+        fileName,
       }),
       accessHeader,
     ).then(res => new Gen3Response(res));

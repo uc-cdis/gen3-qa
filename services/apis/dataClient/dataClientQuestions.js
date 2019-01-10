@@ -13,7 +13,6 @@ module.exports = {
    * @param expectedContents
    */
   fileContains(filePath, expectedContents) {
-    // TODO: right now, this fails because the `download` function does not save under the specified filePath, but under the actual file name
     if (!fs.existsSync(filePath)) {
       throw new Error(`Download failed for ${filePath}`)
     }

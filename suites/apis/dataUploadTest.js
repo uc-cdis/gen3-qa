@@ -524,6 +524,8 @@ AfterSuite(async (files, indexd) => {
   }
 
   // clean up in indexd and S3 (remove the records created by this test suite)
+  // Note: we don't use fence's /delete endpoint here because it does not allow
+  // deleting from indexd records that have already been linked to metadata
   console.log('deleting: ' + createdGuids); // TODO: remove this debug log
   await indexd.complete.deleteFiles(createdGuids);
   await deleteFromS3(createdGuids);
