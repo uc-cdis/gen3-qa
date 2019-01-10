@@ -33,8 +33,6 @@ module.exports = {
       let apiEndpoint = `https://${process.env.HOSTNAME}`;
       let configComd = `${homedir}/gen3-client configure --profile ${dataClientProps.profileName} --cred ${credsPath} --apiendpoint ${apiEndpoint}`;
       execSync(configComd, (error, stdout, stderr) => {
-        // console.log(`${stdout}`);
-        // console.log(`${stderr}`);
         if (error !== null) {
             console.log(`exec error: ${error}`);
         }
@@ -79,14 +77,10 @@ module.exports = {
     let downloadCmd = `${homedir}/gen3-client download --profile=${dataClientProps.profileName} --guid=${guid} --file=${filePath}`;
     try {
       out = execSync(downloadCmd);
-      // console.log(out.toString('utf8'));
     }
     catch(e) {
       let msg = e.stderr.toString('utf8');
       throw new Error('Error downloading file with the data client:\n' + msg);
     }
-    // if (out.includes('panic:')) {
-    //   throw new Error(out)
-    // }
   },
 };

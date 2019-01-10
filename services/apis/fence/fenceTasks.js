@@ -445,7 +445,7 @@ module.exports = {
     return I.sendPostRequest(
       fenceProps.endpoints.uploadFile,
       JSON.stringify({
-        fileName,
+        file_name: fileName,
       }),
       accessHeader,
     ).then(res => new Gen3Response(res));

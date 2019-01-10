@@ -94,11 +94,6 @@ const submitFileMetadata = async function (sheepdog, nodes, fileGuid) {
   return metadata;
 };
 
-
-const deleteFromS3 = async function (guidList) {
-  // TODO: how to do this without access to the aws creds in fence-config?
-};
-
 /**
  * Use an API call to fence to upload a file to S3 and check that the
  * indexd listener updates the record with the correct hash and size
@@ -123,11 +118,6 @@ Scenario('File upload via API calls', async (fence, users, nodes, indexd) => {
   // upload the file to the S3 bucket using the presigned URL
   await uploadFileToS3(presignedUrl);
 
-  /////////
-  // TODO: remove when indexd-listener is set up on the QA environments
-  /////////
-  // return
-
   // wait for the indexd listener to add size, hashes and URL to the record
   await waitForIndexdListener(indexd, fileNode);
 });
@@ -137,11 +127,6 @@ Scenario('File upload via API calls', async (fence, users, nodes, indexd) => {
  * or download files
  */
 Scenario('User without role cannot upload', async (fence, users, nodes, indexd) => {
-
-  /////////
-  // TODO: remove when new role is created
-  /////////
-  return
 
   // this user does not have the appropriate role
   let token = users.auxAcct1.accessTokenHeader;
@@ -175,11 +160,6 @@ Scenario('Link metadata to file and download', async (sheepdog, indexd, nodes, u
     }
   };
 
-  /////////
-  // TODO: remove when indexd-listener is set up on the QA environments
-  /////////
-  // return
-
   // wait for the indexd listener to add size, hashes and URL to the record
   await waitForIndexdListener(indexd, fileNode);
 
@@ -206,10 +186,6 @@ Scenario('Link metadata to file and download', async (sheepdog, indexd, nodes, u
  * This time, use the gen3 data client to upload and download the file
  */
 Scenario('File upload and download via client', async (dataClient, indexd, nodes, files) => {
-  /////////
-  // TODO: remove when the gen3 client's new release is set up in jenkins
-  /////////
-  return
 
   // use gen3 client to upload a file
   let fileGuid = await dataClient.do.uploadFile(filePath);
@@ -224,11 +200,6 @@ Scenario('File upload and download via client', async (dataClient, indexd, nodes
     }
   };
   await indexd.complete.checkRecordExists(fileNode);
-
-  /////////
-  // TODO: remove when indexd-listener is set up on the QA environments
-  /////////
-  // return
 
   // wait for the indexd listener to add size, hashes and URL to the record
   await waitForIndexdListener(indexd, fileNode);
@@ -258,11 +229,6 @@ Scenario('Link metadata to file that already has metadata', async (fence, users,
       file_size: fileSize
     }
   };
-
-  /////////
-  // TODO: remove when indexd-listener is set up on the QA environments
-  /////////
-  // return
 
   // wait for the indexd listener to add size, hashes and URL to the record
   await waitForIndexdListener(indexd, fileNode);
@@ -333,11 +299,6 @@ Scenario('Download before metadata linking', async (fence, users, indexd) => {
     }
   };
 
-  /////////
-  // TODO: remove when indexd-listener is set up on the QA environments
-  /////////
-  // return
-
   // wait for the indexd listener to add size, hashes and URL to the record
   await waitForIndexdListener(indexd, fileNode);
 
@@ -375,11 +336,6 @@ Scenario('Data file deletion', async (fence, users, indexd, sheepdog, nodes) => 
       file_size: fileSize
     }
   };
-
-  /////////
-  // TODO: remove when indexd-listener is set up on the QA environments
-  /////////
-  // return
 
   // wait for the indexd listener to add size, hashes and URL to the record
   await waitForIndexdListener(indexd, fileNode);
@@ -429,11 +385,6 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
       file_size: fileSize
     }
   };
-
-  /////////
-  // TODO: remove when indexd-listener is set up on the QA environments
-  /////////
-  // return
 
   // wait for the indexd listener to add size, hashes and URL to the record
   await waitForIndexdListener(indexd, fileNode);
@@ -493,11 +444,8 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
 });
 
 BeforeSuite(async (dataClient, fence, users, sheepdog, indexd, files) => {
-  /////////
-  // TODO: uncomment when the gen3 client's new release is set up in jenkins
-  /////////
   // configure the gen3-client
-  // dataClient.do.configureClient(fence, users, files);
+  dataClient.do.configureClient(fence, users, files);
 
   // clean up in sheepdog
   await sheepdog.complete.findDeleteAllNodes();
@@ -511,10 +459,6 @@ BeforeSuite(async (dataClient, fence, users, sheepdog, indexd, files) => {
   await files.createTmpFile(filePath, fileContents);
   fileSize = await files.getFileSize(filePath);
   fileMd5 = await files.getFileHash(filePath);
-
-  // clean up in indexd (remove the records created by this test suite)
-  // TODO: remove
-  // await indexd.do.deleteTestFiles(fileName);
 });
 
 AfterSuite(async (files, indexd) => {
@@ -526,9 +470,8 @@ AfterSuite(async (files, indexd) => {
   // clean up in indexd and S3 (remove the records created by this test suite)
   // Note: we don't use fence's /delete endpoint here because it does not allow
   // deleting from indexd records that have already been linked to metadata
-  console.log('deleting: ' + createdGuids); // TODO: remove this debug log
   await indexd.complete.deleteFiles(createdGuids);
-  await deleteFromS3(createdGuids);
+  // TODO: store in a file the GUIDs to delete in S3 (see PXP-2206)
 });
 
 Before((nodes) => {
