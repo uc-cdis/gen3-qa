@@ -6,6 +6,7 @@
 
 const nconf = require('nconf');
 const homedir = require('os').homedir();
+const fs = require('fs');
 
 const { Commons } = require('./utils/commons');
 const { Bash } = require('./utils/bash');
@@ -140,6 +141,23 @@ function parseJwt (token) {
   return JSON.parse(atob(base64));
 }
 
+/**
+ * Checks if the gen3-client executable is present in the workspace.
+ * During a local run, checks in the homedir instead.
+ * It is needed for the data upload test suite
+ */
+function assertGen3Client() {
+  // check if the client is set up in the workspace
+  let client_dir = process.env.DATA_CLIENT_PATH || homedir;
+  if (!fs.existsSync(`${client_dir}/gen3-client`)) {
+    let msg = `Did not find a gen3-client executable in ${client_dir}`;
+    if (inJenkins) {
+      throw Error(msg);
+    }
+    console.log('WARNING: ' + msg);
+  }
+}
+
 module.exports = async function (done) {
   // get some vars from the commons
   console.log('Setting environment variables...\n');
@@ -162,7 +180,7 @@ module.exports = async function (done) {
   deleteClient('implicit-test-client');
   const implicitClient = createClient('implicit-test-client', 'test@example.com', 'implicit');
 
-  // Setup enviroiment variables
+  // Setup environment variables
   process.env[`${fenceProps.clients.client.envVarsName}_ID`] = basicClient.client_id;
   process.env[`${fenceProps.clients.client.envVarsName}_SECRET`] = basicClient.client_secret;
   process.env[`${fenceProps.clients.clientImplicit.envVarsName}_ID`] = implicitClient.client_id;
@@ -203,6 +221,8 @@ module.exports = async function (done) {
 
   assertEnvVars(basicVars.concat(googleVars, submitDataVars));
   console.log('TEST_DATA_PATH: ', process.env.TEST_DATA_PATH);
+
+  assertGen3Client();
 
   // Create a program and project (does nothing if already exists)
   console.log('Creating program/project\n');
