@@ -11,6 +11,7 @@ const fs = require('fs');
 const { Commons } = require('./utils/commons');
 const { Bash } = require('./utils/bash');
 const users = require('./utils/user');
+const files = require('./utils/file');
 const fenceProps = require('./services/apis/fence/fenceProps');
 const atob = require('atob');
 const DEFAULT_TOKEN_EXP = 3600;
@@ -159,6 +160,24 @@ function assertGen3Client() {
 }
 
 module.exports = async function (done) {
+
+  var createdGuids = [
+    '05277c50-7a6a-4664-9112-8a0c256243bc',
+    '0ac25ff7-a3a1-42e7-9955-370f145f5617',
+    '0d2844a4-2748-4e0c-a3d5-2bccce848a67',
+    '0e4c865d-a130-48db-af37-3741840eca3b'
+  ];
+
+  dirName = `${homedir}/s3-cleanup`;
+  fileName = 'arandomname.txt'
+  if (!fs.existsSync(dirName)){
+    fs.mkdirSync(dirName);
+  }
+  files.createTmpFile(`${dirName}/${fileName}`, JSON.stringify(createdGuids));
+  console.log(`created ${fileName} in ${dirName}`);
+
+  return;
+
   // get some vars from the commons
   console.log('Setting environment variables...\n');
 
