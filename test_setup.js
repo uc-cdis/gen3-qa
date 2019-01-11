@@ -169,7 +169,7 @@ module.exports = async function (done) {
   ];
 
   dirName = `${homedir}/s3-cleanup`;
-  fileName = 'arandomname.txt'
+  fileName = 'a-file.txt'
   if (!fs.existsSync(dirName)){
     fs.mkdirSync(dirName);
   }
