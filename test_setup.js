@@ -168,14 +168,18 @@ module.exports = async function (done) {
     '0e4c865d-a130-48db-af37-3741840eca3b'
   ];
 
-  dirName = `${homedir}/s3-cleanup`;
-  fileName = 'a-file.txt'
-  if (!fs.existsSync(dirName)){
-    fs.mkdirSync(dirName);
+  if (process.env.S3_CLEANUP) {
+    dirName = `${process.env.S3_CLEANUP}/s3-cleanup`;
+    fileName = 'a-file.txt'
+    if (!fs.existsSync(dirName)){
+      fs.mkdirSync(dirName);
+    }
+    files.createTmpFile(
+      `${dirName}/${fileName}`,
+      JSON.stringify(createdGuids)
+    );
+    console.log(`created ${fileName} in ${dirName}`);
   }
-  files.createTmpFile(`${dirName}/${fileName}`, JSON.stringify(createdGuids));
-  console.log(`created ${fileName} in ${dirName}`);
-
   return;
 
   // get some vars from the commons
