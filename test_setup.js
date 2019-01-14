@@ -176,7 +176,7 @@ module.exports = async function (done) {
     }
     files.createTmpFile(
       `${dirName}/${fileName}`,
-      JSON.stringify(createdGuids)
+      createdGuids.join("\n")
     );
     console.log(`created ${fileName} in ${dirName}`);
   }
