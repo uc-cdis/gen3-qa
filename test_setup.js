@@ -168,8 +168,8 @@ module.exports = async function (done) {
     '0e4c865d-a130-48db-af37-3741840eca3b'
   ];
 
-  if (process.env.S3_CLEANUP) {
-    dirName = `${process.env.S3_CLEANUP}/s3-cleanup`;
+  if (inJenkins) {
+    dirName = `${homedir}/s3-cleanup`;
     fileName = 'a-file.txt'
     if (!fs.existsSync(dirName)){
       fs.mkdirSync(dirName);
