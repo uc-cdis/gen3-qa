@@ -68,7 +68,7 @@ const waitForIndexdListener = async function(indexd, fileNode) {
     }
   };
 
-  const timeout = 30; // max number of seconds to wait
+  const timeout = 45; // max number of seconds to wait
   let errorMessage = `The indexd listener did not complete the record after ${timeout} seconds`;
 
   await smartWait(isRecordUpdated, [indexd, fileNode], timeout, errorMessage);
