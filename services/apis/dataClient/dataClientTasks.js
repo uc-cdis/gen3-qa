@@ -4,7 +4,7 @@ const { execSync } = require('child_process');
 const dataClientProps = require('./dataClientProps.js');
 
 const I = actor();
-const homedir = require('os').homedir();
+let client_dir = process.env.DATA_CLIENT_PATH || require('os').homedir();
 
 /**
  * dataClient Tasks
@@ -31,7 +31,7 @@ module.exports = {
 
       // configure the gen3 client
       let apiEndpoint = `https://${process.env.HOSTNAME}`;
-      let configComd = `${homedir}/gen3-client configure --profile ${dataClientProps.profileName} --cred ${credsPath} --apiendpoint ${apiEndpoint}`;
+      let configComd = `${client_dir}/gen3-client configure --profile ${dataClientProps.profileName} --cred ${credsPath} --apiendpoint ${apiEndpoint}`;
       execSync(configComd, (error, stdout, stderr) => {
         if (error !== null) {
             console.log(`exec error: ${error}`);
@@ -52,7 +52,7 @@ module.exports = {
    * @param {string} filePath - file location
    */
   async uploadFile(filePath) {
-    let uploadCmd = `${homedir}/gen3-client upload --profile=${dataClientProps.profileName} --upload-path=${filePath}`;
+    let uploadCmd = `${client_dir}/gen3-client upload --profile=${dataClientProps.profileName} --upload-path=${filePath}`;
     try {
       let out = execSync(uploadCmd).toString('utf8');
       // parse the output to find the file's new GUID
@@ -74,7 +74,7 @@ module.exports = {
    * @param {string} filePath - location to store the file
    */
   async downloadFile(guid, filePath) {
-    let downloadCmd = `${homedir}/gen3-client download --profile=${dataClientProps.profileName} --guid=${guid} --file=${filePath}`;
+    let downloadCmd = `${client_dir}/gen3-client download --profile=${dataClientProps.profileName} --guid=${guid} --file=${filePath}`;
     try {
       out = execSync(downloadCmd);
     }
