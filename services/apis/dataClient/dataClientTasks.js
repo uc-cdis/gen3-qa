@@ -14,37 +14,32 @@ module.exports = {
    * Configure the gen3 client
    */
   async configureClient(fence, users, files) {
+    // create a creds file
+    const credsPath = './tmp_creds.json';
+    const scope = ['data', 'user'];
+    const apiKeyRes = await fence.do.createAPIKey(
+      scope,
+      users.mainAcct.accessTokenHeader,
+    );
+    let data = {
+      api_key: apiKeyRes['body']['api_key'],
+      key_id: apiKeyRes['body']['key_id'],
+    };
+    await files.createTmpFile(credsPath, JSON.stringify(data));
+
+    // configure the gen3 client
+    let apiEndpoint = `https://${process.env.HOSTNAME}`;
+    let configComd = `${client_dir}/gen3-client configure --profile ${dataClientProps.profileName} --cred ${credsPath} --apiendpoint ${apiEndpoint}`;
+
     try {
+      execSync(configComd);
+    } catch (e) {
+      let msg = e.stdout.toString('utf8');
+      throw new Error('Error configuring the data client:\n' + msg);
+    }
 
-      // create a creds file
-      const scope = ['data', 'user'];
-      const apiKeyRes = await fence.do.createAPIKey(
-        scope,
-        users.mainAcct.accessTokenHeader,
-      );
-      let data = {
-        api_key: apiKeyRes['body']['api_key'],
-        key_id: apiKeyRes['body']['key_id'],
-      };
-      const credsPath = './tmp_creds.json';
-      await files.createTmpFile(credsPath, JSON.stringify(data));
-
-      // configure the gen3 client
-      let apiEndpoint = `https://${process.env.HOSTNAME}`;
-      let configComd = `${client_dir}/gen3-client configure --profile ${dataClientProps.profileName} --cred ${credsPath} --apiendpoint ${apiEndpoint}`;
-      execSync(configComd, (error, stdout, stderr) => {
-        if (error !== null) {
-            console.log(`exec error: ${error}`);
-        }
-      });
-
-      // delete the creds files
-      files.deleteFile(credsPath);
-
-      } catch (e) {
-        let msg = e.stderr.toString('utf8');
-        throw new Error('Error configuring the data client:\n' + msg);
-      }
+    // delete the creds files
+    files.deleteFile(credsPath);
   },
 
   /**
@@ -54,10 +49,15 @@ module.exports = {
   async uploadFile(filePath) {
     let uploadCmd = `${client_dir}/gen3-client upload --profile=${dataClientProps.profileName} --upload-path=${filePath}`;
     try {
-      let out = execSync(uploadCmd).toString('utf8');
+      let out;
+      try {
+        out = execSync(uploadCmd).toString('utf8');
+      } catch (e) {
+        throw new Error(e.stdout.toString('utf8'));
+      }
       // parse the output to find the file's new GUID
       var matches = out.match(/to GUID (.*)./);
-      if (matches.length < 2 || matches[1].length != 36) {
+      if (matches == null || matches.length < 2 || matches[1].length != 36) {
         throw new Error('Did not find a GUID in the following output from the gen3-client:\n' + out)
       }
       return matches[1];
@@ -76,10 +76,10 @@ module.exports = {
   async downloadFile(guid, filePath) {
     let downloadCmd = `${client_dir}/gen3-client download --profile=${dataClientProps.profileName} --guid=${guid} --file=${filePath}`;
     try {
-      out = execSync(downloadCmd);
+      execSync(downloadCmd);
     }
     catch(e) {
-      let msg = e.stderr.toString('utf8');
+      let msg = e.stdout.toString('utf8');
       throw new Error('Error downloading file with the data client:\n' + msg);
     }
   },

@@ -21,6 +21,19 @@ module.exports = {
       stream.write(dataString);
       stream.end();
     });
+
+    /**
+     * return true if the contents of file have been written, false otherwise
+     */
+    const isFileCreated = async function(filePath) {
+      if (!fs.existsSync(filePath)) return false;
+      let fileSize = fs.statSync(filePath).size;
+      return !(fileSize == 0);
+    };
+
+    const timeout = 5; // max number of seconds to wait
+    let errorMessage = `The file at ${filePath} was not created after ${timeout} seconds`;
+    await smartWait(isFileCreated, [filePath], timeout, errorMessage);
   },
 
   /**
@@ -38,19 +51,7 @@ module.exports = {
    * @param {string} filePath - file location
    * @returns {int}
    */
-  async getFileSize(filePath) {
-    /**
-     * return true if the contents of file have been written, false otherwise
-     */
-    const isFileCreated = async function(filePath) {
-      let fileSize = fs.statSync(filePath).size;
-      return !(fileSize == 0);
-    };
-
-    const timeout = 5; // max number of seconds to wait
-    let errorMessage = `The temp file was not created after ${timeout} seconds`;
-    await smartWait(isFileCreated, [filePath], timeout, errorMessage);
-
+  getFileSize(filePath) {
     return fs.statSync(filePath).size;
   },
 

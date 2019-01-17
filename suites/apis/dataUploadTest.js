@@ -186,7 +186,6 @@ Scenario('Link metadata to file and download', async (sheepdog, indexd, nodes, u
  * This time, use the gen3 data client to upload and download the file
  */
 Scenario('File upload and download via client', async (dataClient, indexd, nodes, files) => {
-
   // use gen3 client to upload a file
   let fileGuid = await dataClient.do.uploadFile(filePath);
   createdGuids.push(fileGuid);
@@ -445,7 +444,7 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
 
 BeforeSuite(async (dataClient, fence, users, sheepdog, indexd, files) => {
   // configure the gen3-client
-  dataClient.do.configureClient(fence, users, files);
+  await dataClient.do.configureClient(fence, users, files);
 
   // clean up in sheepdog
   await sheepdog.complete.findDeleteAllNodes();
@@ -457,7 +456,7 @@ BeforeSuite(async (dataClient, fence, users, sheepdog, indexd, files) => {
 
   // create a local file to upload and store its size and hash
   await files.createTmpFile(filePath, fileContents);
-  fileSize = await files.getFileSize(filePath);
+  fileSize = files.getFileSize(filePath);
   fileMd5 = await files.getFileHash(filePath);
 });
 
