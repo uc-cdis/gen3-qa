@@ -1,7 +1,7 @@
 #!groovy
 import groovy.time.*
 
-@Library('cdis-jenkins-lib@feat/perf') _
+@Library('cdis-jenkins-lib@master') _
 
 pipeline {
   agent any
