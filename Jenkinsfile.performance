@@ -272,30 +272,15 @@ pipeline {
           sh("bash cloud-automation/gen3/bin/klock.sh unlock jenkins " + uid + " || true")
           sh("bash cloud-automation/gen3/bin/klock.sh unlock reset-lock gen3-reset || true")
         }
-      }
-      script {
         dir('regressions') {
           sh "ls"
           sh "rm psql_dumps/ -rf"
           sh "ls"
         }
-      }
-      script {
         uninstallGen3Client()
-      always {
-        // script {
-        //   uid = env.service+"-"+"$env.GIT_BRANCH".replaceAll("/", "_")+"-"+env.BUILD_NUMBER
-        //   withEnv(['GEN3_NOPROXY=true', "GEN3_HOME=$env.WORKSPACE/cloud-automation"]) {         
-        //     sh("bash cloud-automation/gen3/bin/klock.sh unlock jenkins "+uid)
-        //   }
-        // }
-        script {
-          if (env.CHANGE_ID) {
-            pullRequest.comment("Jenkins Build ${env.BUILD_NUMBER} : time taken ${currentBuild.durationString.replace(' and counting', '')}")
-          }
+        if (env.CHANGE_ID) {
+          pullRequest.comment("Jenkins Build ${env.BUILD_NUMBER} : time taken ${currentBuild.durationString.replace(' and counting', '')}")
         }
-        echo "done"
-        // junit "gen3-qa/output/*.xml"
       }
       echo "done"
       junit "gen3-qa/output/*.xml"
