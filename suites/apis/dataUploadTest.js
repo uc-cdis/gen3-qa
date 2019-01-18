@@ -1,6 +1,8 @@
 const fs = require('fs');
 
 const { smartWait } = require('../../utils/apiUtil.js');
+const homedir = require('os').homedir();
+const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
 
 
 Feature('Data file upload flow');
@@ -48,6 +50,25 @@ const uploadFileToS3 = async function (presignedUrl) {
       throw new Error(err);
     }
   }));
+};
+
+/**
+ * create a file that contains the list of GUIDs of files that were uploaded
+ * to s3 during this testing session. The files will be deleted during the
+ * CleanS3 step of the Jenkins pipeline
+ */
+const cleanS3 = async function (files) {
+  if (inJenkins) {
+    dirName = `${homedir}/s3-cleanup`;
+    if (!fs.existsSync(dirName)){
+      fs.mkdirSync(dirName);
+    }
+    files.createTmpFile(
+      `${dirName}/${fileName}`,
+      createdGuids.join("\n")
+    );
+    console.log(`Created ${fileName} in ${dirName}`);
+  }
 };
 
 /**
@@ -471,6 +492,7 @@ AfterSuite(async (files, indexd) => {
   // deleting from indexd records that have already been linked to metadata
   await indexd.complete.deleteFiles(createdGuids);
   // TODO: store in a file the GUIDs to delete in S3 (see PXP-2206)
+  await cleanS3(files);
 });
 
 Before((nodes) => {
