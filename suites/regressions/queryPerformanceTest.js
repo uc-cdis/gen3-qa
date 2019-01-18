@@ -1,4 +1,4 @@
-Feature('Query Performance Tests');
+Feature('Query Performance Tests').tag('@regressions');
 
 /*
 * Before you use this test, generate the queries by running: 
@@ -16,28 +16,32 @@ Feature('Query Performance Tests');
 var nodes = require('../../utils/nodes');
 var fs = require('fs');
 
-// The file generateQueries.js builds these text files
-var bottomUpQueries = fs.readFileSync('output/bottomUpQueries.txt').toString().split('\n');
-for(let i = 0; i < bottomUpQueries.length; i++) {
-	Scenario('Executing bottomUp query #' + i + ' @queryPerformanceTest', async (peregrine, nodes) => {
-		const q = bottomUpQueries[i];
-		//console.log('\n\nExecuting: ', q);
+if (fs.existsSync('output/bottomUpQueries.txt')) {
+	// The file generateQueries.js builds these text files
+	var bottomUpQueries = fs.readFileSync('output/bottomUpQueries.txt').toString().split('\n');
+	for(let i = 0; i < bottomUpQueries.length; i++) {
+		Scenario(`Executing bottomUp query #${i} ${process.env.DB} @queryPerformanceTest`, async (peregrine, nodes) => {
+			const q = bottomUpQueries[i];
+			//console.log('\n\nExecuting: ', q);
 
-		const res = await peregrine.do.query(q, null);
+			const res = await peregrine.do.query(q, null);
 
-		//console.log('\n\nres: ', res);
-		peregrine.ask.resultSuccess(res);
-	});
+			//console.log('\n\nres: ', res);
+			peregrine.ask.resultSuccess(res);
+		});
+	}
 }
 
-var topDownQueries = fs.readFileSync('output/topDownQueries.txt').toString().split('\n');
-for(let i = 0; i < topDownQueries.length; i++) {
-	Scenario('(Scenario) Executing topDown query #' + i + ' @queryPerformanceTest', async (peregrine, nodes) => {
-		const q = topDownQueries[i];
-		// console.log('\n\nExecuting: ', q);
+if (fs.existsSync('output/topDownQueries.txt')) {
+	var topDownQueries = fs.readFileSync('output/topDownQueries.txt').toString().split('\n');
+	for(let i = 0; i < topDownQueries.length; i++) {
+		Scenario(`(Scenario) Executing topDown query #${i} ${process.env.DB} @queryPerformanceTest`, async (peregrine, nodes) => {
+			const q = topDownQueries[i];
+			// console.log('\n\nExecuting: ', q);
 
-		const res = await peregrine.do.query(q, null);
-		//console.log('\n\nres: ', res);
-		peregrine.ask.resultSuccess(res);
-	});
+			const res = await peregrine.do.query(q, null);
+			//console.log('\n\nres: ', res);
+			peregrine.ask.resultSuccess(res);
+		});
+	}
 }

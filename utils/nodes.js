@@ -159,7 +159,7 @@ const getPathWithFileNode = function (allNodes) {
 let allNodes;
 let pathAndFile;
 
-const localTestDataPresent = (DATA_PATH !== '' && DATA_PATH !== undefined);
+const localTestDataPresent = (DATA_PATH !== '' && DATA_PATH !== undefined && DATA_PATH !== "''");
 
 // Check that the data path is defined and load the nodes
 if (localTestDataPresent) {

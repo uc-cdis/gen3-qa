@@ -1,4 +1,4 @@
-Feature('Generate queries for performance testing');
+Feature('Generate queries for performance testing').tag('@regressions');
 
 /*
 * This test generates and executes expensive GraphQL queries using a commmons' dictionary.json.
@@ -252,7 +252,7 @@ async function getRepresentativeIDs(nodesList, peregrine, programSlashProject) {
 	return representativeIDs;
 }
 
-Scenario('building test data', async (peregrine) => {
+Scenario('building test data @regressions', async (peregrine) => {
 	retrieveDataDictionary().then(async function(dataDictionary) {
 		let longestPath = findLongestPath(dataDictionary);
 		let bottomUpQueries = generateBottomUpQueries(longestPath).join('\n');
