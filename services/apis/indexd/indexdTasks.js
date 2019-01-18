@@ -116,4 +116,18 @@ module.exports = {
     }
     return fileList;
   },
+
+  async clearPreviousUnmappedFiles(userAccount) {
+    I.sendGetRequest(
+      `${indexdProps.endpoints.get}/?acl=null&uploader=${userAccount.username}`,
+      userAccount.accessTokenHeader,
+    ).then((res) => {
+      if (!res.body && !res.body.records) return;
+      const guidList = res.body.records.reduce((acc, cur) => {
+        acc.push(cur.did);
+        return acc;
+      }, []);
+      this.deleteFiles(guidList);
+    });
+  },
 };

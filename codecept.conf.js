@@ -48,6 +48,7 @@ exports.config = {
 
     // Pages
     home: './services/portal/home/homeService.js',
+    portalDataUpload: './services/portal/dataUpload/dataUploadService.js',
   },
   mocha: {
     reporterOptions: {
