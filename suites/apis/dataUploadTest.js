@@ -89,7 +89,7 @@ const waitForIndexdListener = async function(indexd, fileNode) {
     }
   };
 
-  const timeout = 45; // max number of seconds to wait
+  const timeout = 60; // max number of seconds to wait
   let errorMessage = `The indexd listener did not complete the record after ${timeout} seconds`;
 
   await smartWait(isRecordUpdated, [indexd, fileNode], timeout, errorMessage);
@@ -433,15 +433,8 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
   // upload the file to the S3 bucket using the presigned URL
   await uploadFileToS3(presignedUrl);
 
-  fileNode = {
-    did: fileGuid,
-    data: {
-      md5sum: fileMd5,
-      file_size: fileSize
-    }
-  };
-
   // wait for the indexd listener to add size, hashes and URL to the record
+  fileNode.did = fileGuid;
   await waitForIndexdListener(indexd, fileNode);
 
   // submit metadata for this file. not using the util function here because:
@@ -451,8 +444,14 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
   metadata.data.object_id = fileGuid;
   metadata.data.file_size = fileSize;
   metadata.data.md5sum = fileMd5;
-  metadata.data.submitter_id = 'submitted_unaligned_reads_new_value';
+  metadata.data.submitter_id = 'submitter_id_new_value';
+  console.log("=========")
+  console.log(metadata)
+  console.log("=========")
   await sheepdog.do.addNode(metadata);
+  console.log("=========")
+  console.log(metadata)
+  console.log("=========")
   sheepdog.ask.addNodeSuccess(metadata);
 
   // check that the file can be downloaded
