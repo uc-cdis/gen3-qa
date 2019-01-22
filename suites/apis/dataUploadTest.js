@@ -445,13 +445,7 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
   metadata.data.file_size = fileSize;
   metadata.data.md5sum = fileMd5;
   metadata.data.submitter_id = 'submitter_id_new_value';
-  console.log("=========")
-  console.log(metadata)
-  console.log("=========")
   await sheepdog.do.addNode(metadata);
-  console.log("=========")
-  console.log(metadata)
-  console.log("=========")
   sheepdog.ask.addNodeSuccess(metadata);
 
   // check that the file can be downloaded
