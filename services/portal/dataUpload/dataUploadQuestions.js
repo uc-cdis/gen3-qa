@@ -1,7 +1,5 @@
 let chai = require('chai');
 let expect = chai.expect;
-// chai.config.includeStack = true;
-// chai.config.truncateThreshold = 0;
 const I = actor();
 
 const dataUploadProps = require('./dataUploadProps.js');
@@ -14,19 +12,17 @@ const util = require('util');
 module.exports = {
   async isNumberAndSizeOfUnmappedFilesCorrect(count, size) {
     const expectString = util.format(dataUploadProps.unmappedFilesStringFormat, count, size);
-    //portal.seeProp({locator: {text: expectString}});
     I.waitForText(expectString, 5);
   },
 
   canSeeAllUnmappedFilesOnPage(unmappedFiles) {
     for (let i = 0; i < unmappedFiles.length; i ++) {
-      //portal.seeProp({locator: {text: unmappedFiles[i]}});
       I.waitForText(unmappedFiles[i], 5);
     }
   },
 
   isSuccessfullySubmitted() {
-
+    // TODO 
   },
 
   async cannotSeeUnmappedFilesOnPage(unexpectedFileNames) {

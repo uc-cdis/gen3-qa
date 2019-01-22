@@ -12,14 +12,13 @@ module.exports = {
 
   submissionFormClass: '.map-data-model__form',
 
-  // make class name more specific in data portal  
   projectSelectionDropdownSelector: '.map-data-model__form-section .Select-arrow',
   testOrojectName: 'jnkns-jenkins',
   selectOptionClass: '.Select-option',
 
   fileNodeSelectionDropdownSelector: '.map-data-model__node-form-section .Select-arrow',
   fileNodeSelectionOuterClass: '.map-data-model__node-form-section .Select-menu-outer',
-  fileNodeSelectionFirstItemClass: '.map-data-model__node-form-section .Select-menu-outer .Select-option:nth-child(2)', // DEBUG
+  fileNodeSelectionFirstItemClass: '.map-data-model__node-form-section .Select-menu-outer .Select-option:first-child', 
 
   fileNodeRequiredFieldTextInputXPath: '//*[contains(@class, "map-data-model__detail-section")]//*[contains(@class, "map-data-model__required-field")]//*[contains(@class, "map-data-model__input")]',
   fileNodeRequiredFieldSelectionInputXPath: '//*[contains(@class, "map-data-model__detail-section")]//*[contains(@class, "map-data-model__required-field")]//*[contains(@class, "map-data-model__dropdown")]',
