@@ -21,8 +21,8 @@ module.exports = {
     }
   },
 
-  isSuccessfullySubmitted() {
-    // TODO 
+  async isSuccessfullySubmitted() {
+    const result = await I.grabTextFrom('.map-files__notification-wrapper');
   },
 
   async cannotSeeUnmappedFilesOnPage(unexpectedFileNames) {

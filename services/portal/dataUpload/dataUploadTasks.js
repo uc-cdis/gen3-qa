@@ -43,14 +43,12 @@ module.exports = {
   async fillAllRequireFields() {
     // fill `abc` for each text input
     const textInputCnt = await I.grabNumberOfVisibleElements(dataUploadProps.fileNodeRequiredFieldTextInputXPath);
-    console.log('!!!!!!textInputCnt', textInputCnt);
     for (let i = 1; i <= textInputCnt; i +=1) {
       I.fillField(`(${dataUploadProps.fileNodeRequiredFieldTextInputXPath})[${i}]`, 'abc');
     }
 
     // select first item for each selection input
     const selectionInputCnt = await I.grabNumberOfVisibleElements(dataUploadProps.fileNodeRequiredFieldSelectionInputXPath);
-    console.log('!!!!!!!selectionInputCnt', selectionInputCnt);
     for (let i = 1; i <= selectionInputCnt; i +=1) {
       I.click(`(${dataUploadProps.fileNodeRequiredFieldSelectionInputXPath})[${i}]${dataUploadProps.selectionArrowXPath}`);
       I.waitForVisible(`(${dataUploadProps.fileNodeRequiredFieldSelectionInputXPath})[${i}]${dataUploadProps.selectionMenuXPath}`, 5);
@@ -59,10 +57,11 @@ module.exports = {
   },
 
   linksToParentNodes() {
-    I.waitForVisible(dataUploadProps.parentSelectionXPath, 10);
+    I.waitForVisible(dataUploadProps.parentSelectionXPath, 5);
     I.click(`${dataUploadProps.parentSelectionXPath}${dataUploadProps.selectionArrowXPath}`);
-    I.waitForVisible(`${dataUploadProps.parentSelectionXPath}${dataUploadProps.selectionMenuXPath}`);
-    I.click(`${dataUploadProps.parentSelectionXPath}${dataUploadProps.firstSelectionItemXPath}`)
+    I.waitForVisible(`${dataUploadProps.parentSelectionXPath}${dataUploadProps.selectionMenuXPath}`, 5);
+    I.waitForText(dataUploadProps.coremetadataSubmitterID, 5);
+    I.click(`//*[contains(text(), '${dataUploadProps.coremetadataSubmitterID}')]`, dataUploadProps.parentSelectionXPath);
   },
   
   clickSubmit() {

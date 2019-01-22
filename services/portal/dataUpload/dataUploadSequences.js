@@ -50,6 +50,6 @@ module.exports = {
 
     // click "submit", can return success status
     dataUploadTasks.clickSubmit();
-    dataUploadQuestions.isSuccessfullySubmitted();
+    await dataUploadQuestions.isSuccessfullySubmitted();
   },
 };

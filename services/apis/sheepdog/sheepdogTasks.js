@@ -95,6 +95,7 @@ module.exports = {
    */
   async deleteNode(node, accessTokenHeader = user.mainAcct.accessTokenHeader) {
     const deleteEndpoint = `${sheepdogProps.endpoints.delete}/${node.data.id}`;
+    console.log('!!!deleteEndpoint: ', deleteEndpoint);
     return I.sendDeleteRequest(
       deleteEndpoint,
       accessTokenHeader || user.mainAcct.accessTokenHeader,

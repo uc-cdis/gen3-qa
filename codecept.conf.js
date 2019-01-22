@@ -13,10 +13,15 @@ exports.config = {
       browser: 'chrome',
       desiredCapabilities: {
         chromeOptions: {
-          args: ['--headless', '--disable-gpu', '--window-size=1000,900'],
+          args: [
+            '--headless', // for dev, you can comment this line to open actual chrome for easier test
+            '--disable-gpu', 
+            '--window-size=1920,1080'
+          ],
         },
       },
       restart: false,
+      keepCookies: true,
       timeouts: {
         script: 6000,
         'page load': 10000,

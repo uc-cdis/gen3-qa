@@ -32,4 +32,6 @@ module.exports = {
   submitButtonXPath: '//button[contains(text(), "Submit")]',
 
   unmappedFilesStringFormat: '%d files | %dB', 
+
+  coremetadataSubmitterID: 'xyz',
 };
