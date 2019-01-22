@@ -86,7 +86,6 @@ AfterSuite(async (sheepdog, indexd) => {
   await sheepdog.complete.findDeleteAllNodes();
 
   // clean up in indexd and S3 (remove the records created by this test suite)
-  console.log('deleting: ' + createdGuids); // TODO: remove this debug log
   await indexd.complete.deleteFiles(createdGuids);
 
   //await deleteFromS3(createdGuids);

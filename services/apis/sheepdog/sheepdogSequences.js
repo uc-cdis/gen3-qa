@@ -56,9 +56,6 @@ module.exports = {
    * @returns {Promise<void>}
    */
   async deleteNode(node) {
-    console.log('========= delete node: ');
-    console.log(node);
-    console.log('=============');
     await sheepdogTasks.deleteNode(node);
     sheepdogQuestions.deleteNodeSuccess(node);
   },
@@ -79,7 +76,6 @@ module.exports = {
    * @returns {Promise<void>}
    */
   async addNodes(nodesList) {
-    console.log(nodesList);
     await sheepdogTasks.addNodes(nodesList);
     sheepdogQuestions.addNodesSuccess(nodesList);
   },
