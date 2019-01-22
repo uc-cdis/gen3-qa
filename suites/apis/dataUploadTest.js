@@ -1,6 +1,8 @@
 const fs = require('fs');
 
 const { smartWait } = require('../../utils/apiUtil.js');
+const homedir = require('os').homedir();
+const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
 
 
 Feature('Data file upload flow');
@@ -407,6 +409,7 @@ AfterSuite(async (files, indexd) => {
   // deleting from indexd records that have already been linked to metadata
   await indexd.complete.deleteFiles(createdGuids);
   // TODO: store in a file the GUIDs to delete in S3 (see PXP-2206)
+  await cleanS3(files);
 });
 
 Before((nodes) => {
