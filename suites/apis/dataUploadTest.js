@@ -353,15 +353,8 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
   // upload the file to the S3 bucket using the presigned URL
   await files.uploadFileToS3(presignedUrl, filePath, fileSize);
 
-  fileNode = {
-    did: fileGuid,
-    data: {
-      md5sum: fileMd5,
-      file_size: fileSize
-    }
-  };
-
   // wait for the indexd listener to add size, hashes and URL to the record
+  fileNode.did = fileGuid;
   await files.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 
   // submit metadata for this file. not using the util function here because:
@@ -371,7 +364,7 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
   metadata.data.object_id = fileGuid;
   metadata.data.file_size = fileSize;
   metadata.data.md5sum = fileMd5;
-  metadata.data.submitter_id = 'submitted_unaligned_reads_new_value';
+  metadata.data.submitter_id = 'submitter_id_new_value';
   await sheepdog.do.addNode(metadata);
   sheepdog.ask.addNodeSuccess(metadata);
 
