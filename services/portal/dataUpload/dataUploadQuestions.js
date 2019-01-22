@@ -14,12 +14,14 @@ const util = require('util');
 module.exports = {
   async isNumberAndSizeOfUnmappedFilesCorrect(count, size) {
     const expectString = util.format(dataUploadProps.unmappedFilesStringFormat, count, size);
-    portal.seeProp({locator: {text: expectString}});
+    //portal.seeProp({locator: {text: expectString}});
+    I.waitForText(expectString, 5);
   },
 
   canSeeAllUnmappedFilesOnPage(unmappedFiles) {
     for (let i = 0; i < unmappedFiles.length; i ++) {
-      portal.seeProp({locator: {text: unmappedFiles[i]}});
+      //portal.seeProp({locator: {text: unmappedFiles[i]}});
+      I.waitForText(unmappedFiles[i], 5);
     }
   },
 
@@ -27,7 +29,10 @@ module.exports = {
 
   },
 
-  cannotSeeUnmappedFilesOnPage(unexpectedFileNames) {
+  async cannotSeeUnmappedFilesOnPage(unexpectedFileNames) {
+    I.waitForVisible(dataUploadProps.unmappedFilesHeaderClass, 5);
+    const numberRows = await I.grabNumberOfVisibleElements(dataUploadProps.unmappedFileRowClass);
+    if (numberRows === 0) return;
     for (let i = 0; i < unexpectedFileNames.length; i ++) {
       I.dontSee(unexpectedFileNames[i], dataUploadProps.unmappedFileRowClass);
     }

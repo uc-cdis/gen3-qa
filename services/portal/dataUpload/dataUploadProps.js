@@ -5,31 +5,32 @@ module.exports = {
   submissionPath: '/submission',
   mapFilesPath: '/submission/files',
 
-  submissionHeaderClassLocator: {
-    locator: {
-      css: '.submission-header',
-    }
-  },
+  submissionHeaderClass: '.submission-header',
   
-  unmappedFilesTableClassLocator: {
-    locator: {
-      css: '.map-files__tables',
-    }
-  },
+  unmappedFilesHeaderClass: '.map-files',
   unmappedFileRowClass: '.map-files__table-row',
 
-  submissionFormClassLocator: {
-    locator: {
-      css: '.map-data-model__form',
-    }
-  },
+  submissionFormClass: '.map-data-model__form',
+
+  // make class name more specific in data portal  
+  projectSelectionDropdownSelector: '.map-data-model__form-section .Select-arrow',
+  testOrojectName: 'jnkns-jenkins',
+  selectOptionClass: '.Select-option',
+
+  fileNodeSelectionDropdownSelector: '.map-data-model__node-form-section .Select-arrow',
+  fileNodeSelectionOuterClass: '.map-data-model__node-form-section .Select-menu-outer',
+  fileNodeSelectionFirstItemClass: '.map-data-model__node-form-section .Select-menu-outer .Select-option:nth-child(2)', // DEBUG
+
+  fileNodeRequiredFieldTextInputXPath: '//*[contains(@class, "map-data-model__detail-section")]//*[contains(@class, "map-data-model__required-field")]//*[contains(@class, "map-data-model__input")]',
+  fileNodeRequiredFieldSelectionInputXPath: '//*[contains(@class, "map-data-model__detail-section")]//*[contains(@class, "map-data-model__required-field")]//*[contains(@class, "map-data-model__dropdown")]',
   
-  // filterTab: {
-  //   context: '.some-container',
-  //   locator: {
-  //     css: '.my-tab-class'
-  //   }
-  // }
+  selectionArrowXPath: '//span[contains(@class, "Select-arrow")]',
+  selectionMenuXPath: '//div[contains(@class, "Select-menu-outer")]',
+  firstSelectionItemXPath: '//div[contains(@class, "Select-menu-outer")]//div[contains(@class, "Select-option")][1]',
+
+  parentSelectionXPath: '//*[contains(@class, "map-data-model__parent-id-section")]//*[contains(@class, "map-data-model__dropdown")]',
+
+  submitButtonXPath: '//button[contains(text(), "Submit")]',
 
   unmappedFilesStringFormat: '%d files | %dB', 
 };

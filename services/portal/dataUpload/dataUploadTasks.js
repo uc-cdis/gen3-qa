@@ -9,40 +9,64 @@ const portal = require('../../../utils/portal.js');
 module.exports = {
   goToSubmissionPage() {
     I.amOnPage(dataUploadProps.submissionPath);
-    portal.waitForVisibleProp(dataUploadProps.submissionHeaderClassLocator, 5);
+    I.waitForVisible(dataUploadProps.submissionHeaderClass, 5);
   },
 
   goToMapFilesPage() {
     I.amOnPage(dataUploadProps.mapFilesPath);
-    portal.waitForVisibleProp(dataUploadProps.unmappedFilesTableClassLocator, 5);
   },
 
   selectFilesAndGotoMappingPage(fileObjects) {
     // click checkboxes
     fileObjects.forEach(obj => {
       const guid = obj.fileGuid;
-      portal.clickProp({locator: `input[id='${guid}']`});
+      I.click(`input[id='${guid}']`);
     });
     
     // click "Map Files" and wait for loading 
     I.click("Map Files");
-    portal.waitForVisibleProp(dataUploadProps.submissionFormClassLocator, 5);
+    I.waitForVisible(dataUploadProps.submissionFormClass, 5);
   },
 
   selectProject() {
-    // TODO
+    I.click(dataUploadProps.projectSelectionDropdownSelector);
+    I.waitForText(dataUploadProps.testOrojectName);
+    I.click(`//*[contains(text(), '${dataUploadProps.testOrojectName}')]`, dataUploadProps.selectOptionClass);
   },
+
   selectFileNode() {
-    // TODO
+    I.click(dataUploadProps.fileNodeSelectionDropdownSelector);
+    I.waitForVisible(dataUploadProps.fileNodeSelectionOuterClass, 5);
+    I.click(dataUploadProps.fileNodeSelectionFirstItemClass);
   },
-  fillAllRequireFields() {
-    // TODO
+
+  async fillAllRequireFields() {
+    // fill `abc` for each text input
+    const textInputCnt = await I.grabNumberOfVisibleElements(dataUploadProps.fileNodeRequiredFieldTextInputXPath);
+    console.log('!!!!!!textInputCnt', textInputCnt);
+    for (let i = 1; i <= textInputCnt; i +=1) {
+      I.fillField(`(${dataUploadProps.fileNodeRequiredFieldTextInputXPath})[${i}]`, 'abc');
+    }
+
+    // select first item for each selection input
+    const selectionInputCnt = await I.grabNumberOfVisibleElements(dataUploadProps.fileNodeRequiredFieldSelectionInputXPath);
+    console.log('!!!!!!!selectionInputCnt', selectionInputCnt);
+    for (let i = 1; i <= selectionInputCnt; i +=1) {
+      I.click(`(${dataUploadProps.fileNodeRequiredFieldSelectionInputXPath})[${i}]${dataUploadProps.selectionArrowXPath}`);
+      I.waitForVisible(`(${dataUploadProps.fileNodeRequiredFieldSelectionInputXPath})[${i}]${dataUploadProps.selectionMenuXPath}`, 5);
+      I.click(`(${dataUploadProps.fileNodeRequiredFieldSelectionInputXPath})[${i}]${dataUploadProps.firstSelectionItemXPath}`);
+    }
   },
+
   linksToParentNodes() {
-    // TODO
+    I.waitForVisible(dataUploadProps.parentSelectionXPath, 10);
+    I.click(`${dataUploadProps.parentSelectionXPath}${dataUploadProps.selectionArrowXPath}`);
+    I.waitForVisible(`${dataUploadProps.parentSelectionXPath}${dataUploadProps.selectionMenuXPath}`);
+    I.click(`${dataUploadProps.parentSelectionXPath}${dataUploadProps.firstSelectionItemXPath}`)
   },
   
   clickSubmit() {
-    // TODo
+    I.waitForVisible(dataUploadProps.submitButtonXPath, 5);
+    I.click(dataUploadProps.submitButtonXPath);
   },
 };

@@ -20,14 +20,14 @@ module.exports = {
     await dataUploadQuestions.isNumberAndSizeOfUnmappedFilesCorrect(expectedFileCount, expectedFileTotalSize);
   },
 
-  checkUnmappedFilesAreNotInFileMappingPage(fileObjects) {
+  async checkUnmappedFilesAreNotInFileMappingPage(fileObjects) {
     // goto '/submission/files' page and check all files are not displayed
     dataUploadTasks.goToMapFilesPage();
     const unexpectedFileNames = fileObjects.reduce((acc, cur) => {
       acc.push(cur.fileName);
       return acc;
     }, []);
-    dataUploadQuestions.cannotSeeUnmappedFilesOnPage(unexpectedFileNames);
+    await dataUploadQuestions.cannotSeeUnmappedFilesOnPage(unexpectedFileNames);
   },
 
   async checkCouldMapFiles(fileObjects) {
@@ -45,7 +45,7 @@ module.exports = {
     // select project and file node, can see '.input-with-icon' element with select options inside, fill all blanks
     dataUploadTasks.selectProject();
     dataUploadTasks.selectFileNode();
-    dataUploadTasks.fillAllRequireFields();
+    await dataUploadTasks.fillAllRequireFields();
     dataUploadTasks.linksToParentNodes();
 
     // click "submit", can return success status

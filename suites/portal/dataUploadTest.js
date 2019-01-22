@@ -61,12 +61,12 @@ Scenario('Map uploaded files in windmill submission page', async (files, fence, 
   portalDataUpload.complete.checkCouldMapFiles([fileObj]);
 });
 
-Scenario('Cannot see files uploaded by other users', async(files, fence, users, indexd, portalDataUpload) => {
-  // user2 upload file2
-  const {fileObj, presignedUrl} = await generateFileAndGetUrlFromFence(files, fence, users.auxAcct2.accessTokenHeader);
-  await uploadFile(files, indexd, fileObj, presignedUrl);
-  portalDataUpload.complete.checkUnmappedFilesAreNotInFileMappingPage([fileObj]);
-});
+// Scenario('Cannot see files uploaded by other users', async(files, fence, users, indexd, portalDataUpload) => {
+//   // user2 upload file2
+//   const {fileObj, presignedUrl} = await generateFileAndGetUrlFromFence(files, fence, users.auxAcct2.accessTokenHeader);
+//   await uploadFile(files, indexd, fileObj, presignedUrl);
+//   await portalDataUpload.complete.checkUnmappedFilesAreNotInFileMappingPage([fileObj]);
+// });
 
 AfterSuite(async (sheepdog, indexd) => {
   // clean up in sheepdog
