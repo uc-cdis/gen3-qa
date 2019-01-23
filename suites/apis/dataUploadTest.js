@@ -1,8 +1,6 @@
 const fs = require('fs');
 
 const { smartWait } = require('../../utils/apiUtil.js');
-const homedir = require('os').homedir();
-const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
 
 
 Feature('Data file upload flow');
@@ -384,7 +382,7 @@ BeforeSuite(async (dataClient, fence, users, sheepdog, indexd, files) => {
   await sheepdog.complete.findDeleteAllNodes();
 
   // generate a file unique to this session
-  const fileObj = await files.createTmpFileWithRandomeNameAndContent();
+  const fileObj = await files.createTmpFileWithRandomeName(fileContents);
   fileName = fileObj.fileName;
   filePath = fileObj.filePath;
   fileSize = fileObj.fileSize;

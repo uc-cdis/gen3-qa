@@ -117,6 +117,10 @@ module.exports = {
     return fileList;
   },
 
+  /**
+   * Remove all records that userAccount submit in indexd
+   * @param {User} userAccount - submitter of files to delete
+   */
   async clearPreviousUnmappedFiles(userAccount) {
     I.sendGetRequest(
       `${indexdProps.endpoints.get}/?acl=null&uploader=${userAccount.username}`,

@@ -4,9 +4,9 @@
  */
 
 const fs = require('fs');
-
+const homedir = require('os').homedir();
+const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
 const { smartWait } = require('./apiUtil.js');
-
 const I = actor();
 
 module.exports = {
@@ -39,11 +39,10 @@ module.exports = {
   /**
    * Create a file in local storage
    */
-  async createTmpFileWithRandomeNameAndContent() {
+  async createTmpFileWithRandomeName(fileContents) {
     let rand = (Math.random() + 1).toString(36).substring(2,7); // 5 random chars
     const fileName = `qa-upload-file_${rand}.txt`;
     const filePath = './' + fileName;
-    const fileContents = 'this fake data file was generated and uploaded by the integration test suite\n';
     await this.createTmpFile(filePath, fileContents);
     const fileSize = await this.getFileSize(filePath);
     const fileMd5 = await this.getFileHash(filePath);
@@ -108,6 +107,25 @@ module.exports = {
         throw new Error(err);
       }
     }));
+  },
+
+  /** 
+   * create a file that contains the list of GUIDs of files that were uploaded  
+   * to s3 during this testing session. The files will be deleted during the  
+   * CleanS3 step of the Jenkins pipeline 
+   */ 
+  async cleanS3(fileName) {
+    if (inJenkins) {  
+      const dirName = `${homedir}/s3-cleanup`;  
+      if (!fs.existsSync(dirName)){ 
+        fs.mkdirSync(dirName);  
+      } 
+      this.createTmpFile(  
+        `${dirName}/${fileName}`, 
+        createdGuids.join("\n") 
+      );  
+      console.log(`Created ${fileName} in ${dirName}`); 
+    } 
   },
 
   /**

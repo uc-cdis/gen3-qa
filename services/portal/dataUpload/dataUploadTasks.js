@@ -30,8 +30,8 @@ module.exports = {
 
   selectProject() {
     I.click(dataUploadProps.projectSelectionDropdownSelector);
-    I.waitForText(dataUploadProps.testOrojectName);
-    I.click(`//*[contains(text(), '${dataUploadProps.testOrojectName}')]`, dataUploadProps.selectOptionClass);
+    I.waitForText(dataUploadProps.testProjectName);
+    I.click(`//*[contains(text(), '${dataUploadProps.testProjectName}')]`, dataUploadProps.selectOptionClass);
   },
 
   selectFileNode() {
@@ -40,7 +40,7 @@ module.exports = {
     I.click(dataUploadProps.fileNodeSelectionFirstItemClass);
   },
 
-  async fillAllRequireFields() {
+  async fillAllRequiredFields() {
     // fill `abc` for each text input
     const textInputCnt = await I.grabNumberOfVisibleElements(dataUploadProps.fileNodeRequiredFieldTextInputXPath);
     for (let i = 1; i <= textInputCnt; i +=1) {
@@ -56,12 +56,12 @@ module.exports = {
     }
   },
 
-  linksToParentNodes() {
+  linksToParentNodes(submitterID) {
     I.waitForVisible(dataUploadProps.parentSelectionXPath, 5);
     I.click(`${dataUploadProps.parentSelectionXPath}${dataUploadProps.selectionArrowXPath}`);
     I.waitForVisible(`${dataUploadProps.parentSelectionXPath}${dataUploadProps.selectionMenuXPath}`, 5);
-    I.waitForText(dataUploadProps.coremetadataSubmitterID, 5);
-    I.click(`//*[contains(text(), '${dataUploadProps.coremetadataSubmitterID}')]`, dataUploadProps.parentSelectionXPath);
+    I.waitForText(submitterID, 5);
+    I.click(`//*[contains(text(), '${submitterID}')]`, dataUploadProps.parentSelectionXPath);
   },
   
   clickSubmit() {

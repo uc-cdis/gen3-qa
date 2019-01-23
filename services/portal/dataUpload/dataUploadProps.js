@@ -13,7 +13,7 @@ module.exports = {
   submissionFormClass: '.map-data-model__form',
 
   projectSelectionDropdownSelector: '.map-data-model__form-section .Select-arrow',
-  testOrojectName: 'jnkns-jenkins',
+  testProjectName: 'jnkns-jenkins',
   selectOptionClass: '.Select-option',
 
   fileNodeSelectionDropdownSelector: '.map-data-model__node-form-section .Select-arrow',
@@ -32,6 +32,4 @@ module.exports = {
   submitButtonXPath: '//button[contains(text(), "Submit")]',
 
   unmappedFilesStringFormat: '%d files | %dB', 
-
-  coremetadataSubmitterID: 'xyz',
 };
