@@ -138,9 +138,12 @@ module.exports = {
   /**
    * Assert that the response status code
    * @param {Gen3Response} response
+   * @param {int} statusCode HTTP response code
+   * @param {string} msg Message to display in case of failure
    */
-  assertStatusCode(response, statusCode) {
-    expect(response).to.have.property('statusCode', statusCode);
+  assertStatusCode(response, statusCode, msg='') {
+    err = 'Wrong status code: ' + msg;
+    expect(response, err).to.have.property('statusCode', statusCode);
   },
 
   /**
