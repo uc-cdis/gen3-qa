@@ -146,7 +146,7 @@ module.exports = {
       }
     };
 
-    const timeout = 45; // max number of seconds to wait
+    const timeout = 60; // max number of seconds to wait
     let errorMessage = `The indexd listener did not complete the record after ${timeout} seconds`;
 
     await smartWait(isRecordUpdated, [indexd, fileNode], timeout, errorMessage);
@@ -157,18 +157,30 @@ module.exports = {
    * /!\ this function does not include a check for success or
    * failure of the data_file node's submission
    */
-  async submitFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5) {
-    // prepare graph for metadata upload (upload parent nodes)
-    await sheepdog.complete.addNodes(nodes.getPathToFile());
-
+  async submitFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5, submitter_id=null) {
     // submit metadata with object id via sheepdog
     metadata = nodes.getFileNode().clone();
     metadata.data.object_id = fileGuid;
     metadata.data.file_size = fileSize;
     metadata.data.md5sum = fileMd5;
+    if (submitter_id) {
+      metadata.data.submitter_id = submitter_id;
+    }
     await sheepdog.do.addNode(metadata); // submit, but don't check for success
 
     // the result of the submission is stored in metadata.addRes by addNode()
     return metadata;
+  },
+
+  /**
+   * link metadata to an indexd file via sheepdog,
+   * after submitting metadata for the parent nodes
+   * /!\ this function does not include a check for success or
+   * failure of the data_file node's submission
+   */
+  async submitGraphAndFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5) {
+    // prepare graph for metadata upload (upload parent nodes)
+    await sheepdog.complete.addNodes(nodes.getPathToFile());
+    return this.submitFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5);
   },
 };
