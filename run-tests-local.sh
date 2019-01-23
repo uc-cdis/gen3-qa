@@ -28,4 +28,4 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
-npm run test -- --grep @reqGoogle --invert
+npm run test -- --grep @reqGoogle --invert -- suites/apis/dataUploadTest.js
