@@ -23,7 +23,8 @@ module.exports = {
 
   async isSuccessfullySubmitted(fileCount) {
     const result = await I.grabTextFrom('.map-files__notification-wrapper');
-    expect(result).to.equal(`${fileCount} files mapped successfully!`);
+    const expectString = util.format(dataUploadProps.successMessageFormate, fileCount);
+    expect(result).to.equal(expectString);
   },
 
   async cannotSeeUnmappedFilesOnPage(unexpectedFileNames) {
