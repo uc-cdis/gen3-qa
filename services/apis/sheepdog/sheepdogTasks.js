@@ -79,7 +79,7 @@ module.exports = {
     ).then((res) => {
       node.data.id = getIdFromResponse(res);
       node.addRes = new Gen3Response(res);
-      if (node.category === 'data_file') {
+      if (node.category === 'data_file' && [200, 201].includes(node.addRes.statusCode)) {
         return getDidFromFileId(node, accessTokenHeader);
       }
       return node;

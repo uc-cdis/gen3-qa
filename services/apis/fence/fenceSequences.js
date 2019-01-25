@@ -71,4 +71,13 @@ module.exports = {
     fenceQuestions.hasAPIKey(apiKeyRes);
     return apiKeyRes;
   },
+
+  /**
+   * Deletes a file from indexd and S3
+   * @param {string} guid - GUID of the file to delete
+   */
+  async deleteFile(guid) {
+    const res = await fenceTasks.deleteFile(guid);
+    fenceQuestions.assertStatusCode(res, 204);
+  },
 };

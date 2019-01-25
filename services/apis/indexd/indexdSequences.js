@@ -24,4 +24,24 @@ module.exports = {
     await indexdTasks.deleteFile(indexdFile);
     indexdQuestions.deleteFileSuccess(indexdFile);
   },
+
+  /**
+   * Checks if a record exists in indexd
+   * @param {Object} indexdFile
+   * @returns {Promise<Gen3Response>}
+   */
+  async checkRecordExists(indexdFile) {
+    const res = await indexdTasks.getFile(indexdFile);
+    indexdQuestions.recordExists(res, indexdFile);
+    return res;
+  },
+
+  /**
+   * Remove the records created in indexd by the test suite
+   * @param {array} guidList - list of GUIDs of the files to delete
+   */
+  async deleteFiles(guidList) {
+    const fileList = await indexdTasks.deleteFiles(guidList);
+    indexdQuestions.deleteFilesSuccess(fileList);
+  },
 };

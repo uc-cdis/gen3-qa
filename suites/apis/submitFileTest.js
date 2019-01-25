@@ -67,7 +67,7 @@ Scenario('submit file then update with URL @reqData', async (sheepdog, indexd) =
   await indexd.complete.deleteFile(files.validFile);
 });
 
-// Pauline & Ted: the 2 tests below fail because of a bug in sheepdog (see PXD-2468)
+// Pauline & Ted: the 2 tests below fail because of a bug in sheepdog (see PXP-1994)
 
 // Scenario('submit file invalid property @reqData', async (sheepdog) => {
 //   await sheepdog.do.addNode(files.invalidProp);

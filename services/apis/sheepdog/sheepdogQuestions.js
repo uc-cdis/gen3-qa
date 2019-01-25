@@ -68,9 +68,11 @@ module.exports = {
    * Asserts sheepdog response has status
    * @param {Gen3Response} res
    * @param {int} statusCode HTTP response code
+   * @param {string} msg Message to display in case of failure
    */
-  hasStatusCode(res, statusCode) {
-    expect(res && res.statusCode).to.equal(statusCode);
+  hasStatusCode(res, statusCode, msg='') {
+    err = 'Wrong status code: ' + msg;
+    expect(res && res.statusCode, err).to.equal(statusCode);
   },
 
   /**

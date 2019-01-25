@@ -94,6 +94,14 @@ const gen3Res = function (_chai) {
   });
 };
 
+/**
+ * Wait for the specified number of milliseconds
+ * @param {int} ms
+ */
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+};
+
 module.exports = {
   /**
    * Apply a question to an array of responses. Expect no errors to be thrown
@@ -117,6 +125,30 @@ module.exports = {
     }
 
     expect(failList).to.deep.equal([]);
+  },
+
+  /**
+   * Wait for a task to be done. After each check, wait longer than the
+   * previous time
+   * @param {function} checkFunc - returns true if done, false otherwise
+   * @param {Object[]} funcArgs - list of arguments to pass to checkFunc()
+   * @param {int} timeout - max number of seconds to wait
+   * @param {string} errorMessage - message to display if not done in time
+   */
+  async smartWait(checkFunc, checkArgs, timeout, errorMessage) {
+    waitTime = 50; // start by waiting 50 ms
+    waited = 0; // keep track of how many ms have passed
+    while (waited < timeout * 1000) {
+      // check if the task is done
+      let done = await checkFunc(...checkArgs);
+      if (done) return;
+
+      // if not done, keep waiting
+      await sleep(waitTime);
+      waited += waitTime;
+      waitTime *= 2; // wait longer every time
+    }
+    throw new Error(errorMessage);
   },
 
   /**

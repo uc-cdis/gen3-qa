@@ -4,6 +4,8 @@ const expect = chai.expect;
 chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 
+const apiUtil = require('../../../utils/apiUtil.js');
+
 /**
  *  indexd utils
  */
@@ -32,8 +34,34 @@ module.exports = {
     }
   },
 
+  /**
+   * Asserts a record was successfully deleted from indexd
+   * @param {Object} ffileNode
+   */
   deleteFileSuccess(fileNode) {
     // Note that the delete res is the entire response, not just the body
-    expect(fileNode).to.nested.include({ 'indexd_delete_res.raw_body': '' });
+    expect(fileNode, 'The record was not deleted from indexd').to.nested.include({ 'indexd_delete_res.raw_body': '' });
+  },
+
+  /**
+   * Asserts a record exists in indexd
+   * @param {Gen3Response} res - getFile result
+   * @param {Object} fileNode
+   */
+  recordExists(res, fileNode) {
+    resultSuccess(res);
+    expect(fileNode, 'The specified record does not exist in indexd').to.have.property('rev');
+  },
+
+  /**
+   * Assert a list of responses from file deletions are all successful
+   * @param {array} resList - list of Gen3Responses
+   */
+  deleteFilesSuccess(resList) {
+    apiUtil.applyQuestion(resList, this.deleteFileSuccess);
+  },
+
+  resultFailure(res) {
+    expect(res).to.have.property('error');
   },
 };

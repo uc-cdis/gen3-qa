@@ -96,7 +96,7 @@ Scenario('filter query by string attribute @reqData', async (sheepdog, peregrine
   await sheepdog.complete.deleteNodes(nodes.getPathToFile());
 });
 
-// FIXME: This is a known bug that needs to be fixed. See PXD-1195
+// FIXME: This is a known bug that needs to be fixed. See PXP-1570
 Scenario('filter query by boolean attribute @reqData', async (peregrine) => {
   // This test assumes that projects in all commons will have a boolean attribute 'releasable'
   const booleanState = Commons.project.releasable;
@@ -113,7 +113,7 @@ Scenario('filter query by boolean attribute @reqData', async (peregrine) => {
     peregrine.ask.hasFieldCount(res, 'project', 1);
   } catch (e) {
     console.log(
-      `WARNING: test graphQL filter by boolean attribute is FAILING (See PXD-1195): ${
+      `WARNING: test graphQL filter by boolean attribute is FAILING (See PXP-1570): ${
         e.message
       }`,
     );
