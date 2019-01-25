@@ -34,6 +34,7 @@ class Bash{
     return this.commander.runJobAndWait(jobName, args);
   }
 
+
   /**
    * Generates a child process and runs the given command in a kubernetes namespace
    * @param {string} cmd - command to execute in the commons
@@ -45,4 +46,12 @@ class Bash{
   }
 }
 
-module.exports = { Bash };
+/**
+ * pop off the last line to avoid log messages - ignore empty lines 
+ * @param {string} str 
+ */
+function takeLastLine(str) {
+  return str.split(/[\r\n]+/).filter(line => !!line.trim()).pop();
+}
+
+module.exports = { Bash, takeLastLine };

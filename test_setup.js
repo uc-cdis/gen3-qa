@@ -9,7 +9,7 @@ const homedir = require('os').homedir();
 const fs = require('fs');
 
 const { Commons } = require('./utils/commons');
-const { Bash } = require('./utils/bash');
+const { Bash, takeLastLine } = require('./utils/bash');
 const users = require('./utils/user');
 const fenceProps = require('./services/apis/fence/fenceProps');
 const atob = require('atob');
@@ -27,6 +27,7 @@ const bash = new Bash();
 // // will work with all https requests will all libraries (i.e. request.js)
 // require('https').globalAgent.options.ca = rootCas;
 
+
 /**
  * Runs a fence command for fetching access token for a user
  * @param {string} namespace - namespace to get token from
@@ -36,8 +37,7 @@ const bash = new Bash();
  */
 function getAccessToken(username, expiration) {
   const fenceCmd = `fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account --type access_token --exp ${expiration} --username ${username}`;
-  // pop off the last line to avoid log messages - ignore empty lines
-  const accessToken = bash.runCommand(fenceCmd, 'fence', str => str.split(/[\r\n]+/).filter(line => !!line.trim()).pop());
+  const accessToken = bash.runCommand(fenceCmd, 'fence', takeLastLine);
   console.error(accessToken);
   return accessToken.trim();
 }
@@ -54,7 +54,7 @@ function createClient(clientName, userName, clientType) {
   if (clientType === 'implicit') {
     fenceCmd = `${fenceCmd} --grant-types implicit --public`;
   }
-  const resCmd = bash.runCommand(fenceCmd, 'fence');
+  const resCmd = bash.runCommand(fenceCmd, 'fence', takeLastLine);
   const arr = resCmd.replace(/[()']/g, '').split(',').map(val => val.trim());
   return { client_id: arr[0], client_secret: arr[1] };
 }
@@ -64,7 +64,7 @@ function createClient(clientName, userName, clientType) {
  * @param {string} clientName - client name
  */
 function deleteClient(clientName) {
-  bash.runCommand(`fence-create client-delete --client ${clientName}`, 'fence');
+  bash.runCommand(`fence-create client-delete --client ${clientName}`, 'fence', takeLastLine);
 }
 
 /**
