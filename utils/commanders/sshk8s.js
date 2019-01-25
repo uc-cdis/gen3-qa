@@ -16,19 +16,22 @@ class SshK8s extends Base {
    * Remotely run a command from local PC via SSH connecting to Kubernetes cluster
    * @param service
    * @param cmd
+   * @param cleanResult lambda(string) => string cleans result string
    * @returns {*}
    */
-  runCommand(cmd, service=undefined) {
+  runCommand(cmd, service=undefined, cleanResult=null) {
+    cleanResult = cleanResult || clean;
     const namespace = process.env.NAMESPACE;
     const commonsUser = userFromNamespace(namespace);
-    if (service === undefined)
-      return clean(execSync(`ssh ${commonsUser}@cdistest.csoc 'set -i; source ~/.bashrc; ${cmd}'`,
+    if (service === undefined) {
+      return cleanResult(execSync(`ssh ${commonsUser}@cdistest.csoc 'set -i; source ~/.bashrc; ${cmd}'`,
         { shell: '/bin/bash' }).toString('utf8'));
-    else
-      return clean(execSync(
+    } else {
+      return cleanResult(execSync(
         `ssh ${commonsUser}@cdistest.csoc 'set -i; source ~/.bashrc; g3kubectl exec $(gen3 pod ${service} ${namespace}) -- ${cmd}'`,
         { shell: '/bin/sh' }
       ).toString('utf8'));
+    }
   }
 }
 

@@ -20,13 +20,16 @@ class Docker extends Base {
    * Remotely run a command from local PC via SSH connecting to Kubernetes cluster
    * @param service
    * @param cmd
+   * @param cleanResult lambda(string) => string cleans result string
    * @returns {*}
    */
-  runCommand(cmd, service=undefined) {
-    if (service === undefined)
-      return clean(execSync(`docker exec ${cmd}`, { shell: '/bin/bash' }).toString('utf8'));
-    else
-      return clean(execSync(`docker exec ${service}-service ${cmd}`, { shell: '/bin/bash' }).toString('utf8'));
+  runCommand(cmd, service=undefined, cleanResult=null) {
+    cleanResult = cleanResult || clean;
+    if (service === undefined) {
+      return cleanResult(execSync(`docker exec ${cmd}`, { shell: '/bin/bash' }).toString('utf8'));
+    } else {
+      return cleanResult(execSync(`docker exec ${service}-service ${cmd}`, { shell: '/bin/bash' }).toString('utf8'));
+    }
   }
 }
 

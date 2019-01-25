@@ -37,7 +37,7 @@ const bash = new Bash();
 function getAccessToken(username, expiration) {
   const fenceCmd = `fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account --type access_token --exp ${expiration} --username ${username}`;
   // pop off the last line to avoid log messages - ignore empty lines
-  const accessToken = bash.runCommand(fenceCmd, 'fence').split(/[\r\n]+/).filter(line => !!line.trim()).pop();
+  const accessToken = bash.runCommand(fenceCmd, 'fence', str => str.split(/[\r\n]+/).filter(line => !!line.trim()).pop());
   console.error(accessToken);
   return accessToken.trim();
 }

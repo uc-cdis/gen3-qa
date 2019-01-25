@@ -40,8 +40,8 @@ class Bash{
    * @param {string} service - service name of pod in which command is run. undefined for running in admin vm
    * @returns {string}
    */
-  runCommand(cmd, service=undefined) {
-    return this.commander.runCommand(cmd, service);
+  runCommand(cmd, service=undefined, clean=null) {
+    return this.commander.runCommand(cmd, service, clean);
   }
 }
 
