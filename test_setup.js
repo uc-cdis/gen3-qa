@@ -36,7 +36,8 @@ const bash = new Bash();
  */
 function getAccessToken(username, expiration) {
   const fenceCmd = `fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account --type access_token --exp ${expiration} --username ${username}`;
-  const accessToken = bash.runCommand(fenceCmd, 'fence');
+  // pop off the last line to avoid log messages - ignore empty lines
+  const accessToken = bash.runCommand(fenceCmd, 'fence').split(/[\r\n]+/).filter(line => !!line.trim()).pop();
   console.error(accessToken);
   return accessToken.trim();
 }
@@ -159,73 +160,78 @@ function assertGen3Client() {
 }
 
 module.exports = async function (done) {
-  // get some vars from the commons
-  console.log('Setting environment variables...\n');
+  try {
+    // get some vars from the commons
+    console.log('Setting environment variables...\n');
 
-  // Export access tokens
-  for (const user of Object.values(users)) {
-    if (!user.jenkinsOnly || inJenkins || process.env.NAMESPACE === 'default') {
-      const at = getAccessToken(user.username, DEFAULT_TOKEN_EXP);
-      // make sure the access token looks valid - base64 encoded JSON :-p
-      const token = parseJwt(at);
-      process.env[user.envTokenName] = at;
+    // Export access tokens
+    for (const user of Object.values(users)) {
+      if (!user.jenkinsOnly || inJenkins || process.env.NAMESPACE === 'default') {
+        const at = getAccessToken(user.username, DEFAULT_TOKEN_EXP);
+        // make sure the access token looks valid - base64 encoded JSON :-p
+        const token = parseJwt(at);
+        process.env[user.envTokenName] = at;
+      }
     }
+
+    console.log('Delete then create basic client...\n');
+    deleteClient('basic-test-client');
+    const basicClient = createClient('basic-test-client', 'test-client@example.com', 'basic');
+
+    console.log('Delete then create implicit client...\n');
+    deleteClient('implicit-test-client');
+    const implicitClient = createClient('implicit-test-client', 'test@example.com', 'implicit');
+
+    // Setup environment variables
+    process.env[`${fenceProps.clients.client.envVarsName}_ID`] = basicClient.client_id;
+    process.env[`${fenceProps.clients.client.envVarsName}_SECRET`] = basicClient.client_secret;
+    process.env[`${fenceProps.clients.clientImplicit.envVarsName}_ID`] = implicitClient.client_id;
+
+    // Export expired access token for main acct
+    const mainAcct = users.mainAcct;
+    const expAccessToken = getAccessToken(mainAcct.username, 1);
+    process.env[mainAcct.envExpTokenName] = expAccessToken;
+
+    // Export indexd credentials
+    let indexd_cred = getIndexPassword();
+    process.env.INDEX_USERNAME = indexd_cred.client;
+    process.env.INDEX_PASSWORD = indexd_cred.password;
+
+    // Create configuration values based on hierarchy then export them to the process
+    nconf.argv()
+      .env()
+      .file({
+        file: 'auto-qa-config.json',
+        dir: `${homedir}/.gen3`,
+        search: true,
+      });
+
+    exportNconfVars();
+
+    // Assert required env vars are defined
+    const basicVars = [mainAcct.envTokenName, mainAcct.envExpTokenName, 'INDEX_USERNAME', 'INDEX_PASSWORD', 'HOSTNAME'];
+    const googleVars = [
+      users.auxAcct1.envGoogleEmail,
+      users.auxAcct2.envGoogleEmail,
+      users.auxAcct1.envGooglePassword,
+      users.auxAcct2.envGooglePassword,
+      'GOOGLE_APP_CREDS_JSON',
+    ];
+    const submitDataVars = [
+      'TEST_DATA_PATH',
+    ];
+
+    assertEnvVars(basicVars.concat(googleVars, submitDataVars));
+    console.log('TEST_DATA_PATH: ', process.env.TEST_DATA_PATH);
+
+    assertGen3Client();
+
+    // Create a program and project (does nothing if already exists)
+    console.log('Creating program/project\n');
+    await tryCreateProgramProject(3);
+    done();
+  } catch (ex) {
+    console.error('Failed initialization', ex);
+    process.exit(1);
   }
-
-  console.log('Delete then create basic client...\n');
-  deleteClient('basic-test-client');
-  const basicClient = createClient('basic-test-client', 'test-client@example.com', 'basic');
-
-  console.log('Delete then create implicit client...\n');
-  deleteClient('implicit-test-client');
-  const implicitClient = createClient('implicit-test-client', 'test@example.com', 'implicit');
-
-  // Setup environment variables
-  process.env[`${fenceProps.clients.client.envVarsName}_ID`] = basicClient.client_id;
-  process.env[`${fenceProps.clients.client.envVarsName}_SECRET`] = basicClient.client_secret;
-  process.env[`${fenceProps.clients.clientImplicit.envVarsName}_ID`] = implicitClient.client_id;
-
-  // Export expired access token for main acct
-  const mainAcct = users.mainAcct;
-  const expAccessToken = getAccessToken(mainAcct.username, 1);
-  process.env[mainAcct.envExpTokenName] = expAccessToken;
-
-  // Export indexd credentials
-  let indexd_cred = getIndexPassword();
-  process.env.INDEX_USERNAME = indexd_cred.client;
-  process.env.INDEX_PASSWORD = indexd_cred.password;
-
-  // Create configuration values based on hierarchy then export them to the process
-  nconf.argv()
-    .env()
-    .file({
-      file: 'auto-qa-config.json',
-      dir: `${homedir}/.gen3`,
-      search: true,
-    });
-
-  exportNconfVars();
-
-  // Assert required env vars are defined
-  const basicVars = [mainAcct.envTokenName, mainAcct.envExpTokenName, 'INDEX_USERNAME', 'INDEX_PASSWORD', 'HOSTNAME'];
-  const googleVars = [
-    users.auxAcct1.envGoogleEmail,
-    users.auxAcct2.envGoogleEmail,
-    users.auxAcct1.envGooglePassword,
-    users.auxAcct2.envGooglePassword,
-    'GOOGLE_APP_CREDS_JSON',
-  ];
-  const submitDataVars = [
-    'TEST_DATA_PATH',
-  ];
-
-  assertEnvVars(basicVars.concat(googleVars, submitDataVars));
-  console.log('TEST_DATA_PATH: ', process.env.TEST_DATA_PATH);
-
-  assertGen3Client();
-
-  // Create a program and project (does nothing if already exists)
-  console.log('Creating program/project\n');
-  await tryCreateProgramProject(3);
-  done();
 };
