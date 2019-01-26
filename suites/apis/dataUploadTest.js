@@ -195,10 +195,10 @@ Scenario('File upload and download via API calls', async (fence, users, nodes, i
     fileContents,
   );
 
-  // check that we cannot link metadata to a file that already has metadata:
-  // fail to submit metadata for this file again
+  // make sure we can link metadata to a file that already has metadata:
+  // try to submit metadata for this file again
   sheepdogRes = await submitFileMetadata(sheepdog, nodes, fileGuid,submitter_id='submitter_id_new_value');
-  sheepdog.ask.hasStatusCode(metadata.addRes, 400, 'Metadata linking to a file that already has metadata should not be possible');
+  sheepdog.ask.addNodeSuccess(sheepdogRes);
 });
 
 /**
