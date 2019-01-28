@@ -2,7 +2,7 @@ const fenceProps = require('./fenceProps.js');
 const user = require('../../../utils/user.js');
 const portal = require('../../../utils/portal.js');
 const { Gen3Response } = require('../../../utils/apiUtil');
-const { Bash } = require('../../../utils/bash');
+const { Bash, takeLastLine } = require('../../../utils/bash');
 
 const { container } = require('codeceptjs');
 const bash = new Bash();
@@ -195,7 +195,7 @@ module.exports = {
 
     // run fence-create command to circumvent google and add user link to fence
     const cmd = `fence-create force-link-google --username ${userAcct.username} --google-email ${googleEmail}`;
-    const res = bash.runCommand(cmd, 'fence');
+    const res = bash.runCommand(cmd, 'fence', takeLastLine);
     userAcct.linkedGoogleAccount = googleEmail;
     return res;
   },

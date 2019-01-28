@@ -319,7 +319,7 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
 
   // submit metadata for this file
   let sheepdogRes = await submitGraphAndFileMetadata(sheepdog, nodes, fileGuid);
-  sheepdog.ask.addNodeSuccess(sheepdogRes);
+  sheepdog.ask.addNodeSuccess(sheepdogRes, 'first upload');
 
   // check that the file can be downloaded
   let signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid);
@@ -347,7 +347,7 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
 
   // submit metadata for this file (the parent nodes already exist)
   sheepdogRes = await submitFileMetadata(sheepdog, nodes, fileGuid,submitter_id='submitter_id_new_value');
-  sheepdog.ask.addNodeSuccess(sheepdogRes);
+  sheepdog.ask.addNodeSuccess(sheepdogRes, 'second upload');
 
   // check that the file can be downloaded
   signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid);
