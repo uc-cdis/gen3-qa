@@ -31,6 +31,6 @@ module.exports = {
 
   submitButtonXPath: '//button[contains(text(), "Submit")]',
 
-  unmappedFilesStringFormat: '%d files | %dB', 
+  unmappedFilesStringFormat: '%d files | %d B', 
   successMessageFormate: '%d files mapped successfully!',
 };
