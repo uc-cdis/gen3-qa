@@ -57,7 +57,7 @@ module.exports = {
       }
       // parse the output to find the file's new GUID
       var matches = out.match(/to GUID (.*)./);
-      if (!matches || matches.length < 2 || matches[1].length != 36) {
+      if (!matches || matches.length < 2 || matches[1].length < 36) {
         throw new Error('Did not find a GUID in the following output from the gen3-client:\n' + out)
       }
       return matches[1];

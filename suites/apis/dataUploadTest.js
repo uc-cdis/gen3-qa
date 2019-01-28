@@ -104,9 +104,9 @@ Scenario('File upload and download via API calls', async (fence, users, nodes, i
   );
 
   // check that we cannot link metadata to a file that already has metadata:
-  // fail to submit metadata for this file again
+  // try to submit metadata for this file again
   sheepdogRes = await files.submitFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5, submitter_id='submitter_id_new_value');
-  sheepdog.ask.hasStatusCode(metadata.addRes, 400, 'Metadata linking to a file that already has metadata should not be possible');
+  sheepdog.ask.addNodeSuccess(sheepdogRes);
 });
 
 /**
@@ -227,7 +227,7 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
 
   // submit metadata for this file
   let sheepdogRes = await files.submitGraphAndFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5);
-  sheepdog.ask.addNodeSuccess(sheepdogRes);
+  sheepdog.ask.addNodeSuccess(sheepdogRes, 'first upload');
 
   // check that the file can be downloaded
   let signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid);
@@ -255,7 +255,7 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
 
   // submit metadata for this file (the parent nodes already exist)
   sheepdogRes = await files.submitFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5, submitter_id='submitter_id_new_value');
-  sheepdog.ask.addNodeSuccess(sheepdogRes);
+  sheepdog.ask.addNodeSuccess(sheepdogRes, 'second upload');
 
   // check that the file can be downloaded
   signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid);

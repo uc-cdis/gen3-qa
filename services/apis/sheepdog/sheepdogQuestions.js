@@ -17,8 +17,9 @@ module.exports = {
    * Asserts a node was submitted to sheepdog successfully
    * @param {Node} node
    */
-  addNodeSuccess(node) {
-    expect(node.addRes).to.be.a.gen3Res(sheepdogProps.resAddSuccess);
+  addNodeSuccess(node, message='') {
+    const copy = { ... node, addRes:null};
+    expect(node.addRes, `${message} - adding node ${JSON.stringify(copy, null, '  ')}`).to.be.a.gen3Res(sheepdogProps.resAddSuccess);
   },
 
   /**
@@ -33,8 +34,9 @@ module.exports = {
    * Asserts a node was updated in sheepdog successfully
    * @param {Node} node
    */
-  updateNodeSuccess(node) {
-    expect(node.addRes).to.be.a.gen3Res(sheepdogProps.resUpdateSuccess);
+  updateNodeSuccess(node, message='') {
+    const copy = { ... node, addRes:null};
+    expect(node.addRes, `${message} - updating node ${JSON.stringify(copy, null, '  ')}`).to.be.a.gen3Res(sheepdogProps.resUpdateSuccess);
   },
 
   /**
