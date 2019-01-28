@@ -8,6 +8,7 @@ chai.config.truncateThreshold = 0;
 chai.use(gen3Res);
 
 const fenceProps = require('./fenceProps.js');
+const apiUtil = require('../../../utils/apiUtil.js');
 
 /**
  * fence Questions
@@ -18,9 +19,15 @@ module.exports = {
    * @param createUrlRes
    */
   hasUrl(createUrlRes) {
-    expect(createUrlRes,
-      'response does not have a "url" field in the body'
-    ).to.have.nested.property('body.url');
+    expect(createUrlRes, 'Fence did not return a URL (check fence logs for more info on why)').to.have.nested.property('body.url');
+  },
+
+  /**
+   * Asserts a res does not have url property
+   * @param createUrlRes
+   */
+  hasNoUrl(createUrlRes) {
+    expect(createUrlRes, 'Fence should not have returned a URL').to.not.have.nested.property('body.url');
   },
 
   /**
@@ -157,9 +164,12 @@ module.exports = {
   /**
    * Assert that the response status code
    * @param {Gen3Response} response
+   * @param {int} statusCode HTTP response code
+   * @param {string} msg Message to display in case of failure
    */
-  assertStatusCode(response, statusCode) {
-    expect(response).to.have.property('statusCode', statusCode);
+  assertStatusCode(response, statusCode, msg='') {
+    err = 'Wrong status code: ' + msg;
+    expect(response, err).to.have.property('statusCode', statusCode);
   },
 
   /**
@@ -248,6 +258,5 @@ module.exports = {
 
   assertTruethyResult(result) {
     expect(!!result).to.be.true;
-  }
-
+  },
 };

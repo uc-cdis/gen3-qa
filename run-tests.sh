@@ -89,7 +89,7 @@ lockUser=""
 
 testArgs="--debug --verbose --reporter mocha-junit-reporter"
 #
-# DCF tests are not yet stable enough to run in fence PR's - 
+# DCF tests are not yet stable enough to run in fence PR's -
 # so just enable in gen3-qa PR's for now
 #
 #if [[ "$service" != "fence" && "$service" != "gen3-qa" ]]; then

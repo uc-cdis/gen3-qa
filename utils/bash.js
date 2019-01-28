@@ -34,15 +34,24 @@ class Bash{
     return this.commander.runJobAndWait(jobName, args);
   }
 
+
   /**
    * Generates a child process and runs the given command in a kubernetes namespace
    * @param {string} cmd - command to execute in the commons
    * @param {string} service - service name of pod in which command is run. undefined for running in admin vm
    * @returns {string}
    */
-  runCommand(cmd, service=undefined) {
-    return this.commander.runCommand(cmd, service);
+  runCommand(cmd, service=undefined, clean=null) {
+    return this.commander.runCommand(cmd, service, clean);
   }
 }
 
-module.exports = { Bash };
+/**
+ * pop off the last line to avoid log messages - ignore empty lines 
+ * @param {string} str 
+ */
+function takeLastLine(str) {
+  return str.split(/[\r\n]+/).filter(line => !!line.trim()).pop();
+}
+
+module.exports = { Bash, takeLastLine };

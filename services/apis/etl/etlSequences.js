@@ -19,7 +19,6 @@ module.exports = {
    * Running ETL first time. Expect no alias at the beginning and have alias at the end
    */
   runETLFirstTime() {
-    etlTasks.rollSpark();
     etlProps.aliases.forEach(async alias => {
       etlTasks.deleteIndices(alias);
       expect(etlTasks.existAlias(alias), 'Fails to delete alias').to.equal(false);

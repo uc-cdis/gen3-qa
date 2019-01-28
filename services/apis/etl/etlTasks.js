@@ -15,9 +15,14 @@ module.exports = {
    * @returns {boolean}
    */
   deleteIndices(index) {
-    let res = bash.runCommand(`curl -X DELETE -s ${etlProps.endpoints.root}/*${index}*`, 'arranger-deployment');
-    if (res.startsWith('HTTP/1.1 200 OK'))
-      return true;
+    if (index && index.startsWith('jenkins')) {
+      let res = bash.runCommand(`curl -X DELETE -s ${etlProps.endpoints.root}/*${index}*`, 'arranger-deployment');
+      if (res.startsWith('HTTP/1.1 200 OK')) {
+        return true;
+      }
+    } else {
+      console.error(`ERROR: ignoring deleteIndices on invalid index key: ${index}`);
+    }
     return false;
   },
 

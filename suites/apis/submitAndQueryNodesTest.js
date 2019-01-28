@@ -14,7 +14,7 @@ Scenario('submit and delete node @reqData', async (I, sheepdog, nodes) => {
 });
 
 //
-// REUBEN - 
+// REUBEN -
 // addNodes() does not work reliably with brain commons dictionary
 // disabling bunch of these tests as they make the test suite useless
 //
@@ -96,7 +96,7 @@ Scenario('filter query by string attribute @reqData', async (sheepdog, peregrine
   await sheepdog.complete.deleteNodes(nodes.getPathToFile());
 });
 
-// FIXME: This is a known bug that needs to be fixed. See PXD-1195
+// FIXME: This is a known bug that needs to be fixed. See PXP-1570
 Scenario('filter query by boolean attribute @reqData', async (peregrine) => {
   // This test assumes that projects in all commons will have a boolean attribute 'releasable'
   const booleanState = Commons.project.releasable;
@@ -113,7 +113,7 @@ Scenario('filter query by boolean attribute @reqData', async (peregrine) => {
     peregrine.ask.hasFieldCount(res, 'project', 1);
   } catch (e) {
     console.log(
-      `WARNING: test graphQL filter by boolean attribute is FAILING (See PXD-1195): ${
+      `WARNING: test graphQL filter by boolean attribute is FAILING (See PXP-1570): ${
         e.message
       }`,
     );
@@ -172,41 +172,49 @@ Scenario('filter by invalid project_id @reqData', async (peregrine, sheepdog, no
   await sheepdog.do.deleteNode(nodes.getFirstNode());
 });
 
-// Failing erroneously, commenting out for now
 
-// Scenario('test with_path_to - first to last node @reqData', async (peregrine, sheepdog, nodes) => {
-//   await sheepdog.complete.addNodes(nodes.getPathToFile());
+Scenario('test with_path_to - first to last node @reqData', async (peregrine, sheepdog, nodes) => {
+  await sheepdog.complete.addNodes(nodes.getPathToFile());
 
-//   const res = await peregrine.do.queryWithPathTo(
-//     nodes.getFirstNode(),
-//     nodes.getLastNode(),
-//   );
-//   peregrine.ask.hasFieldCount(res, nodes.getFirstNode().name, 1);
+  // TODO: remove try/catch once bug is fixed
+  try {
+    const res = await peregrine.do.queryWithPathTo(
+      nodes.getFirstNode(),
+      nodes.getLastNode(),
+    );
+    peregrine.ask.hasFieldCount(res, nodes.getFirstNode().name, 1);
+  } catch (e) {
+    console.log(
+      `WARNING: test graphQL with_path_to first to last node is FAILING (See PXP-1569): ${
+        e.message
+      }`,
+    );
+  }
 
-//   await sheepdog.complete.deleteNodes(nodes.getPathToFile());
-// });
+  await sheepdog.complete.deleteNodes(nodes.getPathToFile());
+});
 
-// // FIXME: This is a known bug that needs to be fixed. See PXD-1196
-// Scenario('test with_path_to - last to first node @reqData', async (peregrine, sheepdog, nodes) => {
-//   await sheepdog.complete.addNodes(nodes.getPathToFile());
+// FIXME: This is a known bug that needs to be fixed. See PXP-1569
+Scenario('test with_path_to - last to first node @reqData', async (peregrine, sheepdog, nodes) => {
+  await sheepdog.complete.addNodes(nodes.getPathToFile());
 
-//   // TODO: remove try/catch once bug is fixed
-//   try {
-//     const res = await peregrine.do.queryWithPathTo(
-//       nodes.getLastNode(),
-//       nodes.getFirstNode(),
-//     );
-//     peregrine.ask.hasFieldCount(res, nodes.getLastNode().name, 1);
-//   } catch (e) {
-//     console.log(
-//       `WARNING: test graphQL with_path_to last to first node is FAILING (See PXD-1196): ${
-//         e.message
-//       }`,
-//     );
-//   }
+  // TODO: remove try/catch once bug is fixed
+  try {
+    const res = await peregrine.do.queryWithPathTo(
+      nodes.getLastNode(),
+      nodes.getFirstNode(),
+    );
+    peregrine.ask.hasFieldCount(res, nodes.getLastNode().name, 1);
+  } catch (e) {
+    console.log(
+      `WARNING: test graphQL with_path_to last to first node is FAILING (See PXP-1569): ${
+        e.message
+      }`,
+    );
+  }
 
-//   await sheepdog.complete.deleteNodes(nodes.getPathToFile());
-// });
+  await sheepdog.complete.deleteNodes(nodes.getPathToFile());
+});
 
 
 BeforeSuite(async (sheepdog) => {

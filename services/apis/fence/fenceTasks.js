@@ -2,7 +2,7 @@ const fenceProps = require('./fenceProps.js');
 const user = require('../../../utils/user.js');
 const portal = require('../../../utils/portal.js');
 const { Gen3Response } = require('../../../utils/apiUtil');
-const { Bash } = require('../../../utils/bash');
+const { Bash, takeLastLine } = require('../../../utils/bash');
 
 const { container } = require('codeceptjs');
 const bash = new Bash();
@@ -85,6 +85,19 @@ module.exports = {
       ),
       user.mainAcct.accessTokenHeader,
     ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
+  },
+
+  /**
+   * Hits fence's signed url endpoint
+   * @param {string} id - id/did of an indexd file
+   * @param {string[]} userHeader - a user's access token header
+   * @returns {Promise<Gen3Response>}
+   */
+  createSignedUrlForUser(id, userHeader=user.mainAcct.accessTokenHeader) {
+    return I.sendGetRequest(
+      `${fenceProps.endpoints.getFile}/${id}`,
+      userHeader,
+    ).then(res => new Gen3Response(res));
   },
 
   /**
@@ -223,7 +236,7 @@ module.exports = {
 
     // run fence-create command to circumvent google and add user link to fence
     const cmd = `fence-create force-link-google --username ${userAcct.username} --google-email ${googleEmail}`;
-    const res = bash.runCommand(cmd, 'fence');
+    const res = bash.runCommand(cmd, 'fence', takeLastLine);
     userAcct.linkedGoogleAccount = googleEmail;
     return res;
   },
@@ -460,5 +473,33 @@ module.exports = {
     };
     const response = await I.sendGetRequest(fenceProps.endpoints.adminEndPoint, header);
     return response;
+  },
+
+  /**
+   * Hits fence's signed url for data upload endpoint
+   * @param {string} fileName - name of the file that will be uploaded
+   * @param {string} accessToken - access token
+   * @returns {Promise<Gen3Response>}
+   */
+  async getUrlForDataUpload(fileName, accessHeader) {
+    accessHeader['Content-Type'] = 'application/json';
+    return I.sendPostRequest(
+      fenceProps.endpoints.uploadFile,
+      JSON.stringify({
+        file_name: fileName,
+      }),
+      accessHeader,
+    ).then(res => new Gen3Response(res));
+  },
+
+  /**
+   * Delete a file from indexd and S3
+   * @param {string} guid - GUID of the file to delete
+   */
+  async deleteFile(guid, userHeader=user.mainAcct.accessTokenHeader) {
+    return I.sendDeleteRequest(
+      `${fenceProps.endpoints.deleteFile}/${guid}`,
+      userHeader,
+    ).then(res => new Gen3Response(res));
   },
 };

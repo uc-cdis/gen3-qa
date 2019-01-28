@@ -10,6 +10,6 @@ module.exports = {
     root: apiRoot,
     add: `${apiRoot}/`,
     get: apiRoot,
-    delete: apiRoot,
+    delete: apiRoot
   },
 };
