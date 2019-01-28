@@ -114,7 +114,7 @@ module.exports = {
    * to s3 during this testing session. The files will be deleted during the  
    * CleanS3 step of the Jenkins pipeline 
    */ 
-  async cleanS3(fileName) {
+  async cleanS3(fileName, createdGuids) {
     if (inJenkins) {  
       const dirName = `${homedir}/s3-cleanup`;  
       if (!fs.existsSync(dirName)){ 

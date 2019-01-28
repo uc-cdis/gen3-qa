@@ -293,7 +293,7 @@ AfterSuite(async (files, indexd) => {
   // Note: we don't use fence's /delete endpoint here because it does not allow
   // deleting from indexd records that have already been linked to metadata
   await indexd.complete.deleteFiles(createdGuids);
-  await files.cleanS3(fileName);
+  await files.cleanS3(fileName, createdGuids);
 });
 
 Before((nodes) => {

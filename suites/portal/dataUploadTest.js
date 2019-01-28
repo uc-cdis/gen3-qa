@@ -69,9 +69,9 @@ BeforeSuite(async (sheepdog, files, users, fence, indexd) => {
   // clean up in sheepdog
   await sheepdog.complete.findDeleteAllNodes();
 
-  // clean up previous unmapped files
-  await indexd.do.clearPreviousUnmappedFiles(users.mainAcct);
-  await indexd.do.clearPreviousUnmappedFiles(users.auxAcct2);
+  // clean up previous upload files
+  await indexd.do.clearPreviousUploadFiles(users.mainAcct);
+  await indexd.do.clearPreviousUploadFiles(users.auxAcct2);
 
   // Add coremetadata node. 
   // FIXME: once windmill allow parent nodes other than core-metadata-collection, remove this
@@ -113,7 +113,7 @@ AfterSuite(async (sheepdog, indexd, files) => {
   // clean up in indexd and S3 (remove the records created by this test suite)
   await indexd.complete.deleteFiles(createdGuids);
   createdFileNames.forEach(async fileName => {
-    await files.cleanS3(fileName);
+    await files.cleanS3(fileName, createdGuids);
     files.deleteFile(fileName);
   });
 });
