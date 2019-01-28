@@ -5,13 +5,12 @@ const dataUploadProps = require('../../services/portal/dataUpload/dataUploadProp
 const I = actor();
 let createdGuids = [];
 let createdFileNames = [];
-let coremetadataNode;
 let submitterID;
 
 const generateFileAndGetUrlFromFence = async function(files, fence, accessTokenHeader) {
   // generate a file unique to this session
   const fileContents = 'this fake data file was generated and uploaded by the integration test suite\n';
-  const fileObj = await files.createTmpFileWithRandomeName(fileContents);
+  const fileObj = await files.createTmpFileWithRandomName(fileContents);
   const fileName = fileObj.fileName;
   
   // request a  presigned URL from fence
@@ -47,24 +46,6 @@ const uploadFile = async function(files, indexd, sheepdog, nodes, fileObj, presi
   await files.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 };
 
-const generateAndAddCoremetadataNode = async function(sheepdog) {
-  const newSubmitterID = `submitter-${Math.random().toString(36).substring(2, 7)}`;
-  const newCoremetadataNode = {
-    data: {
-      projects: {
-          code: 'jenkins',
-      }, 
-      submitter_id: newSubmitterID,
-      type: 'core_metadata_collection',
-    },
-  };
-  await sheepdog.complete.addNode(newCoremetadataNode);
-  return {
-    newSubmitterID, 
-    newCoremetadataNode,
-  };
-};
-
 BeforeSuite(async (sheepdog, files, users, fence, indexd) => {
   // clean up in sheepdog
   await sheepdog.complete.findDeleteAllNodes();
@@ -75,12 +56,8 @@ BeforeSuite(async (sheepdog, files, users, fence, indexd) => {
 
   // Add coremetadata node. 
   // FIXME: once windmill allow parent nodes other than core-metadata-collection, remove this
-  const {
-    newSubmitterID,
-    newCoremetadataNode,
-  } = await generateAndAddCoremetadataNode(sheepdog);
+  const newSubmitterID = await files.generateAndAddCoremetadataNode(sheepdog);
   submitterID = newSubmitterID;
-  coremetadataNode = newCoremetadataNode;
 });
 
 Scenario('Map uploaded files in windmill submission page', async (sheepdog, nodes, files, fence, users, indexd, portalDataUpload) => {

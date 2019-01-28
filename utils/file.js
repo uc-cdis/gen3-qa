@@ -39,7 +39,7 @@ module.exports = {
   /**
    * Create a file in local storage
    */
-  async createTmpFileWithRandomeName(fileContents) {
+  async createTmpFileWithRandomName(fileContents) {
     let rand = (Math.random() + 1).toString(36).substring(2,7); // 5 random chars
     const fileName = `qa-upload-file_${rand}.txt`;
     const filePath = './' + fileName;
@@ -152,24 +152,19 @@ module.exports = {
     await smartWait(isRecordUpdated, [indexd, fileNode], timeout, errorMessage);
   },
 
-  /**
-   * link metadata to an indexd file via sheepdog
-   * /!\ this function does not include a check for success or
-   * failure of the data_file node's submission
-   */
-  async submitFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5, submitter_id=null) {
-    // submit metadata with object id via sheepdog
-    metadata = nodes.getFileNode().clone();
-    metadata.data.object_id = fileGuid;
-    metadata.data.file_size = fileSize;
-    metadata.data.md5sum = fileMd5;
-    if (submitter_id) {
-      metadata.data.submitter_id = submitter_id;
-    }
-    await sheepdog.do.addNode(metadata); // submit, but don't check for success
-
-    // the result of the submission is stored in metadata.addRes by addNode()
-    return metadata;
+  async generateAndAddCoremetadataNode(sheepdog) {
+    const newSubmitterID = `submitter-${Math.random().toString(36).substring(2, 7)}`;
+    const newCoremetadataNode = {
+      data: {
+        projects: {
+            code: 'jenkins',
+        },
+        submitter_id: newSubmitterID,
+        type: 'core_metadata_collection',
+      },
+    };
+    await sheepdog.complete.addNode(newCoremetadataNode);
+    return newSubmitterID;
   },
 
   /**
@@ -178,9 +173,31 @@ module.exports = {
    * /!\ this function does not include a check for success or
    * failure of the data_file node's submission
    */
-  async submitGraphAndFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5) {
-    // prepare graph for metadata upload (upload parent nodes)
-    await sheepdog.complete.addNodes(nodes.getPathToFile());
-    return this.submitFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5);
+  async submitGraphAndFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5, submitter_id=null) {
+    // submit metadata with object id via sheepdog
+    metadata = nodes.getFileNode().clone();
+    metadata.data.object_id = fileGuid;
+    metadata.data.file_size = fileSize;
+    metadata.data.md5sum = fileMd5;
+    if (submitter_id) {
+      metadata.data.submitter_id = submitter_id;
+    }
+
+    // assuming all data files can be submitted with a single link to a
+    // core_metadata_collection: add it, and remove other links
+    const cmcSubmitterID = await this.generateAndAddCoremetadataNode(sheepdog);
+    for (var prop in metadata.data) {
+      if (metadata.data.hasOwnProperty(prop) && metadata.data[prop].hasOwnProperty('submitter_id')) {
+        delete metadata.data[prop];
+      }
+    }
+    metadata.data.core_metadata_collections = {
+      submitter_id: cmcSubmitterID
+    };
+
+    await sheepdog.do.addNode(metadata); // submit, but don't check for success
+
+    // the result of the submission is stored in metadata.addRes by addNode()
+    return metadata;
   },
 };

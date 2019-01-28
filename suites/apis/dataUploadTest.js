@@ -92,8 +92,8 @@ Scenario('File upload and download via API calls', async (fence, users, nodes, i
   signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid, userToken=users.auxAcct1.accessTokenHeader);
   fence.ask.assertStatusCode(signedUrlRes, 401, 'User who is not the uploader should not successfully download file before metadata linking');
 
-  // submit metadata for this file (the parent nodes already exist)
-  sheepdogRes = await files.submitFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5);
+  // submit metadata for this file
+  sheepdogRes = await files.submitGraphAndFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5);
   sheepdog.ask.addNodeSuccess(sheepdogRes);
 
   // a user who is not the uploader can now download the file
@@ -105,7 +105,7 @@ Scenario('File upload and download via API calls', async (fence, users, nodes, i
 
   // check that we cannot link metadata to a file that already has metadata:
   // try to submit metadata for this file again
-  sheepdogRes = await files.submitFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5, submitter_id='submitter_id_new_value');
+  sheepdogRes = await files.submitGraphAndFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5, submitter_id='submitter_id_new_value');
   sheepdog.ask.addNodeSuccess(sheepdogRes);
 });
 
@@ -253,8 +253,8 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
   fileNode.did = fileGuid;
   await files.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 
-  // submit metadata for this file (the parent nodes already exist)
-  sheepdogRes = await files.submitFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5, submitter_id='submitter_id_new_value');
+  // submit metadata for this file
+  sheepdogRes = await files.submitGraphAndFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5, submitter_id='submitter_id_new_value');
   sheepdog.ask.addNodeSuccess(sheepdogRes, 'second upload');
 
   // check that the file can be downloaded
