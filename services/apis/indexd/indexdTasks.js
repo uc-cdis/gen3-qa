@@ -24,12 +24,12 @@ module.exports = {
   /**
    * Adds files to indexd
    * @param {Object[]} files - array of indexd files
-   * @returns {Promise<void>}
+   * @returns {Promise<boolean>}
    */
   async addFileIndices(files) {
     const headers = user.mainAcct.indexdAuthHeader;
     headers['Content-Type'] = 'application/json; charset=UTF-8';
-    files.forEach((file) => {
+    const promiseList = files.map((file) => {
       file.did = uuid.v4().toString();
       const data = {
         file_name: file.filename,
@@ -45,15 +45,24 @@ module.exports = {
       if (file.link !== null && file.link !== undefined) {
         data.urls = [file.link];
       }
-
+      return data;
+    }).map((data) => {
       const strData = JSON.stringify(data);
-      I.sendPostRequest(indexdProps.endpoints.add, strData, headers).then(
+      return I.sendPostRequest(indexdProps.endpoints.add, strData, headers).then(
         (res) => {
-          console.error(res.body)
-          file.rev = res.body.rev;
-        },
+          if (res.status === 200 && res.body && res.body.rev) {
+            file.rev = res.body.rev;
+          } else {
+            console.error(`Failed indexd submission got status ${res.status} for ${strData}`, res.body);
+            return Promise.reject('Failed to register file with indexd');
+          }
+        }
       );
     });
+    const success = await Promise.all(promiseList).then(
+      () => true, () => false
+    );
+    return success;
   },
 
   /**
@@ -95,9 +104,11 @@ module.exports = {
    * @returns {Promise<void>}
    */
   async deleteFileIndices(files) {
-    files.forEach((file) => {
-      this.deleteFile(file);
-    });
+    await Promise.all(
+        files.map((file) => {
+        this.deleteFile(file);
+      })
+    );
   },
 
   /**
