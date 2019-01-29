@@ -19,15 +19,27 @@ RUNNING_LOCAL=true NAMESPACE=yourDevNamespace npm test --  --verbose suites/.../
 export TEST_DATA_PATH="$(pwd)/testData"
 mkdir -p "$TEST_DATA_PATH"
 
-docker run -it -v "${TEST_DATA_PATH}:/mnt/data" --rm --name=dsim --entrypoint=data-simulator quay.io/cdis/data-simulator:master simulate --url https://s3.amazonaws.com/dictionary-artifacts/datadictionary/develop/schema.json --path /mnt/data --program jnkns --project jenkins --max_samples 10
+export TEST_DICTIONARY=https://s3.amazonaws.com/dictionary-artifacts/datadictionary/develop/schema.json
 
-docker run -it -v "${TEST_DATA_PATH}:/mnt/data" --rm --name=dsim --entrypoint=data-simulator quay.io/cdis/data-simulator:master submission_order --url https://s3.amazonaws.com/dictionary-artifacts/datadictionary/develop/schema.json --path /mnt/data --node_name submitted_unaligned_reads
+docker run -it -v "${TEST_DATA_PATH}:/mnt/data" --rm --name=dsim --entrypoint=data-simulator quay.io/cdis/data-simulator:master simulate --url "${TEST_DICTIONARY}" --path /mnt/data --program jnkns --project jenkins --max_samples 10
+
+docker run -it -v "${TEST_DATA_PATH}:/mnt/data" --rm --name=dsim --entrypoint=data-simulator quay.io/cdis/data-simulator:master submission_order --url "${TEST_DICTIONARY}" --path /mnt/data --node_name submitted_unaligned_reads
 
 RUNNING_LOCAL=true NAMESPACE=reuben npm test -- --verbose suites/apis/submitAndQueryNodesTest.js
 ```
 
 After running the test suite several times (or once) you may need to clear out the
 databases in your dev environment, so that old data does not interfere with new test runs.  The `gen3 reset` command automates the process to reset the `fence`, `indexd`, and `sheepdog` databases, but should only be run against a personal copy of the database (most of our dev environments point at a personal database schema).
+
+## Install data-client for data-upload tests
+
+```
+# change linux to osx on mac
+ssh -t reuben@cdistest.csoc bash -c 'set -i; source ~/.bashrc; source cloud-automation/gen3/gen3setup.sh; gen3 aws s3 cp s3://cdis-dc-builds/master/dataclient_linux.zip dataclient.zip'
+scp you@dev.csoc:dataclient.zip ~/dataclient.zip
+(cd ~/ && unzip ~/dataclient.zip)
+chmod a+rx ~/gen3-client
+```
 
 ## Basic test writing
 
