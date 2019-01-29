@@ -1,5 +1,4 @@
 const fs = require('fs');
-
 const { smartWait } = require('../../utils/apiUtil.js');
 const homedir = require('os').homedir();
 const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
@@ -7,6 +6,7 @@ const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !
 
 Feature('Data file upload flow');
 
+const workspace = process.env["WORKSPACE"] || homedir;
 
 /////////////
 // GLOBALS //
@@ -59,11 +59,11 @@ const uploadFileToS3 = async function (presignedUrl) {
  */
 const cleanS3 = async function (files) {
   if (inJenkins) {
-    dirName = `${homedir}/s3-cleanup`;
+    dirName = `${workspace}/s3-cleanup`;
     if (!fs.existsSync(dirName)){
       fs.mkdirSync(dirName);
     }
-    files.createTmpFile(
+    await files.createTmpFile(
       `${dirName}/${fileName}`,
       createdGuids.join("\n")
     );
