@@ -220,8 +220,16 @@ Scenario('User without role cannot upload', async (fence, users, nodes, indexd) 
 
 /**
  * This time, use the gen3 data client to upload and download the file
+ * 
+ * Disabled in run-tests.sh for now - dataClient manages configuration
+ * in a shared home directory folder - need to add locking, or make
+ * the config folder configurable ...
+ *     
  */
-Scenario('File upload and download via client', async (dataClient, indexd, nodes, files) => {
+Scenario('File upload and download via client @dataClientCLI', async (dataClient, fence, users, indexd, nodes, files) => {
+  // configure the gen3-client
+  await dataClient.do.configureClient(fence, users, files);
+
   // use gen3 client to upload a file
   let fileGuid = await dataClient.do.uploadFile(filePath);
   createdGuids.push(fileGuid);
@@ -358,9 +366,6 @@ Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fe
 });
 
 BeforeSuite(async (dataClient, fence, users, sheepdog, indexd, files) => {
-  // configure the gen3-client
-  await dataClient.do.configureClient(fence, users, files);
-
   // clean up in sheepdog
   await sheepdog.complete.findDeleteAllNodes();
 
