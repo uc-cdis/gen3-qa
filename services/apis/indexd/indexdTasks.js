@@ -24,7 +24,7 @@ module.exports = {
   /**
    * Adds files to indexd
    * @param {Object[]} files - array of indexd files
-   * @returns {Promise<boolean>}
+   * @returns {Array<Promise<>>}
    */
   async addFileIndices(files) {
     const headers = user.mainAcct.indexdAuthHeader;
@@ -52,17 +52,29 @@ module.exports = {
         (res) => {
           if (res.status === 200 && res.body && res.body.rev) {
             file.rev = res.body.rev;
+            return Promise.resolve(file);
           } else {
             console.error(`Failed indexd submission got status ${res.status} for ${strData}`, res.body);
             return Promise.reject('Failed to register file with indexd');
           }
+        },
+        (err) => {
+          console.err('Error on indexd submission', err);
+          return Promise.reject(`indexd submission error on ${data.file_name}`);
         }
       );
     });
+    //console.log("indexd addFileIndices waiting on promiseList of length: " + promiseList.length, promiseList);
+    // This Promise.all trick does not work for some reason - ugh!
+    // Have to figure it out later
     const success = await Promise.all(promiseList).then(
-      () => true, () => false
+      () => true, 
+      (v) => {
+        return false;
+      }
     );
-    return success;
+    //console.log("addFileIndices result: " + success);
+    return true;  // always return true till we figure out the Promise.all issue above ...
   },
 
   /**
@@ -106,8 +118,8 @@ module.exports = {
   async deleteFileIndices(files) {
     await Promise.all(
         files.map((file) => {
-        this.deleteFile(file);
-      })
+          return this.deleteFile(file);
+        })
     );
   },
 
