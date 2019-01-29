@@ -1,5 +1,8 @@
 Feature('PresignedUrlAPI');
 
+const chai = require('chai');
+const expect = chai.expect;
+
 const { Gen3Response } = require('../../utils/apiUtil');
 
 const files = {
@@ -104,10 +107,11 @@ Scenario('get presigned-url no requested protocol, no data', async (fence) => {
   fence.ask.responsesEqual(signedUrlRes, fence.props.resNoFileProtocol);
 });
 
-BeforeSuite((indexd) => {
-  indexd.do.addFileIndices(Object.values(files));
+BeforeSuite(async (indexd) => {
+  const ok = await indexd.do.addFileIndices(Object.values(files));
+  expect(ok).to.be.true;
 });
 
-AfterSuite((indexd) => {
-  indexd.do.deleteFileIndices(Object.values(files));
+AfterSuite(async (indexd) => {
+  await indexd.do.deleteFileIndices(Object.values(files));
 });
