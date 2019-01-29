@@ -26,14 +26,14 @@ const generateFileAndGetUrlFromFence = async function(files, fence, accessTokenH
   };
 };
 
-const uploadFile = async function(files, indexd, sheepdog, nodes, fileObj, presignedUrl) {
+const uploadFile = async function(dataUploadUtil, indexd, sheepdog, nodes, fileObj, presignedUrl) {
   const filePath = fileObj.filePath;
   const fileSize = fileObj.fileSize;
   const fileMd5 = fileObj.fileMd5;
   const fileGuid = fileObj.fileGuid;
 
   // upload the file to the S3 bucket using the presigned URL
-  await files.uploadFileToS3(presignedUrl, filePath, fileSize);
+  await dataUploadUtil.uploadFileToS3(presignedUrl, filePath, fileSize);
 
   // wait for the indexd listener to add size, hashes and URL to the record
   const fileNode = {
@@ -43,10 +43,10 @@ const uploadFile = async function(files, indexd, sheepdog, nodes, fileObj, presi
       file_size: fileSize
     }
   };
-  await files.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
+  await dataUploadUtil.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 };
 
-BeforeSuite(async (sheepdog, files, users, fence, indexd) => {
+BeforeSuite(async (sheepdog, nodes, users, fence, indexd) => {
   // clean up in sheepdog
   await sheepdog.complete.findDeleteAllNodes();
 
@@ -56,18 +56,18 @@ BeforeSuite(async (sheepdog, files, users, fence, indexd) => {
 
   // Add coremetadata node. 
   // FIXME: once windmill allow parent nodes other than core-metadata-collection, remove this
-  const newSubmitterID = await files.generateAndAddCoremetadataNode(sheepdog);
+  const newSubmitterID = await nodes.generateAndAddCoremetadataNode(sheepdog);
   submitterID = newSubmitterID;
 });
 
-Scenario('Map uploaded files in windmill submission page', async (sheepdog, nodes, files, fence, users, indexd, portalDataUpload) => {
+Scenario('Map uploaded files in windmill submission page', async (sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUploadUtil) => {
   // generate file and register in fence, get url
   const {fileObj, presignedUrl} = await generateFileAndGetUrlFromFence(files, fence, users.mainAcct.accessTokenHeader);
   // user1 should see 1 file, but not ready yet
   await portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage([fileObj], false);
 
   // upload file
-  await uploadFile(files, indexd, sheepdog, nodes, fileObj, presignedUrl);
+  await uploadFile(dataUploadUtil, indexd, sheepdog, nodes, fileObj, presignedUrl);
 
   // user1 should see 1 file ready
   await portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage([fileObj], true);
@@ -76,21 +76,21 @@ Scenario('Map uploaded files in windmill submission page', async (sheepdog, node
   portalDataUpload.complete.mapFiles([fileObj], submitterID);
 });
 
-Scenario('Cannot see files uploaded by other users', async(sheepdog, nodes, files, fence, users, indexd, portalDataUpload) => {
+Scenario('Cannot see files uploaded by other users', async(sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUploadUtil) => {
   // user2 upload file2
   const {fileObj, presignedUrl} = await generateFileAndGetUrlFromFence(files, fence, users.auxAcct2.accessTokenHeader);
-  await uploadFile(files, indexd, sheepdog, nodes, fileObj, presignedUrl);
+  await uploadFile(dataUploadUtil, indexd, sheepdog, nodes, fileObj, presignedUrl);
   await portalDataUpload.complete.checkUnmappedFilesAreNotInFileMappingPage([fileObj]);
 });
 
-AfterSuite(async (sheepdog, indexd, files) => {
+AfterSuite(async (sheepdog, indexd, files, dataUploadUtil) => {
   // clean up in sheepdog
   await sheepdog.complete.findDeleteAllNodes();
 
   // clean up in indexd and S3 (remove the records created by this test suite)
   await indexd.complete.deleteFiles(createdGuids);
-  createdFileNames.forEach(async fileName => {
-    await files.cleanS3(fileName, createdGuids);
+  await dataUploadUtil.cleanS3('clean-windmill-data-upload', createdGuids);
+  createdFileNames.forEach(fileName => {
     files.deleteFile(fileName);
   });
 });
