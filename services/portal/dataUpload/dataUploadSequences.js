@@ -7,7 +7,7 @@ const dataUploadProps = require('./dataUploadProps.js');
  */
 module.exports = {
   // Sequences are for an service to combine multiple tasks and questions
-  async checkUnmappedFilesAreInSubmissionPage(fileObjects, isReady) {
+  checkUnmappedFilesAreInSubmissionPage(fileObjects, isReady) {
     // goto '/submission' page and check file number and sizes are correct
     dataUploadTasks.goToSubmissionPage();
     const expectedFileCount = fileObjects.length;
@@ -17,7 +17,7 @@ module.exports = {
         return acc + cur.fileSize;
       }, 0);
     }
-    await dataUploadQuestions.isNumberAndSizeOfUnmappedFilesCorrect(expectedFileCount, expectedFileTotalSize);
+    dataUploadQuestions.isNumberAndSizeOfUnmappedFilesCorrect(expectedFileCount, expectedFileTotalSize);
   },
 
   async checkUnmappedFilesAreNotInFileMappingPage(fileObjects) {

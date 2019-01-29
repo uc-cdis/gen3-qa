@@ -10,7 +10,7 @@ const util = require('util');
  * dataUpload Questions
  */
 module.exports = {
-  async isNumberAndSizeOfUnmappedFilesCorrect(count, size) {
+  isNumberAndSizeOfUnmappedFilesCorrect(count, size) {
     const expectString = util.format(dataUploadProps.unmappedFilesStringFormat, count, size);
     I.waitForText(expectString, 5);
   },

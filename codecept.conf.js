@@ -21,7 +21,7 @@ exports.config = {
         },
       },
       restart: false,
-      keepCookies: true,
+      //keepCookies: true,
       timeouts: {
         script: 6000,
         'page load': 10000,

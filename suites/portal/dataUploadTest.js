@@ -64,19 +64,19 @@ Scenario('Map uploaded files in windmill submission page', async (sheepdog, node
   // generate file and register in fence, get url
   const {fileObj, presignedUrl} = await generateFileAndGetUrlFromFence(files, fence, users.mainAcct.accessTokenHeader);
   // user1 should see 1 file, but not ready yet
-  await portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage([fileObj], false);
+  portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage([fileObj], false);
 
   // upload file
   await uploadFile(dataUploadUtil, indexd, sheepdog, nodes, fileObj, presignedUrl);
 
   // user1 should see 1 file ready
-  await portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage([fileObj], true);
+  portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage([fileObj], true);
 
   // user1 map file in windmill
   await portalDataUpload.complete.mapFiles([fileObj], submitterID);
 
   // user1 should see 0 files now because all files are mapped.
-  await portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage([]);
+  portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage([]);
 });
 
 Scenario('Cannot see files uploaded by other users', async(sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUploadUtil) => {
