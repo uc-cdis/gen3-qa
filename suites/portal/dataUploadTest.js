@@ -60,6 +60,10 @@ BeforeSuite(async (sheepdog, nodes, users, fence, indexd) => {
   submitterID = newSubmitterID;
 });
 
+Before((home, users) => {
+  home.complete.login(users.mainAcct);
+});
+
 Scenario('Map uploaded files in windmill submission page', async (sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUploadUtil) => {
   // generate file and register in fence, get url
   const {fileObj, presignedUrl} = await generateFileAndGetUrlFromFence(files, fence, users.mainAcct.accessTokenHeader);

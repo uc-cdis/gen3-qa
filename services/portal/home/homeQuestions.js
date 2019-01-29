@@ -15,4 +15,8 @@ module.exports = {
     portal.seeProp(homeProps.summary, 5, 1);
     portal.seeProp(homeProps.cards, 5, 4);
   },
+
+  seeUserLoggedIn(userAcct) {
+    I.waitForText(userAcct.username, 5);
+  }
 };
