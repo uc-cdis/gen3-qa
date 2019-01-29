@@ -73,7 +73,10 @@ Scenario('Map uploaded files in windmill submission page', async (sheepdog, node
   await portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage([fileObj], true);
 
   // user1 map file in windmill
-  portalDataUpload.complete.mapFiles([fileObj], submitterID);
+  await portalDataUpload.complete.mapFiles([fileObj], submitterID);
+
+  // user1 should see 0 files now because all files are mapped.
+  await portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage([]);
 });
 
 Scenario('Cannot see files uploaded by other users', async(sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUploadUtil) => {
