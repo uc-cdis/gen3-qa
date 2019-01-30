@@ -4,9 +4,9 @@
  */
 
 const fs = require('fs');
-
+const homedir = require('os').homedir();
+const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
 const { smartWait } = require('./apiUtil.js');
-
 const I = actor();
 
 module.exports = {
@@ -34,6 +34,24 @@ module.exports = {
     const timeout = 5; // max number of seconds to wait
     let errorMessage = `The file at ${filePath} was not created after ${timeout} seconds`;
     await smartWait(isFileCreated, [filePath], timeout, errorMessage);
+  },
+
+  /**
+   * Create a file in local storage
+   */
+  async createTmpFileWithRandomName(fileContents) {
+    let rand = (Math.random() + 1).toString(36).substring(2,7); // 5 random chars
+    const fileName = `qa-upload-file_${rand}.txt`;
+    const filePath = './' + fileName;
+    await this.createTmpFile(filePath, fileContents);
+    const fileSize = await this.getFileSize(filePath);
+    const fileMd5 = await this.getFileHash(filePath);
+    return {
+      fileName,
+      filePath,
+      fileSize,
+      fileMd5,
+    };
   },
 
   /**

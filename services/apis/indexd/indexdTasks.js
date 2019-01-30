@@ -139,4 +139,22 @@ module.exports = {
     }
     return fileList;
   },
+
+  /**
+   * Remove all records that userAccount submit in indexd
+   * @param {User} userAccount - submitter of files to delete
+   */
+  async clearPreviousUploadFiles(userAccount) {
+    I.sendGetRequest(
+      `${indexdProps.endpoints.get}/?acl=null&uploader=${userAccount.username}`,
+      userAccount.accessTokenHeader,
+    ).then((res) => {
+      if (!res.body && !res.body.records) return;
+      const guidList = res.body.records.reduce((acc, cur) => {
+        acc.push(cur.did);
+        return acc;
+      }, []);
+      this.deleteFiles(guidList);
+    });
+  },
 };
