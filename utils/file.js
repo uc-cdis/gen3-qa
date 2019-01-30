@@ -4,8 +4,6 @@
  */
 
 const fs = require('fs');
-const homedir = require('os').homedir();
-const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
 const { smartWait } = require('./apiUtil.js');
 const I = actor();
 
