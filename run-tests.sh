@@ -89,8 +89,8 @@ lockUser=""
 
 testArgs="--debug --verbose --reporter mocha-junit-reporter"
 #
-# DCF Google tests are not yet stable enough to run in fence PR's -
-# so just enable in gen3-qa PR's for now
+# DCF Google tests are not yet stable enough to run in all PR's -
+# so just enable in PR's for some projects now
 #
 # DataClientCLI tests require a fix to avoid parallel test runs
 # contending over config files in the home directory
