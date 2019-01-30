@@ -1,6 +1,5 @@
 const homeQuestions = require('./homeQuestions.js');
 const homeTasks = require('./homeTasks.js');
-const users = require('../../../utils/user.js');
 
 /**
  * home sequences

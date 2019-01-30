@@ -134,7 +134,7 @@ Scenario('User without role cannot upload', async (fence, users, nodes, indexd) 
  * the config folder configurable ...
  *     
  */
-Scenario('File upload and download via client @dataClientCLI', async (dataClient, fence, indexd, nodes, files, dataUploadUtil) => {
+Scenario('File upload and download via client @dataClientCLI', async (dataClient, fence, users, indexd, nodes, files, dataUploadUtil) => {
   // configure the gen3-client
   await dataClient.do.configureClient(fence, users, files);
   // use gen3 client to upload a file
