@@ -1,7 +1,5 @@
 Feature('DataUploadTest');
 
-const dataUploadProps = require('../../services/portal/dataUpload/dataUploadProps.js');
-
 const I = actor();
 let createdGuids = [];
 let createdFileNames = [];
@@ -64,7 +62,7 @@ Before((home, users) => {
   home.complete.login(users.mainAcct);
 });
 
-Scenario('Map uploaded files in windmill submission page', async (sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUploadUtil) => {
+Scenario('Map uploaded files in windmill submission page @dataUpload', async (sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUploadUtil) => {
   // generate file and register in fence, get url
   const {fileObj, presignedUrl} = await generateFileAndGetUrlFromFence(files, fence, users.mainAcct.accessTokenHeader);
   // user1 should see 1 file, but not ready yet
@@ -83,7 +81,7 @@ Scenario('Map uploaded files in windmill submission page', async (sheepdog, node
   portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage([]);
 });
 
-Scenario('Cannot see files uploaded by other users', async(sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUploadUtil) => {
+Scenario('Cannot see files uploaded by other users @dataUpload', async(sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUploadUtil) => {
   // user2 upload file2
   const {fileObj, presignedUrl} = await generateFileAndGetUrlFromFence(files, fence, users.auxAcct2.accessTokenHeader);
   await uploadFile(dataUploadUtil, indexd, sheepdog, nodes, fileObj, presignedUrl);

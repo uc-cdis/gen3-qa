@@ -1,12 +1,7 @@
 const fs = require('fs');
-const { smartWait } = require('../../utils/apiUtil.js');
-const homedir = require('os').homedir();
-const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
 
 
 Feature('Data file upload flow');
-
-const workspace = process.env["WORKSPACE"] || homedir;
 
 /////////////
 // GLOBALS //
@@ -43,7 +38,7 @@ const getUploadUrlFromFence = async function (fence, users, indexd) {
  * - Link metadata to the file via sheepdog
  * - Download the file via fence and check who can download and when
  */
-Scenario('File upload and download via API calls', async (fence, users, nodes, indexd, sheepdog, dataUploadUtil) => {
+Scenario('File upload and download via API calls @dataUpload', async (fence, users, nodes, indexd, sheepdog, dataUploadUtil) => {
   // request a  presigned URL from fence
   let fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
   let fileGuid = fenceUploadRes.body.guid;
@@ -113,7 +108,7 @@ Scenario('File upload and download via API calls', async (fence, users, nodes, i
  * A user who does not have upload access should not be able to upload
  * or download files
  */
-Scenario('User without role cannot upload', async (fence, users, nodes, indexd) => {
+Scenario('User without role cannot upload @dataUpload', async (fence, users, nodes, indexd) => {
 
   // this user does not have the appropriate role
   let token = users.auxAcct1.accessTokenHeader;
@@ -134,7 +129,7 @@ Scenario('User without role cannot upload', async (fence, users, nodes, indexd) 
  * the config folder configurable ...
  *     
  */
-Scenario('File upload and download via client @dataClientCLI', async (dataClient, fence, users, indexd, nodes, files, dataUploadUtil) => {
+Scenario('File upload and download via client @dataClientCLI @dataUpload', async (dataClient, fence, users, indexd, nodes, files, dataUploadUtil) => {
   // configure the gen3-client
   await dataClient.do.configureClient(fence, users, files);
   // use gen3 client to upload a file
@@ -163,7 +158,7 @@ Scenario('File upload and download via client @dataClientCLI', async (dataClient
  * Upload a file, then delete it through fence. Aftert deletion, the file
  * should not be accessible for metadata linking or download
  */
-Scenario('Data file deletion', async (fence, users, indexd, sheepdog, nodes, dataUploadUtil) => {
+Scenario('Data file deletion @dataUpload', async (fence, users, indexd, sheepdog, nodes, dataUploadUtil) => {
   // request a  presigned URL from fence
   let fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
   let fileGuid = fenceUploadRes.body.guid;
@@ -207,7 +202,7 @@ Scenario('Data file deletion', async (fence, users, indexd, sheepdog, nodes, dat
  * Upload 2 files with the same contents (so same hash and size) and
  * link metadata to them via sheepdog
  */
-Scenario('Upload the same file twice', async (sheepdog, indexd, nodes, users, fence, dataUploadUtil) => {
+Scenario('Upload the same file twice @dataUpload', async (sheepdog, indexd, nodes, users, fence, dataUploadUtil) => {
   ////////////
   // FILE 1 //
   ////////////
