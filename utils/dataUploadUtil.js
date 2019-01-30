@@ -64,7 +64,7 @@ module.exports = {
       }
     };
 
-    const timeout = 60; // max number of seconds to wait
+    const timeout = 180; // max number of seconds to wait
     let errorMessage = `The indexd listener did not complete the record after ${timeout} seconds`;
 
     await smartWait(isRecordUpdated, [indexd, fileNode], timeout, errorMessage);

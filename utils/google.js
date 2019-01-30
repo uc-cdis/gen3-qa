@@ -47,7 +47,7 @@ const googleApp = {
   },
 
   getIAMPolicy(projectID, authClient) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const cloudResourceManager = google.cloudresourcemanager('v1');
       const request = {
         resource_: projectID,
@@ -57,7 +57,8 @@ const googleApp = {
       cloudResourceManager.projects.getIamPolicy(request, (err, response) => {
         if (err) {
           console.error(err);
-          throw Error(err);
+          reject(err);
+          return;
         }
         resolve(response.data);
       });
@@ -65,7 +66,7 @@ const googleApp = {
   },
 
   setIAMPolicy(projectID, iamPolicy, authClient) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const cloudResourceManager = google.cloudresourcemanager('v1');
       const request = {
         resource_: projectID,
@@ -76,7 +77,8 @@ const googleApp = {
       };
       cloudResourceManager.projects.setIamPolicy(request, (err, res) => {
         if (err) {
-          throw Error(err);
+          reject(err);
+          return;
         }
         resolve(res.data);
       });
@@ -189,6 +191,7 @@ module.exports = {
             } else {
               resolve(Error(err));
             }
+            return;
           }
           if (res && res.data) {
             resolve(res.data);
@@ -211,6 +214,7 @@ module.exports = {
         cloudResourceManager.projects.serviceAccounts.delete(request, (err, res) => {
           if (err) {
             resolve(Error(err));
+            return;
           }
           resolve(res.data);
         });

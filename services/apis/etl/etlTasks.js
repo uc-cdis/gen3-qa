@@ -15,15 +15,20 @@ module.exports = {
    * @returns {boolean}
    */
   deleteIndices(index) {
-    if (index && index.startsWith('jenkins')) {
-      let res = bash.runCommand(`curl -X DELETE -s ${etlProps.endpoints.root}/*${index}*`, 'arranger-deployment');
-      if (res.startsWith('HTTP/1.1 200 OK')) {
-        return true;
+    try {
+      if (index && index.startsWith('jenkins')) {
+        const res = bash.runCommand(`curl -X DELETE -s ${etlProps.endpoints.root}/*${index}*`, 'arranger-deployment');
+        if (res.startsWith('HTTP/1.1 200 OK')) {
+          return true;
+        }
+      } else {
+        console.error(`ERROR: ignoring deleteIndices on invalid index key: ${index}`);
       }
-    } else {
-      console.error(`ERROR: ignoring deleteIndices on invalid index key: ${index}`);
+      return false;
+    } catch (ex) {
+      // do not freak out if esproxy-service is not running
+      return false;
     }
-    return false;
   },
 
   /**
@@ -32,10 +37,16 @@ module.exports = {
    * @returns {boolean}
    */
   existAlias(alias) {
-    let res = bash.runCommand(`curl -I -s ${etlProps.endpoints.alias}/${alias}`, 'arranger-deployment');
-    if (res.startsWith('HTTP/1.1 200 OK'))
-      return true;
-    return false;
+    try {
+      let res = bash.runCommand(`curl -I -s ${etlProps.endpoints.alias}/${alias}`, 'arranger-deployment');
+      if (res.startsWith('HTTP/1.1 200 OK')) {
+        return true;
+      }
+      return false;
+    } catch (ex) {
+      // do not freak out if esproxy-service is not running
+      return false;
+    }
   },
 
   /**
@@ -44,8 +55,14 @@ module.exports = {
    * @returns {string}
    */
   getIndexFromAlias(alias) {
-    let res = bash.runCommand(`curl -X GET -s ${etlProps.endpoints.alias}/${alias}`, 'arranger-deployment');
-    return Object.keys(JSON.parse(res))[0];
+    try {
+      let res = bash.runCommand(`curl -X GET -s ${etlProps.endpoints.alias}/${alias}`, 'arranger-deployment');
+      return Object.keys(JSON.parse(res))[0];
+    } catch (ex) {
+      // do not freak out if esproxy-service is not running
+      return [];
+    }
+
   },
 
   /**
@@ -54,20 +71,19 @@ module.exports = {
    * @returns {object}
    */
   getIndex(index) {
-    let res = bash.runCommand(`curl -X GET -s ${etlProps.endpoints.root}/${index}`, 'arranger-deployment');
-    return JSON.parse(res);
+    try {
+      let res = bash.runCommand(`curl -X GET -s ${etlProps.endpoints.root}/${index}`, 'arranger-deployment');
+      return JSON.parse(res);
+    } catch (ex) {
+      // do not freak out if esproxy-service is not running
+      return null;
+    }
+
   },
 
   runSubmissionJob() {
     bash.runJob(`gentestdata`,
       `TEST_PROGRAM jnkns TEST_PROJECT jenkins MAX_EXAMPLES 100 SUBMISSION_USER ${user.mainAcct.username}`);
-  },
-
-  rollSpark() {
-    if (bash.getAppStatus(`spark`) === 'Running')
-      return true;
-    bash.setupService(`spark`);
-    return true;
   },
 
   runETLJob() {
