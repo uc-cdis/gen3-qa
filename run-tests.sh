@@ -89,13 +89,16 @@ lockUser=""
 
 testArgs="--debug --verbose --reporter mocha-junit-reporter"
 #
-# DCF tests are not yet stable enough to run in fence PR's -
-# so just enable in gen3-qa PR's for now
+# DCF Google tests are not yet stable enough to run in all PR's -
+# so just enable in PR's for some projects now
 #
-#if [[ "$service" != "fence" && "$service" != "gen3-qa" ]]; then
+# DataClientCLI tests require a fix to avoid parallel test runs
+# contending over config files in the home directory
+#      
+#
 if [[ "$service" != "gen3-qa" && "$service" != "fence" && "$service" != "cdis-manifest" ]]; then
   # run all tests except for those that require dcf google configuration
-  testArgs="${testArgs} --grep @reqGoogle --grep @dataClientCLI --invert"
+  testArgs="${testArgs} --grep '@reqGoogle|@dataClientCLI' --invert"
   echo 'INFO: disabling DCF tests for testing non-fence service'
 else
   testArgs="${testArgs} --grep @dataClientCLI --invert"
