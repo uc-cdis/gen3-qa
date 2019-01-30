@@ -9,6 +9,9 @@ const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !
 const { smartWait } = require('./apiUtil.js');
 const files = require('./file.js');
 
+// do not use homedir in Jenkins!  grrr
+const workspace = process.env["WORKSPACE"] || homedir;
+
 module.exports = {
   /**
    * upload a file to an S3 bucket using a presigned URL
@@ -34,7 +37,7 @@ module.exports = {
    */ 
   async cleanS3(fileName, createdGuids) {
     if (inJenkins) {  
-      const dirName = `${homedir}/s3-cleanup`;  
+      const dirName = `${workspace}/s3-cleanup`;  
       if (!fs.existsSync(dirName)){ 
         fs.mkdirSync(dirName);  
       } 
