@@ -9,8 +9,6 @@ const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !
 const { smartWait } = require('./apiUtil.js');
 const files = require('./file.js');
 
-// do not use homedir in Jenkins!  grrr
-const workspace = process.env["WORKSPACE"] || homedir;
 
 module.exports = {
   /**
@@ -36,8 +34,15 @@ module.exports = {
    * CleanS3 step of the Jenkins pipeline 
    */ 
   async cleanS3(fileName, createdGuids) {
-    if (inJenkins) {  
-      const dirName = `${workspace}/s3-cleanup`;  
+    if (inJenkins) {
+      //
+      // NOTE: put temp files in shared homedir/s3-cleanup, 
+      // so that the `CleanS3` Jenkins pipeline stage will
+      // clean up after whatever jobs have come before even
+      // if those jobs failed, and did not clean themselves up -
+      // all the jenkins envs share the same S3 bucket
+      // 
+      const dirName = `${homedir}/s3-cleanup`;  
       if (!fs.existsSync(dirName)){ 
         fs.mkdirSync(dirName);  
       } 
