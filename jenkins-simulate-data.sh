@@ -35,12 +35,21 @@ mkdir -p $TEST_DATA_PATH
 # assume that we are running in the data-simulator directory
 pip install -r requirements.txt
 #python setup.py develop --user
+
+# Fail script if any of following commands fail
+set -e
+
 export PYTHONPATH=.
 pyCMD="python bin/data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
 eval $pyCMD
+if [[ $? -ne 0 ]]; then
+  echo "ERROR: Failed to simulate test data for $namespace"
+  exit 1
+fi
+
 pyCMD2="python bin/data-simulator submission_order --url $dictURL --path $TEST_DATA_PATH --node_name submitted_unaligned_reads"
 eval $pyCMD2
 if [[ $? -ne 0 ]]; then
-  echo "ERROR: Failed to generate test data for $namespace"
+  echo "ERROR: Failed to generate submission_order data for $namespace"
   exit 1
 fi
