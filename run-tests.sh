@@ -5,8 +5,6 @@
 #   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence]
 #
 
-
-
 help() {
   cat - <<EOM
 Jenkins test launch script.  Assumes the  GEN3_HOME environment variable
@@ -32,15 +30,38 @@ dryrun() {
   fi
 }
 
+#
+# DataClientCLI tests require a fix to avoid parallel test runs
+# contending over config files in the home directory
+#      
+doNotRunRegex="@dataClientCLI"
+
+# little helper to maintain doNotRunRegex
+donot() {
+  local or
+  if [[ -z "$1" ]]; then
+    return 0
+  fi
+  or='|'
+  if [[ -z "$doNotRunRegex" ]]; then
+    or=''
+  fi
+  doNotRunRegex="${doNotRunRegex}${or}$1"
+}
+
+#----------------------------------------------------
+# main
+#
+
 if [[ -z "$GEN3_HOME" ]]; then
-  echo 'ERROR: GEN3_HOME environment not set - should reference cloud-automation/'
+  echo "ERROR: GEN3_HOME environment not set - should reference cloud-automation/"
   exit 1
 fi
 
 source "${GEN3_HOME}/gen3/lib/utils.sh"
 gen3_load "gen3/gen3setup"
 
-namespaceList="${KUBECTL_NAMESPACE:-default}"
+namespaceName="${KUBECTL_NAMESPACE}"
 service="${service:-""}"
 
 while [[ $# -gt 0 ]]; do
@@ -55,7 +76,7 @@ while [[ $# -gt 0 ]]; do
       service="$value"
       ;;
     namespace)
-      namespaceList="$value"
+      namespaceName="$value"
       ;;
     dryrun)
       isDryRun=true
@@ -63,7 +84,7 @@ while [[ $# -gt 0 ]]; do
     *)
       if [[ -n "$value" && "$value" == "$key" ]]; then
         # treat dangling option as namespace for backward compatability
-        namespaceList="$value"
+        namespaceName="$value"
       else
         echo "ERROR: unknown option $1"
         help
@@ -74,10 +95,26 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
+if [[ -z "$namespaceName" || -z "$service" ]]; then
+  echo "USE: --namespace=NAME and --service=SERVICE are required arguments"
+  help
+  exit 0
+fi
+
+if [[ -z "$KUBECTL_NAMESPACE" ]]; then
+  # namespace key for g3kubectl
+  KUBECTL_NAMESPACE="$namespaceName"
+fi
+
+if [[ "$KUBECTL_NAMESPACE" != "$namespaceName" ]]; then
+  echo -e "$(red_color "ERROR: KUBECTL_NAMESPACE environment does not match --namespace option: $KUBECTL_NAMESPACE != $namespaceName")\n"
+  help
+  exit 1
+fi
 
 cat - <<EOM
 Running with:
-  namespace=$namespaceList
+  namespace=$namespaceName
   service=$service
 EOM
 
@@ -87,21 +124,23 @@ dryrun npm ci
 exitCode=0
 lockUser=""
 
-testArgs="--debug --verbose --reporter mocha-junit-reporter"
+
 #
-# DCF tests are not yet stable enough to run in fence PR's -
-# so just enable in gen3-qa PR's for now
+# DCF Google tests are not yet stable enough to run in all PR's -
+# so just enable in PR's for some projects now
 #
-#if [[ "$service" != "fence" && "$service" != "gen3-qa" ]]; then
-if [[ "$service" != "gen3-qa" && "$service" != "fence" ]]; then
+if [[ "$service" != "gen3-qa" && "$service" != "fence" && "$service" != "cdis-manifest" ]]; then
   # run all tests except for those that require dcf google configuration
-  testArgs="${testArgs} --grep @reqGoogle --invert"
-  echo 'INFO: disabling DCF tests for testing non-fence service'
+  echo "INFO: disabling DCF tests for $service"
+  donot '@reqGoogle'
 else
+  #
   # Run tests including dcf google backend
-  lockUser="testRunner-${namespaceList}-$$"
-  echo 'INFO: enabling DCF tests for testing fence service'
-  if ! (
+  # Acquire google test lock - only one test can interact with the GCP test project
+  #
+  lockUser="testRunner-${namespaceName}-$$"
+  echo "INFO: enabling DCF tests for $service"
+  (
     #
     # acquire the freakin' global DCF lock
     # all of our test environment's share the same
@@ -123,21 +162,32 @@ else
       echo "Failed to acquire the DCF lock after 10 minutes - bailing out"
       exit 1
     fi
-  ); then exit 1; fi
+  ) || exit 1
 fi
 
-for name in ${namespaceList}; do
-  (
-    export NAMESPACE="$name"
-    cat - <<EOM
+
+echo "Checking kubernetes for optional services to test"
+if ! (g3kubectl get pods --no-headers -l app=spark | grep spark) > /dev/null 2>&1; then
+  donot '@etl'
+fi
+if ! (g3kubectl get pods --no-headers -l app=ssjdispatcher | grep ssjdispatcher) > /dev/null 2>&1; then
+  donot '@dataUpload'
+fi
+
+testArgs="--debug --verbose --reporter mocha-junit-reporter"
+if [[ -n "$doNotRunRegex" ]]; then
+  testArgs="${testArgs} --grep '${doNotRunRegex}' --invert"
+fi
+
+(
+  export NAMESPACE="$namespaceName"
+  cat - <<EOM
 
 ---------------------------
 Launching test in $NAMESPACE
 EOM
-    dryrun npm test -- $testArgs
-  )
-  if [[ $? -ne 0 ]]; then exitCode=1; fi
-done
+  dryrun npm test -- $testArgs
+) || exitCode=1
 
 if [[ -n "$lockUser" ]]; then
   (

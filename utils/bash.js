@@ -22,10 +22,6 @@ class Bash{
       return new Docker();
   }
 
-  setupService(appName) {
-    return this.commander.setupService(appName);
-  }
-
   getAppStatus(appName) {
     return this.commander.getAppStatus(appName);
   }

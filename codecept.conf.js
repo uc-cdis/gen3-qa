@@ -13,7 +13,11 @@ exports.config = {
       browser: 'chrome',
       desiredCapabilities: {
         chromeOptions: {
-          args: ['--headless', '--disable-gpu', '--window-size=1000,900'],
+          args: [
+            '--headless', // for dev, you can comment this line to open actual chrome for easier test
+            '--disable-gpu',
+            '--window-size=1920,1080'
+          ],
         },
       },
       restart: false,
@@ -37,6 +41,7 @@ exports.config = {
     users: './utils/user.js',
     google: './utils/google.js',
     files: './utils/file.js',
+    dataUploadUtil: './utils/dataUploadUtil',
 
     // APIs
     sheepdog: './services/apis/sheepdog/sheepdogService.js',
@@ -48,6 +53,7 @@ exports.config = {
 
     // Pages
     home: './services/portal/home/homeService.js',
+    portalDataUpload: './services/portal/dataUpload/dataUploadService.js',
   },
   mocha: {
     reporterOptions: {

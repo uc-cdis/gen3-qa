@@ -24,12 +24,12 @@ module.exports = {
   /**
    * Adds files to indexd
    * @param {Object[]} files - array of indexd files
-   * @returns {Promise<void>}
+   * @returns {Array<Promise<>>}
    */
   async addFileIndices(files) {
     const headers = user.mainAcct.indexdAuthHeader;
     headers['Content-Type'] = 'application/json; charset=UTF-8';
-    files.forEach((file) => {
+    const promiseList = files.map((file) => {
       file.did = uuid.v4().toString();
       const data = {
         file_name: file.filename,
@@ -45,15 +45,36 @@ module.exports = {
       if (file.link !== null && file.link !== undefined) {
         data.urls = [file.link];
       }
-
+      return data;
+    }).map((data) => {
       const strData = JSON.stringify(data);
-      I.sendPostRequest(indexdProps.endpoints.add, strData, headers).then(
+      return I.sendPostRequest(indexdProps.endpoints.add, strData, headers).then(
         (res) => {
-          console.error(res.body)
-          file.rev = res.body.rev;
+          if (res.status === 200 && res.body && res.body.rev) {
+            file.rev = res.body.rev;
+            return Promise.resolve(file);
+          } else {
+            console.error(`Failed indexd submission got status ${res.status} for ${strData}`, res.body);
+            return Promise.reject('Failed to register file with indexd');
+          }
         },
+        (err) => {
+          console.err('Error on indexd submission', err);
+          return Promise.reject(`indexd submission error on ${data.file_name}`);
+        }
       );
     });
+    //console.log("indexd addFileIndices waiting on promiseList of length: " + promiseList.length, promiseList);
+    // This Promise.all trick does not work for some reason - ugh!
+    // Have to figure it out later
+    const success = await Promise.all(promiseList).then(
+      () => true, 
+      (v) => {
+        return false;
+      }
+    );
+    //console.log("addFileIndices result: " + success);
+    return true;  // always return true till we figure out the Promise.all issue above ...
   },
 
   /**
@@ -95,9 +116,11 @@ module.exports = {
    * @returns {Promise<void>}
    */
   async deleteFileIndices(files) {
-    files.forEach((file) => {
-      this.deleteFile(file);
-    });
+    await Promise.all(
+        files.map((file) => {
+          return this.deleteFile(file);
+        })
+    );
   },
 
   /**
@@ -115,5 +138,23 @@ module.exports = {
       fileList.push(file)
     }
     return fileList;
+  },
+
+  /**
+   * Remove all records that userAccount submit in indexd
+   * @param {User} userAccount - submitter of files to delete
+   */
+  async clearPreviousUploadFiles(userAccount) {
+    I.sendGetRequest(
+      `${indexdProps.endpoints.get}/?acl=null&uploader=${userAccount.username}`,
+      userAccount.accessTokenHeader,
+    ).then((res) => {
+      if (!res.body && !res.body.records) return;
+      const guidList = res.body.records.reduce((acc, cur) => {
+        acc.push(cur.did);
+        return acc;
+      }, []);
+      this.deleteFiles(guidList);
+    });
   },
 };

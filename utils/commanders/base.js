@@ -1,3 +1,5 @@
+const { clean } = require('../string');
+
 class Base {
   runJobAndWait(jobName, args) {
     this.runCommand(`gen3 runjob ${jobName} -w ${args}`);
@@ -8,9 +10,6 @@ class Base {
     return this.runCommand(`g3kubectl get pods --selector=app=${appName} -o json | jq -r '.items[].status.phase'`);
   }
 
-  setupService(appName) {
-    return this.runCommand(`gen3 kube-setup-${appName} -w`);
-  }
 
   /**
    * Run a command from inside Kubernetes cluster
@@ -18,19 +17,19 @@ class Base {
    * @param cmd
    * @returns {*}
    */
-  runCommand(cmd, service=undefined) {
+  runCommand(cmd, service=undefined, cleanResult=clean) {
     if (process.env.GEN3_HOME) {
       // eslint-disable-line no-template-curly-in-string
       const sourceCmd = `source "${process.env.GEN3_HOME}/gen3/lib/utils.sh"`;
       const gen3LoadCmd = 'gen3_load "gen3/gen3setup"';
       const namespace = process.env.NAMESPACE;
       if (service === undefined)
-        return clean(execSync(
+        return cleanResult(execSync(
           `${sourceCmd}; ${gen3LoadCmd}; ${cmd}`,
           { shell: '/bin/bash' }
         ).toString('utf8'));
       else
-        return clean(execSync(
+        return cleanResult(execSync(
           `${sourceCmd}; ${gen3LoadCmd}; g3kubectl exec $(gen3 pod ${service} ${namespace}) -- ${cmd}`,
           { shell: '/bin/bash' }
         ).toString('utf8'));
