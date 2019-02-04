@@ -29,7 +29,7 @@ module.exports = {
       return !(fileSize == 0);
     };
 
-    const timeout = 5; // max number of seconds to wait
+    const timeout = 30; // max number of seconds to wait
     let errorMessage = `The file at ${filePath} was not created after ${timeout} seconds`;
     await smartWait(isFileCreated, [filePath], timeout, errorMessage);
   },
