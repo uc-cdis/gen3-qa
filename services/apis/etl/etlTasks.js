@@ -16,8 +16,8 @@ module.exports = {
    */
   deleteIndices(index) {
     try {
-      if (index && index.startsWith('jenkins')) {
-        const res = bash.runCommand(`curl -X DELETE -s ${etlProps.endpoints.root}/*${index}*`, 'arranger-deployment');
+      if (index) {
+        const res = bash.runCommand(`curl -X DELETE -s ${etlProps.endpoints.root}/*${index}*`, 'aws-es-proxy-deployment');
         if (res.startsWith('HTTP/1.1 200 OK')) {
           return true;
         }
@@ -38,7 +38,7 @@ module.exports = {
    */
   existAlias(alias) {
     try {
-      let res = bash.runCommand(`curl -I -s ${etlProps.endpoints.alias}/${alias}`, 'arranger-deployment');
+      let res = bash.runCommand(`curl -I -s ${etlProps.endpoints.alias}/${alias}`, 'aws-es-proxy-deployment');
       if (res.startsWith('HTTP/1.1 200 OK')) {
         return true;
       }
@@ -56,7 +56,7 @@ module.exports = {
    */
   getIndexFromAlias(alias) {
     try {
-      let res = bash.runCommand(`curl -X GET -s ${etlProps.endpoints.alias}/${alias}`, 'arranger-deployment');
+      let res = bash.runCommand(`curl -X GET -s ${etlProps.endpoints.alias}/${alias}`, 'aws-es-proxy-deployment');
       return Object.keys(JSON.parse(res))[0];
     } catch (ex) {
       // do not freak out if esproxy-service is not running
