@@ -22,10 +22,6 @@ class Bash{
       return new Docker();
   }
 
-  getAppStatus(appName) {
-    return this.commander.getAppStatus(appName);
-  }
-
   runJob(jobName, args='') {
     return this.commander.runJobAndWait(jobName, args);
   }

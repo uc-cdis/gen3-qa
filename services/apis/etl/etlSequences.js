@@ -10,6 +10,7 @@ chai.config.truncateThreshold = 0;
 const etlQuestions = require('./etlQuestions.js');
 const etlTasks = require('./etlTasks.js');
 const etlProps = require('./etlProps.js');
+const sheepdogTask = require('../sheepdog/sheepdogTasks.js');
 
 /**
  * fence sequences
@@ -30,6 +31,7 @@ module.exports = {
    * Running ETL second time. Expect alias to be attached to an increased index
    */
   runETLSecondTime() {
+    sheepdogTask.runGenTestData(1)
     expect(etlTasks.runETLJob()).to.equal(true);
     etlProps.aliases.forEach(alias => {
       if (etlTasks.existAlias(alias))
