@@ -6,11 +6,6 @@ class Base {
     return this.runCommand(`g3kubectl get jobs ${jobName} -o json | jq -r '.status.succeeded'`) === '1';
   }
 
-  getAppStatus(appName) {
-    return this.runCommand(`g3kubectl get pods --selector=app=${appName} -o json | jq -r '.items[].status.phase'`);
-  }
-
-
   /**
    * Run a command from inside Kubernetes cluster
    * @param service
