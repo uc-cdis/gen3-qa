@@ -8,7 +8,7 @@ const user = require('../../../utils/user.js');
 module.exports = {
   // Sequences are for an service to combine multiple tasks and questions
   login(userAcct = user.mainAcct) {
-    homeTasks.login(userAcct);
+    homeTasks.login();
     homeQuestions.haveAccessToken();
     homeQuestions.seeUserLoggedIn(userAcct);
   },
