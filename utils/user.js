@@ -53,7 +53,7 @@ class User {
    * @returns {{email: string, password: string}}
    */
   get googleCreds() {
-    if (!process.env[this.envGoogleEmail] || process.env[this.envGoogleEmail] === '' || !process.env[this.envGooglePassword] || process.env[this.envGooglePassword] === '') {
+    if (!process.env[this.envGoogleEmail] || !process.env[this.envGooglePassword]) {
       process.env[this.envGoogleEmail] = "test@example.com"
       process.env[this.envGooglePassword] = "dummypassword"
     }
