@@ -59,7 +59,7 @@ BeforeSuite(async (sheepdog, nodes, users, fence, indexd) => {
 });
 
 Before((home, users) => {
-  home.complete.login(users.mainAcct);
+  home.complete.login();
 });
 
 Scenario('Map uploaded files in windmill submission page @dataUpload', async (sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUploadUtil) => {

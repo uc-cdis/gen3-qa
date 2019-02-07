@@ -2,6 +2,6 @@ Feature('Login');
 
 Scenario('login', (home) => {
   home.do.goTo();
-  home.do.login();
+  home.complete.login();
   home.ask.seeDetails();
 });
