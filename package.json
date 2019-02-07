@@ -6,6 +6,7 @@
   "dependencies": {
     "atob": "^2.1.2",
     "mocha-junit-reporter": "^1.17.0",
+    "mocha-multi": "^1.0.1",
     "node-ssh": "^5.1.2",
     "prettier": "^1.14.2",
     "selenium-standalone": "^6.13.0"
@@ -44,7 +45,7 @@
     "selenium-start": "selenium-standalone start > /dev/null 2>&1 &",
     "selenium-kill": "pkill -f selenium-standalone",
     "eslint": "eslint --ignore-path .gitignore .",
-    "test": "codeceptjs run --verbose",
+    "test": "codeceptjs run",
     "grep-test": ". local_run.sh && codeceptjs run --verbose --grep",
     "create-service": "node scripts/create_service.js"
   }

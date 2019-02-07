@@ -57,7 +57,21 @@ exports.config = {
   },
   mocha: {
     reporterOptions: {
-      mochaFile: 'output/result.xml',
+      'codeceptjs-cli-reporter': {
+        stdout: '-',
+        options: {
+          verbose: true,
+          steps: true,
+        }
+      },
+      'mocha-junit-reporter': {
+        stdout: 'output/result.xml',
+        options: {
+          mochaFile: 'output/result.xml',
+          verbose: true,
+          steps: true,
+        }
+      }
     },
   },
   bootstrap: './test_setup.js',
