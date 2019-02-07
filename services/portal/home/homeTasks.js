@@ -15,7 +15,6 @@ module.exports = {
 
   async login(userAcct = users.mainAcct) {
     I.amOnPage('/');
-    I.setCookie({ name: 'access_token', value: userAcct.accessToken });
-    I.amOnPage('/');
+    portal.clickProp(homeProps.googleLoginButton);
   }
 };
