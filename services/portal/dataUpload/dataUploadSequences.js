@@ -6,7 +6,6 @@ const dataUploadProps = require('./dataUploadProps.js');
  * dataUpload sequences
  */
 module.exports = {
-  // Sequences are for an service to combine multiple tasks and questions
   checkUnmappedFilesAreInSubmissionPage(fileObjects, isReady) {
     // goto '/submission' page and check file number and sizes are correct
     dataUploadTasks.goToSubmissionPage();
