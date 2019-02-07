@@ -17,7 +17,7 @@ module.exports = {
    * which username to use when mocking the login.
    */
   async login(userAcct) {
-    I.amOnPage('/');
+    await I.amOnPage('/');
     I.setCookie({ name: 'dev_login', value: userAcct.username });
     portal.clickProp(homeProps.googleLoginButton);
   }
