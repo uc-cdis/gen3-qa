@@ -9,7 +9,7 @@ const pidginProps = require('./pidginProps.js');
  * pidgin Questions
  */
 module.exports = {
-  //FROM ORIGINAL PIDGIN QUESTIONS FILE:
+  
   seeJsonCoremetadata(file, metadata) {
     let data = JSON.parse(metadata);
     assert.equal(data['file_name'], file.data.file_name);

@@ -2,11 +2,6 @@
  * pidgin Properties
  */
 module.exports = {
-  //API Example:
-  endpoints: {
-    root: 'API_ROOT',
-  },
-  
   resSuccess: {
     code: 200,
     success: true,
@@ -18,9 +13,6 @@ module.exports = {
     code: 400,
     success: false
   },
-  
-  //Portal Page Example:
-  path: '/explorer',
   
   ready_cue: {
     locator: {
