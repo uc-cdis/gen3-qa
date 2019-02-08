@@ -174,7 +174,7 @@ if ! (g3kubectl get pods --no-headers -l app=ssjdispatcher | grep ssjdispatcher)
   donot '@dataUpload'
 fi
 
-testArgs="--debug --verbose --reporter mocha-junit-reporter"
+testArgs="--reporter mocha-multi"
 if [[ -n "$doNotRunRegex" ]]; then
   testArgs="${testArgs} --grep '${doNotRunRegex}' --invert"
 fi
