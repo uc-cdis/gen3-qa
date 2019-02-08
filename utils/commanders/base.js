@@ -2,7 +2,7 @@ const { clean } = require('../string');
 
 class Base {
   runJobAndWait(jobName, args) {
-    this.runCommand(`gen3 runjob ${jobName} -w ${args}`);
+    this.runCommand(`gen3 job run ${jobName} -w ${args}`);
     return this.runCommand(`g3kubectl get jobs ${jobName} -o json | jq -r '.status.succeeded'`) === '1';
   }
 
