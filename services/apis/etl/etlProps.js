@@ -1,7 +1,7 @@
 /**
  * indexd Properties
  */
-const apiRoot = 'http://esproxy-service:9200';
+const apiRoot = 'http://localhost:9200';
 module.exports = {
   /**
    * es endpoints
@@ -10,5 +10,5 @@ module.exports = {
     root: apiRoot,
     alias: `${apiRoot}/_alias`,
   },
-  aliases: [`${process.env.NAMESPACE}_etl`, `${process.env.NAMESPACE}_file`],
+  aliases: [`etl_${process.env.NAMESPACE}`, `file_${process.env.NAMESPACE}`, `${process.env.NAMESPACE}_etl`, `${process.env.NAMESPACE}_file`],
 };

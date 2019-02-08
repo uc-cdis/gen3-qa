@@ -31,7 +31,7 @@ module.exports = {
 
   selectProject() {
     I.click(dataUploadProps.projectSelectionDropdownSelector);
-    I.waitForText(dataUploadProps.testProjectName);
+    I.waitForText(dataUploadProps.testProjectName, 5);
     I.click(`//*[contains(text(), '${dataUploadProps.testProjectName}')]`, dataUploadProps.selectOptionClass);
   },
 
