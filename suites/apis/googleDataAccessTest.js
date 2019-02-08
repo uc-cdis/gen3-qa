@@ -192,7 +192,7 @@ Scenario('test google data access via usersync: usersync, Google link, generate 
 
   console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
   Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
-  bash.runJob('useryaml');
+  bash.runJob('useryaml-job');
 
   console.log('using saved google creds to access google bucket!! Save responses to check later');
   // use Google's client libraries to attempt to read a controlled access file with the
