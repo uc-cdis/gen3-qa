@@ -23,4 +23,10 @@ module.exports = {
       css: '.index-button-bar__thumbnail-button',
     },
   },
+
+  googleLoginButton: {
+    locator: {
+      xpath: '//button[contains(text(), \'Login from Google\')]',
+    },
+  },
 };

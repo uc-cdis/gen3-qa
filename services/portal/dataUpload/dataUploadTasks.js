@@ -14,6 +14,7 @@ module.exports = {
 
   goToMapFilesPage() {
     I.amOnPage(dataUploadProps.mapFilesPath);
+    I.waitForVisible(dataUploadProps.unmappedFilesHeaderClass, 5);
   },
 
   selectFilesAndGotoMappingPage(fileObjects) {
