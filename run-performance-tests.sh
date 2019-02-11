@@ -120,7 +120,7 @@ EOM
         # done
 
         singleSubmission=${dataFiles[0]}
-        testArgs="${testArgs} --override '{ \"mocha\": { \"reporterOptions\": { \"mocha-junit-reporter\": { \"options\": { \"mochaFile\": \"output/test_${tests}_${db}_${size}.xml\" } } } } }'"
+        testArgs="${testArgs} --override '{ \"mocha\": { \"reporterOptions\": { \"mocha-junit-reporter\": { \"options\": { \"mochaFile\": \"output/result[hash].xml\" } } } } }'"
 
         echo "Running submission test for ${singleSubmission}..."
         export DATAURL=$(aws s3 presign s3://cdis-terraform-state/regressions/subm/${size}/${singleSubmission}.json)
@@ -128,14 +128,14 @@ EOM
         ;;
       query)
         echo "Running query performance tests."
-        testArgs="${testArgs} --override '{ \"mocha\": { \"reporterOptions\": { \"mocha-junit-reporter\": { \"options\": { \"mochaFile\": \"output/test_${tests}_${db}.xml\" } } } } }'"
+        testArgs="${testArgs} --override '{ \"mocha\": { \"reporterOptions\": { \"mocha-junit-reporter\": { \"options\": { \"mochaFile\": \"output/result[hash].xml\" } } } } }'"
 
         dryrun npm test -- suites/regressions/generateQueries.js
         dryrun npm test -- $testArgs suites/regressions/queryPerformanceTest.js
         ;;
       export)
         echo "Running export performance tests."
-        testArgs="${testArgs} --override '{ \"mocha\": { \"reporterOptions\": { \"mocha-junit-reporter\": { \"options\": { \"mochaFile\": \"output/test_${tests}_${db}.xml\" } } } } }'"
+        testArgs="${testArgs} --override '{ \"mocha\": { \"reporterOptions\": { \"mocha-junit-reporter\": { \"options\": { \"mochaFile\": \"output/result[hash].xml\" } } } } }'"
 
         dryrun npm test -- suites/regressions/generateQueries.js
         dryrun npm test -- $testArgs suites/regressions/exportPerformanceTest.js
