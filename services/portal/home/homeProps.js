@@ -6,7 +6,7 @@ module.exports = {
 
   ready_cue: {
     locator: {
-      text: 'cdis.autotest@gmail.com',
+      css: '.nav-bar',
     },
   },
 
@@ -27,6 +27,12 @@ module.exports = {
   googleLoginButton: {
     locator: {
       xpath: '//button[contains(text(), \'Login from Google\')]',
+    },
+  },
+
+  logoutButton: {
+    locator: {
+      xpath: '//div[contains(text(), \'Logout\')]',
     },
   },
 };
