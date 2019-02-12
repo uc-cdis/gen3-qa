@@ -1,7 +1,7 @@
 Feature('Login');
 
-Scenario('login', (home) => {
+Scenario('login', async(home) => {
   home.do.goTo();
-  home.ask.haveAccessToken();
+  await home.complete.login();
   home.ask.seeDetails();
 });

@@ -2,8 +2,10 @@ const sheepdogProps = require('./sheepdogProps.js');
 const nodes = require('../../../utils/nodes.js');
 const user = require('../../../utils/user.js');
 const { Gen3Response } = require('../../../utils/apiUtil');
+const { Bash } = require('../../../utils/bash.js');
 
 const I = actor();
+const bash = new Bash();
 
 /**
  * Internal Utils
@@ -129,4 +131,9 @@ module.exports = {
       await this.deleteNode(node, accessTokenHeader);
     }
   },
+
+  runGenTestData(maxSamples) {
+    return bash.runJob('gentestdata',
+      `TEST_PROGRAM jnkns TEST_PROJECT jenkins MAX_EXAMPLES ${maxSamples} SUBMISSION_USER cdis.autotest@gmail.com`)
+  }
 };

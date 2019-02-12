@@ -28,7 +28,6 @@ module.exports = {
   },
 
   async cannotSeeUnmappedFilesOnPage(unexpectedFileNames) {
-    I.waitForVisible(dataUploadProps.unmappedFilesHeaderClass, 5);
     const numberRows = await I.grabNumberOfVisibleElements(dataUploadProps.unmappedFileRowClass);
     if (numberRows === 0) return;
     for (let i = 0; i < unexpectedFileNames.length; i ++) {

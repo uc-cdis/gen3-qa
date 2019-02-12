@@ -1,6 +1,5 @@
 const homeProps = require('./homeProps.js');
 const portal = require('../../../utils/portal.js');
-const users = require('../../../utils/user.js');
 
 const I = actor();
 
@@ -13,9 +12,13 @@ module.exports = {
     portal.seeProp(homeProps.ready_cue, 10);
   },
 
-  async login(userAcct = users.mainAcct) {
-    I.amOnPage('/');
-    I.setCookie({ name: 'access_token', value: userAcct.accessToken });
-    I.amOnPage('/');
+  /**
+   * Logs into windmill. Uses the "dev_login" cookie to tell fence
+   * which username to use when mocking the login.
+   */
+  async login(userAcct) {
+    await I.amOnPage('/');
+    I.setCookie({ name: 'dev_login', value: userAcct.username });
+    portal.clickProp(homeProps.googleLoginButton);
   }
 };

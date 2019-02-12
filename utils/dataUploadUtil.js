@@ -46,7 +46,7 @@ module.exports = {
       if (!fs.existsSync(dirName)){ 
         fs.mkdirSync(dirName);  
       } 
-      files.createTmpFile(  
+      await files.createTmpFile(
         `${dirName}/${fileName}`, 
         createdGuids.join("\n") 
       );  
