@@ -106,7 +106,7 @@ You can kill the server with `npm run selenium-kill`
 ## Running Tests
 Once you have your environment variables configured and the Selenium server is running, you should be able to successfully run the tests.
 
-If you want to run `gen3-qa` against a dev environment, you just need to set the environment variable `NAMESPACE={dev env namespace}` and the `GOOGLE_APP_CREDS_JSON` to the credentials getting from Google, then run `./run-tests-localsh`.
+If you want to run `gen3-qa` against a dev environment, you just need to set the environment variable `NAMESPACE={dev env namespace}` and the `GOOGLE_APP_CREDS_JSON` to the credentials getting from Google, then run `./run-tests-local.sh`.
 
 But as mentioned above, some tests have special requirements so you may not want to run them. Instead, you can run a selection of tests that have certain tag by altering the line in `run-tests-local.sh` file `npm test -- --grep "@MyTag"` (see info about tags in the Writing Tests section).
 
