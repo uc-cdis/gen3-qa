@@ -7,12 +7,6 @@ class CDISHelper extends Helper {
     const helper = this.helpers.WebDriverIO;
     // get the session id for the web driver
     global.seleniumSessionId = helper.browser.requestHandler.sessionID;
-    // if not doing an API test, set the access token cookie
-    if (!(suite.title.indexOf('API') >= 0)) {
-      helper.amOnPage('');
-      const accessToken = user.mainAcct.accessToken;
-      helper.setCookie({ name: 'access_token', value: accessToken });
-    }
   }
 
   async _failed(testResult) { // eslint-disable-line class-methods-use-this

@@ -16,7 +16,11 @@ module.exports = {
     portal.seeProp(homeProps.cards, 5, 4);
   },
 
-  seeUserLoggedIn(userAcct) {
-    I.waitForText(userAcct.username, 5);
-  }
+  seeUserLoggedIn(username) {
+    I.waitForText(username, 5);
+  },
+
+  isLoggedOut() {
+    portal.seeProp(homeProps.googleLoginButton, 5);
+  },
 };
