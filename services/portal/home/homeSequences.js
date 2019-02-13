@@ -8,7 +8,7 @@ const I = actor();
  * home sequences
  */
 module.exports = {
-  async login(userAcct = user.mainAcct) {
+  login(userAcct = user.mainAcct) {
     homeTasks.login(userAcct.username);
     homeQuestions.haveAccessToken();
     homeQuestions.seeUserLoggedIn(userAcct.username);

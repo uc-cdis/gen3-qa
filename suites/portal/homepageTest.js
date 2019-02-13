@@ -1,6 +1,6 @@
 Feature('Login');
 
-Scenario('login', async(home) => {
+Scenario('login', (home) => {
   home.do.goToHomepage();
   home.complete.login();
   home.ask.seeDetails();

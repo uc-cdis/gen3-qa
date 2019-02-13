@@ -28,8 +28,5 @@ module.exports = {
    */
   logout() {
     portal.clickProp(homeProps.logoutButton);
-    I.saveScreenshot('after-logout1.png');
-    this.goToHomepage();
-    I.saveScreenshot('after-logout2.png');
   },
 };
