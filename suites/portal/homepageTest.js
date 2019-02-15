@@ -1,8 +1,8 @@
 Feature('Login');
 
-Scenario('login', (home) => {
+Scenario('login', async (home) => {
   home.do.goToHomepage();
-  home.complete.login();
+  await home.complete.login();
   home.ask.seeDetails();
   home.complete.logout();
 });

@@ -35,4 +35,16 @@ module.exports = {
       xpath: '//div[contains(text(), \'Logout\')]',
     },
   },
+
+  userAgreementAcceptButton: {
+    locator: {
+      xpath: '//div[contains(text(), \'I agree\')]',
+    },
+  },
+
+  userAgreementSubmitButton: {
+    locator: {
+      xpath: '//button[contains(text(), \'Submit\')]',
+    },
+  },
 };

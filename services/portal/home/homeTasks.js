@@ -29,4 +29,17 @@ module.exports = {
   logout() {
     portal.clickProp(homeProps.logoutButton);
   },
+
+  /**
+   * Some commons (such as jenkins-blood) display a user agreement quiz
+   * after logging in for the first time. This function checks if the 1-page
+   * BloodPAC user agreement is displayed and accepts it if it is.
+   */
+  async acceptUserQuizIfNeeded() {
+    let url = await I.grabCurrentUrl();
+    if (url.endsWith('/quiz')) {
+      portal.clickProp(homeProps.userAgreementAcceptButton);
+      portal.clickProp(homeProps.userAgreementSubmitButton);
+    }
+  },
 };
