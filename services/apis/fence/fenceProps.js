@@ -50,7 +50,7 @@ module.exports = {
   /**
    * Link google account duration
    */
-  linkExtendAmount: 86400, // 24 hours (in seconds)
+  linkExtendDefaultAmount: 86400, // 24 hours (in seconds)
 
   /**
    * Create Access Token Responses

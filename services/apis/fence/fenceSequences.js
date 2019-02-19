@@ -44,8 +44,8 @@ module.exports = {
    * @param {string} googleEmail - email to link to
    * @returns {Promise<string>}
    */
-  async forceLinkGoogleAcct(userAcct, googleEmail) {
-    const linkRes = await fenceTasks.forceLinkGoogleAcct(userAcct, googleEmail);
+  async forceLinkGoogleAcct(userAcct, googleEmail, expires_in=null) {
+    const linkRes = await fenceTasks.forceLinkGoogleAcct(userAcct, googleEmail, expires_in);
     fenceQuestions.forceLinkSuccess(linkRes);
     return linkRes;
   },

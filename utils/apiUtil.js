@@ -94,14 +94,6 @@ const gen3Res = function (_chai) {
   });
 };
 
-/**
- * Wait for the specified number of milliseconds
- * @param {int} ms
- */
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-};
-
 module.exports = {
   /**
    * Apply a question to an array of responses. Expect no errors to be thrown
@@ -128,6 +120,14 @@ module.exports = {
   },
 
   /**
+   * Wait for the specified number of milliseconds
+   * @param {int} ms
+   */
+  sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  },
+
+  /**
    * Wait for a task to be done. After each check, wait longer than the
    * previous time
    * @param {function} checkFunc - returns true if done, false otherwise
@@ -144,7 +144,7 @@ module.exports = {
       if (done) return;
 
       // if not done, keep waiting
-      await sleep(waitTime);
+      await this.sleep(waitTime);
       waited += waitTime;
       waitTime *= 2; // wait longer every time
     }

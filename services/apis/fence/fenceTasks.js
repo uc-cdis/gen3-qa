@@ -187,14 +187,17 @@ module.exports = {
    * Updates fence databases to link an account to a google email
    * @param {User} userAcct - Commons User to link with
    * @param {string} googleEmail - email to link to
+   * @param {int} expires_in - requested expiration time (in seconds)
    * @returns {Promise<string>} - std out from the fence-create script
    */
-  async forceLinkGoogleAcct(userAcct, googleEmail) {
+  async forceLinkGoogleAcct(userAcct, googleEmail, expires_in=null) {
     // hit link endpoint to ensure a proxy group is created for user
     await I.sendGetRequest(fenceProps.endpoints.linkGoogle, userAcct.accessTokenHeader);
 
     // run fence-create command to circumvent google and add user link to fence
-    const cmd = `fence-create force-link-google --username ${userAcct.username} --google-email ${googleEmail}`;
+    let cmd = `fence-create force-link-google --username ${userAcct.username} --google-email ${googleEmail}`;
+    if (expires_in)
+      cmd += ` --expires_in ${expires_in}`;
     const res = bash.runCommand(cmd, 'fence', takeLastLine);
     userAcct.linkedGoogleAccount = googleEmail;
     return res;
@@ -218,11 +221,15 @@ module.exports = {
   /**
    * Hits fences EXTEND google link endpoint
    * @param {User} userAcct - commons user to extend the link for
+   * @param {int} expires_in - requested expiration time (in seconds)
    * @returns {Promise<Gen3Response>}
    */
-  async extendGoogleLink(userAcct) {
+  async extendGoogleLink(userAcct, expires_in=null) {
+    url = fenceProps.endpoints.extendGoogleLink;
+    if (expires_in)
+      url += `?expires_in=${expires_in}`;
     return I.sendPatchRequest(
-      fenceProps.endpoints.extendGoogleLink, {}, userAcct.accessTokenHeader)
+      url, {}, userAcct.accessTokenHeader)
       .then(res => new Gen3Response(res));
   },
 
