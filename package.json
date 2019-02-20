@@ -5,6 +5,8 @@
   "main": "index.js",
   "dependencies": {
     "atob": "^2.1.2",
+    "es6-promise": "^4.2.5",
+    "isomorphic-fetch": "^2.2.1",
     "mocha-junit-reporter": "^1.17.0",
     "mocha-multi": "^1.0.1",
     "node-ssh": "^5.1.2",
