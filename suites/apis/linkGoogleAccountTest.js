@@ -19,12 +19,12 @@ function timeNow() {
 }
 
 Scenario('link and unlink google account @reqGoogle', async (fence, users) => {
-  await fence.complete.forceLinkGoogleAcct(users.mainAcct, users.auxAcct1.googleCreds.email);
+  await fence.complete.linkGoogleAcctMocked(users.mainAcct, users.auxAcct1.googleCreds.email);
   await fence.complete.unlinkGoogleAcct(users.mainAcct);
 });
 
 Scenario('extend account link expiration @reqGoogle', async (fence, users) => {
-  await fence.complete.forceLinkGoogleAcct(users.mainAcct, users.auxAcct1.googleCreds.email);
+  await fence.complete.linkGoogleAcctMocked(users.mainAcct, users.auxAcct1.googleCreds.email);
   const requestTime = timeNow();
   const extendRes = await fence.do.extendGoogleLink(users.mainAcct);
   fence.ask.linkExtendSuccess(extendRes, requestTime);

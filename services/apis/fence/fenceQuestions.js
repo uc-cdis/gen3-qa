@@ -35,7 +35,9 @@ module.exports = {
    * @param apiKeyRes
    */
   hasAPIKey(apiKeyRes) {
-    expect(apiKeyRes).to.have.nested.property('body.api_key');
+    expect(apiKeyRes,
+      'response does not have a "api_key" field in the body'
+    ).to.have.nested.property('body.api_key');
   },
 
   /**
@@ -43,7 +45,9 @@ module.exports = {
    * @param accessTokenRes
    */
   hasAccessToken(accessTokenRes) {
-    expect(accessTokenRes).has.nested.property('body.access_token');
+    expect(accessTokenRes,
+      'response does not have a "access_token" field in the body'
+    ).has.nested.property('body.access_token');
   },
 
   /**
@@ -58,6 +62,28 @@ module.exports = {
       linkedAcct.googleCreds.email,
     );
     expect(linkUrl.searchParams.get('exp')).to.not.be.null; // eslint-disable-line
+  },
+
+  /**
+   * Asserts google link res was successful
+   * @param {Gen3Response} linkRes - linking response
+   */
+  mockedLinkSuccess(linkRes) {
+    expect(linkRes,
+      'response after Google linking doesnt have finalURL prop'
+    ).to.have.property('finalURL');
+
+    const linkUrl = new URL(linkRes.finalURL);
+
+    console.log(`when checking mocked Google Linking success, got final URL: ${linkUrl}`)
+
+    expect(linkUrl.searchParams.get('linked_email'),
+      'response after Google linking doesnt include linked_email'
+    ).to.not.be.null;
+
+    expect(linkUrl.searchParams.get('exp'),
+      'response after Google linking doesnt include exp'
+    ).to.not.be.null; // eslint-disable-line
   },
 
   /**
@@ -194,6 +220,43 @@ module.exports = {
     expect(response).to.have.nested.property('body.access_token');
     expect(response).to.have.nested.property('body.refresh_token');
     expect(response).to.have.nested.property('body.expires_in');
+  },
+
+  /**
+   * Assert that we can access a file in a bucket with given creds
+   * @param {string} pathToCredsKeyFile
+   * @param bucketInfo - see fence.props.googleBucketInfo
+   */
+  assertCanAccessBucket(pathToCredsKeyFile, bucketInfo) {
+    // attempt to access a file in the bucket
+    expect(
+      googleUtil.getFileFromBucket(
+        bucketInfo.googleProjectId,
+        pathToCredsKeyFile,
+        bucketInfo.bucketName,
+        bucketInfo.fileName
+      ),
+      'error was thrown when attempting to get a file from a Google bucket'
+    ).to.not.throw();
+  },
+
+  /**
+   * Assert that we can access a file in a bucket with given creds
+   * @param {string} pathToCredsKeyFile
+   * @param bucketInfo - see fence.props.googleBucketInfo
+   */
+  assertCanNotAccessBucket(pathToCredsKeyFile, bucketInfo) {
+    // attempt to access a file in the bucket
+    expect(
+      googleUtil.getFileFromBucket(
+        bucketInfo.googleProjectId,
+        pathToCredsKeyFile,
+        bucketInfo.bucketName,
+        bucketInfo.fileName
+      ),
+      'error was NOT thrown when attempting to get a file from a Google bucket. ' +
+      'We expected the error because the user should NOT have access.'
+    ).to.throw();
   },
 
   assertTruethyResult(result) {

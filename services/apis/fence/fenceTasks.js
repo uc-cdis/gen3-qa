@@ -127,6 +127,20 @@ module.exports = {
   },
 
   /**
+   * Hits fence's endoint to create a temp Google credentials
+   * @param {Object} accessTokenHeader
+   * @returns {Promise<Gen3Response>}
+   */
+  createTempGoogleCreds(accessTokenHeader) {
+    accessTokenHeader['Content-Type'] = 'application/json';
+    return I.sendPostRequest(
+      fenceProps.endpoints.googleCredentials,
+      {},
+      accessTokenHeader,
+    ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
+  },
+
+  /**
    * Deletes a given API Key
    * @param {string} apiKey
    * @returns {Promise<Object>}
@@ -171,6 +185,33 @@ module.exports = {
 
     // wait until redirected back to root url
     await I.waitInUrl(fenceProps.endpoints.root, 5);
+    I.wait(5);
+
+    // return the body and the current url
+    const url = await I.grabCurrentUrl();
+    const body = await I.grabSource();
+
+    const res = new Gen3Response({ body });
+    res.finalURL = url;
+    return res;
+  },
+
+  /**
+   * Goes through the full, proper process for linking a google account assuming env
+   * is set to mock Google response
+   * @param userAcct
+   * @returns {Promise<Gen3Response|*>}
+   */
+  async linkGoogleAcctMocked(userAcct) {
+    // set users access token
+    await I.setCookie({ name: 'access_token', value: userAcct.accessToken });
+    await I.seeCookie('access_token');
+    // visit link endpoint. Google login is mocked
+    await I.amOnPage('/user/link/google?redirect=/login');
+    I.saveScreenshot('login_mocked.png');
+
+    // wait until redirected back to login url
+    await I.waitInUrl(fenceProps.endpoints.login, 5);
     I.wait(5);
 
     // return the body and the current url

@@ -36,7 +36,7 @@ const bash = new Bash();
  * @returns {string}
  */
 function getAccessToken(username, expiration) {
-  const fenceCmd = `fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account --type access_token --exp ${expiration} --username ${username}`;
+  const fenceCmd = `fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account,google_credentials --type access_token --exp ${expiration} --username ${username}`;
   const accessToken = bash.runCommand(fenceCmd, 'fence', takeLastLine);
   console.error(accessToken);
   return accessToken.trim();
@@ -161,17 +161,18 @@ function assertGen3Client() {
 
 module.exports = async function (done) {
   try {
+    console.log(`Running usersync job`);
+    bash.runJob('usersync');
+
     // get some vars from the commons
     console.log('Setting environment variables...\n');
 
     // Export access tokens
     for (const user of Object.values(users)) {
-      if (!user.jenkinsOnly || inJenkins || process.env.NAMESPACE === 'default') {
-        const at = getAccessToken(user.username, DEFAULT_TOKEN_EXP);
-        // make sure the access token looks valid - base64 encoded JSON :-p
-        const token = parseJwt(at);
-        process.env[user.envTokenName] = at;
-      }
+      const at = getAccessToken(user.username, DEFAULT_TOKEN_EXP);
+      // make sure the access token looks valid - base64 encoded JSON :-p
+      const token = parseJwt(at);
+      process.env[user.envTokenName] = at;
     }
 
     console.log('Delete then create basic client...\n');
