@@ -240,11 +240,15 @@ module.exports = {
    * @param {string} googleProject.serviceAccountEmail - service account email to register
    * @param {string} googleProject.id - google project ID for the service account registering
    * @param {string[]} projectAccessList - projects service account will have access to
+   * @param {int} expires_in - requested expiration time (in seconds)
    * @returns {Promise<Gen3Response>}
    */
-  async registerGoogleServiceAccount(userAcct, googleProject, projectAccessList) {
+  async registerGoogleServiceAccount(userAcct, googleProject, projectAccessList, expires_in=null) {
+    url = fenceProps.endpoints.registerGoogleServiceAccount;
+    if (expires_in)
+      url += `?expires_in=${expires_in}`;
     return I.sendPostRequest(
-      fenceProps.endpoints.registerGoogleServiceAccount,
+      url,
       {
         service_account_email: googleProject.serviceAccountEmail,
         google_project_id: googleProject.id,

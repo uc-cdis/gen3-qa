@@ -1,6 +1,8 @@
 const chai = require('chai');
 const expect = chai.expect;
 
+const apiUtil = require('../../utils/apiUtil.js');
+
 
 Feature('RegisterGoogleServiceAccount');
 
@@ -559,3 +561,40 @@ Scenario('Delete a SA that was successfully registered before but was deleted fr
   fence.ask.responsesEqual(deleteRes, fence.props.resDeleteServiceAccountSuccess);
 });
 
+
+Scenario('Register Service Account - expiration test @reqGoogle', async (fence, users) => {
+  // description
+
+  const EXPIRES_IN = 5;
+  const googleProject = fence.props.googleProjectA;
+
+  // Setup
+  await fence.complete.forceLinkGoogleAcct(users.mainAcct, googleProject.owner);
+
+  // Register account
+  console.log(Date.now() / 1000);
+  const registerRes = await fence.do.registerGoogleServiceAccount(
+    users.mainAcct,
+    googleProject,
+    ['test'],
+    EXPIRES_IN
+  );
+  // console.log(registerRes)
+  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
+
+  res = await fence.do.getGoogleServiceAccounts(users.mainAcct, [googleProject.id])
+  console.log(res.body.service_accounts)
+
+  // wait for the link to expire
+  console.log('wait'); await apiUtil.sleep(10 * 1000); console.log('done');
+
+  res = await fence.do.getGoogleServiceAccounts(users.mainAcct, [googleProject.id])
+  console.log(res.body.service_accounts)
+
+  // Delete registration
+  const deleteRes = await fence.do.deleteGoogleServiceAccount(
+    users.mainAcct,
+    googleProject.serviceAccountEmail,
+  );
+  fence.ask.responsesEqual(deleteRes, fence.props.resDeleteServiceAccountSuccess);
+});
