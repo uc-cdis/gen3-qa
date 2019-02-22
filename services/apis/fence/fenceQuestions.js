@@ -8,7 +8,7 @@ chai.config.truncateThreshold = 0;
 chai.use(gen3Res);
 
 const fenceProps = require('./fenceProps.js');
-const apiUtil = require('../../../utils/apiUtil.js');
+const google = require('../../../utils/google.js');
 
 /**
  * fence Questions
@@ -224,16 +224,18 @@ module.exports = {
 
   /**
    * Assert that we can access a file in a bucket with given creds
+   * Note: unused because clean up is skipped if an assert stops the tests
+   * before cleaning up!
    * @param {string} pathToCredsKeyFile
    * @param bucketInfo - see fence.props.googleBucketInfo
    */
   assertCanAccessBucket(pathToCredsKeyFile, bucketInfo) {
     // attempt to access a file in the bucket
     expect(
-      googleUtil.getFileFromBucket(
+      google.getFileFromBucket(
         bucketInfo.googleProjectId,
         pathToCredsKeyFile,
-        bucketInfo.bucketName,
+        bucketInfo.bucketId,
         bucketInfo.fileName
       ),
       'error was thrown when attempting to get a file from a Google bucket'
@@ -241,17 +243,19 @@ module.exports = {
   },
 
   /**
-   * Assert that we can access a file in a bucket with given creds
+   * Assert that we cannot access a file in a bucket with given creds
+   * Note: unused because clean up is skipped if an assert stops the tests
+   * before cleaning up!
    * @param {string} pathToCredsKeyFile
    * @param bucketInfo - see fence.props.googleBucketInfo
    */
   assertCanNotAccessBucket(pathToCredsKeyFile, bucketInfo) {
     // attempt to access a file in the bucket
     expect(
-      googleUtil.getFileFromBucket(
+      google.getFileFromBucket(
         bucketInfo.googleProjectId,
         pathToCredsKeyFile,
-        bucketInfo.bucketName,
+        bucketInfo.bucketId,
         bucketInfo.fileName
       ),
       'error was NOT thrown when attempting to get a file from a Google bucket. ' +
