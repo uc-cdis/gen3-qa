@@ -49,6 +49,9 @@ donot() {
   doNotRunRegex="${doNotRunRegex}${or}$1"
 }
 
+# Do not run performance testing
+donot '@regressions'
+
 #----------------------------------------------------
 # main
 #

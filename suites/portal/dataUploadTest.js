@@ -58,8 +58,8 @@ BeforeSuite(async (sheepdog, nodes, users, fence, indexd) => {
   submitterID = newSubmitterID;
 });
 
-Before(async (home) => {
-  await home.complete.login();
+Before((home) => {
+  home.complete.login();
 });
 
 Scenario('Map uploaded files in windmill submission page @dataUpload', async (sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUploadUtil) => {
@@ -89,6 +89,10 @@ Scenario('Cannot see files uploaded by other users @dataUpload', async(sheepdog,
 
   // user1 cannot see file2
   await portalDataUpload.complete.checkUnmappedFilesAreNotInFileMappingPage([fileObj]);
+});
+
+After((home) => {
+  home.complete.logout();
 });
 
 AfterSuite(async (sheepdog, indexd, files, dataUploadUtil) => {

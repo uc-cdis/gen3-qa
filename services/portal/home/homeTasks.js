@@ -7,7 +7,7 @@ const I = actor();
  * home Tasks
  */
 module.exports = {
-  goTo() {
+  goToHomepage() {
     I.amOnPage(homeProps.path);
     portal.seeProp(homeProps.ready_cue, 10);
   },
@@ -15,10 +15,18 @@ module.exports = {
   /**
    * Logs into windmill. Uses the "dev_login" cookie to tell fence
    * which username to use when mocking the login.
+   * /!\ remember to logout after logging in or following tests will fail!
    */
-  async login(userAcct) {
-    await I.amOnPage('/');
-    I.setCookie({ name: 'dev_login', value: userAcct.username });
+  login(username) {
+    this.goToHomepage();
+    I.setCookie({ name: 'dev_login', value: username });
     portal.clickProp(homeProps.googleLoginButton);
-  }
+  },
+
+  /**
+   * Logs out of windmill
+   */
+  logout() {
+    portal.clickProp(homeProps.logoutButton);
+  },
 };
