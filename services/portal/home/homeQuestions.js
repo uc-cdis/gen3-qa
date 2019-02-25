@@ -13,7 +13,7 @@ module.exports = {
 
   seeDetails() {
     portal.seeProp(homeProps.summary, 5, 1);
-    portal.seeProp(homeProps.cards, 5, 4);
+    portal.seeProp(homeProps.cards, 5);
   },
 
   seeUserLoggedIn(username) {
