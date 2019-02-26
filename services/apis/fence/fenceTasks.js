@@ -327,7 +327,11 @@ module.exports = {
     return I.sendDeleteRequest(
       `${fenceProps.endpoints.deleteGoogleServiceAccount}/${serviceAccountEmail}`,
       userAcct.accessTokenHeader,
-    ).then(res => new Gen3Response(res));
+    // ).then(res => new Gen3Response(res));
+    ).then(function(res) {
+      console.log(res)
+      return new Gen3Response(res)
+    })
   },
 
   /**

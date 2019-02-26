@@ -77,7 +77,7 @@ BeforeSuite(async (google, fence, users) => {
 });
 
 After(async (google, fence, users) => {
-  await suiteCleanup(google, fence, users);
+  // await suiteCleanup(google, fence, users);
 });
 
 
@@ -584,6 +584,17 @@ Scenario('Register Service Account - expiration test @reqGoogle', async (fence, 
   const EXPIRES_IN = 5;
   const googleProject = fence.props.googleProjectA;
 
+  // TODO: remove this block
+  // keyName = "projects/simpleprojectalpha/serviceAccounts/serviceaccount@simpleprojectalpha.iam.gserviceaccount.com/keys/245a2433e4b23432b00fc1eb5e310a91dc07c836";
+  // let res = await google.deleteServiceAccountKey(keyName);
+  // res = await fence.do.deleteGoogleServiceAccount(
+  //   users.user0,
+  //   googleProject.serviceAccountEmail,
+  // );
+  // await fence.do.unlinkGoogleAcct(
+  //   users.user0,
+  // );
+
   // Setup
   res = await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
 
@@ -599,7 +610,7 @@ Scenario('Register Service Account - expiration test @reqGoogle', async (fence, 
     console.log(registerRes.body.errors);
   }
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
-  
+
   // get creds to access data
   const tempCreds0Res = await google.createServiceAccountKey(googleProject.id, googleProject.serviceAccountEmail);
   keyFullName = tempCreds0Res.name;
@@ -640,7 +651,7 @@ Scenario('Register Service Account - expiration test @reqGoogle', async (fence, 
   await google.deleteServiceAccountKey(keyFullName);
 
   console.log('deleting temporary google credentials file');
-  files.deleteTmpFile(pathToCreds0KeyFile);
+  files.deleteFile(pathToCreds0KeyFile);
 
   // should have been deleted by the google-delete-expired-service-account-job
   // send delete request just in case (do not check if it was actually deleted)
@@ -649,6 +660,110 @@ Scenario('Register Service Account - expiration test @reqGoogle', async (fence, 
     users.user0,
     googleProject.serviceAccountEmail,
   );
+  // TODO: check what's wrong with this when we don't run the delete job:
+  // fence.ask.responsesEqual(deleteRes, fence.props.resDeleteServiceAccountSuccess);
+
+  // assert at the end so that the clean up steps always happen
+
+  // TODO: util function for the check
+  chai.expect(user0AccessQARes,
+    'User should have bucket access before expiration'
+  ).to.have.property('id');
+  chai.expect(user0AccessQAResExpired,
+    'User should NOT have bucket access after expiration'
+  ).to.have.property('statusCode', 403);
+});
+
+
+Scenario('Service Account temporary key - expiration test @reqGoogle', async (fence, users, google, files) => {
+  // Test that we do not have access to data anymore after the SA key is expired
+
+  console.log('Ensure test buckets are linked to projects in this commons...');
+
+  var bucketId = fence.props.googleBucketInfo.QA.bucketId
+  var googleProjectId = fence.props.googleBucketInfo.QA.googleProjectId
+  var projectAuthId = 'QA'
+  var fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
+  console.log(`Running: ${fenceCmd}`)
+  var response = bash.runCommand(fenceCmd, 'fence');
+
+  console.log('Clean up Google Bucket Access Groups from previous runs...');
+  bash.runJob('google-verify-bucket-access-group');
+
+  const EXPIRES_IN = 5;
+  const googleProject = fence.props.googleProjectA;
+
+  // Setup
+  await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
+
+  // Register account
+  const registerRes = await fence.do.registerGoogleServiceAccount(
+    users.user0,
+    googleProject,
+    ['QA']
+  );
+  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
+
+  // access data
+
+  // save temporary google creds to file
+  const tempCreds0Res = await fence.complete.createTempGoogleCreds(users.user0.accessTokenHeader, EXPIRES_IN);
+
+  let getCreds0Res = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
+  console.log(getCreds0Res);
+
+  const creds0Key = tempCreds0Res.body.private_key_id;
+  const pathToCreds0KeyFile = creds0Key + '.json';
+
+  await files.createTmpFile(pathToCreds0KeyFile, JSON.stringify(tempCreds0Res.body));
+  console.log(`Google creds file ${pathToCreds0KeyFile} saved!`);
+
+  user0AccessQARes = await google.getFileFromBucket(
+    fence.props.googleBucketInfo.QA.googleProjectId,
+    pathToCreds0KeyFile,
+    fence.props.googleBucketInfo.QA.bucketId,
+    fence.props.googleBucketInfo.QA.fileName
+  );
+
+  // wait for the key to expire
+  console.log('waiting for the key to expire');
+  await apiUtil.sleepMS((EXPIRES_IN + 5) * 1000);
+
+  // run the expired SA clean up job
+  console.log('Clean up expired Service Accounts');
+  bash.runJob('google-manage-keys-job');
+  // console.log('wait for delete expired SA keys job to finish and propagation in google');
+  // await apiUtil.sleepMS(20 * 1000);
+
+  getCreds0Res = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
+  console.log(getCreds0Res);
+
+  // try to access data
+  user0AccessQAResExpired = await google.getFileFromBucket(
+    fence.props.googleBucketInfo.QA.googleProjectId,
+    pathToCreds0KeyFile,
+    fence.props.googleBucketInfo.QA.bucketId,
+    fence.props.googleBucketInfo.QA.fileName
+  );
+
+  // clean up steps
+
+  // should have been deleted by the google-manage-keys-job
+  // send delete request just in case (do not check if it was actually deleted)
+  await fence.complete.deleteTempGoogleCreds(
+    creds0Key, users.user0.accessTokenHeader);
+
+  console.log('deleting temporary google credentials file');
+  files.deleteFile(pathToCreds0KeyFile);
+
+  // Delete registration
+  console.log('deleting SA registration');
+  const deleteRes = await fence.do.deleteGoogleServiceAccount(
+    users.user0,
+    googleProject.serviceAccountEmail,
+  );
+  console.log(deleteRes)
+  fence.ask.responsesEqual(deleteRes, fence.props.resDeleteServiceAccountSuccess); // TODO: fix?
 
   // assert at the end so that the clean up steps always happen
 

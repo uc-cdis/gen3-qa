@@ -112,7 +112,7 @@ module.exports = {
     const response = await fenceTasks.createTempGoogleCreds(accessTokenHeaders, expires_in);
     expect(response,
       'response from creating temporary Google credentials does not have nested ' +
-      'property body.private_key (which means we didn\'t get back valid Google credentials.'
+      'property body.private_key (which means we didn\'t get back valid Google credentials)'
     ).has.nested.property('body.private_key');
     return response;
   },
