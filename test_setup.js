@@ -161,9 +161,6 @@ function assertGen3Client() {
 
 module.exports = async function (done) {
   try {
-    console.log(`Running usersync job`);
-    bash.runJob('usersync');
-
     // get some vars from the commons
     console.log('Setting environment variables...\n');
 

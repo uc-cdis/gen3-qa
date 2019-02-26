@@ -53,32 +53,6 @@ module.exports = {
   },
 
   /**
-   * WARNING: not functional currently since google may challenge login with a captcha
-   * Links a google account then asserts it was successful
-   * @param {User} userAcct - commons account to link with
-   * @param {User} acctWithGoogleCreds - account whose google email to link to
-   * @returns {Promise<Gen3Response>}
-   */
-  async linkGoogleAcct(userAcct, acctWithGoogleCreds) {
-    const linkRes = await fenceTasks.linkGoogleAcct(userAcct, acctWithGoogleCreds);
-    fenceQuestions.linkSuccess(linkRes, acctWithGoogleCreds);
-    return linkRes;
-  },
-
-  /**
-   * WARNING: circumvents google authentication (ie not like true linking process)
-   * Forces a linking in fences databases then asserts success
-   * @param {User} userAcct - commons account to link with
-   * @param {string} googleEmail - email to link to
-   * @returns {Promise<string>}
-   */
-  async forceLinkGoogleAcct(userAcct, googleEmail) {
-    const linkRes = await fenceTasks.forceLinkGoogleAcct(userAcct, googleEmail);
-    fenceQuestions.forceLinkSuccess(linkRes);
-    return linkRes;
-  },
-
-  /**
    * Hits fences endpoint to DELETE a google link then asserts it was successful
    * @param {User} userAcct - user to delete link for
    * @returns {Promise<void>}

@@ -1,7 +1,7 @@
 const fenceProps = require('./fenceProps.js');
 const user = require('../../../utils/user.js');
 const portal = require('../../../utils/portal.js');
-const { Gen3Response } = require('../../../utils/apiUtil');
+const { Gen3Response, getCookie } = require('../../../utils/apiUtil');
 const { Bash, takeLastLine } = require('../../../utils/bash');
 
 const { container } = require('codeceptjs');
@@ -166,37 +166,6 @@ module.exports = {
   },
 
   /**
-   * WARNING: not guaranteed to work since google might challenge the login
-   * with a captcha.
-   * Goes through the full, proper process for linking a google account
-   * @param userAcct
-   * @param acctWithGoogleCreds
-   * @returns {Promise<Gen3Response|*>}
-   */
-  async linkGoogleAcct(userAcct, acctWithGoogleCreds) {
-    const googleCreds = acctWithGoogleCreds.googleCreds;
-    // set users access token
-    await I.setCookie({ name: 'access_token', value: userAcct.accessToken });
-    await I.seeCookie('access_token');
-    // visit link endpoint and login to google
-    await I.amOnPage(fenceProps.endpoints.linkGoogle);
-    await loginGoogle(googleCreds);
-    I.saveScreenshot('login7.png');
-
-    // wait until redirected back to root url
-    await I.waitInUrl(fenceProps.endpoints.root, 5);
-    I.wait(5);
-
-    // return the body and the current url
-    const url = await I.grabCurrentUrl();
-    const body = await I.grabSource();
-
-    const res = new Gen3Response({ body });
-    res.finalURL = url;
-    return res;
-  },
-
-  /**
    * Goes through the full, proper process for linking a google account assuming env
    * is set to mock Google response
    * @param userAcct
@@ -204,28 +173,16 @@ module.exports = {
    */
   async linkGoogleAcctMocked(userAcct) {
     // visit link endpoint. Google login is mocked
-    await I.amOnPage('/user/link/google?redirect=/login');
-    await I.setCookie({ name: 'dev_login', value: userAcct.username });
     let headers = userAcct.accessTokenHeader
     headers.Cookie = 'dev_login=' + userAcct.username
     let response = undefined;
 
     return I.sendGetRequest(
-      '/user/link/google?redirect=/login',
-      headers
+      '/user/link/google?redirect=/login', headers
     ).then((res) => {
       // follow redirect back to fence
-
-      function getCookie(cookieName, cookieString)
-      {
-        // Get name followed by anything except a semicolon
-        var cookiestring = RegExp(""+cookieName+"[^;]+").exec(cookieString);
-        // Return everything after the equal sign, or an empty string if the cookie name not found
-        return decodeURIComponent(!!cookiestring ? cookiestring.toString().replace(/^[^=]+./,"") : "");
-      }
-
-      let fenceCookie = getCookie('fence', res.headers['set-cookie'])
-      headers = {Cookie: 'dev_login=' + userAcct.username + ';' + 'fence=' + fenceCookie }
+      let sessionCookie = getCookie('fence', res.headers['set-cookie'])
+      headers = {Cookie: 'dev_login=' + userAcct.username + ';' + 'fence=' + sessionCookie }
       return I.sendGetRequest(res.headers.location, headers).then((res) => {
         return I.sendGetRequest(res.headers.location, headers).then((res) => {
           // return the body and the current url
@@ -241,24 +198,6 @@ module.exports = {
         });
       });
     });
-  },
-
-  /**
-   * WARNING: circumvents google authentication (ie not like true linking process)
-   * Updates fence databases to link an account to a google email
-   * @param {User} userAcct - Commons User to link with
-   * @param {string} googleEmail - email to link to
-   * @returns {Promise<string>} - std out from the fence-create script
-   */
-  async forceLinkGoogleAcct(userAcct, googleEmail) {
-    // hit link endpoint to ensure a proxy group is created for user
-    await I.sendGetRequest(fenceProps.endpoints.linkGoogle, userAcct.accessTokenHeader);
-
-    // run fence-create command to circumvent google and add user link to fence
-    const cmd = `fence-create force-link-google --username ${userAcct.username} --google-email ${googleEmail}`;
-    const res = bash.runCommand(cmd, 'fence', takeLastLine);
-    userAcct.linkedGoogleAccount = googleEmail;
-    return res;
   },
 
   /**

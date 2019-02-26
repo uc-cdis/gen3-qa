@@ -82,7 +82,6 @@ Scenario('test google data access via usersync: usersync, Google link, generate 
   await fence.complete.linkGoogleAcctMocked(users.user2);
 
   console.log(`creating temporary google creds for users with usernames:  ${users.user0.username}, ${users.user1.username}, ${users.user2.username}`);
-  console.log('NOTE: If the following fails and you do not know why, it *might* be that we have hit our limit for SA keys on given Service Account in Google.');
   // call our endpoint to get temporary creds
   // NOTE: If this fails and you don't know why, it *might* be that we've hit our limit
   //       for SA keys on this user's Google Service Account. They *should* be cleaned
@@ -91,7 +90,6 @@ Scenario('test google data access via usersync: usersync, Google link, generate 
   //       the Google Cloud Platform. Check usersUtil.js for information about these users
   //       (specifically their username is their Google Account email, you can use that
   //        to find their service account in the GCP)
-  // TODO: logic that runs before suite to delete these creds
   const tempCreds0Res = await fence.complete.createTempGoogleCreds(
     users.user0.accessTokenHeader);
   const tempCreds1Res = await fence.complete.createTempGoogleCreds(
