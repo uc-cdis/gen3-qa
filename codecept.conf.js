@@ -76,9 +76,8 @@ exports.config = {
   },
   bootstrap: './test_setup.js',
   teardown() {
-    if (seleniumSessionId !== undefined)
-    {
-      // session id is a global var retrieved in the helper
+    // session id is a global var retrieved in the helper
+    if ( typeof seleniumSessionId !== 'undefined' && seleniumSessionId ) {
       console.log(`Killing Selenium session ${seleniumSessionId}`);
       request.del(`http://localhost:4444/wd/hub/session/${seleniumSessionId}`);
     }

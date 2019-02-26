@@ -29,6 +29,7 @@ const hasField = (res, field) => {
 };
 
 module.exports = {
+  resultSuccess,
   hasField,
 
   /**
