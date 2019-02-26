@@ -203,24 +203,44 @@ module.exports = {
    * @returns {Promise<Gen3Response|*>}
    */
   async linkGoogleAcctMocked(userAcct) {
-    // set users access token
-    await I.setCookie({ name: 'access_token', value: userAcct.accessToken });
-    await I.seeCookie('access_token');
     // visit link endpoint. Google login is mocked
     await I.amOnPage('/user/link/google?redirect=/login');
-    I.saveScreenshot('login_mocked.png');
+    await I.setCookie({ name: 'dev_login', value: userAcct.username });
+    let headers = userAcct.accessTokenHeader
+    headers.Cookie = 'dev_login=' + userAcct.username
+    let response = undefined;
 
-    // wait until redirected back to login url
-    await I.waitInUrl(fenceProps.endpoints.login, 5);
-    I.wait(5);
+    return I.sendGetRequest(
+      '/user/link/google?redirect=/login',
+      headers
+    ).then((res) => {
+      // follow redirect back to fence
 
-    // return the body and the current url
-    const url = await I.grabCurrentUrl();
-    const body = await I.grabSource();
+      function getCookie(cookieName, cookieString)
+      {
+        // Get name followed by anything except a semicolon
+        var cookiestring = RegExp(""+cookieName+"[^;]+").exec(cookieString);
+        // Return everything after the equal sign, or an empty string if the cookie name not found
+        return decodeURIComponent(!!cookiestring ? cookiestring.toString().replace(/^[^=]+./,"") : "");
+      }
 
-    const res = new Gen3Response({ body });
-    res.finalURL = url;
-    return res;
+      let fenceCookie = getCookie('fence', res.headers['set-cookie'])
+      headers = {Cookie: 'dev_login=' + userAcct.username + ';' + 'fence=' + fenceCookie }
+      return I.sendGetRequest(res.headers.location, headers).then((res) => {
+        return I.sendGetRequest(res.headers.location, headers).then((res) => {
+          // return the body and the current url
+          const url = res.headers.location;
+          const body = res.body;
+
+          const gen3Res = new Gen3Response({ body });
+          gen3Res.parsedFenceError = undefined;
+          gen3Res.body = body;
+          gen3Res.statusCode = 200;
+          gen3Res.finalURL = url;
+          return gen3Res
+        });
+      });
+    });
   },
 
   /**
