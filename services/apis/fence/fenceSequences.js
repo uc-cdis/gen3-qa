@@ -70,6 +70,7 @@ module.exports = {
    * Forces a linking in fences databases then asserts success
    * @param {User} userAcct - commons account to link with
    * @param {string} googleEmail - email to link to
+   * @param {int} expires_in - requested expiration time (in seconds)
    * @returns {Promise<string>}
    */
   async forceLinkGoogleAcct(userAcct, googleEmail, expires_in=null) {
@@ -104,10 +105,11 @@ module.exports = {
    * Creates temporary Google Access creds then asserts it was successful
    * @param {string[]} scope - access token scopes
    * @param {Object} accessTokenHeaders
+   * @param {int} expires_in - requested expiration time (in seconds)
    * @returns {Promise<Gen3Response>}
    */
-  async createTempGoogleCreds(accessTokenHeaders) {
-    const response = await fenceTasks.createTempGoogleCreds(accessTokenHeaders);
+  async createTempGoogleCreds(accessTokenHeaders, expires_in=null) {
+    const response = await fenceTasks.createTempGoogleCreds(accessTokenHeaders, expires_in);
     expect(response,
       'response from creating temporary Google credentials does not have nested ' +
       'property body.private_key (which means we didn\'t get back valid Google credentials.'
@@ -121,6 +123,7 @@ module.exports = {
    * @param {Object} accessTokenHeader
    * @returns {Promise<Gen3Response>}
    */
+  // TODO: this is a task not a sequence
   deleteTempGoogleCreds(googleKeyId, accessTokenHeader) {
     accessTokenHeader['Content-Type'] = 'application/json';
     return I.sendDeleteRequest(

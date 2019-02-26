@@ -106,9 +106,18 @@ module.exports = {
       const file = storage.bucket(bucketName).file(fileName);
 
       resolve(
-        file.get().then(function(data) {
+        file.get()
+        .then(function(data) {
           // Note: data[0] is the file; data[1] is the API response
           return data[0];
+        })
+        .catch((err) => {
+          // console.log(`Cannot get file ${fileName} from bucket ${bucketName}: (depending on the test, this may be expected)`);
+          // console.error(err.errors);
+          return {
+            statusCode: err.code,
+            message: err.message
+          };
         })
       )
     });
@@ -236,6 +245,53 @@ module.exports = {
           auth: authClient,
         };
         cloudResourceManager.projects.serviceAccounts.delete(request, (err, res) => {
+          if (err) {
+            resolve(Error(err));
+            return;
+          }
+          resolve(res.data);
+        });
+      });
+    })
+  },
+
+  async createServiceAccountKey(projectID, serviceAccountName) {
+    return new Promise((resolve) => {
+      return googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
+        const cloudResourceManager = google.iam('v1');
+        const request = {
+          name: `projects/${projectID}/serviceAccounts/${serviceAccountName}`,
+          auth: authClient,
+        };
+        cloudResourceManager.projects.serviceAccounts.keys.create(request, (err, res) => {
+          if (err) {
+            if(err instanceof Error) {
+              resolve(err)
+            } else {
+              resolve(Error(err));
+            }
+            return;
+          }
+          if (res && res.data) {
+            resolve(res.data);
+          } else {
+            resolve(Error(`Unexpected create service account key result: ${JSON.stringify(res)}`));
+          }
+        });
+      });
+    })
+  },
+
+
+  async deleteServiceAccountKey(keyName) {
+    return new Promise((resolve) => {
+      return googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
+        const cloudResourceManager = google.iam('v1');
+        const request = {
+          name: keyName, // "projects/X/serviceAccounts/Y/keys/Z"
+          auth: authClient,
+        };
+        cloudResourceManager.projects.serviceAccounts.keys.delete(request, (err, res) => {
           if (err) {
             resolve(Error(err));
             return;

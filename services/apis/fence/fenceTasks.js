@@ -129,15 +129,30 @@ module.exports = {
   /**
    * Hits fence's endoint to create a temp Google credentials
    * @param {Object} accessTokenHeader
+   * @param {int} expires_in - requested expiration time (in seconds)
    * @returns {Promise<Gen3Response>}
    */
-  createTempGoogleCreds(accessTokenHeader) {
+  createTempGoogleCreds(accessTokenHeader, expires_in=null) {
     accessTokenHeader['Content-Type'] = 'application/json';
+    url = fenceProps.endpoints.googleCredentials;
+    if (expires_in)
+      url += `?expires_in=${expires_in}`;
     return I.sendPostRequest(
-      fenceProps.endpoints.googleCredentials,
+      url,
       {},
       accessTokenHeader,
     ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
+  },
+
+  /**
+   * TODO
+   */
+  getUserGoogleCreds(accessTokenHeader) {
+    accessTokenHeader['Content-Type'] = 'application/json';
+    return I.sendGetRequest(
+      fenceProps.endpoints.googleCredentials,
+      accessTokenHeader,
+    ).then(res => res.body);
   },
 
   /**

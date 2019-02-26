@@ -52,7 +52,7 @@ Scenario('try to extend link when acct is not linked @reqGoogle', async (fence, 
 //   await fence.complete.forceLinkGoogleAcct(users.mainAcct, googleProject.owner, EXPIRES_IN);
 
 //   // wait for the link to expire
-//   await apiUtil.sleep(EXPIRES_IN * 1000);
+//   await apiUtil.sleepMS(EXPIRES_IN * 1000);
 
 //   // test that the link is now expired
 //   // how?
@@ -64,7 +64,7 @@ Scenario('try to extend link when acct is not linked @reqGoogle', async (fence, 
 //   fence.ask.linkExtendSuccess(extendRes, requestTime, expires_in=EXPIRES_IN);
 
 //   // wait for the link to expire
-//   await apiUtil.sleep(EXPIRES_IN * 1000);
+//   await apiUtil.sleepMS(EXPIRES_IN * 1000);
 
 //   // test that the link is now expired
 //   // how?

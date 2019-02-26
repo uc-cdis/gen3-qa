@@ -123,7 +123,7 @@ module.exports = {
    * Wait for the specified number of milliseconds
    * @param {int} ms
    */
-  sleep(ms) {
+  sleepMS(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   },
 
@@ -144,7 +144,7 @@ module.exports = {
       if (done) return;
 
       // if not done, keep waiting
-      await this.sleep(waitTime);
+      await module.exports.sleepMS(waitTime);
       waited += waitTime;
       waitTime *= 2; // wait longer every time
     }
