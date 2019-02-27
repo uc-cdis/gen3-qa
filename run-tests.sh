@@ -179,7 +179,7 @@ fi
 
 testArgs="--reporter mocha-multi"
 if [[ -n "$doNotRunRegex" ]]; then
-  testArgs="${testArgs} --grep '${doNotRunRegex}' --invert -- suites/apis/linkGoogleAccountTest.js"
+  testArgs="${testArgs} --grep '${doNotRunRegex}' --invert -- suites/apis/googleServiceAccountTest.js"
 fi
 
 (

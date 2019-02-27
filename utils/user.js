@@ -109,12 +109,12 @@ module.exports = {
    * Auxiliary User account 1
    * Note that this user doesn't have the "data-upload" role
    */
-  // auxAcct1: new User({ username: 'dummy-one@planx-pla.net', envVarsName: 'AUX1' }),
+  auxAcct1: new User({ username: 'dummy-one@planx-pla.net', envVarsName: 'AUX1' }),
   /**
    * Auxiliary User account 2
    * Note that this user also has the "data-upload" role
    */
-  // auxAcct2: new User({ username: 'smarty-two@planx-pla.net', envVarsName: 'AUX2' }),
+  auxAcct2: new User({ username: 'smarty-two@planx-pla.net', envVarsName: 'AUX2' }),
   /**
    * User.yaml User account 0
    */
@@ -122,9 +122,9 @@ module.exports = {
   /**
    * User.yaml User account 1
    */
-  // user1: new User({ username: 'dcf-integration-test-1@planx-pla.net', envVarsName: 'USER1' }),
+  user1: new User({ username: 'dcf-integration-test-1@planx-pla.net', envVarsName: 'USER1' }),
   /**
    * User.yaml User account 2
    */
-  // user2: new User({ username: 'dcf-integration-test-2@planx-pla.net', envVarsName: 'USER2' })
+  user2: new User({ username: 'dcf-integration-test-2@planx-pla.net', envVarsName: 'USER2' })
 };

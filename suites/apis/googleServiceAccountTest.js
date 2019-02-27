@@ -1,6 +1,5 @@
 const chai = require('chai');
-const fs = require('fs');
-var base64 = require('base-64');
+const atob = require('atob');
 
 const apiUtil = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
@@ -614,8 +613,8 @@ Scenario('Register Service Account - expiration test @reqGoogle', async (fence, 
   // get creds to access data
   const tempCreds0Res = await google.createServiceAccountKey(googleProject.id, googleProject.serviceAccountEmail);
   keyFullName = tempCreds0Res.name;
-  console.log(keyFullName)
-  var keyData = JSON.parse(base64.decode(tempCreds0Res.privateKeyData));
+  console.log(keyFullName);
+  var keyData = JSON.parse(atob(tempCreds0Res.privateKeyData));
 
   const pathToCreds0KeyFile = keyData.private_key_id + '.json';
   await files.createTmpFile(pathToCreds0KeyFile, JSON.stringify(keyData));
