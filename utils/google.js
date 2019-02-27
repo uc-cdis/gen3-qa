@@ -112,8 +112,8 @@ module.exports = {
           return data[0];
         })
         .catch((err) => {
-          // console.log(`Cannot get file ${fileName} from bucket ${bucketName}: (depending on the test, this may be expected)`);
-          // console.error(err);
+          console.log(`Cannot get file ${fileName} from bucket ${bucketName}: (depending on the test, this may be expected)`);
+          console.error(err);
           return {
             statusCode: err.code || 403,
             message: err.message
