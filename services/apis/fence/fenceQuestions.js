@@ -130,8 +130,8 @@ module.exports = {
    * @param {Gen3Response} actualRes
    * @param {Gen3Response} expectedRes
    */
-  responsesEqual(actualRes, expectedRes) {
-    expect(actualRes).to.be.a.gen3Res(expectedRes);
+  responsesEqual(actualRes, expectedRes, errorMessage=null) {
+    expect(actualRes, errorMessage).to.be.a.gen3Res(expectedRes);
   },
 
   /**

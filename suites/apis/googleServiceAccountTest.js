@@ -1,4 +1,5 @@
 const chai = require('chai');
+const expect = chai.expect;
 const atob = require('atob');
 
 const apiUtil = require('../../utils/apiUtil.js');
@@ -76,7 +77,7 @@ BeforeSuite(async (google, fence, users) => {
 });
 
 After(async (google, fence, users) => {
-  // await suiteCleanup(google, fence, users);
+  await suiteCleanup(google, fence, users);
 });
 
 
@@ -95,7 +96,7 @@ Scenario('Register Google Service Account Success @reqGoogle @first', async (fen
     googleProject,
     ['test'],
   );
-  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
+  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess, registerRes.body.errors);
 
   // Delete registration
   const deleteRes = await fence.do.deleteGoogleServiceAccount(
@@ -319,7 +320,7 @@ Scenario('Register allowed Google-Managed SA @reqGoogle', async (fence, users) =
     googleProject,
     ['test'],
   );
-  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
+  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess, registerRes.body.errors);
 });
 
 Scenario('Register SA of invalid type @reqGoogle', async (fence, users) => {
@@ -488,7 +489,7 @@ Scenario('Attempt delete Registered SA for Google Project when user isnt on the 
     googleProject,
     ['test'],
   );
-  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
+  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess, registerRes.body.errors);
 
   // Unlink account
   await fence.complete.unlinkGoogleAcct(users.mainAcct);
@@ -549,7 +550,7 @@ Scenario('Delete a SA that was successfully registered before but was deleted fr
     googleProject,
     ['test'],
   );
-  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
+  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess, registerRes.body.errors);
 
   // Remove account from Google but NOT through fence
   const deleteResGoogle = await google.deleteServiceAccount(googleProject.id, serviceAccountEmail);
@@ -608,7 +609,7 @@ Scenario('Register Service Account - expiration test @reqGoogle', async (fence, 
     console.log('errors:');
     console.log(registerRes.body.errors);
   }
-  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
+  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess, registerRes.body.errors);
 
   // get creds to access data
   const tempCreds0Res = await google.createServiceAccountKey(googleProject.id, googleProject.serviceAccountEmail);
@@ -701,7 +702,7 @@ Scenario('Service Account temporary key - expiration test @reqGoogle', async (fe
     googleProject,
     ['QA']
   );
-  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
+  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess, registerRes.body.errors);
 
   // access data
 

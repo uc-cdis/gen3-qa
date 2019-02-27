@@ -314,7 +314,13 @@ module.exports = {
         ...userAcct.accessTokenHeader,
         'Content-Type': 'application/json',
       },
-    ).then(res => new Gen3Response(res));
+    ).then(function(res) {
+      if (res.body.errors) {
+        console.log('registerGoogleServiceAccount errors:');
+        console.log(res.body.errors);
+      }
+      return new Gen3Response(res)
+    });
   },
 
   /**

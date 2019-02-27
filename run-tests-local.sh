@@ -28,4 +28,4 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
-npm run test -- --grep @reqGoogle -- suites/apis/googleServiceAccountTest.js
+npm run test -- --reporter mocha-multi --grep @reqGoogle --invert
