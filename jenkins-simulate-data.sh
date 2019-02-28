@@ -1,4 +1,17 @@
 #!/usr/bin/env bash
+#
+# Note: you can test this locally like this:
+#  * (cd .. && git clone https://github.com/uc-cdis/cloud-automation.git)
+#  * (cd .. && git clone https://github.com/uc-cdis/data-simulator.git)
+#  * WORKSPACE=$(cd .. && pwd) GEN3_HOME=$(../cloud-automation && pwd) dictURL=https://s3.amazonaws.com/dictionary-artifacts/datadictionary/develop/schema.json TEST_DATA_PATH="$(pwd)/testData" bash ./jenkins-simulate-data.sh
+#  * ls testData/
+#
+export WORKSPACE="${WORKSPACE:-$(pwd)}"
+
+if [[ ! -d "$WORKSPACE/data-simulator" ]]; then
+  echo "ERROR: I really want $WORKSPACE/data-simulator to exist"
+  exit 1
+fi
 
 namespace="${1:-${KUBECTL_NAMESPACE:-default}}"
 echo $namespace
@@ -13,27 +26,44 @@ else
   exit 1
 fi
 
-if [[ -z "$TEST_DATA_PATH" ]]; then
-    echo "Env var TEST_DATA_PATH is required for simulating data"
-    exit 1
-fi
-
-_GEN_DATA="$WORKSPACE/data-simulator"
-
-cd "${_GEN_DATA}"
+cd "$WORKSPACE/data-simulator"
 
 projectName=jenkins
 nData=1
-dictURL=$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.dictionary_url')
+dictURL="${dictURL:-$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.dictionary_url')}"
 if [[ $? -ne 0 || -z "dictURL" ]]; then
     echo "ERROR: failed to retrieve dictionary_url for namespace $namespace"
     exit 1
 fi
 
 mkdir -p $TEST_DATA_PATH
+curl -s -o"$TEST_DATA_PATH/schema.json" "$dictURL"
+if [[ ! -f "$TEST_DATA_PATH/schema.json" ]]; then
+  echo "ERROR: failed to download $dictURL"
+  exit 1
+fi
 
+#
+# pick a data_file node out of the dictionary
+# use "submitted_unaligned_reads" if it's there ...
+#
+leafNode="submitted_unaligned_reads"
+if ! jq -r '.|values|map(select(.category=="data_file"))|map(.id)|join("\n")' < "$TEST_DATA_PATH/schema.json" | grep "$leafNode" > /dev/null; then
+  leafNode="$(jq -r '.|values|map(select(.category=="data_file"))|map(.id)|join("\n")' < "$TEST_DATA_PATH/schema.json" | head -1)"
+fi
+
+if [[ -z "$leafNode" ]]; then
+  echo "ERROR: unable to identify data_file node for data simulation from schema at $dictURL"
+  exit 1
+fi
+echo "Leaf node set to: $leafNode"
+
+#
 # assume that we are running in the data-simulator directory
-pip install -r requirements.txt
+# try to trick pip into working in the WORKSPACE
+#
+export HOME="${WORKSPACE:-$HOME}"
+pip install --user -r requirements.txt
 #python setup.py develop --user
 
 # Fail script if any of following commands fail
@@ -47,7 +77,7 @@ if [[ $? -ne 0 ]]; then
   exit 1
 fi
 
-pyCMD2="python bin/data-simulator submission_order --url $dictURL --path $TEST_DATA_PATH --node_name submitted_unaligned_reads"
+pyCMD2="python bin/data-simulator submission_order --url $dictURL --path $TEST_DATA_PATH --node_name $leafNode"
 eval $pyCMD2
 if [[ $? -ne 0 ]]; then
   echo "ERROR: Failed to generate submission_order data for $namespace"
