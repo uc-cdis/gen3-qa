@@ -11,7 +11,7 @@ Before(async (sheepdog, nodes) => {
   nodeToAdd = await nodes.getNodeFromURL(dataUrlFromEnv);
 });
 
-Scenario(`(Scenario) Submission tiny db @submissionPerformanceTest ${process.env.DB} ${process.env.SIZE} @regressions`, async (sheepdog, nodes, users) => {
+Scenario(`(Scenario) Submission tiny db @submissionPerformanceTest ${process.env.NODE} ${process.env.DB} ${process.env.SIZE} @regressions`, async (sheepdog, nodes, users) => {
     //console.log('\n\n\nwhat are we initially adding: ', nodeToAdd);
 
     nodeToAdd = await sheepdog.do.addNode(nodeToAdd);

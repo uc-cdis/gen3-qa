@@ -111,20 +111,21 @@ EOM
 
         echo "${dataFiles[@]}"
 
-        # for dataFile in ${dataFiles[@]}; do
-        #   echo "Running submission test for ${dataFile}..."
+        for dataFile in ${dataFiles[@]}; do
+          echo "Running submission test for ${dataFile}..."
 
-        #   export DATAURL=$(aws s3 presign s3://cdis-terraform-state/regressions/subm/${size}/${dataFile}.json)
+          export DATAURL=$(aws s3 presign s3://cdis-terraform-state/regressions/subm/${size}/${dataFile}.json)
+          export NODE=${dataFile}
 
-        #   dryrun npm test -- suites/regressions/submissionPerformanceTest.js
-        # done
+          dryrun npm test -- suites/regressions/submissionPerformanceTest.js
+        done
 
-        singleSubmission=${dataFiles[0]}
-        testArgs="${testArgs} --override '{ \"mocha\": { \"reporterOptions\": { \"mocha-junit-reporter\": { \"options\": { \"mochaFile\": \"output/result[hash].xml\" } } } } }'"
+        # singleSubmission=${dataFiles[0]}
+        # testArgs="${testArgs} --override '{ \"mocha\": { \"reporterOptions\": { \"mocha-junit-reporter\": { \"options\": { \"mochaFile\": \"output/result[hash].xml\" } } } } }'"
 
-        echo "Running submission test for ${singleSubmission}..."
-        export DATAURL=$(aws s3 presign s3://cdis-terraform-state/regressions/subm/${size}/${singleSubmission}.json)
-        dryrun npm test -- $testArgs suites/regressions/submissionPerformanceTest.js
+        # echo "Running submission test for ${singleSubmission}..."
+        # export DATAURL=$(aws s3 presign s3://cdis-terraform-state/regressions/subm/${size}/${singleSubmission}.json)
+        # dryrun npm test -- $testArgs suites/regressions/submissionPerformanceTest.js
         ;;
       query)
         echo "Running query performance tests."
