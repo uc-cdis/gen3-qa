@@ -271,4 +271,18 @@ module.exports = {
   assertTruethyResult(result) {
     expect(!!result).to.be.true;
   },
+
+  /**
+   * Check the google-manage-user-registrations output for invalid SA
+   */
+  deleted_invalid_service_account(jobResponse) {
+    expect(jobResponse).to.contain('INVALID SERVICE ACCOUNT');
+  },
+
+  /**
+   * Check the google-manage-user-registrations output for invalid project
+   */
+  deleted_invalid_google_project(jobResponse) {
+    expect(jobResponse).to.contain('INVALID GOOGLE PROJECT');
+  },
 };
