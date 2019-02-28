@@ -117,7 +117,9 @@ EOM
           export DATAURL=$(aws s3 presign s3://cdis-terraform-state/regressions/subm/${size}/${dataFile}.json)
           export NODE=${dataFile}
 
-          dryrun npm test -- suites/regressions/submissionPerformanceTest.js
+          testArgs="${testArgs} --override '{ \"mocha\": { \"reporterOptions\": { \"mocha-junit-reporter\": { \"options\": { \"mochaFile\": \"output/result[hash].xml\" } } } } }'"
+
+          dryrun npm test -- $testArgs suites/regressions/submissionPerformanceTest.js
         done
 
         # singleSubmission=${dataFiles[0]}
