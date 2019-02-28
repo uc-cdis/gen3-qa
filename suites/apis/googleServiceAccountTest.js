@@ -566,7 +566,7 @@ Scenario('Delete a SA that was successfully registered before but was deleted fr
 });
 
 
-Scenario('Register Service Account - expiration test @reqGoogle', async (fence, users, google, files) => {
+Scenario('Service Account registration expiration test @reqGoogle', async (fence, users, google, files) => {
   // Test that we do not have access to data anymore after the SA is expired
 
   console.log('Ensure test buckets are linked to projects in this commons...');
@@ -675,7 +675,7 @@ Scenario('Register Service Account - expiration test @reqGoogle', async (fence, 
 });
 
 
-Scenario('Service Account temporary key - expiration test @reqGoogle', async (fence, users, google, files) => {
+Scenario('Service Account temporary key expiration test @reqGoogle', async (fence, users, google, files) => {
   // Test that we do not have access to data anymore after the SA key is expired
 
   console.log('Ensure test buckets are linked to projects in this commons...');
@@ -729,8 +729,8 @@ Scenario('Service Account temporary key - expiration test @reqGoogle', async (fe
   console.log('waiting for the key to expire');
   await apiUtil.sleepMS((EXPIRES_IN + 5) * 1000);
 
-  // run the expired SA clean up job
-  console.log('Clean up expired Service Accounts');
+  // run the expired SA key clean up job
+  console.log('Clean up expired Service Account keys');
   bash.runJob('google-manage-keys-job');
   // console.log('wait for delete expired SA keys job to finish and propagation in google');
   // await apiUtil.sleepMS(20 * 1000);

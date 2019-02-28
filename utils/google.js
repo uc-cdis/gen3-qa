@@ -109,6 +109,7 @@ module.exports = {
         file.get()
         .then(function(data) {
           // Note: data[0] is the file; data[1] is the API response
+          console.log(`Got file ${fileName} from bucket ${bucketName}`);
           return data[0];
         })
         .catch((err) => {
