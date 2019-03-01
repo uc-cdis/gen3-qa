@@ -159,7 +159,7 @@ function assertGen3Client() {
   }
 }
 
-module.exports = async function (done) {
+/* module.exports = async function (done) {
   try {
     // get some vars from the commons
     console.log('Setting environment variables...\n');
@@ -231,3 +231,4 @@ module.exports = async function (done) {
     process.exit(1);
   }
 };
+ */

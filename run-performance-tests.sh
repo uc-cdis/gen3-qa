@@ -16,6 +16,12 @@ Use:
 EOM
 }
 
+# join bash array with custom separator
+# example usage
+#   arr = (1 2 3 4 5 6 7 8 9 0)
+#   join , ${arr[@]}
+function join_by { local IFS="$1"; shift; echo "$*"; }
+
 isDryRun=false
 
 dryrun() {
@@ -102,6 +108,8 @@ Launching test in $NAMESPACE
 EOM
     case "$tests" in
       submission)
+        testArgs="${testArgs} --override '{ \"mocha\": { \"reporterOptions\": { \"mocha-junit-reporter\": { \"options\": { \"mochaFile\": \"output/result[hash].xml\" } } } } }'"
+
         dataFiles=()
         while IFS= read -r line
         do
@@ -111,23 +119,17 @@ EOM
 
         echo "${dataFiles[@]}"
 
+        echo "Generate pre-sign URLs"
+
+        export presignURLs=()
+
         for dataFile in ${dataFiles[@]}; do
-          echo "Running submission test for ${dataFile}..."
-
-          export DATAURL=$(aws s3 presign s3://cdis-terraform-state/regressions/subm/${size}/${dataFile}.json)
-          export NODE=${dataFile}
-
-          testArgs="${testArgs} --override '{ \"mocha\": { \"reporterOptions\": { \"mocha-junit-reporter\": { \"options\": { \"mochaFile\": \"output/result[hash].xml\" } } } } }'"
-
-          dryrun npm test -- $testArgs suites/regressions/submissionPerformanceTest.js
+          presignURLs+=($(aws s3 presign s3://cdis-terraform-state/regressions/subm/${size}/${dataFile}.json))
         done
 
-        # singleSubmission=${dataFiles[0]}
-        # testArgs="${testArgs} --override '{ \"mocha\": { \"reporterOptions\": { \"mocha-junit-reporter\": { \"options\": { \"mochaFile\": \"output/result[hash].xml\" } } } } }'"
+        export presignURLs
 
-        # echo "Running submission test for ${singleSubmission}..."
-        # export DATAURL=$(aws s3 presign s3://cdis-terraform-state/regressions/subm/${size}/${singleSubmission}.json)
-        # dryrun npm test -- $testArgs suites/regressions/submissionPerformanceTest.js
+        dryrun npm test -- $testArgs suites/regressions/submissionPerformanceTest.js
         ;;
       query)
         echo "Running query performance tests."
