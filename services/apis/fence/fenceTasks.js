@@ -1,7 +1,7 @@
 const fenceProps = require('./fenceProps.js');
 const user = require('../../../utils/user.js');
 const portal = require('../../../utils/portal.js');
-const { Gen3Response } = require('../../../utils/apiUtil');
+const { Gen3Response, getCookie } = require('../../../utils/apiUtil');
 const { Bash, takeLastLine } = require('../../../utils/bash');
 
 const { container } = require('codeceptjs');
@@ -181,82 +181,38 @@ module.exports = {
   },
 
   /**
-   * WARNING: not guaranteed to work since google might challenge the login
-   * with a captcha.
-   * Goes through the full, proper process for linking a google account
-   * @param userAcct
-   * @param acctWithGoogleCreds
-   * @returns {Promise<Gen3Response|*>}
-   */
-  async linkGoogleAcct(userAcct, acctWithGoogleCreds) {
-    const googleCreds = acctWithGoogleCreds.googleCreds;
-    // set users access token
-    await I.setCookie({ name: 'access_token', value: userAcct.accessToken });
-    await I.seeCookie('access_token');
-    // visit link endpoint and login to google
-    await I.amOnPage(fenceProps.endpoints.linkGoogle);
-    await loginGoogle(googleCreds);
-    I.saveScreenshot('login7.png');
-
-    // wait until redirected back to root url
-    await I.waitInUrl(fenceProps.endpoints.root, 5);
-    I.wait(5);
-
-    // return the body and the current url
-    const url = await I.grabCurrentUrl();
-    const body = await I.grabSource();
-
-    const res = new Gen3Response({ body });
-    res.finalURL = url;
-    return res;
-  },
-
-  /**
    * Goes through the full, proper process for linking a google account assuming env
    * is set to mock Google response
    * @param userAcct
    * @returns {Promise<Gen3Response|*>}
    */
   async linkGoogleAcctMocked(userAcct) {
-    // set users access token
-    await I.setCookie({ name: 'access_token', value: userAcct.accessToken });
-    await I.seeCookie('access_token');
     // visit link endpoint. Google login is mocked
-    await I.amOnPage('/user/link/google?redirect=/login');
-    I.saveScreenshot('login_mocked.png');
+    let headers = userAcct.accessTokenHeader
+    headers.Cookie = 'dev_login=' + userAcct.username
+    let response = undefined;
 
-    // wait until redirected back to login url
-    await I.waitInUrl(fenceProps.endpoints.login, 5);
-    I.wait(5);
+    return I.sendGetRequest(
+      '/user/link/google?redirect=/login', headers
+    ).then((res) => {
+      // follow redirect back to fence
+      let sessionCookie = getCookie('fence', res.headers['set-cookie'])
+      headers = {Cookie: 'dev_login=' + userAcct.username + ';' + 'fence=' + sessionCookie }
+      return I.sendGetRequest(res.headers.location, headers).then((res) => {
+        return I.sendGetRequest(res.headers.location, headers).then((res) => {
+          // return the body and the current url
+          const url = res.headers.location;
+          const body = res.body;
 
-    // return the body and the current url
-    const url = await I.grabCurrentUrl();
-    const body = await I.grabSource();
-
-    const res = new Gen3Response({ body });
-    res.finalURL = url;
-    return res;
-  },
-
-  /**
-   * WARNING: circumvents google authentication (ie not like true linking process)
-   * Updates fence databases to link an account to a google email
-   * @param {User} userAcct - Commons User to link with
-   * @param {string} googleEmail - email to link to
-   * @param {int} expires_in - requested expiration time (in seconds)
-   * @returns {Promise<string>} - std out from the fence-create script
-   */
-  async forceLinkGoogleAcct(userAcct, googleEmail, expires_in=null) {
-    // hit link endpoint to ensure a proxy group is created for user
-    await I.sendGetRequest(fenceProps.endpoints.linkGoogle, userAcct.accessTokenHeader);
-
-    // run fence-create command to circumvent google and add user link to fence
-    let cmd = `fence-create force-link-google --username ${userAcct.username} --google-email ${googleEmail}`;
-    if (expires_in)
-      cmd += ` --expires_in ${expires_in}`;
-    const res = bash.runCommand(cmd, 'fence', takeLastLine);
-    userAcct.linkedGoogleAccount = googleEmail;
-    return res;
+          const gen3Res = new Gen3Response({ body });
+          gen3Res.parsedFenceError = undefined;
+          gen3Res.body = body;
+          gen3Res.statusCode = 200;
+          gen3Res.finalURL = url;
+          return gen3Res
+        });
+      });
+    });
   },
 
   /**
@@ -287,6 +243,24 @@ module.exports = {
     return I.sendPatchRequest(
       url, {}, userAcct.accessTokenHeader)
       .then(res => new Gen3Response(res));
+  },
+
+  /**
+   * WARNING: circumvents google authentication (ie not like true linking process)
+   * Updates fence databases to link an account to a google email
+   * @param {User} userAcct - Commons User to link with
+   * @param {string} googleEmail - email to link to
+   * @returns {Promise<string>} - std out from the fence-create script
+   */
+  async forceLinkGoogleAcct(userAcct, googleEmail) {
+    // hit link endpoint to ensure a proxy group is created for user
+    await I.sendGetRequest(fenceProps.endpoints.linkGoogle, userAcct.accessTokenHeader);
+
+     // run fence-create command to circumvent google and add user link to fence
+    const cmd = `fence-create force-link-google --username ${userAcct.username} --google-email ${googleEmail}`;
+    const res = bash.runCommand(cmd, 'fence', takeLastLine);
+    userAcct.linkedGoogleAccount = googleEmail;
+    return res;
   },
 
   /**

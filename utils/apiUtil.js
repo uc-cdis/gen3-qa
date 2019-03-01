@@ -152,6 +152,20 @@ module.exports = {
   },
 
   /**
+   * Returns the value of a cookie given the name and the string from 'set-cookie'
+   * header in the response
+   * @param {string} cookieName - name for cookie you want the value of
+   * @param {string} cookieString - string from 'set-cookie' header in the response
+   * @returns {string}
+   */
+  getCookie(cookieName, cookieString) {
+    // get name followed by anything except a semicolon
+    var cookiestring = RegExp("" + cookieName + "[^;]+").exec(cookieString);
+    // return everything after the equal sign, or an empty string if the cookie name not found
+    return decodeURIComponent(!!cookiestring ? cookiestring.toString().replace(/^[^=]+./,"") : "");
+  },
+
+  /**
    * Wrapper for API responses
    */
   Gen3Response,

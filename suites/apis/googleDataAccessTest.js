@@ -82,7 +82,6 @@ Scenario('test google data access via usersync: usersync, Google link, generate 
   await fence.complete.linkGoogleAcctMocked(users.user2);
 
   console.log(`creating temporary google creds for users with usernames:  ${users.user0.username}, ${users.user1.username}, ${users.user2.username}`);
-  console.log('NOTE: If the following fails and you do not know why, it *might* be that we have hit our limit for SA keys on given Service Account in Google.');
   // call our endpoint to get temporary creds
   // NOTE: If this fails and you don't know why, it *might* be that we've hit our limit
   //       for SA keys on this user's Google Service Account. They *should* be cleaned
@@ -91,7 +90,6 @@ Scenario('test google data access via usersync: usersync, Google link, generate 
   //       the Google Cloud Platform. Check usersUtil.js for information about these users
   //       (specifically their username is their Google Account email, you can use that
   //        to find their service account in the GCP)
-  // TODO: logic that runs before suite to delete these creds
   const tempCreds0Res = await fence.complete.createTempGoogleCreds(
     users.user0.accessTokenHeader);
   const tempCreds1Res = await fence.complete.createTempGoogleCreds(
@@ -132,63 +130,42 @@ Scenario('test google data access via usersync: usersync, Google link, generate 
   // use Google's client libraries to attempt to read a controlled access file with the
   // creds we just saved (based on the user's permissions)
   // attempt to access a file in the bucket
-  user0AccessQARes = await google.getFileFromBucket(
+  user0AccessQA1Res = await google.getFileFromBucket(
     fence.props.googleBucketInfo.QA.googleProjectId,
     pathToCreds0KeyFile,
     fence.props.googleBucketInfo.QA.bucketId,
     fence.props.googleBucketInfo.QA.fileName
   );
-  user0AccessTestRes = await google.getFileFromBucket(
+  user0AccessTest1Res = await google.getFileFromBucket(
     fence.props.googleBucketInfo.test.googleProjectId,
     pathToCreds0KeyFile,
     fence.props.googleBucketInfo.test.bucketId,
     fence.props.googleBucketInfo.test.fileName
   );
-  user1AccessQARes = await google.getFileFromBucket(
+  user1AccessQA1Res = await google.getFileFromBucket(
     fence.props.googleBucketInfo.QA.googleProjectId,
     pathToCreds1KeyFile,
     fence.props.googleBucketInfo.QA.bucketId,
     fence.props.googleBucketInfo.QA.fileName
   );
-  user1AccessTestRes = await google.getFileFromBucket(
+  user1AccessTest1Res = await google.getFileFromBucket(
     fence.props.googleBucketInfo.test.googleProjectId,
     pathToCreds1KeyFile,
     fence.props.googleBucketInfo.test.bucketId,
     fence.props.googleBucketInfo.test.fileName
   );
-  user2AccessQARes = await google.getFileFromBucket(
+  user2AccessQA1Res = await google.getFileFromBucket(
     fence.props.googleBucketInfo.QA.googleProjectId,
     pathToCreds2KeyFile,
     fence.props.googleBucketInfo.QA.bucketId,
     fence.props.googleBucketInfo.QA.fileName
   );
-  user2AccessTestRes = await google.getFileFromBucket(
+  user2AccessTest1Res = await google.getFileFromBucket(
     fence.props.googleBucketInfo.test.googleProjectId,
     pathToCreds2KeyFile,
     fence.props.googleBucketInfo.test.bucketId,
     fence.props.googleBucketInfo.test.fileName
   );
-
-  chai.expect(user0AccessQARes,
-    'Check User0 access bucket for project: QA. FAILED.'
-  ).to.have.property('id');
-  chai.expect(user0AccessTestRes,
-    'Check User0 CAN NOT access bucket for project: test. FAILED.'
-  ).to.have.property('statusCode', 403);
-
-  chai.expect(user1AccessQARes,
-    'Check User1 access bucket for project: QA. FAILED.'
-  ).to.have.property('id');
-  chai.expect(user1AccessTestRes,
-    'Check User1 access bucket for project: test. FAILED.'
-  ).to.have.property('id');
-
-  chai.expect(user2AccessQARes,
-    'Check User2 access CAN NOT bucket for project: QA. FAILED.'
-  ).to.have.property('statusCode', 403);
-  chai.expect(user2AccessTestRes,
-    'Check User2 access CAN NOT bucket for project: test. FAILED.'
-  ).to.have.property('statusCode', 403);
 
   console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
   Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
@@ -198,37 +175,37 @@ Scenario('test google data access via usersync: usersync, Google link, generate 
   // use Google's client libraries to attempt to read a controlled access file with the
   // creds we just saved (based on the user's permissions)
   // attempt to access a file in the bucket
-  user0AccessQARes = await google.getFileFromBucket(
+  user0AccessQA2Res = await google.getFileFromBucket(
     fence.props.googleBucketInfo.QA.googleProjectId,
     pathToCreds0KeyFile,
     fence.props.googleBucketInfo.QA.bucketId,
     fence.props.googleBucketInfo.QA.fileName
   );
-  user0AccessTestRes = await google.getFileFromBucket(
+  user0AccessTest2Res = await google.getFileFromBucket(
     fence.props.googleBucketInfo.test.googleProjectId,
     pathToCreds0KeyFile,
     fence.props.googleBucketInfo.test.bucketId,
     fence.props.googleBucketInfo.test.fileName
   );
-  user1AccessQARes = await google.getFileFromBucket(
+  user1AccessQA2Res = await google.getFileFromBucket(
     fence.props.googleBucketInfo.QA.googleProjectId,
     pathToCreds1KeyFile,
     fence.props.googleBucketInfo.QA.bucketId,
     fence.props.googleBucketInfo.QA.fileName
   );
-  user1AccessTestRes = await google.getFileFromBucket(
+  user1AccessTest2Res = await google.getFileFromBucket(
     fence.props.googleBucketInfo.test.googleProjectId,
     pathToCreds1KeyFile,
     fence.props.googleBucketInfo.test.bucketId,
     fence.props.googleBucketInfo.test.fileName
   );
-  user2AccessQARes = await google.getFileFromBucket(
+  user2AccessQA2Res = await google.getFileFromBucket(
     fence.props.googleBucketInfo.QA.googleProjectId,
     pathToCreds2KeyFile,
     fence.props.googleBucketInfo.QA.bucketId,
     fence.props.googleBucketInfo.QA.fileName
   );
-  user2AccessTestRes = await google.getFileFromBucket(
+  user2AccessTest2Res = await google.getFileFromBucket(
     fence.props.googleBucketInfo.test.googleProjectId,
     pathToCreds2KeyFile,
     fence.props.googleBucketInfo.test.bucketId,
@@ -244,6 +221,14 @@ Scenario('test google data access via usersync: usersync, Google link, generate 
   const deleteCreds2Res = await fence.complete.deleteTempGoogleCreds(
     creds2Key, users.user2.accessTokenHeader);
 
+  console.log('test cleanup: deleting google service accounts from google');
+  const deleteServiceAccount0Res = await google.deleteServiceAccount(
+    tempCreds0Res.body.project_id, tempCreds0Res.body.client_email);
+  const deleteServiceAccount1Res = await google.deleteServiceAccount(
+    tempCreds1Res.body.project_id, tempCreds1Res.body.client_email);
+  const deleteServiceAccount2Res = await google.deleteServiceAccount(
+    tempCreds2Res.body.project_id, tempCreds2Res.body.client_email);
+
   console.log('deleting temporary google credentials file');
   fs.unlink(pathToCreds0KeyFile, function(err) {
     if (err) throw err;
@@ -258,25 +243,48 @@ Scenario('test google data access via usersync: usersync, Google link, generate 
     console.log(`${pathToCreds2KeyFile} deleted!`);
   });
 
-  chai.expect(user0AccessQARes,
-    'Check User0 CAN NOT access bucket for project: QA. FAILED.'
-  ).to.have.property('statusCode', 403);
-  chai.expect(user0AccessTestRes,
-    'Check User0 CAN NOT access bucket for project: test. FAILED.'
+  console.log('Make assertions for user access for first run');
+  chai.expect(user0AccessQA1Res,
+    'First sync: Check User0 access bucket for project: QA. FAILED.'
+  ).to.have.property('id');
+  chai.expect(user0AccessTest1Res,
+    'First sync: Check User0 CAN NOT access bucket for project: test. FAILED.'
   ).to.have.property('statusCode', 403);
 
-  chai.expect(user1AccessQARes,
-    'Check User1 CAN NOT access bucket for project: QA. FAILED.'
-  ).to.have.property('statusCode', 403);
-  chai.expect(user1AccessTestRes,
-    'Check User1 access bucket for project: test. FAILED.'
+  chai.expect(user1AccessQA1Res,
+    'First sync: Check User1 access bucket for project: QA. FAILED.'
+  ).to.have.property('id');
+  chai.expect(user1AccessTest1Res,
+    'First sync: Check User1 access bucket for project: test. FAILED.'
   ).to.have.property('id');
 
-  chai.expect(user2AccessQARes,
-    'Check User2 access bucket for project: QA. FAILED.'
+  chai.expect(user2AccessQA1Res,
+    'First sync: Check User2 access CAN NOT bucket for project: QA. FAILED.'
+  ).to.have.property('statusCode', 403);
+  chai.expect(user2AccessTest1Res,
+    'First sync: Check User2 access CAN NOT bucket for project: test. FAILED.'
+  ).to.have.property('statusCode', 403);
+
+  console.log('Make assertions for user access for second run (after new usersync)');
+  chai.expect(user0AccessQA2Res,
+    '2nd sync: Check User0 CAN NOT access bucket for project: QA. FAILED.'
+  ).to.have.property('statusCode', 403);
+  chai.expect(user0AccessTest2Res,
+    '2nd sync: Check User0 CAN NOT access bucket for project: test. FAILED.'
+  ).to.have.property('statusCode', 403);
+
+  chai.expect(user1AccessQA2Res,
+    '2nd sync: Check User1 CAN NOT access bucket for project: QA. FAILED.'
+  ).to.have.property('statusCode', 403);
+  chai.expect(user1AccessTest2Res,
+    '2nd sync: Check User1 access bucket for project: test. FAILED.'
   ).to.have.property('id');
-  chai.expect(user2AccessTestRes,
-    'Check User2 access CAN NOT bucket for project: test. FAILED.'
+
+  chai.expect(user2AccessQA2Res,
+    '2nd sync: Check User2 access bucket for project: QA. FAILED.'
+  ).to.have.property('id');
+  chai.expect(user2AccessTest2Res,
+    '2nd sync: Check User2 access CAN NOT bucket for project: test. FAILED.'
   ).to.have.property('statusCode', 403);
 
   chai.expect(deleteCreds0Res,
@@ -288,4 +296,14 @@ Scenario('test google data access via usersync: usersync, Google link, generate 
   chai.expect(deleteCreds2Res,
     'Cleanup of temporary Google creds for User 2 FAILED.'
   ).to.have.property('statusCode', 204);
+
+  chai.expect(deleteServiceAccount0Res,
+    'Cleanup of Google service account for User 0 FAILED.'
+  ).to.be.empty;
+  chai.expect(deleteServiceAccount1Res,
+    'Cleanup of Google service account for User 1 FAILED.'
+  ).to.be.empty;
+  chai.expect(deleteServiceAccount2Res,
+    'Cleanup of Google service account for User 2 FAILED.'
+  ).to.be.empty;
 });
