@@ -1,6 +1,8 @@
 const { Bash } = require('../../utils/bash.js');
 const bash = new Bash();
 const { Commons } = require('../../utils/commons.js');
+// const { getAccessToken } = require('../../test_setup.js');
+// const { User } = require('../../utils/user.js');
 
 
 Feature('GoogleServiceAccountRemoval');
@@ -166,6 +168,49 @@ Scenario('SA removal job test: user does not have access to data @reqGoogle', as
 
   console.log(`Running usersync job`);
   bash.runJob('usersync');
+
+  // asserts
+
+  fence.ask.detected_invalid_google_project(jobRes);
+});
+
+
+Scenario('SA removal job test: SA has external access @reqGoogle', async (fence, users, google) => {
+  // test invalid SA because it has keys set up
+
+  // Setup
+  const googleProject = fence.props.googleProjectA;
+  await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
+
+  // Register account
+  let registerRes = await fence.do.registerGoogleServiceAccount(
+    users.user0,
+    googleProject,
+    ['QA']
+  );
+  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
+
+  const tempCreds0Res = await google.createServiceAccountKey(googleProject.id, googleProject.serviceAccountEmail);
+  keyFullName = tempCreds0Res.name;
+  console.log(keyFullName);
+
+  // run clean up job
+  let jobRes = checkAndCleanSA();
+
+  // clean up
+  console.log('cleaning up');
+
+  console.log('deleting SA key');
+  await google.deleteServiceAccountKey(keyFullName);
+
+  await fence.do.unlinkGoogleAcct(
+    users.user0,
+  );
+
+  await fence.do.deleteGoogleServiceAccount(
+    users.user0,
+    googleProject.serviceAccountEmail,
+  );
 
   // asserts
 

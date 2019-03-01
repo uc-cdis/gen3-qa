@@ -636,6 +636,7 @@ Scenario('Service Account registration expiration test @reqGoogle', async (fence
   // run the expired SA clean up job
   console.log('Clean up expired Service Accounts');
   bash.runJob('google-delete-expired-service-account-job');
+  await apiUtil.sleepMS(5 * 1000); // wait for propagation to google
   
   // try to access data
   user0AccessQAResExpired = await google.getFileFromBucket(
