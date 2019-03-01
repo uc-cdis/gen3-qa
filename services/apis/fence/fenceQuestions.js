@@ -275,14 +275,16 @@ module.exports = {
   /**
    * Check the google-manage-user-registrations output for invalid SA
    */
-  deleted_invalid_service_account(jobResponse) {
-    expect(jobResponse).to.contain('INVALID SERVICE ACCOUNT');
+  detected_invalid_service_account(jobResponse) {
+    let errMsg = '"google-manage-user-registrations" should have detected an invalid Service Account';
+    expect(jobResponse, errMsg).to.contain('INVALID SERVICE ACCOUNT');
   },
 
   /**
    * Check the google-manage-user-registrations output for invalid project
    */
-  deleted_invalid_google_project(jobResponse) {
-    expect(jobResponse).to.contain('INVALID GOOGLE PROJECT');
+  detected_invalid_google_project(jobResponse) {
+    let errMsg = '"google-manage-user-registrations" should have detected an invalid Google project';
+    expect(jobResponse, errMsg).to.contain('INVALID GOOGLE PROJECT');
   },
 };

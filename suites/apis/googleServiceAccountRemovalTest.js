@@ -80,7 +80,7 @@ BeforeSuite(async (google, fence, users) => {
 
 
 After(async (google, fence, users) => {
-  // await suiteCleanup(google, fence, users);
+  await suiteCleanup(google, fence, users);
 });
 
 
@@ -125,7 +125,7 @@ Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (
 
   // asserts
 
-  fence.ask.deleted_invalid_google_project(jobRes);
+  fence.ask.detected_invalid_google_project(jobRes);
 });
 
 
@@ -169,5 +169,5 @@ Scenario('SA removal job test: user does not have access to data @reqGoogle', as
 
   // asserts
 
-  fence.ask.deleted_invalid_google_project(jobRes);
+  fence.ask.detected_invalid_google_project(jobRes);
 });
