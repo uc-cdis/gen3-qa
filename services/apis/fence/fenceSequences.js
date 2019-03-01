@@ -39,6 +39,19 @@ module.exports = {
   },
 
   /**
+   * WARNING: circumvents google authentication (ie not like true linking process)
+   * Forces a linking in fences databases then asserts success
+   * @param {User} userAcct - commons account to link with
+   * @param {string} googleEmail - email to link to
+   * @returns {Promise<string>}
+   */
+  async forceLinkGoogleAcct(userAcct, googleEmail) {
+    const linkRes = await fenceTasks.forceLinkGoogleAcct(userAcct, googleEmail);
+    fenceQuestions.forceLinkSuccess(linkRes);
+    return linkRes;
+  },
+
+  /**
    * Hits fences endpoint to DELETE a google link then asserts it was successful or there
    * wan't a linked account to begin with
    * @param {User} userAcct - user to delete link for
