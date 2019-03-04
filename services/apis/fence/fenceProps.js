@@ -338,6 +338,18 @@ module.exports = {
     owner: 'gen3.autotest@gmail.com',
   },
 
+  // used when the tests need to modify the google project/SAs
+  googleProjectDynamic: {
+    // -fence SA in project:                  true
+    // -has a parent organization:            false
+    // -has service acct with invalid type:   false
+    // -has a service acct with key:          false
+    id: 'gen3qa-validationjobtest',
+    serviceAccountEmail: 'service-account@gen3qa-validationjobtest.iam.gserviceaccount.com', // later: use the compute engine SA instead
+    defaultIsValidGCP: true,
+    owner: 'gen3.autotest@gmail.com',
+  },
+
   googleProjectWithComputeServiceAcct: {
     // -fence SA in project:                  true
     // -has a parent organization:            false

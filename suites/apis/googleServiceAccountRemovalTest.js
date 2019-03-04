@@ -1,8 +1,8 @@
+const apiUtil = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
 const bash = new Bash();
+const chai = require('chai');
 const { Commons } = require('../../utils/commons.js');
-// const { getAccessToken } = require('../../test_setup.js');
-// const { User } = require('../../utils/user.js');
 
 
 Feature('GoogleServiceAccountRemoval');
@@ -95,6 +95,99 @@ function checkAndCleanSA() {
 }
 
 
+Scenario('SA removal job test: monitor SA does not have access @reqGoogle', async (fence, users, google) => {
+  // test invalid SA because the monitor does not have access
+
+  // Setup
+  let getMonitorRes = await fence.do.getGoogleServiceAccountMonitor(users.user0);
+  fence.ask.assertStatusCode(getMonitorRes, 200, 'Could not get SA monitor info');
+  let monitorEmail = getMonitorRes.body.service_account_email;
+
+  const googleProject = fence.props.googleProjectDynamic;
+  await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
+
+  // Register account
+  registerRes = await fence.do.registerGoogleServiceAccount(
+    users.user0,
+    googleProject,
+    ['QA']
+  );
+  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess); // TODO: sequence
+
+  // Remove monitor's access
+  console.log(`removing monitoring access from SA ${monitorEmail}`);
+  await google.removeUserRole(
+    googleProject.id,
+    {
+      role: 'roles/resourcemanager.projectIamAdmin',
+      members: [`serviceAccount:${monitorEmail}`]
+    }
+  );
+  await google.removeUserRole(
+    googleProject.id,
+    {
+      role: 'roles/editor',
+      members: [`serviceAccount:${monitorEmail}`]
+    }
+  );
+
+  // the role update can take a bit of time to propagate
+  const isInvalidProjectDetected = async function() {
+    try {
+      let jobRes = checkAndCleanSA(); // run clean up job
+      fence.ask.detected_invalid_google_project(jobRes); // check results
+      return true;
+    }
+    catch {
+      // assert failed: no problem detected by the clean up job yet
+      return false;
+    }
+  };
+  const startWait = 10; // start by waiting 10 secs
+  const timeout = 120; // max number of seconds to wait
+  detected_invalid_google_project = true;
+  try {
+    await apiUtil.smartWait(isInvalidProjectDetected, [], timeout, '', startWait);
+  }
+  catch {
+    detected_invalid_google_project = false;
+  }
+
+  // Clean up
+  console.log('cleaning up');
+
+  // Add monitor's access back
+  await google.updateUserRole(
+    googleProject.id,
+    {
+      role: 'roles/resourcemanager.projectIamAdmin',
+      members: [`serviceAccount:${monitorEmail}`]
+    }
+  );
+  await google.updateUserRole(
+    googleProject.id,
+    {
+      role: 'roles/editor',
+      members: [`serviceAccount:${monitorEmail}`]
+    }
+  );
+
+  await fence.do.deleteGoogleServiceAccount(
+    users.user0,
+    googleProject.serviceAccountEmail,
+  );
+
+  await fence.do.unlinkGoogleAcct(
+    users.user0,
+  );
+
+  // Asserts
+  chai.expect(detected_invalid_google_project,
+    '"google-manage-user-registrations" should have detected an invalid Google project'
+  ).to.be.true;
+});
+
+
 Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (fence, users) => {
   // test invalid project because the user does not exist in fence
 
@@ -114,10 +207,10 @@ Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (
     users.user0,
   );
 
-  // run clean up job
+  // Run clean up job
   let jobRes = checkAndCleanSA();
 
-  // clean up
+  // Clean up
   console.log('cleaning up');
 
   await fence.do.deleteGoogleServiceAccount(
@@ -125,8 +218,7 @@ Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (
     googleProject.serviceAccountEmail,
   );
 
-  // asserts
-
+  // Asserts
   fence.ask.detected_invalid_google_project(jobRes);
 });
 
@@ -151,10 +243,10 @@ Scenario('SA removal job test: user does not have access to data @reqGoogle', as
   bash.runJob('useryaml-job');
   // now user0 does not have access to project QA anymore
 
-  // run clean up job
+  // Run clean up job
   let jobRes = checkAndCleanSA();
 
-  // clean up
+  // Clean up
   console.log('cleaning up');
 
   await fence.do.deleteGoogleServiceAccount(
@@ -169,17 +261,16 @@ Scenario('SA removal job test: user does not have access to data @reqGoogle', as
   console.log(`Running usersync job`);
   bash.runJob('usersync');
 
-  // asserts
-
+  // Asserts
   fence.ask.detected_invalid_google_project(jobRes);
 });
 
 
 Scenario('SA removal job test: SA has external access @reqGoogle', async (fence, users, google) => {
-  // test invalid SA because it has keys set up
+  // test invalid project because the SA has an external key set up
 
   // Setup
-  const googleProject = fence.props.googleProjectA;
+  const googleProject = fence.props.googleProjectA; // TODO: googleProjectDynamic
   await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
 
   // Register account
@@ -194,13 +285,12 @@ Scenario('SA removal job test: SA has external access @reqGoogle', async (fence,
   keyFullName = tempCreds0Res.name;
   console.log(keyFullName);
 
-  // run clean up job
+  // Run clean up job
   let jobRes = checkAndCleanSA();
 
-  // clean up
+  // Clean up
   console.log('cleaning up');
 
-  console.log('deleting SA key');
   await google.deleteServiceAccountKey(keyFullName);
 
   await fence.do.unlinkGoogleAcct(
@@ -212,7 +302,6 @@ Scenario('SA removal job test: SA has external access @reqGoogle', async (fence,
     googleProject.serviceAccountEmail,
   );
 
-  // asserts
-
+  // Asserts
   fence.ask.detected_invalid_google_project(jobRes);
 });

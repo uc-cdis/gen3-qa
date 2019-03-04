@@ -134,9 +134,10 @@ module.exports = {
    * @param {Object[]} funcArgs - list of arguments to pass to checkFunc()
    * @param {int} timeout - max number of seconds to wait
    * @param {string} errorMessage - message to display if not done in time
+   * @param {int} startWait - initial number of seconds to wait
    */
-  async smartWait(checkFunc, checkArgs, timeout, errorMessage) {
-    waitTime = 50; // start by waiting 50 ms
+  async smartWait(checkFunc, checkArgs, timeout, errorMessage, startWait=null) {
+    waitTime = (startWait * 1000) || 50; // start by waiting 50 ms
     waited = 0; // keep track of how many ms have passed
     while (waited < timeout * 1000) {
       // check if the task is done
