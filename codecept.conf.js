@@ -29,6 +29,7 @@ exports.config = {
     },
     REST: {
       endpoint: `https://${process.env.HOSTNAME}`,
+      timeout: 60000,
       defaultHeaders: '',
     },
     CDISHelper: {
@@ -65,9 +66,9 @@ exports.config = {
         }
       },
       'mocha-junit-reporter': {
-        stdout: 'output/result.xml',
+        stdout: 'output/result[hash].xml',
         options: {
-          mochaFile: 'output/result.xml',
+          mochaFile: 'output/result[hash].xml',
           verbose: true,
           steps: true,
         }

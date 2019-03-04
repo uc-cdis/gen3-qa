@@ -47,7 +47,7 @@
     "selenium-start": "selenium-standalone start > /dev/null 2>&1 &",
     "selenium-kill": "pkill -f selenium-standalone",
     "eslint": "eslint --ignore-path .gitignore .",
-    "test": "codeceptjs run",
+    "test": "node $NODE_DEBUG_OPTION ./node_modules/codeceptjs/bin/codecept.js run",
     "grep-test": ". local_run.sh && codeceptjs run --verbose --grep",
     "create-service": "node scripts/create_service.js"
   }

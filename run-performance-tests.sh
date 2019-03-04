@@ -11,7 +11,7 @@ Jenkins test launch script.  Assumes the  GEN3_HOME environment variable
 references a current [cloud-automation](https://github.com/uc-cdis/cloud-automation) folder.
 
 Use:
-  bash run-performance-tests.sh [--namespace=]KUBECTL_NAMESPACE] --tests=tests --db=db [--dryrun]
+  bash run-performance-tests.sh [--namespace=]KUBECTL_NAMESPACE] --db=db [--dryrun]
     --namespace default is KUBECTL_NAMESPACE:-default
 EOM
 }
@@ -48,12 +48,6 @@ while [[ $# -gt 0 ]]; do
       help
       exit 0
       ;;
-    tests)
-      tests="$value"
-      ;;
-    size)
-      size="$value"
-      ;;
     db)
       db="$value"
       ;;
@@ -81,7 +75,6 @@ done
 cat - <<EOM
 Running with:
   namespace=$namespaceList
-  tests=$tests
 EOM
 
 echo 'INFO: installing dependencies'
@@ -100,53 +93,29 @@ for name in ${namespaceList}; do
 ---------------------------
 Launching test in $NAMESPACE
 EOM
-    case "$tests" in
-      submission)
-        dataFiles=()
-        while IFS= read -r line
-        do
-          dataFiles+=("$line")
-        done < "DataImportOrder.txt"
-        dataFiles=("${dataFiles[@]:1}")
 
-        echo "${dataFiles[@]}"
+    echo "Generate pre-sign URLs"
+    export presignURLs=()
 
+    dataFiles=()
+    while IFS= read -r line
+    do
+      dataFiles+=("$line")
+    done < "DataImportOrder.txt"
+    dataFiles=("${dataFiles[@]:1}")
+    echo "${dataFiles[@]}"
+
+    sizes=(10 100)
+    for size in ${sizes[@]}; do
         for dataFile in ${dataFiles[@]}; do
-          echo "Running submission test for ${dataFile}..."
-
-          export DATAURL=$(aws s3 presign s3://cdis-terraform-state/regressions/subm/${size}/${dataFile}.json)
-          export NODE=${dataFile}
-
-          testArgs="${testArgs} --override '{ \"mocha\": { \"reporterOptions\": { \"mocha-junit-reporter\": { \"options\": { \"mochaFile\": \"output/result[hash].xml\" } } } } }'"
-
-          dryrun npm test -- $testArgs suites/regressions/submissionPerformanceTest.js
+          presignURLs+=("${size}:=$(aws s3 presign s3://cdis-terraform-state/regressions/subm/${size}/${dataFile}.json)")
         done
+    done
 
-        # singleSubmission=${dataFiles[0]}
-        # testArgs="${testArgs} --override '{ \"mocha\": { \"reporterOptions\": { \"mocha-junit-reporter\": { \"options\": { \"mochaFile\": \"output/result[hash].xml\" } } } } }'"
-
-        # echo "Running submission test for ${singleSubmission}..."
-        # export DATAURL=$(aws s3 presign s3://cdis-terraform-state/regressions/subm/${size}/${singleSubmission}.json)
-        # dryrun npm test -- $testArgs suites/regressions/submissionPerformanceTest.js
-        ;;
-      query)
-        echo "Running query performance tests."
-        testArgs="${testArgs} --override '{ \"mocha\": { \"reporterOptions\": { \"mocha-junit-reporter\": { \"options\": { \"mochaFile\": \"output/result[hash].xml\" } } } } }'"
-
-        dryrun npm test -- suites/regressions/generateQueries.js
-        dryrun npm test -- $testArgs suites/regressions/queryPerformanceTest.js
-        ;;
-      export)
-        echo "Running export performance tests."
-        testArgs="${testArgs} --override '{ \"mocha\": { \"reporterOptions\": { \"mocha-junit-reporter\": { \"options\": { \"mochaFile\": \"output/result[hash].xml\" } } } } }'"
-
-        dryrun npm test -- suites/regressions/generateQueries.js
-        dryrun npm test -- $testArgs suites/regressions/exportPerformanceTest.js
-        ;;
-      *)
-        echo "Unknown tests."
-        ;;
-    esac
+    dryrun npm test -- $testArgs --grep "@GenerateTestData"
+    dryrun npm test -- $testArgs --grep "@QueryPerformanceTests"
+    dryrun npm test -- $testArgs --grep "@ExportPerformanceTests"
+    presignURLs=${presignURLs[@]} dryrun npm test -- $testArgs --grep "@SubmissionPerformanceTests"
   )
   if [[ $? -ne 0 ]]; then exitCode=1; fi
 done

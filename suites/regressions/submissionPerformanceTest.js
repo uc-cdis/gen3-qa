@@ -1,27 +1,19 @@
-Feature('Submission Performance Tests').tag('@regressions');
+Feature('Submission Performance Tests')
+  .tag('@SubmissionPerformanceTests')
+  .tag('@Performance');
 
-var nodeToAdd;
+const assert = require('assert');
+const r = require('../../utils/regressions');
 
-var assert = require('assert');
+let data = [];
 
-Before(async (sheepdog, nodes) => {
-	// Cleanup any leftover nodes from previous Suites
-  // await sheepdog.complete.findDeleteAllNodes();
-  var dataUrlFromEnv = `${process.env.DATAURL}`;
-  nodeToAdd = await nodes.getNodeFromURL(dataUrlFromEnv);
-});
+if (process.env.presignURLs) {
+  const dataUrlsFromEnv = `${process.env.presignURLs}`.split(' ');
+  data = r.getNodesFromURLs(dataUrlsFromEnv);
+}
 
-Scenario(`(Scenario) Submission tiny db @submissionPerformanceTest ${process.env.NODE} ${process.env.DB} ${process.env.SIZE} @regressions`, async (sheepdog, nodes, users) => {
-    //console.log('\n\n\nwhat are we initially adding: ', nodeToAdd);
-
-    nodeToAdd = await sheepdog.do.addNode(nodeToAdd);
-    assert.notEqual(nodeToAdd.addRes.body.message, 'internal server error');
-    //assert.notEqual(typeof nodeToAdd.data.id, 'undefined');
-});
-
-After(async (sheepdog, nodes) => {
-  //console.log('\n\nnodeToAdd: ', nodeToAdd);
-  //console.log('\n\nnodeToAdd.data: ', nodeToAdd.data);
-  // await sheepdog.complete.deleteNode(nodeToAdd);
-  // await sheepdog.complete.findDeleteAllNodes();
-});
+Data(data)
+  .Scenario('Submission', async (current, sheepdog) => {
+    const nodeAdded = await sheepdog.do.addNode(await current.nodes);
+    assert.notStrictEqual(nodeAdded.addRes.body.message, 'internal server error');
+  });
