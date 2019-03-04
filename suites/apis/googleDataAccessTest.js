@@ -105,26 +105,14 @@ Scenario('test google data access via usersync: usersync, Google link, generate 
   const pathToCreds1KeyFile = creds1Key + '.json';
   const pathToCreds2KeyFile = creds2Key + '.json';
 
-  fs.writeFile(pathToCreds0KeyFile, JSON.stringify(tempCreds0Res.body), function(err) {
-    if (err) {
-      return console.log(err);
-    }
-    console.log(`Google creds file ${pathToCreds0KeyFile} saved!`);
-  });
+  await files.createTmpFile(pathToCreds0KeyFile, JSON.stringify(tempCreds0Res.body));
+  console.log(`Google creds file ${pathToCreds0KeyFile} saved!`);
 
-  fs.writeFile(pathToCreds1KeyFile, JSON.stringify(tempCreds1Res.body), function(err) {
-    if (err) {
-      return console.log(err);
-    }
-    console.log(`Google creds file ${pathToCreds1KeyFile} saved!`);
-  });
+  await files.createTmpFile(pathToCreds1KeyFile, JSON.stringify(tempCreds1Res.body));
+  console.log(`Google creds file ${pathToCreds1KeyFile} saved!`);
 
-  fs.writeFile(pathToCreds2KeyFile, JSON.stringify(tempCreds2Res.body), function(err) {
-    if (err) {
-      return console.log(err);
-    }
-    console.log(`Google creds file ${pathToCreds2KeyFile} saved!`);
-  });
+  await files.createTmpFile(pathToCreds2KeyFile, JSON.stringify(tempCreds2Res.body));
+  console.log(`Google creds file ${pathToCreds2KeyFile} saved!`);
 
   console.log('using saved google creds to access google bucket!! Save responses to check later');
   // use Google's client libraries to attempt to read a controlled access file with the
@@ -230,18 +218,14 @@ Scenario('test google data access via usersync: usersync, Google link, generate 
     tempCreds2Res.body.project_id, tempCreds2Res.body.client_email);
 
   console.log('deleting temporary google credentials file');
-  fs.unlink(pathToCreds0KeyFile, function(err) {
-    if (err) throw err;
-    console.log(`${pathToCreds0KeyFile} deleted!`);
-  });
-  fs.unlink(pathToCreds1KeyFile, function(err) {
-    if (err) throw err;
-    console.log(`${pathToCreds1KeyFile} deleted!`);
-  });
-  fs.unlink(pathToCreds2KeyFile, function(err) {
-    if (err) throw err;
-    console.log(`${pathToCreds2KeyFile} deleted!`);
-  });
+  files.deleteFile(pathToCreds0KeyFile);
+  console.log(`${pathToCreds0KeyFile} deleted!`);
+
+  files.deleteFile(pathToCreds1KeyFile);
+  console.log(`${pathToCreds1KeyFile} deleted!`);
+
+  files.deleteFile(pathToCreds2KeyFile);
+  console.log(`${pathToCreds2KeyFile} deleted!`);
 
   console.log('Make assertions for user access for first run');
   chai.expect(user0AccessQA1Res,
