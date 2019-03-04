@@ -70,7 +70,7 @@ AfterSuite(async (fence, users) => {
 });
 
 Scenario('test google data access via usersync: usersync, Google link, generate temp creds, bucket access, usersync access file 2, bucket access, delete temp creds @reqGoogle @googleDataAccess',
-  async (fence, users, google) => {
+  async (fence, users, google, files) => {
   console.log('make sure users google accounts are unlinked');
   await fence.complete.forceUnlinkGoogleAcct(users.user0);
   await fence.complete.forceUnlinkGoogleAcct(users.user1);
