@@ -339,13 +339,15 @@ module.exports = {
   },
 
   // used when the tests need to modify the google project/SAs
+  // using a "compute" SA for data access check (see details in
+  // googleServiceAccountRemovalTest.js)
   googleProjectDynamic: {
     // -fence SA in project:                  true
     // -has a parent organization:            false
     // -has service acct with invalid type:   false
     // -has a service acct with key:          false
     id: 'gen3qa-validationjobtest',
-    serviceAccountEmail: 'service-account@gen3qa-validationjobtest.iam.gserviceaccount.com', // later: use the compute engine SA instead
+    serviceAccountEmail: '869866296751-compute@developer.gserviceaccount.com',
     defaultIsValidGCP: true,
     owner: 'gen3.autotest@gmail.com',
   },

@@ -1,10 +1,9 @@
+const atob = require('atob');
 const chai = require('chai');
 const expect = chai.expect;
-const atob = require('atob');
 
 const apiUtil = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
-
 const bash = new Bash();
 
 
@@ -569,6 +568,7 @@ Scenario('Delete a SA that was successfully registered before but was deleted fr
 Scenario('Service Account registration expiration test @reqGoogle', async (fence, users, google, files) => {
   // Test that we do not have access to data anymore after the SA is expired
 
+  // TODO: only do this once for all the tests
   console.log('Ensure test buckets are linked to projects in this commons...');
 
   var bucketId = fence.props.googleBucketInfo.QA.bucketId

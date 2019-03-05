@@ -1,7 +1,9 @@
+const atob = require('atob');
+const chai = require('chai');
+
 const apiUtil = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
 const bash = new Bash();
-const chai = require('chai');
 const { Commons } = require('../../utils/commons.js');
 
 
@@ -9,7 +11,17 @@ Feature('GoogleServiceAccountRemoval');
 
 /**
  * Test that the SA removal job, fence-create google-manage-user-registrations,
- * deletes what it is supposed to delete
+ * deletes invalid SA and Google projects.
+ *
+ * To check that the user does not have access to the data anymore after the
+ * job cleans up a SA, we need to create a key before the clean up, and make
+ * sure we cannot use it after the clean up. Since the validation checks that
+ * there is no external access to the SA, creating a key would prevent us from
+ * testing other removal use cases.
+ *
+ * Workaround: the "compute" SAs (automatically created in Google) are not
+ * checked for external access during the validation, so we use one to create
+ * a key.
  */
 
 
@@ -67,6 +79,8 @@ async function suiteCleanup(google, fence, users) {
 BeforeSuite(async (google, fence, users) => {
   await suiteCleanup(google, fence, users);
 
+  // TODO: do this at the beginning of the tests
+
   console.log('Ensure test buckets are linked to projects in this commons...');
 
   var bucketId = fence.props.googleBucketInfo.QA.bucketId
@@ -116,20 +130,19 @@ Scenario('SA removal job test: monitor SA does not have access @reqGoogle', asyn
 
   // Remove monitor's access
   console.log(`removing monitoring access from SA ${monitorEmail}`);
-  await google.removeUserRole(
-    googleProject.id,
-    {
-      role: 'roles/resourcemanager.projectIamAdmin',
-      members: [`serviceAccount:${monitorEmail}`]
-    }
-  );
-  await google.removeUserRole(
-    googleProject.id,
-    {
-      role: 'roles/editor',
-      members: [`serviceAccount:${monitorEmail}`]
-    }
-  );
+  const monitorRoles = [
+    'roles/resourcemanager.projectIamAdmin',
+    'roles/editor'
+  ];
+  for (var role of monitorRoles) {
+    await google.removeUserRole(
+      googleProject.id,
+      {
+        role,
+        members: [`serviceAccount:${monitorEmail}`]
+      }
+    );
+  }
 
   // the role update can take a bit of time to propagate
   const isInvalidProjectDetected = async function() {
@@ -157,20 +170,15 @@ Scenario('SA removal job test: monitor SA does not have access @reqGoogle', asyn
   console.log('cleaning up');
 
   // Add monitor's access back
-  await google.updateUserRole(
-    googleProject.id,
-    {
-      role: 'roles/resourcemanager.projectIamAdmin',
-      members: [`serviceAccount:${monitorEmail}`]
-    }
-  );
-  await google.updateUserRole(
-    googleProject.id,
-    {
-      role: 'roles/editor',
-      members: [`serviceAccount:${monitorEmail}`]
-    }
-  );
+  for (var role of monitorRoles) {
+    await google.updateUserRole(
+      googleProject.id,
+      {
+        role,
+        members: [`serviceAccount:${monitorEmail}`]
+      }
+    );
+  }
 
   await fence.do.deleteGoogleServiceAccount(
     users.user0,
@@ -188,11 +196,11 @@ Scenario('SA removal job test: monitor SA does not have access @reqGoogle', asyn
 });
 
 
-Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (fence, users) => {
+Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (fence, users, google, files) => {
   // test invalid project because the user does not exist in fence
 
   // Setup
-  const googleProject = fence.props.googleProjectA;
+  const googleProject = fence.props.googleProjectDynamic;
   await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
 
   // Register account
@@ -203,6 +211,26 @@ Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
 
+  // Get creds to access data
+  // TODO: function that returns pathToCreds0KeyFile + function that deletes it
+  const tempCreds0Res = await google.createServiceAccountKey(googleProject.id, googleProject.serviceAccountEmail);
+  keyFullName = tempCreds0Res.name;
+  console.log(keyFullName);
+  var keyData = JSON.parse(atob(tempCreds0Res.privateKeyData));
+
+  const pathToCreds0KeyFile = keyData.private_key_id + '.json';
+  await files.createTmpFile(pathToCreds0KeyFile, JSON.stringify(keyData));
+  console.log(`Google creds file ${pathToCreds0KeyFile} saved!`);
+
+  // Access data
+  user0AccessQARes = await google.getFileFromBucket(
+    fence.props.googleBucketInfo.QA.googleProjectId,
+    pathToCreds0KeyFile,
+    fence.props.googleBucketInfo.QA.bucketId,
+    fence.props.googleBucketInfo.QA.fileName
+  );
+
+  // Make the project invalid
   await fence.do.unlinkGoogleAcct(
     users.user0,
   );
@@ -210,8 +238,22 @@ Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (
   // Run clean up job
   let jobRes = checkAndCleanSA();
 
+  // Try to access data
+  user0AccessQAResExpired = await google.getFileFromBucket(
+    fence.props.googleBucketInfo.QA.googleProjectId,
+    pathToCreds0KeyFile,
+    fence.props.googleBucketInfo.QA.bucketId,
+    fence.props.googleBucketInfo.QA.fileName
+  );
+
   // Clean up
   console.log('cleaning up');
+
+  console.log('deleting SA key');
+  await google.deleteServiceAccountKey(keyFullName);
+
+  console.log('deleting temporary google credentials file');
+  files.deleteFile(pathToCreds0KeyFile);
 
   await fence.do.deleteGoogleServiceAccount(
     users.user0,
@@ -219,7 +261,13 @@ Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (
   );
 
   // Asserts
+  chai.expect(user0AccessQARes,
+    'User should have bucket access before clean up job'
+  ).to.have.property('id');
   fence.ask.detected_invalid_google_project(jobRes);
+  chai.expect(user0AccessQAResExpired,
+    'User should NOT have bucket access after clean up job'
+  ).to.have.property('statusCode', 403);
 });
 
 
