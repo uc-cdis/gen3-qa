@@ -262,8 +262,6 @@ Scenario('Register SA in a Google Project that is NOT from that Project @reqGoog
 
 
 Scenario('Register SA that looks like its from the Google Project but doesnt actually exist @reqGoogle', async (fence, users) => {
-  try {
-
   // Try to register a service account with an email that looks like it's from the project
   // but the SA doesn't actually exist
   // Registration should fail
@@ -288,15 +286,7 @@ Scenario('Register SA that looks like its from the Google Project but doesnt act
     ['test'],
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInaccessibleServiceAcct);
-
-  } catch (e) {
-    console.log(
-      `WARNING: test "Register SA that looks like its from the Google Project but doesnt actually exist" is FAILING (See PXP-2044): ${
-        e.message
-      }`,
-    );
-  }
-});
+}).retry(4);
 
 
 Scenario('Register allowed Google-Managed SA @reqGoogle', async (fence, users) => {

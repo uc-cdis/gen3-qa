@@ -72,13 +72,17 @@ class Gen3Response {
  * example: expect(res).to.be.a.gen3Res(expectedRes)
  * @param _chai
  */
-const gen3Res = function (_chai) {
+const gen3Res = function (_chai, _) {
   _chai.use(chaiSubset);
   const Assertion = _chai.Assertion;
 
   // language chain method
   Assertion.addMethod('gen3Res', function (expectedRes) {
     const obj = this._obj; // eslint-disable-line
+    
+    // see https://github.com/chaijs/chai/issues/81
+    // Unfortunately - this does not seem to work, so add try/catch below instead ...
+    // _.flag(this, 'message', `gen3 response ${JSON.stringify(obj ? obj.body : obj)}`);
 
     new Assertion(obj).to.be.instanceof(Gen3Response);
     if (expectedRes.fenceError) {
@@ -88,7 +92,17 @@ const gen3Res = function (_chai) {
     } else if (expectedRes.body) {
       // assert body has the subset of attributes
       new Assertion(obj).to.have.property('body');
-      _chai.expect(obj.body).to.containSubset(expectedRes.body);
+      try {
+        _chai.expect(obj.body).to.containSubset(expectedRes.body);
+      } catch (err) {
+        //
+        // the default Chai logging does not show the full nested structure of obj.body -
+        // which often includes error details from the server,
+        // so add some extra logging here on test failure
+        //
+        console.log(`gen3Res assertion failure: ${JSON.stringify(obj.body)} !~ ${JSON.stringify(expectedRes.body)}`);
+        throw err;
+      }
     }
     new Assertion(obj).to.have.property('statusCode', expectedRes.statusCode);
   });
