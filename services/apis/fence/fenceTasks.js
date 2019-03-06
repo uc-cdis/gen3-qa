@@ -236,7 +236,7 @@ module.exports = {
    * @returns {Promise<Gen3Response>}
    */
   async registerGoogleServiceAccount(userAcct, googleProject, projectAccessList) {
-    return I.sendPostRequest(
+    let postRes = await I.sendPostRequest(
       fenceProps.endpoints.registerGoogleServiceAccount,
       {
         service_account_email: googleProject.serviceAccountEmail,
@@ -247,7 +247,25 @@ module.exports = {
         ...userAcct.accessTokenHeader,
         'Content-Type': 'application/json',
       },
-    ).then(res => new Gen3Response(res));
+    ).then(function(res) {
+      if (res.error && res.error.code == 'ETIMEDOUT') {
+        return 'ETIMEDOUT: Google SA registration timed out';
+      }
+      if (res.body && res.body.errors) {
+        console.log('Failed SA registration:');
+        console.log(res.body.errors);
+      }
+      else if (res.error) {
+        console.log('Failed SA registration:');
+        console.log(res.error);
+      }
+      return new Gen3Response(res)
+    });
+    if (postRes instanceof String && postRes.includes('ETIMEDOUT')) {
+      // we could add some retry/backoff logic here if needed
+      console.log(postRes);
+    }
+    return postRes;
   },
 
   /**
