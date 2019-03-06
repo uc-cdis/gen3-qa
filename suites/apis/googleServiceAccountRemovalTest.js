@@ -1,4 +1,3 @@
-const atob = require('atob');
 const chai = require('chai');
 
 const apiUtil = require('../../utils/apiUtil.js');
@@ -17,11 +16,8 @@ Feature('GoogleServiceAccountRemoval');
  * job cleans up a SA, we need to create a key before the clean up, and make
  * sure we cannot use it after the clean up. Since the validation checks that
  * there is no external access to the SA, creating a key would prevent us from
- * testing other removal use cases.
- *
- * Workaround: the "compute" SAs (automatically created in Google) are not
- * checked for external access during the validation, so we use one to create
- * a key.
+ * testing other removal use cases. This is why the data access is only
+ * checked in the "SA has external access" test.
  */
 
 
@@ -34,6 +30,7 @@ async function suiteCleanup(google, fence, users) {
   // google projects to 'clean up'
   const googleProjects = [
     fence.props.googleProjectA,
+    fence.props.googleProjectDynamic,
     fence.props.googleProjectWithComputeServiceAcct,
   ];
   // remove unimportant roles from google projects
@@ -78,20 +75,6 @@ async function suiteCleanup(google, fence, users) {
 
 BeforeSuite(async (google, fence, users) => {
   await suiteCleanup(google, fence, users);
-
-  // TODO: do this at the beginning of the tests
-
-  console.log('Ensure test buckets are linked to projects in this commons...');
-
-  var bucketId = fence.props.googleBucketInfo.QA.bucketId
-  var googleProjectId = fence.props.googleBucketInfo.QA.googleProjectId
-  var projectAuthId = 'QA'
-  var fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
-  console.log(`Running: ${fenceCmd}`)
-  var response = bash.runCommand(fenceCmd, 'fence');
-
-  console.log('Clean up Google Bucket Access Groups from previous runs...');
-  bash.runJob('google-verify-bucket-access-group');
 });
 
 
@@ -107,6 +90,75 @@ function checkAndCleanSA() {
   console.log(jobRes);
   return jobRes;
 }
+
+
+Scenario('SA removal job test: no access removal when SA is valid @reqGoogle', async (fence, users, google, files) => {
+  // test that the clean up job does not remove access to valid SA/projects
+
+  // Setup
+  const googleProject = fence.props.googleProjectDynamic;
+  await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
+
+  // Register account
+  let registerRes = await fence.do.registerGoogleServiceAccount(
+    users.user0,
+    googleProject,
+    ['QA']
+  );
+  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
+
+  // Get creds to access data
+  let [pathToKeyFile, keyFullName] = await google.createServiceAccountKeyFile(googleProject);
+
+  // Access data
+  user0AccessQARes = await google.getFileFromBucket(
+    fence.props.googleBucketInfo.QA.googleProjectId,
+    pathToKeyFile,
+    fence.props.googleBucketInfo.QA.bucketId,
+    fence.props.googleBucketInfo.QA.fileName
+  );
+
+  // Delete the creds so that the clean up job will not mark this SA as invalid
+  await google.deleteServiceAccountKey(keyFullName);
+  files.deleteFile(pathToKeyFile);
+
+  // Run clean up job
+  checkAndCleanSA();
+
+  // Get creds to access data
+  [pathToKeyFile, keyFullName] = await google.createServiceAccountKeyFile(googleProject);
+
+  // Access data
+  user0AccessQAResAfter = await google.getFileFromBucket(
+    fence.props.googleBucketInfo.QA.googleProjectId,
+    pathToKeyFile,
+    fence.props.googleBucketInfo.QA.bucketId,
+    fence.props.googleBucketInfo.QA.fileName
+  );
+
+  // Clean up
+  console.log('cleaning up');
+
+  await google.deleteServiceAccountKey(keyFullName);
+  files.deleteFile(pathToKeyFile);
+
+  await fence.do.deleteGoogleServiceAccount(
+    users.user0,
+    googleProject.serviceAccountEmail,
+  );
+
+  await fence.do.unlinkGoogleAcct(
+    users.user0,
+  );
+
+  // Asserts
+  chai.expect(user0AccessQARes,
+    'User should have bucket access before clean up job'
+  ).to.have.property('id');
+  chai.expect(user0AccessQAResAfter,
+    'User should have bucket access after clean up job'
+  ).to.have.property('id');
+});
 
 
 Scenario('SA removal job test: monitor SA does not have access @reqGoogle', async (fence, users, google) => {
@@ -153,6 +205,7 @@ Scenario('SA removal job test: monitor SA does not have access @reqGoogle', asyn
     }
     catch {
       // assert failed: no problem detected by the clean up job yet
+      console.log('No invalid project detected by the job yet: rerunning');
       return false;
     }
   };
@@ -196,7 +249,7 @@ Scenario('SA removal job test: monitor SA does not have access @reqGoogle', asyn
 });
 
 
-Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (fence, users, google, files) => {
+Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (fence, users) => {
   // test invalid project because the user does not exist in fence
 
   // Setup
@@ -211,25 +264,6 @@ Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
 
-  // Get creds to access data
-  // TODO: function that returns pathToCreds0KeyFile + function that deletes it
-  const tempCreds0Res = await google.createServiceAccountKey(googleProject.id, googleProject.serviceAccountEmail);
-  keyFullName = tempCreds0Res.name;
-  console.log(keyFullName);
-  var keyData = JSON.parse(atob(tempCreds0Res.privateKeyData));
-
-  const pathToCreds0KeyFile = keyData.private_key_id + '.json';
-  await files.createTmpFile(pathToCreds0KeyFile, JSON.stringify(keyData));
-  console.log(`Google creds file ${pathToCreds0KeyFile} saved!`);
-
-  // Access data
-  user0AccessQARes = await google.getFileFromBucket(
-    fence.props.googleBucketInfo.QA.googleProjectId,
-    pathToCreds0KeyFile,
-    fence.props.googleBucketInfo.QA.bucketId,
-    fence.props.googleBucketInfo.QA.fileName
-  );
-
   // Make the project invalid
   await fence.do.unlinkGoogleAcct(
     users.user0,
@@ -238,36 +272,20 @@ Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (
   // Run clean up job
   let jobRes = checkAndCleanSA();
 
-  // Try to access data
-  user0AccessQAResExpired = await google.getFileFromBucket(
-    fence.props.googleBucketInfo.QA.googleProjectId,
-    pathToCreds0KeyFile,
-    fence.props.googleBucketInfo.QA.bucketId,
-    fence.props.googleBucketInfo.QA.fileName
-  );
-
   // Clean up
   console.log('cleaning up');
-
-  console.log('deleting SA key');
-  await google.deleteServiceAccountKey(keyFullName);
-
-  console.log('deleting temporary google credentials file');
-  files.deleteFile(pathToCreds0KeyFile);
 
   await fence.do.deleteGoogleServiceAccount(
     users.user0,
     googleProject.serviceAccountEmail,
   );
 
+  await fence.do.unlinkGoogleAcct(
+    users.user0,
+  );
+
   // Asserts
-  chai.expect(user0AccessQARes,
-    'User should have bucket access before clean up job'
-  ).to.have.property('id');
   fence.ask.detected_invalid_google_project(jobRes);
-  chai.expect(user0AccessQAResExpired,
-    'User should NOT have bucket access after clean up job'
-  ).to.have.property('statusCode', 403);
 });
 
 
@@ -286,6 +304,7 @@ Scenario('SA removal job test: user does not have access to data @reqGoogle', as
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
 
+  // Make the project invalid
   console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
   Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
   bash.runJob('useryaml-job');
@@ -314,11 +333,11 @@ Scenario('SA removal job test: user does not have access to data @reqGoogle', as
 });
 
 
-Scenario('SA removal job test: SA has external access @reqGoogle', async (fence, users, google) => {
+Scenario('SA removal job test: SA has external access @reqGoogle', async (fence, users, google, files) => {
   // test invalid project because the SA has an external key set up
 
   // Setup
-  const googleProject = fence.props.googleProjectA; // TODO: googleProjectDynamic
+  const googleProject = fence.props.googleProjectDynamic;
   await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
 
   // Register account
@@ -329,27 +348,49 @@ Scenario('SA removal job test: SA has external access @reqGoogle', async (fence,
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
 
-  const tempCreds0Res = await google.createServiceAccountKey(googleProject.id, googleProject.serviceAccountEmail);
-  keyFullName = tempCreds0Res.name;
-  console.log(keyFullName);
+  // Get creds to access data: this makes the project invalid
+  let [pathToKeyFile, keyFullName] = await createServiceAccountKeyFile(googleProject);
+
+  // Access data
+  user0AccessQARes = await google.getFileFromBucket(
+    fence.props.googleBucketInfo.QA.googleProjectId,
+    pathToKeyFile,
+    fence.props.googleBucketInfo.QA.bucketId,
+    fence.props.googleBucketInfo.QA.fileName
+  );
 
   // Run clean up job
   let jobRes = checkAndCleanSA();
+
+  // Try to access data
+  user0AccessQAResAfter = await google.getFileFromBucket(
+    fence.props.googleBucketInfo.QA.googleProjectId,
+    pathToKeyFile,
+    fence.props.googleBucketInfo.QA.bucketId,
+    fence.props.googleBucketInfo.QA.fileName
+  );
 
   // Clean up
   console.log('cleaning up');
 
   await google.deleteServiceAccountKey(keyFullName);
-
-  await fence.do.unlinkGoogleAcct(
-    users.user0,
-  );
+  files.deleteFile(pathToKeyFile);
 
   await fence.do.deleteGoogleServiceAccount(
     users.user0,
     googleProject.serviceAccountEmail,
   );
 
+  await fence.do.unlinkGoogleAcct(
+    users.user0,
+  );
+
   // Asserts
+  chai.expect(user0AccessQARes,
+    'User should have bucket access before clean up job'
+  ).to.have.property('id');
   fence.ask.detected_invalid_google_project(jobRes);
+  chai.expect(user0AccessQAResAfter,
+    'User should NOT have bucket access after clean up job'
+  ).to.have.property('statusCode', 403);
 });

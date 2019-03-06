@@ -27,10 +27,8 @@ const bash = new Bash();
 // // will work with all https requests will all libraries (i.e. request.js)
 // require('https').globalAgent.options.ca = rootCas;
 
-
 /**
  * Runs a fence command for fetching access token for a user
- * @param {string} namespace - namespace to get token from
  * @param {string} username - username to fetch token for
  * @param {number} expiration - life duration for token
  * @returns {string}
@@ -160,6 +158,31 @@ function assertGen3Client() {
   }
 }
 
+/**
+ * Create the "test" and "QA" projects in the fence DB if they do not already
+ * exist, and link them to the Google buckets used in the tests
+ */
+function createGoogleTestBuckets() {
+  console.log('Ensure test buckets are linked to projects in this commons...');
+
+  var bucketId = fenceProps.googleBucketInfo.QA.bucketId;
+  var googleProjectId = fenceProps.googleBucketInfo.QA.googleProjectId;
+  var projectAuthId = 'QA';
+  var fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
+  console.log(`Running: ${fenceCmd}`);
+  bash.runCommand(fenceCmd, 'fence');
+
+  bucketId = fenceProps.googleBucketInfo.test.bucketId
+  googleProjectId = fenceProps.googleBucketInfo.test.googleProjectId
+  projectAuthId = 'test';
+  fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
+  console.log(`Running: ${fenceCmd}`);
+  response = bash.runCommand(fenceCmd, 'fence');
+
+  console.log('Clean up Google Bucket Access Groups from previous runs...');
+  bash.runJob('google-verify-bucket-access-group');
+}
+
 module.exports = async function (done) {
   try {
     // get some vars from the commons
@@ -188,6 +211,7 @@ module.exports = async function (done) {
     process.env[`${fenceProps.clients.clientImplicit.envVarsName}_ID`] = implicitClient.client_id;
 
     // Export expired access token for main acct
+    console.log('Export expired access tokens for users');
     const mainAcct = users.mainAcct;
     const expAccessToken = getAccessToken(mainAcct.username, 1);
     process.env[mainAcct.envExpTokenName] = expAccessToken;
@@ -222,11 +246,15 @@ module.exports = async function (done) {
 
     assertGen3Client();
 
+    createGoogleTestBuckets();
+
     // Create a program and project (does nothing if already exists)
     console.log('Creating program/project\n');
     await tryCreateProgramProject(3);
+
     done();
-  } catch (ex) {
+  }
+  catch (ex) {
     console.error('Failed initialization', ex);
     process.exit(1);
   }

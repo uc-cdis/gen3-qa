@@ -308,16 +308,7 @@ module.exports = {
       `${fenceProps.endpoints.deleteGoogleServiceAccount}/${serviceAccountEmail}`,
       userAcct.accessTokenHeader,
     // ).then(res => new Gen3Response(res));
-    ).then(function(res) {
-      if (res.code != 200) {
-        console.log('*** Failed SA deletion:');
-        console.log(serviceAccountEmail);
-        console.log(userAcct);
-        console.log(new Gen3Response(res).parsedFenceError || res);
-        // console.log(res.raw_body);
-      }
-      return new Gen3Response(res);
-    })
+    ).then(res => new Gen3Response(res));
   },
 
   /**

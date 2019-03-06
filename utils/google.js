@@ -3,8 +3,10 @@
  * @module googleUtil
  */
 
+const atob = require('atob');
 const { google } = require('googleapis');
 const {Storage} = require('@google-cloud/storage');
+const files = require('./file.js');
 
 
 /**
@@ -113,8 +115,7 @@ module.exports = {
           return data[0];
         })
         .catch((err) => {
-          console.log(`Cannot get file ${fileName} from bucket ${bucketName}: (depending on the test, this may be expected)`);
-          console.error(err);
+          console.log(`Cannot get file ${fileName} from bucket ${bucketName}`);
           return {
             statusCode: err.code || 403,
             message: err.message
@@ -266,8 +267,9 @@ module.exports = {
         };
         cloudResourceManager.projects.serviceAccounts.keys.create(request, (err, res) => {
           if (err) {
+            console.log(err);
             if(err instanceof Error) {
-              resolve(err)
+              resolve(Error(err.code));
             } else {
               resolve(Error(err));
             }
@@ -283,6 +285,20 @@ module.exports = {
     })
   },
 
+  /**
+   * Util function that returns the path to the file where the requested key
+   * was saved and the name of that key
+   */
+  async createServiceAccountKeyFile(googleProject) {
+    var tempCredsRes = await this.createServiceAccountKey(googleProject.id, googleProject.serviceAccountEmail);
+    keyFullName = tempCredsRes.name;
+    console.log(`Created key ${keyFullName}`);
+    var keyData = JSON.parse(atob(tempCredsRes.privateKeyData));
+    var pathToKeyFile = keyData.private_key_id + '.json';
+    await files.createTmpFile(pathToKeyFile, JSON.stringify(keyData));
+    console.log(`Google creds file ${pathToKeyFile} saved!`);
+    return [pathToKeyFile, keyFullName];
+  },
 
   async deleteServiceAccountKey(keyName) {
     return new Promise((resolve) => {
