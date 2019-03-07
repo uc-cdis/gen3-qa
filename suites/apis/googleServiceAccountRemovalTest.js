@@ -200,7 +200,7 @@ Scenario('SA removal job test: monitor SA does not have access @reqGoogle', asyn
   const isInvalidProjectDetected = async function() {
     try {
       let jobRes = checkAndCleanSA(); // run clean up job
-      fence.ask.detected_invalid_google_project(jobRes); // check results
+      fence.ask.detected_invalid_google_project(jobRes, fence.props.monitorSAJobLog.monitorNoAccess); // check results
       return true;
     }
     catch {
@@ -285,7 +285,7 @@ Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (
   );
 
   // Asserts
-  fence.ask.detected_invalid_google_project(jobRes);
+  fence.ask.detected_invalid_google_project(jobRes, fence.props.monitorSAJobLog.noFenceUser);
 });
 
 
@@ -329,7 +329,7 @@ Scenario('SA removal job test: user does not have access to data @reqGoogle', as
   bash.runJob('usersync');
 
   // Asserts
-  fence.ask.detected_invalid_google_project(jobRes);
+  fence.ask.detected_invalid_google_project(jobRes, fence.props.monitorSAJobLog.noDataAccess);
 });
 
 
@@ -349,7 +349,7 @@ Scenario('SA removal job test: SA has external access @reqGoogle', async (fence,
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
 
   // Get creds to access data: this makes the project invalid
-  let [pathToKeyFile, keyFullName] = await createServiceAccountKeyFile(googleProject);
+  let [pathToKeyFile, keyFullName] = await google.createServiceAccountKeyFile(googleProject);
 
   // Access data
   user0AccessQARes = await google.getFileFromBucket(
@@ -389,8 +389,10 @@ Scenario('SA removal job test: SA has external access @reqGoogle', async (fence,
   chai.expect(user0AccessQARes,
     'User should have bucket access before clean up job'
   ).to.have.property('id');
-  fence.ask.detected_invalid_google_project(jobRes);
+
+  fence.ask.detected_invalid_google_project(jobRes, fence.props.monitorSAJobLog.externalAccess);
+
   chai.expect(user0AccessQAResAfter,
     'User should NOT have bucket access after clean up job'
   ).to.have.property('statusCode', 403);
-});
+}).retry(2);

@@ -277,7 +277,7 @@ module.exports = {
     url = fenceProps.endpoints.registerGoogleServiceAccount;
     if (expires_in)
       url += `?expires_in=${expires_in}`;
-    return I.sendPostRequest(
+    let postRes = await I.sendPostRequest(
       url,
       {
         service_account_email: googleProject.serviceAccountEmail,

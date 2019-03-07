@@ -325,6 +325,17 @@ module.exports = {
   }),
 
   /**
+   * Expected reasons for an invalid SA/Google project in the
+   * google-manage-user-registrations job logs
+   */
+  monitorSAJobLog: {
+    monitorNoAccess: 'Fence\'s Monitoring service account does NOT have access',
+    noFenceUser: 'INVALID user(s) do not exist in fence',
+    noDataAccess: 'does not have access to project',
+    externalAccess: 'it has external access (keys generated or roles on it)',
+  },
+
+  /**
    * Google Projects
    */
   googleProjectA: {
