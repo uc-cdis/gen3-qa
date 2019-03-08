@@ -161,7 +161,8 @@ Scenario('SA removal job test: no access removal when SA is valid @reqGoogle', a
 });
 
 
-Scenario('SA removal job test: monitor SA does not have access @reqGoogle', async (fence, users, google) => {
+// this test fails until the jenkins envs are setup with the new monitoring SA
+xScenario('SA removal job test: monitor SA does not have access @reqGoogle', async (fence, users, google, files) => {
   // test invalid SA because the monitor does not have access
 
   // Setup
@@ -200,7 +201,7 @@ Scenario('SA removal job test: monitor SA does not have access @reqGoogle', asyn
   const isInvalidProjectDetected = async function() {
     try {
       let jobRes = checkAndCleanSA(); // run clean up job
-      fence.ask.detected_invalid_google_project(jobRes, fence.props.monitorSAJobLog.monitorNoAccess); // check results
+      fence.ask.detected_invalid_google_project(jobRes, fence.props.monitorSAJobLog.noMonitorAccess); // check results
       return true;
     }
     catch {
@@ -219,6 +220,15 @@ Scenario('SA removal job test: monitor SA does not have access @reqGoogle', asyn
     detected_invalid_google_project = false;
   }
 
+  // Try to access data
+  let [pathToKeyFile, keyFullName] = await google.createServiceAccountKeyFile(googleProject);
+  user0AccessQARes = await google.getFileFromBucket(
+    fence.props.googleBucketInfo.QA.googleProjectId,
+    pathToKeyFile,
+    fence.props.googleBucketInfo.QA.bucketId,
+    fence.props.googleBucketInfo.QA.fileName
+  );
+
   // Clean up
   console.log('cleaning up');
 
@@ -233,6 +243,9 @@ Scenario('SA removal job test: monitor SA does not have access @reqGoogle', asyn
     );
   }
 
+  await google.deleteServiceAccountKey(keyFullName);
+  files.deleteFile(pathToKeyFile);
+
   await fence.do.deleteGoogleServiceAccount(
     users.user0,
     googleProject.serviceAccountEmail,
@@ -246,10 +259,14 @@ Scenario('SA removal job test: monitor SA does not have access @reqGoogle', asyn
   chai.expect(detected_invalid_google_project,
     '"google-manage-user-registrations" should have detected an invalid Google project'
   ).to.be.true;
+
+  chai.expect(user0AccessQARes,
+    'User should NOT have bucket access after clean up job'
+  ).to.have.property('statusCode', 403);
 });
 
 
-Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (fence, users) => {
+Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (fence, users, google, files) => {
   // test invalid project because the user does not exist in fence
 
   // Setup
@@ -272,8 +289,20 @@ Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (
   // Run clean up job
   let jobRes = checkAndCleanSA();
 
+  // Try to access data
+  let [pathToKeyFile, keyFullName] = await google.createServiceAccountKeyFile(googleProject);
+  user0AccessQARes = await google.getFileFromBucket(
+    fence.props.googleBucketInfo.QA.googleProjectId,
+    pathToKeyFile,
+    fence.props.googleBucketInfo.QA.bucketId,
+    fence.props.googleBucketInfo.QA.fileName
+  );
+
   // Clean up
   console.log('cleaning up');
+
+  await google.deleteServiceAccountKey(keyFullName);
+  files.deleteFile(pathToKeyFile);
 
   await fence.do.deleteGoogleServiceAccount(
     users.user0,
@@ -286,10 +315,14 @@ Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (
 
   // Asserts
   fence.ask.detected_invalid_google_project(jobRes, fence.props.monitorSAJobLog.noFenceUser);
+
+  chai.expect(user0AccessQARes,
+    'User should NOT have bucket access after clean up job'
+  ).to.have.property('statusCode', 403);
 });
 
 
-Scenario('SA removal job test: user does not have access to data @reqGoogle', async (fence, users) => {
+Scenario('SA removal job test: user does not have access to data @reqGoogle', async (fence, users, google, files) => {
   // test invalid project because the user does not have access to the data
 
   // Setup
@@ -313,8 +346,20 @@ Scenario('SA removal job test: user does not have access to data @reqGoogle', as
   // Run clean up job
   let jobRes = checkAndCleanSA();
 
+  // Try to access data
+  let [pathToKeyFile, keyFullName] = await google.createServiceAccountKeyFile(googleProject);
+  user0AccessQARes = await google.getFileFromBucket(
+    fence.props.googleBucketInfo.QA.googleProjectId,
+    pathToKeyFile,
+    fence.props.googleBucketInfo.QA.bucketId,
+    fence.props.googleBucketInfo.QA.fileName
+  );
+
   // Clean up
   console.log('cleaning up');
+
+  await google.deleteServiceAccountKey(keyFullName);
+  files.deleteFile(pathToKeyFile);
 
   await fence.do.deleteGoogleServiceAccount(
     users.user0,
@@ -330,6 +375,10 @@ Scenario('SA removal job test: user does not have access to data @reqGoogle', as
 
   // Asserts
   fence.ask.detected_invalid_google_project(jobRes, fence.props.monitorSAJobLog.noDataAccess);
+
+  chai.expect(user0AccessQARes,
+    'User should NOT have bucket access after clean up job'
+  ).to.have.property('statusCode', 403);
 });
 
 

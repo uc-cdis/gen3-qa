@@ -277,34 +277,46 @@ module.exports = {
     url = fenceProps.endpoints.registerGoogleServiceAccount;
     if (expires_in)
       url += `?expires_in=${expires_in}`;
-    let postRes = await I.sendPostRequest(
-      url,
-      {
-        service_account_email: googleProject.serviceAccountEmail,
-        google_project_id: googleProject.id,
-        project_access: projectAccessList,
-      },
-      {
-        ...userAcct.accessTokenHeader,
-        'Content-Type': 'application/json',
-      },
-    ).then(function(res) {
-      if (res.error && res.error.code == 'ETIMEDOUT') {
-        return 'ETIMEDOUT: Google SA registration timed out';
+
+    const MAX_TRIES = 3;
+    let tries = 1;
+    let postRes;
+    while (tries <= MAX_TRIES) {
+      console.log(`registerGoogleServiceAccount: try ${tries}/${MAX_TRIES}`);
+      postRes = await I.sendPostRequest(
+        url,
+        {
+          service_account_email: googleProject.serviceAccountEmail,
+          google_project_id: googleProject.id,
+          project_access: projectAccessList,
+        },
+        {
+          ...userAcct.accessTokenHeader,
+          'Content-Type': 'application/json',
+        },
+      ).then(function(res) {
+        if (res.error && res.error.code == 'ETIMEDOUT') {
+          return 'ETIMEDOUT: Google SA registration timed out';
+        }
+        if (res.body && res.body.errors) {
+          console.log('Failed SA registration:');
+          console.log(res.body.errors);
+        }
+        else if (res.error) {
+          console.log('Failed SA registration:');
+          console.log(res.error);
+        }
+        return new Gen3Response(res)
+      });
+
+      // if the request timed out: retry
+      if (typeof postRes == 'string' && postRes.includes('ETIMEDOUT')) {
+        console.log(postRes);
+        tries++;
       }
-      if (res.body && res.body.errors) {
-        console.log('Failed SA registration:');
-        console.log(res.body.errors);
+      else {
+        return postRes;
       }
-      else if (res.error) {
-        console.log('Failed SA registration:');
-        console.log(res.error);
-      }
-      return new Gen3Response(res)
-    });
-    if (postRes instanceof String && postRes.includes('ETIMEDOUT')) {
-      // we could add some retry/backoff logic here if needed
-      console.log(postRes);
     }
     return postRes;
   },
@@ -319,7 +331,6 @@ module.exports = {
     return I.sendDeleteRequest(
       `${fenceProps.endpoints.deleteGoogleServiceAccount}/${serviceAccountEmail}`,
       userAcct.accessTokenHeader,
-    // ).then(res => new Gen3Response(res));
     ).then(res => new Gen3Response(res));
   },
 
