@@ -50,7 +50,7 @@ donot() {
 }
 
 # Do not run performance testing
-donot '@regressions'
+donot '@Performance'
 
 #----------------------------------------------------
 # main
