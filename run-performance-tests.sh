@@ -112,10 +112,10 @@ EOM
         done
     done
 
+    presignURLs=${presignURLs[@]} dryrun npm test -- $testArgs --grep "@SubmissionPerformanceTests"
     dryrun npm test -- $testArgs --grep "@GenerateTestData"
     dryrun npm test -- $testArgs --grep "@QueryPerformanceTests"
     dryrun npm test -- $testArgs --grep "@ExportPerformanceTests"
-    presignURLs=${presignURLs[@]} dryrun npm test -- $testArgs --grep "@SubmissionPerformanceTests"
   )
   if [[ $? -ne 0 ]]; then exitCode=1; fi
 done
