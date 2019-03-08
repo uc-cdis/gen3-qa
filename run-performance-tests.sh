@@ -105,7 +105,7 @@ EOM
     dataFiles=("${dataFiles[@]:1}")
     echo "${dataFiles[@]}"
 
-    sizes=(10 100)
+    sizes=(10 100 1000)
     for size in ${sizes[@]}; do
         for dataFile in ${dataFiles[@]}; do
           presignURLs+=("${size}:=$(aws s3 presign s3://cdis-terraform-state/regressions/subm/${size}/${dataFile}.json)")
