@@ -11,7 +11,7 @@ Jenkins test launch script.  Assumes the  GEN3_HOME environment variable
 references a current [cloud-automation](https://github.com/uc-cdis/cloud-automation) folder.
 
 Use:
-  bash run-performance-tests.sh [--namespace=]KUBECTL_NAMESPACE] --db=db [--dryrun]
+  bash run-performance-tests.sh [--namespace=]KUBECTL_NAMESPACE] [--dryrun]
     --namespace default is KUBECTL_NAMESPACE:-default
 EOM
 }
@@ -47,9 +47,6 @@ while [[ $# -gt 0 ]]; do
     help)
       help
       exit 0
-      ;;
-    db)
-      db="$value"
       ;;
     namespace)
       namespaceList="$value"
