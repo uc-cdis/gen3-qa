@@ -9,7 +9,6 @@ module.exports = {
   getCoremetadata : async function(
     file, format = 'json', access_token) {
   
-    // let accept = (format == 'bibtex' ? 'x-bibtex' : 'application/json');
     let token = {
       'Accept': format,
       'Authorization': access_token['Authorization']
