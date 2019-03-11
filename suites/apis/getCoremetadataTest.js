@@ -30,28 +30,13 @@ BeforeSuite(async (nodes, sheepdog) => {
   // try to clean up any leftover nodes
   await sheepdog.complete.findDeleteAllNodes();
 
-  // submit test data
-  // let n = nodes.getPathToFile();
-  // await sheepdog.complete.addNodes(n.getSheepdogRoot(), Object.values(n));
-  // nodes.seeAllNodesAddSuccess(Object.values(n));
   await sheepdog.complete.addNodes(nodes.getPathToFile());
 
-  // console.log('1')
   valid_file = nodes.getFileNode().clone();
   await sheepdog.complete.addNode(valid_file);
 
-  // console.log('2')
   invalid_id_file = nodes.getFileNode().clone();
-  invalid_id_file.data.object_id = 'invalid_object_id';
-  // await sheepdog.complete.addNode(invalid_id_file);
-
-  // valid_file = {
-  //   "data": util.extractFile(n)
-  // };
-  // await nodes.submitFile(n.getSheepdogRoot(), valid_file);
-
-  // invalid_id_file = util.clone(valid_file);
-  // invalid_id_file.did = 'invalid_object_id';
+  invalid_id_file.data.object_id = 'invalid_object_id'; 
 });
 
 AfterSuite(async (sheepdog) => {
