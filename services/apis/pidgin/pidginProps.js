@@ -2,6 +2,10 @@
  * pidgin Properties
  */
 module.exports = {
+  endpoints: {
+    getCoreMetadata: '/coremetadata',
+  },
+
   resSuccess: {
     code: 200,
     success: true,
@@ -14,16 +18,16 @@ module.exports = {
     success: false
   },
   
-  ready_cue: {
-    locator: {
-      css: '.this-element-appears-when-page-loaded'
-    }
-  },
+  // ready_cue: {
+  //   locator: {
+  //     css: '.this-element-appears-when-page-loaded'
+  //   }
+  // },
   
-  filterTab: {
-    context: '.some-container',
-    locator: {
-      css: '.my-tab-class'
-    }
-  }
+  // filterTab: {
+  //   context: '.some-container',
+  //   locator: {
+  //     css: '.my-tab-class'
+  //   }
+  // }
 };

@@ -4,43 +4,56 @@ Feature('GetCoreMetadata');
 let valid_file;
 let invalid_id_file;
 
-Scenario('test core metadata', async(I) => {
-  let metadata = await I.getCoremetadata(valid_file, 'json');
-  I.seeJsonCoremetadata(valid_file, metadata);
+Scenario('test core metadata', async(pidgin, users) => {
+  let metadata = await pidgin.do.getCoremetadata(valid_file, 'application/json', users.mainAcct.accessTokenHeader);
+  pidgin.ask.seeJsonCoremetadata(valid_file, metadata);
 
-  metadata = await I.getCoremetadata(valid_file, 'bibtex');
-  I.seeBibtexCoremetadata(valid_file, metadata);
+  metadata = await pidgin.do.getCoremetadata(valid_file, 'x-bibtex', users.mainAcct.accessTokenHeader);
+  pidgin.ask.seeBibtexCoremetadata(valid_file, metadata);
+
+  metadata = await pidgin.do.getCoremetadata(valid_file, 'application/vnd.schemaorg.ld+json', users.mainAcct.accessTokenHeader);
+  pidgin.ask.seeSchemaorgdata(valid_file, metadata);
 });
 
-Scenario('test core metadata invalid object_id', async(I) => {
-  let data = await I.getCoremetadata(invalid_id_file, 'json');
-  I.seePidginError(data);
+Scenario.only('test core metadata invalid object_id', async(pidgin, users) => {
+  let data = await pidgin.do.getCoremetadata(invalid_id_file, 'json', users.mainAcct.accessTokenHeader);
+  pidgin.ask.seePidginError(data);
 });
 
-Scenario('test core metadata no permission', async(I) => {
+Scenario('test core metadata no permission', async(pidgin) => {
   let invalid_token = { 'Authorization': 'invalid' };
-  let data = await I.getCoremetadata(valid_file, 'json', invalid_token);
-  I.seePidginError(data);
+  let data = await pidgin.do.getCoremetadata(valid_file, 'json', invalid_token);
+  pidgin.ask.seePidginError(data);
 });
 
-BeforeSuite(async (I) => {
+BeforeSuite(async (nodes, sheepdog) => {
   // try to clean up any leftover nodes
-  await I.findDeleteAllNodes();
+  await sheepdog.complete.findDeleteAllNodes();
 
   // submit test data
-  let nodes = I.getNodePathToFile();
-  await I.addNodes(I.getSheepdogRoot(), Object.values(nodes));
-  I.seeAllNodesAddSuccess(Object.values(nodes));
+  // let n = nodes.getPathToFile();
+  // await sheepdog.complete.addNodes(n.getSheepdogRoot(), Object.values(n));
+  // nodes.seeAllNodesAddSuccess(Object.values(n));
+  await sheepdog.complete.addNodes(nodes.getPathToFile());
 
-  valid_file = {
-    "data": util.extractFile(nodes)
-  };
-  await I.submitFile(I.getSheepdogRoot(), valid_file);
+  // console.log('1')
+  valid_file = nodes.getFileNode().clone();
+  await sheepdog.complete.addNode(valid_file);
 
-  invalid_id_file = util.clone(valid_file);
-  invalid_id_file.did = 'invalid_object_id';
+  // console.log('2')
+  invalid_id_file = nodes.getFileNode().clone();
+  invalid_id_file.data.object_id = 'invalid_object_id';
+  // await sheepdog.complete.addNode(invalid_id_file);
+
+  // valid_file = {
+  //   "data": util.extractFile(n)
+  // };
+  // await nodes.submitFile(n.getSheepdogRoot(), valid_file);
+
+  // invalid_id_file = util.clone(valid_file);
+  // invalid_id_file.did = 'invalid_object_id';
 });
 
-AfterSuite(async (I) => {
-  await I.findDeleteAllNodes();
+AfterSuite(async (sheepdog) => {
+  await sheepdog.complete.findDeleteAllNodes();;
 });

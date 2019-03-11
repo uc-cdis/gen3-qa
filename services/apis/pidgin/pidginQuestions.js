@@ -12,28 +12,30 @@ module.exports = {
   
   seeJsonCoremetadata(file, metadata) {
     let data = JSON.parse(metadata);
-    assert.equal(data['file_name'], file.data.file_name);
-    assert.equal(data['object_id'], file.did);
-    assert.equal(data['type'], file.data.type);
-    assert.equal(data['data_format'], file.data.data_format);
+    expect(data['file_name'], 'file_name not in core metadata').to.equal(file.data.file_name);
+    expect(data['object_id'], 'object_id not in core metadata').to.equal(file.did);
+    expect(data['type'], 'type not in core metadata').to.equal(file.data.type);
+    expect(data['data_format'], 'data_format not in core metadata').to.equal(file.data.data_format);
   },
   
   seeBibtexCoremetadata(file, metadata) {
-    assert.ok(metadata.includes(file.data.file_name),
-      'file_name ' + file.data.file_name + ' not in core metadata');
+    expect(metadata, `file_name ${file.data.file_name} not in core metadata`).to.contain(file.data.file_name);
+    
+    expect(metadata,`object_id ${file.did} not in core metadata`).to.contain(file.did);
   
-    assert.ok(metadata.includes(file.did),
-      'object_id ' + file.did + ' not in core metadata');
+    expect(metadata, `type ${file.data.type} not in core metadata`).to.contain(file.data.type);
   
-    assert.ok(metadata.includes(file.data.type),
-      'type ' + file.data.type + ' not in core metadata');
-  
-    assert.ok(metadata.includes(file.data.data_format),
-      'data_format ' + file.data.data_format + ' not in core metadata');
+    expect(metadata, `data_format ${file.data.data_format} not in core metadata`).to.contain(file.data.data_format);
   },
   
+  seeSchemaorgdata(file, metadata){
+    console.log(metadata)
+  },
+
   seePidginError(data) {
-    assert.throws(()=>JSON.parse(data), Error);
+    // this should throw if the result is an error because the error is a string, not json
+    var tryParseErr = function () { JSON.parse(data); };
+    expect(tryParseErr).to.throw(Error);
   },
 };
 
