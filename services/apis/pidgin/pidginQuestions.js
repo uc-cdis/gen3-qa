@@ -28,9 +28,10 @@ module.exports = {
     expect(metadata, `data_format ${file.data.data_format} not in core metadata`).to.contain(file.data.data_format);
   },
   
-  seeSchemaorgdata(file, metadata){
-    console.log(metadata)
-  },
+  // to be implemented to support application/vnd.schemaorg.ld+json format
+  // seeSchemaorgdata(file, metadata){
+  //   console.log(metadata)
+  // },
 
   seePidginError(data) {
     // this should throw if the result is an error because the error is a string, not json

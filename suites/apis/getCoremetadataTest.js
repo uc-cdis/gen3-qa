@@ -11,11 +11,12 @@ Scenario('test core metadata', async(pidgin, users) => {
   metadata = await pidgin.do.getCoremetadata(valid_file, 'x-bibtex', users.mainAcct.accessTokenHeader);
   pidgin.ask.seeBibtexCoremetadata(valid_file, metadata);
 
-  metadata = await pidgin.do.getCoremetadata(valid_file, 'application/vnd.schemaorg.ld+json', users.mainAcct.accessTokenHeader);
-  pidgin.ask.seeSchemaorgdata(valid_file, metadata);
+  // to be implemented to support application/vnd.schemaorg.ld+json format 
+  // metadata = await pidgin.do.getCoremetadata(valid_file, 'application/vnd.schemaorg.ld+json', users.mainAcct.accessTokenHeader);
+  // pidgin.ask.seeSchemaorgdata(valid_file, metadata);
 });
 
-Scenario.only('test core metadata invalid object_id', async(pidgin, users) => {
+Scenario('test core metadata invalid object_id', async(pidgin, users) => {
   let data = await pidgin.do.getCoremetadata(invalid_id_file, 'json', users.mainAcct.accessTokenHeader);
   pidgin.ask.seePidginError(data);
 });

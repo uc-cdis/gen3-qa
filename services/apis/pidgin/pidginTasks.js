@@ -6,9 +6,6 @@ let I = actor();
  */
 module.exports = {
   
-  // util : require('./utilSteps'),
-  // accessTokenHeader : util.getAccessTokenHeader(),
-  
   getCoremetadata : async function(
     file, format = 'json', access_token) {
   
