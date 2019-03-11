@@ -145,7 +145,7 @@ xScenario('SA removal job test: monitor SA does not have access @reqGoogle', asy
 
   // Remove monitor's access
   console.log(`removing monitoring access from SA ${monitorEmail}`);
-  const monitorRoles = [
+  const monitorRoles = [ // IAM access needed by the monitor
     'roles/resourcemanager.projectIamAdmin',
     'roles/editor'
   ];

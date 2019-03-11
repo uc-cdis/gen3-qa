@@ -340,7 +340,7 @@ module.exports = {
     })
   },
 
-  // TODO: projectID is not used - this deletes in all projects
+  // TODO: projectID is not used (- gets project id from SA id), remove param
   async deleteServiceAccount(projectID, serviceAccountID) {
     return new Promise((resolve) => {
       return googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
