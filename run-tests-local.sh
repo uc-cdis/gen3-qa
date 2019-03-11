@@ -28,4 +28,4 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
-npm run test -- --debug --verbose suites/apis/getCoremetadataTest.js
+npm run test -- --grep @reqGoogle --invert
