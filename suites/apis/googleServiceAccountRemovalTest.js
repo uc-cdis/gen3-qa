@@ -21,65 +21,13 @@ Feature('GoogleServiceAccountRemoval');
  */
 
 
-/**
- * Cleans up fence's DBs for links and service accounts
- * Takes the google, fence, and users services/utils as params
- * @returns {Promise<void>}
- */
-async function suiteCleanup(google, fence, users) {
-  // google projects to 'clean up'
-  const googleProjects = [
-    fence.props.googleProjectA,
-    fence.props.googleProjectDynamic,
-    fence.props.googleProjectWithComputeServiceAcct,
-  ];
-  // remove unimportant roles from google projects
-  for (const proj of googleProjects) {
-    await google.removeAllOptionalUsers(proj.id);
-  }
-
-  // delete all service accounts from fence
-  for (const proj of googleProjects) {
-    // TRY to delete the service account
-    // NOTE: the service account might have been registered unsuccessfully or deleted,
-    //  we are just hitting the endpoints as if it still exists and ignoring errors
-    const projUser = users.mainAcct;
-
-    if (!projUser.linkedGoogleAccount) {
-      // If the project user is not linked, link to project owner then delete
-      await fence.do.forceLinkGoogleAcct(projUser, proj.owner)
-        .then(() =>
-          fence.do.deleteGoogleServiceAccount(projUser, proj.serviceAccountEmail),
-        );
-    } else if (projUser.linkedGoogleAccount !== proj.owner) {
-      // If the project user is linked, but not to project owner,
-      // unlink user, then link to project owner and delete service account
-      await fence.complete.unlinkGoogleAcct(projUser)
-        .then(() =>
-          fence.do.forceLinkGoogleAcct(projUser, proj.owner),
-        )
-        .then(() =>
-          fence.do.deleteGoogleServiceAccount(projUser, proj.serviceAccountEmail),
-        );
-    } else {
-      // If project user is linked to the project owner, delete the service account
-      await fence.do.deleteGoogleServiceAccount(projUser, proj.serviceAccountEmail);
-    }
-  }
-
-  // unlink all google accounts
-  const unlinkPromises = Object.values(users).map(user => fence.do.unlinkGoogleAcct(user));
-  await Promise.all(unlinkPromises);
-}
-
-
 BeforeSuite(async (google, fence, users) => {
-  await suiteCleanup(google, fence, users);
+  await google.suiteCleanup(fence, users);
 });
 
 
 After(async (google, fence, users) => {
-  await suiteCleanup(google, fence, users);
+  await google.suiteCleanup(fence, users);
 });
 
 
@@ -95,8 +43,12 @@ function checkAndCleanSA() {
 Scenario('SA removal job test: no access removal when SA is valid @reqGoogle', async (fence, users, google, files) => {
   // test that the clean up job does not remove access to valid SA/projects
 
-  // Setup
+  // Lock the project
   const googleProject = fence.props.googleProjectDynamic;
+  lockRes = await google.lockGoogleProject(googleProject);
+  chai.expect(lockRes, 'Could not lock project').to.be.true;
+
+  // Setup
   await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
 
   // Register account
@@ -151,13 +103,19 @@ Scenario('SA removal job test: no access removal when SA is valid @reqGoogle', a
     users.user0,
   );
 
+  // Unlock the project
+  let unlockRes = await google.unlockGoogleProject(googleProject);
+
   // Asserts
   chai.expect(user0AccessQARes,
     'User should have bucket access before clean up job'
   ).to.have.property('id');
+
   chai.expect(user0AccessQAResAfter,
     'User should have bucket access after clean up job'
   ).to.have.property('id');
+
+  chai.expect(unlockRes, 'Could not unlock project').to.be.true;
 });
 
 
@@ -165,12 +123,16 @@ Scenario('SA removal job test: no access removal when SA is valid @reqGoogle', a
 xScenario('SA removal job test: monitor SA does not have access @reqGoogle', async (fence, users, google, files) => {
   // test invalid SA because the monitor does not have access
 
+  // Lock the project
+  const googleProject = fence.props.googleProjectDynamic;
+  lockRes = await google.lockGoogleProject(googleProject);
+  chai.expect(lockRes, 'Could not lock project').to.be.true;
+
   // Setup
   let getMonitorRes = await fence.do.getGoogleServiceAccountMonitor(users.user0);
   fence.ask.assertStatusCode(getMonitorRes, 200, 'Could not get SA monitor info');
   let monitorEmail = getMonitorRes.body.service_account_email;
 
-  const googleProject = fence.props.googleProjectDynamic;
   await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
 
   // Register account
@@ -198,6 +160,9 @@ xScenario('SA removal job test: monitor SA does not have access @reqGoogle', asy
   }
 
   // the role update can take a bit of time to propagate
+  /**
+   * return true if the job detected an invalid project, false otherwise
+   */
   const isInvalidProjectDetected = async function() {
     try {
       let jobRes = checkAndCleanSA(); // run clean up job
@@ -255,6 +220,9 @@ xScenario('SA removal job test: monitor SA does not have access @reqGoogle', asy
     users.user0,
   );
 
+  // Unlock the project
+  let unlockRes = await google.unlockGoogleProject(googleProject);
+
   // Asserts
   chai.expect(detected_invalid_google_project,
     '"google-manage-user-registrations" should have detected an invalid Google project'
@@ -263,14 +231,20 @@ xScenario('SA removal job test: monitor SA does not have access @reqGoogle', asy
   chai.expect(user0AccessQARes,
     'User should NOT have bucket access after clean up job'
   ).to.have.property('statusCode', 403);
+
+  chai.expect(unlockRes, 'Could not unlock project').to.be.true;
 });
 
 
 Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (fence, users, google, files) => {
   // test invalid project because the user does not exist in fence
 
-  // Setup
+  // Lock the project
   const googleProject = fence.props.googleProjectDynamic;
+  lockRes = await google.lockGoogleProject(googleProject);
+  chai.expect(lockRes, 'Could not lock project').to.be.true;
+
+  // Setup
   await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
 
   // Register account
@@ -313,20 +287,29 @@ Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (
     users.user0,
   );
 
+  // Unlock the project
+  let unlockRes = await google.unlockGoogleProject(googleProject);
+
   // Asserts
   fence.ask.detected_invalid_google_project(jobRes, fence.props.monitorSAJobLog.noFenceUser);
 
   chai.expect(user0AccessQARes,
     'User should NOT have bucket access after clean up job'
   ).to.have.property('statusCode', 403);
+
+  chai.expect(unlockRes, 'Could not unlock project').to.be.true;
 });
 
 
 Scenario('SA removal job test: user does not have access to data @reqGoogle', async (fence, users, google, files) => {
   // test invalid project because the user does not have access to the data
 
+  // Lock the project
+  const googleProject = fence.props.googleProjectDynamic;
+  lockRes = await google.lockGoogleProject(googleProject);
+  chai.expect(lockRes, 'Could not lock project').to.be.true;
+
   // Setup
-  const googleProject = fence.props.googleProjectA;
   await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
 
   // Register account
@@ -370,6 +353,9 @@ Scenario('SA removal job test: user does not have access to data @reqGoogle', as
     users.user0,
   );
 
+  // Unlock the project
+  let unlockRes = await google.unlockGoogleProject(googleProject);
+
   console.log(`Running usersync job`);
   bash.runJob('usersync');
 
@@ -379,14 +365,20 @@ Scenario('SA removal job test: user does not have access to data @reqGoogle', as
   chai.expect(user0AccessQARes,
     'User should NOT have bucket access after clean up job'
   ).to.have.property('statusCode', 403);
+
+  chai.expect(unlockRes, 'Could not unlock project').to.be.true;
 });
 
 
 Scenario('SA removal job test: SA has external access @reqGoogle', async (fence, users, google, files) => {
   // test invalid project because the SA has an external key set up
 
-  // Setup
+  // Lock the project
   const googleProject = fence.props.googleProjectDynamic;
+  lockRes = await google.lockGoogleProject(googleProject);
+  chai.expect(lockRes, 'Could not lock project').to.be.true;
+
+  // Setup
   await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
 
   // Register account
@@ -434,6 +426,9 @@ Scenario('SA removal job test: SA has external access @reqGoogle', async (fence,
     users.user0,
   );
 
+  // Unlock the project
+  let unlockRes = await google.unlockGoogleProject(googleProject);
+
   // Asserts
   chai.expect(user0AccessQARes,
     'User should have bucket access before clean up job'
@@ -444,4 +439,6 @@ Scenario('SA removal job test: SA has external access @reqGoogle', async (fence,
   chai.expect(user0AccessQAResAfter,
     'User should NOT have bucket access after clean up job'
   ).to.have.property('statusCode', 403);
+
+  chai.expect(unlockRes, 'Could not unlock project').to.be.true;
 }).retry(2);

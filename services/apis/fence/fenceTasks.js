@@ -282,7 +282,6 @@ module.exports = {
     let tries = 1;
     let postRes;
     while (tries <= MAX_TRIES) {
-      console.log(`registerGoogleServiceAccount: try ${tries}/${MAX_TRIES}`);
       postRes = await I.sendPostRequest(
         url,
         {
@@ -311,6 +310,7 @@ module.exports = {
 
       // if the request timed out: retry
       if (typeof postRes == 'string' && postRes.includes('ETIMEDOUT')) {
+        console.log(`registerGoogleServiceAccount: try ${tries}/${MAX_TRIES}`);
         console.log(postRes);
         tries++;
       }
