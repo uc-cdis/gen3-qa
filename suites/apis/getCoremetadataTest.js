@@ -11,7 +11,7 @@ Scenario('test core metadata', async(pidgin, users) => {
   metadata = await pidgin.do.getCoremetadata(valid_file, 'x-bibtex', users.mainAcct.accessTokenHeader);
   pidgin.ask.seeBibtexCoremetadata(valid_file, metadata);
 
-  // to be implemented to support application/vnd.schemaorg.ld+json format 
+  // to be implemented to support application/vnd.schemaorg.ld+json format in future
   // metadata = await pidgin.do.getCoremetadata(valid_file, 'application/vnd.schemaorg.ld+json', users.mainAcct.accessTokenHeader);
   // pidgin.ask.seeSchemaorgdata(valid_file, metadata);
 });
