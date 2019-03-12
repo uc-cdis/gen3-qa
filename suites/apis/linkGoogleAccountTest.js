@@ -1,4 +1,9 @@
+const chai = require('chai');
+const expect = chai.expect;
+
+
 Feature('LinkGoogleAccount');
+
 
 BeforeSuite(async (fence, users) => {
   // Cleanup before suite
@@ -37,4 +42,18 @@ Scenario('try to unlink when acct is not linked @reqGoogle', async (fence, users
 Scenario('try to extend link when acct is not linked @reqGoogle', async (fence, users) => {
   const extendRes = await fence.do.extendGoogleLink(users.mainAcct);
   fence.ask.responsesEqual(extendRes, fence.props.resExtendNoGoogleAcctLinked);
+});
+
+Scenario('link an acct that is already linked to this user @reqGoogle', async (fence, users) => {
+  await fence.complete.forceLinkGoogleAcct(users.mainAcct, users.mainAcct.googleCreds.email);
+  let linkRes = await fence.do.forceLinkGoogleAcct(users.mainAcct, users.mainAcct.googleCreds.email);
+  expect(linkRes, 'Linking a google account twice should fail').to.equal(0);
+  await fence.complete.unlinkGoogleAcct(users.mainAcct);
+});
+
+Scenario('link an acct that is already linked to different user @reqGoogle', async (fence, users) => {
+  await fence.complete.forceLinkGoogleAcct(users.mainAcct, users.mainAcct.googleCreds.email);
+  let linkRes = await fence.do.forceLinkGoogleAcct(users.auxAcct1, users.mainAcct.googleCreds.email);
+  expect(linkRes, 'Linking a google account twice should fail').to.equal(0);
+  await fence.complete.unlinkGoogleAcct(users.mainAcct);
 });
