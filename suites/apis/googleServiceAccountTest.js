@@ -167,7 +167,7 @@ Scenario('Register SA from Google Project that has a parent org @reqGoogle', asy
     ['test'],
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountHasParentOrg);
-});
+}).retry(2);
 
 
 
@@ -451,7 +451,7 @@ Scenario('Register SA for data access where one Project member does not have pri
     registerRes,
     fence.props.resRegisterServiceAccountMissingProjectPrivilege,
   );
-});
+}).retry(2);
 
 //
 // Delete Service Account tests
@@ -663,7 +663,6 @@ Scenario('Service Account temporary key expiration test @reqGoogle', async (fenc
 
   // save temporary google creds to file
   const tempCreds0Res = await fence.complete.createTempGoogleCreds(users.user0.accessTokenHeader, EXPIRES_IN);
-  let getCreds0Res = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
   const creds0Key = tempCreds0Res.body.private_key_id;
   const pathToCreds0KeyFile = creds0Key + '.json';
   await files.createTmpFile(pathToCreds0KeyFile, JSON.stringify(tempCreds0Res.body));
@@ -683,9 +682,6 @@ Scenario('Service Account temporary key expiration test @reqGoogle', async (fenc
   // Run the expired SA key clean up job
   console.log('Clean up expired Service Account keys');
   bash.runJob('google-manage-keys-job');
-
-  getCreds0Res = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
-  console.log(getCreds0Res);
 
   // Try to access data
   user0AccessQAResExpired = await google.getFileFromBucket(

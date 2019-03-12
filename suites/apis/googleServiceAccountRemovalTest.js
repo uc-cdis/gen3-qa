@@ -116,7 +116,7 @@ Scenario('SA removal job test: no access removal when SA is valid @reqGoogle', a
   ).to.have.property('id');
 
   chai.expect(unlockRes, 'Could not unlock project').to.be.true;
-});
+}).retry(2);
 
 
 // this test fails until the jenkins envs are setup with the new monitoring SA
@@ -298,7 +298,7 @@ Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (
   ).to.have.property('statusCode', 403);
 
   chai.expect(unlockRes, 'Could not unlock project').to.be.true;
-});
+}).retry(2);
 
 
 Scenario('SA removal job test: user does not have access to data @reqGoogle', async (fence, users, google, files) => {
@@ -367,7 +367,7 @@ Scenario('SA removal job test: user does not have access to data @reqGoogle', as
   ).to.have.property('statusCode', 403);
 
   chai.expect(unlockRes, 'Could not unlock project').to.be.true;
-});
+}).retry(2);
 
 
 Scenario('SA removal job test: SA has external access @reqGoogle', async (fence, users, google, files) => {
