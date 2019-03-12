@@ -25,15 +25,13 @@ module.exports = {
   },
 
   /**
-   * WARNING: not functional currently since google may challenge login with a captcha
    * Links a google account then asserts it was successful
    * @param {User} userAcct - commons account to link with
-   * @param {User} acctWithGoogleCreds - account whose google email to link to
    * @returns {Promise<Gen3Response>}
    */
-  async linkGoogleAcct(userAcct, acctWithGoogleCreds) {
-    const linkRes = await fenceTasks.linkGoogleAcct(userAcct, acctWithGoogleCreds);
-    fenceQuestions.linkSuccess(linkRes, acctWithGoogleCreds);
+  async linkGoogleAcctMocked(userAcct) {
+    const linkRes = await fenceTasks.linkGoogleAcctMocked(userAcct);
+    fenceQuestions.mockedLinkSuccess(linkRes);
     return linkRes;
   },
 

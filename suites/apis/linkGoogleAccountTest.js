@@ -22,12 +22,12 @@ function timeNow() {
 }
 
 Scenario('link and unlink google account @reqGoogle', async (fence, users) => {
-  await fence.complete.forceLinkGoogleAcct(users.mainAcct, users.auxAcct1.googleCreds.email);
+  await fence.complete.linkGoogleAcctMocked(users.mainAcct);
   await fence.complete.unlinkGoogleAcct(users.mainAcct);
 });
 
 Scenario('extend account link expiration @reqGoogle', async (fence, users) => {
-  await fence.complete.forceLinkGoogleAcct(users.mainAcct, users.auxAcct1.googleCreds.email);
+  await fence.complete.linkGoogleAcctMocked(users.mainAcct);
   const requestTime = timeNow();
   const extendRes = await fence.do.extendGoogleLink(users.mainAcct);
   fence.ask.linkExtendSuccess(extendRes, requestTime);
@@ -45,15 +45,15 @@ Scenario('try to extend link when acct is not linked @reqGoogle', async (fence, 
 });
 
 Scenario('link an acct that is already linked to this user @reqGoogle', async (fence, users) => {
-  await fence.complete.forceLinkGoogleAcct(users.mainAcct, users.mainAcct.googleCreds.email);
+  await fence.complete.linkGoogleAcctMocked(users.mainAcct);
   let linkRes = await fence.do.forceLinkGoogleAcct(users.mainAcct, users.mainAcct.googleCreds.email);
   expect(linkRes, 'Linking a google account twice should fail').to.equal(0);
   await fence.complete.unlinkGoogleAcct(users.mainAcct);
 });
 
 Scenario('link an acct that is already linked to different user @reqGoogle', async (fence, users) => {
-  await fence.complete.forceLinkGoogleAcct(users.mainAcct, users.mainAcct.googleCreds.email);
-  let linkRes = await fence.do.forceLinkGoogleAcct(users.auxAcct1, users.mainAcct.googleCreds.email);
+  await fence.complete.linkGoogleAcctMocked(users.mainAcct);
+  let linkRes = await fence.do.linkGoogleAcctMocked(users.auxAcct1);
   expect(linkRes, 'Linking a google account twice should fail').to.equal(0);
   await fence.complete.unlinkGoogleAcct(users.mainAcct);
 });

@@ -1,7 +1,7 @@
 const fenceProps = require('./fenceProps.js');
 const user = require('../../../utils/user.js');
 const portal = require('../../../utils/portal.js');
-const { Gen3Response } = require('../../../utils/apiUtil');
+const { Gen3Response, getCookie } = require('../../../utils/apiUtil');
 const { Bash, takeLastLine } = require('../../../utils/bash');
 
 const { container } = require('codeceptjs');
@@ -152,34 +152,38 @@ module.exports = {
   },
 
   /**
-   * WARNING: not guaranteed to work since google might challenge the login
-   * with a captcha.
-   * Goes through the full, proper process for linking a google account
+   * Goes through the full, proper process for linking a google account assuming env
+   * is set to mock Google response
    * @param userAcct
-   * @param acctWithGoogleCreds
    * @returns {Promise<Gen3Response|*>}
    */
-  async linkGoogleAcct(userAcct, acctWithGoogleCreds) {
-    const googleCreds = acctWithGoogleCreds.googleCreds;
-    // set users access token
-    await I.setCookie({ name: 'access_token', value: userAcct.accessToken });
-    await I.seeCookie('access_token');
-    // visit link endpoint and login to google
-    await I.amOnPage(fenceProps.endpoints.linkGoogle);
-    await loginGoogle(googleCreds);
-    I.saveScreenshot('login7.png');
+  async linkGoogleAcctMocked(userAcct) {
+    // visit link endpoint. Google login is mocked
+    let headers = userAcct.accessTokenHeader
+    headers.Cookie = 'dev_login=' + userAcct.username
+    let response = undefined;
 
-    // wait until redirected back to root url
-    await I.waitInUrl(fenceProps.endpoints.root, 5);
-    I.wait(5);
+    return I.sendGetRequest(
+      '/user/link/google?redirect=/login', headers
+    ).then((res) => {
+      // follow redirect back to fence
+      let sessionCookie = getCookie('fence', res.headers['set-cookie'])
+      headers = {Cookie: 'dev_login=' + userAcct.username + ';' + 'fence=' + sessionCookie }
+      return I.sendGetRequest(res.headers.location, headers).then((res) => {
+        return I.sendGetRequest(res.headers.location, headers).then((res) => {
+          // return the body and the current url
+          const url = res.headers.location;
+          const body = res.body;
 
-    // return the body and the current url
-    const url = await I.grabCurrentUrl();
-    const body = await I.grabSource();
-
-    const res = new Gen3Response({ body });
-    res.finalURL = url;
-    return res;
+          const gen3Res = new Gen3Response({ body });
+          gen3Res.parsedFenceError = undefined;
+          gen3Res.body = body;
+          gen3Res.statusCode = 200;
+          gen3Res.finalURL = url;
+          return gen3Res
+        });
+      });
+    });
   },
 
   /**
