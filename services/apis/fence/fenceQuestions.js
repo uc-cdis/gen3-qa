@@ -51,9 +51,8 @@ module.exports = {
    * @param {Gen3Response} linkRes - linking response
    */
   mockedLinkSuccess(linkRes) {
-    expect(linkRes,
-      'response after Google linking doesnt have finalURL prop'
-    ).to.have.property('finalURL');
+    expect(linkRes,'response after Google linking doesnt have finalURL prop').to.have.property('finalURL');
+    expect(linkRes.finalURL, 'the finalURL returned by the Google linking is not defined; the linking failed').to.exist;
 
     const linkUrl = new URL(linkRes.finalURL);
 

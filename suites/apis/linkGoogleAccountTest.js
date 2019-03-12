@@ -46,14 +46,20 @@ Scenario('try to extend link when acct is not linked @reqGoogle', async (fence, 
 
 Scenario('link an acct that is already linked to this user @reqGoogle', async (fence, users) => {
   await fence.complete.linkGoogleAcctMocked(users.mainAcct);
-  let linkRes = await fence.do.forceLinkGoogleAcct(users.mainAcct, users.mainAcct.googleCreds.email);
-  expect(linkRes, 'Linking a google account twice should fail').to.equal(0);
+
+  // try to link mainAcct to the same account again
+  let linkRes = await fence.do.linkGoogleAcctMocked(users.mainAcct, users.mainAcct.googleCreds.email);
+  expect(linkRes.finalURL, 'Linking a google account twice should fail').to.not.exist;
+
   await fence.complete.unlinkGoogleAcct(users.mainAcct);
 });
 
 Scenario('link an acct that is already linked to different user @reqGoogle', async (fence, users) => {
   await fence.complete.linkGoogleAcctMocked(users.mainAcct);
-  let linkRes = await fence.do.linkGoogleAcctMocked(users.auxAcct1);
-  expect(linkRes, 'Linking a google account twice should fail').to.equal(0);
+
+  // try to link auxAcct1 to the account that is already linked to mainAcct
+  let linkRes = await fence.do.linkGoogleAcctMocked(users.mainAcct, users.auxAcct1);
+  expect(linkRes.finalURL, 'Linking a google account twice should fail').to.not.exist;
+
   await fence.complete.unlinkGoogleAcct(users.mainAcct);
 });

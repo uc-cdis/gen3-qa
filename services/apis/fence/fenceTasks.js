@@ -155,20 +155,21 @@ module.exports = {
    * Goes through the full, proper process for linking a google account assuming env
    * is set to mock Google response
    * @param userAcct
+   * @param loggedInUser - by default, logs in "userAcct"
    * @returns {Promise<Gen3Response|*>}
    */
-  async linkGoogleAcctMocked(userAcct) {
+  async linkGoogleAcctMocked(userAcct, loggedInUser=null) {
     // visit link endpoint. Google login is mocked
-    let headers = userAcct.accessTokenHeader
-    headers.Cookie = 'dev_login=' + userAcct.username
-    let response = undefined;
-
+    mockLoginUser = loggedInUser || userAcct.username;
+    let headers = userAcct.accessTokenHeader;
+    headers.Cookie = 'dev_login=' + mockLoginUser;
     return I.sendGetRequest(
       '/user/link/google?redirect=/login', headers
-    ).then((res) => {
-      // follow redirect back to fence
+    )
+    // follow redirect back to fence
+    .then((res) => {
       let sessionCookie = getCookie('fence', res.headers['set-cookie'])
-      headers = {Cookie: 'dev_login=' + userAcct.username + ';' + 'fence=' + sessionCookie }
+      headers = { Cookie: 'dev_login=' + mockLoginUser + ';' + 'fence=' + sessionCookie }
       return I.sendGetRequest(res.headers.location, headers).then((res) => {
         return I.sendGetRequest(res.headers.location, headers).then((res) => {
           // return the body and the current url
