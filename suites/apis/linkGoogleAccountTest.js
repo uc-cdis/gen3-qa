@@ -1,6 +1,5 @@
 Feature('LinkGoogleAccount');
 
-// const apiUtil = require('../../utils/apiUtil.js');
 
 BeforeSuite(async (fence, users) => {
   // Cleanup before suite
@@ -40,34 +39,3 @@ Scenario('try to extend link when acct is not linked @reqGoogle', async (fence, 
   const extendRes = await fence.do.extendGoogleLink(users.mainAcct);
   fence.ask.responsesEqual(extendRes, fence.props.resExtendNoGoogleAcctLinked);
 });
-
-/**
- * Disable this test for know - how to check if the link is expired?
- */
-// Scenario('link google account - expiration test @reqGoogle', async (fence, users) => {
-//   const EXPIRES_IN = 10;
-//   const googleProject = fence.props.googleProjectA;
-
-//   // link with custom expiration
-//   await fence.complete.forceLinkGoogleAcct(users.mainAcct, googleProject.owner, EXPIRES_IN);
-
-//   // wait for the link to expire
-//   await apiUtil.sleepMS(EXPIRES_IN * 1000);
-
-//   // test that the link is now expired
-//   // how?
-
-//   // extend expiration with custom expiration
-//   // TODO: can i extend after it's expired? if not: separate scenarios
-//   const requestTime = timeNow();
-//   const extendRes = await fence.do.extendGoogleLink(users.mainAcct, EXPIRES_IN);
-//   fence.ask.linkExtendSuccess(extendRes, requestTime, expires_in=EXPIRES_IN);
-
-//   // wait for the link to expire
-//   await apiUtil.sleepMS(EXPIRES_IN * 1000);
-
-//   // test that the link is now expired
-//   // how?
-
-//   await fence.complete.unlinkGoogleAcct(users.mainAcct);
-// });

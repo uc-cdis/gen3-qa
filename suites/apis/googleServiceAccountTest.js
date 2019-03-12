@@ -68,10 +68,16 @@ Scenario('Google project locking test @reqGoogle', async (fence, google) => {
   chai.expect(lockRes, 'Could not lock project').to.be.true;
 
   // Make sure the locking SA is listed in the project's SAs
-  let listRes = await google.listServiceAccounts(googleProject.id);
-  saEmail = google.getLockingServiceAccountEmail(googleProject.serviceAccountEmail);
-  let found = listRes.some(sa => sa.email === saEmail);
-  chai.expect(found, 'The locking SA should be listed in the project\'s SAs').to.be.true;
+  // It sometimes takes a bit of time to appear in the list
+  let saEmail = google.getLockingServiceAccountEmail(googleProject.serviceAccountEmail);
+  /**
+   * return true if the locking SA is in the list, false otherwise
+   */
+  let isLockingSaInList = async function(saEmail) {
+    let listRes = await google.listServiceAccounts(googleProject.id);
+    return listRes.some(sa => sa.email === saEmail);
+  };
+  await apiUtil.smartWait(isLockingSaInList, [saEmail], timeout=20, `Not in list after ${timeout} secs`, startWait=1);
 
   // Try to lock the project again
   lockRes = await google.lockGoogleProject(googleProject, timeout=5);

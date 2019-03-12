@@ -109,7 +109,6 @@ module.exports = {
    * @param {Object} accessTokenHeader
    * @returns {Promise<Gen3Response>}
    */
-  // TODO: this is a task not a sequence
   deleteTempGoogleCreds(googleKeyId, accessTokenHeader) {
     accessTokenHeader['Content-Type'] = 'application/json';
     return I.sendDeleteRequest(
