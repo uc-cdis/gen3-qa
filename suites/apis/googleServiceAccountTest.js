@@ -167,7 +167,7 @@ Scenario('Register SA from Google Project that has a parent org @reqGoogle', asy
     ['test'],
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountHasParentOrg);
-});
+}).retry(2);
 
 
 
@@ -451,7 +451,7 @@ Scenario('Register SA for data access where one Project member does not have pri
     registerRes,
     fence.props.resRegisterServiceAccountMissingProjectPrivilege,
   );
-});
+}).retry(2);
 
 //
 // Delete Service Account tests

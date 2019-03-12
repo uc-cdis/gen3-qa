@@ -279,7 +279,7 @@ module.exports = {
           const request = {
             name: `projects/${projectID}`,
             auth: authClient,
-            pageSize: new Number(5), // get the first 5 SAs
+            pageSize: new Number(5), // get the first 5 SAs (this does not work well)
             pageToken: nextPageToken,
           };
           cloudResourceManager.projects.serviceAccounts.list(request, (err, res) => {
