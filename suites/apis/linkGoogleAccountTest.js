@@ -1,6 +1,8 @@
 const chai = require('chai');
 const expect = chai.expect;
 
+const apiUtil = require('../../utils/apiUtil.js');
+
 
 Feature('LinkGoogleAccount');
 
@@ -26,11 +28,33 @@ Scenario('link and unlink google account @reqGoogle', async (fence, users) => {
   await fence.complete.unlinkGoogleAcct(users.mainAcct);
 });
 
-Scenario('extend account link expiration @reqGoogle', async (fence, users) => {
+Scenario('extend account link expiration before it expires @reqGoogle', async (fence, users) => {
   await fence.complete.linkGoogleAcctMocked(users.mainAcct);
   const requestTime = timeNow();
   const extendRes = await fence.do.extendGoogleLink(users.mainAcct);
   fence.ask.linkExtendSuccess(extendRes, requestTime);
+  await fence.complete.unlinkGoogleAcct(users.mainAcct);
+});
+
+Scenario('extend account link expiration after it expired @reqGoogle', async (fence, users) => {
+  // link with short expiration
+  const EXPIRES_IN = 5;
+  let requestTime = timeNow();
+  let linkRes = await fence.complete.linkGoogleAcctMocked(users.mainAcct, loggedInUser=null, expires_in=EXPIRES_IN);
+  let linkExpiration = linkRes.finalURL.match(RegExp('exp=([0-9]+)'))[1];
+  expect(
+    linkExpiration - requestTime,
+    `The link should be set to expire in ${EXPIRES_IN} secs`
+  ).to.be.within(EXPIRES_IN - 5, EXPIRES_IN + 5);
+
+  // wait for the linking to be expired
+  await apiUtil.sleepMS(EXPIRES_IN * 1000);
+
+  // extend the expiration
+  requestTime = timeNow();
+  const extendRes = await fence.do.extendGoogleLink(users.mainAcct);
+  fence.ask.linkExtendSuccess(extendRes, requestTime);
+
   await fence.complete.unlinkGoogleAcct(users.mainAcct);
 });
 
