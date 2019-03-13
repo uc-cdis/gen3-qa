@@ -42,11 +42,6 @@ After(async (fence, users) => {
   await Promise.all(unlinkResults);
 });
 
-AfterSuite(async (fence, users) => {
-//   console.log(`Running usersync job`);
-//   bash.runJob('usersync');
-});
-
 xScenario('test google data access via usersync: usersync, Google link, generate temp creds, bucket access, usersync access file 2, bucket access, delete temp creds @reqGoogle @googleDataAccess',
   async (fence, users, google) => {
   console.log('make sure users google accounts are unlinked');
@@ -190,6 +185,9 @@ xScenario('test google data access via usersync: usersync, Google link, generate
     fence.props.googleBucketInfo.test.fileName
   );
 
+  // Clean up
+  console.log('cleaning up');
+
   console.log('deleting temporary google credentials');
   // call our endpoint to delete temporary creds
   const deleteCreds0Res = await fence.complete.deleteTempGoogleCreds(
@@ -221,6 +219,10 @@ xScenario('test google data access via usersync: usersync, Google link, generate
     console.log(`${pathToCreds2KeyFile} deleted!`);
   });
 
+  console.log(`Running usersync job`);
+  bash.runJob('usersync');
+
+  // Asserts
   console.log('Make assertions for user access for first run');
   chai.expect(user0AccessQA1Res,
     'First sync: Check User0 access bucket for project: QA. FAILED.'
@@ -286,15 +288,15 @@ xScenario('test google data access via usersync: usersync, Google link, generate
   ).to.be.empty;
 });
 
-Scenario('use temp Service Account creds to get object in bucket @reqGoogle', async (fence, users, google, files) => {
+Scenario('Use temporary Service Account creds to get object in bucket @reqGoogle', async (fence, users, google, files) => {
     // Lock the project
     const googleProject = fence.props.googleProjectDynamic;
     lockRes = await google.lockGoogleProject(googleProject);
     chai.expect(lockRes, 'Could not lock project').to.be.true;
-  
+
     // Setup
     await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
-  
+
     // Register account
     const registerRes = await fence.do.registerGoogleServiceAccount(
       users.user0,
@@ -302,10 +304,10 @@ Scenario('use temp Service Account creds to get object in bucket @reqGoogle', as
       ['QA']
     );
     fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
-  
+
     // Get creds to access data
     let [pathToKeyFile, keyFullName] = await google.createServiceAccountKeyFile(googleProject);
-  
+
     // Access data
     user0AccessQARes = await google.getFileFromBucket(
       fence.props.googleBucketInfo.QA.googleProjectId,
@@ -313,25 +315,25 @@ Scenario('use temp Service Account creds to get object in bucket @reqGoogle', as
       fence.props.googleBucketInfo.QA.bucketId,
       fence.props.googleBucketInfo.QA.fileName
     );
-  
+
     // Clean up
     console.log('cleaning up');
-  
+
     await google.deleteServiceAccountKey(keyFullName);
     files.deleteFile(pathToKeyFile);
-  
+
     await fence.do.deleteGoogleServiceAccount(
       users.user0,
       googleProject.serviceAccountEmail,
     );
-  
+
     await fence.do.unlinkGoogleAcct(
       users.user0,
     );
-  
+
     // Unlock the project
     let unlockRes = await google.unlockGoogleProject(googleProject);
-  
+
     // Asserts
     chai.expect(user0AccessQARes,
       'User should have bucket access'
