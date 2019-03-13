@@ -145,6 +145,20 @@ module.exports = {
   },
 
   /**
+   * Hits fence's endoint to delete temp Google credentials
+   * @param {string} googleKeyId
+   * @param {Object} accessTokenHeader
+   * @returns {Promise<Gen3Response>}
+   */
+  deleteTempGoogleCreds(googleKeyId, accessTokenHeader) {
+    accessTokenHeader['Content-Type'] = 'application/json';
+    return I.sendDeleteRequest(
+      `${fenceProps.endpoints.googleCredentials}${googleKeyId}`,
+      accessTokenHeader,
+    ).then(res => new Gen3Response(res));
+  },
+
+  /**
    * TODO
    */
   getUserGoogleCreds(accessTokenHeader) {

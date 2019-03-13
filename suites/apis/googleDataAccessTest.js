@@ -190,11 +190,11 @@ xScenario('test google data access via usersync: usersync, Google link, generate
 
   console.log('deleting temporary google credentials');
   // call our endpoint to delete temporary creds
-  const deleteCreds0Res = await fence.complete.deleteTempGoogleCreds(
+  const deleteCreds0Res = await fence.do.deleteTempGoogleCreds(
     creds0Key, users.user0.accessTokenHeader);
-  const deleteCreds1Res = await fence.complete.deleteTempGoogleCreds(
+  const deleteCreds1Res = await fence.do.deleteTempGoogleCreds(
     creds1Key, users.user1.accessTokenHeader);
-  const deleteCreds2Res = await fence.complete.deleteTempGoogleCreds(
+  const deleteCreds2Res = await fence.do.deleteTempGoogleCreds(
     creds2Key, users.user2.accessTokenHeader);
 
   console.log('test cleanup: deleting google service accounts from google');

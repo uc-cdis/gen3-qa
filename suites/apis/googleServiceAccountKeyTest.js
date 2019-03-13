@@ -56,7 +56,7 @@ Scenario('Get current SA creds @reqGoogle', async (fence, users) => {
   console.log(credsList2);
 
   // Delete a key
-  await fence.complete.deleteTempGoogleCreds(
+  await fence.do.deleteTempGoogleCreds(
     keyId1, users.user0.accessTokenHeader);
 
   // Get list of current creds
@@ -66,7 +66,7 @@ Scenario('Get current SA creds @reqGoogle', async (fence, users) => {
   // Clean up
   console.log('cleaning up');
 
-  await fence.complete.deleteTempGoogleCreds(
+  await fence.do.deleteTempGoogleCreds(
     keyId2, users.user0.accessTokenHeader);
 
   await fence.do.deleteGoogleServiceAccount(
@@ -157,7 +157,7 @@ Scenario('Get temporary Service Account creds, get object in bucket, delete cred
   );
 
   // Delete the key
-  await fence.complete.deleteTempGoogleCreds(
+  await fence.do.deleteTempGoogleCreds(
     creds0Key, users.user0.accessTokenHeader);
 
   // Try to access data
@@ -171,7 +171,7 @@ Scenario('Get temporary Service Account creds, get object in bucket, delete cred
   // Clean up
   console.log('cleaning up');
 
-  await fence.complete.deleteTempGoogleCreds(
+  await fence.do.deleteTempGoogleCreds(
     creds0Key, users.user0.accessTokenHeader);
   files.deleteFile(pathToCreds0KeyFile);
 
@@ -194,7 +194,7 @@ Scenario('Get temporary Service Account creds, get object in bucket, delete cred
 });
 
 
-Scenario('Service Account temporary key expiration test @reqGoogle', async (fence, users, google, files) => {
+Scenario('Service Account temporary creds expiration test @reqGoogle', async (fence, users, google, files) => {
   // Test that we do not have access to data anymore after the SA key is expired
 
   const EXPIRES_IN = 5;
@@ -247,7 +247,7 @@ Scenario('Service Account temporary key expiration test @reqGoogle', async (fenc
 
   // should have been deleted by the google-manage-keys-job
   // send delete request just in case (do not check if it was actually deleted)
-  await fence.complete.deleteTempGoogleCreds(
+  await fence.do.deleteTempGoogleCreds(
     creds0Key, users.user0.accessTokenHeader);
 
   files.deleteFile(pathToCreds0KeyFile);

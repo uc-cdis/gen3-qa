@@ -89,7 +89,6 @@ module.exports = {
 
   /**
    * Creates temporary Google Access creds then asserts it was successful
-   * @param {string[]} scope - access token scopes
    * @param {Object} accessTokenHeaders
    * @param {int} expires_in - requested expiration time (in seconds)
    * @returns {Promise<Gen3Response>}
@@ -101,20 +100,6 @@ module.exports = {
       'property body.private_key (which means we didn\'t get back valid Google credentials)'
     ).has.nested.property('body.private_key');
     return response;
-  },
-
-  /**
-   * Hits fence's endoint to delete temp Google credentials
-   * @param {string} googleKeyId
-   * @param {Object} accessTokenHeader
-   * @returns {Promise<Gen3Response>}
-   */
-  deleteTempGoogleCreds(googleKeyId, accessTokenHeader) {
-    accessTokenHeader['Content-Type'] = 'application/json';
-    return I.sendDeleteRequest(
-      `${fenceProps.endpoints.googleCredentials}${googleKeyId}`,
-      accessTokenHeader,
-    ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
   },
 
   /**
