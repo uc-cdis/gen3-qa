@@ -13,7 +13,7 @@ Scenario('test core metadata', async(pidgin, users) => {
 
   // to be implemented to support application/vnd.schemaorg.ld+json format in future
   // metadata = await pidgin.do.getCoremetadata(valid_file, 'application/vnd.schemaorg.ld+json', users.mainAcct.accessTokenHeader);
-  // pidgin.ask.seeSchemaorgdata(valid_file, metadata);
+  // pidgin.ask.seeSchemaorgCoremetadata(valid_file, metadata);
 });
 
 Scenario('test core metadata invalid object_id', async(pidgin, users) => {
