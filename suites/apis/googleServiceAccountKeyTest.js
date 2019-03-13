@@ -194,6 +194,16 @@ Scenario('Get temporary Service Account creds, get object in bucket, delete cred
 });
 
 
+Scenario('Delete SA creds that do not exist @reqGoogle', async (fence, users) => {
+  fakeKeyId = '64a48da067f4a4f053e6197bf2b134df7d0abcde';
+  let deleteRes = await fence.do.deleteTempGoogleCreds(
+    fakeKeyId, users.user0.accessTokenHeader);
+  expect(deleteRes,
+    'Deleting a SA key that does not exist should return 404'
+  ).has.property('statusCode', 404);
+});
+
+
 Scenario('Service Account temporary creds expiration test @reqGoogle', async (fence, users, google, files) => {
   // Test that we do not have access to data anymore after the SA key is expired
 
