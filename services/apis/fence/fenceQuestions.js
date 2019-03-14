@@ -219,43 +219,6 @@ module.exports = {
     expect(response).to.have.nested.property('body.expires_in');
   },
 
-  /**
-   * Assert that we can access a file in a bucket with given creds
-   * @param {string} pathToCredsKeyFile
-   * @param bucketInfo - see fence.props.googleBucketInfo
-   */
-  assertCanAccessBucket(pathToCredsKeyFile, bucketInfo) {
-    // attempt to access a file in the bucket
-    expect(
-      googleUtil.getFileFromBucket(
-        bucketInfo.googleProjectId,
-        pathToCredsKeyFile,
-        bucketInfo.bucketName,
-        bucketInfo.fileName
-      ),
-      'error was thrown when attempting to get a file from a Google bucket'
-    ).to.not.throw();
-  },
-
-  /**
-   * Assert that we can access a file in a bucket with given creds
-   * @param {string} pathToCredsKeyFile
-   * @param bucketInfo - see fence.props.googleBucketInfo
-   */
-  assertCanNotAccessBucket(pathToCredsKeyFile, bucketInfo) {
-    // attempt to access a file in the bucket
-    expect(
-      googleUtil.getFileFromBucket(
-        bucketInfo.googleProjectId,
-        pathToCredsKeyFile,
-        bucketInfo.bucketName,
-        bucketInfo.fileName
-      ),
-      'error was NOT thrown when attempting to get a file from a Google bucket. ' +
-      'We expected the error because the user should NOT have access.'
-    ).to.throw();
-  },
-
   assertTruethyResult(result) {
     expect(!!result).to.be.true;
   },

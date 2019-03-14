@@ -109,6 +109,20 @@ module.exports = {
     return I.sendGetRequest(url).then(res => res.body);
   },
 
+  getGoogleFileFromSignedUrlRes(signedUrlRes) {
+    let fileContents = '';
+    if (
+      signedUrlRes !== undefined
+      && signedUrlRes !== null
+      && signedUrlRes.hasOwnProperty('body')
+      && signedUrlRes["body"] !== undefined
+      && signedUrlRes["body"].hasOwnProperty('url')
+    ){
+      return I.sendGetRequest(signedUrlRes["body"].url).then(res => res.body);
+    }
+    return fileContents;
+  },
+
   /**
    * Hits fence's endoint to create an api, given an access token
    * @param {string[]} scope - scope of the access token
