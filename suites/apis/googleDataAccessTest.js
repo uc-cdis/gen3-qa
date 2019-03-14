@@ -334,11 +334,11 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
 
   console.log('deleting temporary google credentials');
   // call our endpoint to delete temporary creds
-  const deleteCreds0Res = await fence.complete.deleteTempGoogleCreds(
+  const deleteCreds0Res = await fence.do.deleteTempGoogleCreds(
     creds0Key, users.user0.accessTokenHeader);
-  const deleteCreds1Res = await fence.complete.deleteTempGoogleCreds(
+  const deleteCreds1Res = await fence.do.deleteTempGoogleCreds(
     creds1Key, users.user1.accessTokenHeader);
-  const deleteCreds2Res = await fence.complete.deleteTempGoogleCreds(
+  const deleteCreds2Res = await fence.do.deleteTempGoogleCreds(
     creds2Key, users.user2.accessTokenHeader);
 
   console.log('test cleanup: deleting google service accounts from google');
@@ -471,11 +471,11 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
   //  - Check signed URLs from FIRST RUN
   chai.expect(User0AccessRemovedQA,
     "Make sure signed URL from User0 CANNOT access QA data again. FAILED."
-  ).to.not.equal(fence.props.googleBucketInfo.QA.fileContents);
+  ).to.contain('AccessDenied');
 
   chai.expect(User1AccessRemovedQA,
     "Make sure signed URL from User1 CANNOT access QA data again. FAILED."
-  ).to.not.equal(fence.props.googleBucketInfo.QA.fileContents);
+  ).to.contain('AccessDenied');
 
   chai.expect(User1AccessRemainsTest,
     "Make sure signed URL from User1 CAN access test data again. FAILED."

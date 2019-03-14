@@ -9,6 +9,8 @@ const bash = new Bash();
 
 const I = actor();
 
+const GOOGLE_FILE_FROM_URL_ERROR = 'Could not get Google file contents from signed url response';
+
 /**
  * Determines if browser is on Google's "Choose account" page
  * @returns {Promise<boolean>}
@@ -71,6 +73,8 @@ async function loginGoogle(googleCreds) {
  * fence Tasks
  */
 module.exports = {
+  GOOGLE_FILE_FROM_URL_ERROR,
+
   /**
    * Hits fence's signed url endpoint
    * @param {string} id - id/did of an indexd file
@@ -110,17 +114,15 @@ module.exports = {
   },
 
   getGoogleFileFromSignedUrlRes(signedUrlRes) {
-    let fileContents = '';
     if (
-      signedUrlRes !== undefined
-      && signedUrlRes !== null
+      signedUrlRes
       && signedUrlRes.hasOwnProperty('body')
       && signedUrlRes["body"] !== undefined
       && signedUrlRes["body"].hasOwnProperty('url')
     ){
       return I.sendGetRequest(signedUrlRes["body"].url).then(res => res.body);
     }
-    return fileContents;
+    return GOOGLE_FILE_FROM_URL_ERROR;
   },
 
   /**
@@ -155,6 +157,20 @@ module.exports = {
   },
 
   /**
+   * Hits fence's endoint to delete temp Google credentials
+   * @param {string} googleKeyId
+   * @param {Object} accessTokenHeader
+   * @returns {Promise<Gen3Response>}
+   */
+  deleteTempGoogleCreds(googleKeyId, accessTokenHeader) {
+    accessTokenHeader['Content-Type'] = 'application/json';
+    return I.sendDeleteRequest(
+      `${fenceProps.endpoints.googleCredentials}${googleKeyId}`,
+      accessTokenHeader,
+    ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
+  },
+
+  /**
    * Deletes a given API Key
    * @param {string} apiKey
    * @returns {Promise<Object>}
@@ -181,7 +197,7 @@ module.exports = {
 
   /**
    * Goes through the full, proper process for linking a google account assuming env
-   * is set to mock Google response
+   * is set to mock Google responsenew Error
    * @param userAcct
    * @returns {Promise<Gen3Response|*>}
    */
@@ -189,7 +205,6 @@ module.exports = {
     // visit link endpoint. Google login is mocked
     let headers = userAcct.accessTokenHeader
     headers.Cookie = 'dev_login=' + userAcct.username
-    let response = undefined;
 
     return I.sendGetRequest(
       '/user/link/google?redirect=/login', headers

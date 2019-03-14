@@ -105,16 +105,21 @@ module.exports = {
 
       const file = storage.bucket(bucketName).file(fileName);
 
-      file.get(function(err, file, apiResponse) {
-        // file.metadata` has been populated.
-        if (err) {
-          if(err instanceof Error) {
-            resolve(err.response)
-          }
-          resolve(Error(err));
-        }
-        resolve(file);
-      });
+      resolve(
+        file.get()
+        .then(function(data) {
+          // Note: data[0] is the file; data[1] is the API response
+          console.log(`Got file ${fileName} from bucket ${bucketName}`);
+          return data[0];
+        })
+        .catch((err) => {
+          console.log(`Cannot get file ${fileName} from bucket ${bucketName}`);
+          return {
+            statusCode: err.code || 403,
+            message: err.message
+          };
+        })
+      )
     });
   },
 
