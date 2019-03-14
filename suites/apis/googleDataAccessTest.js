@@ -5,9 +5,10 @@ change on the User Access file, the user's access to data on Google changes corr
 
 - Sync a User Access File
 - Generate temporary Google credentials
-- Use credentials to read file(s)
-  - make sure we get 403's for files users should NOT have access to and we can receive
-    the files that they should
+- Generate signed URLs
+- Use credentials and signed URLs to read file(s)
+  - make sure they get 403's for files users should NOT have access
+  - make sure they CAN receive the files that they should
 
 User Access Files and which projects the users have access to:
 
@@ -27,16 +28,47 @@ User Access Files and which projects the users have access to:
       - test
     User2
       - QA
+
+
+NOTE: This is a giant test that asserts a lot of things. Why not multiple tests?
+      Because usersync and useryaml jobs take a very long time. If we had to run
+      them in b/t every test, this suite would take ten-fold or more time than
+      it currently does.
+
+      To compensate for the potential annoyance of "what actually failed?!" when this
+      fails, we've added a ton of console.logs along the way so you know where the test
+      got to. All assertions should also provide detailed information about failures.
 */
 const { Commons } = require('../../utils/commons.js');
 const chai = require('chai');
+const fenceProps = require('../../services/apis/fence/fenceProps.js');
 const { Bash } = require('../../utils/bash.js');
+const apiUtil = require('../../utils/apiUtil.js');
 
 const bash = new Bash();
 
 const fs = require('fs');
 
-BeforeSuite(async (fence, users) => {
+const I = actor();
+
+const indexed_files = {
+  qaFile: {
+    filename: fenceProps.googleBucketInfo.QA.fileName,
+    link: 'gs://' + fenceProps.googleBucketInfo.QA.bucketId + '/' + fenceProps.googleBucketInfo.QA.fileName,
+    md5: '73d643ec3f4beb9020eef0beed440ad0',
+    acl: ['QA'],
+    size: 9,
+  },
+  testFile: {
+    filename: fenceProps.googleBucketInfo.test.fileName,
+    link: 'gs://' + fenceProps.googleBucketInfo.test.bucketId + '/' + fenceProps.googleBucketInfo.test.fileName,
+    md5: '73d643ec3f4beb9020eef0beed440ad1',
+    acl: ['test'],
+    size: 10,
+  }
+}
+
+BeforeSuite(async (fence, users, indexd) => {
   console.log('Ensure test buckets are linked to projects in this commons...\n');
   const namespace = process.env.NAMESPACE
 
@@ -56,17 +88,23 @@ BeforeSuite(async (fence, users) => {
 
   console.log('Clean up Google Bucket Access Groups from previous runs...\n');
   bash.runJob('google-verify-bucket-access-group');
+
+  console.log('Adding indexd files used to test signed urls');
+  const ok = await indexd.do.addFileIndices(Object.values(indexed_files));
+  chai.expect(ok).to.be.true;
+});
+
+AfterSuite(async (fence, indexd, users) => {
+  console.log(`Running usersync job`);
+  bash.runJob('usersync');
+  console.log('Removing indexd files used to test signed urls');
+  await indexd.do.deleteFileIndices(Object.values(indexed_files));
 });
 
 After(async (fence, users) => {
   // Cleanup after each scenario
   const unlinkResults = Object.values(users).map(user => fence.do.unlinkGoogleAcct(user));
   await Promise.all(unlinkResults);
-});
-
-AfterSuite(async (fence, users) => {
-  console.log(`Running usersync job`);
-  bash.runJob('usersync');
 });
 
 Scenario('test google data access via usersync: usersync, Google link, generate temp creds, bucket access, usersync access file 2, bucket access, delete temp creds @reqGoogle @googleDataAccess',
@@ -96,6 +134,63 @@ Scenario('test google data access via usersync: usersync, Google link, generate 
     users.user1.accessTokenHeader);
   const tempCreds2Res = await fence.complete.createTempGoogleCreds(
     users.user2.accessTokenHeader);
+
+  console.log('Use User0 to create signed URL for file in QA')
+  const User0signedUrlQA1Res = await fence.do.createSignedUrlForUser(
+    indexed_files.qaFile.did, users.user0.accessTokenHeader);
+  let User0signedUrlQA1FileContents = '';
+  if (
+    User0signedUrlQA1Res !== undefined
+    && User0signedUrlQA1Res !== null
+    && User0signedUrlQA1Res.hasOwnProperty('body')
+    && User0signedUrlQA1Res["body"] !== undefined
+    && User0signedUrlQA1Res["body"].hasOwnProperty('url')
+  ){
+    User0signedUrlQA1FileContents = await fence.do.getGoogleFile(
+      User0signedUrlQA1Res["body"].url);
+  }
+
+  console.log('Use User1 to create signed URL for file in QA')
+  const User1signedUrlQA1Res = await fence.do.createSignedUrlForUser(
+    indexed_files.qaFile.did, users.user1.accessTokenHeader);
+  let User1signedUrlQA1ResFileContents = '';
+  if (
+    User1signedUrlQA1Res !== undefined
+    && User1signedUrlQA1Res !== null
+    && User1signedUrlQA1Res.hasOwnProperty('body')
+    && User1signedUrlQA1Res["body"] !== undefined
+    && User1signedUrlQA1Res["body"].hasOwnProperty('url')
+  ){
+    User1signedUrlQA1ResFileContents = await fence.do.getGoogleFile(
+      User1signedUrlQA1Res["body"].url);
+  }
+
+  console.log('Use User2 to create signed URL for file in QA')
+  const User2signedUrlQA1Res = await fence.do.createSignedUrlForUser(
+    indexed_files.qaFile.did, users.user2.accessTokenHeader);
+
+  console.log('Use User0 to create signed URL for file in test')
+  const User0signedUrlTest1Res = await fence.do.createSignedUrlForUser(
+    indexed_files.testFile.did, users.user0.accessTokenHeader);
+
+  console.log('Use User1 to create signed URL for file in test')
+  const User1signedUrlTest1Res = await fence.do.createSignedUrlForUser(
+    indexed_files.testFile.did, users.user1.accessTokenHeader);
+  let User1signedUrlTest1ResFileContents = '';
+  if (
+    User1signedUrlTest1Res !== undefined
+    && User1signedUrlTest1Res !== null
+    && User1signedUrlTest1Res.hasOwnProperty('body')
+    && User1signedUrlTest1Res["body"] !== undefined
+    && User1signedUrlTest1Res["body"].hasOwnProperty('url')
+  ){
+    User1signedUrlTest1ResFileContents = await fence.do.getGoogleFile(
+      User1signedUrlTest1Res["body"].url);
+  }
+
+  console.log('Use User2 to create signed URL for file in test')
+  const User2signedUrlTest1Res = await fence.do.createSignedUrlForUser(
+    indexed_files.testFile.did, users.user2.accessTokenHeader);
 
   console.log('saving temporary google creds to file');
   const creds0Key = tempCreds0Res.body.private_key_id;
@@ -159,6 +254,11 @@ Scenario('test google data access via usersync: usersync, Google link, generate 
   Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
   bash.runJob('useryaml-job');
 
+  // get new access tokens b/c of changed access
+  newUser0AccessToken = apiUtil.getAccessToken(users.user0.username, 3600);
+  newUser1AccessToken = apiUtil.getAccessToken(users.user1.username, 3600);
+  newUser2AccessToken = apiUtil.getAccessToken(users.user2.username, 3600);
+
   console.log('using saved google creds to access google bucket!! Save responses to check later');
   // use Google's client libraries to attempt to read a controlled access file with the
   // creds we just saved (based on the user's permissions)
@@ -200,6 +300,110 @@ Scenario('test google data access via usersync: usersync, Google link, generate 
     fence.props.googleBucketInfo.test.fileName
   );
 
+  console.log('Use User0 to create signed URL for file in QA')
+  const User0signedUrlQA2Res = await fence.do.createSignedUrlForUser(
+    indexed_files.qaFile.did, {
+      Accept: 'application/json',
+      Authorization: `bearer ${newUser0AccessToken}`,
+    });
+
+  console.log('Use User1 to create signed URL for file in QA')
+  const User1signedUrlQA2Res = await fence.do.createSignedUrlForUser(
+    indexed_files.qaFile.did, {
+      Accept: 'application/json',
+      Authorization: `bearer ${newUser1AccessToken}`,
+    });
+
+  console.log('Use User2 to create signed URL for file in QA')
+  const User2signedUrlQA2Res = await fence.do.createSignedUrlForUser(
+    indexed_files.qaFile.did, {
+      Accept: 'application/json',
+      Authorization: `bearer ${newUser2AccessToken}`,
+    });
+  let User2signedUrlQA2ResFileContents = '';
+  if (
+    User2signedUrlQA2Res !== undefined
+    && User2signedUrlQA2Res !== null
+    && User2signedUrlQA2Res.hasOwnProperty('body')
+    && User2signedUrlQA2Res["body"] !== undefined
+    && User2signedUrlQA2Res["body"].hasOwnProperty('url')
+  ){
+    User2signedUrlQA2ResFileContents = await fence.do.getGoogleFile(
+      User2signedUrlQA2Res["body"].url);
+  }
+
+  console.log('Use User0 to create signed URL for file in test')
+  const User0signedUrlTest2Res = await fence.do.createSignedUrlForUser(
+    indexed_files.testFile.did, {
+      Accept: 'application/json',
+      Authorization: `bearer ${newUser0AccessToken}`,
+    });
+
+  console.log('Use User1 to create signed URL for file in test')
+  const User1signedUrlTest2Res = await fence.do.createSignedUrlForUser(
+    indexed_files.testFile.did, {
+      Accept: 'application/json',
+      Authorization: `bearer ${newUser1AccessToken}`,
+    });
+  let User1signedUrlTest2ResFileContents = '';
+  if (
+    User1signedUrlTest2Res !== undefined
+    && User1signedUrlTest2Res !== null
+    && User1signedUrlTest2Res.hasOwnProperty('body')
+    && User1signedUrlTest2Res["body"] !== undefined
+    && User1signedUrlTest2Res["body"].hasOwnProperty('url')
+  ){
+    User1signedUrlTest2ResFileContents = await fence.do.getGoogleFile(
+      User1signedUrlTest2Res["body"].url);
+  }
+
+  console.log('Use User2 to create signed URL for file in test')
+  const User2signedUrlTest2Res = await fence.do.createSignedUrlForUser(
+    indexed_files.testFile.did, {
+      Accept: 'application/json',
+      Authorization: `bearer ${newUser2AccessToken}`,
+    });
+
+  // use old signed urls to try and access data again
+  console.log('Use signed URL from User0 to try and access QA data again')
+  let User0AccessRemovedQA = '';
+  if (
+    User0AccessRemovedQA !== undefined
+    && User0AccessRemovedQA !== null
+    && User0AccessRemovedQA.hasOwnProperty('body')
+    && User0signedUrlQA1Res["body"] !== undefined
+    && User0signedUrlQA1Res["body"].hasOwnProperty('url')
+  ){
+    User0AccessRemovedQA = await fence.do.getGoogleFile(
+      User0signedUrlQA1Res["body"].url);
+  }
+
+  console.log('Use signed URL from User1 to try and access QA data again')
+  let User1AccessRemovedQA = '';
+  if (
+    User1AccessRemovedQA !== undefined
+    && User1AccessRemovedQA !== null
+    && User1AccessRemovedQA.hasOwnProperty('body')
+    && User1signedUrlQA1Res["body"] !== undefined
+    && User1signedUrlQA1Res["body"].hasOwnProperty('url')
+  ){
+    User1AccessRemovedQA = await fence.do.getGoogleFile(
+      User1signedUrlQA1Res["body"].url);
+  }
+
+  console.log('Use signed URL from User1 to try and access test data again')
+  let User1AccessRemovedTest = '';
+  if (
+    User1AccessRemovedTest !== undefined
+    && User1AccessRemovedTest !== null
+    && User1AccessRemovedTest.hasOwnProperty('body')
+    && User1signedUrlTest1Res["body"] !== undefined
+    && User1signedUrlTest1Res["body"].hasOwnProperty('url')
+  ){
+    User1AccessRemovedTest = await fence.do.getGoogleFile(
+      User1signedUrlTest1Res["body"].url);
+  }
+
   console.log('deleting temporary google credentials');
   // call our endpoint to delete temporary creds
   const deleteCreds0Res = await fence.complete.deleteTempGoogleCreds(
@@ -227,7 +431,11 @@ Scenario('test google data access via usersync: usersync, Google link, generate 
   files.deleteFile(pathToCreds2KeyFile);
   console.log(`${pathToCreds2KeyFile} deleted!`);
 
+  // FIRST RUN
+  //  - Check Temporary Service Account Creds
   console.log('Make assertions for user access for first run');
+  console.log('First: Check temporary service account credentials');
+
   chai.expect(user0AccessQA1Res,
     'First sync: Check User0 access bucket for project: QA. FAILED.'
   ).to.have.property('id');
@@ -249,7 +457,39 @@ Scenario('test google data access via usersync: usersync, Google link, generate 
     'First sync: Check User2 access CAN NOT bucket for project: test. FAILED.'
   ).to.have.property('statusCode', 403);
 
+  // FIRST RUN
+  //  - Check Signed URLs
+  console.log('Second: Check signed URLs');
+
+  chai.expect(User0signedUrlQA1FileContents,
+    "First sync: Check User0 can use signed URL to read file in QA. FAILED."
+  ).to.equal(fence.props.googleBucketInfo.QA.fileContents);
+
+  chai.expect(User1signedUrlQA1ResFileContents,
+    "First sync: Check User1 can use signed URL to read file in QA. FAILED."
+  ).to.equal(fence.props.googleBucketInfo.QA.fileContents);
+
+  chai.expect(User2signedUrlQA1Res,
+    'First sync: Check that User2 could NOT get a signed URL to read file in QA. FAILED.'
+  ).to.have.property('statusCode', 401);
+
+  chai.expect(User0signedUrlTest1Res,
+    'First sync: Check that User0 could NOT get a signed URL to read file in test. FAILED.'
+  ).to.have.property('statusCode', 401);
+
+  chai.expect(User1signedUrlTest1ResFileContents,
+    "First sync: Check User1 can use signed URL to read file in test. FAILED."
+  ).to.equal(fence.props.googleBucketInfo.test.fileContents);
+
+  chai.expect(User2signedUrlTest1Res,
+    'First sync: Check that User2 could NOT get a signed URL to read file in test. FAILED.'
+  ).to.have.property('statusCode', 401);
+
+  // SECOND RUN (new authZ)
+  //  - Check Temporary Service Account Creds
   console.log('Make assertions for user access for second run (after new usersync)');
+  console.log('First: Check temporary service account credentials');
+
   chai.expect(user0AccessQA2Res,
     '2nd sync: Check User0 CAN NOT access bucket for project: QA. FAILED.'
   ).to.have.property('statusCode', 403);
@@ -271,6 +511,51 @@ Scenario('test google data access via usersync: usersync, Google link, generate 
     '2nd sync: Check User2 access CAN NOT bucket for project: test. FAILED.'
   ).to.have.property('statusCode', 403);
 
+  // SECOND RUN (new authZ)
+  //  - Check Signed URLs from SECOND RUN
+  console.log('Second: Check signed URLs');
+
+  chai.expect(User1signedUrlQA2Res,
+    '2nd sync: Check that User1 could NOT get a signed URL to read file in QA. FAILED.'
+  ).to.have.property('statusCode', 401);
+
+  chai.expect(User0signedUrlQA2Res,
+    '2nd sync: Check that User0 could NOT get a signed URL to read file in QA. FAILED.'
+  ).to.have.property('statusCode', 401);
+
+  chai.expect(User2signedUrlQA2ResFileContents,
+    "2nd sync: Check User2 can use signed URL to read file in QA. FAILED."
+  ).to.equal(fence.props.googleBucketInfo.QA.fileContents);
+
+  chai.expect(User0signedUrlTest2Res,
+    '2nd sync: Check that User0 could NOT get a signed URL to read file in test. FAILED.'
+  ).to.have.property('statusCode', 401);
+
+  chai.expect(User1signedUrlTest2ResFileContents,
+    "2nd sync: Check User1 can use signed URL to read file in test. FAILED."
+  ).to.equal(fence.props.googleBucketInfo.test.fileContents);
+
+  chai.expect(User2signedUrlTest2Res,
+    '2nd sync: Check that User2 could NOT get a signed URL to read file in test. FAILED.'
+  ).to.have.property('statusCode', 401);
+
+  // SECOND RUN
+  //  - Check signed URLs from FIRST RUN
+  chai.expect(User0AccessRemovedQA,
+    "Make sure signed URL from User0 CANNOT access QA data again. FAILED."
+  ).to.not.equal(fence.props.googleBucketInfo.QA.fileContents);
+
+  chai.expect(User1AccessRemovedQA,
+    "Make sure signed URL from User1 CANNOT access QA data again. FAILED."
+  ).to.not.equal(fence.props.googleBucketInfo.QA.fileContents);
+
+  chai.expect(User1AccessRemovedTest,
+    "Make sure signed URL from User1 CANNOT access test data again. FAILED."
+  ).to.not.equal(fence.props.googleBucketInfo.test.fileContents);
+
+  // CLEANUP
+  console.log('Finally: Ensure cleanup as successful');
+
   chai.expect(deleteCreds0Res,
     'Cleanup of temporary Google creds for User 0 FAILED.'
   ).to.have.property('statusCode', 204);
@@ -290,4 +575,4 @@ Scenario('test google data access via usersync: usersync, Google link, generate 
   chai.expect(deleteServiceAccount2Res,
     'Cleanup of Google service account for User 2 FAILED.'
   ).to.be.empty;
-});
+}).retry(2);
