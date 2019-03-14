@@ -1,3 +1,4 @@
+const atob = require('atob');
 const chai = require('chai');
 const expect = chai.expect;
 
@@ -204,7 +205,7 @@ Scenario('Delete SA creds that do not exist @reqGoogle', async (fence, users) =>
 });
 
 
-Scenario('Service Account temporary creds expiration test @reqGoogle', async (fence, users, google, files) => {
+Scenario('SA key removal job test: remove expired creds @reqGoogle', async (fence, users, google, files) => {
   // Test that we do not have access to data anymore after the SA key is expired
 
   const EXPIRES_IN = 5;
@@ -278,4 +279,89 @@ Scenario('Service Account temporary creds expiration test @reqGoogle', async (fe
   chai.expect(user0AccessQAResExpired,
     'User should NOT have bucket access after expiration'
   ).to.have.property('statusCode', 403);
+});
+
+
+Scenario('SA key removal job test: remove expired creds that do not exist in google @reqGoogle', async (fence, users, google) => {
+  // Test that the job removes keys from the fence DB even if some of them do not exist in google
+
+  const EXPIRES_IN = 1;
+  const googleProject = fence.props.googleProjectA;
+
+  // Setup
+  await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
+
+  // Register account
+  const registerRes = await fence.do.registerGoogleServiceAccount(
+    users.user0,
+    googleProject,
+    ['QA']
+  );
+  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
+
+  // Get creds to access data
+  let tempCredsRes = await fence.complete.createTempGoogleCreds(users.user0.accessTokenHeader, EXPIRES_IN);
+  let credsKey1 = tempCredsRes.body.private_key_id;
+
+  // Get other creds to access data, with short expiration time
+  tempCredsRes = await fence.complete.createTempGoogleCreds(users.user0.accessTokenHeader, EXPIRES_IN);
+  let credsKey2 = tempCredsRes.body.private_key_id;
+
+  // Get the complete name of the generated key and delete it in google
+  let getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
+  let credsList = getCredsRes.access_keys;
+  let key = credsList.filter(key => key.name.includes(credsKey1))[0];
+  await google.deleteServiceAccountKey(key.name);
+
+  // Wait for the keys to expire
+  console.log('waiting for the key to expire');
+  await apiUtil.sleepMS((EXPIRES_IN + 5) * 1000);
+
+  // Run the expired SA key clean up job
+  console.log('Clean up expired Service Account keys');
+  bash.runJob('google-manage-keys-job');
+
+  // Get list of current creds
+  getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
+  credsList = getCredsRes.access_keys;
+  console.log(credsList);
+
+  // Clean up
+  console.log('cleaning up');
+
+  // should have been deleted by the google-manage-keys-job
+  // send delete request just in case (do not check if it was actually deleted)
+  await fence.do.deleteTempGoogleCreds(
+    credsKey1, users.user0.accessTokenHeader);
+  await fence.do.deleteTempGoogleCreds(
+    credsKey2, users.user0.accessTokenHeader);
+
+  await fence.do.deleteGoogleServiceAccount(
+    users.user0,
+    googleProject.serviceAccountEmail,
+  );
+
+  await fence.do.unlinkGoogleAcct(
+    users.user0,
+  );
+
+  // Asserts
+  chai.expect(credsList.length,
+      'The expired SA keys should have been removed'
+    ).to.equal(0);
+});
+
+
+// TODO: move this
+xScenario('login test @reqGoogle', async (fence, users) => {
+  // TODO: use basic client flow instead
+  token = users.mainAcct.accessToken;
+  userInfoRes = await fence.do.getUserInfo(token);
+  fence.ask.assertUserInfo(userInfoRes);
+  console.log(userInfoRes.body.project_access);
+
+  var base64Url = token.split('.')[1];
+  var base64 = base64Url.replace('-', '+').replace('_', '/');
+  tokenClaims = JSON.parse(atob(base64));
+  console.log(tokenClaims.context.user.projects);
 });
