@@ -146,7 +146,7 @@ Scenario('test google data access via usersync: usersync, Google link, generate 
     && User0signedUrlQA1Res["body"] !== undefined
     && User0signedUrlQA1Res["body"].hasOwnProperty('url')
   ){
-    User0signedUrlQA1FileContents = await fence.do.getGoogleFile(
+    User0signedUrlQA1FileContents = await fence.do.getFile(
       User0signedUrlQA1Res["body"].url);
   }
 
@@ -161,7 +161,7 @@ Scenario('test google data access via usersync: usersync, Google link, generate 
     && User1signedUrlQA1Res["body"] !== undefined
     && User1signedUrlQA1Res["body"].hasOwnProperty('url')
   ){
-    User1signedUrlQA1ResFileContents = await fence.do.getGoogleFile(
+    User1signedUrlQA1ResFileContents = await fence.do.getFile(
       User1signedUrlQA1Res["body"].url);
   }
 
@@ -184,7 +184,7 @@ Scenario('test google data access via usersync: usersync, Google link, generate 
     && User1signedUrlTest1Res["body"] !== undefined
     && User1signedUrlTest1Res["body"].hasOwnProperty('url')
   ){
-    User1signedUrlTest1ResFileContents = await fence.do.getGoogleFile(
+    User1signedUrlTest1ResFileContents = await fence.do.getFile(
       User1signedUrlTest1Res["body"].url);
   }
 
@@ -328,7 +328,7 @@ Scenario('test google data access via usersync: usersync, Google link, generate 
     && User2signedUrlQA2Res["body"] !== undefined
     && User2signedUrlQA2Res["body"].hasOwnProperty('url')
   ){
-    User2signedUrlQA2ResFileContents = await fence.do.getGoogleFile(
+    User2signedUrlQA2ResFileContents = await fence.do.getFile(
       User2signedUrlQA2Res["body"].url);
   }
 
@@ -353,7 +353,7 @@ Scenario('test google data access via usersync: usersync, Google link, generate 
     && User1signedUrlTest2Res["body"] !== undefined
     && User1signedUrlTest2Res["body"].hasOwnProperty('url')
   ){
-    User1signedUrlTest2ResFileContents = await fence.do.getGoogleFile(
+    User1signedUrlTest2ResFileContents = await fence.do.getFile(
       User1signedUrlTest2Res["body"].url);
   }
 
@@ -374,7 +374,7 @@ Scenario('test google data access via usersync: usersync, Google link, generate 
     && User0signedUrlQA1Res["body"] !== undefined
     && User0signedUrlQA1Res["body"].hasOwnProperty('url')
   ){
-    User0AccessRemovedQA = await fence.do.getGoogleFile(
+    User0AccessRemovedQA = await fence.do.getFile(
       User0signedUrlQA1Res["body"].url);
   }
 
@@ -387,7 +387,7 @@ Scenario('test google data access via usersync: usersync, Google link, generate 
     && User1signedUrlQA1Res["body"] !== undefined
     && User1signedUrlQA1Res["body"].hasOwnProperty('url')
   ){
-    User1AccessRemovedQA = await fence.do.getGoogleFile(
+    User1AccessRemovedQA = await fence.do.getFile(
       User1signedUrlQA1Res["body"].url);
   }
 
@@ -400,7 +400,7 @@ Scenario('test google data access via usersync: usersync, Google link, generate 
     && User1signedUrlTest1Res["body"] !== undefined
     && User1signedUrlTest1Res["body"].hasOwnProperty('url')
   ){
-    User1AccessRemovedTest = await fence.do.getGoogleFile(
+    User1AccessRemovedTest = await fence.do.getFile(
       User1signedUrlTest1Res["body"].url);
   }
 
