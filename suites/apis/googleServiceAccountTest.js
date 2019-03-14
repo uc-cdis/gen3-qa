@@ -29,6 +29,10 @@ After(async (google, fence, users) => {
   await google.suiteCleanup(fence, users);
 });
 
+AfterSuite(async (google, fence) => {
+  await google.unlockGoogleProject(fence.props.googleProjectDynamic);
+});
+
 
 Scenario('Register Google Service Account Success @reqGoogle @first', async (fence, users) => {
   // Link to a member in a valid google project and register the SA
@@ -67,20 +71,8 @@ Scenario('Google project locking test @reqGoogle', async (fence, google) => {
   lockRes = await google.lockGoogleProject(googleProject);
   chai.expect(lockRes, 'Could not lock project').to.be.true;
 
-  // Make sure the locking SA is listed in the project's SAs
-  // It sometimes takes a bit of time to appear in the list
-  let saEmail = google.getLockingServiceAccountEmail(googleProject.serviceAccountEmail);
-  /**
-   * return true if the locking SA is in the list, false otherwise
-   */
-  let isLockingSaInList = async function(saEmail) {
-    let listRes = await google.listServiceAccounts(googleProject.id);
-    return listRes.some(sa => sa.email === saEmail);
-  };
-  await apiUtil.smartWait(isLockingSaInList, [saEmail], timeout=20, `Not in list after ${timeout} secs`, startWait=1);
-
   // Try to lock the project again
-  lockRes = await google.lockGoogleProject(googleProject, timeout=5);
+  lockRes = await google.lockGoogleProject(googleProject, 3);
   chai.expect(lockRes, 'Should not be able to lock project (already locked)').to.be.false;
 
   // Unlock the project
@@ -88,6 +80,7 @@ Scenario('Google project locking test @reqGoogle', async (fence, google) => {
   chai.expect(unlockRes, 'Could not unlock project').to.be.true;
 
   // Make sure the locking SA is not listed anymore
+  let saEmail = google.getLockingServiceAccountEmail(googleProject.serviceAccountEmail);
   listRes = await google.listServiceAccounts(googleProject.id);
   found = listRes.some(sa => sa.email === saEmail);
   chai.expect(found, 'The locking SA should not be listed in the project\'s SAs').to.be.false;
@@ -95,7 +88,27 @@ Scenario('Google project locking test @reqGoogle', async (fence, google) => {
   // Try to unlock the project again
   unlockRes = await google.unlockGoogleProject(googleProject);
   chai.expect(unlockRes, 'Unlocking an unlocked project should work').to.be.true;
-});
+
+  // Simulate another testing session running by creating a fake lock
+  // We should not be able to lock or unlock the project
+  let fakeLockName = `${google.lockServiceAccountName}-anotherlock`;
+  await google.lockGoogleProject(googleProject, 180, fakeLockName);
+
+  // Try to lock the project
+  lockRes = await google.lockGoogleProject(googleProject, 3);
+
+  // Try to unlock the project
+  unlockRes = await google.unlockGoogleProject(googleProject);
+
+  // Clean up
+  let fakeLockEmail = google.getLockingServiceAccountEmail(googleProject.serviceAccountEmail, fakeLockName);
+  let deleteRes = await google.deleteServiceAccount(googleProject.id, fakeLockEmail);
+
+  // Asserts
+  chai.expect(lockRes, 'Should not be able to lock project (already locked by another testing session)').to.be.false;
+  chai.expect(unlockRes, 'Should not be able to unlock project (it was locked by another testing session)').to.be.false;
+  fence.ask.deleteServiceAccountSuccess(deleteRes);
+}).retry(2);
 
 //
 // Google Project validity

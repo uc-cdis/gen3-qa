@@ -13,7 +13,10 @@ const apiUtil = require('./apiUtil.js');
 const files = require('./file.js');
 
 
+// one name shared by all testing sessions and one unique to this session
 const lockServiceAccountName = 'locked-by-test';
+let rand = (Math.random() + 1).toString(36).substring(2,7); // 5 random chars
+const lockServiceAccountUniqueName = `${lockServiceAccountName}-${rand}`;
 
 
 /**
@@ -423,8 +426,10 @@ module.exports = {
     })
   },
 
-  getLockingServiceAccountEmail(googleProjectEmail) {
-    return `${lockServiceAccountName}@${googleProjectEmail.substring(googleProjectEmail.indexOf('@')+1)}`;
+  lockServiceAccountName,
+
+  getLockingServiceAccountEmail(googleProjectEmail, lockName=lockServiceAccountUniqueName) {
+    return `${lockName}@${googleProjectEmail.substring(googleProjectEmail.indexOf('@')+1)}`;
   },
 
   /**
@@ -432,15 +437,16 @@ module.exports = {
    * If the project is already locked, waits for it to become available
    * @param {string} googleProject - project to lock
    * @param {int} timeout - max number of seconds to wait
+   * @param {string} lockName - should only be used by the locking test!
    * Returns true if successfully locked, false otherwise
    */
-  async lockGoogleProject(googleProject, timeout=180) {
+  async lockGoogleProject(googleProject, timeout=180, lockName=lockServiceAccountUniqueName) {
     if (googleProject.id != 'gen3qa-validationjobtest') {
       console.log(`We only allow locking the project "googleProjectDynamic" (id "gen3qa-validationjobtest"). You are trying to lock "${googleProject.id}"`);
       return false;
     }
 
-    const serviceAccountEmail = this.getLockingServiceAccountEmail(googleProject.serviceAccountEmail);
+    const serviceAccountEmail = this.getLockingServiceAccountEmail(googleProject.serviceAccountEmail, lockName);
 
     console.log(`Trying to lock Google project "${googleProject.id}"...`);
 
@@ -448,9 +454,16 @@ module.exports = {
      * return true if the project was successfully locked, false otherwise
      */
     const tryLockProject = async function(googleProject) {
-      const createRes = await module.exports.createServiceAccount(googleProject.id, lockServiceAccountName, 'Locked: a test is currently using the project');
+      // check if the project is locked by anyone (not using the unique name)
+      listRes = await module.exports.listServiceAccounts(googleProject.id);
+      isLocked = listRes.some(sa => sa.email.startsWith(lockServiceAccountName));
+      if (isLocked) return false;
+
+      const createRes = await module.exports.createServiceAccount(googleProject.id, lockName, 'Locked: a test is currently using the project');
 
       if (typeof createRes === 'object' && createRes instanceof Error) {
+        console.log('Unable to lock the project even though it is not already locked...');
+        console.log(createRes);
         return false;
       } else {
         expect(createRes).to.have.property('email');
@@ -462,6 +475,24 @@ module.exports = {
 
     try {
       await apiUtil.smartWait(tryLockProject, [googleProject], timeout, `Could not lock project after ${timeout} secs`);
+    }
+    catch(err) {
+      console.log(err);
+      return false;
+    }
+
+    // It sometimes takes a bit of time for the lock to be in the list of SAs
+    // We need it be be listed to make sure another session cannot lock
+    /**
+     * return true if the locking SA is in the list, false otherwise
+     */
+    let isLockingSaInList = async function() {
+      let listRes = await module.exports.listServiceAccounts(googleProject.id);
+      return listRes.some(sa => sa.email === serviceAccountEmail);
+    };
+    let listTimeout = 30;
+    try {
+      await apiUtil.smartWait(isLockingSaInList, [], listTimeout, `Registered lock SA is not listed after ${listTimeout} secs`, startWait=1);
       return true;
     }
     catch(err) {
@@ -478,11 +509,16 @@ module.exports = {
   async unlockGoogleProject(googleProject) {
     const serviceAccountEmail = this.getLockingServiceAccountEmail(googleProject.serviceAccountEmail);
 
-    // check if the project is locked
+    // check if the project is locked. if not locked: return success
     listRes = await this.listServiceAccounts(googleProject.id);
-    isLocked = listRes.some(sa => sa.email === serviceAccountEmail);
+    isLocked = listRes.some(sa => sa.email.startsWith(lockServiceAccountName));
     if (!isLocked) return true;
 
+    // if it's locked by another testing session: cannot unlock
+    isLockedByMe = listRes.some(sa => sa.email === serviceAccountEmail);
+    if (!isLockedByMe) return false;
+
+    // if it's lock by this testing session: try to unlock
     console.log(`Unlocking Google project "${googleProject.id}"`);
     const deleteRes = await this.deleteServiceAccount(googleProject.id, serviceAccountEmail);
     // if successfully unlocked, res is an empty object
