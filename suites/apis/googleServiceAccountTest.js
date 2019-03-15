@@ -652,7 +652,7 @@ Scenario('Service Account registration expiration test @reqGoogle', async (fence
     'User should NOT have bucket access after expiration'
   ).to.have.property('statusCode', 403);
   chai.expect(unlockRes, 'Could not unlock project').to.be.true;
-});
+}).retry(2);
 
 
 Scenario('Service Account temporary key expiration test @reqGoogle', async (fence, users, google, files) => {
@@ -730,4 +730,4 @@ Scenario('Service Account temporary key expiration test @reqGoogle', async (fenc
   chai.expect(user0AccessQAResExpired,
     'User should NOT have bucket access after expiration'
   ).to.have.property('statusCode', 403);
-});
+}).retry(2);

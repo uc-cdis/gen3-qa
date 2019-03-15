@@ -31,6 +31,11 @@ After(async (google, fence, users) => {
 });
 
 
+AfterSuite(async (google, fence) => {
+  await google.unlockGoogleProject(fence.props.googleProjectDynamic);
+});
+
+
 function checkAndCleanSA() {
   var fenceCmd = 'fence-create --verbose google-manage-user-registrations';
   console.log(`Running: ${fenceCmd}`);
