@@ -281,8 +281,7 @@ Scenario('SA key removal job test: remove expired creds @reqGoogle', async (fenc
 });
 
 
-// TODO: emable after cirrus fix
-xScenario('SA key removal job test: remove expired creds that do not exist in google @reqGoogle', async (fence, users, google) => {
+Scenario('SA key removal job test: remove expired creds that do not exist in google @reqGoogle', async (fence, users, google) => {
   // Test that the job removes keys from the fence DB even if some of them do not exist in google
 
   const EXPIRES_IN = 1;
@@ -324,7 +323,6 @@ xScenario('SA key removal job test: remove expired creds that do not exist in go
   // Get list of current creds
   getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
   credsList = getCredsRes.access_keys;
-  console.log(credsList);
 
   // Clean up
   console.log('cleaning up');
