@@ -73,8 +73,6 @@ async function loginGoogle(googleCreds) {
  * fence Tasks
  */
 module.exports = {
-  GOOGLE_FILE_FROM_URL_ERROR,
-
   /**
    * Hits fence's signed url endpoint
    * @param {string} id - id/did of an indexd file
@@ -122,6 +120,7 @@ module.exports = {
     ){
       return I.sendGetRequest(signedUrlRes["body"].url).then(res => res.body);
     }
+    console.log(GOOGLE_FILE_FROM_URL_ERROR);
     return GOOGLE_FILE_FROM_URL_ERROR;
   },
 
@@ -197,7 +196,7 @@ module.exports = {
 
   /**
    * Goes through the full, proper process for linking a google account assuming env
-   * is set to mock Google responsenew Error
+   * is set to mock Google response
    * @param userAcct
    * @returns {Promise<Gen3Response|*>}
    */
