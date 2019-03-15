@@ -1,3 +1,8 @@
+const atob = require('atob');
+const chai = require('chai');
+const expect = chai.expect;
+
+
 Feature('OAuth2 flow');
 
 
@@ -81,6 +86,55 @@ Scenario('Authorization code flow: Test that can create an access token which ca
   );
   res = await fence.do.getUserInfo(res.body.access_token);
   fence.ask.assertUserInfo(res);
+});
+
+Scenario.only('Authorization code flow: Test project access in id token same as project access in user endpoint @reqGoogle', async (fence) => {
+  /**
+   * Example list of projects the user has access to:
+   * projects = {
+   *  DEV: [ 'read', 'create', 'upload', 'update', 'delete' ],
+   *  QA: [ 'read' ]
+   * }
+   */
+
+  // get an access token
+  const urlStr = await fence.do.getConsentCode(
+    fence.props.clients.client.id, 'code', 'openid+user');
+  fence.ask.assertContainSubStr(urlStr, ['code=']);
+  const match = urlStr.match(RegExp('/?code=(.*)'));
+  const code = match && match[1];
+  fence.ask.assertTruethyResult(code);
+  let res = await fence.do.getTokensWithAuthCode(
+    fence.props.clients.client.id,
+    fence.props.clients.client.secret, code, 'authorization_code',
+  );
+  let id_token = res.body.id_token
+
+  // list of projects the token gives access to
+  var base64Url = id_token.split('.')[1];
+  var base64 = base64Url.replace('-', '+').replace('_', '/');
+  tokenClaims = JSON.parse(atob(base64));
+  projectsInToken = tokenClaims.context.user.projects;
+
+  // list of projects the user endpoint shows access to
+  userInfoRes = await fence.do.getUserInfo(id_token);
+  fence.ask.assertUserInfo(userInfoRes);
+  projectsOfUser = userInfoRes.body.project_access;
+
+  // test object equality
+  projects = Object.getOwnPropertyNames(projectsInToken);
+  expect(
+    projects.length,
+    `Number of projects with access is not identical in token and user info`
+  ).to.equal(Object.getOwnPropertyNames(projectsOfUser).length)
+  for (var i = 0; i < projects.length; i++) {
+    var p = projects[i];
+    // test list equality
+    expect(
+      JSON.stringify(projectsInToken[p].sort()),
+      `Access to project ${p} is not identical in token and user info`
+    ).to.equal(JSON.stringify(projectsOfUser[p].sort()));
+  }
 });
 
 // Scenario('Authorization Code flow: Test successfully refresh token', async (fence) => {

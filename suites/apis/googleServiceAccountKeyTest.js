@@ -1,4 +1,3 @@
-const atob = require('atob');
 const chai = require('chai');
 const expect = chai.expect;
 
@@ -208,7 +207,7 @@ Scenario('Delete SA creds that do not exist @reqGoogle', async (fence, users) =>
 Scenario('SA key removal job test: remove expired creds @reqGoogle', async (fence, users, google, files) => {
   // Test that we do not have access to data anymore after the SA key is expired
 
-  const EXPIRES_IN = 5;
+  const EXPIRES_IN = 1;
   const googleProject = fence.props.googleProjectA;
 
   // Setup
@@ -282,7 +281,8 @@ Scenario('SA key removal job test: remove expired creds @reqGoogle', async (fenc
 });
 
 
-Scenario('SA key removal job test: remove expired creds that do not exist in google @reqGoogle', async (fence, users, google) => {
+// TODO: emable after cirrus fix
+xScenario('SA key removal job test: remove expired creds that do not exist in google @reqGoogle', async (fence, users, google) => {
   // Test that the job removes keys from the fence DB even if some of them do not exist in google
 
   const EXPIRES_IN = 1;
@@ -349,19 +349,4 @@ Scenario('SA key removal job test: remove expired creds that do not exist in goo
   chai.expect(credsList.length,
       'The expired SA keys should have been removed'
     ).to.equal(0);
-});
-
-
-// TODO: move this
-xScenario('login test @reqGoogle', async (fence, users) => {
-  // TODO: use basic client flow instead
-  token = users.mainAcct.accessToken;
-  userInfoRes = await fence.do.getUserInfo(token);
-  fence.ask.assertUserInfo(userInfoRes);
-  console.log(userInfoRes.body.project_access);
-
-  var base64Url = token.split('.')[1];
-  var base64 = base64Url.replace('-', '+').replace('_', '/');
-  tokenClaims = JSON.parse(atob(base64));
-  console.log(tokenClaims.context.user.projects);
 });
