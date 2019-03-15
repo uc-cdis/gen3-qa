@@ -88,7 +88,7 @@ Scenario('Authorization code flow: Test that can create an access token which ca
   fence.ask.assertUserInfo(res);
 });
 
-Scenario.only('Authorization code flow: Test project access in id token same as project access in user endpoint @reqGoogle', async (fence) => {
+Scenario('Authorization code flow: Test project access in id token same as project access in user endpoint @reqGoogle', async (fence) => {
   /**
    * Example list of projects the user has access to:
    * projects = {
