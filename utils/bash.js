@@ -1,6 +1,6 @@
 /**
  * A module providing utility functions for high level commons info
- * @module commonsUtil
+ * @module bash
  */
 
 const { K8s } = require('./commanders/k8s');

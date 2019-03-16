@@ -12,6 +12,9 @@ chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 const { JSDOM } = jsdom;
 
+const { Bash, takeLastLine } = require('./bash');
+const bash = new Bash();
+
 /**
  * Determines if response body is the fence generic error page
  * @param responseBody
@@ -118,6 +121,20 @@ function sleep(ms) {
 
 module.exports = {
   /**
+   * Runs a fence command for fetching access token for a user
+   * @param {string} namespace - namespace to get token from
+   * @param {string} username - username to fetch token for
+   * @param {number} expiration - life duration for token
+   * @returns {string}
+   */
+  getAccessToken(username, expiration) {
+    const fenceCmd = `fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account,google_credentials --type access_token --exp ${expiration} --username ${username}`;
+    const accessToken = bash.runCommand(fenceCmd, 'fence', takeLastLine);
+    console.error(accessToken);
+    return accessToken.trim();
+  },
+
+  /**
    * Apply a question to an array of responses. Expect no errors to be thrown
    * @param {Object[]} objList
    * @param {function} question
@@ -163,6 +180,20 @@ module.exports = {
       waitTime *= 2; // wait longer every time
     }
     throw new Error(errorMessage);
+  },
+
+  /**
+   * Returns the value of a cookie given the name and the string from 'set-cookie'
+   * header in the response
+   * @param {string} cookieName - name for cookie you want the value of
+   * @param {string} cookieString - string from 'set-cookie' header in the response
+   * @returns {string}
+   */
+  getCookie(cookieName, cookieString) {
+    // get name followed by anything except a semicolon
+    var cookiestring = RegExp("" + cookieName + "[^;]+").exec(cookieString);
+    // return everything after the equal sign, or an empty string if the cookie name not found
+    return decodeURIComponent(!!cookiestring ? cookiestring.toString().replace(/^[^=]+./,"") : "");
   },
 
   /**

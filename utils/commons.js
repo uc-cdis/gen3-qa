@@ -5,6 +5,9 @@
 
 const request = require('request');
 const user = require('./user');
+const { Bash } = require('./bash');
+const bash = new Bash();
+const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
 
 class Commons{
   static get program() {
@@ -24,6 +27,14 @@ class Commons{
       dbgap_accession_number: 'jenkins',
       state: 'open',
       releasable: true,
+    }
+  }
+
+  // these files exist in cloud automation repo, check there for details
+  static get userAccessFiles() {
+    return {
+      newUserAccessFile1: 'test1_user.yaml',
+      newUserAccessFile2: 'test2_user.yaml' // used to modify access to integration tests users
     }
   }
 
@@ -98,6 +109,51 @@ class Commons{
         }),
     );
   }
+
+  /**
+   * Backup the current User Access into a file
+   *  Note: Generates a child process and runs the given command in a kubernetes namespace
+   * @param {string} backupFile - name of file to backup to
+   * @returns {string}
+   */
+  static backupUserYaml(backupFile) {
+    var dir;
+    if (inJenkins) {
+      dir = `${process.env.GEN3_HOME}/files/integration_testing`;
+    } else {
+      dir = `~/cloud-automation/files/integration_testing`;
+    }
+
+    bash.runCommand(`rm -f ${dir}/${backupFile}`);
+
+    const cmd = `g3kubectl get configmap fence -o json | jq -r '.data."user.yaml"' > ${dir}/${backupFile}`;
+    const res = bash.runCommand(cmd);
+    return res;
+  }
+
+  /**
+   * Sets the configured User Access in the remote environment to be the provided filename
+   * WARNING: It is recommended to run backupUserYaml() first
+   * Note: Generates a child process and runs the given command in a kubernetes namespace
+   * @param {string} useryaml - name of User Access file to set as main user.yaml
+   * @returns {string}
+   */
+  static setUserYaml(useryaml) {
+    var dir;
+    if (inJenkins) {
+      dir = `${process.env.GEN3_HOME}/files/integration_testing`;
+    } else {
+      dir = `~/cloud-automation/files/integration_testing`;
+    }
+
+    bash.runCommand(`rm -f ${dir}/user.yaml`);
+    bash.runCommand(`cp ${dir}/${useryaml} ${dir}/user.yaml`);
+
+    var cmd = `gen3 update_config fence ${dir}/user.yaml`;
+    const res = bash.runCommand(cmd);
+    return res;
+  }
+
 }
 
 module.exports = { Commons };
