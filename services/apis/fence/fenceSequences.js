@@ -113,5 +113,60 @@ module.exports = {
   async deleteFile(guid) {
     const res = await fenceTasks.deleteFile(guid);
     fenceQuestions.assertStatusCode(res, 204);
-  }
+  },
+
+
+  /**
+   * Cleans up fence's DBs for links and service accounts
+   * Takes the google and users utils as params
+   * @returns {Promise<void>}
+   */
+  async suiteCleanup(google, users) {
+    // unlock the lockable google project
+    await google.unlockGoogleProject(fenceProps.googleProjectDynamic);
+
+    // google projects to 'clean up'
+    const googleProjects = [
+      fenceProps.googleProjectA,
+      fenceProps.googleProjectDynamic,
+      fenceProps.googleProjectWithComputeServiceAcct,
+    ];
+    // remove unimportant roles from google projects
+    for (const proj of googleProjects) {
+      await google.removeAllOptionalUsers(proj.id);
+    }
+
+    // delete all service accounts from fence
+    for (const proj of googleProjects) {
+      // TRY to delete the service account
+      // NOTE: the service account might have been registered unsuccessfully or deleted,
+      //  we are just hitting the endpoints as if it still exists and ignoring errors
+      const projUser = users.mainAcct;
+
+      if (!projUser.linkedGoogleAccount) {
+        // If the project user is not linked, link to project owner then delete
+        await fenceTasks.forceLinkGoogleAcct(projUser, proj.owner)
+          .then(() =>
+          fenceTasks.deleteGoogleServiceAccount(projUser, proj.serviceAccountEmail),
+          );
+      } else if (projUser.linkedGoogleAccount !== proj.owner) {
+        // If the project user is linked, but not to project owner,
+        // unlink user, then link to project owner and delete service account
+        await module.exports.unlinkGoogleAcct(projUser)
+          .then(() =>
+          fenceTasks.forceLinkGoogleAcct(projUser, proj.owner),
+          )
+          .then(() =>
+          fenceTasks.deleteGoogleServiceAccount(projUser, proj.serviceAccountEmail),
+          );
+      } else {
+        // If project user is linked to the project owner, delete the service account
+        await fenceTasks.deleteGoogleServiceAccount(projUser, proj.serviceAccountEmail);
+      }
+    }
+
+    // unlink all google accounts
+    const unlinkPromises = Object.values(users).map(user => fenceTasks.unlinkGoogleAcct(user));
+    await Promise.all(unlinkPromises);
+  },
 };

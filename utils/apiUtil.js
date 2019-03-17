@@ -114,15 +114,15 @@ const gen3Res = function (_chai, _) {
 module.exports = {
   /**
    * Runs a fence command for fetching access token for a user
-   * @param {string} namespace - namespace to get token from
    * @param {string} username - username to fetch token for
    * @param {number} expiration - life duration for token
    * @returns {string}
    */
   getAccessToken(username, expiration) {
+    console.log(`getting access token for ${username}`);
     const fenceCmd = `fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account,google_credentials --type access_token --exp ${expiration} --username ${username}`;
     const accessToken = bash.runCommand(fenceCmd, 'fence', takeLastLine);
-    console.error(accessToken);
+    // console.error(accessToken);
     return accessToken.trim();
   },
 

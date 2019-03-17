@@ -22,11 +22,11 @@ Feature('RegisterGoogleServiceAccount');
 
 
 BeforeSuite(async (google, fence, users) => {
-  await google.suiteCleanup(fence, users);
+  await fence.complete.suiteCleanup(google, users);
 });
 
 After(async (google, fence, users) => {
-  await google.suiteCleanup(fence, users);
+  await fence.complete.suiteCleanup(google, users);
 });
 
 AfterSuite(async (google, fence) => {
@@ -709,7 +709,7 @@ Scenario('Service Account temporary key expiration test @reqGoogle', async (fenc
 
   // should have been deleted by the google-manage-keys-job
   // send delete request just in case (do not check if it was actually deleted)
-  await fence.complete.deleteTempGoogleCreds(
+  await fence.do.deleteTempGoogleCreds(
     creds0Key, users.user0.accessTokenHeader);
 
   files.deleteFile(pathToCreds0KeyFile);

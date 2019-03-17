@@ -176,7 +176,6 @@ module.exports = async function (done) {
     console.log('Setting environment variables...\n');
 
     // Export access tokens
-    console.log('Export access tokens for users');
     for (const user of Object.values(users)) {
       const at = apiUtil.getAccessToken(user.username, DEFAULT_TOKEN_EXP);
       // make sure the access token looks valid - base64 encoded JSON :-p
@@ -198,7 +197,6 @@ module.exports = async function (done) {
     process.env[`${fenceProps.clients.clientImplicit.envVarsName}_ID`] = implicitClient.client_id;
 
     // Export expired access token for main acct
-    console.log('Export expired access tokens for users');
     const mainAcct = users.mainAcct;
     const expAccessToken = apiUtil.getAccessToken(mainAcct.username, 1);
     process.env[mainAcct.envExpTokenName] = expAccessToken;

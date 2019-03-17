@@ -68,27 +68,7 @@ const indexed_files = {
   }
 }
 
-BeforeSuite(async (fence, users, indexd) => {
-  console.log('Ensure test buckets are linked to projects in this commons...\n');
-  const namespace = process.env.NAMESPACE
-
-  var bucketId = fence.props.googleBucketInfo.QA.bucketId
-  var googleProjectId = fence.props.googleBucketInfo.QA.googleProjectId
-  var projectAuthId = 'QA'
-  var fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
-  console.log(`Running: ${fenceCmd}`)
-  var response = bash.runCommand(fenceCmd, 'fence');
-
-  bucketId = fence.props.googleBucketInfo.test.bucketId
-  googleProjectId = fence.props.googleBucketInfo.test.googleProjectId
-  projectAuthId = 'test'
-  fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
-  console.log(`Running: ${fenceCmd}`)
-  response = bash.runCommand(fenceCmd, 'fence');
-
-  console.log('Clean up Google Bucket Access Groups from previous runs...\n');
-  bash.runJob('google-verify-bucket-access-group');
-
+BeforeSuite(async (indexd) => {
   console.log('Adding indexd files used to test signed urls');
   const ok = await indexd.do.addFileIndices(Object.values(indexed_files));
   chai.expect(ok).to.be.true;
@@ -148,8 +128,7 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
     User1signedUrlQA1Res);
 
   console.log('Use User2 to create signed URL for file in QA')
-  const User2signedUrlQA1Res = await
-  fence.do.createSignedUrlForUser(
+  const User2signedUrlQA1Res = await fence.do.createSignedUrlForUser(
     indexed_files.qaFile.did, users.user2.accessTokenHeader);
 
   console.log('Use User0 to create signed URL for file in test')

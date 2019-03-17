@@ -22,12 +22,12 @@ Feature('GoogleServiceAccountRemoval');
 
 
 BeforeSuite(async (google, fence, users) => {
-  await google.suiteCleanup(fence, users);
+  await fence.complete.suiteCleanup(google, users);
 });
 
 
 After(async (google, fence, users) => {
-  await google.suiteCleanup(fence, users);
+  await fence.complete.suiteCleanup(google, users);
 });
 
 
