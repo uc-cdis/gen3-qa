@@ -9,6 +9,8 @@ const bash = new Bash();
 
 const I = actor();
 
+const GOOGLE_FILE_FROM_URL_ERROR = 'Could not get Google file contents from signed url response';
+
 /**
  * Determines if browser is on Google's "Choose account" page
  * @returns {Promise<boolean>}
@@ -109,6 +111,19 @@ module.exports = {
     return I.sendGetRequest(url).then(res => res.body);
   },
 
+  getGoogleFileFromSignedUrlRes(signedUrlRes) {
+    if (
+      signedUrlRes
+      && signedUrlRes.hasOwnProperty('body')
+      && signedUrlRes["body"] !== undefined
+      && signedUrlRes["body"].hasOwnProperty('url')
+    ){
+      return I.sendGetRequest(signedUrlRes["body"].url).then(res => res.body);
+    }
+    console.log(GOOGLE_FILE_FROM_URL_ERROR);
+    return GOOGLE_FILE_FROM_URL_ERROR;
+  },
+
   /**
    * Hits fence's endoint to create an api, given an access token
    * @param {string[]} scope - scope of the access token
@@ -145,14 +160,17 @@ module.exports = {
   },
 
   /**
-   * TODO
+   * Hits fence's endoint to delete temp Google credentials
+   * @param {string} googleKeyId
+   * @param {Object} accessTokenHeader
+   * @returns {Promise<Gen3Response>}
    */
-  getUserGoogleCreds(accessTokenHeader) {
+  deleteTempGoogleCreds(googleKeyId, accessTokenHeader) {
     accessTokenHeader['Content-Type'] = 'application/json';
-    return I.sendGetRequest(
-      fenceProps.endpoints.googleCredentials,
+    return I.sendDeleteRequest(
+      `${fenceProps.endpoints.googleCredentials}${googleKeyId}`,
       accessTokenHeader,
-    ).then(res => res.body);
+    ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
   },
 
   /**
@@ -190,7 +208,6 @@ module.exports = {
     // visit link endpoint. Google login is mocked
     let headers = userAcct.accessTokenHeader
     headers.Cookie = 'dev_login=' + userAcct.username
-    let response = undefined;
 
     return I.sendGetRequest(
       '/user/link/google?redirect=/login', headers

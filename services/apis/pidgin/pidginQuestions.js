@@ -1,39 +1,50 @@
-// let chai = require('chai');
-// let expect = chai.expect;
-// chai.config.includeStack = true;
-// chai.config.truncateThreshold = 0;
+let chai = require('chai');
+let expect = chai.expect;
+chai.config.includeStack = true;
+chai.config.truncateThreshold = 0;
 
-// const pidginProps = require('./pidginProps.js');
+const pidginProps = require('./pidginProps.js');
 
 /**
  * pidgin Questions
  */
 module.exports = {
-  // FROM ORIGINAL PIDGIN QUESTIONS FILE:
-  // module.exports.seeJsonCoremetadata = function(file, metadata) {
-  //   let data = JSON.parse(metadata);
-  //   assert.equal(data['file_name'], file.data.file_name);
-  //   assert.equal(data['object_id'], file.did);
-  //   assert.equal(data['type'], file.data.type);
-  //   assert.equal(data['data_format'], file.data.data_format);
-  // };
-  //
-  // module.exports.seeBibtexCoremetadata = function(file, metadata) {
-  //   assert.ok(metadata.includes(file.data.file_name),
-  //     'file_name ' + file.data.file_name + ' not in core metadata');
-  //
-  //   assert.ok(metadata.includes(file.did),
-  //     'object_id ' + file.did + ' not in core metadata');
-  //
-  //   assert.ok(metadata.includes(file.data.type),
-  //     'type ' + file.data.type + ' not in core metadata');
-  //
-  //   assert.ok(metadata.includes(file.data.data_format),
-  //     'data_format ' + file.data.data_format + ' not in core metadata');
-  // };
-  //
-  // module.exports.seePidginError = function(data) {
-  //   assert.throws(()=>JSON.parse(data), Error);
-  // };
+  
+  seeJsonCoremetadata(file, metadata) {
+    let data;
+    try {
+      data = JSON.parse(metadata);
+    }
+    catch {
+      console.log(metadata);
+      throw new Error(`Unable to parse the data returned by Pidgin:\n${metadata}`);
+    }
+
+    expect(data['file_name'], 'file_name not in core metadata').to.equal(file.data.file_name);
+    expect(data['object_id'], 'object_id not in core metadata').to.equal(file.did);
+    expect(data['type'], 'type not in core metadata').to.equal(file.data.type);
+    expect(data['data_format'], 'data_format not in core metadata').to.equal(file.data.data_format);
+  },
+  
+  seeBibtexCoremetadata(file, metadata) {
+    expect(metadata, `file_name ${file.data.file_name} not in core metadata`).to.contain(file.data.file_name);
+    
+    expect(metadata,`object_id ${file.did} not in core metadata`).to.contain(file.did);
+  
+    expect(metadata, `type ${file.data.type} not in core metadata`).to.contain(file.data.type);
+  
+    expect(metadata, `data_format ${file.data.data_format} not in core metadata`).to.contain(file.data.data_format);
+  },
+  
+  // to be implemented to support application/vnd.schemaorg.ld+json format
+  // seeSchemaorgCoremetadata(file, metadata){
+  //   console.log(metadata)
+  // },
+
+  seePidginError(data) {
+    // this should throw if the result is an error because the error is a string, not json
+    var tryParseErr = function () { JSON.parse(data); };
+    expect(tryParseErr).to.throw(Error);
+  },
 };
 

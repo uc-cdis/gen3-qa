@@ -62,7 +62,10 @@ module.exports = {
     expect(unlinkRes,
       'response from unlinking Google Account does not have expected statusCode property'
     ).to.have.property('statusCode');
-    // can be 200 or 404
+    expect(
+      unlinkRes.statusCode,
+      'response from unlinking Google Account does not have expected statusCode of 200 or 404'
+    ).to.be.oneOf([200, 404])
   },
 
   /**
@@ -101,20 +104,6 @@ module.exports = {
       'property body.private_key (which means we didn\'t get back valid Google credentials)'
     ).has.nested.property('body.private_key');
     return response;
-  },
-
-  /**
-   * Hits fence's endoint to delete temp Google credentials
-   * @param {string} googleKeyId
-   * @param {Object} accessTokenHeader
-   * @returns {Promise<Gen3Response>}
-   */
-  deleteTempGoogleCreds(googleKeyId, accessTokenHeader) {
-    accessTokenHeader['Content-Type'] = 'application/json';
-    return I.sendDeleteRequest(
-      `${fenceProps.endpoints.googleCredentials}${googleKeyId}`,
-      accessTokenHeader,
-    ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
   },
 
   /**
