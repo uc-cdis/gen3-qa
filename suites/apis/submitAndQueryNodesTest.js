@@ -14,7 +14,7 @@ Scenario('submit and delete node @reqData', async (I, sheepdog, nodes) => {
 });
 
 //
-// REUBEN - 
+// REUBEN -
 // addNodes() does not work reliably with brain commons dictionary
 // disabling bunch of these tests as they make the test suite useless
 //
@@ -171,6 +171,7 @@ Scenario('filter by invalid project_id @reqData', async (peregrine, sheepdog, no
 
   await sheepdog.do.deleteNode(nodes.getFirstNode());
 });
+
 
 Scenario('test with_path_to - first to last node @reqData', async (peregrine, sheepdog, nodes) => {
   await sheepdog.complete.addNodes(nodes.getPathToFile());

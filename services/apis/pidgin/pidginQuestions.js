@@ -11,7 +11,15 @@ const pidginProps = require('./pidginProps.js');
 module.exports = {
   
   seeJsonCoremetadata(file, metadata) {
-    let data = JSON.parse(metadata);
+    let data;
+    try {
+      data = JSON.parse(metadata);
+    }
+    catch {
+      console.log(metadata);
+      throw new Error(`Unable to parse the data returned by Pidgin:\n${metadata}`);
+    }
+
     expect(data['file_name'], 'file_name not in core metadata').to.equal(file.data.file_name);
     expect(data['object_id'], 'object_id not in core metadata').to.equal(file.did);
     expect(data['type'], 'type not in core metadata').to.equal(file.data.type);
@@ -29,7 +37,7 @@ module.exports = {
   },
   
   // to be implemented to support application/vnd.schemaorg.ld+json format
-  // seeSchemaorgdata(file, metadata){
+  // seeSchemaorgCoremetadata(file, metadata){
   //   console.log(metadata)
   // },
 

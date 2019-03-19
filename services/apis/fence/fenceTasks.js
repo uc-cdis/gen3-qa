@@ -9,6 +9,8 @@ const bash = new Bash();
 
 const I = actor();
 
+const GOOGLE_FILE_FROM_URL_ERROR = 'Could not get Google file contents from signed url response';
+
 /**
  * Determines if browser is on Google's "Choose account" page
  * @returns {Promise<boolean>}
@@ -109,6 +111,19 @@ module.exports = {
     return I.sendGetRequest(url).then(res => res.body);
   },
 
+  getGoogleFileFromSignedUrlRes(signedUrlRes) {
+    if (
+      signedUrlRes
+      && signedUrlRes.hasOwnProperty('body')
+      && signedUrlRes["body"] !== undefined
+      && signedUrlRes["body"].hasOwnProperty('url')
+    ){
+      return I.sendGetRequest(signedUrlRes["body"].url).then(res => res.body);
+    }
+    console.log(GOOGLE_FILE_FROM_URL_ERROR);
+    return GOOGLE_FILE_FROM_URL_ERROR;
+  },
+
   /**
    * Hits fence's endoint to create an api, given an access token
    * @param {string[]} scope - scope of the access token
@@ -122,6 +137,38 @@ module.exports = {
       JSON.stringify({
         scope,
       }),
+      accessTokenHeader,
+    ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
+  },
+
+  /**
+   * Hits fence's endoint to create a temp Google credentials
+   * @param {Object} accessTokenHeader
+   * @param {int} expires_in - requested expiration time (in seconds)
+   * @returns {Promise<Gen3Response>}
+   */
+  createTempGoogleCreds(accessTokenHeader, expires_in=null) {
+    accessTokenHeader['Content-Type'] = 'application/json';
+    url = fenceProps.endpoints.googleCredentials;
+    if (expires_in)
+      url += `?expires_in=${expires_in}`;
+    return I.sendPostRequest(
+      url,
+      {},
+      accessTokenHeader,
+    ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
+  },
+
+  /**
+   * Hits fence's endoint to delete temp Google credentials
+   * @param {string} googleKeyId
+   * @param {Object} accessTokenHeader
+   * @returns {Promise<Gen3Response>}
+   */
+  deleteTempGoogleCreds(googleKeyId, accessTokenHeader) {
+    accessTokenHeader['Content-Type'] = 'application/json';
+    return I.sendDeleteRequest(
+      `${fenceProps.endpoints.googleCredentials}${googleKeyId}`,
       accessTokenHeader,
     ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
   },
@@ -189,24 +236,6 @@ module.exports = {
   },
 
   /**
-   * WARNING: circumvents google authentication (ie not like true linking process)
-   * Updates fence databases to link an account to a google email
-   * @param {User} userAcct - Commons User to link with
-   * @param {string} googleEmail - email to link to
-   * @returns {Promise<string>} - std out from the fence-create script
-   */
-  async forceLinkGoogleAcct(userAcct, googleEmail) {
-    // hit link endpoint to ensure a proxy group is created for user
-    await I.sendGetRequest(fenceProps.endpoints.linkGoogle, userAcct.accessTokenHeader);
-
-    // run fence-create command to circumvent google and add user link to fence
-    const cmd = `fence-create force-link-google --username ${userAcct.username} --google-email ${googleEmail}`;
-    const res = bash.runCommand(cmd, 'fence', takeLastLine);
-    userAcct.linkedGoogleAccount = googleEmail;
-    return res;
-  },
-
-  /**
    * Hits fences DELETE google link endpont
    * @param {User} userAcct - User to delete the link for
    * @returns {Promise<Gen3Response>}
@@ -224,12 +253,34 @@ module.exports = {
   /**
    * Hits fences EXTEND google link endpoint
    * @param {User} userAcct - commons user to extend the link for
+   * @param {int} expires_in - requested expiration time (in seconds)
    * @returns {Promise<Gen3Response>}
    */
-  async extendGoogleLink(userAcct) {
+  async extendGoogleLink(userAcct, expires_in=null) {
+    url = fenceProps.endpoints.extendGoogleLink;
+    if (expires_in)
+      url += `?expires_in=${expires_in}`;
     return I.sendPatchRequest(
-      fenceProps.endpoints.extendGoogleLink, {}, userAcct.accessTokenHeader)
+      url, {}, userAcct.accessTokenHeader)
       .then(res => new Gen3Response(res));
+  },
+
+  /**
+   * WARNING: circumvents google authentication (ie not like true linking process)
+   * Updates fence databases to link an account to a google email
+   * @param {User} userAcct - Commons User to link with
+   * @param {string} googleEmail - email to link to
+   * @returns {Promise<string>} - std out from the fence-create script
+   */
+  async forceLinkGoogleAcct(userAcct, googleEmail) {
+    // hit link endpoint to ensure a proxy group is created for user
+    await I.sendGetRequest(fenceProps.endpoints.linkGoogle, userAcct.accessTokenHeader);
+
+     // run fence-create command to circumvent google and add user link to fence
+    const cmd = `fence-create force-link-google --username ${userAcct.username} --google-email ${googleEmail}`;
+    const res = bash.runCommand(cmd, 'fence', takeLastLine);
+    userAcct.linkedGoogleAccount = googleEmail;
+    return res;
   },
 
   /**
@@ -239,37 +290,53 @@ module.exports = {
    * @param {string} googleProject.serviceAccountEmail - service account email to register
    * @param {string} googleProject.id - google project ID for the service account registering
    * @param {string[]} projectAccessList - projects service account will have access to
+   * @param {int} expires_in - requested expiration time (in seconds)
    * @returns {Promise<Gen3Response>}
    */
-  async registerGoogleServiceAccount(userAcct, googleProject, projectAccessList) {
-    let postRes = await I.sendPostRequest(
-      fenceProps.endpoints.registerGoogleServiceAccount,
-      {
-        service_account_email: googleProject.serviceAccountEmail,
-        google_project_id: googleProject.id,
-        project_access: projectAccessList,
-      },
-      {
-        ...userAcct.accessTokenHeader,
-        'Content-Type': 'application/json',
-      },
-    ).then(function(res) {
-      if (res.error && res.error.code == 'ETIMEDOUT') {
-        return 'ETIMEDOUT: Google SA registration timed out';
+  async registerGoogleServiceAccount(userAcct, googleProject, projectAccessList, expires_in=null) {
+    url = fenceProps.endpoints.registerGoogleServiceAccount;
+    if (expires_in)
+      url += `?expires_in=${expires_in}`;
+
+    const MAX_TRIES = 3;
+    let tries = 1;
+    let postRes;
+    while (tries <= MAX_TRIES) {
+      postRes = await I.sendPostRequest(
+        url,
+        {
+          service_account_email: googleProject.serviceAccountEmail,
+          google_project_id: googleProject.id,
+          project_access: projectAccessList,
+        },
+        {
+          ...userAcct.accessTokenHeader,
+          'Content-Type': 'application/json',
+        },
+      ).then(function(res) {
+        if (res.error && res.error.code == 'ETIMEDOUT') {
+          return 'ETIMEDOUT: Google SA registration timed out';
+        }
+        if (res.body && res.body.errors) {
+          console.log('Failed SA registration:');
+          console.log(res.body.errors);
+        }
+        else if (res.error) {
+          console.log('Failed SA registration:');
+          console.log(res.error);
+        }
+        return new Gen3Response(res)
+      });
+
+      // if the request timed out: retry
+      if (typeof postRes == 'string' && postRes.includes('ETIMEDOUT')) {
+        console.log(`registerGoogleServiceAccount: try ${tries}/${MAX_TRIES}`);
+        console.log(postRes);
+        tries++;
       }
-      if (res.body && res.body.errors) {
-        console.log('Failed SA registration:');
-        console.log(res.body.errors);
+      else {
+        return postRes;
       }
-      else if (res.error) {
-        console.log('Failed SA registration:');
-        console.log(res.error);
-      }
-      return new Gen3Response(res)
-    });
-    if (postRes instanceof String && postRes.includes('ETIMEDOUT')) {
-      // we could add some retry/backoff logic here if needed
-      console.log(postRes);
     }
     return postRes;
   },

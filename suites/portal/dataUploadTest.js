@@ -24,14 +24,14 @@ const generateFileAndGetUrlFromFence = async function(files, fence, accessTokenH
   };
 };
 
-const uploadFile = async function(dataUploadUtil, indexd, sheepdog, nodes, fileObj, presignedUrl) {
+const uploadFile = async function(dataUpload, indexd, sheepdog, nodes, fileObj, presignedUrl) {
   const filePath = fileObj.filePath;
   const fileSize = fileObj.fileSize;
   const fileMd5 = fileObj.fileMd5;
   const fileGuid = fileObj.fileGuid;
 
   // upload the file to the S3 bucket using the presigned URL
-  await dataUploadUtil.uploadFileToS3(presignedUrl, filePath, fileSize);
+  await dataUpload.uploadFileToS3(presignedUrl, filePath, fileSize);
 
   // wait for the indexd listener to add size, hashes and URL to the record
   const fileNode = {
@@ -41,7 +41,7 @@ const uploadFile = async function(dataUploadUtil, indexd, sheepdog, nodes, fileO
       file_size: fileSize
     }
   };
-  await dataUploadUtil.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
+  await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 };
 
 BeforeSuite(async (sheepdog, nodes, users, fence, indexd) => {
@@ -62,7 +62,7 @@ Before((home) => {
   home.complete.login();
 });
 
-Scenario('Map uploaded files in windmill submission page @dataUpload', async (sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUploadUtil) => {
+Scenario('Map uploaded files in windmill submission page @dataUpload', async (sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUpload) => {
   // generate file and register in fence, get url
   const {fileObj, presignedUrl} = await generateFileAndGetUrlFromFence(files, fence, users.mainAcct.accessTokenHeader);
 
@@ -70,7 +70,7 @@ Scenario('Map uploaded files in windmill submission page @dataUpload', async (sh
   portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage([fileObj], false);
 
   // upload file
-  await uploadFile(dataUploadUtil, indexd, sheepdog, nodes, fileObj, presignedUrl);
+  await uploadFile(dataUpload, indexd, sheepdog, nodes, fileObj, presignedUrl);
 
   // user1 should see 1 file ready
   portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage([fileObj], true);
@@ -82,10 +82,10 @@ Scenario('Map uploaded files in windmill submission page @dataUpload', async (sh
   portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage([]);
 });
 
-Scenario('Cannot see files uploaded by other users @dataUpload', async(sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUploadUtil) => {
+Scenario('Cannot see files uploaded by other users @dataUpload', async(sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUpload) => {
   // user2 upload file2
   const {fileObj, presignedUrl} = await generateFileAndGetUrlFromFence(files, fence, users.auxAcct2.accessTokenHeader);
-  await uploadFile(dataUploadUtil, indexd, sheepdog, nodes, fileObj, presignedUrl);
+  await uploadFile(dataUpload, indexd, sheepdog, nodes, fileObj, presignedUrl);
 
   // user1 cannot see file2
   await portalDataUpload.complete.checkUnmappedFilesAreNotInFileMappingPage([fileObj]);
@@ -95,13 +95,13 @@ After((home) => {
   home.complete.logout();
 });
 
-AfterSuite(async (sheepdog, indexd, files, dataUploadUtil) => {
+AfterSuite(async (sheepdog, indexd, files, dataUpload) => {
   // clean up in sheepdog
   await sheepdog.complete.findDeleteAllNodes();
 
   // clean up in indexd and S3 (remove the records created by this test suite)
   await indexd.complete.deleteFiles(createdGuids);
-  await dataUploadUtil.cleanS3('clean-windmill-data-upload', createdGuids);
+  await dataUpload.cleanS3('clean-windmill-data-upload', createdGuids);
   createdFileNames.forEach(fileName => {
     files.deleteFile(fileName);
   });

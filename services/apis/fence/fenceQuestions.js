@@ -8,7 +8,7 @@ chai.config.truncateThreshold = 0;
 chai.use(gen3Res);
 
 const fenceProps = require('./fenceProps.js');
-const apiUtil = require('../../../utils/apiUtil.js');
+const google = require('../../../utils/google.js');
 
 /**
  * fence Questions
@@ -35,7 +35,9 @@ module.exports = {
    * @param apiKeyRes
    */
   hasAPIKey(apiKeyRes) {
-    expect(apiKeyRes).to.have.nested.property('body.api_key');
+    expect(apiKeyRes,
+      'response does not have a "api_key" field in the body'
+    ).to.have.nested.property('body.api_key');
   },
 
   /**
@@ -43,7 +45,9 @@ module.exports = {
    * @param accessTokenRes
    */
   hasAccessToken(accessTokenRes) {
-    expect(accessTokenRes).has.nested.property('body.access_token');
+    expect(accessTokenRes,
+      'response does not have a "access_token" field in the body'
+    ).has.nested.property('body.access_token');
   },
 
   /**
@@ -53,6 +57,28 @@ module.exports = {
   mockedLinkSuccess(linkRes) {
     expect(linkRes,'response after Google linking doesnt have finalURL prop').to.have.property('finalURL');
     expect(linkRes.finalURL, 'the finalURL returned by the Google linking is not defined; the linking failed').to.exist;
+
+    const linkUrl = new URL(linkRes.finalURL);
+
+    console.log(`when checking mocked Google Linking success, got final URL: ${linkUrl}`)
+
+    expect(linkUrl.searchParams.get('linked_email'),
+      'response after Google linking doesnt include linked_email'
+    ).to.not.be.null;
+
+    expect(linkUrl.searchParams.get('exp'),
+      'response after Google linking doesnt include exp'
+    ).to.not.be.null; // eslint-disable-line
+  },
+
+  /**
+   * Asserts google link res was successful
+   * @param {Gen3Response} linkRes - linking response
+   */
+  mockedLinkSuccess(linkRes) {
+    expect(linkRes,
+      'response after Google linking doesnt have finalURL prop'
+    ).to.have.property('finalURL');
 
     const linkUrl = new URL(linkRes.finalURL);
 
@@ -90,16 +116,19 @@ module.exports = {
    * Asserts that extending google link was successful
    * @param extendRes
    * @param timeRequest
+   * @param {int} expires_in - requested expiration time (in seconds)
    */
-  linkExtendSuccess(extendRes, timeRequest) {
+  linkExtendSuccess(extendRes, timeRequest, expires_in=null) {
     expect(extendRes).to.have.property('statusCode', 200);
 
     // Check the expiration is within expected range
     const timeBuff = 60;
     expect(extendRes).to.have.nested.property('body.exp');
-    expect(extendRes.body.exp).to.be.within(
-      (timeRequest + fenceProps.linkExtendAmount) - timeBuff,
-      (timeRequest + fenceProps.linkExtendAmount) + timeBuff,
+    if (!expires_in)
+      expires_in = fenceProps.linkExtendDefaultAmount
+    expect(extendRes.body.exp, 'the link expiration is not in the expected range').to.be.within(
+      (timeRequest + expires_in) - timeBuff,
+      (timeRequest + expires_in) + timeBuff,
     );
   },
 
@@ -202,5 +231,14 @@ module.exports = {
 
   assertTruethyResult(result) {
     expect(!!result).to.be.true;
+  },
+
+  /**
+   * Check the google-manage-user-registrations output for invalid project
+   */
+  detected_invalid_google_project(jobResponse, reason='') {
+    let errMsg = '"google-manage-user-registrations" should have detected an invalid Google project';
+    expect(jobResponse, errMsg).to.contain('INVALID GOOGLE PROJECT');
+    expect(jobResponse, errMsg).to.contain(reason);
   },
 };

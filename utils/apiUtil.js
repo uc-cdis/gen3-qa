@@ -12,6 +12,9 @@ chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 const { JSDOM } = jsdom;
 
+const { Bash, takeLastLine } = require('./bash');
+const bash = new Bash();
+
 /**
  * Determines if response body is the fence generic error page
  * @param responseBody
@@ -109,6 +112,20 @@ const gen3Res = function (_chai, _) {
 };
 
 module.exports = {
+  /**
+   * Runs a fence command for fetching access token for a user
+   * @param {string} username - username to fetch token for
+   * @param {number} expiration - life duration for token
+   * @returns {string}
+   */
+  getAccessToken(username, expiration) {
+    console.log(`getting access token for ${username}`);
+    const fenceCmd = `fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account,google_credentials --type access_token --exp ${expiration} --username ${username}`;
+    const accessToken = bash.runCommand(fenceCmd, 'fence', takeLastLine);
+    // console.error(accessToken);
+    return accessToken.trim();
+  },
+
   /**
    * Apply a question to an array of responses. Expect no errors to be thrown
    * @param {Object[]} objList
