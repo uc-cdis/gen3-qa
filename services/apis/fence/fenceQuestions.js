@@ -131,12 +131,7 @@ module.exports = {
    * @param {Gen3Response} expectedRes
    */
   responsesEqual(actualRes, expectedRes) {
-    err = '';
-    try {
-      err = actualRes.body.errors;
-    }
-    catch {}
-    expect(actualRes, err).to.be.a.gen3Res(expectedRes);
+    expect(actualRes).to.be.a.gen3Res(expectedRes);
   },
 
   /**
