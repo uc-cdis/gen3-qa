@@ -22,7 +22,6 @@ module.exports = {
    * Fence endpoints
    */
   endpoints: {
-    login: '/login',
     root: rootEndpoint,
     getFile: `${rootEndpoint}/data/download`,
     googleCredentials: `${rootEndpoint}/credentials/google/`,

@@ -11,6 +11,7 @@ const fs = require('fs');
 const { Commons } = require('./utils/commons');
 const { Bash, takeLastLine } = require('./utils/bash');
 const users = require('./utils/user');
+const apiUtil = require('./utils/apiUtil');
 const fenceProps = require('./services/apis/fence/fenceProps');
 const atob = require('atob');
 const DEFAULT_TOKEN_EXP = 3600;
@@ -26,20 +27,6 @@ const bash = new Bash();
 //
 // // will work with all https requests will all libraries (i.e. request.js)
 // require('https').globalAgent.options.ca = rootCas;
-
-/**
- * Runs a fence command for fetching access token for a user
- * @param {string} username - username to fetch token for
- * @param {number} expiration - life duration for token
- * @returns {string}
- */
-function getAccessToken(username, expiration) {
-  console.log(username);
-  const fenceCmd = `fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account,google_credentials --type access_token --exp ${expiration} --username ${username}`;
-  const accessToken = bash.runCommand(fenceCmd, 'fence', takeLastLine);
-  // console.error(accessToken);
-  return accessToken.trim();
-}
 
 /**
  * Runs a fence command for creating a client
@@ -189,9 +176,8 @@ module.exports = async function (done) {
     console.log('Setting environment variables...\n');
 
     // Export access tokens
-    console.log('Export access tokens for users');
     for (const user of Object.values(users)) {
-      const at = getAccessToken(user.username, DEFAULT_TOKEN_EXP);
+      const at = apiUtil.getAccessToken(user.username, DEFAULT_TOKEN_EXP);
       // make sure the access token looks valid - base64 encoded JSON :-p
       const token = parseJwt(at);
       process.env[user.envTokenName] = at;
@@ -205,15 +191,14 @@ module.exports = async function (done) {
     deleteClient('implicit-test-client');
     const implicitClient = createClient('implicit-test-client', 'test@example.com', 'implicit');
 
-    // Setup environment variables
+    //Setup environment variables
     process.env[`${fenceProps.clients.client.envVarsName}_ID`] = basicClient.client_id;
     process.env[`${fenceProps.clients.client.envVarsName}_SECRET`] = basicClient.client_secret;
     process.env[`${fenceProps.clients.clientImplicit.envVarsName}_ID`] = implicitClient.client_id;
 
     // Export expired access token for main acct
-    console.log('Export expired access tokens for users');
     const mainAcct = users.mainAcct;
-    const expAccessToken = getAccessToken(mainAcct.username, 1);
+    const expAccessToken = apiUtil.getAccessToken(mainAcct.username, 1);
     process.env[mainAcct.envExpTokenName] = expAccessToken;
 
     // Export indexd credentials

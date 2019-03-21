@@ -30,11 +30,11 @@ class Commons{
     }
   }
 
-  // Make sure these files exist in GEN3_HOME/files/integration_testing/
+  // these files exist in cloud automation repo, check there for details
   static get userAccessFiles() {
     return {
       newUserAccessFile1: 'test1_user.yaml',
-      newUserAccessFile2: 'test2_user.yaml'
+      newUserAccessFile2: 'test2_user.yaml' // used to modify access to integration tests users
     }
   }
 

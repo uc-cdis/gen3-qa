@@ -278,7 +278,7 @@ Scenario('SA key removal job test: remove expired creds @reqGoogle', async (fenc
   chai.expect(user0AccessQAResExpired,
     'User should NOT have bucket access after expiration'
   ).to.have.property('statusCode', 403);
-});
+}).retry(2);
 
 
 Scenario('SA key removal job test: remove expired creds that do not exist in google @reqGoogle', async (fence, users, google) => {

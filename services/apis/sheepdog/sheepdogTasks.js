@@ -89,6 +89,38 @@ module.exports = {
   },
 
   /**
+   * PUTs to sheepdog submit endpoint adding some id properties along the way
+   * Adds response to node in chunks
+   * @param {Node} node - node to submit
+   * @param {Object} accessTokenHeader
+   * @returns {Promise<Gen3Response>} - sheepdog submit response
+   */
+  async addNodeChunked(node, accessTokenHeader = user.mainAcct.accessTokenHeader) {
+    let chunk = node.data.length;
+    let index = 0;
+    let submitData;
+    let response;
+    while (index < node.data.length) {
+      submitData = node.data.slice(index, Math.min(index + chunk, node.data.length));
+      response = await I.sendPutRequest(
+        sheepdogProps.endpoints.add,
+        JSON.stringify(submitData),
+        accessTokenHeader || user.mainAcct.accessTokenHeader,
+      );
+
+      if (response.code === 413) {
+        chunk /= 2;
+        if (chunk === 0) break;
+      } else {
+        index += chunk;
+      }
+    }
+    node.data.id = getIdFromResponse(response);
+    node.addRes = new Gen3Response(response);
+    return node;
+  },
+
+  /**
    * Hits sheepdogs DELETE endpoint for a node
    * Adds response to node
    * @param {Node} node - Node to delete
