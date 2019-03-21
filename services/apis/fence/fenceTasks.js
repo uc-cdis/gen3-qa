@@ -142,6 +142,18 @@ module.exports = {
   },
 
   /**
+   * List the existing Google credentials for the user
+   * @param {Object} accessTokenHeader
+   */
+  getUserGoogleCreds(accessTokenHeader) {
+    accessTokenHeader['Content-Type'] = 'application/json';
+    return I.sendGetRequest(
+      fenceProps.endpoints.googleCredentials,
+      accessTokenHeader,
+    ).then(res => res.body);
+  },
+
+  /**
    * Hits fence's endoint to create a temp Google credentials
    * @param {Object} accessTokenHeader
    * @param {int} expires_in - requested expiration time (in seconds)

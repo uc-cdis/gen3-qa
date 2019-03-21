@@ -10,12 +10,12 @@ Feature('GoogleServiceAccountKey');
 
 
 BeforeSuite(async (google, fence, users) => {
-  await google.suiteCleanup(fence, users);
+  await fence.complete.suiteCleanup(google, users);
 });
 
 
 After(async (google, fence, users) => {
-  await google.suiteCleanup(fence, users);
+  await fence.complete.suiteCleanup(google, users);
 });
 
 
@@ -35,9 +35,12 @@ Scenario('Get current SA creds @reqGoogle', async (fence, users) => {
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
 
-  // Get list of current creds
+  // Make sure there are no creds for this user
   let getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
   let credsList1 = getCredsRes.access_keys;
+  expect(credsList1.length,
+    'There should not be existing SA keys at the beginning of the test'
+  ).to.equal(0);
 
   // Get temporary google creds
   let tempCredsRes = await fence.complete.createTempGoogleCreds(users.user0.accessTokenHeader);
@@ -79,10 +82,6 @@ Scenario('Get current SA creds @reqGoogle', async (fence, users) => {
   );
 
   // Asserts
-  expect(credsList1.length,
-    'There should not be existing SA keys at the beginning of the test'
-  ).to.equal(0);
-
   expect(credsList2.length,
     'The 2 generated SA keys should be listed'
   ).to.equal(2);
