@@ -289,13 +289,14 @@ module.exports = {
     })
   },
 
-  // TODO: projectID is not used (- gets project id from SA id), remove param
-  async deleteServiceAccount(projectID, serviceAccountID) {
+  async deleteServiceAccount(serviceAccountID, projectID=null) {
+    if (!projectID)
+      projectID = '-'; // auto get project ID from SA ID
     return new Promise((resolve) => {
       return googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
         const cloudResourceManager = google.iam('v1');
         const request = {
-          name: `projects/-/serviceAccounts/${serviceAccountID}`,
+          name: `projects/${projectID}/serviceAccounts/${serviceAccountID}`,
           auth: authClient,
         };
         cloudResourceManager.projects.serviceAccounts.delete(request, (err, res) => {
@@ -340,7 +341,6 @@ module.exports = {
   /**
    * Util function that returns the path to the file where the requested key
    * was saved and the name of that key
-   * TODO: use in data access test
    */
   async createServiceAccountKeyFile(googleProject) {
     var tempCredsRes = await this.createServiceAccountKey(googleProject.id, googleProject.serviceAccountEmail);
@@ -466,7 +466,7 @@ module.exports = {
 
     // if it's lock by this testing session: try to unlock
     console.log(`Unlocking Google project "${googleProject.id}"`);
-    const deleteRes = await this.deleteServiceAccount(googleProject.id, serviceAccountEmail);
+    const deleteRes = await this.deleteServiceAccount(serviceAccountEmail, googleProject.id);
     // if successfully unlocked, res is an empty object
     return (deleteRes.constructor === Object && Object.keys(deleteRes).length === 0);
   },
