@@ -323,11 +323,11 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
 
   console.log('test cleanup: deleting google service accounts from google');
   const deleteServiceAccount0Res = await google.deleteServiceAccount(
-    tempCreds0Res.body.project_id, tempCreds0Res.body.client_email);
+    tempCreds0Res.body.client_email, tempCreds0Res.body.project_id);
   const deleteServiceAccount1Res = await google.deleteServiceAccount(
-    tempCreds1Res.body.project_id, tempCreds1Res.body.client_email);
+    tempCreds1Res.body.client_email, tempCreds1Res.body.project_id);
   const deleteServiceAccount2Res = await google.deleteServiceAccount(
-    tempCreds2Res.body.project_id, tempCreds2Res.body.client_email);
+    tempCreds2Res.body.client_email, tempCreds2Res.body.project_id);
 
   console.log('deleting temporary google credentials file');
   files.deleteFile(pathToCreds0KeyFile);
