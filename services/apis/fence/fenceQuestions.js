@@ -222,7 +222,7 @@ module.exports = {
     expect(response).to.have.nested.property('body.expires_in');
   },
 
-  assertTruethyResult(result) {
+  assertTruthyResult(result) {
     expect(!!result).to.be.true;
   },
 

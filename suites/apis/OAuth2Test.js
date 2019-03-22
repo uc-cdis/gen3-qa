@@ -43,7 +43,7 @@ Scenario('Authorization code flow: Test that successfully generate tokens', asyn
   fence.ask.assertContainSubStr(urlStr, ['code=']);
   const match = urlStr.match(RegExp('/?code=(.*)'));
   const code = match && match[1];
-  fence.ask.assertTruethyResult(code);
+  fence.ask.assertTruthyResult(code);
   const res = await fence.do.getTokensWithAuthCode(
     fence.props.clients.client.id,
     fence.props.clients.client.secret, code, 'authorization_code',
@@ -66,7 +66,7 @@ Scenario('Authorization code flow: Test that fails to generate tokens due to inv
   fence.ask.assertContainSubStr(urlStr, ['code=']);
   const match = urlStr.match(RegExp('/?code=(.*)'));
   const code = match && match[1];
-  fence.ask.assertTruethyResult(code);
+  fence.ask.assertTruthyResult(code);
   const res = await fence.do.getTokensWithAuthCode(
     fence.props.clients.client.id, fence.props.clients.client.secret, code, 'not_supported',
   );
@@ -79,7 +79,7 @@ Scenario('Authorization code flow: Test that can create an access token which ca
   fence.ask.assertContainSubStr(urlStr, ['code=']);
   const match = urlStr.match(RegExp('/?code=(.*)'));
   const code = match && match[1];
-  fence.ask.assertTruethyResult(code);
+  fence.ask.assertTruthyResult(code);
   let res = await fence.do.getTokensWithAuthCode(
     fence.props.clients.client.id,
     fence.props.clients.client.secret, code, 'authorization_code',
@@ -103,23 +103,28 @@ Scenario('Authorization code flow: Test project access in id token same as proje
   fence.ask.assertContainSubStr(urlStr, ['code=']);
   const match = urlStr.match(RegExp('/?code=(.*)'));
   const code = match && match[1];
-  fence.ask.assertTruethyResult(code);
+  fence.ask.assertTruthyResult(code);
   let res = await fence.do.getTokensWithAuthCode(
     fence.props.clients.client.id,
     fence.props.clients.client.secret, code, 'authorization_code',
   );
+  let access_token = res.body.access_token
   let id_token = res.body.id_token
 
-  // list of projects the token gives access to
+  // list of projects the id token gives access to
   var base64Url = id_token.split('.')[1];
   var base64 = base64Url.replace('-', '+').replace('_', '/');
   tokenClaims = JSON.parse(atob(base64));
   projectsInToken = tokenClaims.context.user.projects;
+  console.log('list of projects the id token gives access to:')
+  console.log(projectsInToken);
 
   // list of projects the user endpoint shows access to
-  userInfoRes = await fence.do.getUserInfo(id_token);
+  userInfoRes = await fence.do.getUserInfo(access_token);
   fence.ask.assertUserInfo(userInfoRes);
   projectsOfUser = userInfoRes.body.project_access;
+  console.log('list of projects the user endpoint shows access to:')
+  console.log(projectsOfUser);
 
   // test object equality
   projects = Object.getOwnPropertyNames(projectsInToken);
@@ -200,7 +205,7 @@ Scenario('Implicit flow: Test that can create an access token which can be used 
     fence.props.clients.clientImplicit.id, 'id_token+token', 'openid+user');
   const match = resULR.match(RegExp('access_token=(.*)&expires'));
   const token = match && match[1];
-  fence.ask.assertTruethyResult(token);
+  fence.ask.assertTruthyResult(token);
   const res = await fence.do.getUserInfo(token.trim());
   fence.ask.assertUserInfo(res);
 });
