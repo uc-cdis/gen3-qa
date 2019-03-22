@@ -17,6 +17,7 @@ const files = require('./file.js');
 const lockServiceAccountName = 'locked-by-test';
 let rand = (Math.random() + 1).toString(36).substring(2,7); // 5 random chars
 const lockServiceAccountUniqueName = `${lockServiceAccountName}-${rand}`;
+console.log(`Google project lock SA unique name for this session is "${lockServiceAccountUniqueName}"`);
 
 
 /**
@@ -248,8 +249,9 @@ module.exports = {
           });
         });
       });
-      if (listRes.accounts)
+      if (listRes.accounts) {
         saList = saList.concat(listRes.accounts);
+      }
       nextPageToken = listRes.nextPageToken; // is undefined if done
     }
     return saList;
@@ -290,8 +292,9 @@ module.exports = {
   },
 
   async deleteServiceAccount(serviceAccountID, projectID=null) {
-    if (!projectID)
+    if (!projectID) {
       projectID = '-'; // auto get project ID from SA ID
+    }
     return new Promise((resolve) => {
       return googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
         const cloudResourceManager = google.iam('v1');
@@ -464,7 +467,7 @@ module.exports = {
     isLockedByMe = listRes.some(sa => sa.email === serviceAccountEmail);
     if (!isLockedByMe) return false;
 
-    // if it's lock by this testing session: try to unlock
+    // if it's locked by this testing session: try to unlock
     console.log(`Unlocking Google project "${googleProject.id}"`);
     const deleteRes = await this.deleteServiceAccount(serviceAccountEmail, googleProject.id);
     // if successfully unlocked, res is an empty object

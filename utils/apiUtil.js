@@ -122,7 +122,6 @@ module.exports = {
     console.log(`getting access token for ${username}`);
     const fenceCmd = `fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account,google_credentials --type access_token --exp ${expiration} --username ${username}`;
     const accessToken = bash.runCommand(fenceCmd, 'fence', takeLastLine);
-    // console.error(accessToken);
     return accessToken.trim();
   },
 

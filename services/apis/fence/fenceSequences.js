@@ -123,7 +123,8 @@ module.exports = {
    */
   async suiteCleanup(google, users) {
     // unlock the lockable google project
-    await google.unlockGoogleProject(fenceProps.googleProjectDynamic);
+    let unlockRes = await google.unlockGoogleProject(fenceProps.googleProjectDynamic);
+    chai.expect(unlockRes, 'Could not unlock project').to.be.true;
 
     // google projects to 'clean up'
     const googleProjects = [
