@@ -396,8 +396,7 @@ Scenario('SA removal job test: SA has external access @reqGoogle', async (fence,
 
 // We run this test last because if the roles update at the end fails,
 // the following tests would fail.
-// TODO: enable. this test fails until the jenkins envs are setup with the new monitoring SA
-xScenario('SA removal job test: monitor SA does not have access @reqGoogle', async (fence, users, google, files) => {
+Scenario('SA removal job test: monitor SA does not have access @reqGoogle', async (fence, users, google, files) => {
   // test invalid SA because the monitor does not have access
 
   // Lock the project
