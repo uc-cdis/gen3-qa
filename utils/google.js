@@ -487,7 +487,9 @@ module.exports = {
     }
   },
 
-  lockGoogleProjectErrorDetails: `Could not lock Google project to run tests where we modify the project itself. Locks are necessary to avoid interfering with other testing envs since they all use the same Google Project: "Gen3QA-ValidationJobTest". We attempted to "lock" the project by creating a service account unique to this test run. We either could not create the SA or the project is locked by a *different* test env and we timed out. Ensure that other tests did not fail to remove their lock for some reason by looking for a SA named "${lockServiceAccountName}" in Google project "Gen3QA-ValidationJobTest" and manually deleting it needed.\n`,
+  getLockGoogleProjectErrorDetails(googleProject) {
+    return `Could not lock Google project "${googleProject.id}" to run tests where we modify the project itself. Locks are necessary to avoid interfering with other testing envs since they all use the same Google Project: "Gen3QA-ValidationJobTest". We attempted to "lock" the project by creating a service account unique to this test run. We either could not create the SA or the project is locked by a *different* test env and we timed out. Ensure that other tests did not fail to remove their lock for some reason by looking for a SA named "${lockServiceAccountName}" in Google project "${googleProject.id}" (owner "${googleProject.owner}") and manually deleting it needed.\n`
+  },
 
   /**
    * Unlocks a Google project
@@ -528,5 +530,7 @@ module.exports = {
     }
   },
 
-  unlockGoogleProjectErrorDetails: `Failed to unlock Google project "Gen3QA-ValidationJobTest" after running tests where we modify the project itself. Locks are necessary to avoid interfering with other testing envs since they all use the same Google Project: "Gen3QA-ValidationJobTest". We "locked" the project by creating a service account unique to this test run. Other tests that use this project will fail because they will not be able to lock it. If this error happens during a test run, the tests will attempt to unlock the project later. If this error happens during steps "After each" or "After all", ensure that the lock specific to this test run has been removed by manually deleting the service account "${lockServiceAccountUniqueName}" in Google project "Gen3QA-ValidationJobTest".\n`
+  getUnlockGoogleProjectErrorDetails(googleProject) {
+    return `Failed to unlock Google project "${googleProject.id}" after running tests where we modify the project itself. Locks are necessary to avoid interfering with other testing envs since they all use the same Google Project: "Gen3QA-ValidationJobTest". We "locked" the project by creating a service account unique to this test run. Other tests that use this project will fail because they will not be able to lock it. If this error happens during a test run, the tests will attempt to unlock the project later. If this error happens during steps "After each" or "After all", ensure that the lock specific to this test run has been removed by manually deleting the service account "${lockServiceAccountUniqueName}" in Google project "${googleProject.id}" (owner "${googleProject.owner}").\n`
+  },
 };
