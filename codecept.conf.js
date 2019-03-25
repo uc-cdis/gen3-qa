@@ -42,7 +42,7 @@ exports.config = {
     users: './utils/user.js',
     google: './utils/google.js',
     files: './utils/file.js',
-    dataUploadUtil: './utils/dataUploadUtil',
+    dataUploadUtil: './utils/dataUploadUtil.js',
 
     // APIs
     sheepdog: './services/apis/sheepdog/sheepdogService.js',
@@ -56,6 +56,7 @@ exports.config = {
     // Pages
     home: './services/portal/home/homeService.js',
     portalDataUpload: './services/portal/dataUpload/dataUploadService.js',
+    portalExportToWorkspace: './services/portal/dataUpload/dataUploadService.js',
   },
   mocha: {
     reporterOptions: {
