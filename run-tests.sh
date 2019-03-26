@@ -2,7 +2,7 @@
 #
 # Jenkins launch script.
 # Use:
-#   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence]
+#   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence] [--hostname=hostname]
 #
 
 help() {
@@ -14,7 +14,7 @@ Use:
   bash run-tests.sh [[--namespace=]KUBECTL_NAMESPACE] [--service=service] [--hostname=hostname] [--dryrun]
     --namespace default is KUBECTL_NAMESPACE:-default
     --service default is service:-none
-    --hostname default is hostname:-none
+    --hostname default is hostname:-none (for cdis-manifest PRs, specifies which environment is being tested, to know which tests are relevant)
 EOM
 }
 
