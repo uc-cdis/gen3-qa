@@ -130,7 +130,6 @@ echo 'INFO: installing dependencies'
 dryrun npm ci
 
 exitCode=0
-lockUser=""
 
 
 # hostnames that use DCF features
@@ -150,7 +149,6 @@ else
   # Run tests including dcf google backend
   # Acquire google test lock - only one test can interact with the GCP test project
   #
-  lockUser="testRunner-${namespaceName}-$$"
   echo "INFO: enabling Google Data Access tests for $service"
 fi
 
@@ -177,13 +175,5 @@ Launching test in $NAMESPACE
 EOM
   dryrun npm test -- $testArgs
 ) || exitCode=1
-
-if [[ -n "$lockUser" ]]; then
-  (
-    # release the dcf lock
-    export KUBECTL_NAMESPACE=default
-    dryrun gen3 klock unlock dcftest "$lockUser"
-  )
-fi
 
 exit $exitCode
