@@ -14,12 +14,12 @@ module.exports = {
     });
   },
 
-  goToExplorationPage() {
+  goToExplorerPage() {
     I.amOnPage(exportToWorkspaceProps.explorerPath);
     I.waitForVisible(exportToWorkspaceProps.explorerHeaderClass, 5);
   },
 
-  selectDefaultManifestAndGotoWorkspace() {
+  exportDefaultManifestToWorkspace() {
     I.click("Export To Workspace")
   },
 

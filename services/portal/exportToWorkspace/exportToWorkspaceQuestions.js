@@ -10,21 +10,27 @@ const util = require('util');
  * exportToWorkspace Questions
  */
 module.exports = {
-  isNumberAndSizeOfUnmappedFilesCorrect(count, size) {
-    const expectString = util.format(exportToWorkspaceProps.unmappedFilesStringFormat, count, size);
-    I.waitForText(expectString, 5);
+  // isNumberAndSizeOfUnmappedFilesCorrect(count, size) {
+  //   const expectString = util.format(exportToWorkspaceProps.unmappedFilesStringFormat, count, size);
+  //   I.waitForText(expectString, 5);
+  // },
+
+  // canSeeAllUnmappedFilesOnPage(unmappedFiles) {
+  //   for (let i = 0; i < unmappedFiles.length; i ++) {
+  //     I.waitForText(unmappedFiles[i], 5);
+  //   }
+  // },
+
+  async isManifestSavedToWorkspaceSucceeded() {
+    const result = await I.grabTextFrom('.map-data-model__submission-footer');
+    const expectString = 'Your cohort has been saved!';
+    expect(result).to.contain(expectString);
   },
 
-  canSeeAllUnmappedFilesOnPage(unmappedFiles) {
-    for (let i = 0; i < unmappedFiles.length; i ++) {
-      I.waitForText(unmappedFiles[i], 5);
-    }
-  },
-
-  async isSuccessfullySubmitted(fileCount) {
-    const result = await I.grabTextFrom('.map-files__notification-wrapper');
-    const expectString = util.format(exportToWorkspaceProps.successMessageFormate, fileCount);
-    expect(result).to.equal(expectString);
+  async isManifestSaveToWorkspaceFailed() {
+    const result = await I.grabTextFrom('.map-data-model__submission-footer');
+    const expectString = 'There was an error exporting your cohort.';
+    expect(result).to.contain(expectString);
   },
 
   async cannotSeeUnmappedFilesOnPage(unexpectedFileNames) {

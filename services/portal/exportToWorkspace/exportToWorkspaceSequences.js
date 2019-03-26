@@ -1,11 +1,17 @@
 const exportToWorkspaceQuestions = require('./exportToWorkspaceQuestions.js');
-const exportToWorkspaceTasks = require('./exportToWorkspaceTasks.js/index.js');
+const exportToWorkspaceTasks = require('./exportToWorkspaceTasks.js');
 const exportToWorkspaceProps = require('./exportToWorkspaceProps.js');
 
 /**
  * exportToWorkspace sequences
  */
 module.exports = {
+  checkExportDefaultManifestToWorkspace() {
+    exportToWorkspaceTasks.goToExplorerPage();
+    exportToWorkspaceTasks.exportDefaultManifestToWorkspace();
+    exportToWorkspaceQuestions.isManifestSavedToWorkspaceSucceeded();
+  },
+
   checkUnmappedFilesAreInSubmissionPage(fileObjects, isReady) {
     // goto '/submission' page and check file number and sizes are correct
     exportToWorkspaceTasks.goToSubmissionPage();
@@ -44,8 +50,8 @@ module.exports = {
     // select project and file node, can see '.input-with-icon' element with select options inside, fill all blanks
     exportToWorkspaceTasks.selectProject();
     exportToWorkspaceTasks.selectFileNode();
-    await exportToWorkspaceasks.fillAllRequiredFields();
-    exportToWorkspaceasks.linksToParentNodes(submitterID);
+    await exportToWorkspaceTasks.fillAllRequiredFields();
+    exportToWorkspaceTasks.linksToParentNodes(submitterID);
 
     // click "submit", can return success status
     exportToWorkspaceTasks.clickSubmit();
