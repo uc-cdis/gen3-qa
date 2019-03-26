@@ -69,7 +69,7 @@ AfterSuite(async (google, fence, users) => {
   for (var res of addRolesRes) {
     chai.expect(
       res,
-      `WARNING: Failed to update monitor SA roles!! Next Google integration tests running on Jenkins will fail. Roles "${monitorRoles}" should be manually added to SA "${monitorEmail}" in Google.\n`
+      `WARNING: Failed to update monitor SA roles!! Next Google integration tests running on Jenkins will fail. Roles "${monitorRoles}" should be manually added to SA "${monitorEmail}" in Google project ${googleProject.id} (owner ${googleProject.owner}).\n`
     ).to.not.have.property('code');
   }
   chai.expect(
@@ -506,7 +506,7 @@ Scenario('SA removal job test: monitor SA does not have access @reqGoogle', asyn
   for (var res of addRolesRes) {
     chai.expect(
       res,
-      `Could not update monitor SA roles!! Next tests may fail. Roles "${monitorRoles}" should be added to SA "${monitorEmail}". Will try to add them again at the end of this test suite.\n`
+      `Could not update monitor SA roles!! Next tests may fail. Roles "${monitorRoles}" should be added to SA "${monitorEmail}" in Google project ${googleProject.id} (owner ${googleProject.owner}). Will try to add them again at the end of this test suite.\n`
     ).to.not.have.property('code');
   }
 

@@ -454,7 +454,7 @@ module.exports = {
       } else {
         expect(createRes).to.have.property('email');
         expect(createRes.email).to.equal(serviceAccountEmail);
-        console.log('Successully locked project');
+        console.log('Successfully locked project');
         return true;
       }
     };
