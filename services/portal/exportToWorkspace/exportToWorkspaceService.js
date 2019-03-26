@@ -1,4 +1,4 @@
-const exportToWorkspaceTasks = require('./exportToWorkspaceTasks.js/index.js');
+const exportToWorkspaceTasks = require('./exportToWorkspaceTasks.js');
 const exportToWorkspaceQuestions = require('./exportToWorkspaceQuestions.js');
 const exportToWorkspaceProps = require('./exportToWorkspaceProps.js');
 const exportToWorkspaceSequences = require('./exportToWorkspaceSequences.js');

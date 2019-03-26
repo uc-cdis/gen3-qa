@@ -1,4 +1,4 @@
-Feature('exportToWorkspaceTest');
+Feature('ExportToWorkspaceTest');
 
 const I = actor();
 
@@ -6,6 +6,9 @@ Before((home) => {
   home.complete.login();
 });
 
+Scenario('Export default manifest and see successful popup @exportToWorkspace', async (portalExportToWorkspace) => {
+  await portalExportToWorkspace.complete.checkExportDefaultManifestToWorkspace();
+});
 
 After((home) => {
   home.complete.logout();
