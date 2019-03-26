@@ -8,4 +8,6 @@ module.exports = {
   workspaceIFrameClass: '.workspace',
 
   explorerHeaderClass: '.data-explorer',
+
+  exportToWorkspaceButtonXPath: '//button[contains(text(), "Export To Workspace")]',
 };

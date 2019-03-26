@@ -19,6 +19,7 @@ module.exports = {
   },
 
   exportDefaultManifestToWorkspace() {
-    I.click("Export To Workspace")
+    this.goToExplorerPage();
+    I.click(exportToWorkspaceProps.exportToWorkspaceButtonXPath);
   },
 };

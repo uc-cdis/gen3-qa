@@ -7,7 +7,6 @@ const exportToWorkspaceProps = require('./exportToWorkspaceProps.js');
  */
 module.exports = {
   checkExportDefaultManifestToWorkspace() {
-    exportToWorkspaceTasks.goToExplorerPage();
     exportToWorkspaceTasks.exportDefaultManifestToWorkspace();
     exportToWorkspaceQuestions.isManifestSavedToWorkspaceSucceeded();
   },
