@@ -567,10 +567,6 @@ Scenario('Delete a SA that was successfully registered before but was deleted fr
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
 
-  // Lock the project
-  lockRes = await google.lockGoogleProject(googleProject);
-  chai.expect(lockRes, 'Could not lock project').to.be.true;
-
   // Remove account from Google but NOT through fence
   const deleteResGoogle = await google.deleteServiceAccount(serviceAccountEmail, googleProject.id);
   fence.ask.deleteServiceAccountSuccess(deleteResGoogle);

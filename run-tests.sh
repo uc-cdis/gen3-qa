@@ -163,7 +163,7 @@ fi
 
 testArgs="--reporter mocha-multi"
 if [[ -n "$doNotRunRegex" ]]; then
-  testArgs="${testArgs} -- suites/apis/OAuth2Test.js"
+  testArgs="${testArgs} --grep '${doNotRunRegex}' --invert"
 fi
 
 (
