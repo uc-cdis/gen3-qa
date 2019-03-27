@@ -2,7 +2,7 @@
 #
 # Jenkins launch script.
 # Use:
-#   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence] [--hostname=hostname]
+#   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence] [--testedEnv=testedEnv]
 #
 
 help() {
@@ -11,10 +11,10 @@ Jenkins test launch script.  Assumes the  GEN3_HOME environment variable
 references a current [cloud-automation](https://github.com/uc-cdis/cloud-automation) folder.
 
 Use:
-  bash run-tests.sh [[--namespace=]KUBECTL_NAMESPACE] [--service=service] [--hostname=hostname] [--dryrun]
+  bash run-tests.sh [[--namespace=]KUBECTL_NAMESPACE] [--service=service] [--testedEnv=testedEnv] [--dryrun]
     --namespace default is KUBECTL_NAMESPACE:-default
     --service default is service:-none
-    --hostname default is hostname:-none (for cdis-manifest PRs, specifies which environment is being tested, to know which tests are relevant)
+    --testedEnv default is testedEnv:-none (for cdis-manifest PRs, specifies which environment is being tested, to know which tests are relevant)
 EOM
 }
 
@@ -67,7 +67,7 @@ gen3_load "gen3/gen3setup"
 
 namespaceName="${KUBECTL_NAMESPACE}"
 service="${service:-""}"
-hostname="${hostname:-""}"
+testedEnv="${testedEnv:-""}"
 
 while [[ $# -gt 0 ]]; do
   key="$(echo "$1" | sed -e 's/^-*//' | sed -e 's/=.*$//')"
@@ -83,8 +83,8 @@ while [[ $# -gt 0 ]]; do
     namespace)
       namespaceName="$value"
       ;;
-    hostname)
-      hostname="$value"
+    testedEnv)
+      testedEnv="$value"
       ;;
     dryrun)
       isDryRun=true
@@ -132,15 +132,15 @@ dryrun npm ci
 exitCode=0
 
 
-# hostnames that use DCF features
+# environments that use DCF features
 # we will run Google Data Access tests for cdis-manifest PRs to these
-requireGoogleHostnames="dcp.bionimbus.org gen3.datastage.io nci-crdc-demo.datacommons.io nci-crdc-staging.datacommons.io nci-crdc.datacommons.io"
+envsRequireGoogle="dcp.bionimbus.org gen3.datastage.io nci-crdc-demo.datacommons.io nci-crdc-staging.datacommons.io nci-crdc.datacommons.io"
 
 #
 # Google Data Access tests are not yet stable enough to run in all PR's -
 # so just enable in PR's for some projects now
 #
-if [[ "$service" != "gen3-qa" && "$service" != "fence" && !("$service" == "cdis-manifest" && $requireGoogleHostnames =~ (^| )$hostname($| )) ]]; then
+if [[ "$service" != "gen3-qa" && "$service" != "fence" && !("$service" == "cdis-manifest" && $envsRequireGoogle =~ (^| )$testedEnv($| )) ]]; then
   # run all tests except for those that require dcf google configuration
   echo "INFO: disabling Google Data Access tests for $service"
   donot '@reqGoogle'
