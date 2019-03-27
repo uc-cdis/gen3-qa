@@ -2,7 +2,7 @@
 #
 # Jenkins launch script.
 # Use:
-#   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence]
+#   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence] [--testedEnv=testedEnv]
 #
 
 help() {
@@ -11,9 +11,10 @@ Jenkins test launch script.  Assumes the  GEN3_HOME environment variable
 references a current [cloud-automation](https://github.com/uc-cdis/cloud-automation) folder.
 
 Use:
-  bash run-tests.sh [[--namespace=]KUBECTL_NAMESPACE] [--service=service] [--dryrun]
+  bash run-tests.sh [[--namespace=]KUBECTL_NAMESPACE] [--service=service] [--testedEnv=testedEnv] [--dryrun]
     --namespace default is KUBECTL_NAMESPACE:-default
     --service default is service:-none
+    --testedEnv default is testedEnv:-none (for cdis-manifest PRs, specifies which environment is being tested, to know which tests are relevant)
 EOM
 }
 
@@ -66,6 +67,7 @@ gen3_load "gen3/gen3setup"
 
 namespaceName="${KUBECTL_NAMESPACE}"
 service="${service:-""}"
+testedEnv="${testedEnv:-""}"
 
 while [[ $# -gt 0 ]]; do
   key="$(echo "$1" | sed -e 's/^-*//' | sed -e 's/=.*$//')"
@@ -80,6 +82,9 @@ while [[ $# -gt 0 ]]; do
       ;;
     namespace)
       namespaceName="$value"
+      ;;
+    testedEnv)
+      testedEnv="$value"
       ;;
     dryrun)
       isDryRun=true
@@ -125,47 +130,26 @@ echo 'INFO: installing dependencies'
 dryrun npm ci
 
 exitCode=0
-lockUser=""
 
+
+# environments that use DCF features
+# we will run Google Data Access tests for cdis-manifest PRs to these
+envsRequireGoogle="dcp.bionimbus.org gen3.datastage.io nci-crdc-demo.datacommons.io nci-crdc-staging.datacommons.io nci-crdc.datacommons.io"
 
 #
-# DCF Google tests are not yet stable enough to run in all PR's -
+# Google Data Access tests are not yet stable enough to run in all PR's -
 # so just enable in PR's for some projects now
 #
-if [[ "$service" != "gen3-qa" && "$service" != "fence" && "$service" != "cdis-manifest" ]]; then
+if [[ "$service" != "gen3-qa" && "$service" != "fence" && !("$service" == "cdis-manifest" && $envsRequireGoogle =~ (^| )$testedEnv($| )) ]]; then
   # run all tests except for those that require dcf google configuration
-  echo "INFO: disabling DCF tests for $service"
+  echo "INFO: disabling Google Data Access tests for $service"
   donot '@reqGoogle'
 else
   #
   # Run tests including dcf google backend
   # Acquire google test lock - only one test can interact with the GCP test project
   #
-  lockUser="testRunner-${namespaceName}-$$"
-  echo "INFO: enabling DCF tests for $service"
-  (
-    #
-    # acquire the freakin' global DCF lock
-    # all of our test environment's share the same
-    # backend DCF google project and CloudIdentity,
-    # so only want one DCF test running globally at a time
-    #
-    export KUBECTL_NAMESPACE=default
-    count=0
-    gotLock=false
-    while [[ $count -lt 10 && $gotLock == false ]]; do
-      echo 'INFO: waiting to lock the DCF test google project'
-      if dryrun gen3 klock lock dcftest "$lockUser" 300 -w 60; then
-        gotLock=true
-      fi
-    done
-    if [[ $gotLock == true ]]; then
-      echo "Acquired the DCF lock"
-    else
-      echo "Failed to acquire the DCF lock after 10 minutes - bailing out"
-      exit 1
-    fi
-  ) || exit 1
+  echo "INFO: enabling Google Data Access tests for $service"
 fi
 
 
@@ -191,13 +175,5 @@ Launching test in $NAMESPACE
 EOM
   dryrun npm test -- $testArgs
 ) || exitCode=1
-
-if [[ -n "$lockUser" ]]; then
-  (
-    # release the dcf lock
-    export KUBECTL_NAMESPACE=default
-    dryrun gen3 klock unlock dcftest "$lockUser"
-  )
-fi
 
 exit $exitCode

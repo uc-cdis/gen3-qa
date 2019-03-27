@@ -17,6 +17,7 @@ const files = require('./file.js');
 const lockServiceAccountName = 'locked-by-test';
 let rand = (Math.random() + 1).toString(36).substring(2,7); // 5 random chars
 const lockServiceAccountUniqueName = `${lockServiceAccountName}-${rand}`;
+console.log(`Google project lock SA unique name for this session is "${lockServiceAccountUniqueName}"`);
 
 
 /**
@@ -135,6 +136,43 @@ module.exports = {
     });
   },
 
+  /**
+   * It can take some time for the user to be denied access to data.
+   * This function waits and eventually returns false if the user can still
+   * access data after the timeout, true otherwise
+   */
+  async waitForNoDataAccess(googleBucket, pathToKeyFile) {
+    /**
+     * return true if the user can access data, false otherwise
+     */
+    const isDataInaccessible = async function() {
+      try {
+        // Try to access data
+        user0AccessQAResAfter = await module.exports.getFileFromBucket(
+          googleBucket.googleProjectId,
+          pathToKeyFile,
+          googleBucket.bucketId,
+          googleBucket.fileName
+        );
+        chai.expect(user0AccessQAResAfter).to.have.property('statusCode', 403);
+        return true;
+      }
+      catch {
+        console.log('Data is still accessible: rerunning');
+        return false;
+      }
+    };
+    const timeout = 60; // max number of seconds to wait
+    let dataAccessIsDenied = true;
+    try {
+      await apiUtil.smartWait(isDataInaccessible, [], timeout, '');
+    }
+    catch {
+      dataAccessIsDenied = false;
+    }
+    return dataAccessIsDenied;
+  },
+
   async getGroupMembers(groupKey) {
     return googleApp.authorize(googleApp.adminConfig, (authClient) => {
       // Get Google Admin API
@@ -248,8 +286,9 @@ module.exports = {
           });
         });
       });
-      if (listRes.accounts)
+      if (listRes.accounts) {
         saList = saList.concat(listRes.accounts);
+      }
       nextPageToken = listRes.nextPageToken; // is undefined if done
     }
     return saList;
@@ -290,8 +329,9 @@ module.exports = {
   },
 
   async deleteServiceAccount(serviceAccountID, projectID=null) {
-    if (!projectID)
+    if (!projectID) {
       projectID = '-'; // auto get project ID from SA ID
+    }
     return new Promise((resolve) => {
       return googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
         const cloudResourceManager = google.iam('v1');
@@ -414,7 +454,7 @@ module.exports = {
       } else {
         expect(createRes).to.have.property('email');
         expect(createRes.email).to.equal(serviceAccountEmail);
-        console.log('Successully locked project');
+        console.log('Successfully locked project');
         return true;
       }
     };
@@ -447,27 +487,50 @@ module.exports = {
     }
   },
 
+  getLockGoogleProjectErrorDetails(googleProject) {
+    return `Could not lock Google project "${googleProject.id}" to run tests where we modify the project itself. Locks are necessary to avoid interfering with other testing envs since they all use the same Google Project: "Gen3QA-ValidationJobTest". We attempted to "lock" the project by creating a service account unique to this test run. We either could not create the SA or the project is locked by a *different* test env and we timed out. Ensure that other tests did not fail to remove their lock for some reason by looking for a SA named "${lockServiceAccountName}" in Google project "${googleProject.id}" (owner "${googleProject.owner}") and manually deleting it needed.\n`
+  },
+
   /**
    * Unlocks a Google project
    * Returns true if nothing to unlock or successfully unlocked, false
    * otherwise
    */
   async unlockGoogleProject(googleProject) {
+    console.log(`Trying to unlock Google project "${googleProject.id}"...`);
     const serviceAccountEmail = this.getLockingServiceAccountEmail(googleProject.serviceAccountEmail);
 
     // check if the project is locked. if not locked: return success
     listRes = await this.listServiceAccounts(googleProject.id);
     isLocked = listRes.some(sa => sa.email.startsWith(lockServiceAccountName));
-    if (!isLocked) return true;
+    if (!isLocked) {
+      console.log('Project is not locked');
+      return true;
+    }
 
     // if it's locked by another testing session: cannot unlock
     isLockedByMe = listRes.some(sa => sa.email === serviceAccountEmail);
-    if (!isLockedByMe) return false;
+    if (!isLockedByMe) {
+      console.log('Cannot unlock project (it was locked by another testing session)');
+      return false;
+    }
 
-    // if it's lock by this testing session: try to unlock
-    console.log(`Unlocking Google project "${googleProject.id}"`);
+    // if it's locked by this testing session: try to unlock
     const deleteRes = await this.deleteServiceAccount(serviceAccountEmail, googleProject.id);
+
     // if successfully unlocked, res is an empty object
-    return (deleteRes.constructor === Object && Object.keys(deleteRes).length === 0);
+    if (deleteRes.constructor === Object && Object.keys(deleteRes).length === 0) {
+      console.log('Successfully unlocked project');
+      return true;
+    }
+    else {
+      console.log('Cannot unlock project');
+      console.log(deleteRes);
+      return false;
+    }
+  },
+
+  getUnlockGoogleProjectErrorDetails(googleProject) {
+    return `Failed to unlock Google project "${googleProject.id}" after running tests where we modify the project itself. Locks are necessary to avoid interfering with other testing envs since they all use the same Google Project: "Gen3QA-ValidationJobTest". We "locked" the project by creating a service account unique to this test run. Other tests that use this project will fail because they will not be able to lock it. If this error happens during a test run, the tests will attempt to unlock the project later. If this error happens during steps "After each" or "After all", ensure that the lock specific to this test run has been removed by manually deleting the service account "${lockServiceAccountUniqueName}" in Google project "${googleProject.id}" (owner "${googleProject.owner}").\n`
   },
 };

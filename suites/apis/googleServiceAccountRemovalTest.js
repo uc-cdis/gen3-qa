@@ -21,6 +21,13 @@ Feature('GoogleServiceAccountRemoval');
  */
 
 
+// IAM access needed by the monitor service account
+const monitorRoles = [
+  'roles/resourcemanager.projectIamAdmin',
+  'roles/editor'
+];
+
+
 BeforeSuite(async (google, fence, users) => {
   await fence.complete.suiteCleanup(google, users);
 });
@@ -31,12 +38,48 @@ After(async (google, fence, users) => {
 });
 
 
-AfterSuite(async (google, fence) => {
-  await google.unlockGoogleProject(fence.props.googleProjectDynamic);
+AfterSuite(async (google, fence, users) => {
+  // make sure the monitor SA has access.
+  // we need to lock the project, since another testing session may
+  // have removed the roles to run the monitor test
+  const googleProject = fence.props.googleProjectDynamic;
+  let monitorEmail = await getMonitorEmail(fence, users);
+  let lockRes = await google.lockGoogleProject(googleProject);
+  chai.expect(
+    lockRes,
+    google.getLockGoogleProjectErrorDetails(googleProject)
+  ).to.be.true;
+
+  let addRolesRes = [];
+  for (var role of monitorRoles) {
+    addRolesRes.push(
+      await google.updateUserRole(
+        googleProject.id,
+        {
+          role,
+          members: [`serviceAccount:${monitorEmail}`]
+        }
+      )
+    );
+  }
+
+  // make sure we leave the project unlocked
+  let unlockRes = await google.unlockGoogleProject(googleProject);
+
+  for (var res of addRolesRes) {
+    chai.expect(
+      res,
+      `WARNING: Failed to update monitor SA roles!! Next Google integration tests running on Jenkins will fail. Roles "${monitorRoles}" should be manually added to SA "${monitorEmail}" in Google project ${googleProject.id} (owner ${googleProject.owner}).\n`
+    ).to.not.have.property('code');
+  }
+  chai.expect(
+    unlockRes,
+    google.getUnlockGoogleProjectErrorDetails(googleProject)
+  ).to.be.true;
 });
 
 
-function checkAndCleanSA() {
+function runVerifyUserSAsJob() {
   var fenceCmd = 'fence-create --verbose google-manage-user-registrations';
   console.log(`Running: ${fenceCmd}`);
   var jobRes = bash.runCommand(fenceCmd, 'fence');
@@ -44,12 +87,29 @@ function checkAndCleanSA() {
   return jobRes;
 }
 
+async function getMonitorEmail(fence, users) {
+  let getMonitorRes = await fence.do.getGoogleServiceAccountMonitor(users.user0);
+  fence.ask.assertStatusCode(getMonitorRes, 200, 'Could not get SA monitor info');
+  chai.expect(
+    getMonitorRes,
+    'Fence GET SA monitor endpoint did not return a service_account_email'
+  ).has.nested.property('body.service_account_email');
+  return getMonitorRes.body.service_account_email;
+}
+
 
 Scenario('SA removal job test: no access removal when SA is valid @reqGoogle', async (fence, users, google, files) => {
   // test that the clean up job does not remove access to valid SA/projects
 
-  // Setup
+  // Lock the project
   const googleProject = fence.props.googleProjectDynamic;
+  lockRes = await google.lockGoogleProject(googleProject);
+  chai.expect(
+    lockRes,
+    google.getLockGoogleProjectErrorDetails(googleProject)
+  ).to.be.true;
+
+  // Setup
   await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
 
   // Register account
@@ -59,10 +119,6 @@ Scenario('SA removal job test: no access removal when SA is valid @reqGoogle', a
     ['QA']
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
-
-  // Lock the project
-  lockRes = await google.lockGoogleProject(googleProject);
-  chai.expect(lockRes, 'Could not lock project').to.be.true;
 
   // Get creds to access data
   let [pathToKeyFile, keyFullName] = await google.createServiceAccountKeyFile(googleProject);
@@ -80,7 +136,7 @@ Scenario('SA removal job test: no access removal when SA is valid @reqGoogle', a
   files.deleteFile(pathToKeyFile);
 
   // Run clean up job
-  checkAndCleanSA();
+  runVerifyUserSAsJob();
 
   // Get creds to access data
   [pathToKeyFile, keyFullName] = await google.createServiceAccountKeyFile(googleProject);
@@ -120,132 +176,25 @@ Scenario('SA removal job test: no access removal when SA is valid @reqGoogle', a
     'User should have bucket access after clean up job'
   ).to.have.property('id');
 
-  chai.expect(unlockRes, 'Could not unlock project').to.be.true;
-}).retry(2);
-
-
-// TODO: enable. this test fails until the jenkins envs are setup with the new monitoring SA
-xScenario('SA removal job test: monitor SA does not have access @reqGoogle', async (fence, users, google, files) => {
-  // test invalid SA because the monitor does not have access
-
-  // Setup
-  const googleProject = fence.props.googleProjectDynamic;
-  let getMonitorRes = await fence.do.getGoogleServiceAccountMonitor(users.user0);
-  fence.ask.assertStatusCode(getMonitorRes, 200, 'Could not get SA monitor info');
-  let monitorEmail = getMonitorRes.body.service_account_email;
-
-  await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
-
-  // Register account
-  registerRes = await fence.do.registerGoogleServiceAccount(
-    users.user0,
-    googleProject,
-    ['QA']
-  );
-  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
-
-  // Lock the project
-  lockRes = await google.lockGoogleProject(googleProject);
-  chai.expect(lockRes, 'Could not lock project').to.be.true;
-
-  // Remove monitor's access
-  console.log(`removing monitoring access from SA ${monitorEmail}`);
-  const monitorRoles = [ // IAM access needed by the monitor
-    'roles/resourcemanager.projectIamAdmin',
-    'roles/editor'
-  ];
-  for (var role of monitorRoles) {
-    await google.removeUserRole(
-      googleProject.id,
-      {
-        role,
-        members: [`serviceAccount:${monitorEmail}`]
-      }
-    );
-  }
-
-  // the role update can take a bit of time to propagate
-  /**
-   * return true if the job detected an invalid project, false otherwise
-   */
-  const isInvalidProjectDetected = async function() {
-    try {
-      let jobRes = checkAndCleanSA(); // run clean up job
-      fence.ask.detected_invalid_google_project(jobRes, fence.props.monitorSAJobLog.noMonitorAccess); // check results
-      return true;
-    }
-    catch {
-      // assert failed: no problem detected by the clean up job yet
-      console.log('No invalid project detected by the job yet: rerunning');
-      return false;
-    }
-  };
-  const startWait = 10; // start by waiting 10 secs
-  const timeout = 120; // max number of seconds to wait
-  detected_invalid_google_project = true;
-  try {
-    await apiUtil.smartWait(isInvalidProjectDetected, [], timeout, '', startWait);
-  }
-  catch {
-    detected_invalid_google_project = false;
-  }
-
-  // Try to access data
-  let [pathToKeyFile, keyFullName] = await google.createServiceAccountKeyFile(googleProject);
-  user0AccessQARes = await google.getFileFromBucket(
-    fence.props.googleBucketInfo.QA.googleProjectId,
-    pathToKeyFile,
-    fence.props.googleBucketInfo.QA.bucketId,
-    fence.props.googleBucketInfo.QA.fileName
-  );
-
-  // Clean up
-  console.log('cleaning up');
-
-  // Add monitor's access back
-  for (var role of monitorRoles) {
-    await google.updateUserRole(
-      googleProject.id,
-      {
-        role,
-        members: [`serviceAccount:${monitorEmail}`]
-      }
-    );
-  }
-
-  await google.deleteServiceAccountKey(keyFullName);
-  files.deleteFile(pathToKeyFile);
-
-  await fence.do.deleteGoogleServiceAccount(
-    users.user0,
-    googleProject.serviceAccountEmail,
-  );
-
-  await fence.do.unlinkGoogleAcct(
-    users.user0,
-  );
-
-  // Unlock the project
-  let unlockRes = await google.unlockGoogleProject(googleProject);
-
-  // Asserts
-  chai.expect(detected_invalid_google_project,
-    '"google-manage-user-registrations" should have detected an invalid Google project'
+  chai.expect(
+    unlockRes,
+    google.getUnlockGoogleProjectErrorDetails(googleProject)
   ).to.be.true;
-
-  chai.expect(user0AccessQARes,
-    'User should NOT have bucket access after clean up job'
-  ).to.have.property('statusCode', 403);
-
-  chai.expect(unlockRes, 'Could not unlock project').to.be.true;
-});
+}).retry(2);
 
 
 Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (fence, users, google, files) => {
   // test invalid project because the user does not exist in fence
 
-  // Setup
+  // Lock the project
   const googleProject = fence.props.googleProjectDynamic;
+  lockRes = await google.lockGoogleProject(googleProject);
+  chai.expect(
+    lockRes,
+    google.getLockGoogleProjectErrorDetails(googleProject)
+  ).to.be.true;
+
+  // Setup
   await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
 
   // Register account
@@ -256,26 +205,17 @@ Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
 
-  // Lock the project
-  lockRes = await google.lockGoogleProject(googleProject);
-  chai.expect(lockRes, 'Could not lock project').to.be.true;
-
   // Make the project invalid
   await fence.do.unlinkGoogleAcct(
     users.user0,
   );
 
   // Run clean up job
-  let jobRes = checkAndCleanSA();
+  let jobRes = runVerifyUserSAsJob();
 
   // Try to access data
   let [pathToKeyFile, keyFullName] = await google.createServiceAccountKeyFile(googleProject);
-  user0AccessQARes = await google.getFileFromBucket(
-    fence.props.googleBucketInfo.QA.googleProjectId,
-    pathToKeyFile,
-    fence.props.googleBucketInfo.QA.bucketId,
-    fence.props.googleBucketInfo.QA.fileName
-  );
+  user0CannotAccessQAAfter = await google.waitForNoDataAccess(fence.props.googleBucketInfo.QA, pathToKeyFile);
 
   // Clean up
   console.log('cleaning up');
@@ -298,19 +238,29 @@ Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (
   // Asserts
   fence.ask.detected_invalid_google_project(jobRes, fence.props.monitorSAJobLog.noFenceUser);
 
-  chai.expect(user0AccessQARes,
+  chai.expect(user0CannotAccessQAAfter,
     'User should NOT have bucket access after clean up job'
-  ).to.have.property('statusCode', 403);
+  ).to.be.true;
 
-  chai.expect(unlockRes, 'Could not unlock project').to.be.true;
+  chai.expect(
+    unlockRes,
+    google.getUnlockGoogleProjectErrorDetails(googleProject)
+  ).to.be.true;
 }).retry(2);
 
 
 Scenario('SA removal job test: user does not have access to data @reqGoogle', async (fence, users, google, files) => {
   // test invalid project because the user does not have access to the data
 
-  // Setup
+  // Lock the project
   const googleProject = fence.props.googleProjectDynamic;
+  lockRes = await google.lockGoogleProject(googleProject);
+  chai.expect(
+    lockRes,
+    google.getLockGoogleProjectErrorDetails(googleProject)
+  ).to.be.true;
+
+  // Setup
   await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
 
   // Register account
@@ -321,10 +271,6 @@ Scenario('SA removal job test: user does not have access to data @reqGoogle', as
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
 
-  // Lock the project
-  lockRes = await google.lockGoogleProject(googleProject);
-  chai.expect(lockRes, 'Could not lock project').to.be.true;
-
   // Make the project invalid
   console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
   Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
@@ -332,16 +278,11 @@ Scenario('SA removal job test: user does not have access to data @reqGoogle', as
   // now user0 does not have access to project QA anymore
 
   // Run clean up job
-  let jobRes = checkAndCleanSA();
+  let jobRes = runVerifyUserSAsJob();
 
   // Try to access data
   let [pathToKeyFile, keyFullName] = await google.createServiceAccountKeyFile(googleProject);
-  user0AccessQARes = await google.getFileFromBucket(
-    fence.props.googleBucketInfo.QA.googleProjectId,
-    pathToKeyFile,
-    fence.props.googleBucketInfo.QA.bucketId,
-    fence.props.googleBucketInfo.QA.fileName
-  );
+  user0CannotAccessQAAfter = await google.waitForNoDataAccess(fence.props.googleBucketInfo.QA, pathToKeyFile);
 
   // Clean up
   console.log('cleaning up');
@@ -367,19 +308,29 @@ Scenario('SA removal job test: user does not have access to data @reqGoogle', as
   // Asserts
   fence.ask.detected_invalid_google_project(jobRes, fence.props.monitorSAJobLog.noDataAccess);
 
-  chai.expect(user0AccessQARes,
+  chai.expect(user0CannotAccessQAAfter,
     'User should NOT have bucket access after clean up job'
-  ).to.have.property('statusCode', 403);
+  ).to.be.true;
 
-  chai.expect(unlockRes, 'Could not unlock project').to.be.true;
+  chai.expect(
+    unlockRes,
+    google.getUnlockGoogleProjectErrorDetails(googleProject)
+  ).to.be.true;
 }).retry(2);
 
 
 Scenario('SA removal job test: SA has external access @reqGoogle', async (fence, users, google, files) => {
   // test invalid project because the SA has an external key set up
 
-  // Setup
+  // Lock the project
   const googleProject = fence.props.googleProjectDynamic;
+  lockRes = await google.lockGoogleProject(googleProject);
+  chai.expect(
+    lockRes,
+    google.getLockGoogleProjectErrorDetails(googleProject)
+  ).to.be.true;
+
+  // Setup
   await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
 
   // Register account
@@ -389,10 +340,6 @@ Scenario('SA removal job test: SA has external access @reqGoogle', async (fence,
     ['QA']
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
-
-  // Lock the project
-  lockRes = await google.lockGoogleProject(googleProject);
-  chai.expect(lockRes, 'Could not lock project').to.be.true;
 
   // Get creds to access data: this makes the project invalid
   let [pathToKeyFile, keyFullName] = await google.createServiceAccountKeyFile(googleProject);
@@ -406,37 +353,10 @@ Scenario('SA removal job test: SA has external access @reqGoogle', async (fence,
   );
 
   // Run clean up job
-  let jobRes = checkAndCleanSA();
+  let jobRes = runVerifyUserSAsJob();
 
   // Make sure we cannot access data after the clean up
-  /**
-   * return true if the user can access data, false otherwise
-   */
-  const isDataUnaccessible = async function() {
-    try {
-      // Try to access data
-      user0AccessQAResAfter = await google.getFileFromBucket(
-        fence.props.googleBucketInfo.QA.googleProjectId,
-        pathToKeyFile,
-        fence.props.googleBucketInfo.QA.bucketId,
-        fence.props.googleBucketInfo.QA.fileName
-      );
-      chai.expect(user0AccessQAResAfter).to.have.property('statusCode', 403);
-      return true;
-    }
-    catch {
-      console.log('Data is still accessible: rerunning');
-      return false;
-    }
-  };
-  const timeout = 60; // max number of seconds to wait
-  let user0CanAccessQAResAfter = false;
-  try {
-    await apiUtil.smartWait(isDataUnaccessible, [], timeout, '');
-  }
-  catch {
-    user0CanAccessQAResAfter = true;
-  }
+  user0CannotAccessQAAfter = await google.waitForNoDataAccess(fence.props.googleBucketInfo.QA, pathToKeyFile);
 
   // Clean up
   console.log('cleaning up');
@@ -463,9 +383,135 @@ Scenario('SA removal job test: SA has external access @reqGoogle', async (fence,
 
   fence.ask.detected_invalid_google_project(jobRes, fence.props.monitorSAJobLog.externalAccess);
 
-  chai.expect(user0CanAccessQAResAfter,
+  chai.expect(user0CannotAccessQAAfter,
     'User should NOT have bucket access after clean up job'
-  ).to.be.false;
+  ).to.be.true;
 
-  chai.expect(unlockRes, 'Could not unlock project').to.be.true;
+  chai.expect(
+    unlockRes,
+    google.getUnlockGoogleProjectErrorDetails(googleProject)
+  ).to.be.true;
 }).retry(2);
+
+
+// We run this test last because if the roles update at the end fails,
+// the following tests would fail.
+Scenario('SA removal job test: monitor SA does not have access @reqGoogle', async (fence, users, google, files) => {
+  // test invalid SA because the monitor does not have access
+
+  // Lock the project
+  const googleProject = fence.props.googleProjectDynamic;
+  lockRes = await google.lockGoogleProject(googleProject);
+  chai.expect(
+    lockRes,
+    google.getLockGoogleProjectErrorDetails(googleProject)
+  ).to.be.true;
+
+  // Setup
+  let monitorEmail = await getMonitorEmail(fence, users);
+
+  await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
+
+  // Register account
+  registerRes = await fence.do.registerGoogleServiceAccount(
+    users.user0,
+    googleProject,
+    ['QA']
+  );
+  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
+
+  // Remove monitor's access
+  console.log(`removing monitoring access from SA ${monitorEmail}`);
+  for (var role of monitorRoles) {
+    await google.removeUserRole(
+      googleProject.id,
+      {
+        role,
+        members: [`serviceAccount:${monitorEmail}`]
+      }
+    );
+  }
+
+  // the role update can take a bit of time to propagate
+  /**
+   * return true if the job detected an invalid project, false otherwise
+   */
+  const isInvalidProjectDetected = async function() {
+    try {
+      let jobRes = runVerifyUserSAsJob(); // run clean up job
+      fence.ask.detected_invalid_google_project(jobRes, fence.props.monitorSAJobLog.noMonitorAccess); // check results
+      return true;
+    }
+    catch {
+      // assert failed: no problem detected by the clean up job yet
+      console.log('No invalid project detected by the job yet: rerunning');
+      return false;
+    }
+  };
+  const startWait = 10; // start by waiting 10 secs
+  const timeout = 120; // max number of seconds to wait
+  detected_invalid_google_project = true;
+  try {
+    await apiUtil.smartWait(isInvalidProjectDetected, [], timeout, '', startWait);
+  }
+  catch {
+    detected_invalid_google_project = false;
+  }
+
+  // Try to access data
+  let [pathToKeyFile, keyFullName] = await google.createServiceAccountKeyFile(googleProject);
+  user0CannotAccessQAAfter = await google.waitForNoDataAccess(fence.props.googleBucketInfo.QA, pathToKeyFile);
+
+  // Clean up
+  console.log('cleaning up');
+
+  // Add monitor's access back
+  let addRolesRes = [];
+  for (var role of monitorRoles) {
+    addRolesRes.push(
+      await google.updateUserRole(
+        googleProject.id,
+        {
+          role,
+          members: [`serviceAccount:${monitorEmail}`]
+        }
+      )
+    );
+  }
+
+  await google.deleteServiceAccountKey(keyFullName);
+  files.deleteFile(pathToKeyFile);
+
+  await fence.do.deleteGoogleServiceAccount(
+    users.user0,
+    googleProject.serviceAccountEmail,
+  );
+
+  await fence.do.unlinkGoogleAcct(
+    users.user0,
+  );
+
+  // Unlock the project
+  let unlockRes = await google.unlockGoogleProject(googleProject);
+
+  // Asserts
+  chai.expect(detected_invalid_google_project,
+    '"google-manage-user-registrations" should have detected an invalid Google project'
+  ).to.be.true;
+
+  chai.expect(user0CannotAccessQAAfter,
+    'User should NOT have bucket access after clean up job'
+  ).to.be.true;
+
+  for (var res of addRolesRes) {
+    chai.expect(
+      res,
+      `Could not update monitor SA roles!! Next tests may fail. Roles "${monitorRoles}" should be added to SA "${monitorEmail}" in Google project ${googleProject.id} (owner ${googleProject.owner}). Will try to add them again at the end of this test suite.\n`
+    ).to.not.have.property('code');
+  }
+
+  chai.expect(
+    unlockRes,
+    google.getUnlockGoogleProjectErrorDetails(googleProject)
+  ).to.be.true;
+});

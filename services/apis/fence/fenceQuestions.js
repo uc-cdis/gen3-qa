@@ -117,8 +117,9 @@ module.exports = {
     // Check the expiration is within expected range
     const timeBuff = 60;
     expect(extendRes).to.have.nested.property('body.exp');
-    if (!expires_in)
-      expires_in = fenceProps.linkExtendDefaultAmount
+    if (!expires_in) {
+      expires_in = fenceProps.linkExtendDefaultAmount;
+    }
     expect(extendRes.body.exp, 'the link expiration is not in the expected range').to.be.within(
       (timeRequest + expires_in) - timeBuff,
       (timeRequest + expires_in) + timeBuff,

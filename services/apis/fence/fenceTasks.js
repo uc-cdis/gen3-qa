@@ -162,8 +162,9 @@ module.exports = {
   createTempGoogleCreds(accessTokenHeader, expires_in=null) {
     accessTokenHeader['Content-Type'] = 'application/json';
     url = fenceProps.endpoints.googleCredentials;
-    if (expires_in)
+    if (expires_in) {
       url += `?expires_in=${expires_in}`;
+    }
     return I.sendPostRequest(
       url,
       {},
@@ -267,8 +268,9 @@ module.exports = {
    */
   async extendGoogleLink(userAcct, expires_in=null) {
     url = fenceProps.endpoints.extendGoogleLink;
-    if (expires_in)
+    if (expires_in) {
       url += `?expires_in=${expires_in}`;
+    }
     return I.sendPatchRequest(
       url, {}, userAcct.accessTokenHeader)
       .then(res => new Gen3Response(res));
@@ -304,9 +306,9 @@ module.exports = {
    */
   async registerGoogleServiceAccount(userAcct, googleProject, projectAccessList, expires_in=null) {
     url = fenceProps.endpoints.registerGoogleServiceAccount;
-    if (expires_in)
+    if (expires_in) {
       url += `?expires_in=${expires_in}`;
-
+    }
     const MAX_TRIES = 3;
     let tries = 1;
     let postRes;
@@ -328,7 +330,8 @@ module.exports = {
         }
         if (res.body && res.body.errors) {
           console.log('Failed SA registration:');
-          console.log(res.body.errors);
+          // stringify to print all the nested objects
+          console.log(JSON.stringify(res.body.errors, null, 2));
         }
         else if (res.error) {
           console.log('Failed SA registration:');
