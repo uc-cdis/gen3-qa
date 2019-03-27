@@ -145,6 +145,31 @@ function assertGen3Client() {
   }
 }
 
+/**
+ * Create the "test" and "QA" projects in the fence DB if they do not already
+ * exist, and link them to the Google buckets used in the tests
+ */
+function createGoogleTestBuckets() {
+  console.log('Ensure test buckets are linked to projects in this commons...');
+
+  var bucketId = fenceProps.googleBucketInfo.QA.bucketId;
+  var googleProjectId = fenceProps.googleBucketInfo.QA.googleProjectId;
+  var projectAuthId = 'QA';
+  var fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
+  console.log(`Running: ${fenceCmd}`);
+  bash.runCommand(fenceCmd, 'fence');
+
+  bucketId = fenceProps.googleBucketInfo.test.bucketId
+  googleProjectId = fenceProps.googleBucketInfo.test.googleProjectId
+  projectAuthId = 'test';
+  fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
+  console.log(`Running: ${fenceCmd}`);
+  response = bash.runCommand(fenceCmd, 'fence');
+
+  console.log('Clean up Google Bucket Access Groups from previous runs...');
+  bash.runJob('google-verify-bucket-access-group');
+}
+
 module.exports = async function (done) {
   try {
     // get some vars from the commons
@@ -206,11 +231,15 @@ module.exports = async function (done) {
 
     assertGen3Client();
 
+    createGoogleTestBuckets();
+
     // Create a program and project (does nothing if already exists)
     console.log('Creating program/project\n');
     await tryCreateProgramProject(3);
+
     done();
-  } catch (ex) {
+  }
+  catch (ex) {
     console.error('Failed initialization', ex);
     process.exit(1);
   }

@@ -1,5 +1,6 @@
 Feature('LinkGoogleAccount');
 
+
 BeforeSuite(async (fence, users) => {
   // Cleanup before suite
   const unlinkResults = Object.values(users).map(user => fence.do.unlinkGoogleAcct(user));

@@ -38,7 +38,7 @@ const getUploadUrlFromFence = async function (fence, users, indexd) {
  * - Link metadata to the file via sheepdog
  * - Download the file via fence and check who can download and when
  */
-Scenario('File upload and download via API calls @dataUpload', async (fence, users, nodes, indexd, sheepdog, dataUploadUtil) => {
+Scenario('File upload and download via API calls @dataUpload', async (fence, users, nodes, indexd, sheepdog, dataUpload) => {
   // request a  presigned URL from fence
   let fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
   let fileGuid = fenceUploadRes.body.guid;
@@ -68,10 +68,10 @@ Scenario('File upload and download via API calls @dataUpload', async (fence, use
   fence.ask.hasNoUrl(signedUrlRes);
 
   // now, upload the file to the S3 bucket using the presigned URL
-  await dataUploadUtil.uploadFileToS3(presignedUrl, filePath, fileSize);
+  await dataUpload.uploadFileToS3(presignedUrl, filePath, fileSize);
 
   // wait for the indexd listener to add size, hashes and URL to the record
-  await dataUploadUtil.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
+  await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 
   // Try downloading before linking metadata to the file. It should succeed
   // for the uploader but fail for other users
@@ -129,7 +129,7 @@ Scenario('User without role cannot upload @dataUpload', async (fence, users, nod
  * the config folder configurable ...
  *     
  */
-Scenario('File upload and download via client @dataClientCLI @dataUpload', async (dataClient, fence, users, indexd, nodes, files, dataUploadUtil) => {
+Scenario('File upload and download via client @dataClientCLI @dataUpload', async (dataClient, fence, users, indexd, nodes, files, dataUpload) => {
   // configure the gen3-client
   await dataClient.do.configureClient(fence, users, files);
   // use gen3 client to upload a file
@@ -147,7 +147,7 @@ Scenario('File upload and download via client @dataClientCLI @dataUpload', async
   await indexd.complete.checkRecordExists(fileNode);
 
   // wait for the indexd listener to add size, hashes and URL to the record
-  await dataUploadUtil.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
+  await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 
   // download the file via the data client
   downloadPath = './tmpFileDestination.txt';
@@ -158,14 +158,14 @@ Scenario('File upload and download via client @dataClientCLI @dataUpload', async
  * Upload a file, then delete it through fence. Aftert deletion, the file
  * should not be accessible for metadata linking or download
  */
-Scenario('Data file deletion @dataUpload', async (fence, users, indexd, sheepdog, nodes, dataUploadUtil) => {
+Scenario('Data file deletion @dataUpload', async (fence, users, indexd, sheepdog, nodes, dataUpload) => {
   // request a  presigned URL from fence
   let fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
   let fileGuid = fenceUploadRes.body.guid;
   let presignedUrl = fenceUploadRes.body.url;
 
   // upload the file to the S3 bucket using the presigned URL
-  await dataUploadUtil.uploadFileToS3(presignedUrl, filePath, fileSize);
+  await dataUpload.uploadFileToS3(presignedUrl, filePath, fileSize);
 
   fileNode = {
     did: fileGuid,
@@ -176,7 +176,7 @@ Scenario('Data file deletion @dataUpload', async (fence, users, indexd, sheepdog
   };
 
   // wait for the indexd listener to add size, hashes and URL to the record
-  await dataUploadUtil.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
+  await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 
   // check that a user who is not the uploader cannot delete the file
   let fenceRes = await fence.do.deleteFile(fileGuid, userHeader=users.auxAcct1.accessTokenHeader);
@@ -202,7 +202,7 @@ Scenario('Data file deletion @dataUpload', async (fence, users, indexd, sheepdog
  * Upload 2 files with the same contents (so same hash and size) and
  * link metadata to them via sheepdog
  */
-Scenario('Upload the same file twice @dataUpload', async (sheepdog, indexd, nodes, users, fence, dataUploadUtil) => {
+Scenario('Upload the same file twice @dataUpload', async (sheepdog, indexd, nodes, users, fence, dataUpload) => {
   ////////////
   // FILE 1 //
   ////////////
@@ -214,7 +214,7 @@ Scenario('Upload the same file twice @dataUpload', async (sheepdog, indexd, node
   let presignedUrl = fenceUploadRes.body.url;
 
   // upload the file to the S3 bucket using the presigned URL
-  await dataUploadUtil.uploadFileToS3(presignedUrl, filePath, fileSize);
+  await dataUpload.uploadFileToS3(presignedUrl, filePath, fileSize);
 
   let fileNode = {
     did: fileGuid,
@@ -225,7 +225,7 @@ Scenario('Upload the same file twice @dataUpload', async (sheepdog, indexd, node
   };
 
   // wait for the indexd listener to add size, hashes and URL to the record
-  await dataUploadUtil.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
+  await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 
   // submit metadata for this file
   let sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5);
@@ -249,11 +249,11 @@ Scenario('Upload the same file twice @dataUpload', async (sheepdog, indexd, node
   presignedUrl = fenceUploadRes.body.url;
 
   // upload the file to the S3 bucket using the presigned URL
-  await dataUploadUtil.uploadFileToS3(presignedUrl, filePath, fileSize);
+  await dataUpload.uploadFileToS3(presignedUrl, filePath, fileSize);
 
   // wait for the indexd listener to add size, hashes and URL to the record
   fileNode.did = fileGuid;
-  await dataUploadUtil.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
+  await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 
   // submit metadata for this file
   sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5, submitter_id='submitter_id_new_value');
@@ -282,7 +282,7 @@ BeforeSuite(async (dataClient, fence, users, sheepdog, indexd, files) => {
   fileMd5 = await files.getFileHash(filePath);
 });
 
-AfterSuite(async (files, indexd, dataUploadUtil) => {
+AfterSuite(async (files, indexd, dataUpload) => {
   // delete the temp file from local storage
   if (fs.existsSync(filePath)) {
     files.deleteFile(filePath);
@@ -292,7 +292,7 @@ AfterSuite(async (files, indexd, dataUploadUtil) => {
   // Note: we don't use fence's /delete endpoint here because it does not allow
   // deleting from indexd records that have already been linked to metadata
   await indexd.complete.deleteFiles(createdGuids);
-  await dataUploadUtil.cleanS3(fileName, createdGuids);
+  await dataUpload.cleanS3(fileName, createdGuids);
 });
 
 Before((nodes) => {

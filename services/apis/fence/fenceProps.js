@@ -69,7 +69,7 @@ module.exports = {
   /**
    * Link google account duration
    */
-  linkExtendAmount: 86400, // 24 hours (in seconds)
+  linkExtendDefaultAmount: 86400, // 24 hours (in seconds)
 
   /**
    * Create Access Token Responses
@@ -324,6 +324,17 @@ module.exports = {
   }),
 
   /**
+   * Expected reasons for an invalid SA/Google project in the
+   * google-manage-user-registrations job logs
+   */
+  monitorSAJobLog: {
+    noMonitorAccess: 'Fence\'s Monitoring service account does NOT have access',
+    noFenceUser: 'INVALID user(s) do not exist in fence',
+    noDataAccess: 'does not have access to project',
+    externalAccess: 'it has external access (keys generated or roles on it)',
+  },
+
+  /**
    * Google Projects
    */
   googleProjectA: {
@@ -333,6 +344,18 @@ module.exports = {
     // -has a service acct with key:          false
     id: 'simpleprojectalpha',
     serviceAccountEmail: 'serviceaccount@simpleprojectalpha.iam.gserviceaccount.com',
+    defaultIsValidGCP: true,
+    owner: 'gen3.autotest@gmail.com',
+  },
+
+  // used when the tests need to modify the google project/SAs
+  googleProjectDynamic: {
+    // -fence SA in project:                  true
+    // -has a parent organization:            false
+    // -has service acct with invalid type:   false
+    // -has a service acct with key:          false
+    id: 'gen3qa-validationjobtest',
+    serviceAccountEmail: 'service-account@gen3qa-validationjobtest.iam.gserviceaccount.com',
     defaultIsValidGCP: true,
     owner: 'gen3.autotest@gmail.com',
   },

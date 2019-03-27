@@ -42,7 +42,7 @@ exports.config = {
     users: './utils/user.js',
     google: './utils/google.js',
     files: './utils/file.js',
-    dataUploadUtil: './utils/dataUploadUtil',
+    dataUpload: './utils/dataUpload.js',
 
     // APIs
     sheepdog: './services/apis/sheepdog/sheepdogService.js',
