@@ -567,10 +567,6 @@ Scenario('Delete a SA that was successfully registered before but was deleted fr
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
 
-  // Lock the project
-  lockRes = await google.lockGoogleProject(googleProject);
-  chai.expect(lockRes, 'Could not lock project').to.be.true;
-
   // Remove account from Google but NOT through fence
   const deleteResGoogle = await google.deleteServiceAccount(serviceAccountEmail, googleProject.id);
   fence.ask.deleteServiceAccountSuccess(deleteResGoogle);
@@ -750,6 +746,7 @@ Scenario('Service Account temporary key expiration test @reqGoogle', async (fenc
   chai.expect(user0AccessQARes,
     'User should have bucket access before expiration'
   ).to.have.property('id');
+
   chai.expect(user0AccessQAResExpired,
     'User should NOT have bucket access after expiration'
   ).to.have.property('statusCode', 403);
