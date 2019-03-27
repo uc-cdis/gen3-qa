@@ -17,7 +17,7 @@ module.exports = {
   deleteIndices(index) {
     try {
       if (index) {
-        const res = bash.runCommand(`curl -X DELETE -s ${etlProps.endpoints.root}/*${index}*`, 'aws-es-proxy-deployment');
+        const res = bash.runCommand(`curl -X DELETE -s ${etlProps.endpoints.root}/${index}`, 'aws-es-proxy-deployment');
         if (res.startsWith('HTTP/1.1 200 OK')) {
           return true;
         }

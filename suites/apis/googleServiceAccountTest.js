@@ -30,7 +30,13 @@ After(async (google, fence, users) => {
 });
 
 AfterSuite(async (google, fence) => {
-  await google.unlockGoogleProject(fence.props.googleProjectDynamic);
+  // make sure we leave the project unlocked
+  const googleProject = fence.props.googleProjectDynamic;
+  let unlockRes = await google.unlockGoogleProject(googleProject);
+  chai.expect(
+    unlockRes,
+    google.getUnlockGoogleProjectErrorDetails(googleProject)
+  ).to.be.true;
 });
 
 
@@ -69,7 +75,10 @@ Scenario('Google project locking test @reqGoogle', async (fence, google) => {
   // Lock the project
   const googleProject = fence.props.googleProjectDynamic;
   lockRes = await google.lockGoogleProject(googleProject);
-  chai.expect(lockRes, 'Could not lock project').to.be.true;
+  chai.expect(
+    lockRes,
+    google.getLockGoogleProjectErrorDetails(googleProject)
+  ).to.be.true;
 
   // Try to lock the project again
   lockRes = await google.lockGoogleProject(googleProject, 3);
@@ -77,7 +86,10 @@ Scenario('Google project locking test @reqGoogle', async (fence, google) => {
 
   // Unlock the project
   let unlockRes = await google.unlockGoogleProject(googleProject);
-  chai.expect(unlockRes, 'Could not unlock project').to.be.true;
+  chai.expect(
+    unlockRes,
+    google.getUnlockGoogleProjectErrorDetails(googleProject)
+  ).to.be.true;
 
   // Make sure the locking SA is not listed anymore
   let saEmail = google.getLockingServiceAccountEmail(googleProject.serviceAccountEmail);
@@ -504,7 +516,7 @@ Scenario('Attempt delete Registered SA for Google Project when user isnt on the 
     googleProject.serviceAccountEmail,
   );
   fence.ask.responsesEqual(actuallyDeleteRes, fence.props.resDeleteServiceAccountSuccess);
-});
+}).retry(2);
 
 Scenario('Attempt delete an SA that doesnt exist @reqGoogle', async (fence, users) => {
   // Delete a service account that doesn't exist
@@ -527,7 +539,13 @@ Scenario('Attempt delete an SA that doesnt exist @reqGoogle', async (fence, user
 Scenario('Delete a SA that was successfully registered before but was deleted from Google @reqGoogle', async (fence, users, google) => {
   // Delete a service account that doesn't exist
 
+  // Lock the project
   const googleProject = fence.props.googleProjectDynamic;
+  lockRes = await google.lockGoogleProject(googleProject);
+  chai.expect(
+    lockRes,
+    google.getLockGoogleProjectErrorDetails(googleProject)
+  ).to.be.true;
 
   const serviceAccountName = 'tmp-service-account';
   const serviceAccountEmail = `${serviceAccountName}@${googleProject.serviceAccountEmail.substring(googleProject.serviceAccountEmail.indexOf('@')+1)}`;
@@ -567,7 +585,10 @@ Scenario('Delete a SA that was successfully registered before but was deleted fr
 
   // Unlock the project
   let unlockRes = await google.unlockGoogleProject(googleProject);
-  chai.expect(unlockRes, 'Could not unlock project').to.be.true;
+  chai.expect(
+    unlockRes,
+    google.getUnlockGoogleProjectErrorDetails(googleProject)
+  ).to.be.true;
 }).retry(2);
 
 //
@@ -579,8 +600,15 @@ Scenario('Service Account registration expiration test @reqGoogle', async (fence
 
   const EXPIRES_IN = 5;
 
-  // Setup
+  // Lock the project
   const googleProject = fence.props.googleProjectDynamic;
+  lockRes = await google.lockGoogleProject(googleProject);
+  chai.expect(
+    lockRes,
+    google.getLockGoogleProjectErrorDetails(googleProject)
+  ).to.be.true;
+
+  // Setup
   await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
 
   // Register account
@@ -591,10 +619,6 @@ Scenario('Service Account registration expiration test @reqGoogle', async (fence
     EXPIRES_IN
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
-
-  // Lock the project
-  lockRes = await google.lockGoogleProject(googleProject);
-  chai.expect(lockRes, 'Could not lock project').to.be.true;
 
   // Get creds to access data
   let [pathToKeyFile, keyFullName] = await google.createServiceAccountKeyFile(googleProject);
@@ -614,15 +638,9 @@ Scenario('Service Account registration expiration test @reqGoogle', async (fence
   // Run the expired SA clean up job
   console.log('Clean up expired Service Accounts');
   bash.runJob('google-delete-expired-service-account-job');
-  await apiUtil.sleepMS(5 * 1000); // wait for propagation to google
   
-  // try to access data
-  user0AccessQAResExpired = await google.getFileFromBucket(
-    fence.props.googleBucketInfo.QA.googleProjectId,
-    pathToKeyFile,
-    fence.props.googleBucketInfo.QA.bucketId,
-    fence.props.googleBucketInfo.QA.fileName
-  );
+  // Wait for propagation to google
+  user0CannotAccessQAAfterExpired = await google.waitForNoDataAccess(fence.props.googleBucketInfo.QA, pathToKeyFile);
 
   // Clean up
   console.log('cleaning up');
@@ -645,14 +663,18 @@ Scenario('Service Account registration expiration test @reqGoogle', async (fence
   let unlockRes = await google.unlockGoogleProject(googleProject);
 
   // Asserts
-
   chai.expect(user0AccessQARes,
     'User should have bucket access before expiration'
   ).to.have.property('id');
-  chai.expect(user0AccessQAResExpired,
+
+  chai.expect(user0CannotAccessQAAfterExpired,
     'User should NOT have bucket access after expiration'
-  ).to.have.property('statusCode', 403);
-  chai.expect(unlockRes, 'Could not unlock project').to.be.true;
+  ).to.be.true;
+
+  chai.expect(
+    unlockRes,
+    google.getUnlockGoogleProjectErrorDetails(googleProject)
+  ).to.be.true;
 }).retry(2);
 
 
