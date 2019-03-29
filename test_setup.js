@@ -170,8 +170,33 @@ function createGoogleTestBuckets() {
   bash.runJob('google-verify-bucket-access-group');
 }
 
+/**
+ * Returns the list of tags that were passed in as arguments, including
+ * "--invert" if it was passed in
+ * Note: this function does not handle complex grep/invert combinations
+ */
+function parseTestTags() {
+  tags = [];
+  args = process.env.npm_package_scripts_test.split(' '); // all args
+  args = args.map(item => item.replace(/(^"|"$)/g, '')); // remove quotes
+  if (args.includes('--grep')) {
+    // get tags and whether the grep is inverted
+    tags = args.filter(item =>
+      item.startsWith('@') || item == '--invert'
+    );
+  }
+  return tags;
+}
+
 module.exports = async function (done) {
   try {
+    // get the tags passed in as arguments
+    let testTags = parseTestTags();
+    if (testTags) {
+      console.log('Tags:')
+      console.log(testTags);
+    }
+
     // get some vars from the commons
     console.log('Setting environment variables...\n');
 
@@ -229,9 +254,13 @@ module.exports = async function (done) {
     assertEnvVars(basicVars.concat(googleVars, submitDataVars));
     console.log('TEST_DATA_PATH: ', process.env.TEST_DATA_PATH);
 
-    assertGen3Client();
+    if (testTags.includes('@dataClientCLI') && !testTags.includes('--invert')) {
+      assertGen3Client();
+    }
 
-    createGoogleTestBuckets();
+    if (testTags.includes('@reqGoogle') && !testTags.includes('--invert')) {
+      createGoogleTestBuckets();
+    }
 
     // Create a program and project (does nothing if already exists)
     console.log('Creating program/project\n');
