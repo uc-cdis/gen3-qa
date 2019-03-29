@@ -2,6 +2,8 @@ const atob = require('atob');
 const chai = require('chai');
 const expect = chai.expect;
 
+const I = actor();
+
 
 Feature('OAuth2 flow');
 
@@ -88,7 +90,7 @@ Scenario('Authorization code flow: Test that can create an access token which ca
   fence.ask.assertUserInfo(res);
 });
 
-Scenario('Authorization code flow: Test project access in id token same as project access in user endpoint @reqGoogle', async (fence) => {
+Scenario('Authorization code flow: Test project access in id token same as project access in user endpoint @reqGoogle', async (fence, users, home) => {
   /**
    * Example list of projects the user has access to:
    * projects = {
@@ -96,6 +98,9 @@ Scenario('Authorization code flow: Test project access in id token same as proje
    *  QA: [ 'read' ]
    * }
    */
+
+  // login as a user who has access to some projects
+  home.do.login(users.mainAcct.username);
 
   // get an access token
   const urlStr = await fence.do.getConsentCode(
