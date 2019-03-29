@@ -20,6 +20,13 @@ const bash = new Bash();
 
 'use strict';
 
+
+// get the tags passed in as arguments
+let testTags = parseTestTags();
+console.log('Tags:')
+console.log(testTags);
+
+
 // let rootCas = require('ssl-root-cas/latest').create();
 // rootCas
 //   .addFile(__dirname + '/../compose-services/temp_creds/ca.pem')
@@ -135,6 +142,7 @@ function parseJwt (token) {
  */
 function assertGen3Client() {
   // check if the client is set up in the workspace
+  console.log('Looking for data client executable...');
   let client_dir = process.env.DATA_CLIENT_PATH || homedir;
   if (!fs.existsSync(`${client_dir}/gen3-client`)) {
     let msg = `Did not find a gen3-client executable in ${client_dir}`;
@@ -181,22 +189,28 @@ function parseTestTags() {
   args = args.map(item => item.replace(/(^"|"$)/g, '')); // remove quotes
   if (args.includes('--grep')) {
     // get tags and whether the grep is inverted
-    tags = args.filter(item =>
-      item.startsWith('@') || item == '--invert'
-    );
+    args.map(item => {
+      if (item.startsWith('@')) {
+        // e.g. "@reqGoogle|@Performance"
+        tags = tags.concat(item.split('|'));
+      }
+      else if (item == '--invert') {
+        tags.push(item);
+      }
+    });
   }
   return tags;
 }
 
+/**
+ * Returns true if the tag is included in the tests, false otherwise
+ */
+function isIncluded(tag) {
+  return !testTags.includes(tag) || (testTags.includes(tag) && !testTags.includes('--invert'));
+}
+
 module.exports = async function (done) {
   try {
-    // get the tags passed in as arguments
-    let testTags = parseTestTags();
-    if (testTags) {
-      console.log('Tags:')
-      console.log(testTags);
-    }
-
     // get some vars from the commons
     console.log('Setting environment variables...\n');
 
@@ -254,11 +268,11 @@ module.exports = async function (done) {
     assertEnvVars(basicVars.concat(googleVars, submitDataVars));
     console.log('TEST_DATA_PATH: ', process.env.TEST_DATA_PATH);
 
-    if (testTags.includes('@dataClientCLI') && !testTags.includes('--invert')) {
+    if (isIncluded('@dataClientCLI')) {
       assertGen3Client();
     }
 
-    if (testTags.includes('@reqGoogle') && !testTags.includes('--invert')) {
+    if (isIncluded('@reqGoogle')) {
       createGoogleTestBuckets();
     }
 
