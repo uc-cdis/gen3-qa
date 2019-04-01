@@ -28,18 +28,18 @@ module.exports = {
   
   seeBibtexCoremetadata(file, metadata) {
     expect(metadata, `file_name ${file.data.file_name} not in core metadata`).to.contain(file.data.file_name);
-    
     expect(metadata,`object_id ${file.did} not in core metadata`).to.contain(file.did);
-  
     expect(metadata, `type ${file.data.type} not in core metadata`).to.contain(file.data.type);
-  
     expect(metadata, `data_format ${file.data.data_format} not in core metadata`).to.contain(file.data.data_format);
   },
   
   // to be implemented to support application/vnd.schemaorg.ld+json format
-  // seeSchemaorgCoremetadata(file, metadata){
-  //   console.log(metadata)
-  // },
+  seeSchemaorgCoremetadata(file, metadata){
+    expect(metadata, `file_name ${file.data.file_name} not in core metadata`).to.contain(file.data.file_name);
+    expect(metadata,`object_id ${file.did} not in core metadata`).to.contain(file.did);
+    expect(metadata, `type ${file.data.type} not in core metadata`).to.contain(file.data.type);
+    expect(metadata, `data_format ${file.data.data_format} not in core metadata`).to.contain(file.data.data_format);
+  },
 
   seePidginError(data) {
     // this should throw if the result is an error because the error is a string, not json
