@@ -103,16 +103,19 @@ module.exports = {
   /**
    * Main User account
    * Note that this user has the "data-upload" role
+   * Note that this user has the "abc-admin" policy
    */
   mainAcct: new User({ username: 'cdis.autotest@gmail.com', envVarsName: 'MAIN' }),
   /**
    * Auxiliary User account 1
    * Note that this user doesn't have the "data-upload" role
+   * Note that this user has the "abc.programs.test_program.projects.test_project1-viewer" policy
    */
   auxAcct1: new User({ username: 'dummy-one@planx-pla.net', envVarsName: 'AUX1' }),
   /**
    * Auxiliary User account 2
    * Note that this user also has the "data-upload" role
+   * Note that this user has the "abc.programs.test_program2.projects.test_project3-viewer" policy
    */
   auxAcct2: new User({ username: 'smarty-two@planx-pla.net', envVarsName: 'AUX2' }),
   /**

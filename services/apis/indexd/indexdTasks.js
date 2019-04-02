@@ -45,6 +45,9 @@ module.exports = {
       if (file.link !== null && file.link !== undefined) {
         data.urls = [file.link];
       }
+      if (file.rbac !== null && file.rbac !== undefined) {
+        data.rbac = file.rbac;
+      }
       return data;
     }).map((data) => {
       const strData = JSON.stringify(data);
@@ -68,7 +71,7 @@ module.exports = {
     // This Promise.all trick does not work for some reason - ugh!
     // Have to figure it out later
     const success = await Promise.all(promiseList).then(
-      () => true, 
+      () => true,
       (v) => {
         return false;
       }
