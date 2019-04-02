@@ -3,6 +3,7 @@
  * @module apiUtil
  */
 
+const atob = require('atob');
 const chai = require('chai');
 const jsdom = require('jsdom');
 const chaiSubset = require('chai-subset');
@@ -194,6 +195,12 @@ module.exports = {
     var cookiestring = RegExp("" + cookieName + "[^;]+").exec(cookieString);
     // return everything after the equal sign, or an empty string if the cookie name not found
     return decodeURIComponent(!!cookiestring ? cookiestring.toString().replace(/^[^=]+./,"") : "");
+  },
+
+  parseJwt (token) {
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace('-', '+').replace('_', '/');
+    return JSON.parse(atob(base64));
   },
 
   /**

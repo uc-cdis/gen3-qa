@@ -1,8 +1,7 @@
-const atob = require('atob');
 const chai = require('chai');
 const expect = chai.expect;
 
-const I = actor();
+const apiUtil = require('../../utils/apiUtil.js');
 
 
 Feature('OAuth2 flow');
@@ -45,7 +44,10 @@ Scenario('Authorization code flow: Test that successfully generate tokens', asyn
   fence.ask.assertContainSubStr(urlStr, ['code=']);
   const match = urlStr.match(RegExp('/?code=(.*)'));
   const code = match && match[1];
-  fence.ask.assertTruthyResult(code);
+  fence.ask.assertTruthyResult(
+    code,
+    `fence\'s oauth2/authorize endpoint should have returned a consent code in url "${urlStr}"`
+  );
   const res = await fence.do.getTokensWithAuthCode(
     fence.props.clients.client.id,
     fence.props.clients.client.secret, code, 'authorization_code',
@@ -68,7 +70,10 @@ Scenario('Authorization code flow: Test that fails to generate tokens due to inv
   fence.ask.assertContainSubStr(urlStr, ['code=']);
   const match = urlStr.match(RegExp('/?code=(.*)'));
   const code = match && match[1];
-  fence.ask.assertTruthyResult(code);
+  fence.ask.assertTruthyResult(
+    code,
+    `fence\'s oauth2/authorize endpoint should have returned a consent code in url "${urlStr}"`
+  );
   const res = await fence.do.getTokensWithAuthCode(
     fence.props.clients.client.id, fence.props.clients.client.secret, code, 'not_supported',
   );
@@ -81,7 +86,10 @@ Scenario('Authorization code flow: Test that can create an access token which ca
   fence.ask.assertContainSubStr(urlStr, ['code=']);
   const match = urlStr.match(RegExp('/?code=(.*)'));
   const code = match && match[1];
-  fence.ask.assertTruthyResult(code);
+  fence.ask.assertTruthyResult(
+    code,
+    `fence\'s oauth2/authorize endpoint should have returned a consent code in url "${urlStr}"`
+  );
   let res = await fence.do.getTokensWithAuthCode(
     fence.props.clients.client.id,
     fence.props.clients.client.secret, code, 'authorization_code',
@@ -108,7 +116,10 @@ Scenario('Authorization code flow: Test project access in id token same as proje
   fence.ask.assertContainSubStr(urlStr, ['code=']);
   const match = urlStr.match(RegExp('/?code=(.*)'));
   const code = match && match[1];
-  fence.ask.assertTruthyResult(code);
+  fence.ask.assertTruthyResult(
+    code,
+    `fence\'s oauth2/authorize endpoint should have returned a consent code in url "${urlStr}"`
+  );
   let res = await fence.do.getTokensWithAuthCode(
     fence.props.clients.client.id,
     fence.props.clients.client.secret, code, 'authorization_code',
@@ -117,9 +128,7 @@ Scenario('Authorization code flow: Test project access in id token same as proje
   let id_token = res.body.id_token
 
   // list of projects the id token gives access to
-  var base64Url = id_token.split('.')[1];
-  var base64 = base64Url.replace('-', '+').replace('_', '/');
-  tokenClaims = JSON.parse(atob(base64));
+  tokenClaims = apiUtil.parseJwt(id_token);
   projectsInToken = tokenClaims.context.user.projects;
   console.log('list of projects the id token gives access to:')
   console.log(projectsInToken);
@@ -210,7 +219,10 @@ Scenario('Implicit flow: Test that can create an access token which can be used 
     fence.props.clients.clientImplicit.id, 'id_token+token', 'openid+user');
   const match = resULR.match(RegExp('access_token=(.*)&expires'));
   const token = match && match[1];
-  fence.ask.assertTruthyResult(token);
+  fence.ask.assertTruthyResult(
+    token,
+    `fence\'s oauth2/authorize endpoint in implicit flow should have returned an access token in url "${resULR}"`
+  );
   const res = await fence.do.getUserInfo(token.trim());
   fence.ask.assertUserInfo(res);
 });

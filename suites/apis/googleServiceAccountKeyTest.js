@@ -22,18 +22,6 @@ After(async (google, fence, users) => {
 Scenario('Get current SA creds @reqGoogle', async (fence, users) => {
 
   const EXPIRES_IN = 5;
-  const googleProject = fence.props.googleProjectA;
-
-  // Setup
-  await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
-
-  // Register account
-  const registerRes = await fence.do.registerGoogleServiceAccount(
-    users.user0,
-    googleProject,
-    ['QA']
-  );
-  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
 
   // Make sure there are no creds for this user
   let getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
@@ -71,15 +59,6 @@ Scenario('Get current SA creds @reqGoogle', async (fence, users) => {
 
   await fence.do.deleteTempGoogleCreds(
     keyId2, users.user0.accessTokenHeader);
-
-  await fence.do.deleteGoogleServiceAccount(
-    users.user0,
-    googleProject.serviceAccountEmail,
-  );
-
-  await fence.do.unlinkGoogleAcct(
-    users.user0,
-  );
 
   // Asserts
   expect(credsList2.length,
@@ -124,21 +103,8 @@ Scenario('Get current SA creds @reqGoogle', async (fence, users) => {
 });
 
 
-Scenario('Get temporary Service Account creds, get object in bucket, delete creds @reqGoogle', async (fence, users, google, files) => {
-  // Test that we do not have access to data anymore after the SA key is deleted
-
-  const googleProject = fence.props.googleProjectA;
-
-  // Setup
-  await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
-
-  // Register account
-  const registerRes = await fence.do.registerGoogleServiceAccount(
-    users.user0,
-    googleProject,
-    ['QA']
-  );
-  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
+Scenario('Test no data access anymore after SA key is deleted @reqGoogle', async (fence, users, google, files) => {
+  // Get temporary Service Account creds, get object in bucket, delete creds
 
   // Get creds to access data
   const tempCreds0Res = await fence.complete.createTempGoogleCreds(users.user0.accessTokenHeader);
@@ -174,15 +140,6 @@ Scenario('Get temporary Service Account creds, get object in bucket, delete cred
     creds0Key, users.user0.accessTokenHeader);
   files.deleteFile(pathToCreds0KeyFile);
 
-  await fence.do.deleteGoogleServiceAccount(
-    users.user0,
-    googleProject.serviceAccountEmail,
-  );
-
-  await fence.do.unlinkGoogleAcct(
-    users.user0,
-  );
-
   // Asserts
   chai.expect(user0AccessQARes,
     'User should have bucket access'
@@ -207,18 +164,6 @@ Scenario('SA key removal job test: remove expired creds @reqGoogle', async (fenc
   // Test that we do not have access to data anymore after the SA key is expired
 
   const EXPIRES_IN = 1;
-  const googleProject = fence.props.googleProjectA;
-
-  // Setup
-  await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
-
-  // Register account
-  const registerRes = await fence.do.registerGoogleServiceAccount(
-    users.user0,
-    googleProject,
-    ['QA']
-  );
-  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
 
   // Get creds to access data
   const tempCreds0Res = await fence.complete.createTempGoogleCreds(users.user0.accessTokenHeader, EXPIRES_IN);
@@ -261,15 +206,6 @@ Scenario('SA key removal job test: remove expired creds @reqGoogle', async (fenc
 
   files.deleteFile(pathToCreds0KeyFile);
 
-  await fence.do.deleteGoogleServiceAccount(
-    users.user0,
-    googleProject.serviceAccountEmail,
-  );
-
-  await fence.do.unlinkGoogleAcct(
-    users.user0,
-  );
-
   // Asserts
   chai.expect(user0AccessQARes,
     'User should have bucket access before expiration'
@@ -284,18 +220,6 @@ Scenario('SA key removal job test: remove expired creds that do not exist in goo
   // Test that the job removes keys from the fence DB even if some of them do not exist in google
 
   const EXPIRES_IN = 1;
-  const googleProject = fence.props.googleProjectA;
-
-  // Setup
-  await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
-
-  // Register account
-  const registerRes = await fence.do.registerGoogleServiceAccount(
-    users.user0,
-    googleProject,
-    ['QA']
-  );
-  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
 
   // Get creds to access data
   let tempCredsRes = await fence.complete.createTempGoogleCreds(users.user0.accessTokenHeader, EXPIRES_IN);
@@ -332,15 +256,6 @@ Scenario('SA key removal job test: remove expired creds that do not exist in goo
     credsKey1, users.user0.accessTokenHeader);
   await fence.do.deleteTempGoogleCreds(
     credsKey2, users.user0.accessTokenHeader);
-
-  await fence.do.deleteGoogleServiceAccount(
-    users.user0,
-    googleProject.serviceAccountEmail,
-  );
-
-  await fence.do.unlinkGoogleAcct(
-    users.user0,
-  );
 
   // Asserts
   chai.expect(credsList.length,
