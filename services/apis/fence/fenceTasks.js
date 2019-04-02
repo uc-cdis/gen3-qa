@@ -218,7 +218,7 @@ module.exports = {
     return I.sendGetRequest(url, headers).then((res) => {
       // follow redirect back to fence
       let sessionCookie = getCookie('fence', res.headers['set-cookie']);
-      headers = { Cookie: 'dev_login=' + mockLoginUser + ';' + 'fence=' + sessionCookie };
+      headers.Cookie += `; fence=${sessionCookie}`;
       return I.sendGetRequest(res.headers.location, headers).then((res) => {
         // return the body and the current url
         const url = res.headers.location;

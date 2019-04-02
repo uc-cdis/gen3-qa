@@ -68,22 +68,27 @@ Scenario('try to extend link when acct is not linked @reqGoogle', async (fence, 
   fence.ask.responsesEqual(extendRes, fence.props.resExtendNoGoogleAcctLinked);
 });
 
-Scenario('link an acct that is already linked to this user @reqGoogle', async (fence, users) => {
+Scenario('link an acct to a user that already has a linked acct @reqGoogle', async (fence, users) => {
+  // link mainAcct to its google account
   await fence.complete.linkGoogleAcctMocked(users.mainAcct);
 
-  // try to link mainAcct to the same account again
-  let linkRes = await fence.do.linkGoogleAcctMocked(users.mainAcct, users.mainAcct.googleCreds.email);
-  expect(linkRes.finalURL, 'Linking a google account twice should fail').to.contain(fence.props.resAlreadyLinked);
+  // try to link mainAcct to the same google account
+  let linkRes = await fence.do.linkGoogleAcctMocked(users.mainAcct);
+
+  expect(linkRes.finalURL, 'Linking a google account twice should fail').to.contain(fence.props.resUserAlreadyLinked);
 
   await fence.complete.unlinkGoogleAcct(users.mainAcct);
 });
 
-Scenario('link an acct that is already linked to different user @reqGoogle', async (fence, users) => {
-  await fence.complete.linkGoogleAcctMocked(users.mainAcct);
+Scenario('link an acct that is already linked to a different user @reqGoogle', async (fence, users) => {
+  // link user auxAcct1 to mainAcct's google account
+  await fence.complete.forceLinkGoogleAcct(users.auxAcct1, users.mainAcct.username);
 
-  // try to link auxAcct1 to the account that is already linked to mainAcct
-  let linkRes = await fence.do.linkGoogleAcctMocked(users.mainAcct, users.auxAcct1);
-  expect(linkRes.finalURL, 'Linking a google account twice should fail').to.contain(fence.props.resAlreadyLinked);
+  // try to link mainAcct to the same google account
+  let linkRes = await fence.do.linkGoogleAcctMocked(users.mainAcct);
 
-  await fence.complete.unlinkGoogleAcct(users.mainAcct);
+  expect(linkRes.finalURL, 'Linking a google account twice should fail').to.contain(fence.props.resAccountAlreadyLinked);
+
+  await fence.complete.unlinkGoogleAcct(users.auxAcct1);
+  await fence.do.unlinkGoogleAcct(users.mainAcct);
 });
