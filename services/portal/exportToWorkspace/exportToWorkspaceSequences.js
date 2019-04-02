@@ -1,6 +1,7 @@
 const exportToWorkspaceQuestions = require('./exportToWorkspaceQuestions.js');
 const exportToWorkspaceTasks = require('./exportToWorkspaceTasks.js');
-const exportToWorkspaceProps = require('./exportToWorkspaceProps.js');
+
+const I = actor();
 
 /**
  * exportToWorkspace sequences
@@ -9,5 +10,8 @@ module.exports = {
   checkExportDefaultManifestToWorkspace() {
     exportToWorkspaceTasks.exportDefaultManifestToWorkspace();
     exportToWorkspaceQuestions.isManifestSavedToWorkspaceSucceeded();
+    exportToWorkspaceTasks.jumpToWorkspacePage();
+
+    if(I.seeElement())
   },
 };
