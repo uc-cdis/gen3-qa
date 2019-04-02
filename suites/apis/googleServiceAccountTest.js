@@ -29,16 +29,6 @@ After(async (google, fence, users) => {
   await fence.complete.suiteCleanup(google, users);
 });
 
-AfterSuite(async (google, fence) => {
-  // make sure we leave the project unlocked
-  const googleProject = fence.props.googleProjectDynamic;
-  let unlockRes = await google.unlockGoogleProject(googleProject);
-  chai.expect(
-    unlockRes,
-    google.getUnlockGoogleProjectErrorDetails(googleProject)
-  ).to.be.true;
-});
-
 
 Scenario('Register Google Service Account Success @reqGoogle @first', async (fence, users) => {
   // Link to a member in a valid google project and register the SA
@@ -679,83 +669,4 @@ Scenario('Service Account registration expiration test @reqGoogle', async (fence
     unlockRes,
     google.getUnlockGoogleProjectErrorDetails(googleProject)
   ).to.be.true;
-}).retry(2);
-
-
-Scenario('Service Account temporary key expiration test @reqGoogle', async (fence, users, google, files) => {
-  // Test that we do not have access to data anymore after the SA key is expired
-
-  const EXPIRES_IN = 5;
-  const googleProject = fence.props.googleProjectA;
-
-  // Setup
-  await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
-
-  // Register account
-  const registerRes = await fence.do.registerGoogleServiceAccount(
-    users.user0,
-    googleProject,
-    ['QA']
-  );
-  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
-
-  // Access data
-
-  // save temporary google creds to file
-  const tempCreds0Res = await fence.complete.createTempGoogleCreds(users.user0.accessTokenHeader, EXPIRES_IN);
-  const creds0Key = tempCreds0Res.body.private_key_id;
-  const pathToCreds0KeyFile = creds0Key + '.json';
-  await files.createTmpFile(pathToCreds0KeyFile, JSON.stringify(tempCreds0Res.body));
-  console.log(`Google creds file ${pathToCreds0KeyFile} saved!`);
-
-  user0AccessQARes = await google.getFileFromBucket(
-    fence.props.googleBucketInfo.QA.googleProjectId,
-    pathToCreds0KeyFile,
-    fence.props.googleBucketInfo.QA.bucketId,
-    fence.props.googleBucketInfo.QA.fileName
-  );
-
-  // Wait for the key to expire
-  console.log('waiting for the key to expire');
-  await apiUtil.sleepMS((EXPIRES_IN + 5) * 1000);
-
-  // Run the expired SA key clean up job
-  console.log('Clean up expired Service Account keys');
-  bash.runJob('google-manage-keys-job');
-
-  // Try to access data
-  user0AccessQAResExpired = await google.getFileFromBucket(
-    fence.props.googleBucketInfo.QA.googleProjectId,
-    pathToCreds0KeyFile,
-    fence.props.googleBucketInfo.QA.bucketId,
-    fence.props.googleBucketInfo.QA.fileName
-  );
-
-  // Clean up
-  console.log('cleaning up');
-
-  // should have been deleted by the google-manage-keys-job
-  // send delete request just in case (do not check if it was actually deleted)
-  await fence.do.deleteTempGoogleCreds(
-    creds0Key, users.user0.accessTokenHeader);
-
-  files.deleteFile(pathToCreds0KeyFile);
-
-  await fence.do.deleteGoogleServiceAccount(
-    users.user0,
-    googleProject.serviceAccountEmail,
-  );
-
-  await fence.do.unlinkGoogleAcct(
-    users.user0,
-  );
-
-  // Asserts
-  chai.expect(user0AccessQARes,
-    'User should have bucket access before expiration'
-  ).to.have.property('id');
-
-  chai.expect(user0AccessQAResExpired,
-    'User should NOT have bucket access after expiration'
-  ).to.have.property('statusCode', 403);
 }).retry(2);

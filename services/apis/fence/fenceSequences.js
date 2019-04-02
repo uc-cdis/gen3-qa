@@ -92,7 +92,6 @@ module.exports = {
 
   /**
    * Creates temporary Google Access creds then asserts it was successful
-   * @param {string[]} scope - access token scopes
    * @param {Object} accessTokenHeaders
    * @param {int} expires_in - requested expiration time (in seconds)
    * @returns {Promise<Gen3Response>}

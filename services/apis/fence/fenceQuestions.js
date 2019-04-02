@@ -223,8 +223,9 @@ module.exports = {
     expect(response).to.have.nested.property('body.expires_in');
   },
 
-  assertTruethyResult(result) {
-    expect(!!result).to.be.true;
+  assertTruthyResult(result, msg='') {
+    err = `Expected a parameter to be "truthy" but received ${result}: ` + msg;
+    expect(!!result, err).to.be.true;
   },
 
   /**

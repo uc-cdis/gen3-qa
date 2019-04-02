@@ -13,7 +13,6 @@ const { Bash, takeLastLine } = require('./utils/bash');
 const users = require('./utils/user');
 const apiUtil = require('./utils/apiUtil');
 const fenceProps = require('./services/apis/fence/fenceProps');
-const atob = require('atob');
 const DEFAULT_TOKEN_EXP = 3600;
 const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
 const bash = new Bash();
@@ -129,12 +128,6 @@ async function tryCreateProgramProject(nAttempts) {
   }
 }
 
-function parseJwt (token) {
-  var base64Url = token.split('.')[1];
-  var base64 = base64Url.replace('-', '+').replace('_', '/');
-  return JSON.parse(atob(base64));
-}
-
 /**
  * Checks if the gen3-client executable is present in the workspace.
  * During a local run, checks in the homedir instead.
@@ -218,7 +211,7 @@ module.exports = async function (done) {
     for (const user of Object.values(users)) {
       const at = apiUtil.getAccessToken(user.username, DEFAULT_TOKEN_EXP);
       // make sure the access token looks valid - base64 encoded JSON :-p
-      const token = parseJwt(at);
+      const token = apiUtil.parseJwt(at);
       process.env[user.envTokenName] = at;
     }
 
