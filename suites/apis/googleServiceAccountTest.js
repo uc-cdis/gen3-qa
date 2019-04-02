@@ -29,16 +29,6 @@ After(async (google, fence, users) => {
   await fence.complete.suiteCleanup(google, users);
 });
 
-AfterSuite(async (google, fence) => {
-  // make sure we leave the project unlocked
-  const googleProject = fence.props.googleProjectDynamic;
-  let unlockRes = await google.unlockGoogleProject(googleProject);
-  chai.expect(
-    unlockRes,
-    google.getUnlockGoogleProjectErrorDetails(googleProject)
-  ).to.be.true;
-});
-
 
 Scenario('Register Google Service Account Success @reqGoogle @first', async (fence, users) => {
   // Link to a member in a valid google project and register the SA

@@ -439,7 +439,10 @@ Scenario('SA removal job test: monitor SA does not have access @reqGoogle', asyn
   const isInvalidProjectDetected = async function() {
     try {
       let jobRes = runVerifyUserSAsJob(); // run clean up job
-      fence.ask.detected_invalid_google_project(jobRes, fence.props.monitorSAJobLog.noMonitorAccess); // check results
+      fence.ask.detected_invalid_google_project(jobRes); // check results
+      // here we do not check the reason the project is invalid, because the
+      // error message varies depending on when the access was revoked (before
+      // the job started or while it was running)
       return true;
     }
     catch {
