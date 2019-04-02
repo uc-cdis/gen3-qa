@@ -217,21 +217,19 @@ module.exports = {
       url += `&expires_in=${expires_in}`;
     return I.sendGetRequest(url, headers).then((res) => {
       // follow redirect back to fence
-      let sessionCookie = getCookie('fence', res.headers['set-cookie'])
-      headers = { Cookie: 'dev_login=' + mockLoginUser + ';' + 'fence=' + sessionCookie }
+      let sessionCookie = getCookie('fence', res.headers['set-cookie']);
+      headers = { Cookie: 'dev_login=' + mockLoginUser + ';' + 'fence=' + sessionCookie };
       return I.sendGetRequest(res.headers.location, headers).then((res) => {
-        return I.sendGetRequest(res.headers.location, headers).then((res) => {
-          // return the body and the current url
-          const url = res.headers.location;
-          const body = res.body;
+        // return the body and the current url
+        const url = res.headers.location;
+        const body = res.body;
 
-          const gen3Res = new Gen3Response({ body });
-          gen3Res.parsedFenceError = undefined;
-          gen3Res.body = body;
-          gen3Res.statusCode = 200;
-          gen3Res.finalURL = url;
-          return gen3Res
-        });
+        const gen3Res = new Gen3Response({ body });
+        gen3Res.parsedFenceError = undefined;
+        gen3Res.body = body;
+        gen3Res.statusCode = 200;
+        gen3Res.finalURL = url;
+        return gen3Res;
       });
     });
   },

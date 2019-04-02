@@ -125,6 +125,8 @@ module.exports = {
     statusCode: 404,
   }),
 
+  resAlreadyLinked: 'error_description=User+already+has+a+linked+Google+account.&error=g_acnt_link_error',
+
   /**
    * Consent page
    */
