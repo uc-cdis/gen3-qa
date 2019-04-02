@@ -20,6 +20,13 @@ const bash = new Bash();
 
 'use strict';
 
+
+// get the tags passed in as arguments
+let testTags = parseTestTags();
+console.log('Tags:')
+console.log(testTags);
+
+
 // let rootCas = require('ssl-root-cas/latest').create();
 // rootCas
 //   .addFile(__dirname + '/../compose-services/temp_creds/ca.pem')
@@ -135,6 +142,7 @@ function parseJwt (token) {
  */
 function assertGen3Client() {
   // check if the client is set up in the workspace
+  console.log('Looking for data client executable...');
   let client_dir = process.env.DATA_CLIENT_PATH || homedir;
   if (!fs.existsSync(`${client_dir}/gen3-client`)) {
     let msg = `Did not find a gen3-client executable in ${client_dir}`;
@@ -168,6 +176,37 @@ function createGoogleTestBuckets() {
 
   console.log('Clean up Google Bucket Access Groups from previous runs...');
   bash.runJob('google-verify-bucket-access-group');
+}
+
+/**
+ * Returns the list of tags that were passed in as arguments, including
+ * "--invert" if it was passed in
+ * Note: this function does not handle complex grep/invert combinations
+ */
+function parseTestTags() {
+  tags = [];
+  args = process.env.npm_package_scripts_test.split(' '); // all args
+  args = args.map(item => item.replace(/(^"|"$)/g, '')); // remove quotes
+  if (args.includes('--grep')) {
+    // get tags and whether the grep is inverted
+    args.map(item => {
+      if (item.startsWith('@')) {
+        // e.g. "@reqGoogle|@Performance"
+        tags = tags.concat(item.split('|'));
+      }
+      else if (item == '--invert') {
+        tags.push(item);
+      }
+    });
+  }
+  return tags;
+}
+
+/**
+ * Returns true if the tag is included in the tests, false otherwise
+ */
+function isIncluded(tag) {
+  return !testTags.includes(tag) || (testTags.includes(tag) && !testTags.includes('--invert'));
 }
 
 module.exports = async function (done) {
@@ -229,9 +268,13 @@ module.exports = async function (done) {
     assertEnvVars(basicVars.concat(googleVars, submitDataVars));
     console.log('TEST_DATA_PATH: ', process.env.TEST_DATA_PATH);
 
-    assertGen3Client();
+    if (isIncluded('@dataClientCLI')) {
+      assertGen3Client();
+    }
 
-    createGoogleTestBuckets();
+    if (isIncluded('@reqGoogle')) {
+      createGoogleTestBuckets();
+    }
 
     // Create a program and project (does nothing if already exists)
     console.log('Creating program/project\n');
