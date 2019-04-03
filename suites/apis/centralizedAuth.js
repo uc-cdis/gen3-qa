@@ -106,7 +106,7 @@ const indexed_files = {
     md5: '73d643ec3f4beb9020eef0beed440ad0',
     rbac: '/abc/programs/test_program/projects/test_project1 AND /abc/programs/test_program2/projects/test_project3',
     size: 9,
-  }
+  },
   oneProjectOrOtherFile: {
     filename: 'testdata',
     link: 's3://cdis-presigned-url-test/testdata',
