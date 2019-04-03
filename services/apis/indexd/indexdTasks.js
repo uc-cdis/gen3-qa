@@ -26,11 +26,12 @@ module.exports = {
    * @param {Object[]} files - array of indexd files
    * @returns {Array<Promise<>>}
    */
-  async addFileIndices(files) {
-    const headers = user.mainAcct.indexdAuthHeader;
+  async addFileIndices(files, headers = user.mainAcct.indexdAuthHeader) {
     headers['Content-Type'] = 'application/json; charset=UTF-8';
     const promiseList = files.map((file) => {
-      file.did = uuid.v4().toString();
+      if (file.did === null || file.did === undefined) {
+        file.did = uuid.v4().toString();
+      }
       const data = {
         file_name: file.filename,
         did: file.did,
@@ -85,14 +86,40 @@ module.exports = {
    * @param {Object} fileNode - Assumed to have a did property
    * @returns {Promise<Gen3Response>}
    */
-  async getFile(file) {
+  async getFile(file, headers = user.mainAcct.accessTokenHeader) {
     // get data from indexd
     return I.sendGetRequest(
       `${indexdProps.endpoints.get}/${file.did}`,
-      user.mainAcct.accessTokenHeader,
+      headers,
     ).then((res) => {
       file.rev = getRevFromResponse(res);
       return res.body;
+    });
+  },
+
+  /**
+   * Updates indexd data for file
+   * @param {Object} fileNode - Assumed to have a did property
+   * @returns {Promise<Gen3Response>}
+   */
+  async updateFile(file, data, headers = user.mainAcct.accessTokenHeader) {
+    return I.sendGetRequest(
+      `${indexdProps.endpoints.get}/${file.did}`,
+      headers,
+    ).then((res) => {
+      // get last revision
+      file.rev = getRevFromResponse(res);
+
+      const headers = user.mainAcct.indexdAuthHeader;
+      headers['Content-Type'] = 'application/json; charset=UTF-8';
+      const strData = JSON.stringify(data);
+      return I.sendPutRequest(
+        `${indexdProps.endpoints.put}/${file.did}?rev=${file.rev}`,
+        strData,
+        headers,
+      ).then((res) => {
+        return res.body;
+      });
     });
   },
 
@@ -102,15 +129,35 @@ module.exports = {
    * @param {Object} file
    * @returns {Promise<Promise|*|PromiseLike<T>|Promise<T>>}
    */
-  async deleteFile(file) {
-    return I.sendDeleteRequest(
-      `${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`,
-      user.mainAcct.indexdAuthHeader,
-    ).then((res) => {
-      // Note that we use the entire response, not just the response body
-      file.indexd_delete_res = res;
-      return res;
-    });
+  async deleteFile(file, headers = user.mainAcct.indexdAuthHeader) {
+    // if we already have the current revision we can use it, otherwise we need to get it
+    if (file.rev !== null && file.rev !== undefined) {
+      return I.sendDeleteRequest(
+        `${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`,
+        headers,
+      ).then((res) => {
+        // Note that we use the entire response, not just the response body
+        file.indexd_delete_res = res;
+        return res;
+      });
+    } else {
+      return I.sendGetRequest(
+        `${indexdProps.endpoints.get}/${file.did}`,
+        headers,
+      ).then((res) => {
+        // get last revision
+        file.rev = getRevFromResponse(res);
+
+        return I.sendDeleteRequest(
+          `${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`,
+          headers,
+        ).then((res) => {
+          // Note that we use the entire response, not just the response body
+          file.indexd_delete_res = res;
+          return res;
+        });
+      }
+    }
   },
 
   /**

@@ -207,9 +207,18 @@ module.exports = {
    * @param {Gen3Response} response
    */
   assertUserInfo(response) {
-    expect(response).to.have.property('statusCode', 200);
-    expect(response).to.have.nested.property('body.username');
-    expect(response).to.have.nested.property('body.user_id');
+    expect(
+      response,
+      'response from userinfo endpoint does not have property: statusCode'
+    ).to.have.property('statusCode', 200);
+    expect(
+      response,
+      'response from userinfo endpoint does not have property: body.username'
+    ).to.have.nested.property('body.username');
+    expect(
+      response,
+      'response from userinfo endpoint does not have property: body.user_id'
+    ).to.have.nested.property('body.user_id');
   },
 
   /**
