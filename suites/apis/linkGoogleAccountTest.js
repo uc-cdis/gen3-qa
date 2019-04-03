@@ -40,7 +40,7 @@ Scenario('extend account link expiration after it expired @reqGoogle', async (fe
   // link with short expiration
   const EXPIRES_IN = 5;
   let requestTime = timeNow();
-  let linkRes = await fence.complete.linkGoogleAcctMocked(users.mainAcct, loggedInUser=null, expires_in=EXPIRES_IN);
+  let linkRes = await fence.complete.linkGoogleAcctMocked(users.mainAcct, EXPIRES_IN);
   let linkExpiration = linkRes.finalURL.match(RegExp('exp=([0-9]+)'))[1];
   expect(
     linkExpiration - requestTime,

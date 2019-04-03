@@ -203,15 +203,13 @@ module.exports = {
    * Goes through the full, proper process for linking a google account assuming env
    * is set to mock Google response
    * @param {User} userAcct - commons account to link with
-   * @param {User} loggedInUser - by default, logs in "userAcct"
    * @param {int} expires_in - requested expiration time (in seconds)
    * @returns {Promise<Gen3Response|*>}
    */
-  async linkGoogleAcctMocked(userAcct, loggedInUser=null, expires_in=null) {
+  async linkGoogleAcctMocked(userAcct,expires_in=null) {
     // visit link endpoint. Google login is mocked
-    mockLoginUser = loggedInUser || userAcct.username;
     let headers = userAcct.accessTokenHeader;
-    headers.Cookie = 'dev_login=' + mockLoginUser;
+    headers.Cookie = 'dev_login=' + userAcct.username;
     url = '/user/link/google?redirect=/login';
     if (expires_in)
       url += `&expires_in=${expires_in}`;

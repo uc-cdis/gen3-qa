@@ -30,12 +30,11 @@ module.exports = {
   /**
    * Links a google account then asserts it was successful
    * @param {User} userAcct - commons account to link with
-   * @param {User} loggedInUser - by default, logs in "userAcct"
    * @param {int} expires_in - requested expiration time (in seconds)
    * @returns {Promise<Gen3Response>}
    */
-  async linkGoogleAcctMocked(userAcct, loggedInUser=null, expires_in=null) {
-    const linkRes = await fenceTasks.linkGoogleAcctMocked(userAcct, loggedInUser, expires_in);
+  async linkGoogleAcctMocked(userAcct, expires_in=null) {
+    const linkRes = await fenceTasks.linkGoogleAcctMocked(userAcct, expires_in);
     fenceQuestions.mockedLinkSuccess(linkRes);
     return linkRes;
   },
