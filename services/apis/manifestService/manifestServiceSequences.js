@@ -1,0 +1,6 @@
+/**
+ * manifestService sequences
+ */
+module.exports = {
+
+};
