@@ -66,8 +66,7 @@ module.exports = {
         // check if indexd was updated with the correct hash and size
         await indexd.complete.checkFile(fileNode);
         return true;
-      }
-      catch {
+      } catch (err) {
         return false;
       }
     };
@@ -77,5 +76,4 @@ module.exports = {
 
     await smartWait(isRecordUpdated, [indexd, fileNode], timeout, errorMessage);
   },
-
 };

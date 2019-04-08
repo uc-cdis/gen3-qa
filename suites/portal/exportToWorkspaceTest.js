@@ -2,14 +2,23 @@ Feature('ExportToWorkspaceTest');
 
 const I = actor();
 
-Before((home) => {
+BeforeSuite((home) => {
   home.complete.login();
 });
 
-Scenario('Export default manifest and see successful popup', (portalExportToWorkspace) => {
+// Scenario('Click Workspace tab when logged out and logged in @exportToWorkspace', (portalExportToWorkspace, home) => {
+//   portalExportToWorkspace.complete.checkClickWorkspaceTabWithLogoutAndLogin(home);
+// });
+
+// Scenario('Check export to workspace message toaster @exportToWorkspace', (portalExportToWorkspace) => {
+//   portalExportToWorkspace.complete.checkMessageToaster();
+// });
+
+Scenario('Export default manifest, mount it and check manifest name @exportToWorkspace', (portalExportToWorkspace) => {
   portalExportToWorkspace.complete.checkExportDefaultManifestToWorkspace();
 });
 
-After((home) => {
+AfterSuite((home) => {
+  I.saveScreenshot('a.png');
   home.complete.logout();
 });
