@@ -10,15 +10,13 @@ const I = actor();
 module.exports = {
   async isManifestSavedToWorkspaceSucceeded() {
     const result = await I.grabTextFrom(exportToWorkspaceProps.exportToWorkspaceFooterClass);
-    const expectString = 'Your cohort has been saved!';
-    expect(result).to.contain(expectString);
+    expect(result).to.contain(exportToWorkspaceProps.succeededToasterMessage);
     return true;
   },
 
   async isManifestSaveToWorkspaceFailed() {
     const result = await I.grabTextFrom(exportToWorkspaceProps.exportToWorkspaceFooterClass);
-    const expectString = 'There was an error exporting your cohort.';
-    expect(result).to.contain(expectString);
+    expect(result).to.contain(exportToWorkspaceProps.failedToasterMessage);
     return true;
   },
 

@@ -10,6 +10,7 @@ const I = actor();
  * manifestService Tasks
  */
 module.exports = {
+  /* Using dummy data to create manifests for a given user account by POSTing to the manifestservice endpoint */
   async postManifestForUser(userAcct) {
     return I.sendPostRequest(
       `${manifestServiceProps.endpoints.post}`,
@@ -24,6 +25,7 @@ module.exports = {
     });
   },
 
+  /* Retrieve manifests for a given user account by GETing from the manifestservice endpoint */
   async getManifestForUser(userAcct) {
     return I.sendGetRequest(
       `${manifestServiceProps.endpoints.get}`,

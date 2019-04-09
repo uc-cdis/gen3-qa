@@ -111,10 +111,10 @@ module.exports = {
    * Auxiliary User account 1
    * Note that this user doesn't have the "data-upload" role
    */
-  auxAcct1: new User({ username: 'dummy-one@planx-pla.net', envVarsName: 'AUX1', jenkinsOnly: false }),
+  // auxAcct1: new User({ username: 'dummy-one@planx-pla.net', envVarsName: 'AUX1', jenkinsOnly: false }),
   /**
    * Auxiliary User account 2
    * Note that this user also has the "data-upload" role
    */
-  auxAcct2: new User({ username: 'smarty-two@planx-pla.net', envVarsName: 'AUX2', jenkinsOnly: false }),
+  // auxAcct2: new User({ username: 'smarty-two@planx-pla.net', envVarsName: 'AUX2', jenkinsOnly: false }),
 };
