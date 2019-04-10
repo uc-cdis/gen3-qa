@@ -8,16 +8,15 @@ const I = actor();
  */
 module.exports = {
   /* The 'Export default manifest, mount it and check manifest filename' test sequence */
-  async checkExportDefaultManifestToWorkspace(exportToWorkspaceUtil) {
+  async checkExportDefaultManifestToWorkspace() {
     exportToWorkspaceTasks.exportDefaultManifestToWorkspace();
     exportToWorkspaceQuestions.isManifestSavedToWorkspaceSucceeded();
     const manifestFilename = await exportToWorkspaceTasks.grabManifestFilename();
     exportToWorkspaceTasks.jumpToWorkspacePage();
     exportToWorkspaceTasks.startWorkspace();
-    const mountOutput = await exportToWorkspaceTasks.mountLatestManifestInJupyterNotebook(exportToWorkspaceUtil);
+    const mountOutput = await exportToWorkspaceTasks.mountLatestManifestInJupyterNotebook();
     await exportToWorkspaceQuestions.doesMountOutputLookSuccessful(mountOutput, manifestFilename);
-    await exportToWorkspaceTasks.backToWorkspace(exportToWorkspaceUtil);
-    I.wait(3); // wait for dialog to appear
+    await exportToWorkspaceTasks.backToWorkspace();
     await exportToWorkspaceTasks.deleteAllJupyterNotebooks();
   },
 
