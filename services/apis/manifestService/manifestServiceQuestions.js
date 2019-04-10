@@ -13,4 +13,8 @@ module.exports = {
   doesNotHaveManifestVisible(res, manifestFilename) {
     expect(res).to.not.contain(manifestFilename);
   },
+
+  assertPostManifestSuccess(res) {
+    expect(res.body).to.have.property('filename');
+  },
 };

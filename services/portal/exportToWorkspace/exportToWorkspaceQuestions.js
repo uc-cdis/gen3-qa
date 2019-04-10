@@ -9,33 +9,35 @@ const I = actor();
  */
 module.exports = {
   async isManifestSavedToWorkspaceSucceeded() {
+    console.log('check for the success message toaster');
     const result = await I.grabTextFrom(exportToWorkspaceProps.exportToWorkspaceFooterClass);
     expect(result).to.contain(exportToWorkspaceProps.succeededToasterMessage);
-    return true;
   },
 
   async isManifestSaveToWorkspaceFailed() {
+    console.log('check for the failed message toaster');
     const result = await I.grabTextFrom(exportToWorkspaceProps.exportToWorkspaceFooterClass);
     expect(result).to.contain(exportToWorkspaceProps.failedToasterMessage);
-    return true;
   },
 
   doesSucceededMessageToasterLookCorrect() {
+    console.log('validate the success message toaster format');
     I.seeElement(exportToWorkspaceProps.exportToWorkspaceFooterClass);
     I.seeElement(exportToWorkspaceProps.exportToWorkspaceButtonXPath);
     I.seeElement(exportToWorkspaceProps.closeButtonXPath);
   },
 
   doesFailedMessageToasterLookCorrect() {
+    console.log('validate the failed message toaster format');
     I.seeElement(exportToWorkspaceProps.exportToWorkspaceFooterClass);
     I.dontSeeElement(exportToWorkspaceProps.exportToWorkspaceButtonXPath);
     I.seeElement(exportToWorkspaceProps.closeButtonXPath);
   },
 
   async doesMountOutputLookSuccessful(mountOutput, manifestFilename) {
+    console.log('verify the mounted file has the same filename as the exported manifest file');
     expect(mountOutput).to.contain(exportToWorkspaceProps.mountManifestSuccessfulMessage);
     expect(mountOutput).to.contain(manifestFilename);
-    return true;
   },
 };
 

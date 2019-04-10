@@ -2,7 +2,7 @@
  * exportToWorkspace Properties
  */
 const hostname = process.env.HOSTNAME;
-const endpoint = `https://${hostname}/`;
+const endpointUrl = `https://${hostname}/`;
 const wtsUrl = `http://workspace-token-service.${process.env.NAMESPACE}`;
 
 module.exports = {
@@ -39,6 +39,6 @@ module.exports = {
 
   succeededToasterMessage: 'Your cohort has been saved!',
   failedToasterMessage: 'There was an error exporting your cohort.',
-  mountManifestCode: ['%cd -q ~', 'from workspace_tools.mount import Gen3Mount', `endpoint = "${endpoint}"`, `g3m = Gen3Mount(endpoint, wts_url="${wtsUrl}")`, 'g3m.mount_my_last_export()', '%ls ~/my_manifests/'],
+  mountManifestCode: ['%cd -q ~', 'from workspace_tools.mount import Gen3Mount', `endpoint = "${endpointUrl}"`, `g3m = Gen3Mount(endpoint, wts_url="${wtsUrl}")`, 'g3m.mount_my_last_export()', '%ls ~/my_manifests/'],
   mountManifestSuccessfulMessage: 'Your exported files have been mounted to',
 };

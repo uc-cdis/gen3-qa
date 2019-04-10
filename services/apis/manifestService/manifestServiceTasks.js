@@ -19,10 +19,11 @@ module.exports = {
         'Content-Type': 'application/json',
         Authorization: `bearer ${userAcct.accessToken}`,
       },
-    ).then(res => res.body).then((data) => {
-      expect(data).to.have.property('filename');
-      return data.filename;
-    });
+    );
+  },
+
+  async extractManifestFilenameFromResponse(res) {
+    return res.body.filename;
   },
 
   /* Retrieve manifests for a given user account by GETing from the manifestservice endpoint */

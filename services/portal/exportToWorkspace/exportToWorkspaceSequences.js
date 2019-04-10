@@ -1,6 +1,5 @@
 const exportToWorkspaceQuestions = require('./exportToWorkspaceQuestions.js');
 const exportToWorkspaceTasks = require('./exportToWorkspaceTasks.js');
-const exportToWorkspaceProps = require('./exportToWorkspaceProps.js');
 
 const I = actor();
 
@@ -8,49 +7,38 @@ const I = actor();
  * exportToWorkspace Sequences
  */
 module.exports = {
-  /* The 'Export default manifest, mount it and check manifest name' test sequence, steps are:
-    - from 'Explore' page, click 'Export to workspace' button to export default manifest to workspace
-    - validate the message toaster and grab the filename of exported manifest file
-    - redirect to workspace and spawn a workspace if none exists
-    - create a python notebook in workspace and mount the latest manifest using python code
-    - verify the mounted file has the same filename as the exported manifest file
-    - go back to workspace and delete all Jupyther notebooks for clean up */
-  async checkExportDefaultManifestToWorkspace() {
+  /* The 'Export default manifest, mount it and check manifest filename' test sequence */
+  async checkExportDefaultManifestToWorkspace(exportToWorkspaceUtil) {
     exportToWorkspaceTasks.exportDefaultManifestToWorkspace();
     exportToWorkspaceQuestions.isManifestSavedToWorkspaceSucceeded();
     const manifestFilename = await exportToWorkspaceTasks.grabManifestFilename();
     exportToWorkspaceTasks.jumpToWorkspacePage();
     exportToWorkspaceTasks.startWorkspace();
-    const mountOutput = await exportToWorkspaceTasks.mountLatestManifestInJupyterNotebook();
+    const mountOutput = await exportToWorkspaceTasks.mountLatestManifestInJupyterNotebook(exportToWorkspaceUtil);
     await exportToWorkspaceQuestions.doesMountOutputLookSuccessful(mountOutput, manifestFilename);
-    await exportToWorkspaceTasks.backToWorkspace();
+    await exportToWorkspaceTasks.backToWorkspace(exportToWorkspaceUtil);
     I.wait(3); // wait for dialog to appear
     await exportToWorkspaceTasks.deleteAllJupyterNotebooks();
   },
 
-  /* The 'Click Workspace tab when logged out and logged in' test sequence, steps are:
-    - Log out current user
-    - Click the 'Workspace' tab from top nav bar to try to get to workspace
-    - Check if still seeing login page
-    - Login as test user
-    - Click the 'Workspace' tab from top nav bar again and verify is on workspace page */
+  /* The 'Click Workspace tab when logged out and logged in' test sequence */
   checkClickWorkspaceTabWithLogoutAndLogin(home) {
-    home.complete.logout();
-    I.amOnPage(exportToWorkspaceProps.workspacePath);
-    I.seeElement(exportToWorkspaceProps.loginPageClass);
-    home.complete.login();
-    exportToWorkspaceTasks.goToWorkspacePage();
+    exportToWorkspaceTasks.logoutAndGetToWorkspace(home);
+    exportToWorkspaceTasks.loginAndGetToWorkspace(home);
   },
 
-  /* The 'Check export to workspace message toaster' test sequence, steps are:
-  - from 'Explore' page, click 'Export to workspace' button to export default manifest to workspace
-  - validate the format of toaster based on whether the export has succeeded or not */
-  checkMessageToaster() {
+  /* The 'Check export to workspace success message toaster' test sequence */
+  checkMessageToasterSuccess() {
     exportToWorkspaceTasks.exportDefaultManifestToWorkspace();
-    if (exportToWorkspaceQuestions.isManifestSavedToWorkspaceSucceeded()) {
-      exportToWorkspaceQuestions.doesSucceededMessageToasterLookCorrect();
-    } else if (exportToWorkspaceQuestions.isManifestSaveToWorkspaceFailed()) {
-      exportToWorkspaceQuestions.doesFailedMessageToasterLookCorrect();
-    }
+    exportToWorkspaceQuestions.isManifestSavedToWorkspaceSucceeded();
+    exportToWorkspaceQuestions.doesSucceededMessageToasterLookCorrect();
   },
+
+  /* The 'Check export to workspace failed message toaster' test sequence
+  Currently not supported since cannot trigger failed toaster */
+  // checkMessageToasterFailed() {
+  //   exportToWorkspaceTasks.exportDefaultManifestToWorkspace();
+  //   exportToWorkspaceQuestions.isManifestSaveToWorkspaceFailed();
+  //   exportToWorkspaceQuestions.doesFailedMessageToasterLookCorrect();
+  // },
 };
