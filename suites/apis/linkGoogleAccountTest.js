@@ -1,3 +1,9 @@
+const chai = require('chai');
+const expect = chai.expect;
+
+const apiUtil = require('../../utils/apiUtil.js');
+
+
 Feature('LinkGoogleAccount');
 
 
@@ -22,11 +28,33 @@ Scenario('link and unlink google account @reqGoogle', async (fence, users) => {
   await fence.complete.unlinkGoogleAcct(users.mainAcct);
 });
 
-Scenario('extend account link expiration @reqGoogle', async (fence, users) => {
+Scenario('extend account link expiration before it expires @reqGoogle', async (fence, users) => {
   await fence.complete.linkGoogleAcctMocked(users.mainAcct);
   const requestTime = timeNow();
   const extendRes = await fence.do.extendGoogleLink(users.mainAcct);
   fence.ask.linkExtendSuccess(extendRes, requestTime);
+  await fence.complete.unlinkGoogleAcct(users.mainAcct);
+});
+
+Scenario('extend account link expiration after it expired @reqGoogle', async (fence, users) => {
+  // link with short expiration
+  const EXPIRES_IN = 5;
+  let requestTime = timeNow();
+  let linkRes = await fence.complete.linkGoogleAcctMocked(users.mainAcct, EXPIRES_IN);
+  let linkExpiration = linkRes.finalURL.match(RegExp('exp=([0-9]+)'))[1];
+  expect(
+    linkExpiration - requestTime,
+    `The link should be set to expire in ${EXPIRES_IN} secs`
+  ).to.be.within(EXPIRES_IN - 5, EXPIRES_IN + 5);
+
+  // wait for the linking to be expired
+  await apiUtil.sleepMS(EXPIRES_IN * 1000);
+
+  // extend the expiration
+  requestTime = timeNow();
+  const extendRes = await fence.do.extendGoogleLink(users.mainAcct);
+  fence.ask.linkExtendSuccess(extendRes, requestTime);
+
   await fence.complete.unlinkGoogleAcct(users.mainAcct);
 });
 
@@ -38,4 +66,29 @@ Scenario('try to unlink when acct is not linked @reqGoogle', async (fence, users
 Scenario('try to extend link when acct is not linked @reqGoogle', async (fence, users) => {
   const extendRes = await fence.do.extendGoogleLink(users.mainAcct);
   fence.ask.responsesEqual(extendRes, fence.props.resExtendNoGoogleAcctLinked);
+});
+
+Scenario('link an acct to a user that already has a linked acct @reqGoogle', async (fence, users) => {
+  // link mainAcct to its google account
+  await fence.complete.linkGoogleAcctMocked(users.mainAcct);
+
+  // try to link mainAcct to the same google account
+  let linkRes = await fence.do.linkGoogleAcctMocked(users.mainAcct);
+
+  expect(linkRes.finalURL, 'Linking a google account twice should fail').to.contain(fence.props.resUserAlreadyLinked);
+
+  await fence.complete.unlinkGoogleAcct(users.mainAcct);
+});
+
+Scenario('link an acct that is already linked to a different user @reqGoogle', async (fence, users) => {
+  // link user auxAcct1 to mainAcct's google account
+  await fence.complete.forceLinkGoogleAcct(users.auxAcct1, users.mainAcct.username);
+
+  // try to link mainAcct to the same google account
+  let linkRes = await fence.do.linkGoogleAcctMocked(users.mainAcct);
+
+  expect(linkRes.finalURL, 'Linking a google account twice should fail').to.contain(fence.props.resAccountAlreadyLinked);
+
+  await fence.complete.unlinkGoogleAcct(users.auxAcct1);
+  await fence.do.unlinkGoogleAcct(users.mainAcct);
 });
