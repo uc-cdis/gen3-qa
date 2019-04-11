@@ -12,8 +12,8 @@ module.exports = {
     exportToWorkspaceTasks.exportDefaultManifestToWorkspace();
     exportToWorkspaceQuestions.isManifestSavedToWorkspaceSucceeded();
     const manifestFilename = await exportToWorkspaceTasks.grabManifestFilename();
-    exportToWorkspaceTasks.jumpToWorkspacePage();
-    exportToWorkspaceTasks.startWorkspace();
+    await exportToWorkspaceTasks.jumpToWorkspacePage();
+    await exportToWorkspaceTasks.startWorkspace();
     const mountOutput = await exportToWorkspaceTasks.mountLatestManifestInJupyterNotebook();
     await exportToWorkspaceQuestions.doesMountOutputLookSuccessful(mountOutput, manifestFilename);
     await exportToWorkspaceTasks.backToWorkspace();

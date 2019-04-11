@@ -21,7 +21,7 @@ module.exports = {
   deleteConfirmButtonXPath: '//button[contains(@class, "btn btn-default btn-sm btn-danger") and contains(@data-dismiss, "modal")]',
 
   startButtonSelector: '#start',
-  spawnButtonSelector: '#spawn_form > input',
+  spawnListOptionSelector: '#profile-item-0',
   newDropDownButtonSelector: '#new-dropdown-button',
   newPython3ButtonSelector: '#kernel-python3 > a',
   runNotebookButtonSelector: '#run_int > button:nth-child(1)',

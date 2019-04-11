@@ -33,23 +33,30 @@ module.exports = {
   },
 
   /* Spawn up a workspace */
-  startWorkspace() {
+  async startWorkspace() {
     console.log('start workspace main app, spawn a new one if none exists');
-    within({ frame: exportToWorkspaceProps.workspaceIFrameClass }, async () => {
+    await within({ frame: exportToWorkspaceProps.workspaceIFrameClass }, async () => {
       /* Check to see if a workspace has already been spawned for current user in this common
       If not, spawn a new workspace for current user
-      else, wait for main workspace app to appear */
-      const start = await I.grabNumberOfVisibleElements(exportToWorkspaceProps.startButtonSelector);
-      if (start === 1) { // see "Start My Server" button
+      else, wait for main workspace app to appear
+      Some hacky steps are in here to make sure each time the test can get into the main workspace app no matter if a new workspace needs to be spawned or not */
+      const startCount = await I.grabNumberOfVisibleElements(exportToWorkspaceProps.startButtonSelector);
+      if (startCount === 1) { // see "Start My Server" button
         I.click(exportToWorkspaceProps.startButtonSelector);
       }
-      I.wait(3); // wait for spawn form to appear, if any
-      const spawn = await I.grabNumberOfVisibleElements(exportToWorkspaceProps.spawnButtonSelector);
-      if (spawn === 1) { // see "Spawn" button
-        I.click(exportToWorkspaceProps.spawnButtonSelector); // spawn with default config
+      I.wait(1); // wait for spawn form to appear, if any
+      const spawnOptionCount = await I.grabNumberOfVisibleElements(exportToWorkspaceProps.spawnListOptionSelector);
+      if (spawnOptionCount === 1) { // see "Spawn" options
+        I.click(exportToWorkspaceProps.spawnListOptionSelector);
+        I.noTimeoutEnter(); // I.click() with Spawn button selector will randomly has timeout issues, this is a hacky workaround to ensure spawn input works every time
+        I.wait(10); // wait for workspace spawn 
+        I.refreshPage(); // if not refresh, codeceptjs sometimes cannot pick up the main workspace app page automatically
+        I.wait(10); // wait for refresh to get page updated
       }
-      I.waitForVisible(exportToWorkspaceProps.mainWorkspaceAppSelector, 600); // ipython may be very slow on start up
     });
+    I.switchTo(exportToWorkspaceProps.workspaceIFrameClass); // go back to '.workspace' iframe
+    I.waitForVisible(exportToWorkspaceProps.mainWorkspaceAppSelector, 600);
+    I.switchTo(); // get out
   },
 
   /* Mount the latest manifest using python codes as defined in 'exportToWorkspaceProps.mountManifestCode' */
