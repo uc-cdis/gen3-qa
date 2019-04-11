@@ -140,24 +140,24 @@ module.exports = {
         file.indexd_delete_res = res;
         return res;
       });
-    } else {
-      return I.sendGetRequest(
-        `${indexdProps.endpoints.get}/${file.did}`,
+    }
+
+    return I.sendGetRequest(
+      `${indexdProps.endpoints.get}/${file.did}`,
+      headers,
+    ).then((res) => {
+      // get last revision
+      file.rev = getRevFromResponse(res);
+
+      return I.sendDeleteRequest(
+        `${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`,
         headers,
       ).then((res) => {
-        // get last revision
-        file.rev = getRevFromResponse(res);
-
-        return I.sendDeleteRequest(
-          `${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`,
-          headers,
-        ).then((res) => {
-          // Note that we use the entire response, not just the response body
-          file.indexd_delete_res = res;
-          return res;
-        });
-      }
-    }
+        // Note that we use the entire response, not just the response body
+        file.indexd_delete_res = res;
+        return res;
+      });
+    });
   },
 
   /**
@@ -185,7 +185,7 @@ module.exports = {
       };
       await this.getFile(file); // adds 'rev' to the file
       var res = await this.deleteFile(file);
-      fileList.push(file)
+      fileList.push(file);
     }
     return fileList;
   },

@@ -62,6 +62,14 @@ module.exports = {
   },
 
   /**
+   * AWS bucket info
+   */
+   awsBucketInfo: {
+      cdis_presigned_url_test:
+        testdata: 'testdata'
+   },
+
+  /**
    * Google group for testing
    */
   googleGroupTestEmail: 'gen3-autoqa@googlegroups.com',
@@ -421,6 +429,9 @@ module.exports = {
   clients: {
     client: new Client({
       envVarsName: 'CLIENT',
+    }),
+    clientb: new Client({
+      envVarsName: 'ABC_CLIENT',
     }),
     clientImplicit: new Client({
       envVarsName: 'CLIENTB',

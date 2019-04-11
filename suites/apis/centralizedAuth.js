@@ -18,7 +18,9 @@ Test sponsor use cases for Gen3 centralized authorization with new RBAC system:
    e.g. C1 AND C2 AND C3 where Cn is a project, in order to guarantee that the person
    accessing some family-based files from multiple biospecimens has all of the consents.
 
----
+---------
+Test Plan
+---------
 
 1) - Test that user without policies can't CRUD records in /gen3 or /abc
 
@@ -28,9 +30,13 @@ Test sponsor use cases for Gen3 centralized authorization with new RBAC system:
 
    - Test the same thing as above, but use a client's access_token for that user
 
-2) - Test client-abc creating signed urls for data under /abc, ensure they cannot create
+2) - Test CLIENTB creating signed urls for data under /abc, ensure they cannot create
      signed urls for data under /gen3. Ensure that successful signed urls actually
      allow reading data.
+
+   - Test client WITH access creating signed urls for data for user WITHOUT access in namespace.
+
+   - Test client WITHOUT access creating signed urls for data for user WITH access in namespace.
 
    - Test that a user with `abc-admin` can create signed urls with their own access_token
 
@@ -38,7 +44,7 @@ Test sponsor use cases for Gen3 centralized authorization with new RBAC system:
      RBAC policy information is there
         > NOTE: there is an existing test that might satisfy this with a few updates
 
-4) - Create some records in indexd with AND logic, have client-abc try to create signed
+4) - Create some records in indexd with AND logic, have CLIENTB try to create signed
      url for file for user that does NOT have necessary permissions, ensure failure.
 
    - Same as above but user DOES have permissions. Ensure successfull signed URL that
@@ -52,18 +58,26 @@ policies, they can no longer create signed urls?
 
 dbgap syncing tests would be good too (since all these rely on user.yaml)
 
----
+------------------------------------
+Default Authorization Details
+------------------------------------
 
-Create client-abc with `abc-admin` policy (CRUD under /abc)
+Access details from defualt usersync:
 
-cdis.autotest@gmail.com
+Create CLIENT with `abc-admin` and `gen3-admin` policy (CRUD under /abc and /gen3)
+Create CLIENTB with `abc-admin` policy (CRUD under /abc)
+
+cdis.autotest@gmail.com (mainAcct)
     - abc-admin
 
-dummy-one@planx-pla.net
+dummy-one@planx-pla.net (auxAcct1)
     - abc.programs.test_program.projects.test_project1-viewer
 
-smarty-two@planx-pla.net
+smarty-two@planx-pla.net (auxAcct2)
     - abc.programs.test_program2.projects.test_project3-viewer
+
+dcf-integration-test-0@planx-pla.net (user0)
+    - gen3-admin
 */
 const { Commons } = require('../../utils/commons.js');
 const chai = require('chai');
@@ -80,9 +94,9 @@ const I = actor();
 for twoProjectsFile, use cdis.autotest@gmail.com
 
 for oneProjectOrOtherFile, two users. Each has ONE of these policies:
-    dummy-one@planx-pla.net
+    dummy-one@planx-pla.net (auxAcct1)
         - abc.programs.test_program.projects.test_project1-viewer
-    smarty-two@planx-pla.net
+    smarty-two@planx-pla.net (auxAcct2)
         - abc.programs.test_program2.projects.test_project3-viewer
 */
 const indexed_files = {
@@ -349,28 +363,169 @@ Scenario('User with access can CRUD indexd records in namespace, not outside nam
 /*
    - Test the same thing as above, but use a client's access_token for that user
 */
-Scenario('Client with user token with access can CRUD indexd records in namespace, not outside namespace @rbac',
+Scenario('Client (with access) with user token (with access) can CRUD indexd records in namespace, not outside namespace @rbac',
   async (fence, indexd, users, files) => {
-    // users.mainAcct
+    // NOTE: default CLIENT is abc-admin and gen3-admin
     const tokenRes = fence.complete.getUserTokensWithClient(users.mainAcct);
     const accessToken = tokenRes.body.access_token;
+
+    // create
+    const gen3_create_success = await indexd.do.addFileIndices(
+        Object.values(new_gen3_records), users.mainAcct.accessTokenHeader(accessToken));
+    const abc_create_success = await indexd.do.addFileIndices(
+        Object.values(new_abc_records), users.mainAcct.accessTokenHeader(accessToken));
+
+    // read
+    const gen3_read_response = indexd.do.getFile(
+        new_gen3_records.fooBarFile, users.mainAcct.accessTokenHeader(accessToken))
+    const abc_read_response = indexd.do.getFile(
+        new_abc_records.fooBarFile, users.mainAcct.accessTokenHeader(accessToken))
+
+    // update
+    const filename_change = {
+      "file_name": "test_filename"
+    }
+    const gen3_update_response = indexd.do.updateFile(
+        new_gen3_records.fooBarFile, filename_change, users.mainAcct.accessTokenHeader(accessToken))
+    const abc_update_response = indexd.do.updateFile(
+        new_abc_records.fooBarFile, filename_change, users.mainAcct.accessTokenHeader(accessToken))
+
+    // delete
+    const gen3_update_response = indexd.do.deleteFile(
+        new_gen3_records.deleteMe, users.mainAcct.accessTokenHeader(accessToken))
+    const abc_update_response = indexd.do.deleteFile(
+        new_abc_records.deleteMe, users.mainAcct.accessTokenHeader(accessToken))
+
+    // asserts for create
+    chai.expect(
+      gen3_create_success,
+      'uh oh, user without permission was able to register files to indexd under `/gen3`'
+    ).to.be.false;
+    chai.expect(
+      abc_create_success,
+      'user with permission was NOT able to register files to indexd under `/abc`'
+    ).to.be.true;
+
+    // asserts for read
+    fenceQuestions.assertStatusCode(
+        gen3_read_response, 403,
+        msg='should have gotten unauthorized for reading record under `/gen3`'
+    );
+    fenceQuestions.assertStatusCode(
+        abc_read_response, 200,
+        msg='user with permission could not read record under `/abc`'
+    );
+
+    // asserts for update
+    fenceQuestions.assertStatusCode(
+        gen3_update_response, 403,
+        msg='should have gotten unauthorized for updating record under `/gen3`'
+    );
+    fenceQuestions.assertStatusCode(
+        abc_update_response, 200,
+        msg='user with permission could not update record under `/abc`'
+    );
+    chai.expect(
+        abc_read_response, 'update response does not contain file_name'
+    ).to.have.property('file_name');
+    chai.expect(
+        abc_read_response.file_name,
+        'update record response does not have filename we updated it with'
+    ).to.have.string('test_filename');
+
+    // asserts for delete
+    fenceQuestions.assertStatusCode(
+        gen3_delete_response, 403,
+        msg='should have gotten unauthorized for deleting record under `/gen3`'
+    );
+    fenceQuestions.assertStatusCode(
+        abc_delete_response, 200,
+        msg='user with permission could not delete record under `/abc`'
+    );
 });
 
 /*
-   - Test client-abc creating signed urls for data under /abc, ensure they cannot create
+   - Test CLIENTB creating signed urls for data under /abc, ensure they cannot create
      signed urls for data under /gen3. Ensure that successful signed urls actually
      allow reading data.
 */
-Scenario('Client with user token with access can create signed urls for records in namespace, not outside namespace @rbac',
+Scenario('Client (with access) with user token (with access) can create signed urls for records in namespace, not outside namespace @rbac',
   async (fence, indexd, users, files) => {
     return; // FIXME: skip test for now
-    // do stuff
-    // users.mainAcct
-    // console.log('Use User0 to create signed URL for file in QA')
-    // const User0signedUrlQA1Res = await fence.do.createSignedUrlForUser(
-    //   indexed_files.qaFile.did, users.user0.accessTokenHeader);
-    // let User0signedUrlQA1FileContents = await fence.do.getGoogleFileFromSignedUrlRes(
-    //   User0signedUrlQA1Res);
+    // NOTE: users.mainAcct and CLIENTB have abc-admin role
+    const tokenRes = fence.complete.getUserTokensWithClient(
+      users.mainAcct, fence.props.clients.clientb);
+    const accessToken = tokenRes.body.access_token;
+
+    console.log('Use mainAcct to create signed URL for file under `/abc`')
+    // NOTE: passing in accessToken to accessTokenHeader overrides the default one with
+    // the one from the client
+    const signedUrlAbcRes = await fence.do.createSignedUrlForUser(
+      indexed_files.abcFooBarFile.did, users.mainAcct.accessTokenHeader(accessToken));
+
+    console.log('Use mainAcct to create signed URL for file under `/gen3`')
+    const signedUrlGen3Res = await fence.do.createSignedUrlForUser(
+      indexed_files.gen3TestTestFile.did, users.mainAcct.accessTokenHeader(accessToken));
+
+    let fileAbcContents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlAbcRes);
+    let fileGen3Contents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlGen3Res);
+
+    chai.expect(fileAbcContents,
+      "User token with access could NOT create signed urls and read file for records in authorized namespace"
+    ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+    chai.expect(fileGen3Contents,
+      "User token WITHOUT access COULD create signed urls and read file for records in unauthorized namespace"
+    ).to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+});
+
+/*
+   - Test client WITH access creating signed urls for data for user WITHOUT access in namespace.
+*/
+Scenario('Client (with access) with user token (WITHOUT access) in namespace @rbac',
+  async (fence, indexd, users, files) => {
+    return; // FIXME: skip test for now
+    // NOTE: users.mainAcct has access to /abc NOT /gen3
+    //       CLIENT does have access to both
+    const tokenRes = fence.complete.getUserTokensWithClient(
+      users.mainAcct);
+    const accessToken = tokenRes.body.access_token;
+
+    console.log('Use mainAcct to create signed URL for file under `/gen3`')
+    const signedUrlGen3Res = await fence.do.createSignedUrlForUser(
+      indexed_files.gen3TestTestFile.did, users.mainAcct.accessTokenHeader(accessToken));
+
+    let fileGen3Contents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlGen3Res);
+
+    chai.expect(fileGen3Contents,
+      "Client using user token WITHOUT access COULD create signed urls and read file for records in namespace"
+    ).to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+});
+
+/*
+   - Test client WITHOUT access creating signed urls for data for user WITH access in namespace.
+*/
+Scenario('Client (WITHOUT access) with user token (with access) in namepsace @rbac',
+  async (fence, indexd, users, files) => {
+    return; // FIXME: skip test for now
+    // clientb only has access to /abc
+    // user0 only access to /gen3
+    const tokenRes = fence.complete.getUserTokensWithClient(
+      users.user0, fence.props.clients.clientb);
+    const accessToken = tokenRes.body.access_token;
+
+    console.log('Use user0 to create signed URL for file under `/gen3`')
+    const signedUrlGen3Res = await fence.do.createSignedUrlForUser(
+      indexed_files.gen3TestTestFile.did, users.user0.accessTokenHeader(accessToken));
+
+    let fileGen3Contents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlGen3Res);
+
+    chai.expect(fileGen3Contents,
+      "Client WITHOUT access using user token WITH access COULD create signed urls and read file for records in namespace"
+    ).to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
 });
 
 /*
@@ -379,8 +534,26 @@ Scenario('Client with user token with access can create signed urls for records 
 Scenario('User with access can create signed urls for records in namespace, not outside namespace @rbac',
   async (fence, indexd, users, files) => {
     return; // FIXME: skip test for now
-    // do stuff
-    // users.mainAcct
+    // users.mainAcct has abc-admin role
+    console.log('Use mainAcct to create signed URL for file under `/abc`')
+    const signedUrlAbcRes = await fence.do.createSignedUrlForUser(
+      indexed_files.abcFooBarFile.did, users.mainAcct.accessTokenHeader);
+
+    console.log('Use mainAcct to create signed URL for file under `/gen3`')
+    const signedUrlGen3Res = await fence.do.createSignedUrlForUser(
+      indexed_files.gen3TestTestFile.did, users.mainAcct.accessTokenHeader);
+
+    let fileAbcContents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlAbcRes);
+    let fileGen3Contents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlGen3Res);
+
+    chai.expect(fileAbcContents,
+      "User with access could NOT create signed urls and read file for records in authorized namespace"
+    ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+    chai.expect(fileGen3Contents,
+      "User WITHOUT access COULD create signed urls and read file for records in unauthorized namespace"
+    ).to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
 });
 
 /*
@@ -396,36 +569,75 @@ Scenario('Test client flow to get id_token, compare to what is in userinfo endpo
 });
 
 /*
-   - Create some records in indexd with AND logic, have client-abc try to create signed
+   - Create some records in indexd with AND logic, have CLIENTB try to create signed
      url for file for user that does NOT have necessary permissions, ensure failure.
 */
 Scenario('Client with user token WITHOUT permission CANNOT create signed URL for record with rbac AND logic @rbac',
   async (fence, indexd, users, files) => {
     return; // FIXME: skip test for now
-    // do stuff
-    // users.auxAcct1
+    // users.auxAcct1 does not have access to both resources
+    const tokenRes = fence.complete.getUserTokensWithClient(
+      users.auxAcct1, fence.props.clients.clientb);
+    const accessToken = tokenRes.body.access_token;
+
+    console.log('Use auxAcct1 to create signed URL for file under with indexd rbac AND logic')
+    const signedUrlRes = await fence.do.createSignedUrlForUser(
+      indexed_files.twoProjectsFile.did, users.auxAcct1.accessTokenHeader(accessToken));
+
+    let fileContents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlRes);
+
+    chai.expect(fileContents,
+      "Client using user token WITHOUT access COULD create signed urls and read file for record with rbac AND logic in indexd"
+    ).to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
 });
 
 /*
-   - Same as above test but user DOES have permissions. Ensure successfull signed URL that
+   - Same as above test but user DOES have permissions. Ensure successful signed URL that
      we can access data with
 */
 Scenario('Client with user token WITH permission CAN create signed URL for record with rbac AND logic @rbac',
   async (fence, indexd, users, files) => {
     return; // FIXME: skip test for now
-    // do stuff
-    // users.mainAcct
+    // users.mainAcct does have access to both resources
+    const tokenRes = fence.complete.getUserTokensWithClient(
+      users.mainAcct, fence.props.clients.clientb);
+    const accessToken = tokenRes.body.access_token;
+
+    console.log('Use mainAcct to create signed URL for file under with indexd rbac AND logic')
+    const signedUrlRes = await fence.do.createSignedUrlForUser(
+      indexed_files.twoProjectsFile.did, users.mainAcct.accessTokenHeader(accessToken));
+
+    let fileContents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlRes);
+
+    chai.expect(fileContents,
+      "Client using user token WITH access CANNOT create signed urls and read file for record with rbac AND logic in indexd"
+    ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
 });
 
 /*
-   - Create some records in indexd with OR logic, have client-abc try to create signed
+   - Create some records in indexd with OR logic, have CLIENTB try to create signed
      url for file for user that does NOT have necessary permissions, ensure failure.
 */
 Scenario('Client with user token WITHOUT permission CANNOT create signed URL for record with rbac OR logic @rbac',
   async (fence, indexd, users, files) => {
     return; // FIXME: skip test for now
-    // do stuff
-    // users.user0
+    // users.user0 does NOT have access to either resource
+    const tokenRes = fence.complete.getUserTokensWithClient(
+      users.user0, fence.props.clients.clientb);
+    const accessToken = tokenRes.body.access_token;
+
+    console.log('Use user0 to create signed URL for file under with indexd rbac OR logic')
+    const signedUrlRes = await fence.do.createSignedUrlForUser(
+      indexed_files.oneProjectOrOtherFile.did, users.user0.accessTokenHeader(accessToken));
+
+    let fileContents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlRes);
+
+    chai.expect(fileContents,
+      "Client using user token WITHOUT access COULD create signed urls and read file for record with rbac OR logic in indexd"
+    ).to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
 });
 
 /*
@@ -435,6 +647,31 @@ Scenario('Client with user token WITHOUT permission CANNOT create signed URL for
 Scenario('Client with user token WITH permission CAN create signed URL for record with rbac OR logic @rbac',
   async (fence, indexd, users, files) => {
     return; // FIXME: skip test for now
-    // do stuff
-    // users.auxAcct1 && users.auxAcct2
+    // users.auxAcct1 && users.auxAcct2 have access
+    const tokenRes1 = fence.complete.getUserTokensWithClient(
+      users.auxAcct1, fence.props.clients.clientb);
+    const tokenRes2 = fence.complete.getUserTokensWithClient(
+      users.auxAcct2, fence.props.clients.clientb);
+    const accessToken1 = tokenRes1.body.access_token;
+    const accessToken2 = tokenRes2.body.access_token;
+
+    console.log('Use auxAcct1 to create signed URL for file under with indexd rbac OR logic')
+    const signedUrlRes1 = await fence.do.createSignedUrlForUser(
+      indexed_files.oneProjectOrOtherFile.did, users.auxAcct1.accessTokenHeader(accessToken1));
+
+    console.log('Use auxAcct2 to create signed URL for file under with indexd rbac OR logic')
+    const signedUrlRes2 = await fence.do.createSignedUrlForUser(
+      indexed_files.oneProjectOrOtherFile.did, users.auxAcct2.accessTokenHeader(accessToken2));
+
+    let fileContents1 = await fence.do.getFileFromSignedUrlRes(
+      signedUrlRes1);
+    let fileContents2 = await fence.do.getFileFromSignedUrlRes(
+      signedUrlRes2);
+
+    chai.expect(fileContents1,
+      "Client using user token WITH access could NOT create signed urls and read file for record with rbac OR logic in indexd"
+    ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+    chai.expect(fileContents2,
+      "Client using user token WITH access could NOT create signed urls and read file for record with rbac OR logic in indexd"
+    ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
 });

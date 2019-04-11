@@ -9,7 +9,7 @@ const bash = new Bash();
 
 const I = actor();
 
-const GOOGLE_FILE_FROM_URL_ERROR = 'Could not get Google file contents from signed url response';
+const FILE_FROM_URL_ERROR = 'Could not get Google file contents from signed url response';
 
 /**
  * Determines if browser is on Google's "Choose account" page
@@ -111,7 +111,7 @@ module.exports = {
     return I.sendGetRequest(url).then(res => res.body);
   },
 
-  getGoogleFileFromSignedUrlRes(signedUrlRes) {
+  getFileFromSignedUrlRes(signedUrlRes) {
     if (
       signedUrlRes
       && signedUrlRes.hasOwnProperty('body')
@@ -120,8 +120,8 @@ module.exports = {
     ){
       return I.sendGetRequest(signedUrlRes["body"].url).then(res => res.body);
     }
-    console.log(GOOGLE_FILE_FROM_URL_ERROR);
-    return GOOGLE_FILE_FROM_URL_ERROR;
+    console.log(FILE_FROM_URL_ERROR);
+    return FILE_FROM_URL_ERROR;
   },
 
   /**

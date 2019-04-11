@@ -118,13 +118,13 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
   console.log('Use User0 to create signed URL for file in QA')
   const User0signedUrlQA1Res = await fence.do.createSignedUrlForUser(
     indexed_files.qaFile.did, users.user0.accessTokenHeader);
-  let User0signedUrlQA1FileContents = await fence.do.getGoogleFileFromSignedUrlRes(
+  let User0signedUrlQA1FileContents = await fence.do.getFileFromSignedUrlRes(
     User0signedUrlQA1Res);
 
   console.log('Use User1 to create signed URL for file in QA')
   const User1signedUrlQA1Res = await fence.do.createSignedUrlForUser(
     indexed_files.qaFile.did, users.user1.accessTokenHeader);
-  let User1signedUrlQA1ResFileContents = await fence.do.getGoogleFileFromSignedUrlRes(
+  let User1signedUrlQA1ResFileContents = await fence.do.getFileFromSignedUrlRes(
     User1signedUrlQA1Res);
 
   console.log('Use User2 to create signed URL for file in QA')
@@ -138,7 +138,7 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
   console.log('Use User1 to create signed URL for file in test')
   const User1signedUrlTest1Res = await fence.do.createSignedUrlForUser(
     indexed_files.testFile.did, users.user1.accessTokenHeader);
-  let User1signedUrlTest1ResFileContents = await fence.do.getGoogleFileFromSignedUrlRes(
+  let User1signedUrlTest1ResFileContents = await fence.do.getFileFromSignedUrlRes(
     User1signedUrlTest1Res);
 
   console.log('Use User2 to create signed URL for file in test')
@@ -273,7 +273,7 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
       Accept: 'application/json',
       Authorization: `bearer ${newUser2AccessToken}`,
     });
-  let User2signedUrlQA2ResFileContents = await fence.do.getGoogleFileFromSignedUrlRes(
+  let User2signedUrlQA2ResFileContents = await fence.do.getFileFromSignedUrlRes(
     User2signedUrlQA2Res);
 
   console.log('Use User0 to create signed URL for file in test')
@@ -289,7 +289,7 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
       Accept: 'application/json',
       Authorization: `bearer ${newUser1AccessToken}`,
     });
-  let User1signedUrlTest2ResFileContents = await fence.do.getGoogleFileFromSignedUrlRes(
+  let User1signedUrlTest2ResFileContents = await fence.do.getFileFromSignedUrlRes(
     User1signedUrlTest2Res);
 
   console.log('Use User2 to create signed URL for file in test')
@@ -301,15 +301,15 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
 
   // use old signed urls to try and access data again
   console.log('Use signed URL from User0 to try and access QA data again')
-  let User0AccessRemovedQA = await fence.do.getGoogleFileFromSignedUrlRes(
+  let User0AccessRemovedQA = await fence.do.getFileFromSignedUrlRes(
     User0signedUrlQA1Res);
 
   console.log('Use signed URL from User1 to try and access QA data again')
-  let User1AccessRemovedQA = await fence.do.getGoogleFileFromSignedUrlRes(
+  let User1AccessRemovedQA = await fence.do.getFileFromSignedUrlRes(
     User1signedUrlQA1Res);
 
   console.log('Use signed URL from User1 to try and access test data again')
-  let User1AccessRemainsTest = await fence.do.getGoogleFileFromSignedUrlRes(
+  let User1AccessRemainsTest = await fence.do.getFileFromSignedUrlRes(
     User1signedUrlTest1Res);
 
   console.log('deleting temporary google credentials');
