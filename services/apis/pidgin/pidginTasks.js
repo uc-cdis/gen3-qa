@@ -15,11 +15,6 @@ module.exports = {
     };
   
     let endpoint = `${pidginProps.endpoints.getCoreMetadata}/${file.did}`;
-    return I.sendGetRequest(endpoint, token).then(
-      (res) => {
-        file.rev = res.body.rev;
-        return res.body;
-      }
-    )
+    return I.sendGetRequest(endpoint, token).then(res => res.body);
   }
 };
