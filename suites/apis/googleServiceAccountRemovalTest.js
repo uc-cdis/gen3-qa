@@ -39,43 +39,21 @@ After(async (google, fence, users) => {
 
 
 AfterSuite(async (google, fence, users) => {
-  // make sure the monitor SA has access.
-  // we need to lock the project, since another testing session may
-  // have removed the roles to run the monitor test
+  // make sure the monitor SA has access
   const googleProject = fence.props.googleProjectDynamic;
-  let monitorEmail = await getMonitorEmail(fence, users);
-  let lockRes = await google.lockGoogleProject(googleProject);
-  chai.expect(
-    lockRes,
-    google.getLockGoogleProjectErrorDetails(googleProject)
-  ).to.be.true;
-
-  let addRolesRes = [];
   for (var role of monitorRoles) {
-    addRolesRes.push(
-      await google.updateUserRole(
-        googleProject.id,
-        {
-          role,
-          members: [`serviceAccount:${monitorEmail}`]
-        }
-      )
+    let res = await google.updateUserRole(
+      googleProject.id,
+      {
+        role,
+        members: [`serviceAccount:${fence.props.monitorServiceAccount}`]
+      }
     );
-  }
-
-  // make sure we leave the project unlocked
-  let unlockRes = await google.unlockGoogleProject(googleProject);
-
-  for (var res of addRolesRes) {
     chai.expect(
       res,
-      `WARNING: Failed to update monitor SA roles!! Next Google integration tests running on Jenkins will fail. Roles "${monitorRoles}" should be manually added to SA "${monitorEmail}" in Google project ${googleProject.id} (owner ${googleProject.owner}).\n`
+      `Failed to update monitor SA roles in Google project ${googleProject.id} (owner ${googleProject.owner}). Next tests may fail.\n`
     ).to.not.have.property('code');
   }
-  chai.expect(
-    unlockRes,
-    google.getUnlockGoogleProjectErrorDetails(googleProject)
-  ).to.be.true;
 });
 
 
@@ -85,16 +63,6 @@ function runVerifyUserSAsJob() {
   var jobRes = bash.runCommand(fenceCmd, 'fence');
   console.log(jobRes);
   return jobRes;
-}
-
-async function getMonitorEmail(fence, users) {
-  let getMonitorRes = await fence.do.getGoogleServiceAccountMonitor(users.user0);
-  fence.ask.assertStatusCode(getMonitorRes, 200, 'Could not get SA monitor info');
-  chai.expect(
-    getMonitorRes,
-    'Fence GET SA monitor endpoint did not return a service_account_email'
-  ).has.nested.property('body.service_account_email');
-  return getMonitorRes.body.service_account_email;
 }
 
 
@@ -381,7 +349,7 @@ Scenario('SA removal job test: SA has external access @reqGoogle', async (fence,
     'User should have bucket access before clean up job'
   ).to.have.property('id');
 
-  fence.ask.detected_invalid_google_project(jobRes, fence.props.monitorSAJobLog.externalAccess);
+  fence.ask.detected_invalid_service_account(jobRes, fence.props.monitorSAJobLog.externalAccess);
 
   chai.expect(user0CannotAccessQAAfter,
     'User should NOT have bucket access after clean up job'
@@ -412,8 +380,6 @@ Scenario('SA removal job test: monitor SA does not have access @reqGoogle', asyn
   ).to.be.true;
 
   // Setup
-  let monitorEmail = await getMonitorEmail(fence, users);
-
   await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
 
   // Register account
@@ -425,13 +391,13 @@ Scenario('SA removal job test: monitor SA does not have access @reqGoogle', asyn
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
 
   // Remove monitor's access
-  console.log(`removing monitoring access from SA ${monitorEmail}`);
+  console.log(`removing monitoring access from SA ${fence.props.monitorServiceAccount}`);
   for (var role of monitorRoles) {
     await google.removeUserRole(
       googleProject.id,
       {
         role,
-        members: [`serviceAccount:${monitorEmail}`]
+        members: [`serviceAccount:${fence.props.monitorServiceAccount}`]
       }
     );
   }
@@ -480,7 +446,7 @@ Scenario('SA removal job test: monitor SA does not have access @reqGoogle', asyn
         googleProject.id,
         {
           role,
-          members: [`serviceAccount:${monitorEmail}`]
+          members: [`serviceAccount:${fence.props.monitorServiceAccount}`]
         }
       )
     );
@@ -513,7 +479,7 @@ Scenario('SA removal job test: monitor SA does not have access @reqGoogle', asyn
   for (var res of addRolesRes) {
     chai.expect(
       res,
-      `Could not update monitor SA roles!! Next tests may fail. Roles "${monitorRoles}" should be added to SA "${monitorEmail}" in Google project ${googleProject.id} (owner ${googleProject.owner}). Will try to add them again at the end of this test suite.\n`
+      `Failed to update monitor SA roles in Google project ${googleProject.id} (owner ${googleProject.owner}). Next tests may fail. Will try to add them again at the end of this test suite.\n`
     ).to.not.have.property('code');
   }
 

@@ -12,6 +12,7 @@ const { Commons } = require('./utils/commons');
 const { Bash, takeLastLine } = require('./utils/bash');
 const users = require('./utils/user');
 const apiUtil = require('./utils/apiUtil');
+const google = require('./utils/google.js');
 const fenceProps = require('./services/apis/fence/fenceProps');
 const DEFAULT_TOKEN_EXP = 3600;
 const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
@@ -171,6 +172,44 @@ function createGoogleTestBuckets() {
   bash.runJob('google-verify-bucket-access-group');
 }
 
+async function setupGoogleProjectDynamic() {
+  // update the id and SA email depending on the current namespace
+  if (process.env.RUNNING_LOCAL) {
+    namespace = 'validationjobtest';
+  }
+  else {
+    namespace = process.env.NAMESPACE;
+  }
+  fenceProps.googleProjectDynamic.id = fenceProps.googleProjectDynamic.id.replace(
+    'NAMESPACE',
+    namespace
+  );
+  fenceProps.googleProjectDynamic.serviceAccountEmail = fenceProps.googleProjectDynamic.serviceAccountEmail.replace(
+    'NAMESPACE',
+    namespace
+  );
+  console.log(`googleProjectDynamic: ${fenceProps.googleProjectDynamic.id}`);
+
+  // Add the IAM access needed by the monitor service account
+  const monitorRoles = [
+    'roles/resourcemanager.projectIamAdmin',
+    'roles/editor'
+  ];
+  for (var role of monitorRoles) {
+    let res = await google.updateUserRole(
+      fenceProps.googleProjectDynamic.id,
+      {
+        role,
+        members: [`serviceAccount:${fenceProps.monitorServiceAccount}`]
+      }
+    );
+    if (res.code) {
+      console.error(res);
+      throw Error(`Failed to update monitor SA roles in Google project ${fenceProps.googleProjectDynamic.id} (owner ${fenceProps.googleProjectDynamic.owner}).`);
+    }
+  }
+}
+
 /**
  * Returns the list of tags that were passed in as arguments, including
  * "--invert" if it was passed in
@@ -267,7 +306,9 @@ module.exports = async function (done) {
 
     if (isIncluded('@reqGoogle')) {
       createGoogleTestBuckets();
+      await setupGoogleProjectDynamic();
     }
+    // return;
 
     // Create a program and project (does nothing if already exists)
     console.log('Creating program/project\n');

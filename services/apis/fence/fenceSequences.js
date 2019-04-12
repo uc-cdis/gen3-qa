@@ -115,7 +115,6 @@ module.exports = {
     fenceQuestions.assertStatusCode(res, 204);
   },
 
-
   /**
    * Cleans up fence's DBs for links and service accounts
    * Takes the google and users utils as params

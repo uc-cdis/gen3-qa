@@ -422,6 +422,7 @@ module.exports = {
    * Returns true if successfully locked, false otherwise
    */
   async lockGoogleProject(googleProject, timeout=180, simulateOtherSession=false) {
+    return true
     if (googleProject.id != 'gen3qa-validationjobtest') {
       console.log(`We only allow locking the project "googleProjectDynamic" (id "gen3qa-validationjobtest"). You are trying to lock "${googleProject.id}"`);
       return false;
@@ -486,6 +487,7 @@ module.exports = {
    * otherwise
    */
   async unlockGoogleProject(googleProject, simulateOtherSession=false) {
+    return true
     console.log(`Trying to unlock Google project "${googleProject.id}"...`);
     const serviceAccountEmail = this.getLockingServiceAccountEmail(googleProject.serviceAccountEmail);
 

@@ -380,18 +380,6 @@ module.exports = {
   },
 
   /**
-   * Gets the fence service account used for monitoring users' Google Cloud Projects
-   * @param userAcct
-   * @returns {Promise<Gen3Response>}
-   */
-  async getGoogleServiceAccountMonitor(userAcct) {
-    return I.sendGetRequest(
-      fenceProps.endpoints.getGoogleServiceAccountMonitor,
-      userAcct.accessTokenHeader,
-    ).then(res => new Gen3Response(res));
-  },
-
-  /**
    * Updates a google service account
    * @param {User} userAcct - User to make request with
    * @param {string} serviceAccountEmail - email of service account to update
