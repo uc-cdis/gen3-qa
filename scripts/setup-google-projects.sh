@@ -104,6 +104,8 @@ cat << EOM
 
 !!IMPORTANT!!
 To finish setup, you need to manually do the following:
+    -Make sure the Google emails from the usersUtil.js actually exist
+    -Make sure Buckets and Files from fence.props.googleBucketInfo actually exist
     -Enable the Compute API for the gen3projectwithcompute
     -Properly configure the Google projects in the fence props file according to the projects and service accounts that were just created.
       -i.e. log into the google console and for each project copy over the project ID, service account, owner, etc...

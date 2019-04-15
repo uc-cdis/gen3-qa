@@ -4,6 +4,8 @@
  */
 
 const { google } = require('googleapis');
+const {Storage} = require('@google-cloud/storage');
+
 
 /**
  * Internal object for managing google requests
@@ -90,6 +92,37 @@ const googleApp = {
  * Exported google util functions
  */
 module.exports = {
+  async getFileFromBucket(googleProject, pathToCredsKeyFile, bucketName, fileName) {
+    return new Promise((resolve) => {
+      // returns a https://cloud.google.com/nodejs/docs/reference/storage/2.0.x/File
+      // see https://cloud.google.com/docs/authentication/production for info about
+      // passing creds
+      const storage = new Storage({
+        projectId: googleProject,
+        keyFilename: pathToCredsKeyFile,
+        bucketName: bucketName
+      });
+
+      const file = storage.bucket(bucketName).file(fileName);
+
+      resolve(
+        file.get()
+        .then(function(data) {
+          // Note: data[0] is the file; data[1] is the API response
+          console.log(`Got file ${fileName} from bucket ${bucketName}`);
+          return data[0];
+        })
+        .catch((err) => {
+          console.log(`Cannot get file ${fileName} from bucket ${bucketName}`);
+          return {
+            statusCode: err.code || 403,
+            message: err.message
+          };
+        })
+      )
+    });
+  },
+
   async getGroupMembers(groupKey) {
     return googleApp.authorize(googleApp.adminConfig, (authClient) => {
       // Get Google Admin API
