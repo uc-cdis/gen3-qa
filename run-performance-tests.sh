@@ -78,7 +78,6 @@ echo 'INFO: installing dependencies'
 dryrun npm ci
 
 exitCode=0
-lockUser=""
 
 testArgs="--debug --verbose --reporter mocha-multi"
 
@@ -116,13 +115,5 @@ EOM
   )
   if [[ $? -ne 0 ]]; then exitCode=1; fi
 done
-
-if [[ -n "$lockUser" ]]; then
-  (
-    # release the dcf lock
-    export KUBECTL_NAMESPACE=default
-    dryrun gen3 klock unlock dcftest "$lockUser"
-  )
-fi
 
 exit $exitCode

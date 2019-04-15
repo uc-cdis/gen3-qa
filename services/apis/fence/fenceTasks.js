@@ -142,14 +142,31 @@ module.exports = {
   },
 
   /**
+   * List the existing Google credentials for the user
+   * @param {Object} accessTokenHeader
+   */
+  getUserGoogleCreds(accessTokenHeader) {
+    accessTokenHeader['Content-Type'] = 'application/json';
+    return I.sendGetRequest(
+      fenceProps.endpoints.googleCredentials,
+      accessTokenHeader,
+    ).then(res => res.body);
+  },
+
+  /**
    * Hits fence's endoint to create a temp Google credentials
    * @param {Object} accessTokenHeader
+   * @param {int} expires_in - requested expiration time (in seconds)
    * @returns {Promise<Gen3Response>}
    */
-  createTempGoogleCreds(accessTokenHeader) {
+  createTempGoogleCreds(accessTokenHeader, expires_in=null) {
     accessTokenHeader['Content-Type'] = 'application/json';
+    url = fenceProps.endpoints.googleCredentials;
+    if (expires_in) {
+      url += `?expires_in=${expires_in}`;
+    }
     return I.sendPostRequest(
-      fenceProps.endpoints.googleCredentials,
+      url,
       {},
       accessTokenHeader,
     ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
@@ -197,33 +214,32 @@ module.exports = {
   /**
    * Goes through the full, proper process for linking a google account assuming env
    * is set to mock Google response
-   * @param userAcct
+   * @param {User} userAcct - commons account to link with
+   * @param {int} expires_in - requested expiration time (in seconds)
    * @returns {Promise<Gen3Response|*>}
    */
-  async linkGoogleAcctMocked(userAcct) {
+  async linkGoogleAcctMocked(userAcct,expires_in=null) {
     // visit link endpoint. Google login is mocked
-    let headers = userAcct.accessTokenHeader
-    headers.Cookie = 'dev_login=' + userAcct.username
-
-    return I.sendGetRequest(
-      '/user/link/google?redirect=/login', headers
-    ).then((res) => {
+    let headers = userAcct.accessTokenHeader;
+    headers.Cookie = 'dev_login=' + userAcct.username;
+    url = '/user/link/google?redirect=/login';
+    if (expires_in)
+      url += `&expires_in=${expires_in}`;
+    return I.sendGetRequest(url, headers).then((res) => {
       // follow redirect back to fence
-      let sessionCookie = getCookie('fence', res.headers['set-cookie'])
-      headers = {Cookie: 'dev_login=' + userAcct.username + ';' + 'fence=' + sessionCookie }
+      let sessionCookie = getCookie('fence', res.headers['set-cookie']);
+      headers.Cookie += `; fence=${sessionCookie}`;
       return I.sendGetRequest(res.headers.location, headers).then((res) => {
-        return I.sendGetRequest(res.headers.location, headers).then((res) => {
-          // return the body and the current url
-          const url = res.headers.location;
-          const body = res.body;
+        // return the body and the current url
+        const url = res.headers.location;
+        const body = res.body;
 
-          const gen3Res = new Gen3Response({ body });
-          gen3Res.parsedFenceError = undefined;
-          gen3Res.body = body;
-          gen3Res.statusCode = 200;
-          gen3Res.finalURL = url;
-          return gen3Res
-        });
+        const gen3Res = new Gen3Response({ body });
+        gen3Res.parsedFenceError = undefined;
+        gen3Res.body = body;
+        gen3Res.statusCode = 200;
+        gen3Res.finalURL = url;
+        return gen3Res;
       });
     });
   },
@@ -246,11 +262,16 @@ module.exports = {
   /**
    * Hits fences EXTEND google link endpoint
    * @param {User} userAcct - commons user to extend the link for
+   * @param {int} expires_in - requested expiration time (in seconds)
    * @returns {Promise<Gen3Response>}
    */
-  async extendGoogleLink(userAcct) {
+  async extendGoogleLink(userAcct, expires_in=null) {
+    url = fenceProps.endpoints.extendGoogleLink;
+    if (expires_in) {
+      url += `?expires_in=${expires_in}`;
+    }
     return I.sendPatchRequest(
-      fenceProps.endpoints.extendGoogleLink, {}, userAcct.accessTokenHeader)
+      url, {}, userAcct.accessTokenHeader)
       .then(res => new Gen3Response(res));
   },
 
@@ -279,37 +300,54 @@ module.exports = {
    * @param {string} googleProject.serviceAccountEmail - service account email to register
    * @param {string} googleProject.id - google project ID for the service account registering
    * @param {string[]} projectAccessList - projects service account will have access to
+   * @param {int} expires_in - requested expiration time (in seconds)
    * @returns {Promise<Gen3Response>}
    */
-  async registerGoogleServiceAccount(userAcct, googleProject, projectAccessList) {
-    let postRes = await I.sendPostRequest(
-      fenceProps.endpoints.registerGoogleServiceAccount,
-      {
-        service_account_email: googleProject.serviceAccountEmail,
-        google_project_id: googleProject.id,
-        project_access: projectAccessList,
-      },
-      {
-        ...userAcct.accessTokenHeader,
-        'Content-Type': 'application/json',
-      },
-    ).then(function(res) {
-      if (res.error && res.error.code == 'ETIMEDOUT') {
-        return 'ETIMEDOUT: Google SA registration timed out';
+  async registerGoogleServiceAccount(userAcct, googleProject, projectAccessList, expires_in=null) {
+    url = fenceProps.endpoints.registerGoogleServiceAccount;
+    if (expires_in) {
+      url += `?expires_in=${expires_in}`;
+    }
+    const MAX_TRIES = 3;
+    let tries = 1;
+    let postRes;
+    while (tries <= MAX_TRIES) {
+      postRes = await I.sendPostRequest(
+        url,
+        {
+          service_account_email: googleProject.serviceAccountEmail,
+          google_project_id: googleProject.id,
+          project_access: projectAccessList,
+        },
+        {
+          ...userAcct.accessTokenHeader,
+          'Content-Type': 'application/json',
+        },
+      ).then(function(res) {
+        if (res.error && res.error.code == 'ETIMEDOUT') {
+          return 'ETIMEDOUT: Google SA registration timed out';
+        }
+        if (res.body && res.body.errors) {
+          console.log('Failed SA registration:');
+          // stringify to print all the nested objects
+          console.log(JSON.stringify(res.body.errors, null, 2));
+        }
+        else if (res.error) {
+          console.log('Failed SA registration:');
+          console.log(res.error);
+        }
+        return new Gen3Response(res)
+      });
+
+      // if the request timed out: retry
+      if (typeof postRes == 'string' && postRes.includes('ETIMEDOUT')) {
+        console.log(`registerGoogleServiceAccount: try ${tries}/${MAX_TRIES}`);
+        console.log(postRes);
+        tries++;
       }
-      if (res.body && res.body.errors) {
-        console.log('Failed SA registration:');
-        console.log(res.body.errors);
+      else {
+        return postRes;
       }
-      else if (res.error) {
-        console.log('Failed SA registration:');
-        console.log(res.error);
-      }
-      return new Gen3Response(res)
-    });
-    if (postRes instanceof String && postRes.includes('ETIMEDOUT')) {
-      // we could add some retry/backoff logic here if needed
-      console.log(postRes);
     }
     return postRes;
   },

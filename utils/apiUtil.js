@@ -3,6 +3,7 @@
  * @module apiUtil
  */
 
+const atob = require('atob');
 const chai = require('chai');
 const jsdom = require('jsdom');
 const chaiSubset = require('chai-subset');
@@ -111,26 +112,17 @@ const gen3Res = function (_chai, _) {
   });
 };
 
-/**
- * Wait for the specified number of milliseconds
- * @param {int} ms
- */
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-};
-
 module.exports = {
   /**
    * Runs a fence command for fetching access token for a user
-   * @param {string} namespace - namespace to get token from
    * @param {string} username - username to fetch token for
    * @param {number} expiration - life duration for token
    * @returns {string}
    */
   getAccessToken(username, expiration) {
+    console.log(`getting access token for ${username}`);
     const fenceCmd = `fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account,google_credentials --type access_token --exp ${expiration} --username ${username}`;
     const accessToken = bash.runCommand(fenceCmd, 'fence', takeLastLine);
-    console.error(accessToken);
     return accessToken.trim();
   },
 
@@ -159,15 +151,24 @@ module.exports = {
   },
 
   /**
+   * Wait for the specified number of milliseconds
+   * @param {int} ms
+   */
+  sleepMS(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  },
+
+  /**
    * Wait for a task to be done. After each check, wait longer than the
    * previous time
    * @param {function} checkFunc - returns true if done, false otherwise
    * @param {Object[]} funcArgs - list of arguments to pass to checkFunc()
    * @param {int} timeout - max number of seconds to wait
    * @param {string} errorMessage - message to display if not done in time
+   * @param {int} startWait - initial number of seconds to wait
    */
-  async smartWait(checkFunc, checkArgs, timeout, errorMessage) {
-    waitTime = 50; // start by waiting 50 ms
+  async smartWait(checkFunc, checkArgs, timeout, errorMessage, startWait=null) {
+    waitTime = (startWait * 1000) || 50; // start by waiting 50 ms
     waited = 0; // keep track of how many ms have passed
     while (waited < timeout * 1000) {
       // check if the task is done
@@ -175,7 +176,7 @@ module.exports = {
       if (done) return;
 
       // if not done, keep waiting
-      await sleep(waitTime);
+      await module.exports.sleepMS(waitTime);
       waited += waitTime;
       waitTime *= 2; // wait longer every time
     }
@@ -194,6 +195,12 @@ module.exports = {
     var cookiestring = RegExp("" + cookieName + "[^;]+").exec(cookieString);
     // return everything after the equal sign, or an empty string if the cookie name not found
     return decodeURIComponent(!!cookiestring ? cookiestring.toString().replace(/^[^=]+./,"") : "");
+  },
+
+  parseJwt (token) {
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace('-', '+').replace('_', '/');
+    return JSON.parse(atob(base64));
   },
 
   /**
