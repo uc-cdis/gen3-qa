@@ -19,7 +19,7 @@ class CDISHelper extends Helper {
   }
 
   noTimeoutEnter() {
-    const helper = this.helpers['WebDriverIO'];
+    const helper = this.helpers.WebDriverIO;
     try {
       helper.browser.keys('Enter');
     } catch (err) {
