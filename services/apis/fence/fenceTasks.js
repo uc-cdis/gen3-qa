@@ -150,7 +150,14 @@ module.exports = {
     return I.sendGetRequest(
       fenceProps.endpoints.googleCredentials,
       accessTokenHeader,
-    ).then(res => res.body);
+    ).then(res => {
+      if (!res.body || !res.body.access_keys) {
+        console.log('Could not get user google creds:');
+        console.log(res);
+        return { access_keys: [] };
+      }
+      return res.body;
+    });
   },
 
   /**
