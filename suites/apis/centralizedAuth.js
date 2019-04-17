@@ -94,7 +94,7 @@ const I = actor();
 /*
 for twoProjectsFile, use cdis.autotest@gmail.com
 
-for oneProjectOrOtherFile, two users. Each has ONE of these policies:
+Each has ONE of these policies:
     dummy-one@planx-pla.net (auxAcct1)
         - abc.programs.test_program.projects.test_project1-viewer
     smarty-two@planx-pla.net (auxAcct2)
@@ -106,7 +106,7 @@ const indexed_files = {
     link: 's3://cdis-presigned-url-test/testdata',
     md5: '73d643ec3f4beb9020eef0beed440ad0',
     acl: ['*'], // FIXME: remove this and uncomment rbac
-    // rbac: '/abc/programs/foo/projects/bar',
+    // rbac: ['/abc/programs/foo/projects/bar'],
     size: 9,
   },
   gen3TestTestFile: {
@@ -114,7 +114,7 @@ const indexed_files = {
     link: 's3://cdis-presigned-url-test/testdata',
     md5: '73d643ec3f4beb9020eef0beed440ad1',
     acl: ['*'], // FIXME: remove this and uncomment rbac
-    // rbac: '/gen3/programs/test/projects/test',
+    // rbac: ['/gen3/programs/test/projects/test'],
     size: 10,
   },
   twoProjectsFile: {
@@ -122,16 +122,11 @@ const indexed_files = {
     link: 's3://cdis-presigned-url-test/testdata',
     md5: '73d643ec3f4beb9020eef0beed440ad2',
     acl: ['*'], // FIXME: remove this and uncomment rbac
-    // rbac: '/abc/programs/test_program/projects/test_project1 AND /abc/programs/test_program2/projects/test_project3',
+    // rbac: [
+    //   '/abc/programs/test_program/projects/test_project1',
+    //   '/abc/programs/test_program2/projects/test_project3'
+    // ],
     size: 11,
-  },
-  oneProjectOrOtherFile: {
-    filename: 'testdata',
-    link: 's3://cdis-presigned-url-test/testdata',
-    md5: '73d643ec3f4beb9020eef0beed440ad3',
-    acl: ['*'], // FIXME: remove this and uncomment rbac
-    // rbac: '/abc/programs/test_program/projects/test_project1 OR /abc/programs/test_program2/projects/test_project3',
-    size: 12,
   }
 }
 
@@ -141,7 +136,7 @@ let new_gen3_records = {
     link: 's3://cdis-presigned-url-test/testdata',
     md5: '73d643ec3f4beb9020eef0beed440ad4',
     acl: ['*'], // FIXME: remove this and uncomment rbac
-    // rbac: '/gen3/programs/test/projects/test',
+    // rbac: ['/gen3/programs/test/projects/test'],
     size: 9,
   },
   deleteMe: {
@@ -149,7 +144,7 @@ let new_gen3_records = {
     link: 's3://cdis-presigned-url-test/testdata',
     md5: '73d643ec3f4beb9020eef0beed440ac0',
     acl: ['*'], // FIXME: remove this and uncomment rbac
-    // rbac: '/gen3/programs/test/projects/test',
+    // rbac: ['/gen3/programs/test/projects/test'],
     size: 12,
   }
 }
@@ -160,7 +155,7 @@ let new_abc_records = {
     link: 's3://cdis-presigned-url-test/testdata',
     md5: '73d643ec3f4beb9020eef0beed440ad5',
     acl: ['*'], // FIXME: remove this and uncomment rbac
-    // rbac: '/abc/programs/foo',
+    // rbac: ['/abc/programs/foo'],
     size: 9,
   },
   deleteMe: {
@@ -168,7 +163,7 @@ let new_abc_records = {
     link: 's3://cdis-presigned-url-test/testdata',
     md5: '73d643ec3f4beb9020eef0beed440ac1',
     acl: ['*'], // FIXME: remove this and uncomment rbac
-    // rbac: '/abc/programs/foo/projects/bar',
+    // rbac: ['/abc/programs/foo/projects/bar'],
     size: 12,
   }
 }
@@ -658,74 +653,5 @@ Scenario('Client with user token WITH permission CAN create signed URL for recor
     chai.expect(fileContents,
       'Client using user token WITH access CANNOT create signed urls and read file ' +
       'for record with rbac AND logic in indexd'
-    ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-});
-
-/*
-   - Create some records in indexd with OR logic, have CLIENTB try to create signed
-     url for file for user that does NOT have necessary permissions, ensure failure.
-*/
-Scenario('Client with user token WITHOUT permission CANNOT create signed URL for record with rbac OR logic @rbac',
-  async (fence, indexd, users, files) => {
-    return; // FIXME: skip test for now
-    // users.user0 does NOT have access to either resource
-    const tokenRes = await fence.complete.getUserTokensWithClient(
-      users.user0, fence.props.clients.clientb);
-    const accessToken = tokenRes.body.access_token;
-
-    console.log('Use user0 to create signed URL for file under with indexd rbac OR logic')
-    const signedUrlRes = await fence.do.createSignedUrlForUser(
-      indexed_files.oneProjectOrOtherFile.did, apiUtil.getAccessTokenHeader(users.user0.accessToken));
-
-    let fileContents = await fence.do.getFileFromSignedUrlRes(
-      signedUrlRes);
-
-    chai.expect(fileContents,
-      'Client using user token WITHOUT access COULD create signed urls and read ' +
-      'file for record with rbac OR logic in indexd'
-    ).to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-});
-
-/*
-   - Same as above test but user DOES have permissions. Ensure successfull signed URL that
-     we can access data with
-*/
-Scenario('Client with user token WITH permission CAN create signed URL for record with rbac OR logic @rbac',
-  async (fence, indexd, users, files) => {
-    return; // FIXME: skip test for now
-    // users.auxAcct1 && users.auxAcct2 have access
-    const tokenRes1 = await fence.complete.getUserTokensWithClient(
-      users.auxAcct1, fence.props.clients.clientb);
-    const tokenRes2 = await fence.complete.getUserTokensWithClient(
-      users.auxAcct2, fence.props.clients.clientb);
-    const accessToken1 = tokenRes1.body.access_token;
-    const accessToken2 = tokenRes2.body.access_token;
-
-    console.log('Use auxAcct1 to create signed URL for file under with indexd rbac ' +
-      'OR logic')
-    const signedUrlRes1 = await fence.do.createSignedUrlForUser(
-      indexed_files.oneProjectOrOtherFile.did, apiUtil.getAccessTokenHeader(
-        users.auxAcct1.accessToken1)
-    );
-
-    console.log('Use auxAcct2 to create signed URL for file under with indexd rbac ' +
-      'OR logic')
-    const signedUrlRes2 = await fence.do.createSignedUrlForUser(
-      indexed_files.oneProjectOrOtherFile.did, apiUtil.getAccessTokenHeader(
-        users.auxAcct2.accessToken2)
-    );
-
-    let fileContents1 = await fence.do.getFileFromSignedUrlRes(
-      signedUrlRes1);
-    let fileContents2 = await fence.do.getFileFromSignedUrlRes(
-      signedUrlRes2);
-
-    chai.expect(fileContents1,
-      'Client using user token WITH access could NOT create signed urls and read ' +
-      'file for record with rbac OR logic in indexd'
-    ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-    chai.expect(fileContents2,
-      'Client using user token WITH access could NOT create signed urls and read ' +
-      'file for record with rbac OR logic in indexd'
     ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
 });
