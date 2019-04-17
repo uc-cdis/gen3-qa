@@ -4,11 +4,11 @@ const expect = chai.expect;
 chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 
-const user = require('../../../utils/user.js');
 const fenceQuestions = require('./fenceQuestions.js');
 const fenceTasks = require('./fenceTasks.js');
 const fenceProps = require('./fenceProps.js');
 const { Gen3Response } = require('../../../utils/apiUtil');
+const user = require('../../../utils/user.js');
 
 const I = actor();
 
@@ -116,26 +116,23 @@ module.exports = {
     fenceQuestions.assertStatusCode(res, 204);
   },
 
-  async getUserTokensWithClient(user = user.mainAcct, client = fence.props.clients.client, scopes = 'openid+user') {
-    // TODO: set user with cookie
+  async getUserTokensWithClient(user = user.mainAcct, client = fenceProps.clients.client, scopes = 'openid+user') {
+    // set user with cookie
     headers = {Cookie: 'dev_login=' + user.username + ';'};
     await I.sendGetRequest('.', headers);
 
-    const urlStr = await fence.do.getConsentCode(
-    client.id, 'code', scopes);
-    fence.ask.assertContainSubStr(urlStr, ['code=']);
+    const urlStr = await fenceTasks.getConsentCode(client.id, 'code', scopes);
+    fenceQuestions.assertContainSubStr(urlStr, ['code=']);
     const match = urlStr.match(RegExp('/?code=(.*)'));
     const code = match && match[1];
-    fence.ask.assertTruthyResult(
+    fenceQuestions.assertTruthyResult(
       code,
       `fence\'s oauth2/authorize endpoint should have returned a consent code in url "${urlStr}"`
     );
-    let res = await fence.do.getTokensWithAuthCode(
+    let res = await fenceTasks.getTokensWithAuthCode(
       client.id,
       client.secret, code, 'authorization_code',
     );
-    res = await fence.do.getUserInfo(res.body.access_token);
-    fence.ask.assertUserInfo(res);
 
     return res;
   },

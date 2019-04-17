@@ -65,11 +65,10 @@ class User {
    * Simple auth header with bearer and access token
    * @returns {{Accept: string, Authorization: string}}
    */
-  get accessTokenHeader(accessTokenOverride = null) {
-    let accessToken = accessTokenOverride || this.accessToken;
+  get accessTokenHeader() {
     return {
       Accept: 'application/json',
-      Authorization: `bearer ${accessToken}`,
+      Authorization: `bearer ${this.accessToken}`,
     };
   }
 

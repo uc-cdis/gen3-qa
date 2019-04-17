@@ -65,8 +65,9 @@ module.exports = {
    * AWS bucket info
    */
    awsBucketInfo: {
-      cdis_presigned_url_test:
-        testdata: 'testdata'
+      cdis_presigned_url_test: {
+        testdata: 'Hi Zac!\ncdis-data-client uploaded this!\n'
+      }
    },
 
   /**
