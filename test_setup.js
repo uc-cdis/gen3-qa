@@ -152,24 +152,32 @@ function assertGen3Client() {
  * exist, and link them to the Google buckets used in the tests
  */
 function createGoogleTestBuckets() {
-  console.log('Ensure test buckets are linked to projects in this commons...');
+  try {
+    console.log('Ensure test buckets are linked to projects in this commons...');
 
-  var bucketId = fenceProps.googleBucketInfo.QA.bucketId;
-  var googleProjectId = fenceProps.googleBucketInfo.QA.googleProjectId;
-  var projectAuthId = 'QA';
-  var fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
-  console.log(`Running: ${fenceCmd}`);
-  bash.runCommand(fenceCmd, 'fence');
+    var bucketId = fenceProps.googleBucketInfo.QA.bucketId;
+    var googleProjectId = fenceProps.googleBucketInfo.QA.googleProjectId;
+    var projectAuthId = 'QA';
+    var fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
+    console.log(`Running: ${fenceCmd}`);
+    bash.runCommand(fenceCmd, 'fence');
 
-  bucketId = fenceProps.googleBucketInfo.test.bucketId
-  googleProjectId = fenceProps.googleBucketInfo.test.googleProjectId
-  projectAuthId = 'test';
-  fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
-  console.log(`Running: ${fenceCmd}`);
-  response = bash.runCommand(fenceCmd, 'fence');
+    bucketId = fenceProps.googleBucketInfo.test.bucketId
+    googleProjectId = fenceProps.googleBucketInfo.test.googleProjectId
+    projectAuthId = 'test';
+    fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
+    console.log(`Running: ${fenceCmd}`);
+    response = bash.runCommand(fenceCmd, 'fence');
 
-  console.log('Clean up Google Bucket Access Groups from previous runs...');
-  bash.runJob('google-verify-bucket-access-group');
+    console.log('Clean up Google Bucket Access Groups from previous runs...');
+    bash.runJob('google-verify-bucket-access-group');
+  }
+  catch (e) {
+    if (inJenkins) {
+      throw e;
+    }
+    console.log('WARNING: unable to create Google test buckets. You can ignore this message if you do not want to run Google data access tests.');
+  }
 }
 
 async function setupGoogleProjectDynamic() {
@@ -308,7 +316,6 @@ module.exports = async function (done) {
       createGoogleTestBuckets();
       await setupGoogleProjectDynamic();
     }
-    // return;
 
     // Create a program and project (does nothing if already exists)
     console.log('Creating program/project\n');
