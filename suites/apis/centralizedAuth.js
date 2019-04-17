@@ -178,7 +178,7 @@ AfterSuite(async (fence, indexd, users) => {
   await indexd.do.deleteFileIndices(Object.values(indexed_files));
 });
 
-Before(async (fence, users) => {
+Before(async (fence, users, indexd) => {
   // populate new GUIDs per test
   const gen3FooBarFileGuid = uuid.v4().toString();
   const gen3DeleteMe = uuid.v4().toString();
