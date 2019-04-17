@@ -50,8 +50,6 @@ Test Plan
    - Same as above but user DOES have permissions. Ensure successfull signed URL that
      we can access data with
 
-   - Same as above two tests but with OR logic
-
 
 We probably want some tests to make sure that after usersyncing and changing a user's
 policies, they can no longer create signed urls?
