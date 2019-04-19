@@ -220,6 +220,19 @@ async function setupGoogleProjectDynamic() {
       console.log('WARNING: ' + msg);
     }
   }
+
+  // If there are existing keys on the "user service account", delete them
+  const saName = `service-account@gen3qa-${namespace}.iam.gserviceaccount.com`;
+  const saKeys = await google.listServiceAccountKeys(fenceProps.googleProjectDynamic.id, saName);
+  if (!saKeys.keys) {
+    console.error(saKeys);
+    console.log(`WARNING: cannot get list of keys on service account ${saName}.`);
+  }
+  else {
+    saKeys.keys.map(async (key) => {
+      res = await google.deleteServiceAccountKey(key.name);
+    })
+  }
 }
 
 /**

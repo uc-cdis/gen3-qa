@@ -249,7 +249,6 @@ module.exports = {
     );
   },
 
-
   /**
    * @param {string} serviceAccount - name or ID of the SA to get
    * @param {string} projectID
@@ -333,6 +332,34 @@ module.exports = {
             return;
           }
           resolve(res.data);
+        });
+      });
+    })
+  },
+
+  async listServiceAccountKeys(projectID, serviceAccountName) {
+    return new Promise((resolve) => {
+      return googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
+        const cloudResourceManager = google.iam('v1');
+        const request = {
+          name: `projects/${projectID}/serviceAccounts/${serviceAccountName}`,
+          auth: authClient,
+        };
+        cloudResourceManager.projects.serviceAccounts.keys.list(request, (err, res) => {
+          if (err) {
+            console.log(err);
+            if (err instanceof Error) {
+              resolve(Error(err.code));
+            } else {
+              resolve(Error(err));
+            }
+            return;
+          }
+          if (res && res.data) {
+            resolve(res.data);
+          } else {
+            resolve(Error(`Unexpected list service account keys result: ${JSON.stringify(res)}`));
+          }
         });
       });
     })
