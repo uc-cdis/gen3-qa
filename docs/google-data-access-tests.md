@@ -39,6 +39,6 @@ All the tests that require exclusive access to a Google Project use the same pro
 When setting up a new Jenkins environment, we need to set up a new Google project:
 * Create a new Google project owned by `gen3.autotest@gmail.com`. Name: `Gen3QA-<namespace>` (for example, "Gen3QA-jenkins-dcp"). Select "No organisation".
 * In "IAM", give `Owner` role to `gen3qa-service@gen3qa-validationjobtest.iam.gserviceaccount.com`.
-* In "Service Accounts", create a service account with name and id `service-account`.
+* In "Service Accounts", create a service account with name and id `service-account`. Optional description: `Used by the gen3-qa integration tests - represents an external user's SA`.
 
-The dev environments share the dynamic project `Gen3QA-ValidationJobTest`. If a single project is not enough for several developers running Google tests at the same time, create a new project `Gen3QA-ValidationJobTest2` by following the step above, change the namespace to use in `setupGoogleProjectDynamic()` and update this documentation.
+The dev environments share the dynamic project `Gen3QA-ValidationJobTest`. If a single project is not enough for several developers running Google tests at the same time, create a new project `Gen3QA-ValidationJobTest2` by following the steps above, change the namespace to use in `setupGoogleProjectDynamic()` and update this documentation.

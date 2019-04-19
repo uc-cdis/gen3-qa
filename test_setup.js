@@ -181,11 +181,11 @@ function createGoogleTestBuckets() {
 }
 
 async function setupGoogleProjectDynamic() {
-  // update the id and SA email depending on the current namespace
-  if (process.env.RUNNING_LOCAL) {
+  // Update the id and SA email depending on the current namespace
+  if (process.env.RUNNING_LOCAL) { // local run
     namespace = 'validationjobtest';
   }
-  else {
+  else { // jenkins run. a google project exists for each jenkins env
     namespace = process.env.NAMESPACE;
   }
   fenceProps.googleProjectDynamic.id = fenceProps.googleProjectDynamic.id.replace(
@@ -213,7 +213,11 @@ async function setupGoogleProjectDynamic() {
     );
     if (res.code) {
       console.error(res);
-      throw Error(`Failed to update monitor SA roles in Google project ${fenceProps.googleProjectDynamic.id} (owner ${fenceProps.googleProjectDynamic.owner}).`);
+      let msg = `Failed to update monitor SA roles in Google project ${fenceProps.googleProjectDynamic.id} (owner ${fenceProps.googleProjectDynamic.owner}).`
+      if (inJenkins) {
+        throw Error(msg);
+      }
+      console.log('WARNING: ' + msg);
     }
   }
 }
