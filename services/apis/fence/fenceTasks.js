@@ -176,7 +176,13 @@ module.exports = {
       url,
       {},
       accessTokenHeader,
-    ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
+    ).then(res => {
+      if (res.statusCode != 200) {
+        console.error('Error creating temp google creds');
+        console.log(res);
+      }
+      return new Gen3Response(res);
+    });
   },
 
   /**
