@@ -28,11 +28,11 @@ When an assertion fails, the rest of the test is not executed. When writing Goog
 |-----------------------------------------------------------------|---------|
 | fence-service@dcf-integration.iam.gserviceaccount.com           | Fence monitor. Needs "Editor" and "Project IAM Admin" permissions on the Google projects |
 | gen3qa-service@gen3qa-validationjobtest.iam.gserviceaccount.com | Service account used by the tests to interact with the Google projects. It has access to everything |
-| service-account@gen3qa-[namespace].iam.gserviceaccount.com      | Represents a user who registers a Google project. Each googleProjectDynamic has one |
+| service-account@gen3qa-[namespace].iam.gserviceaccount.com      | Represents a researcher's project SA for "registering" for controlled access data through Gen3. Each googleProjectDynamic has one |
 
 ### Notes on googleProjectDynamic
 
-Most Google projects that have been set up for testing purposes are not modified by the tests.  However, some tests require modifying the Google project itself (service account external key creation/deletion, permission updates...). If several of these tests are running simultaneously, they will make each other fail - for example, if a test generates an external key for a service account, other tests will not be able to register service accounts in the same project.
+Most Google projects that have been set up for testing purposes are not modified by the tests.  However, some tests require modifying the Google project itself (service account external key creation/deletion, permission updates...). If several of these tests are running simultaneously, they will make each other fail - for example, if a test generates an external key for a service account, other tests will not be able to register service accounts in the same Google project.
 
 All the tests that require exclusive access to a Google Project use the same project: `googleProjectDynamic`. Each Jenkins environment has its own "dynamic project" that it has exclusive access to. During the test setup, we make sure to reset this project to what it should be before the tests modify it.
 

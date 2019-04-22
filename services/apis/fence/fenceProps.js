@@ -352,8 +352,9 @@ module.exports = {
     owner: 'gen3.autotest@gmail.com',
   },
 
-  // used when the tests need to modify the google project itself
-  // the id is updated during test_setup depending on the current namespace
+  // Used when the tests need to modify the google project itself.
+  // Note: the id and email are updated during test_setup depending
+  // on the current namespace
   googleProjectDynamic: {
     // -fence SA in project:                  true
     // -has a parent organization:            false
