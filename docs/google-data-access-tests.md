@@ -22,13 +22,13 @@ When an assertion fails, the rest of the test is not executed. When writing Goog
 | planxparentproject       | dummy-one@planx-pla.net | googleProjectWithParentOrg          | Used to test invalid SA registration |
 | projectfencenoaccess     | gen3.autotest@gmail.com | googleProjectFenceNotRegistered     | Used to test invalid SA registration |
 | ProjectServiceAcctHasKey | gen3.autotest@gmail.com | googleProjectServiceAcctHasKey      | Used to test invalid SA registration |
-| Gen3QA-<namespace>       | gen3.autotest@gmail.com | googleProjectDynamic                | See "Notes on googleProjectDynamic" section |
+| Gen3QA-[namespace]       | gen3.autotest@gmail.com | googleProjectDynamic                | See "Notes on googleProjectDynamic" section |
 
 | Service account                                                 | Purpose |
 |-----------------------------------------------------------------|---------|
 | fence-service@dcf-integration.iam.gserviceaccount.com           | Fence monitor. Needs "Editor" and "Project IAM Admin" permissions on the Google projects |
 | gen3qa-service@gen3qa-validationjobtest.iam.gserviceaccount.com | Service account used by the tests to interact with the Google projects. It has access to everything |
-| service-account@gen3qa-<namespace>.iam.gserviceaccount.com      | Represents a user who registers a Google project. Each googleProjectDynamic has one |
+| service-account@gen3qa-[namespace].iam.gserviceaccount.com      | Represents a user who registers a Google project. Each googleProjectDynamic has one |
 
 ### Notes on googleProjectDynamic
 
@@ -37,7 +37,7 @@ Most Google projects that have been set up for testing purposes are not modified
 All the tests that require exclusive access to a Google Project use the same project: `googleProjectDynamic`. Each Jenkins environment has its own "dynamic project" that it has exclusive access to. During the test setup, we make sure to reset this project to what it should be before the tests modify it.
 
 When setting up a new Jenkins environment, we need to set up a new Google project:
-* Create a new Google project owned by `gen3.autotest@gmail.com`. Name: `Gen3QA-<namespace>` (for example, "Gen3QA-jenkins-dcp"). Select "No organisation".
+* Create a new Google project owned by `gen3.autotest@gmail.com`. Name: `Gen3QA-[namespace]` (for example, "Gen3QA-jenkins-dcp"). Select "No organisation".
 * In "IAM", give `Owner` role to `gen3qa-service@gen3qa-validationjobtest.iam.gserviceaccount.com`.
 * In "Service Accounts", create a service account with name and id `service-account`. Optional description: `Used by the gen3-qa integration tests - represents an external user's SA`.
 
