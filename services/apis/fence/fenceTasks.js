@@ -337,23 +337,30 @@ module.exports = {
           'Content-Type': 'application/json',
         },
       ).then(function(res) {
-        if (res.error && res.error.code == 'ETIMEDOUT') {
-          return 'ETIMEDOUT: Google SA registration timed out';
-        }
         if (res.body && res.body.errors) {
           console.log('Failed SA registration:');
           // stringify to print all the nested objects
           console.log(JSON.stringify(res.body.errors, null, 2));
         }
         else if (res.error) {
-          console.log('Failed SA registration:');
-          console.log(res.error);
+          if (res.error.code == 'ETIMEDOUT') {
+            return 'ETIMEDOUT: Google SA registration timed out';
+          }
+          else if (res.error.code == 'ECONNRESET') {
+            return 'ECONNRESET: Google SA registration socket hung up';
+          }
+          else {
+            console.log('Failed SA registration:');
+            console.log(res.error);
+          }
         }
         return new Gen3Response(res)
       });
 
-      // if the request timed out: retry
-      if (typeof postRes == 'string' && postRes.includes('ETIMEDOUT')) {
+      // if request timeout or socket hung up: retry
+      if (typeof postRes == 'string' &&
+      (postRes.includes('ETIMEDOUT') || postRes.includes('ECONNRESET')))
+      {
         console.log(`registerGoogleServiceAccount: try ${tries}/${MAX_TRIES}`);
         console.log(postRes);
         tries++;
