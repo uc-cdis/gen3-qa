@@ -115,17 +115,12 @@ module.exports = {
     fenceQuestions.assertStatusCode(res, 204);
   },
 
-
   /**
    * Cleans up fence's DBs for links and service accounts
    * Takes the google and users utils as params
    * @returns {Promise<void>}
    */
   async suiteCleanup(google, users) {
-    // unlock the lockable google project. no assert: if the lock belongs
-    // to another session, we can't unlock and that's fine
-    await google.unlockGoogleProject(fenceProps.googleProjectDynamic);
-
     // google projects to 'clean up'
     const googleProjects = [
       fenceProps.googleProjectA,
