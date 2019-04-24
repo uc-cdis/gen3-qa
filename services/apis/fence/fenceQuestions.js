@@ -8,7 +8,6 @@ chai.config.truncateThreshold = 0;
 chai.use(gen3Res);
 
 const fenceProps = require('./fenceProps.js');
-const google = require('../../../utils/google.js');
 
 /**
  * fence Questions
@@ -244,6 +243,15 @@ module.exports = {
   detected_invalid_google_project(jobResponse, reason='') {
     let errMsg = '"google-manage-user-registrations" should have detected an invalid Google project';
     expect(jobResponse, errMsg).to.contain('INVALID GOOGLE PROJECT');
+    expect(jobResponse, errMsg).to.contain(reason);
+  },
+
+  /**
+   * Check the google-manage-user-registrations output for invalid SA
+   */
+  detected_invalid_service_account(jobResponse, reason='') {
+    let errMsg = '"google-manage-user-registrations" should have detected an invalid Service Account';
+    expect(jobResponse, errMsg).to.contain('INVALID SERVICE ACCOUNT');
     expect(jobResponse, errMsg).to.contain(reason);
   },
 };

@@ -261,4 +261,4 @@ Scenario('SA key removal job test: remove expired creds that do not exist in goo
   chai.expect(credsList.length,
       'The expired SA keys should have been removed'
     ).to.equal(0);
-});
+}).retry(2);
