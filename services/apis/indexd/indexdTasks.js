@@ -102,7 +102,7 @@ module.exports = {
    * @param {Object} fileNode - Assumed to have a did property
    * @returns {Promise<Gen3Response>}
    */
-  async updateFile(file, data, headers = user.mainAcct.accessTokenHeader) {
+  async updateFile(file, data, headers = user.mainAcct.indexdAuthHeader) {
     return I.sendGetRequest(
       `${indexdProps.endpoints.get}/${file.did}`,
       headers,
@@ -110,8 +110,6 @@ module.exports = {
       // get last revision
       file.rev = getRevFromResponse(res);
 
-      const headers = user.mainAcct.indexdAuthHeader;
-      headers['Content-Type'] = 'application/json; charset=UTF-8';
       const strData = JSON.stringify(data);
       return I.sendPutRequest(
         `${indexdProps.endpoints.put}/${file.did}?rev=${file.rev}`,
@@ -131,32 +129,32 @@ module.exports = {
    */
   async deleteFile(file, headers = user.mainAcct.indexdAuthHeader) {
     // if we already have the current revision we can use it, otherwise we need to get it
-    if (file.rev !== null && file.rev !== undefined) {
-      return I.sendDeleteRequest(
-        `${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`,
+    if (!file.rev) {
+      return I.sendGetRequest(
+        `${indexdProps.endpoints.get}/${file.did}`,
         headers,
       ).then((res) => {
-        // Note that we use the entire response, not just the response body
-        file.indexd_delete_res = res;
-        return res;
+        // get last revision
+        file.rev = getRevFromResponse(res);
+
+        return I.sendDeleteRequest(
+          `${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`,
+          headers,
+        ).then((res) => {
+          // Note that we use the entire response, not just the response body
+          file.indexd_delete_res = res;
+          return res;
+        });
       });
     }
 
-    return I.sendGetRequest(
-      `${indexdProps.endpoints.get}/${file.did}`,
+    return I.sendDeleteRequest(
+      `${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`,
       headers,
     ).then((res) => {
-      // get last revision
-      file.rev = getRevFromResponse(res);
-
-      return I.sendDeleteRequest(
-        `${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`,
-        headers,
-      ).then((res) => {
-        // Note that we use the entire response, not just the response body
-        file.indexd_delete_res = res;
-        return res;
-      });
+      // Note that we use the entire response, not just the response body
+      file.indexd_delete_res = res;
+      return res;
     });
   },
 

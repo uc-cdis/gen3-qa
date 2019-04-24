@@ -1,7 +1,7 @@
 const fenceProps = require('./fenceProps.js');
 const user = require('../../../utils/user.js');
 const portal = require('../../../utils/portal.js');
-const { Gen3Response, getCookie } = require('../../../utils/apiUtil');
+const { Gen3Response, getCookie, getAccessTokenHeader } = require('../../../utils/apiUtil');
 const { Bash, takeLastLine } = require('../../../utils/bash');
 
 const { container } = require('codeceptjs');
@@ -515,10 +515,7 @@ module.exports = {
    * @param {string} accessToken - access token
    */
   async getUserInfo(accessToken) {
-    const header = {
-      Accept: 'application/json',
-      Authorization: `bearer ${accessToken}`,
-    };
+    const header = getAccessTokenHeader(accessToken);
     const response = await I.sendGetRequest(fenceProps.endpoints.userEndPoint, header);
     return response;
   },
@@ -528,10 +525,7 @@ module.exports = {
    * @param {string} accessToken - access token
    */
   async getAdminInfo(accessToken) {
-    const header = {
-      Accept: 'application/json',
-      Authorization: `bearer ${accessToken}`,
-    };
+    const header = getAccessTokenHeader(accessToken);
     const response = await I.sendGetRequest(fenceProps.endpoints.adminEndPoint, header);
     return response;
   },

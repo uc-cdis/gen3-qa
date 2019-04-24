@@ -103,27 +103,27 @@ const indexed_files = {
     filename: 'testdata',
     link: 's3://cdis-presigned-url-test/testdata',
     md5: '73d643ec3f4beb9020eef0beed440ad0',
-    acl: ['*'], // FIXME: remove this and uncomment rbac
-    // rbac: ['/abc/programs/foo/projects/bar'],
+    acl: [],
+    rbac: ['/abc/programs/foo/projects/bar'],
     size: 9,
   },
   gen3TestTestFile: {
     filename: 'testdata',
     link: 's3://cdis-presigned-url-test/testdata',
     md5: '73d643ec3f4beb9020eef0beed440ad1',
-    acl: ['*'], // FIXME: remove this and uncomment rbac
-    // rbac: ['/gen3/programs/test/projects/test'],
+    acl: [],
+    rbac: ['/gen3/programs/test/projects/test'],
     size: 10,
   },
   twoProjectsFile: {
     filename: 'testdata',
     link: 's3://cdis-presigned-url-test/testdata',
     md5: '73d643ec3f4beb9020eef0beed440ad2',
-    acl: ['*'], // FIXME: remove this and uncomment rbac
-    // rbac: [
-    //   '/abc/programs/test_program/projects/test_project1',
-    //   '/abc/programs/test_program2/projects/test_project3'
-    // ],
+    acl: [],
+    rbac: [
+      '/abc/programs/test_program/projects/test_project1',
+      '/abc/programs/test_program2/projects/test_project3'
+    ],
     size: 11,
   }
 }
@@ -133,16 +133,16 @@ let new_gen3_records = {
     filename: 'testdata',
     link: 's3://cdis-presigned-url-test/testdata',
     md5: '73d643ec3f4beb9020eef0beed440ad4',
-    acl: ['*'], // FIXME: remove this and uncomment rbac
-    // rbac: ['/gen3/programs/test/projects/test'],
+    acl: [],
+    rbac: ['/gen3/programs/test/projects/test'],
     size: 9,
   },
   deleteMe: {
     filename: 'testdata',
     link: 's3://cdis-presigned-url-test/testdata',
     md5: '73d643ec3f4beb9020eef0beed440ac0',
-    acl: ['*'], // FIXME: remove this and uncomment rbac
-    // rbac: ['/gen3/programs/test/projects/test'],
+    acl: [],
+    rbac: ['/gen3/programs/test/projects/test'],
     size: 12,
   }
 }
@@ -152,16 +152,16 @@ let new_abc_records = {
     filename: 'testdata',
     link: 's3://cdis-presigned-url-test/testdata',
     md5: '73d643ec3f4beb9020eef0beed440ad5',
-    acl: ['*'], // FIXME: remove this and uncomment rbac
-    // rbac: ['/abc/programs/foo'],
+    acl: [],
+    rbac: ['/abc/programs/foo'],
     size: 9,
   },
   deleteMe: {
     filename: 'testdata',
     link: 's3://cdis-presigned-url-test/testdata',
     md5: '73d643ec3f4beb9020eef0beed440ac1',
-    acl: ['*'], // FIXME: remove this and uncomment rbac
-    // rbac: ['/abc/programs/foo/projects/bar'],
+    acl: [],
+    rbac: ['/abc/programs/foo/projects/bar'],
     size: 12,
   }
 }
@@ -206,7 +206,7 @@ After(async (fence, users, indexd) => {
 /*
    - Test that user without policies can't CRUD records in /gen3 or /abc
 */
-Scenario('User without policies cannot CRUD indexd records in /gen3 or /abc @rbac',
+Scenario('User without policies cannot CRUD indexd records in /gen3 or /abc @centralizedAuth',
   async (fence, indexd, users, files) => {
     return; // FIXME: skip test for now
     // create
@@ -282,7 +282,7 @@ Scenario('User without policies cannot CRUD indexd records in /gen3 or /abc @rba
      record, and deleting in indexD with rbac /abc (should work),
      make sure they still can't create, read, update OR delete in /gen3
 */
-Scenario('User with access can CRUD indexd records in namespace, not outside namespace @rbac',
+Scenario('User with access can CRUD indexd records in namespace, not outside namespace @centralizedAuth',
   async (fence, indexd, users, files) => {
     return; // FIXME: skip test for now
     // create
@@ -363,7 +363,7 @@ Scenario('User with access can CRUD indexd records in namespace, not outside nam
 /*
    - Test the same thing as above, but use a client's access_token for that user
 */
-Scenario('Client (with access) with user token (with access) can CRUD indexd records in namespace, not outside namespace @rbac',
+Scenario('Client (with access) with user token (with access) can CRUD indexd records in namespace, not outside namespace @centralizedAuth',
   async (fence, indexd, users, files) => {
     return; // FIXME: skip test for now
     // NOTE: default CLIENT is abc-admin and gen3-admin
@@ -450,7 +450,7 @@ Scenario('Client (with access) with user token (with access) can CRUD indexd rec
      signed urls for data under /gen3. Ensure that successful signed urls actually
      allow reading data.
 */
-Scenario('Client (with access) with user token (with access) can create signed urls for records in namespace, not outside namespace @rbac',
+Scenario('Client (with access) with user token (with access) can create signed urls for records in namespace, not outside namespace @centralizedAuth',
   async (fence, indexd, users, files) => {
     return; // FIXME: skip test for now
     // NOTE: users.mainAcct and CLIENTB have abc-admin role
@@ -486,7 +486,7 @@ Scenario('Client (with access) with user token (with access) can create signed u
 /*
    - Test client WITH access creating signed urls for data for user WITHOUT access in namespace.
 */
-Scenario('Client (with access) with user token (WITHOUT access) in namespace @rbac',
+Scenario('Client (with access) with user token (WITHOUT access) in namespace @centralizedAuth',
   async (fence, indexd, users, files) => {
     return; // FIXME: skip test for now
     // NOTE: users.mainAcct has access to /abc NOT /gen3
@@ -511,7 +511,7 @@ Scenario('Client (with access) with user token (WITHOUT access) in namespace @rb
 /*
    - Test client WITHOUT access creating signed urls for data for user WITH access in namespace.
 */
-Scenario('Client (WITHOUT access) with user token (with access) in namepsace @rbac',
+Scenario('Client (WITHOUT access) with user token (with access) in namepsace @centralizedAuth',
   async (fence, indexd, users, files) => {
     return; // FIXME: skip test for now
     // clientb only has access to /abc
@@ -536,7 +536,7 @@ Scenario('Client (WITHOUT access) with user token (with access) in namepsace @rb
 /*
    - Test that a user with `abc-admin` can create signed urls with their own access_token
 */
-Scenario('User with access can create signed urls for records in namespace, not outside namespace @rbac',
+Scenario('User with access can create signed urls for records in namespace, not outside namespace @centralizedAuth',
   async (fence, indexd, users, files) => {
     return; // FIXME: skip test for now
     // users.mainAcct has abc-admin role
@@ -567,7 +567,7 @@ Scenario('User with access can create signed urls for records in namespace, not 
    - Test client flow to get id_token, compare to what's in userinfo endpoint, ensure
      RBAC policy information is there
 */
-Scenario('Test client flow to get id_token, compare to what is in userinfo endpoint, @rbac',
+Scenario('Test client flow to get id_token, compare to what is in userinfo endpoint, @centralizedAuth',
   async (fence, indexd, users, files) => {
     return; // FIXME: skip test for now
     const tokenRes = await fence.complete.getUserTokensWithClient(users.mainAcct);
@@ -606,7 +606,7 @@ Scenario('Test client flow to get id_token, compare to what is in userinfo endpo
    - Create some records in indexd with AND logic, have CLIENTB try to create signed
      url for file for user that does NOT have necessary permissions, ensure failure.
 */
-Scenario('Client with user token WITHOUT permission CANNOT create signed URL for record with rbac AND logic @rbac',
+Scenario('Client with user token WITHOUT permission CANNOT create signed URL for record with rbac AND logic @centralizedAuth',
   async (fence, indexd, users, files) => {
     return; // FIXME: skip test for now
     // users.auxAcct1 does not have access to both resources
@@ -632,7 +632,7 @@ Scenario('Client with user token WITHOUT permission CANNOT create signed URL for
    - Same as above test but user DOES have permissions. Ensure successful signed URL that
      we can access data with
 */
-Scenario('Client with user token WITH permission CAN create signed URL for record with rbac AND logic @rbac',
+Scenario('Client with user token WITH permission CAN create signed URL for record with rbac AND logic @centralizedAuth',
   async (fence, indexd, users, files) => {
     return; // FIXME: skip test for now
     // users.mainAcct does have access to both resources

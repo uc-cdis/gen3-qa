@@ -162,8 +162,12 @@ if ! (g3kubectl get pods --no-headers -l app=ssjdispatcher | grep ssjdispatcher)
 fi
 
 testArgs="--reporter mocha-multi"
-if [[ -n "$doNotRunRegex" ]]; then
-  testArgs="${testArgs} --grep '${doNotRunRegex}' --invert"
+
+# TODO: eventually enable for all services, but need arborist and fence changes tested
+#       and merged first
+if [[ "$service" != "arborist" && "$service" != "gen3-qa" ]]; then
+  echo "INFO: disabling Centralized Auth tests for $service"
+  donot '@centralizedAuth'
 fi
 
 (

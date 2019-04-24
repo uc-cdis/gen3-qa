@@ -134,6 +134,9 @@ module.exports = {
       client.secret, code, 'authorization_code',
     );
 
+    fenceQuestions.asssertTokensSuccess(
+      res, `Did not get client (${client.id}) tokens for user (${user.username}) successfully.`);
+
     return res;
   },
 
