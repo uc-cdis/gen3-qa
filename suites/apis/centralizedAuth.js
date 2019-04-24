@@ -59,7 +59,7 @@ dbgap syncing tests would be good too (since all these rely on user.yaml)
 Default Authorization Details
 ------------------------------------
 
-Access details from defualt usersync:
+Access details from default usersync:
 
 Create CLIENT with `abc-admin` and `gen3-admin` policy (CRUD under /abc and /gen3)
 Create ABC_CLIENT with `abc-admin` policy (CRUD under /abc)
@@ -501,7 +501,7 @@ Scenario('Client (with access) with user token (WITHOUT access) in namespace @ce
 /*
    - Test client WITHOUT access creating signed urls for data for user WITH access in namespace.
 */
-Scenario('Client (WITHOUT access) with user token (with access) in namepsace @centralizedAuth',
+Scenario('Client (WITHOUT access) with user token (with access) in namespace @centralizedAuth',
   async (fence, indexd, users, files) => {
     return; // FIXME: skip test for now
     // abcClient only has access to /abc
