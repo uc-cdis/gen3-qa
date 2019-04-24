@@ -29,7 +29,7 @@ module.exports = {
   async addFileIndices(files, headers = user.mainAcct.indexdAuthHeader) {
     headers['Content-Type'] = 'application/json; charset=UTF-8';
     const promiseList = files.map((file) => {
-      if (file.did === null || file.did === undefined) {
+      if (!file.did) {
         file.did = uuid.v4().toString();
       }
       const data = {
