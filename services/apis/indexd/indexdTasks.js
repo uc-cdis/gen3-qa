@@ -46,7 +46,7 @@ module.exports = {
       if (file.link) {
         data.urls = [file.link];
       }
-      if (file.rbac !== null && file.rbac !== undefined) {
+      if (file.rbac) {
         data.rbac = file.rbac;
       }
       return data;
