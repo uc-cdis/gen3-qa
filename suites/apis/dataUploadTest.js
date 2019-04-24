@@ -102,14 +102,13 @@ Scenario('File upload and download via API calls @dataUpload', async (fence, use
   // try to submit metadata for this file again
   sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5, submitter_id='submitter_id_new_value');
   sheepdog.ask.addNodeSuccess(sheepdogRes);
-});
+}).retry(2);
 
 /**
  * A user who does not have upload access should not be able to upload
  * or download files
  */
-Scenario('User without role cannot upload @dataUpload', async (fence, users, nodes, indexd) => {
-
+Scenario('User without role cannot upload @dataUpload', async (fence, users) => {
   // this user does not have the appropriate role
   let token = users.auxAcct1.accessTokenHeader;
 
@@ -119,7 +118,7 @@ Scenario('User without role cannot upload @dataUpload', async (fence, users, nod
   // fence should not let this user upload
   fence.ask.hasNoUrl(fenceUploadRes);
   fence.ask.assertStatusCode(fenceUploadRes, 403, 'This user should not be able to download');
-});
+}).retry(2);
 
 /**
  * This time, use the gen3 data client to upload and download the file
@@ -265,7 +264,7 @@ Scenario('Upload the same file twice @dataUpload', async (sheepdog, indexd, node
     signedUrlRes,
     fileContents,
   );
-});
+}).retry(2);
 
 BeforeSuite(async (dataClient, fence, users, sheepdog, indexd, files) => {
   // clean up in sheepdog

@@ -12,6 +12,7 @@ const { Commons } = require('./utils/commons');
 const { Bash, takeLastLine } = require('./utils/bash');
 const users = require('./utils/user');
 const apiUtil = require('./utils/apiUtil');
+const google = require('./utils/google.js');
 const fenceProps = require('./services/apis/fence/fenceProps');
 const DEFAULT_TOKEN_EXP = 3600;
 const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
@@ -151,24 +152,87 @@ function assertGen3Client() {
  * exist, and link them to the Google buckets used in the tests
  */
 function createGoogleTestBuckets() {
-  console.log('Ensure test buckets are linked to projects in this commons...');
+  try {
+    console.log('Ensure test buckets are linked to projects in this commons...');
 
-  var bucketId = fenceProps.googleBucketInfo.QA.bucketId;
-  var googleProjectId = fenceProps.googleBucketInfo.QA.googleProjectId;
-  var projectAuthId = 'QA';
-  var fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
-  console.log(`Running: ${fenceCmd}`);
-  bash.runCommand(fenceCmd, 'fence');
+    var bucketId = fenceProps.googleBucketInfo.QA.bucketId;
+    var googleProjectId = fenceProps.googleBucketInfo.QA.googleProjectId;
+    var projectAuthId = 'QA';
+    var fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
+    console.log(`Running: ${fenceCmd}`);
+    bash.runCommand(fenceCmd, 'fence');
 
-  bucketId = fenceProps.googleBucketInfo.test.bucketId
-  googleProjectId = fenceProps.googleBucketInfo.test.googleProjectId
-  projectAuthId = 'test';
-  fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
-  console.log(`Running: ${fenceCmd}`);
-  response = bash.runCommand(fenceCmd, 'fence');
+    bucketId = fenceProps.googleBucketInfo.test.bucketId
+    googleProjectId = fenceProps.googleBucketInfo.test.googleProjectId
+    projectAuthId = 'test';
+    fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
+    console.log(`Running: ${fenceCmd}`);
+    response = bash.runCommand(fenceCmd, 'fence');
 
-  console.log('Clean up Google Bucket Access Groups from previous runs...');
-  bash.runJob('google-verify-bucket-access-group');
+    console.log('Clean up Google Bucket Access Groups from previous runs...');
+    bash.runJob('google-verify-bucket-access-group');
+  }
+  catch (e) {
+    if (inJenkins) {
+      throw e;
+    }
+    console.log('WARNING: unable to create Google test buckets. You can ignore this message if you do not want to run Google data access tests.');
+  }
+}
+
+async function setupGoogleProjectDynamic() {
+  // Update the id and SA email depending on the current namespace
+  if (process.env.RUNNING_LOCAL) { // local run
+    namespace = 'validationjobtest';
+  }
+  else { // jenkins run. a google project exists for each jenkins env
+    namespace = process.env.NAMESPACE;
+  }
+  fenceProps.googleProjectDynamic.id = fenceProps.googleProjectDynamic.id.replace(
+    'NAMESPACE',
+    namespace
+  );
+  fenceProps.googleProjectDynamic.serviceAccountEmail = fenceProps.googleProjectDynamic.serviceAccountEmail.replace(
+    'NAMESPACE',
+    namespace
+  );
+  console.log(`googleProjectDynamic: ${fenceProps.googleProjectDynamic.id}`);
+
+  // Add the IAM access needed by the monitor service account
+  const monitorRoles = [
+    'roles/resourcemanager.projectIamAdmin',
+    'roles/editor'
+  ];
+  for (var role of monitorRoles) {
+    let res = await google.updateUserRole(
+      fenceProps.googleProjectDynamic.id,
+      {
+        role,
+        members: [`serviceAccount:${fenceProps.monitorServiceAccount}`]
+      }
+    );
+    if (res.code) {
+      console.error(res);
+      let msg = `Failed to update monitor SA roles in Google project ${fenceProps.googleProjectDynamic.id} (owner ${fenceProps.googleProjectDynamic.owner}).`
+      if (inJenkins) {
+        throw Error(msg);
+      }
+      console.log('WARNING: ' + msg);
+    }
+  }
+
+  // If there are existing keys on the "user service account", delete them
+  const saName = `service-account@gen3qa-${namespace}.iam.gserviceaccount.com`;
+  const saKeys = await google.listServiceAccountKeys(fenceProps.googleProjectDynamic.id, saName);
+  if (!saKeys.keys) {
+    console.error(saKeys);
+    console.log(`WARNING: cannot get list of keys on service account ${saName}.`);
+  }
+  else {
+    saKeys.keys.map(async (key) => {
+      res = await google.deleteServiceAccountKey(key.name);
+    })
+  }
 }
 
 /**
@@ -273,6 +337,7 @@ module.exports = async function (done) {
 
     if (isIncluded('@reqGoogle')) {
       createGoogleTestBuckets();
+      await setupGoogleProjectDynamic();
     }
 
     // Create a program and project (does nothing if already exists)

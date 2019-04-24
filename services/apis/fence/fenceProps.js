@@ -34,7 +34,6 @@ module.exports = {
     registerGoogleServiceAccount: `${rootEndpoint}/google/service_accounts`,
     deleteGoogleServiceAccount: `${rootEndpoint}/google/service_accounts`,
     getGoogleServiceAccounts: `${rootEndpoint}/google/service_accounts`,
-    getGoogleServiceAccountMonitor: `${rootEndpoint}/google/service_accounts/monitor`,
     authorizeOAuth2Client: `${rootEndpoint}/oauth2/authorize`,
     tokenOAuth2Client: `${rootEndpoint}/oauth2/token`,
     userEndPoint: `${rootEndpoint}/user`,
@@ -42,6 +41,8 @@ module.exports = {
     uploadFile: `${rootEndpoint}/data/upload`,
     deleteFile: `${rootEndpoint}/data`,
   },
+
+  monitorServiceAccount: 'fence-service@dcf-integration.iam.gserviceaccount.com',
 
   /**
    * Project.auth_ids to bucket info
@@ -360,14 +361,17 @@ module.exports = {
     owner: 'gen3.autotest@gmail.com',
   },
 
-  // used when the tests need to modify the google project/SAs
+  // Used when the tests need to modify the google project itself.
+  // Note: the id and email are updated during test_setup depending
+  // on the current namespace
   googleProjectDynamic: {
     // -fence SA in project:                  true
     // -has a parent organization:            false
     // -has service acct with invalid type:   false
     // -has a service acct with key:          false
-    id: 'gen3qa-validationjobtest',
-    serviceAccountEmail: 'service-account@gen3qa-validationjobtest.iam.gserviceaccount.com',
+    id: 'gen3qa-NAMESPACE',
+    // id: 'gen3qa-validationjobtest',
+    serviceAccountEmail: 'service-account@gen3qa-NAMESPACE.iam.gserviceaccount.com',
     defaultIsValidGCP: true,
     owner: 'gen3.autotest@gmail.com',
   },

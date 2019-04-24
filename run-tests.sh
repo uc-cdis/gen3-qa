@@ -31,6 +31,12 @@ dryrun() {
   fi
 }
 
+
+# environments that use DCF features
+# we only run Google Data Access tests for cdis-manifest PRs to these
+envsRequireGoogle="dcp.bionimbus.org gen3.datastage.io nci-crdc-staging.datacommons.io nci-crdc.datacommons.io"
+
+
 #
 # DataClientCLI tests require a fix to avoid parallel test runs
 # contending over config files in the home directory
@@ -131,10 +137,6 @@ dryrun npm ci
 
 exitCode=0
 
-
-# environments that use DCF features
-# we will run Google Data Access tests for cdis-manifest PRs to these
-envsRequireGoogle="dcp.bionimbus.org gen3.datastage.io nci-crdc-demo.datacommons.io nci-crdc-staging.datacommons.io nci-crdc.datacommons.io"
 
 #
 # Google Data Access tests are not yet stable enough to run in all PR's -
