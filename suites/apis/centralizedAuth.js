@@ -511,7 +511,7 @@ Scenario('Client (with access) with user token (WITHOUT access) in namespace @ce
 /*
    - Test client WITHOUT access creating signed urls for data for user WITH access in namespace.
 */
-Scenario('Client (WITHOUT access) with user token (with access) in namepsace @centralizedAuth',
+Scenario('Client (WITHOUT access) with user token (with access) in namespace @centralizedAuth',
   async (fence, indexd, users, files) => {
     return; // FIXME: skip test for now
     // clientb only has access to /abc
