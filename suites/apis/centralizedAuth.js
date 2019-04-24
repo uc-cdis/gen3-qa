@@ -60,7 +60,7 @@ dbgap syncing tests would be good too (since all these rely on user.yaml)
 Default Authorization Details
 ------------------------------------
 
-Access details from defualt usersync:
+Access details from default usersync:
 
 Create CLIENT with `abc-admin` and `gen3-admin` policy (CRUD under /abc and /gen3)
 Create CLIENTB with `abc-admin` policy (CRUD under /abc)
