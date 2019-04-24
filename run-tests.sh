@@ -170,6 +170,9 @@ if [[ "$service" != "arborist" && "$service" != "gen3-qa" ]]; then
   donot '@centralizedAuth'
 fi
 
+# TODO: eventually remove this. indexd PR not ready yet
+donot '@indexdJWT'
+
 (
   export NAMESPACE="$namespaceName"
   cat - <<EOM
