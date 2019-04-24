@@ -43,7 +43,7 @@ module.exports = {
         metadata: file.metadata,
       };
 
-      if (file.link !== null && file.link !== undefined) {
+      if (file.link) {
         data.urls = [file.link];
       }
       if (file.rbac !== null && file.rbac !== undefined) {
