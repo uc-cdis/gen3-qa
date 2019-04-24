@@ -431,11 +431,17 @@ module.exports = {
     owner: 'gen3.autotest@gmail.com',
   },
 
+  /*
+  Clients are expected to have the following authZ policies:
+
+  client/CLIENT has both abc-admin and gen3-admin
+  abcClient/ABC_CLIENT has abc-admin
+  */
   clients: {
     client: new Client({
       envVarsName: 'CLIENT',
     }),
-    clientb: new Client({
+    abcClient: new Client({
       envVarsName: 'ABC_CLIENT',
     }),
     clientImplicit: new Client({

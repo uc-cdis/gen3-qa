@@ -284,8 +284,8 @@ module.exports = async function (done) {
     const basicClient = createClient('basic-test-client', 'test-client@example.com', 'basic');
 
     console.log('Delete then create another basic client...\n');
-    deleteClient('basic-test-clientb');
-    const basicClientb = createClient('basic-test-clientb', 'test-clientb@example.com', 'basic');
+    deleteClient('basic-test-abc-client');
+    const basicAbcClient = createClient('basic-test-abc-client', 'test-abc-client@example.com', 'basic');
 
     console.log('Delete then create implicit client...\n');
     deleteClient('implicit-test-client');
@@ -294,8 +294,8 @@ module.exports = async function (done) {
     //Setup environment variables
     process.env[`${fenceProps.clients.client.envVarsName}_ID`] = basicClient.client_id;
     process.env[`${fenceProps.clients.client.envVarsName}_SECRET`] = basicClient.client_secret;
-    process.env[`${fenceProps.clients.clientb.envVarsName}_ID`] = basicClientb.client_id;
-    process.env[`${fenceProps.clients.clientb.envVarsName}_SECRET`] = basicClientb.client_secret;
+    process.env[`${fenceProps.clients.abcClient.envVarsName}_ID`] = basicAbcClient.client_id;
+    process.env[`${fenceProps.clients.abcClient.envVarsName}_SECRET`] = basicAbcClient.client_secret;
     process.env[`${fenceProps.clients.clientImplicit.envVarsName}_ID`] = implicitClient.client_id;
 
     // Export expired access token for main acct

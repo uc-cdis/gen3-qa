@@ -30,7 +30,7 @@ Test Plan
 
    - Test the same thing as above, but use a client's access_token for that user
 
-2) - Test CLIENTB creating signed urls for data under /abc, ensure they cannot create
+2) - Test ABC_CLIENT creating signed urls for data under /abc, ensure they cannot create
      signed urls for data under /gen3. Ensure that successful signed urls actually
      allow reading data.
 
@@ -44,12 +44,11 @@ Test Plan
      RBAC policy information is there
         > NOTE: there is an existing test that might satisfy this with a few updates
 
-4) - Create some records in indexd with AND logic, have CLIENTB try to create signed
+4) - Create some records in indexd with AND logic, have ABC_CLIENT try to create signed
      url for file for user that does NOT have necessary permissions, ensure failure.
 
    - Same as above but user DOES have permissions. Ensure successfull signed URL that
      we can access data with
-
 
 We probably want some tests to make sure that after usersyncing and changing a user's
 policies, they can no longer create signed urls?
@@ -63,7 +62,7 @@ Default Authorization Details
 Access details from defualt usersync:
 
 Create CLIENT with `abc-admin` and `gen3-admin` policy (CRUD under /abc and /gen3)
-Create CLIENTB with `abc-admin` policy (CRUD under /abc)
+Create ABC_CLIENT with `abc-admin` policy (CRUD under /abc)
 
 cdis.autotest@gmail.com (mainAcct)
     - abc-admin
@@ -89,15 +88,6 @@ const fs = require('fs');
 
 const I = actor();
 
-/*
-for twoProjectsFile, use cdis.autotest@gmail.com
-
-Each has ONE of these policies:
-    dummy-one@planx-pla.net (auxAcct1)
-        - abc.programs.test_program.projects.test_project1-viewer
-    smarty-two@planx-pla.net (auxAcct2)
-        - abc.programs.test_program2.projects.test_project3-viewer
-*/
 const indexed_files = {
   abcFooBarFile: {
     filename: 'testdata',
@@ -206,7 +196,7 @@ After(async (fence, users, indexd) => {
 /*
    - Test that user without policies can't CRUD records in /gen3 or /abc
 */
-Scenario('User without policies cannot CRUD indexd records in /gen3 or /abc @centralizedAuth',
+Scenario('User without policies cannot CRUD indexd records in /gen3 or /abc @indexdJWT',
   async (fence, indexd, users, files) => {
     return; // FIXME: skip test for now
     // create
@@ -214,27 +204,6 @@ Scenario('User without policies cannot CRUD indexd records in /gen3 or /abc @cen
         Object.values(new_gen3_records), users.user2.accessTokenHeader);
     const abc_create_success = await indexd.do.addFileIndices(
         Object.values(new_abc_records), users.user2.accessTokenHeader);
-
-    // read
-    const gen3_read_response = indexd.do.getFile(
-        new_gen3_records.fooBarFile, users.user2.accessTokenHeader)
-    const abc_read_response = indexd.do.getFile(
-        new_abc_records.fooBarFile, users.user2.accessTokenHeader)
-
-    // update
-    const filename_change = {
-      'file_name': 'test_filename'
-    }
-    const gen3_update_response = indexd.do.updateFile(
-        new_gen3_records.fooBarFile, filename_change, users.user2.accessTokenHeader)
-    const abc_update_response = indexd.do.updateFile(
-        new_abc_records.fooBarFile, filename_change, users.user2.accessTokenHeader)
-
-    // delete
-    const gen3_delete_response = indexd.do.deleteFile(
-        new_gen3_records.deleteMe, users.user2.accessTokenHeader)
-    const abc_delete_response = indexd.do.deleteFile(
-        new_abc_records.deleteMe, users.user2.accessTokenHeader)
 
     // asserts for create
     chai.expect(
@@ -246,6 +215,12 @@ Scenario('User without policies cannot CRUD indexd records in /gen3 or /abc @cen
       'uh oh, user without permission was able to register files to indexd under `/abc`'
     ).to.be.false;
 
+    // read
+    const gen3_read_response = indexd.do.getFile(
+        new_gen3_records.fooBarFile, users.user2.accessTokenHeader)
+    const abc_read_response = indexd.do.getFile(
+        new_abc_records.fooBarFile, users.user2.accessTokenHeader)
+
     // asserts for read
     fenceQuestions.assertStatusCode(
         gen3_read_response, 403,
@@ -256,6 +231,15 @@ Scenario('User without policies cannot CRUD indexd records in /gen3 or /abc @cen
         msg='should have gotten unauthorized for reading record under `/abc`'
     );
 
+    // update
+    const filename_change = {
+      'file_name': 'test_filename'
+    }
+    const gen3_update_response = indexd.do.updateFile(
+        new_gen3_records.fooBarFile, filename_change, users.user2.accessTokenHeader)
+    const abc_update_response = indexd.do.updateFile(
+        new_abc_records.fooBarFile, filename_change, users.user2.accessTokenHeader)
+
     // asserts for update
     fenceQuestions.assertStatusCode(
         gen3_update_response, 403,
@@ -265,6 +249,12 @@ Scenario('User without policies cannot CRUD indexd records in /gen3 or /abc @cen
         abc_update_response, 403,
         msg='should have gotten unauthorized for updating record under `/abc`'
     );
+
+    // delete
+    const gen3_delete_response = indexd.do.deleteFile(
+        new_gen3_records.deleteMe, users.user2.accessTokenHeader)
+    const abc_delete_response = indexd.do.deleteFile(
+        new_abc_records.deleteMe, users.user2.accessTokenHeader)
 
     // asserts for delete
     fenceQuestions.assertStatusCode(
@@ -282,7 +272,7 @@ Scenario('User without policies cannot CRUD indexd records in /gen3 or /abc @cen
      record, and deleting in indexD with rbac /abc (should work),
      make sure they still can't create, read, update OR delete in /gen3
 */
-Scenario('User with access can CRUD indexd records in namespace, not outside namespace @centralizedAuth',
+Scenario('User with access can CRUD indexd records in namespace, not outside namespace @indexdJWT',
   async (fence, indexd, users, files) => {
     return; // FIXME: skip test for now
     // create
@@ -290,27 +280,6 @@ Scenario('User with access can CRUD indexd records in namespace, not outside nam
         Object.values(new_gen3_records), users.mainAcct.accessTokenHeader);
     const abc_create_success = await indexd.do.addFileIndices(
         Object.values(new_abc_records), users.mainAcct.accessTokenHeader);
-
-    // read
-    const gen3_read_response = indexd.do.getFile(
-        new_gen3_records.fooBarFile, users.mainAcct.accessTokenHeader)
-    const abc_read_response = indexd.do.getFile(
-        new_abc_records.fooBarFile, users.mainAcct.accessTokenHeader)
-
-    // update
-    const filename_change = {
-      'file_name': 'test_filename'
-    }
-    const gen3_update_response = indexd.do.updateFile(
-        new_gen3_records.fooBarFile, filename_change, users.mainAcct.accessTokenHeader)
-    const abc_update_response = indexd.do.updateFile(
-        new_abc_records.fooBarFile, filename_change, users.mainAcct.accessTokenHeader)
-
-    // delete
-    const gen3_delete_response = indexd.do.deleteFile(
-        new_gen3_records.deleteMe, users.mainAcct.accessTokenHeader)
-    const abc_delete_response = indexd.do.deleteFile(
-        new_abc_records.deleteMe, users.mainAcct.accessTokenHeader)
 
     // asserts for create
     chai.expect(
@@ -322,6 +291,12 @@ Scenario('User with access can CRUD indexd records in namespace, not outside nam
       'user with permission was NOT able to register files to indexd under `/abc`'
     ).to.be.true;
 
+    // read
+    const gen3_read_response = indexd.do.getFile(
+        new_gen3_records.fooBarFile, users.mainAcct.accessTokenHeader)
+    const abc_read_response = indexd.do.getFile(
+        new_abc_records.fooBarFile, users.mainAcct.accessTokenHeader)
+
     // asserts for read
     fenceQuestions.assertStatusCode(
         gen3_read_response, 403,
@@ -331,6 +306,15 @@ Scenario('User with access can CRUD indexd records in namespace, not outside nam
         abc_read_response, 200,
         msg='user with permission could not read record under `/abc`'
     );
+
+    // update
+    const filename_change = {
+      'file_name': 'test_filename'
+    }
+    const gen3_update_response = indexd.do.updateFile(
+        new_gen3_records.fooBarFile, filename_change, users.mainAcct.accessTokenHeader)
+    const abc_update_response = indexd.do.updateFile(
+        new_abc_records.fooBarFile, filename_change, users.mainAcct.accessTokenHeader)
 
     // asserts for update
     fenceQuestions.assertStatusCode(
@@ -348,6 +332,12 @@ Scenario('User with access can CRUD indexd records in namespace, not outside nam
         abc_read_response.file_name,
         'update record response does not have filename we updated it with'
     ).to.have.string('test_filename');
+
+    // delete
+    const gen3_delete_response = indexd.do.deleteFile(
+        new_gen3_records.deleteMe, users.mainAcct.accessTokenHeader)
+    const abc_delete_response = indexd.do.deleteFile(
+        new_abc_records.deleteMe, users.mainAcct.accessTokenHeader)
 
     // asserts for delete
     fenceQuestions.assertStatusCode(
@@ -363,7 +353,7 @@ Scenario('User with access can CRUD indexd records in namespace, not outside nam
 /*
    - Test the same thing as above, but use a client's access_token for that user
 */
-Scenario('Client (with access) with user token (with access) can CRUD indexd records in namespace, not outside namespace @centralizedAuth',
+Scenario('Client (with access) with user token (with access) can CRUD indexd records in namespace, not outside namespace @indexdJWT',
   async (fence, indexd, users, files) => {
     return; // FIXME: skip test for now
     // NOTE: default CLIENT is abc-admin and gen3-admin
@@ -372,30 +362,9 @@ Scenario('Client (with access) with user token (with access) can CRUD indexd rec
 
     // create
     const gen3_create_success = await indexd.do.addFileIndices(
-        Object.values(new_gen3_records), apiUtil.getAccessTokenHeader(users.mainAcct.accessToken));
+        Object.values(new_gen3_records), apiUtil.getAccessTokenHeader(accessToken));
     const abc_create_success = await indexd.do.addFileIndices(
-        Object.values(new_abc_records), apiUtil.getAccessTokenHeader(users.mainAcct.accessToken));
-
-    // read
-    const gen3_read_response = indexd.do.getFile(
-        new_gen3_records.fooBarFile, apiUtil.getAccessTokenHeader(users.mainAcct.accessToken))
-    const abc_read_response = indexd.do.getFile(
-        new_abc_records.fooBarFile, apiUtil.getAccessTokenHeader(users.mainAcct.accessToken))
-
-    // update
-    const filename_change = {
-      'file_name': 'test_filename'
-    }
-    const gen3_update_response = indexd.do.updateFile(
-        new_gen3_records.fooBarFile, filename_change, apiUtil.getAccessTokenHeader(users.mainAcct.accessToken))
-    const abc_update_response = indexd.do.updateFile(
-        new_abc_records.fooBarFile, filename_change, apiUtil.getAccessTokenHeader(users.mainAcct.accessToken))
-
-    // delete
-    const gen3_delete_response = indexd.do.deleteFile(
-        new_gen3_records.deleteMe, apiUtil.getAccessTokenHeader(users.mainAcct.accessToken))
-    const abc_delete_response = indexd.do.deleteFile(
-        new_abc_records.deleteMe, apiUtil.getAccessTokenHeader(users.mainAcct.accessToken))
+        Object.values(new_abc_records), apiUtil.getAccessTokenHeader(accessToken));
 
     // asserts for create
     chai.expect(
@@ -407,6 +376,12 @@ Scenario('Client (with access) with user token (with access) can CRUD indexd rec
       'user with permission was NOT able to register files to indexd under `/abc`'
     ).to.be.true;
 
+    // read
+    const gen3_read_response = indexd.do.getFile(
+        new_gen3_records.fooBarFile, apiUtil.getAccessTokenHeader(accessToken))
+    const abc_read_response = indexd.do.getFile(
+        new_abc_records.fooBarFile, apiUtil.getAccessTokenHeader(accessToken))
+
     // asserts for read
     fenceQuestions.assertStatusCode(
         gen3_read_response, 403,
@@ -416,6 +391,15 @@ Scenario('Client (with access) with user token (with access) can CRUD indexd rec
         abc_read_response, 200,
         msg='user with permission could not read record under `/abc`'
     );
+
+    // update
+    const filename_change = {
+      'file_name': 'test_filename'
+    }
+    const gen3_update_response = indexd.do.updateFile(
+        new_gen3_records.fooBarFile, filename_change, apiUtil.getAccessTokenHeader(accessToken))
+    const abc_update_response = indexd.do.updateFile(
+        new_abc_records.fooBarFile, filename_change, apiUtil.getAccessTokenHeader(accessToken))
 
     // asserts for update
     fenceQuestions.assertStatusCode(
@@ -434,6 +418,12 @@ Scenario('Client (with access) with user token (with access) can CRUD indexd rec
         'update record response does not have filename we updated it with'
     ).to.have.string('test_filename');
 
+    // delete
+    const gen3_delete_response = indexd.do.deleteFile(
+        new_gen3_records.deleteMe, apiUtil.getAccessTokenHeader(accessToken))
+    const abc_delete_response = indexd.do.deleteFile(
+        new_abc_records.deleteMe, apiUtil.getAccessTokenHeader(accessToken))
+
     // asserts for delete
     fenceQuestions.assertStatusCode(
         gen3_delete_response, 403,
@@ -446,27 +436,27 @@ Scenario('Client (with access) with user token (with access) can CRUD indexd rec
 });
 
 /*
-   - Test CLIENTB creating signed urls for data under /abc, ensure they cannot create
+   - Test ABC_CLIENT creating signed urls for data under /abc, ensure they cannot create
      signed urls for data under /gen3. Ensure that successful signed urls actually
      allow reading data.
 */
 Scenario('Client (with access) with user token (with access) can create signed urls for records in namespace, not outside namespace @centralizedAuth',
   async (fence, indexd, users, files) => {
     return; // FIXME: skip test for now
-    // NOTE: users.mainAcct and CLIENTB have abc-admin role
+    // NOTE: users.mainAcct and ABC_CLIENT have abc-admin role
     const tokenRes = await fence.complete.getUserTokensWithClient(
-      users.mainAcct, fence.props.clients.clientb);
+      users.mainAcct, fence.props.clients.abcClient);
     const accessToken = tokenRes.body.access_token;
 
     console.log('Use mainAcct to create signed URL for file under `/abc`')
     // NOTE: passing in accessToken to accessTokenHeader overrides the default one with
     // the one from the client
     const signedUrlAbcRes = await fence.do.createSignedUrlForUser(
-      indexed_files.abcFooBarFile.did, apiUtil.getAccessTokenHeader(users.mainAcct.accessToken));
+      indexed_files.abcFooBarFile.did, apiUtil.getAccessTokenHeader(accessToken));
 
     console.log('Use mainAcct to create signed URL for file under `/gen3`')
     const signedUrlGen3Res = await fence.do.createSignedUrlForUser(
-      indexed_files.gen3TestTestFile.did, apiUtil.getAccessTokenHeader(users.mainAcct.accessToken));
+      indexed_files.gen3TestTestFile.did, apiUtil.getAccessTokenHeader(accessToken));
 
     let fileAbcContents = await fence.do.getFileFromSignedUrlRes(
       signedUrlAbcRes);
@@ -497,7 +487,7 @@ Scenario('Client (with access) with user token (WITHOUT access) in namespace @ce
 
     console.log('Use mainAcct to create signed URL for file under `/gen3`')
     const signedUrlGen3Res = await fence.do.createSignedUrlForUser(
-      indexed_files.gen3TestTestFile.did, apiUtil.getAccessTokenHeader(users.mainAcct.accessToken));
+      indexed_files.gen3TestTestFile.did, apiUtil.getAccessTokenHeader(accessToken));
 
     let fileGen3Contents = await fence.do.getFileFromSignedUrlRes(
       signedUrlGen3Res);
@@ -514,15 +504,15 @@ Scenario('Client (with access) with user token (WITHOUT access) in namespace @ce
 Scenario('Client (WITHOUT access) with user token (with access) in namepsace @centralizedAuth',
   async (fence, indexd, users, files) => {
     return; // FIXME: skip test for now
-    // clientb only has access to /abc
+    // abcClient only has access to /abc
     // user0 only access to /gen3
     const tokenRes = await fence.complete.getUserTokensWithClient(
-      users.user0, fence.props.clients.clientb);
+      users.user0, fence.props.clients.abcClient);
     const accessToken = tokenRes.body.access_token;
 
     console.log('Use user0 to create signed URL for file under `/gen3`')
     const signedUrlGen3Res = await fence.do.createSignedUrlForUser(
-      indexed_files.gen3TestTestFile.did, apiUtil.getAccessTokenHeader(users.user0.accessToken));
+      indexed_files.gen3TestTestFile.did, apiUtil.getAccessTokenHeader(accessToken));
 
     let fileGen3Contents = await fence.do.getFileFromSignedUrlRes(
       signedUrlGen3Res);
@@ -603,7 +593,7 @@ Scenario('Test client flow to get id_token, compare to what is in userinfo endpo
 });
 
 /*
-   - Create some records in indexd with AND logic, have CLIENTB try to create signed
+   - Create some records in indexd with AND logic, have ABC_CLIENT try to create signed
      url for file for user that does NOT have necessary permissions, ensure failure.
 */
 Scenario('Client with user token WITHOUT permission CANNOT create signed URL for record with rbac AND logic @centralizedAuth',
@@ -611,13 +601,13 @@ Scenario('Client with user token WITHOUT permission CANNOT create signed URL for
     return; // FIXME: skip test for now
     // users.auxAcct1 does not have access to both resources
     const tokenRes = await fence.complete.getUserTokensWithClient(
-      users.auxAcct1, fence.props.clients.clientb);
+      users.auxAcct1, fence.props.clients.abcClient);
     const accessToken = tokenRes.body.access_token;
 
     console.log('Use auxAcct1 to create signed URL for file under with indexd rbac ' +
       'AND logic')
     const signedUrlRes = await fence.do.createSignedUrlForUser(
-      indexed_files.twoProjectsFile.did, apiUtil.getAccessTokenHeader(users.auxAcct1.accessToken));
+      indexed_files.twoProjectsFile.did, apiUtil.getAccessTokenHeader(accessToken));
 
     let fileContents = await fence.do.getFileFromSignedUrlRes(
       signedUrlRes);
@@ -637,13 +627,13 @@ Scenario('Client with user token WITH permission CAN create signed URL for recor
     return; // FIXME: skip test for now
     // users.mainAcct does have access to both resources
     const tokenRes = await fence.complete.getUserTokensWithClient(
-      users.mainAcct, fence.props.clients.clientb);
+      users.mainAcct, fence.props.clients.abcClient);
     const accessToken = tokenRes.body.access_token;
 
     console.log('Use mainAcct to create signed URL for file under with indexd rbac ' +
       'AND logic')
     const signedUrlRes = await fence.do.createSignedUrlForUser(
-      indexed_files.twoProjectsFile.did, apiUtil.getAccessTokenHeader(users.mainAcct.accessToken));
+      indexed_files.twoProjectsFile.did, apiUtil.getAccessTokenHeader(accessToken));
 
     let fileContents = await fence.do.getFileFromSignedUrlRes(
       signedUrlRes);
