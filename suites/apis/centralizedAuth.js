@@ -573,6 +573,8 @@ Scenario('Test client flow to get id_token, compare to what is in userinfo endpo
     chai.expect(
       policiesInToken, 'could not get policies field from id token').to.not.be.null;
     chai.expect(
+      policiesInToken, 'could not get policies field from id token').to.not.be.undefined;
+    chai.expect(
       policiesInToken.length,
       `Number of policies is not identical in id token and user info`
     ).to.equal(policiesOfUser.length)

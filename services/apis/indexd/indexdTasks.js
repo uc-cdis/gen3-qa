@@ -27,7 +27,7 @@ module.exports = {
    * @returns {Array<Promise<>>}
    */
   async addFileIndices(files, authHeaders = user.mainAcct.indexdAuthHeader) {
-    headers['Content-Type'] = 'application/json; charset=UTF-8';
+    authHeaders['Content-Type'] = 'application/json; charset=UTF-8';
     const promiseList = files.map((file) => {
       if (!file.did) {
         file.did = uuid.v4().toString();
@@ -52,7 +52,7 @@ module.exports = {
       return data;
     }).map((data) => {
       const strData = JSON.stringify(data);
-      return I.sendPostRequest(indexdProps.endpoints.add, strData, headers).then(
+      return I.sendPostRequest(indexdProps.endpoints.add, strData, authHeaders).then(
         (res) => {
           if (res.status === 200 && res.body && res.body.rev) {
             file.rev = res.body.rev;
@@ -90,7 +90,7 @@ module.exports = {
     // get data from indexd
     return I.sendGetRequest(
       `${indexdProps.endpoints.get}/${file.did}`,
-      headers,
+      authHeaders,
     ).then((res) => {
       file.rev = getRevFromResponse(res);
       return res.body;
@@ -105,7 +105,7 @@ module.exports = {
   async updateFile(file, data, authHeaders = user.mainAcct.indexdAuthHeader) {
     return I.sendGetRequest(
       `${indexdProps.endpoints.get}/${file.did}`,
-      headers,
+      authHeaders,
     ).then((res) => {
       // get last revision
       file.rev = getRevFromResponse(res);
@@ -114,7 +114,7 @@ module.exports = {
       return I.sendPutRequest(
         `${indexdProps.endpoints.put}/${file.did}?rev=${file.rev}`,
         strData,
-        headers,
+        authHeaders,
       ).then((res) => {
         return res.body;
       });
@@ -132,7 +132,7 @@ module.exports = {
     if (!file.rev) {
       return I.sendGetRequest(
         `${indexdProps.endpoints.get}/${file.did}`,
-        headers,
+        authHeaders,
       ).then((res) => {
         // get last revision
         file.rev = getRevFromResponse(res);
@@ -141,7 +141,7 @@ module.exports = {
 
     return I.sendDeleteRequest(
       `${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`,
-      headers,
+      authHeaders,
     ).then((res) => {
       // Note that we use the entire response, not just the response body
       file.indexd_delete_res = res;
