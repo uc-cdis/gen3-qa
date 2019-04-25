@@ -161,6 +161,11 @@ BeforeSuite(async (fence, users, indexd) => {
   await indexd.do.deleteFileIndices(Object.values(new_gen3_records));
   await indexd.do.deleteFileIndices(Object.values(new_abc_records));
   await indexd.do.deleteFileIndices(Object.values(indexed_files));
+
+  console.log('Adding indexd files used to test signed urls');
+  const ok = await indexd.do.addFileIndices(Object.values(indexed_files));
+  chai.expect(
+    ok, 'unable to add files to indexd as part of centralizedAuth setup').to.be.true;
 });
 
 AfterSuite(async (fence, indexd, users) => {
@@ -179,11 +184,6 @@ Before(async (fence, users, indexd) => {
   new_gen3_records.deleteMe.did = gen3DeleteMe;
   new_abc_records.fooBarFile.did = abcFooBarFileGuid;
   new_abc_records.deleteMe.did = abcDeleteMe;
-
-  console.log('Adding indexd files used to test signed urls');
-  const ok = await indexd.do.addFileIndices(Object.values(indexed_files));
-  chai.expect(
-    ok, 'unable to add files to indexd as part of centralizedAuth setup').to.be.true;
 });
 
 After(async (fence, users, indexd) => {
