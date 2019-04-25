@@ -156,7 +156,7 @@ module.exports = {
    * Assert that the response has tokens
    * @param {Gen3Response} response
    */
-  asssertTokensSuccess(response, message='') {
+  asssertTokensSuccess(response, msg='') {
     err = 'Token Response failure. ' + msg;
     expect(response, err).to.have.property('statusCode', 200);
     expect(response, err).to.have.nested.property('body.access_token');

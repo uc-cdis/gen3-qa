@@ -198,7 +198,6 @@ After(async (fence, users, indexd) => {
 */
 Scenario('User without policies cannot CRUD indexd records in /gen3 or /abc @indexdJWT',
   async (fence, indexd, users, files) => {
-    return; // FIXME: skip test for now
     // create
     const gen3_create_success = await indexd.do.addFileIndices(
         Object.values(new_gen3_records), users.user2.accessTokenHeader);
@@ -274,7 +273,6 @@ Scenario('User without policies cannot CRUD indexd records in /gen3 or /abc @ind
 */
 Scenario('User with access can CRUD indexd records in namespace, not outside namespace @indexdJWT',
   async (fence, indexd, users, files) => {
-    return; // FIXME: skip test for now
     // create
     const gen3_create_success = await indexd.do.addFileIndices(
         Object.values(new_gen3_records), users.mainAcct.accessTokenHeader);
@@ -355,7 +353,6 @@ Scenario('User with access can CRUD indexd records in namespace, not outside nam
 */
 Scenario('Client (with access) with user token (with access) can CRUD indexd records in namespace, not outside namespace @indexdJWT',
   async (fence, indexd, users, files) => {
-    return; // FIXME: skip test for now
     // NOTE: default CLIENT is abc-admin and gen3-admin
     const tokenRes = await fence.complete.getUserTokensWithClient(users.mainAcct);
     const accessToken = tokenRes.body.access_token;
@@ -442,7 +439,6 @@ Scenario('Client (with access) with user token (with access) can CRUD indexd rec
 */
 Scenario('Client (with access) with user token (with access) can create signed urls for records in namespace, not outside namespace @centralizedAuth',
   async (fence, indexd, users, files) => {
-    return; // FIXME: skip test for now
     // NOTE: users.mainAcct and ABC_CLIENT have abc-admin role
     const tokenRes = await fence.complete.getUserTokensWithClient(
       users.mainAcct, fence.props.clients.abcClient);
@@ -478,7 +474,6 @@ Scenario('Client (with access) with user token (with access) can create signed u
 */
 Scenario('Client (with access) with user token (WITHOUT access) in namespace @centralizedAuth',
   async (fence, indexd, users, files) => {
-    return; // FIXME: skip test for now
     // NOTE: users.mainAcct has access to /abc NOT /gen3
     //       CLIENT does have access to both
     const tokenRes = await fence.complete.getUserTokensWithClient(
@@ -503,7 +498,6 @@ Scenario('Client (with access) with user token (WITHOUT access) in namespace @ce
 */
 Scenario('Client (WITHOUT access) with user token (with access) in namespace @centralizedAuth',
   async (fence, indexd, users, files) => {
-    return; // FIXME: skip test for now
     // abcClient only has access to /abc
     // user0 only access to /gen3
     const tokenRes = await fence.complete.getUserTokensWithClient(
@@ -528,7 +522,6 @@ Scenario('Client (WITHOUT access) with user token (with access) in namespace @ce
 */
 Scenario('User with access can create signed urls for records in namespace, not outside namespace @centralizedAuth',
   async (fence, indexd, users, files) => {
-    return; // FIXME: skip test for now
     // users.mainAcct has abc-admin role
     console.log('Use mainAcct to create signed URL for file under `/abc`')
     const signedUrlAbcRes = await fence.do.createSignedUrlForUser(
@@ -559,7 +552,6 @@ Scenario('User with access can create signed urls for records in namespace, not 
 */
 Scenario('Test client flow to get id_token, compare to what is in userinfo endpoint, @centralizedAuth',
   async (fence, indexd, users, files) => {
-    return; // FIXME: skip test for now
     const tokenRes = await fence.complete.getUserTokensWithClient(users.mainAcct);
     const accessToken = tokenRes.body.access_token;
     const idToken = tokenRes.body.id_token;
@@ -578,6 +570,8 @@ Scenario('Test client flow to get id_token, compare to what is in userinfo endpo
     console.log(policiesOfUser);
 
     // test object equality
+    chai.expect(
+      policiesInToken, 'could not get policies field from id token').to.not.be.null;
     chai.expect(
       policiesInToken.length,
       `Number of policies is not identical in id token and user info`
@@ -598,7 +592,6 @@ Scenario('Test client flow to get id_token, compare to what is in userinfo endpo
 */
 Scenario('Client with user token WITHOUT permission CANNOT create signed URL for record with rbac AND logic @centralizedAuth',
   async (fence, indexd, users, files) => {
-    return; // FIXME: skip test for now
     // users.auxAcct1 does not have access to both resources
     const tokenRes = await fence.complete.getUserTokensWithClient(
       users.auxAcct1, fence.props.clients.abcClient);
@@ -624,7 +617,6 @@ Scenario('Client with user token WITHOUT permission CANNOT create signed URL for
 */
 Scenario('Client with user token WITH permission CAN create signed URL for record with rbac AND logic @centralizedAuth',
   async (fence, indexd, users, files) => {
-    return; // FIXME: skip test for now
     // users.mainAcct does have access to both resources
     const tokenRes = await fence.complete.getUserTokensWithClient(
       users.mainAcct, fence.props.clients.abcClient);

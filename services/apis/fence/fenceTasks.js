@@ -9,7 +9,7 @@ const bash = new Bash();
 
 const I = actor();
 
-const FILE_FROM_URL_ERROR = 'Could not get Google file contents from signed url response';
+const FILE_FROM_URL_ERROR = 'Could not get file contents from signed url response';
 
 /**
  * Determines if browser is on Google's "Choose account" page
