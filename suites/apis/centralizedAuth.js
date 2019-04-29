@@ -342,10 +342,12 @@ Scenario('User with access can CRUD indexd records in namespace, not outside nam
         gen3_delete_response, 403,
         msg='should have gotten unauthorized for deleting record under `/gen3`'
     );
-    fenceQuestions.assertStatusCode(
-        abc_delete_response, 200,
-        msg='user with permission could not delete record under `/abc`'
+    indexd.ask.deleteFileSuccess(
+      abc_delete_response, new_abc_records.deleteMe,
+      msg='user with permission could not delete record under `/abc`.'
     );
+    const getRes = await indexd.do.getFile(new_abc_records.deleteMe);
+    indexd.ask.recordDoesNotExist(getRes, new_abc_records.deleteMe);
 });
 
 /*
@@ -426,10 +428,12 @@ Scenario('Client (with access) with user token (with access) can CRUD indexd rec
         gen3_delete_response, 403,
         msg='should have gotten unauthorized for deleting record under `/gen3`'
     );
-    fenceQuestions.assertStatusCode(
-        abc_delete_response, 200,
-        msg='user with permission could not delete record under `/abc`'
+    indexd.ask.deleteFileSuccess(
+      abc_delete_response, new_abc_records.deleteMe,
+      msg='user with permission could not delete record under `/abc`.'
     );
+    const getRes = await indexd.do.getFile(new_abc_records.deleteMe);
+    indexd.ask.recordDoesNotExist(getRes, new_abc_records.deleteMe);
 });
 
 /*
