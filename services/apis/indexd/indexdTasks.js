@@ -130,7 +130,7 @@ module.exports = {
   async deleteFile(file, authHeaders = user.mainAcct.indexdAuthHeader) {
     // if we already have the current revision we can use it, otherwise we need to get it
     if (!file.rev) {
-      return I.sendGetRequest(
+      await I.sendGetRequest(
         `${indexdProps.endpoints.get}/${file.did}`,
         authHeaders,
       ).then((res) => {
