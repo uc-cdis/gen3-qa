@@ -23,7 +23,7 @@ let fileName, filePath, fileSize, fileMd5;
 /**
  * request a  presigned URL from fence
  */
-const getUploadUrlFromFence = async function (fence, users, indexd) {
+const getUploadUrlFromFence = async function (fence, users) {
   let accessHeader = users.mainAcct.accessTokenHeader;
   let res = await fence.do.getUrlForDataUpload(fileName, accessHeader);
   fence.ask.hasUrl(res);
@@ -40,7 +40,7 @@ const getUploadUrlFromFence = async function (fence, users, indexd) {
  */
 Scenario('File upload and download via API calls @dataUpload', async (fence, users, nodes, indexd, sheepdog, dataUpload) => {
   // request a  presigned URL from fence
-  let fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
+  let fenceUploadRes = await getUploadUrlFromFence(fence, users);
   let fileGuid = fenceUploadRes.body.guid;
   createdGuids.push(fileGuid);
   let presignedUrl = fenceUploadRes.body.url;
@@ -128,9 +128,10 @@ Scenario('User without role cannot upload @dataUpload', async (fence, users) => 
  * the config folder configurable ...
  *     
  */
-Scenario('File upload and download via client @dataClientCLI @dataUpload', async (dataClient, fence, users, indexd, nodes, files, dataUpload) => {
+Scenario('File upload and download via client @dataClientCLI @dataUpload', async (dataClient, fence, users, indexd, files, dataUpload) => {
   // configure the gen3-client
   await dataClient.do.configureClient(fence, users, files);
+
   // use gen3 client to upload a file
   let fileGuid = await dataClient.do.uploadFile(filePath);
   createdGuids.push(fileGuid);
@@ -159,7 +160,7 @@ Scenario('File upload and download via client @dataClientCLI @dataUpload', async
  */
 Scenario('Data file deletion @dataUpload', async (fence, users, indexd, sheepdog, nodes, dataUpload) => {
   // request a  presigned URL from fence
-  let fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
+  let fenceUploadRes = await getUploadUrlFromFence(fence, users);
   let fileGuid = fenceUploadRes.body.guid;
   let presignedUrl = fenceUploadRes.body.url;
 
@@ -207,7 +208,7 @@ Scenario('Upload the same file twice @dataUpload', async (sheepdog, indexd, node
   ////////////
 
   // request a  presigned URL from fence
-  let fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
+  let fenceUploadRes = await getUploadUrlFromFence(fence, users);
   let fileGuid = fenceUploadRes.body.guid;
   createdGuids.push(fileGuid);
   let presignedUrl = fenceUploadRes.body.url;
@@ -242,7 +243,7 @@ Scenario('Upload the same file twice @dataUpload', async (sheepdog, indexd, node
   ////////////
 
   // request a  presigned URL from fence
-  fenceUploadRes = await getUploadUrlFromFence(fence, users, indexd);
+  fenceUploadRes = await getUploadUrlFromFence(fence, users);
   fileGuid = fenceUploadRes.body.guid;
   createdGuids.push(fileGuid);
   presignedUrl = fenceUploadRes.body.url;
@@ -266,7 +267,7 @@ Scenario('Upload the same file twice @dataUpload', async (sheepdog, indexd, node
   );
 }).retry(2);
 
-BeforeSuite(async (dataClient, fence, users, sheepdog, indexd, files) => {
+BeforeSuite(async (sheepdog, files) => {
   // clean up in sheepdog
   await sheepdog.complete.findDeleteAllNodes();
 
