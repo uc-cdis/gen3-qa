@@ -150,7 +150,14 @@ module.exports = {
     return I.sendGetRequest(
       fenceProps.endpoints.googleCredentials,
       accessTokenHeader,
-    ).then(res => res.body);
+    ).then(res => {
+      if (!res.body || !res.body.access_keys) {
+        console.log('Could not get user google creds:');
+        console.log(res);
+        return { access_keys: [] };
+      }
+      return res.body;
+    });
   },
 
   /**
@@ -169,7 +176,13 @@ module.exports = {
       url,
       {},
       accessTokenHeader,
-    ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
+    ).then(res => {
+      if (res.statusCode != 200) {
+        console.error('Error creating temp google creds');
+        console.log(res);
+      }
+      return new Gen3Response(res);
+    });
   },
 
   /**
@@ -324,23 +337,30 @@ module.exports = {
           'Content-Type': 'application/json',
         },
       ).then(function(res) {
-        if (res.error && res.error.code == 'ETIMEDOUT') {
-          return 'ETIMEDOUT: Google SA registration timed out';
-        }
         if (res.body && res.body.errors) {
           console.log('Failed SA registration:');
           // stringify to print all the nested objects
           console.log(JSON.stringify(res.body.errors, null, 2));
         }
         else if (res.error) {
-          console.log('Failed SA registration:');
-          console.log(res.error);
+          if (res.error.code == 'ETIMEDOUT') {
+            return 'ETIMEDOUT: Google SA registration timed out';
+          }
+          else if (res.error.code == 'ECONNRESET') {
+            return 'ECONNRESET: Google SA registration socket hung up';
+          }
+          else {
+            console.log('Failed SA registration:');
+            console.log(res.error);
+          }
         }
         return new Gen3Response(res)
       });
 
-      // if the request timed out: retry
-      if (typeof postRes == 'string' && postRes.includes('ETIMEDOUT')) {
+      // if request timeout or socket hung up: retry
+      if (typeof postRes == 'string' &&
+      (postRes.includes('ETIMEDOUT') || postRes.includes('ECONNRESET')))
+      {
         console.log(`registerGoogleServiceAccount: try ${tries}/${MAX_TRIES}`);
         console.log(postRes);
         tries++;
@@ -375,18 +395,6 @@ module.exports = {
     const formattedIDList = googleProjectIDList.join();
     return I.sendGetRequest(
       `${fenceProps.endpoints.getGoogleServiceAccounts}/?google_project_ids=${formattedIDList}`,
-      userAcct.accessTokenHeader,
-    ).then(res => new Gen3Response(res));
-  },
-
-  /**
-   * Gets the fence service account used for monitoring users' Google Cloud Projects
-   * @param userAcct
-   * @returns {Promise<Gen3Response>}
-   */
-  async getGoogleServiceAccountMonitor(userAcct) {
-    return I.sendGetRequest(
-      fenceProps.endpoints.getGoogleServiceAccountMonitor,
       userAcct.accessTokenHeader,
     ).then(res => new Gen3Response(res));
   },
