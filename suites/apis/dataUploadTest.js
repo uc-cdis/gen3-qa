@@ -38,7 +38,7 @@ const getUploadUrlFromFence = async function (fence, users) {
  * - Link metadata to the file via sheepdog
  * - Download the file via fence and check who can download and when
  */
-Scenario('File upload and download via API calls @dataUpload', async (fence, users, nodes, indexd, sheepdog, dataUpload) => {
+xScenario('File upload and download via API calls @dataUpload', async (fence, users, nodes, indexd, sheepdog, dataUpload) => {
   // request a  presigned URL from fence
   let fenceUploadRes = await getUploadUrlFromFence(fence, users);
   let fileGuid = fenceUploadRes.body.guid;
@@ -102,13 +102,14 @@ Scenario('File upload and download via API calls @dataUpload', async (fence, use
   // try to submit metadata for this file again
   sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5, submitter_id='submitter_id_new_value');
   sheepdog.ask.addNodeSuccess(sheepdogRes);
-}).retry(2);
+// }).retry(2);
+});
 
 /**
  * A user who does not have upload access should not be able to upload
  * or download files
  */
-Scenario('User without role cannot upload @dataUpload', async (fence, users) => {
+xScenario('User without role cannot upload @dataUpload', async (fence, users) => {
   // this user does not have the appropriate role
   let token = users.auxAcct1.accessTokenHeader;
 
@@ -118,7 +119,8 @@ Scenario('User without role cannot upload @dataUpload', async (fence, users) => 
   // fence should not let this user upload
   fence.ask.hasNoUrl(fenceUploadRes);
   fence.ask.assertStatusCode(fenceUploadRes, 403, 'This user should not be able to download');
-}).retry(2);
+// }).retry(2);
+});
 
 /**
  * This time, use the gen3 data client to upload and download the file
@@ -128,7 +130,7 @@ Scenario('User without role cannot upload @dataUpload', async (fence, users) => 
  * the config folder configurable ...
  *     
  */
-Scenario('File upload and download via client @dataClientCLI @dataUpload', async (dataClient, fence, users, indexd, files, dataUpload) => {
+xScenario('File upload and download via client @dataClientCLI @dataUpload', async (dataClient, fence, users, indexd, files, dataUpload) => {
   // configure the gen3-client
   await dataClient.do.configureClient(fence, users, files);
 
@@ -158,7 +160,7 @@ Scenario('File upload and download via client @dataClientCLI @dataUpload', async
  * Upload a file, then delete it through fence. Aftert deletion, the file
  * should not be accessible for metadata linking or download
  */
-Scenario('Data file deletion @dataUpload', async (fence, users, indexd, sheepdog, nodes, dataUpload) => {
+xScenario('Data file deletion @dataUpload', async (fence, users, indexd, sheepdog, nodes, dataUpload) => {
   // request a  presigned URL from fence
   let fenceUploadRes = await getUploadUrlFromFence(fence, users);
   let fileGuid = fenceUploadRes.body.guid;
@@ -202,7 +204,7 @@ Scenario('Data file deletion @dataUpload', async (fence, users, indexd, sheepdog
  * Upload 2 files with the same contents (so same hash and size) and
  * link metadata to them via sheepdog
  */
-Scenario('Upload the same file twice @dataUpload', async (sheepdog, indexd, nodes, users, fence, dataUpload) => {
+xScenario('Upload the same file twice @dataUpload', async (sheepdog, indexd, nodes, users, fence, dataUpload) => {
   ////////////
   // FILE 1 //
   ////////////
@@ -265,7 +267,64 @@ Scenario('Upload the same file twice @dataUpload', async (sheepdog, indexd, node
     signedUrlRes,
     fileContents,
   );
-}).retry(2);
+// }).retry(2);
+});
+
+Scenario('Multipart upload', async (files, users, fence, dataUpload) => {
+  // create file and file parts
+  const bigFileName = '7mb_file.txt';
+  // files.createBigTmpFile(bigFileName);
+  const fileContents = fs.readFileSync(bigFileName);
+
+  const fiveMbLength = Math.floor(fileContents.length * 5/7);
+  const fileParts = {
+    1: fileContents.slice(0, fiveMbLength),
+    2: fileContents.slice(fiveMbLength)
+  };
+
+  const accessHeader = users.mainAcct.accessTokenHeader;
+  const initRes = await fence.complete.initMultipartUpload(bigFileName, accessHeader);
+  console.log(initRes);
+
+  const key = `${initRes.guid}/${bigFileName}`;
+
+  let partsSummary = [];
+  for (var partNumber = 1; partNumber <= Object.keys(fileParts).length; partNumber++) {
+    console.log(`Uploading file part ${partNumber}`);
+
+    let getUrlRes = await fence.complete.getUrlForMultipartUpload(key, initRes.uploadId, partNumber, accessHeader);
+    console.log(getUrlRes);
+
+    // upload the file part to the S3 bucket using the presigned URL
+    const uploadPartRes = await dataUpload.uploadFilePartToS3(
+      getUrlRes.url,
+      fileParts[partNumber]
+    );
+    console.log(uploadPartRes);
+
+    partsSummary.push({
+      PartNumber: partNumber,
+      ETag: uploadPartRes
+    });
+  }
+  console.log(partsSummary);
+
+  const completeRes = await fence.complete.completeMultipartUpload(key, initRes.uploadId, partsSummary, accessHeader);
+  console.log(completeRes);
+
+  // wait for the indexd listener to add size, hashes and URL to the record
+  // await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
+
+  // Try downloading before linking metadata to the file. It should succeed
+  // for the uploader but fail for other users
+
+  // the uploader can now download the file
+  // signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid);
+  // await fence.complete.checkFileEquals(
+  //     signedUrlRes,
+  //     fileContents,
+  // );
+});
 
 BeforeSuite(async (sheepdog, files) => {
   // clean up in sheepdog

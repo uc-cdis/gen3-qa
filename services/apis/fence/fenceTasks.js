@@ -562,6 +562,65 @@ module.exports = {
   },
 
   /**
+   * Hits fence's multipart upload initialization endpoint
+   * @param {string} fileName - name of the file that will be uploaded
+   * @param {string} accessToken - access token
+   * @returns {Promise<Gen3Response>}
+   */
+  async initMultipartUpload(fileName, accessHeader) {
+    accessHeader['Content-Type'] = 'application/json';
+    return I.sendPostRequest(
+      fenceProps.endpoints.multipartUploadInit,
+      JSON.stringify({
+        file_name: fileName,
+      }),
+      accessHeader,
+    ).then(res => new Gen3Response(res));
+  },
+
+  /**
+   * Hits fence's signed url for multipart upload endpoint
+   * @param {string} key - object's key in format "GUID/filename" (GUID as returned by initMultipartUpload)
+   * @param {string} uploadId - object's uploadId (as returned by initMultipartUpload)
+   * @param {string} partNumber - upload part number, starting from 1
+   * @param {string} accessToken - access token
+   * @returns {Promise<Gen3Response>}
+   */
+  async getUrlForMultipartUpload(key, uploadId, partNumber, accessHeader) {
+    accessHeader['Content-Type'] = 'application/json';
+    return I.sendPostRequest(
+      fenceProps.endpoints.multipartUpload,
+      JSON.stringify({
+        key,
+        uploadId,
+        partNumber,
+      }),
+      accessHeader,
+    ).then(res => new Gen3Response(res));
+  },
+
+  /**
+   * Hits fence's multipart upload completion endpoint
+   * @param {string} key - object's key (as returned by initMultipartUpload)
+   * @param {string} uploadId - object's uploadId (as returned by initMultipartUpload)
+   * @param {string} parts - list of {partNumber, ETag} objects (as returned when uploading using the URL returned by getUrlForMultipartUpload)
+   * @param {string} accessToken - access token
+   * @returns {Promise<Gen3Response>}
+   */
+  async completeMultipartUpload(key, uploadId, parts, accessHeader) {
+    accessHeader['Content-Type'] = 'application/json';
+    return I.sendPostRequest(
+      fenceProps.endpoints.multipartUploadComplete,
+      JSON.stringify({
+        key,
+        uploadId,
+        parts,
+      }),
+      accessHeader,
+    ).then(res =>new Gen3Response(res));
+  },
+
+  /**
    * Delete a file from indexd and S3
    * @param {string} guid - GUID of the file to delete
    */

@@ -9,6 +9,8 @@ const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !
 const { smartWait } = require('./apiUtil.js');
 const files = require('./file.js');
 
+const I = actor();
+
 
 module.exports = {
   /**
@@ -26,6 +28,24 @@ module.exports = {
         throw new Error(err);
       }
     }));
+  },
+
+  /**
+   * upload part of a file to an S3 bucket using a presigned URL
+   */
+  async uploadFilePartToS3(presignedUrl, data) {
+    return I.sendPutRequest(
+      presignedUrl,
+      data
+    ).then((res) => {
+      if (!res.headers || !res.headers.etag) {
+        console.error(res);
+        console.error(body);
+        console.error(res.headers);
+        throw new Error('The S3 upload result dos not contain "headers.etag"');
+      }
+      return res.headers.etag.replace(new RegExp('"', 'g'), '');
+    });
   },
 
   /** 
