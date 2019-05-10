@@ -147,7 +147,7 @@ Scenario('Test no data access anymore after SA key is deleted @reqGoogle', async
   chai.expect(user0AccessQAResExpired,
     'User should NOT have bucket access after key deletion'
   ).to.have.property('statusCode', 403);
-});
+}).retry(2);
 
 
 Scenario('Delete SA creds that do not exist @reqGoogle', async (fence, users) => {

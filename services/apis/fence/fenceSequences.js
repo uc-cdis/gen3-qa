@@ -116,10 +116,12 @@ module.exports = {
     fenceQuestions.assertStatusCode(res, 204);
   },
 
-  async getUserTokensWithClient(user = user.mainAcct, client = fenceProps.clients.client, scopes = 'openid+user') {
+  async getUserTokensWithClient(
+      user = user.mainAcct, client = fenceProps.clients.client,
+      scopes = 'openid+user+data+google_credentials+google_service_account+google_link') {
     // set user with cookie
-    headers = {Cookie: 'dev_login=' + user.username + ';'};
-    await I.sendGetRequest('.', headers);
+    await I.amOnPage("/");
+    await I.setCookie({name: "dev_login", value: user.username});
 
     const urlStr = await fenceTasks.getConsentCode(client.id, 'code', scopes);
     fenceQuestions.assertContainSubStr(urlStr, ['code=']);

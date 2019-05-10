@@ -40,13 +40,26 @@ console.log(testTags);
  * @param {string} clientName - client name
  * @param {string} userName - user name
  * @param {string} clientType - client type (implicit or basic)
+ * @param {string} arboristPolicies - space-delimited list of arborist policies to give to client
  * @returns {json}
  */
-function createClient(clientName, userName, clientType) {
-  let fenceCmd = `fence-create client-create --client ${clientName} --user ${userName} --urls https://${process.env.HOSTNAME}`;
+function createClient(clientName, userName, clientType, arboristPolicies=null) {
+
+  let fenceCmd = 'fence-create'
+
+  if (arboristPolicies) {
+    fenceCmd = `${fenceCmd} --arborist http://arborist-service/`;
+  }
+
+  fenceCmd = `${fenceCmd} client-create --client ${clientName} --user ${userName} --urls https://${process.env.HOSTNAME}`;
+
   if (clientType === 'implicit') {
     fenceCmd = `${fenceCmd} --grant-types implicit --public`;
   }
+  if (arboristPolicies) {
+    fenceCmd = `${fenceCmd} --policies ${arboristPolicies}`;
+  }
+  console.log(`running: ${fenceCmd}`);
   const resCmd = bash.runCommand(fenceCmd, 'fence', takeLastLine);
   const arr = resCmd.replace(/[()']/g, '').split(',').map(val => val.trim());
   return { client_id: arr[0], client_secret: arr[1] };
@@ -281,15 +294,23 @@ module.exports = async function (done) {
 
     console.log('Delete then create basic client...\n');
     deleteClient('basic-test-client');
-    const basicClient = createClient('basic-test-client', 'test-client@example.com', 'basic');
+    const basicClient = createClient(
+      'basic-test-client', 'test-client@example.com', 'basic',
+      arboristPolicies='abc-admin gen3-admin'
+    );
 
     console.log('Delete then create another basic client...\n');
     deleteClient('basic-test-abc-client');
-    const basicAbcClient = createClient('basic-test-abc-client', 'test-abc-client@example.com', 'basic');
+    const basicAbcClient = createClient(
+      'basic-test-abc-client', 'test-abc-client@example.com', 'basic',
+      arboristPolicies='abc-admin'
+    );
 
     console.log('Delete then create implicit client...\n');
     deleteClient('implicit-test-client');
-    const implicitClient = createClient('implicit-test-client', 'test@example.com', 'implicit');
+    const implicitClient = createClient(
+      'implicit-test-client', 'test@example.com', 'implicit'
+    );
 
     //Setup environment variables
     process.env[`${fenceProps.clients.client.envVarsName}_ID`] = basicClient.client_id;

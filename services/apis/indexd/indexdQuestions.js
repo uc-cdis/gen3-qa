@@ -50,6 +50,21 @@ module.exports = {
   },
 
   /**
+   * Asserts a record was successfully deleted from indexd
+   * @param {Object} ffileNode
+   */
+  deleteFileNotSuccessful(res, fileNode, msg='') {
+    const delete_msg = msg + ' The record WAS deleted from indexd!';
+    // Note that the delete res is the entire response, not just the body
+    expect(fileNode, delete_msg).to.not.nested.include(
+      { 'indexd_delete_res.raw_body': '' }
+    );
+
+    const err = msg + 'Had UNexpected status code of 200.';
+    expect(res, err).to.not.have.property('statusCode', 200);
+  },
+
+  /**
    * Asserts a record exists in indexd
    * @param {Gen3Response} res - getFile result
    * @param {Object} fileNode

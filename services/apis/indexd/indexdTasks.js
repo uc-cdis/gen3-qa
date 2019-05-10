@@ -46,8 +46,8 @@ module.exports = {
       if (file.link) {
         data.urls = [file.link];
       }
-      if (file.rbac) {
-        data.rbac = file.rbac;
+      if (file.authz) {
+        data.authz = file.authz;
       }
       return data;
     }).map((data) => {
@@ -79,6 +79,22 @@ module.exports = {
     );
     //console.log("addFileIndices result: " + success);
     return true;  // always return true till we figure out the Promise.all issue above ...
+  },
+
+  /**
+   * Fetches indexd res data for file and assigns 'rev', given an indexd file object with a did
+   * @param {Object} fileNode - Assumed to have a did property
+   * @returns {Promise<Gen3Response>}
+   */
+  async getFileFullRes(file, authHeaders = user.mainAcct.accessTokenHeader) {
+    // get data from indexd
+    return I.sendGetRequest(
+      `${indexdProps.endpoints.get}/${file.did}`,
+      authHeaders,
+    ).then((res) => {
+      file.rev = getRevFromResponse(res);
+      return res;
+    });
   },
 
   /**
