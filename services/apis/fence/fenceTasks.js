@@ -601,7 +601,7 @@ module.exports = {
 
   /**
    * Hits fence's multipart upload completion endpoint
-   * @param {string} key - object's key (as returned by initMultipartUpload)
+   * @param {string} key - object's key in format "GUID/filename" (GUID as returned by initMultipartUpload)
    * @param {string} uploadId - object's uploadId (as returned by initMultipartUpload)
    * @param {string} parts - list of {partNumber, ETag} objects (as returned when uploading using the URL returned by getUrlForMultipartUpload)
    * @param {string} accessToken - access token

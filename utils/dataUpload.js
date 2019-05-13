@@ -40,38 +40,37 @@ module.exports = {
     ).then((res) => {
       if (!res.headers || !res.headers.etag) {
         console.error(res);
-        console.error(body);
         console.error(res.headers);
         throw new Error('The S3 upload result dos not contain "headers.etag"');
       }
-      return res.headers.etag.replace(new RegExp('"', 'g'), '');
+      return res.headers.etag.replace(new RegExp('"', 'g'), ''); // no quotes
     });
   },
 
-  /** 
-   * create a file that contains the list of GUIDs of files that were uploaded  
-   * to s3 during this testing session. The files will be deleted during the  
-   * CleanS3 step of the Jenkins pipeline 
-   */ 
+  /**
+   * create a file that contains the list of GUIDs of files that were uploaded
+   * to s3 during this testing session. The files will be deleted during the
+   * CleanS3 step of the Jenkins pipeline
+   */
   async cleanS3(fileName, createdGuids) {
     if (inJenkins) {
       //
-      // NOTE: put temp files in shared homedir/s3-cleanup, 
+      // NOTE: put temp files in shared homedir/s3-cleanup,
       // so that the `CleanS3` Jenkins pipeline stage will
       // clean up after whatever jobs have come before even
       // if those jobs failed, and did not clean themselves up -
       // all the jenkins envs share the same S3 bucket
-      // 
-      const dirName = `${homedir}/s3-cleanup`;  
-      if (!fs.existsSync(dirName)){ 
-        fs.mkdirSync(dirName);  
-      } 
+      //
+      const dirName = `${homedir}/s3-cleanup`;
+      if (!fs.existsSync(dirName)){
+        fs.mkdirSync(dirName);
+      }
       await files.createTmpFile(
-        `${dirName}/${fileName}`, 
-        createdGuids.join("\n") 
-      );  
-      console.log(`Created ${fileName} in ${dirName}`); 
-    } 
+        `${dirName}/${fileName}`,
+        createdGuids.join("\n")
+      );
+      console.log(`Created ${fileName} in ${dirName}`);
+    }
   },
 
   /**
