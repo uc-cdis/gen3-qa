@@ -119,6 +119,7 @@ module.exports = {
    * @returns {Promise<Gen3Response>}
    */
   async updateFile(file, data, authHeaders = user.mainAcct.indexdAuthHeader) {
+    authHeaders['Content-Type'] = 'application/json; charset=UTF-8';
     return I.sendGetRequest(
       `${indexdProps.endpoints.get}/${file.did}`,
       authHeaders,
@@ -144,6 +145,7 @@ module.exports = {
    * @returns {Promise<Promise|*|PromiseLike<T>|Promise<T>>}
    */
   async deleteFile(file, authHeaders = user.mainAcct.indexdAuthHeader) {
+    authHeaders['Content-Type'] = 'application/json; charset=UTF-8';
     // if we already have the current revision we can use it, otherwise we need to get it
     if (!file.rev) {
       await I.sendGetRequest(

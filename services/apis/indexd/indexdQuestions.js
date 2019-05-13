@@ -77,16 +77,15 @@ module.exports = {
   /**
    * Asserts a record does not exist in indexd
    * @param {Gen3Response} res - getFile result
-   * @param {Object} fileNode
    */
-  recordDoesNotExist(res, fileNode) {
+  recordDoesNotExist(res) {
     expect(
-      res, 'When checking if indexd record does not exist, ' +
-      'got a successful status when GET-ing it, should not happen.'
-    ).to.not.have.property('statusCode', 200);
+      res, 'Response does not have status code property'
+    ).to.have.property('statusCode');
     expect(
-      fileNode, 'The specified record exists in indexd'
-    ).to.not.have.property('rev');
+      res.statusCode, 'When checking if indexd record does not exist, ' +
+      'did NOT get 404 when GET-ing it, expected a 404 since the file should not exist.'
+    ).to.equal(404);
   },
 
   /**

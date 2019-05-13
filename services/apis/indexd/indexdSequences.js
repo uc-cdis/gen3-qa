@@ -25,7 +25,7 @@ module.exports = {
     indexdQuestions.deleteFileSuccess(res, indexdFile);
 
     const getRes = await indexdTasks.getFile(indexdFile);
-    indexdQuestions.recordDoesNotExist(getRes, indexdFile);
+    indexdQuestions.recordDoesNotExist(getRes);
   },
 
   /**

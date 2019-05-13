@@ -222,6 +222,7 @@ AfterSuite(async (fence, indexd, users) => {
 });
 
 Before(async (fence, users, indexd) => {
+  console.log('populating guids for indexd records to create...');
   // populate new GUIDs per test
   const gen3FooBarFileGuid = uuid.v4().toString();
   const gen3DeleteMe = uuid.v4().toString();
@@ -387,9 +388,9 @@ Scenario('User with access can CRUD indexd records in namespace, not outside nam
     const filename_change = {
       'file_name': 'test_filename'
     }
-    const gen3_update_response = indexd.do.updateFile(
+    const gen3_update_response = await indexd.do.updateFile(
         new_gen3_records.fooBarFile, filename_change, users.mainAcct.accessTokenHeader)
-    const abc_update_response = indexd.do.updateFile(
+    const abc_update_response = await indexd.do.updateFile(
         new_abc_records.fooBarFile, filename_change, users.mainAcct.accessTokenHeader)
 
     // asserts for update
@@ -400,7 +401,11 @@ Scenario('User with access can CRUD indexd records in namespace, not outside nam
     chai.expect(
       abc_update_response,
       'should have gotten `did` back (successful response) when updating record under `/abc`'
-    ).to.have.property('did', new_abc_records.fooBarFile.did);
+    ).to.have.property('did');
+    chai.expect(
+      abc_update_response.did,
+      'should have SAME `did` back as we requested update for `/abc`'
+    ).to.equal(new_abc_records.fooBarFile.did);
 
     // make sure updated file has updated file name
     const abc_read_response_after_update = await indexd.do.getFileFullRes(
@@ -414,9 +419,9 @@ Scenario('User with access can CRUD indexd records in namespace, not outside nam
     ).to.have.property('file_name', 'test_filename');
 
     // delete
-    const gen3_delete_response = indexd.do.deleteFile(
+    const gen3_delete_response = await indexd.do.deleteFile(
         new_gen3_records.deleteMe, users.mainAcct.accessTokenHeader)
-    const abc_delete_response = indexd.do.deleteFile(
+    const abc_delete_response = await indexd.do.deleteFile(
         new_abc_records.deleteMe, users.mainAcct.accessTokenHeader)
 
     // asserts for delete
@@ -429,8 +434,8 @@ Scenario('User with access can CRUD indexd records in namespace, not outside nam
       abc_delete_response, new_abc_records.deleteMe,
       msg='user with permission could not delete record under `/abc`.'
     );
-    const getRes = await indexd.do.getFile(new_abc_records.deleteMe);
-    indexd.ask.recordDoesNotExist(getRes, new_abc_records.deleteMe);
+    const getRes = await indexd.do.getFileFullRes(new_abc_records.deleteMe);
+    indexd.ask.recordDoesNotExist(getRes);
 });
 
 /*
@@ -490,9 +495,9 @@ Scenario('Client (with access) with user token (with access) can CRUD indexd rec
     const filename_change = {
       'file_name': 'test_filename'
     }
-    const gen3_update_response = indexd.do.updateFile(
+    const gen3_update_response = await indexd.do.updateFile(
         new_gen3_records.fooBarFile, filename_change, apiUtil.getAccessTokenHeader(accessToken))
-    const abc_update_response = indexd.do.updateFile(
+    const abc_update_response = await indexd.do.updateFile(
         new_abc_records.fooBarFile, filename_change, apiUtil.getAccessTokenHeader(accessToken))
 
     // asserts for update
@@ -503,7 +508,11 @@ Scenario('Client (with access) with user token (with access) can CRUD indexd rec
     chai.expect(
       abc_update_response,
       'should have gotten `did` back (successful response) when updating record under `/abc`'
-    ).to.have.property('did', new_abc_records.fooBarFile.did);
+    ).to.have.property('did');
+    chai.expect(
+      abc_update_response.did,
+      'should have SAME `did` back as we requested update for `/abc`'
+    ).to.equal(new_abc_records.fooBarFile.did);
 
     // make sure updated file has updated file name
     const abc_read_response_after_update = await indexd.do.getFileFullRes(
@@ -517,9 +526,9 @@ Scenario('Client (with access) with user token (with access) can CRUD indexd rec
     ).to.have.property('file_name', 'test_filename');
 
     // delete
-    const gen3_delete_response = indexd.do.deleteFile(
+    const gen3_delete_response = await indexd.do.deleteFile(
         new_gen3_records.deleteMe, apiUtil.getAccessTokenHeader(accessToken))
-    const abc_delete_response = indexd.do.deleteFile(
+    const abc_delete_response = await indexd.do.deleteFile(
         new_abc_records.deleteMe, apiUtil.getAccessTokenHeader(accessToken))
 
     // asserts for delete
@@ -532,8 +541,8 @@ Scenario('Client (with access) with user token (with access) can CRUD indexd rec
       abc_delete_response, new_abc_records.deleteMe,
       msg='user with permission could not delete record under `/abc`.'
     );
-    const getRes = await indexd.do.getFile(new_abc_records.deleteMe);
-    indexd.ask.recordDoesNotExist(getRes, new_abc_records.deleteMe);
+    const getRes = await indexd.do.getFileFullRes(new_abc_records.deleteMe);
+    indexd.ask.recordDoesNotExist(getRes);
 });
 
 /*
