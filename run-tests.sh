@@ -165,15 +165,16 @@ fi
 
 testArgs="--reporter mocha-multi"
 
-# TODO: eventually enable for all services, but need arborist and fence changes tested
-#       and merged first
-if [[ "$service" != "arborist" && "$service" != "gen3-qa" ]]; then
+# TODO: eventually enable for all services, but need arborist and fence updates first
+#       in all environments
+if [[ "$service" != "arborist" && "$service" != "gen3-qa" && "$service" != "fence" ]]; then
   echo "INFO: disabling Centralized Auth tests for $service"
   donot '@centralizedAuth'
+  donot '@indexdJWT'
+else
+  echo "INFO: enabling Centralized Auth tests for $service"
 fi
 
-# TODO: eventually remove this. indexd PR not ready yet
-donot '@indexdJWT'
 
 (
   export NAMESPACE="$namespaceName"

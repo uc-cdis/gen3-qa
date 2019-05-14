@@ -146,16 +146,14 @@ module.exports = {
    */
   async deleteFile(file, authHeaders = user.mainAcct.indexdAuthHeader) {
     authHeaders['Content-Type'] = 'application/json; charset=UTF-8';
-    // if we already have the current revision we can use it, otherwise we need to get it
-    if (!file.rev) {
-      await I.sendGetRequest(
-        `${indexdProps.endpoints.get}/${file.did}`,
-        authHeaders,
-      ).then((res) => {
-        // get last revision
-        file.rev = getRevFromResponse(res);
-      });
-    }
+    // always update revision
+    await I.sendGetRequest(
+      `${indexdProps.endpoints.get}/${file.did}`,
+      authHeaders,
+    ).then((res) => {
+      // get last revision
+      file.rev = getRevFromResponse(res);
+    });
 
     return I.sendDeleteRequest(
       `${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`,
