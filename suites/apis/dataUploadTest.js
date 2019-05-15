@@ -1,4 +1,7 @@
+const chai = require('chai');
 const fs = require('fs');
+
+const expect = chai.expect;
 
 
 Feature('Data file upload flow');
@@ -7,13 +10,14 @@ Feature('Data file upload flow');
 // GLOBALS //
 /////////////
 
-const fileContents = 'this fake data file was generated and uploaded by the integration test suite\n';
-
 // maintain a list of GUIDs to delete in indexd and the S3 bucket at the end
 let createdGuids = [];
 
+const fileContents = 'this fake data file was generated and uploaded by the integration test suite\n';
+
 // the following variables are set as part of the BeforeSuite step:
 let fileName, filePath, fileSize, fileMd5;
+let bigFileName, bigFileSize, bigFileMd5, bigFileContents, bigFileParts;
 
 
 ////////////////////
@@ -270,19 +274,7 @@ Scenario('Upload the same file twice @dataUpload', async (sheepdog, indexd, node
 /**
  * Use fence's multipart upload endpoints to upload a large data file (>5MB)
  */
-Scenario('Multipart upload', async (files, users, fence, indexd, dataUpload) => {
-  // create file and file parts
-  // each part must be >=5MB (except the last part)
-  const bigFileName = '7mb_file.txt';
-  await files.createBigTmpFile(bigFileName, 7);
-  const fileContents = fs.readFileSync(bigFileName);
-
-  const fiveMbLength = Math.floor(fileContents.length * 5/7);
-  const fileParts = {
-    1: fileContents.slice(0, fiveMbLength),
-    2: fileContents.slice(fiveMbLength)
-  };
-
+Scenario('Successful multipart upload', async (users, fence, indexd, dataUpload) => {
   // initialize the multipart upload
   console.log("Initializing multipart upload");
   const accessHeader = users.mainAcct.accessTokenHeader;
@@ -293,7 +285,7 @@ Scenario('Multipart upload', async (files, users, fence, indexd, dataUpload) => 
 
   // upload each file part to the S3 bucket
   let partsSummary = [];
-  for (var partNumber = 1; partNumber <= Object.keys(fileParts).length; partNumber++) {
+  for (var partNumber = 1; partNumber <= Object.keys(bigFileParts).length; partNumber++) {
     console.log(`Uploading file part ${partNumber}`);
 
     // get a presigned URL from fence
@@ -302,7 +294,7 @@ Scenario('Multipart upload', async (files, users, fence, indexd, dataUpload) => 
     // upload the file part using the presigned URL
     const uploadPartRes = await dataUpload.uploadFilePartToS3(
       getUrlRes.url,
-      fileParts[partNumber]
+      bigFileParts[partNumber]
     );
 
     partsSummary.push({
@@ -319,8 +311,8 @@ Scenario('Multipart upload', async (files, users, fence, indexd, dataUpload) => 
   let fileNode = {
     did: fileGuid,
     data: {
-      md5sum: await files.getFileHash(bigFileName),
-      file_size: files.getFileSize(bigFileName)
+      md5sum: bigFileMd5,
+      file_size: bigFileSize
     }
   };
   await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
@@ -328,32 +320,90 @@ Scenario('Multipart upload', async (files, users, fence, indexd, dataUpload) => 
   // download the file
   console.log("Downloading the file");
   const signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid);
-  fence.ask.assertStatusCode(signedUrlRes, 200, "Could not get signed URL for file download");
-  fence.complete.checkFileEquals(signedUrlRes, fileContents.toString());
+  fence.ask.assertStatusCode(signedUrlRes, 200, "Could not get signed URL for file download after completing multipart upload");
+  fence.complete.checkFileEquals(signedUrlRes, bigFileContents.toString());
+}).retry(2);
 
-  // clean up
-  files.deleteFile(bigFileName);
-});
+/**
+ * Use fence's multipart upload endpoints to upload a large data file (>5MB).
+ * Fail to complete the upload because of a wrong ETag input
+ */
+Scenario('Failed multipart upload: wrong ETag for completion', async (users, fence, dataUpload) => {
+  // initialize the multipart upload
+  console.log("Initializing multipart upload");
+  const accessHeader = users.mainAcct.accessTokenHeader;
+  const initRes = await fence.complete.initMultipartUpload(bigFileName, accessHeader);
+  const fileGuid = initRes.guid;
+  createdGuids.push(fileGuid);
+  const key = `${fileGuid}/${bigFileName}`;
+
+  // upload each file part to the S3 bucket
+  let partsSummary = [];
+  for (var partNumber = 1; partNumber <= Object.keys(bigFileParts).length; partNumber++) {
+    console.log(`Uploading file part ${partNumber}`);
+
+    // get a presigned URL from fence
+    let getUrlRes = await fence.complete.getUrlForMultipartUpload(key, initRes.uploadId, partNumber, accessHeader);
+
+    // upload the file part using the presigned URL
+    const uploadPartRes = await dataUpload.uploadFilePartToS3(
+      getUrlRes.url,
+      bigFileParts[partNumber]
+    );
+
+    partsSummary.push({
+      PartNumber: partNumber,
+      ETag: `${uploadPartRes}fake` // wrong ETag
+    });
+  }
+
+  // complete the multipart upload
+  console.log("Trying to complete multipart upload");
+  const completeRes = await fence.do.completeMultipartUpload(key, initRes.uploadId, partsSummary, accessHeader);
+  expect(completeRes, 'Should not have been able to complete multipart upload with wrong ETags').to.have.property('statusCode', 400);
+
+  // try to download the file
+  console.log("Try to download the file");
+  const signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid);
+  fence.ask.assertStatusCode(signedUrlRes, 404, "Should not be able to get signed URL for file download when multipart upload completion failed");
+}).retry(2);
 
 BeforeSuite(async (sheepdog, files) => {
   // clean up in sheepdog
   await sheepdog.complete.findDeleteAllNodes();
 
-  // generate a file name unique to this session
+  // generate file names unique to this session
   let rand = (Math.random() + 1).toString(36).substring(2,7); // 5 random chars
   fileName = `qa-upload-file_${rand}.txt`;
   filePath = './' + fileName;
+  bigFileName = `qa-upload-7mb-file_${rand}.txt`;
 
-  // create a local file to upload and store its size and hash
+  // create a local small file to upload. store its size and hash
   await files.createTmpFile(filePath, fileContents);
   fileSize = files.getFileSize(filePath);
   fileMd5 = await files.getFileHash(filePath);
+
+  // create a local large file (size 7MB)
+  await files.createBigTmpFile(bigFileName, 7);
+  bigFileSize = files.getFileSize(bigFileName);
+  bigFileMd5 = await files.getFileHash(bigFileName);
+
+  // each part of the large file must be >=5MB (except the last part)
+  bigFileContents = fs.readFileSync(bigFileName);
+  const fiveMbLength = Math.floor(bigFileContents.length * 5/7);
+  bigFileParts = {
+    1: bigFileContents.slice(0, fiveMbLength),
+    2: bigFileContents.slice(fiveMbLength)
+  };
 });
 
 AfterSuite(async (files, indexd, dataUpload) => {
-  // delete the temp file from local storage
+  // delete the temp files from local storage
   if (fs.existsSync(filePath)) {
     files.deleteFile(filePath);
+  }
+  if (fs.existsSync(bigFileName)) {
+    files.deleteFile(bigFileName);
   }
 
   // clean up in indexd and S3 (remove the records created by this test suite)

@@ -32,6 +32,7 @@ module.exports = {
 
   /**
    * upload part of a file to an S3 bucket using a presigned URL
+   * @returns {string} the ETag
    */
   async uploadFilePartToS3(presignedUrl, data) {
     return I.sendPutRequest(

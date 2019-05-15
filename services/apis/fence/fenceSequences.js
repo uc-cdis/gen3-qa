@@ -114,6 +114,7 @@ module.exports = {
    */
   async initMultipartUpload(fileName, accessHeader) {
       const res = await fenceTasks.initMultipartUpload(fileName, accessHeader);
+      expect(res, 'Unable to initialize multipart upload').to.have.property('statusCode', 201);
       expect(res, 'Unable to initialize multipart upload').to.have.nested.property('body.guid');
       expect(res, 'Unable to initialize multipart upload').to.have.nested.property('body.uploadId');
       return {
@@ -132,6 +133,7 @@ module.exports = {
    */
   async getUrlForMultipartUpload(key, uploadId, partNumber, accessHeader) {
       const res = await fenceTasks.getUrlForMultipartUpload(key, uploadId, partNumber, accessHeader);
+      expect(res, 'Unable to upload a part during multipart upload').to.have.property('statusCode', 200);
       expect(res, 'Fence did not return a URL for multipart upload').to.have.nested.property('body.presigned_url');
       return {
         url: res.body.presigned_url,

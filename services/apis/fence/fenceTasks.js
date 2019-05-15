@@ -231,7 +231,7 @@ module.exports = {
    * @param {int} expires_in - requested expiration time (in seconds)
    * @returns {Promise<Gen3Response|*>}
    */
-  async linkGoogleAcctMocked(userAcct,expires_in=null) {
+  async linkGoogleAcctMocked(userAcct, expires_in=null) {
     // visit link endpoint. Google login is mocked
     let headers = userAcct.accessTokenHeader;
     headers.Cookie = 'dev_login=' + userAcct.username;
