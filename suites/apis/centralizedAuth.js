@@ -299,9 +299,9 @@ Scenario('User without policies cannot CRUD indexd records in /gen3 or /abc @ind
     const filename_change = {
       'file_name': 'test_filename'
     }
-    const gen3_update_response = indexd.do.updateFile(
+    const gen3_update_response = await indexd.do.updateFile(
         new_gen3_records.fooBarFile, filename_change, users.user2.accessTokenHeader)
-    const abc_update_response = indexd.do.updateFile(
+    const abc_update_response = await indexd.do.updateFile(
         new_abc_records.fooBarFile, filename_change, users.user2.accessTokenHeader)
 
     // asserts for update
@@ -315,9 +315,9 @@ Scenario('User without policies cannot CRUD indexd records in /gen3 or /abc @ind
     ).to.not.have.property('did');
 
     // delete
-    const gen3_delete_response = indexd.do.deleteFile(
+    const gen3_delete_response = await indexd.do.deleteFile(
         new_gen3_records.deleteMe, users.user2.accessTokenHeader)
-    const abc_delete_response = indexd.do.deleteFile(
+    const abc_delete_response = await indexd.do.deleteFile(
         new_abc_records.deleteMe, users.user2.accessTokenHeader)
 
     // asserts for delete

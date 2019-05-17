@@ -24,6 +24,8 @@ module.exports = {
   /**
    * Adds files to indexd
    * @param {Object[]} files - array of indexd files
+   * @param {Object} authHeaders - headers in include in request. defaults to main
+   *                 user account (mainAcct)'s access token
    * @returns {Array<Promise<>>}
    */
   async addFileIndices(files, authHeaders = user.mainAcct.indexdAuthHeader) {
@@ -83,7 +85,9 @@ module.exports = {
 
   /**
    * Fetches indexd res data for file and assigns 'rev', given an indexd file object with a did
-   * @param {Object} fileNode - Assumed to have a did property
+   * @param {Object} file - Assumed to have a did property
+   * @param {Object} authHeaders - headers in include in request. defaults to main
+   *                 user account (mainAcct)'s access token
    * @returns {Promise<Gen3Response>}
    */
   async getFileFullRes(file, authHeaders = user.mainAcct.accessTokenHeader) {
@@ -93,13 +97,15 @@ module.exports = {
       authHeaders,
     ).then((res) => {
       file.rev = getRevFromResponse(res);
-      return res;
+      return new Gen3Response(res);
     });
   },
 
   /**
    * Fetches indexd data for file and assigns 'rev', given an indexd file object with a did
-   * @param {Object} fileNode - Assumed to have a did property
+   * @param {Object} file - Assumed to have a did property
+   * @param {Object} authHeaders - headers in include in request. defaults to main
+   *                 user account (mainAcct)'s access token
    * @returns {Promise<Gen3Response>}
    */
   async getFile(file, authHeaders = user.mainAcct.accessTokenHeader) {
@@ -115,7 +121,9 @@ module.exports = {
 
   /**
    * Updates indexd data for file
-   * @param {Object} fileNode - Assumed to have a did property
+   * @param {Object} file - Assumed to have a did property
+   * @param {Object} authHeaders - headers in include in request. defaults to main
+   *                 user account (mainAcct)'s access token
    * @returns {Promise<Gen3Response>}
    */
   async updateFile(file, data, authHeaders = user.mainAcct.indexdAuthHeader) {
@@ -141,7 +149,9 @@ module.exports = {
   /**
    * Deletes the file from indexd, given an indexd file object with did and rev
    * Response is added to the file object
-   * @param {Object} file
+   * @param {Object} file - Assumed to have a did property
+   * @param {Object} authHeaders - headers in include in request. defaults to main
+   *                 user account (mainAcct)'s access token
    * @returns {Promise<Promise|*|PromiseLike<T>|Promise<T>>}
    */
   async deleteFile(file, authHeaders = user.mainAcct.indexdAuthHeader) {
@@ -161,7 +171,7 @@ module.exports = {
     ).then((res) => {
       // Note that we use the entire response, not just the response body
       file.indexd_delete_res = res;
-      return res;
+      return new Gen3Response(res);
     });
   },
 
