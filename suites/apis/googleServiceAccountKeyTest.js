@@ -100,7 +100,7 @@ Scenario('Get current SA creds @reqGoogle', async (fence, users) => {
   expect(key2.length,
     'Only the SA key that was not deleted should be listed'
   ).to.equal(1);
-});
+}).retry(2);
 
 
 Scenario('Test no data access anymore after SA key is deleted @reqGoogle', async (fence, users, google, files) => {
@@ -157,7 +157,7 @@ Scenario('Delete SA creds that do not exist @reqGoogle', async (fence, users) =>
   expect(deleteRes,
     'Deleting a SA key that does not exist should return 404'
   ).has.property('statusCode', 404);
-});
+}).retry(2);
 
 
 Scenario('SA key removal job test: remove expired creds @reqGoogle', async (fence, users, google, files) => {

@@ -211,7 +211,7 @@ module.exports = {
    */
   async clearPreviousUploadFiles(userAccount) {
     I.sendGetRequest(
-      `${indexdProps.endpoints.get}/?acl=null&uploader=${userAccount.username}`,
+      `${indexdProps.endpoints.get}/?acl=null&authz=null&uploader=${userAccount.username}`,
       userAccount.accessTokenHeader,
     ).then((res) => {
       if (!res.body && !res.body.records) return;
