@@ -56,6 +56,9 @@ donot() {
   doNotRunRegex="${doNotRunRegex}${or}$1"
 }
 
+# Do not run performance testing
+donot '@Performance'
+
 #----------------------------------------------------
 # main
 #
@@ -157,14 +160,6 @@ if [[ "$service" != "arborist" && "$service" != "gen3-qa" && "$service" != "fenc
   donot '@indexdJWT'
 else
   echo "INFO: enabling Centralized Auth tests for $service"
-fi
-
-# Disable performance testing for gen3-qa PRs
-if [[ "$service" != "gen3-qa" ]]; then
-  echo "INFO: disabling performance tests for $service"
-  donot '@Performance'
-else
-  echo "INFO: enabling performance tests for $service"
 fi
 
 echo "Checking kubernetes for optional services to test"
