@@ -1,9 +1,10 @@
-// const explorerQuestions = require('./explorerQuestions.js');
-// const explorerTasks = require('./explorerTasks.js');
+const explorerQuestions = require('./explorerQuestions.js');
+const explorerTasks = require('./explorerTasks.js');
+const explorerProps = require('./explorerProps.js');
 
 /**
  * explorer sequences
  */
 module.exports = {
-  // Sequences are for an service to combine multiple tasks and questions
+  
 };

@@ -28,7 +28,7 @@ class SshK8s extends Base {
         { shell: '/bin/bash' }).toString('utf8'));
     } else {
       return cleanResult(execSync(
-        `ssh ${commonsUser}@cdistest.csoc 'set -i; source ~/.bashrc; g3kubectl exec $(gen3 pod ${service} ${namespace}) -- ${cmd}'`,
+        `ssh ${commonsUser}@cdistest_dev.csoc 'set -i; source ~/.bashrc; g3kubectl exec $(gen3 pod ${service} ${namespace}) -- ${cmd}'`,
         { shell: '/bin/sh' }
       ).toString('utf8'));
     }
