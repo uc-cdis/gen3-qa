@@ -617,7 +617,7 @@ module.exports = {
         parts,
       }),
       accessHeader,
-    ).then(res =>new Gen3Response(res));
+    ).then(res => new Gen3Response(res));
   },
 
   /**

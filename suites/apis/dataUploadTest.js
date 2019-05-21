@@ -360,7 +360,7 @@ Scenario('Failed multipart upload: wrong ETag for completion', async (users, fen
   // complete the multipart upload
   console.log("Trying to complete multipart upload");
   const completeRes = await fence.do.completeMultipartUpload(key, initRes.uploadId, partsSummary, accessHeader);
-  expect(completeRes, 'Should not have been able to complete multipart upload with wrong ETags').to.have.property('statusCode', 400);
+  expect(completeRes, 'Should not have been able to complete multipart upload with wrong ETags').to.not.have.property('statusCode', 200);
 
   // try to download the file
   console.log("Try to download the file");
