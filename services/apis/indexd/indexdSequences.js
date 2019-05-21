@@ -24,7 +24,7 @@ module.exports = {
     const res = await indexdTasks.deleteFile(indexdFile);
     indexdQuestions.deleteFileSuccess(res, indexdFile);
 
-    const getRes = await indexdTasks.getFile(indexdFile);
+    const getRes = await indexdTasks.getFileFullRes(indexdFile);
     indexdQuestions.recordDoesNotExist(getRes);
   },
 
