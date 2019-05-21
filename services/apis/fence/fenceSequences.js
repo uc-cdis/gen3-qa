@@ -107,6 +107,54 @@ module.exports = {
   },
 
   /**
+   * Hits fence's multipart upload initialization endpoint
+   * @param {string} fileName - name of the file that will be uploaded
+   * @param {string} accessToken - access token
+   * @returns {object} { guid, uploadId }
+   */
+  async initMultipartUpload(fileName, accessHeader) {
+      const res = await fenceTasks.initMultipartUpload(fileName, accessHeader);
+      expect(res, 'Unable to initialize multipart upload').to.have.property('statusCode', 201);
+      expect(res, 'Unable to initialize multipart upload').to.have.nested.property('body.guid');
+      expect(res, 'Unable to initialize multipart upload').to.have.nested.property('body.uploadId');
+      return {
+        guid: res.body.guid,
+        uploadId: res.body.uploadId,
+      }
+  },
+
+  /**
+   * Hits fence's signed url for multipart upload endpoint
+   * @param {string} key - object's key in format "GUID/filename" (GUID as returned by initMultipartUpload)
+   * @param {string} uploadId - object's uploadId (as returned by initMultipartUpload)
+   * @param {string} partNumber - upload part number, starting from 1
+   * @param {string} accessToken - access token
+   * @returns {object} { url }
+   */
+  async getUrlForMultipartUpload(key, uploadId, partNumber, accessHeader) {
+      const res = await fenceTasks.getUrlForMultipartUpload(key, uploadId, partNumber, accessHeader);
+      expect(res, 'Unable to upload a part during multipart upload').to.have.property('statusCode', 200);
+      expect(res, 'Fence did not return a URL for multipart upload').to.have.nested.property('body.presigned_url');
+      return {
+        url: res.body.presigned_url,
+      }
+  },
+
+  /**
+   * Hits fence's multipart upload completion endpoint
+   * @param {string} key - object's key in format "GUID/filename" (GUID as returned by initMultipartUpload)
+   * @param {string} uploadId - object's uploadId (as returned by initMultipartUpload)
+   * @param {string} parts - list of {partNumber, ETag} objects (as returned when uploading using the URL returned by getUrlForMultipartUpload)
+   * @param {string} accessToken - access token
+   * @returns {Promise<Gen3Response>}
+   */
+  async completeMultipartUpload(key, uploadId, parts, accessHeader) {
+    const res = await fenceTasks.completeMultipartUpload(key, uploadId, parts, accessHeader);
+    expect(res, 'Unable to complete multipart upload').to.have.property('statusCode', 200);
+    return res;
+  },
+
+  /**
    * Deletes a file from indexd and S3
    * @param {string} guid - GUID of the file to delete
    */
