@@ -198,9 +198,11 @@ module.exports = {
       var file = {
         did: guid
       };
-      await this.getFile(file); // adds 'rev' to the file
-      var res = await this.deleteFile(file);
-      fileList.push(file);
+      var fileRes = await this.getFile(file); // adds 'rev' to the file
+      if (!fileRes.error) {
+        var res = await this.deleteFile(file);
+        fileList.push(file);
+      }
     }
     return fileList;
   },
