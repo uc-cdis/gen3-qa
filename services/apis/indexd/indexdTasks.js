@@ -157,21 +157,21 @@ module.exports = {
   async deleteFile(file, authHeaders = user.mainAcct.indexdAuthHeader) {
     authHeaders['Content-Type'] = 'application/json; charset=UTF-8';
     // always update revision
-    await I.sendGetRequest(
+    return I.sendGetRequest(
       `${indexdProps.endpoints.get}/${file.did}`,
       authHeaders,
     ).then((res) => {
       // get last revision
       file.rev = getRevFromResponse(res);
-    });
 
-    return I.sendDeleteRequest(
-      `${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`,
-      authHeaders,
-    ).then((res) => {
-      // Note that we use the entire response, not just the response body
-      file.indexd_delete_res = res;
-      return new Gen3Response(res);
+      return I.sendDeleteRequest(
+        `${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`,
+        authHeaders,
+      ).then((res) => {
+        // Note that we use the entire response, not just the response body
+        file.indexd_delete_res = res;
+        return new Gen3Response(res);
+      });
     });
   },
 
