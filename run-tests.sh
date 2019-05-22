@@ -160,7 +160,14 @@ if ! (g3kubectl get pods --no-headers -l app=spark | grep spark) > /dev/null 2>&
   donot '@etl'
 fi
 if ! (g3kubectl get pods --no-headers -l app=ssjdispatcher | grep ssjdispatcher) > /dev/null 2>&1; then
+  # do not run data upload tests if the data upload flow is not deployed
   donot '@dataUpload'
+else
+  if [[ "$service" == "cdis-manifest" ]]; then
+    # do not run multipart upload tests in cdis-manifest
+    # (reenable when all commons have fence>=2.8.0)
+    donot '@multipartUpload'
+  fi
 fi
 
 testArgs="--reporter mocha-multi"
