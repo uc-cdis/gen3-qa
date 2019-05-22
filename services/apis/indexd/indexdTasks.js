@@ -157,13 +157,15 @@ module.exports = {
   async deleteFile(file, authHeaders = user.mainAcct.indexdAuthHeader) {
     authHeaders['Content-Type'] = 'application/json; charset=UTF-8';
     // always update revision
+    console.log(`request delete file: ${file.did}?rev=${file.rev}`);
     return I.sendGetRequest(
       `${indexdProps.endpoints.get}/${file.did}`,
       authHeaders,
     ).then((res) => {
+      console.log(`deleting file: ${file.did}?rev=${file.rev}`);
       // get last revision
       file.rev = getRevFromResponse(res);
-
+      console.log(`Calling: ${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`);
       return I.sendDeleteRequest(
         `${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`,
         authHeaders,
