@@ -33,7 +33,6 @@ class Commons{
   // these files exist in cloud automation repo, check there for details
   static get userAccessFiles() {
     return {
-      newUserAccessFile1: 'test1_user.yaml',
       newUserAccessFile2: 'test2_user.yaml' // used to modify access to integration tests users
     }
   }
