@@ -157,27 +157,23 @@ module.exports = {
   async deleteFile(file, authHeaders = user.mainAcct.indexdAuthHeader) {
     authHeaders['Content-Type'] = 'application/json; charset=UTF-8';
     // always update revision
-    if (file.did) {
-      return I.sendGetRequest(
-        `${indexdProps.endpoints.get}/${file.did}`,
+    return I.sendGetRequest(
+      `${indexdProps.endpoints.get}/${file.did}`,
+      authHeaders,
+    ).then((res) => {
+      console.log(`deleting file: ${file.did}`);
+      // get last revision
+      file.rev = getRevFromResponse(res);
+      console.log(`deleting file with rev: ${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`);
+      return I.sendDeleteRequest(
+        `${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`,
         authHeaders,
       ).then((res) => {
-        console.log(`deleting file: ${file.did}`);
-        // get last revision
-        file.rev = getRevFromResponse(res);
-        console.log(`deleting file with rev: ${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`);
-        return I.sendDeleteRequest(
-          `${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`,
-          authHeaders,
-        ).then((res) => {
-          if (file) {
-            // Note that we use the entire response, not just the response body
-            file.indexd_delete_res = res;
-          }
-          return new Gen3Response(res);
-        });
+        // Note that we use the entire response, not just the response body
+        file.indexd_delete_res = res;
+        return new Gen3Response(res);
       });
-    }
+    });
   },
 
   /**
@@ -207,6 +203,8 @@ module.exports = {
       if (!fileRes.error) {
         var res = await this.deleteFile(file);
         fileList.push(file);
+      } else {
+        console.log(`Could not delete file, since attempting to get it resulted in error: ${fileRes.error}`);
       }
     }
     return fileList;
