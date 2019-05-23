@@ -70,14 +70,14 @@ runServiceTestsIfVersion() {
     versionAsNumber=9000
   else
     # version is actually a pinned number, not a branch name or master
-    versionAsNumber=$(currentVersion)
+    versionAsNumber=$currentVersion
   fi
 
   min=$(echo "$3" "$versionAsNumber" | awk '{if ($1 < $2) print $1; else print $2}')
   if [ "$min" = "$3" ]; then
-    echo "RUNNING $2 tests b/c $1 version ($(currentVersion)) is greater than $3"
+    echo "RUNNING $2 tests b/c $1 version ($currentVersion) is greater than $3"
   else
-    echo "SKIPPING $2 tests b/c $1 version ($(currentVersion)) is less than $3"
+    echo "SKIPPING $2 tests b/c $1 version ($currentVersion) is less than $3"
     donot $2
   fi
 }
