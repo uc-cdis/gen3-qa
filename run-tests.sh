@@ -54,7 +54,8 @@ getServiceVersion() {
 runServiceTestsIfVersion() {
   local currentVersion
   currentVersion=$(getServiceVersion $1)
-  if [ currentVersion < $3 ]; then
+  min=$(echo "$3" "$currentVersion" | awk '{if ($1 < $2) print $1; else print $2}')
+  if [ "$min" != "$3" ]; then
     echo "SKIPPING $2 tests b/c $1 version ($(currentVersion)) is not greater than or equal to $3"
     donot $2
   fi
