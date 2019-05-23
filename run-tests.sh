@@ -54,9 +54,30 @@ getServiceVersion() {
 runServiceTestsIfVersion() {
   local currentVersion
   currentVersion=$(getServiceVersion $1)
-  min=$(echo "$3" "$currentVersion" | awk '{if ($1 < $2) print $1; else print $2}')
-  if [ "$min" != "$3" ]; then
-    echo "SKIPPING $2 tests b/c $1 version ($(currentVersion)) is not greater than or equal to $3"
+
+  # check if currentVersion is actually a number
+  # NOTE: this assumes that all releases are tagged with actual numbers like:
+  #       2.8.0, 3.0.0, 3.0, 0.2, 0.2.1.5, etc
+  re='[0-9]+([.][0-9])+'
+  if ! [[ $currentVersion =~ $re ]] ; then
+    # force non-version numbers (e.g. branches and master)
+    # to be some arbitrary large number, so that it will
+    # cause next comparison to run the optional test.
+    # NOTE: The assumption here is that branches and master should run all the tests,
+    #       if you've branched off an old version that actually should NOT run the tests..
+    #       this script cannot currently handle that
+    # hopefully our service versions are never "OVER 9000!"
+    versionAsNumber=9000
+  else
+    # version is actually a pinned number, not a branch name or master
+    versionAsNumber=$(currentVersion)
+  fi
+
+  min=$(echo "$3" "$versionAsNumber" | awk '{if ($1 < $2) print $1; else print $2}')
+  if [ "$min" = "$3" ]; then
+    echo "RUNNING $2 tests b/c $1 version ($(currentVersion)) is greater than $3"
+  else
+    echo "SKIPPING $2 tests b/c $1 version ($(currentVersion)) is less than $3"
     donot $2
   fi
 }
