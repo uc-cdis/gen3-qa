@@ -48,7 +48,7 @@ getServiceVersion() {
 # Takes 3 arguments:
 #   $1 service name
 #   $2 test tag to avoid until version is greater than next arg
-#   $3 versio of service where tests apply >=
+#   $3 version of service where tests apply >=
 #
 # ex: runServiceTestsIfVersion "fence" "@multipartupload" "3.0.0"
 runServiceTestsIfVersion() {
