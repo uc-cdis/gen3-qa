@@ -100,6 +100,8 @@ donot() {
   doNotRunRegex="${doNotRunRegex}${or}$1"
 }
 
+doNotRunRegex=""
+
 #----------------------------------------------------
 # main
 #
@@ -189,7 +191,7 @@ envsRequireGoogle="dcp.bionimbus.org gen3.datastage.io nci-crdc-staging.datacomm
 # DataClientCLI tests require a fix to avoid parallel test runs
 # contending over config files in the home directory
 #
-doNotRunRegex="@dataClientCLI"
+donot '@dataClientCLI'
 
 # Do not run performance testing
 donot '@Performance'
