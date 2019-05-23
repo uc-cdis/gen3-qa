@@ -40,4 +40,3 @@ module.exports = {
     expect(mountOutput).to.contain(manifestFilename);
   },
 };
-
