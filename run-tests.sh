@@ -31,6 +31,35 @@ dryrun() {
   fi
 }
 
+# Takes one argument, being service name
+getServiceVersion() {
+  local command
+  local response
+  local version
+  command="g3kubectl get configmap manifest-versions -o json | jq -r .data.json | jq -r .$1"
+  response=$(eval "$command")
+
+  # Get last item of delimited string using string operators:
+  #    https://www.linuxjournal.com/article/8919
+  version=${response##*:}
+  echo $version
+}
+
+# Takes 3 arguments:
+#   $1 service name
+#   $2 test tag to avoid until version is greater than next arg
+#   $3 versio of service where tests apply >=
+#
+# ex: runServiceTestsIfVersion "fence" "@multipartupload" "3.0.0"
+runServiceTestsIfVersion() {
+  local currentVersion
+  currentVersion=$(getServiceVersion $1)
+  if [ currentVersion < $3 ]; then
+    echo "SKIPPING $2 tests b/c $1 version ($(currentVersion)) is not greater than or equal to $3"
+    donot $2
+  fi
+}
+
 
 # environments that use DCF features
 # we only run Google Data Access tests for cdis-manifest PRs to these
@@ -162,18 +191,22 @@ fi
 if ! (g3kubectl get pods --no-headers -l app=ssjdispatcher | grep ssjdispatcher) > /dev/null 2>&1; then
   # do not run data upload tests if the data upload flow is not deployed
   donot '@dataUpload'
-else
-  if [[ "$service" == "cdis-manifest" ]]; then
-    # do not run multipart upload tests in cdis-manifest
-    # (reenable when all commons have fence>=2.8.0)
-    donot '@multipartUpload'
-  fi
+# else
+#   if [[ "$service" == "cdis-manifest" ]]; then
+#     # do not run multipart upload tests in cdis-manifest
+#     # (reenable when all commons have fence>=2.8.0)
+#     donot '@multipartUpload'
+#   fi
 fi
+
+runServiceTestsIfVersion "fence" "@multipartUpload" "2.8.0"
 
 testArgs="--reporter mocha-multi"
 if [[ -n "$doNotRunRegex" ]]; then
   testArgs="${testArgs} --grep '${doNotRunRegex}' --invert"
 fi
+
+echo $testArgs
 
 (
   export NAMESPACE="$namespaceName"
