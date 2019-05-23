@@ -251,7 +251,7 @@ Edit `run-tests.sh`.
 _Example situation_: Fence only supports centralized auth after version `3.0.0`. In other words, we don't want to run the `@centralizedAuth` tag in envs that are *not* running at least fence `3.0.0`. You can make that explicit in the `run-tests.sh` file:
 
 ```
-runServiceTestsIfVersion "fence" "@centralizedAuth" "3.0.0"
+runTestsIfServiceVersion "@centralizedAuth" "fence" "3.0.0"
 ```
 
 This will disable the `@centralizedAuth` tests on any pinned version of fence less than `3.0.0`.

@@ -46,14 +46,19 @@ getServiceVersion() {
 }
 
 # Takes 3 arguments:
-#   $1 service name
-#   $2 test tag to avoid until version is greater than next arg
-#   $3 versio of service where tests apply >=
+#   $1 test tag to avoid until service version is greater than last arg
+#   $2 service name
+#   $3 version of service where tests apply >=
 #
-# ex: runServiceTestsIfVersion "fence" "@multipartupload" "3.0.0"
-runServiceTestsIfVersion() {
+# ex: runTestsIfServiceVersion "@multipartupload" "fence" "3.0.0"
+runTestsIfServiceVersion() {
+  # make sure args provided
+  if [[ -z "$1" || -z "$2" || -z "$3" ]]; then
+    return 0
+  fi
+
   local currentVersion
-  currentVersion=$(getServiceVersion $1)
+  currentVersion=$(getServiceVersion $2)
 
   # check if currentVersion is actually a number
   # NOTE: this assumes that all releases are tagged with actual numbers like:
@@ -75,10 +80,10 @@ runServiceTestsIfVersion() {
 
   min=$(echo "$3" "$versionAsNumber" | awk '{if ($1 < $2) print $1; else print $2}')
   if [ "$min" = "$3" ]; then
-    echo "RUNNING $2 tests b/c $1 version ($currentVersion) is greater than $3"
+    echo "RUNNING $1 tests b/c $2 version ($currentVersion) is greater than $3"
   else
-    echo "SKIPPING $2 tests b/c $1 version ($currentVersion) is less than $3"
-    donot $2
+    echo "SKIPPING $1 tests b/c $2 version ($currentVersion) is less than $3"
+    donot $1
   fi
 }
 
@@ -173,8 +178,8 @@ dryrun npm ci
 
 ################################ Disable Test Tags #####################################
 
-runServiceTestsIfVersion "fence" "@multipartUpload" "2.8.0"
-runServiceTestsIfVersion "fence" "@centralizedAuth" "3.0.0"
+runTestsIfServiceVersion "@multipartUpload" "fence" "2.8.0"
+runTestsIfServiceVersion "@centralizedAuth" "fence" "3.0.0"
 
 # environments that use DCF features
 # we only run Google Data Access tests for cdis-manifest PRs to these
