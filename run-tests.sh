@@ -82,18 +82,6 @@ runServiceTestsIfVersion() {
   fi
 }
 
-
-# environments that use DCF features
-# we only run Google Data Access tests for cdis-manifest PRs to these
-envsRequireGoogle="dcp.bionimbus.org gen3.datastage.io nci-crdc-staging.datacommons.io nci-crdc.datacommons.io"
-
-
-#
-# DataClientCLI tests require a fix to avoid parallel test runs
-# contending over config files in the home directory
-#      
-doNotRunRegex="@dataClientCLI"
-
 # little helper to maintain doNotRunRegex
 donot() {
   local or
@@ -106,9 +94,6 @@ donot() {
   fi
   doNotRunRegex="${doNotRunRegex}${or}$1"
 }
-
-# Do not run performance testing
-donot '@Performance'
 
 #----------------------------------------------------
 # main
@@ -186,8 +171,23 @@ EOM
 echo 'INFO: installing dependencies'
 dryrun npm ci
 
-exitCode=0
+################################ Disable Test Tags #####################################
 
+runServiceTestsIfVersion "fence" "@multipartUpload" "2.8.0"
+runServiceTestsIfVersion "fence" "@centralizedAuth" "3.0.0"
+
+# environments that use DCF features
+# we only run Google Data Access tests for cdis-manifest PRs to these
+envsRequireGoogle="dcp.bionimbus.org gen3.datastage.io nci-crdc-staging.datacommons.io nci-crdc.datacommons.io"
+
+#
+# DataClientCLI tests require a fix to avoid parallel test runs
+# contending over config files in the home directory
+#
+doNotRunRegex="@dataClientCLI"
+
+# Do not run performance testing
+donot '@Performance'
 
 #
 # Google Data Access tests are not yet stable enough to run in all PR's -
@@ -213,22 +213,16 @@ fi
 if ! (g3kubectl get pods --no-headers -l app=ssjdispatcher | grep ssjdispatcher) > /dev/null 2>&1; then
   # do not run data upload tests if the data upload flow is not deployed
   donot '@dataUpload'
-# else
-#   if [[ "$service" == "cdis-manifest" ]]; then
-#     # do not run multipart upload tests in cdis-manifest
-#     # (reenable when all commons have fence>=2.8.0)
-#     donot '@multipartUpload'
-#   fi
 fi
 
-runServiceTestsIfVersion "fence" "@multipartUpload" "2.8.0"
+########################################################################################
 
 testArgs="--reporter mocha-multi"
 if [[ -n "$doNotRunRegex" ]]; then
   testArgs="${testArgs} --grep '${doNotRunRegex}' --invert"
 fi
 
-echo $testArgs
+exitCode=0
 
 (
   export NAMESPACE="$namespaceName"

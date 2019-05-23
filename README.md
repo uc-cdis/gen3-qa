@@ -242,3 +242,18 @@ Adding a tag (`@tag`) to a Scenario name allows filtering which tests are run. I
 Scenario('test something @reqGoogle', () => {...});
 ```
 Then using CodeceptJS's `--grep` flag we can filter the tags for example, to run only tests that have been flagged with `@DCFOnly`, we could do `npm test -- --grep '@DCFOnly'`. We can also invert the flags with `--grep '@DCFOnly' --invert` (see [CodeceptJS's command docs](https://codecept.io/commands/)).
+
+
+### Conditionally Running Tests Based on Service Versions
+
+Edit `run-tests.sh`.
+
+_Example situation_: Fence only supports centralized auth after version `3.0.0`. In other words, we don't want to run the `@centralizedAuth` tag in envs that are *not* running at least fence `3.0.0`. You can make that explicit in the `run-tests.sh` file:
+
+```
+runServiceTestsIfVersion "fence" "@centralizedAuth" "3.0.0"
+```
+
+This will disable the `@centralizedAuth` tests on any pinned version of fence less than `3.0.0`.
+
+> NOTE: Fence `master` and **any** branch *will* run the tests.
