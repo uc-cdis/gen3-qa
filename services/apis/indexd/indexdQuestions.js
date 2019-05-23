@@ -36,7 +36,7 @@ module.exports = {
 
   /**
    * Asserts a record was successfully deleted from indexd
-   * @param {Object} ffileNode
+   * @param {Object} fileNode
    */
   deleteFileSuccess(fileNode, res, msg='') {
     const delete_msg = msg + ' The record was not deleted from indexd.';
