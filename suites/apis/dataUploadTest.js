@@ -274,7 +274,7 @@ Scenario('Upload the same file twice @dataUpload', async (sheepdog, indexd, node
 /**
  * Use fence's multipart upload endpoints to upload a large data file (>5MB)
  */
-Scenario('Successful multipart upload', async (users, fence, indexd, dataUpload) => {
+Scenario('Successful multipart upload @dataUpload @multipartUpload', async (users, fence, indexd, dataUpload) => {
   // initialize the multipart upload
   console.log("Initializing multipart upload");
   const accessHeader = users.mainAcct.accessTokenHeader;
@@ -328,7 +328,7 @@ Scenario('Successful multipart upload', async (users, fence, indexd, dataUpload)
  * Use fence's multipart upload endpoints to upload a large data file (>5MB).
  * Fail to complete the upload because of a wrong ETag input
  */
-Scenario('Failed multipart upload: wrong ETag for completion', async (users, fence, dataUpload) => {
+Scenario('Failed multipart upload: wrong ETag for completion @dataUpload @multipartUpload', async (users, fence, dataUpload) => {
   // initialize the multipart upload
   console.log("Initializing multipart upload");
   const accessHeader = users.mainAcct.accessTokenHeader;
