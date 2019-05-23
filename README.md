@@ -10,10 +10,10 @@ Run a test locally against a dev environment like this:
 docker run -d -p 4444:4444 --name=selenium --rm -v /dev/shm:/dev/shm selenium/standalone-chrome
 
 # basic run - some tests require more setup than this
-RUNNING_LOCAL=true NAMESPACE=yourDevNamespace npm test --  --verbose suites/.../myTest.js
+RUNNING_LOCAL=true NAMESPACE=yourDevNamespace npm test -- --verbose --grep '@dataClientCLI|@reqGoogle' --invert suites/.../myTest.js
 ```
 
-## Generating test data for sheepdog tests
+## Generating test data for tests
 
 ```
 export TEST_DATA_PATH="$(pwd)/testData"
@@ -25,8 +25,11 @@ docker run -it -v "${TEST_DATA_PATH}:/mnt/data" --rm --name=dsim --entrypoint=da
 
 docker run -it -v "${TEST_DATA_PATH}:/mnt/data" --rm --name=dsim --entrypoint=data-simulator quay.io/cdis/data-simulator:master submission_order --url "${TEST_DICTIONARY}" --path /mnt/data --node_name submitted_unaligned_reads
 
-RUNNING_LOCAL=true NAMESPACE=reuben npm test -- --verbose suites/apis/submitAndQueryNodesTest.js
+RUNNING_LOCAL=true NAMESPACE=reuben npm test -- --verbose --grep '@dataClientCLI|@reqGoogle' --invert suites/apis/submitAndQueryNodesTest.js
 ```
+
+Note that the `--grep ... --invert ...` is necessary to disable
+setup for "google" tests that require a custom test environment.
 
 After running the test suite several times (or once) you may need to clear out the
 databases in your dev environment, so that old data does not interfere with new test runs.  The `gen3 reset` command automates the process to reset the `fence`, `indexd`, and `sheepdog` databases, but should only be run against a personal copy of the database (most of our dev environments point at a personal database schema).
@@ -239,3 +242,18 @@ Adding a tag (`@tag`) to a Scenario name allows filtering which tests are run. I
 Scenario('test something @reqGoogle', () => {...});
 ```
 Then using CodeceptJS's `--grep` flag we can filter the tags for example, to run only tests that have been flagged with `@DCFOnly`, we could do `npm test -- --grep '@DCFOnly'`. We can also invert the flags with `--grep '@DCFOnly' --invert` (see [CodeceptJS's command docs](https://codecept.io/commands/)).
+
+
+### Conditionally Running Tests Based on Service Versions
+
+Edit `run-tests.sh`.
+
+_Example situation_: Fence only supports centralized auth after version `3.0.0`. In other words, we don't want to run the `@centralizedAuth` tag in envs that are *not* running at least fence `3.0.0`. You can make that explicit in the `run-tests.sh` file:
+
+```
+runTestsIfServiceVersion "@centralizedAuth" "fence" "3.0.0"
+```
+
+This will disable the `@centralizedAuth` tests on any pinned version of fence less than `3.0.0`.
+
+> NOTE: Fence `master` and **any** branch *will* run the tests.

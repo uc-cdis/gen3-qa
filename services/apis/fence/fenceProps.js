@@ -40,6 +40,9 @@ module.exports = {
     adminEndPoint: `${rootEndpoint}/admin`,
     uploadFile: `${rootEndpoint}/data/upload`,
     deleteFile: `${rootEndpoint}/data`,
+    multipartUploadInit: `${rootEndpoint}/data/multipart/init`,
+    multipartUpload: `${rootEndpoint}/data/multipart/upload`,
+    multipartUploadComplete: `${rootEndpoint}/data/multipart/complete`,
   },
 
   monitorServiceAccount: 'fence-service@dcf-integration.iam.gserviceaccount.com',
