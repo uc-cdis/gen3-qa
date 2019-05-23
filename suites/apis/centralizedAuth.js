@@ -431,7 +431,7 @@ Scenario('User with access can CRUD indexd records in namespace, not outside nam
       msg='should have gotten unauthorized for deleting record under `/gen3`'
     );
     indexd.ask.deleteFileSuccess(
-      abc_delete_response, new_abc_records.deleteMe,
+      new_abc_records.deleteMe, abc_delete_response
       msg='user with permission could not delete record under `/abc`.'
     );
     const getRes = await indexd.do.getFileFullRes(new_abc_records.deleteMe);
@@ -538,7 +538,7 @@ Scenario('Client (with access) with user token (with access) can CRUD indexd rec
       msg='should have gotten unauthorized for deleting record under `/gen3`'
     );
     indexd.ask.deleteFileSuccess(
-      abc_delete_response, new_abc_records.deleteMe,
+      new_abc_records.deleteMe, abc_delete_response,
       msg='user with permission could not delete record under `/abc`.'
     );
     const getRes = await indexd.do.getFileFullRes(new_abc_records.deleteMe);

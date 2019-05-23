@@ -38,15 +38,18 @@ module.exports = {
    * Asserts a record was successfully deleted from indexd
    * @param {Object} ffileNode
    */
-  deleteFileSuccess(res, fileNode, msg='') {
+  deleteFileSuccess(fileNode, res, msg='') {
     const delete_msg = msg + ' The record was not deleted from indexd.';
+
     // Note that the delete res is the entire response, not just the body
     expect(fileNode, delete_msg).to.nested.include(
       { 'indexd_delete_res.raw_body': '' }
     );
 
-    const err = msg + 'Did not have expected status code of 200.';
-    expect(res, err).to.have.property('statusCode', 200);
+    if (res) {
+      const err = msg + 'Did not have expected status code of 200.';
+      expect(res, err).to.have.property('statusCode', 200);
+    }
   },
 
   /**

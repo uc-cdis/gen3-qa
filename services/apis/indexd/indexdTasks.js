@@ -170,8 +170,10 @@ module.exports = {
           `${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`,
           authHeaders,
         ).then((res) => {
-          // Note that we use the entire response, not just the response body
-          file.indexd_delete_res = res;
+          if (file) {
+            // Note that we use the entire response, not just the response body
+            file.indexd_delete_res = res;
+          }
           return new Gen3Response(res);
         });
       });

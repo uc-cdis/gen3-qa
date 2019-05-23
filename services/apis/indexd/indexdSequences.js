@@ -22,7 +22,7 @@ module.exports = {
    */
   async deleteFile(indexdFile) {
     const res = await indexdTasks.deleteFile(indexdFile);
-    indexdQuestions.deleteFileSuccess(res, indexdFile);
+    indexdQuestions.deleteFileSuccess(indexdFile, res);
 
     const getRes = await indexdTasks.getFileFullRes(indexdFile);
     indexdQuestions.recordDoesNotExist(getRes);
