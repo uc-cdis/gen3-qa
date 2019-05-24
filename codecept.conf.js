@@ -16,7 +16,7 @@ exports.config = {
           args: [
             '--headless', // for dev, you can comment this line to open actual chrome for easier test
             '--disable-gpu',
-            '--window-size=1920,1080'
+            '--window-size=1920,1080',
           ],
         },
       },
