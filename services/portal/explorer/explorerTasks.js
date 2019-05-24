@@ -22,23 +22,23 @@ module.exports = {
   },
   
   async openDataExplorer() {
-    this.amOnPage('/explorer');
-    await this.waitForElement('.data-explorer', 10);
+    I.amOnPage('/explorer');
+    await I.waitForElement('.data-explorer', 10);
   },
   
   async clickNthFilterTab(n) {
-    await this.click('.filter-group__tab:nth-child(' + n + ')');
+    await I.click('.filter-group__tab:nth-child(' + n + ')');
   },
   
   async clickFirstFilterItemUnderNthGroup(n) {
-    await this.click('.aggregation-card:nth-child(' + n + ') .bucket-item');
+    await I.click('.aggregation-card:nth-child(' + n + ') .bucket-item');
   }, 
   
   async postRequest(endpoint, payload) {
     const header = {
       'Content-Type': 'application/json'
     };
-    return this.sendPostRequest(
+    return I.sendPostRequest(
       BASE_URL + endpoint,
       payload,
       header,
@@ -55,7 +55,7 @@ module.exports = {
     const payload = {
       query: "{ subject { __typename } }"
     };
-    return postRequest.bind(this)('', payload);
+    return postRequest.bind(I)('', payload);
   },
   
   async arrangerAggsStateQuery() {
@@ -74,11 +74,11 @@ module.exports = {
           }\
         }"
     };
-    return postRequest.bind(this)('/aggsStateQuery', payload);
+    return postRequest.bind(I)('/aggsStateQuery', payload);
   },
   
   async arrangerSubjectAggregationQuery() {
-    let aggsRes = await this.arrangerAggsStateQuery();
+    let aggsRes = await I.arrangerAggsStateQuery();
     let fields = aggsRes.body.data.subject.aggsState.state
       .filter(item => item.show)
       .map(item => item.field);
@@ -106,7 +106,7 @@ module.exports = {
         sqon: null
       }
     }
-    return postRequest.bind(this)('/SubjectAggregationsQuery', payload);
+    return postRequest.bind(I)('/SubjectAggregationsQuery', payload);
   },
   
   async arrangerColumnStateQuery() {
@@ -136,6 +136,6 @@ module.exports = {
         }\
       }"
     };
-    return postRequest.bind(this)('/columnsStateQuery', payload);
+    return postRequest.bind(I)('/columnsStateQuery', payload);
   }
 };

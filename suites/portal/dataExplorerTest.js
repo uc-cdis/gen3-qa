@@ -1,9 +1,11 @@
 Feature('Data Explorer');
 
+const user = require('../../utils/user.js');
 const I = actor();
+const portal = require('../../utils/portal.js');
 
 Scenario('test exploring data using filters and sqon view @explorer-only', async (dataExplorer) => {
-  await I.openDataExplorer();
+  await dataExplorer.do.openDataExplorer();
   I.seeVisualizations();
 
   // test filters
