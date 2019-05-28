@@ -154,19 +154,48 @@ const indexed_files = {
     md5: '73d643ec3f4beb9020eef0beed440ae9',
     authz: [
       '/gen3/programs/test_program/projects/test_project1',
-      '/gen3/consents/GRU'
+      '/consents/GRU'
     ],
     size: 42,
   },
-  hmbResearchFile: {
+  gen3HmbResearchFile: {
     filename: 'testdata',
     link: 's3://cdis-presigned-url-test/testdata',
     md5: '73d643ec3f4beb9020eef0beed440af1',
     authz: [
       '/gen3/programs/test_program/projects/test_project1',
-      '/gen3/consents/HMB'
+      '/consents/HMB'
     ],
     size: 43,
+  },
+  abcHmbResearchFile: {
+    filename: 'testdata',
+    link: 's3://cdis-presigned-url-test/testdata',
+    md5: '73d643ec3f4beb90213ef0beed440af1',
+    authz: [
+      '/abc/programs/test_program/projects/test_project1',
+      '/consents/HMB'
+    ],
+    size: 44,
+  },
+  gruResearchFile: {
+    filename: 'testdata',
+    link: 's3://cdis-presigned-url-test/testdata',
+    md5: '73d655ec3f4beb9020eef0beed440af1',
+    authz: [
+      '/gen3/programs/test_program/projects/test_project1',
+      '/consents/GRU'
+    ],
+    size: 45,
+  },
+  openAccessFile: {
+    filename: 'testdata',
+    link: 's3://cdis-presigned-url-test/testdata',
+    md5: '73d643ec3f4beb90212ef0beed440af1',
+    authz: [
+      '/open'
+    ],
+    size: 46,
   }
 }
 
@@ -736,28 +765,131 @@ Scenario('Client with user token WITH permission CAN create signed URL for recor
     ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
 });
 
-/* TODO */
+/******************************** OPEN ACCESS DATA ************************************/
+Scenario('Test open access data with authenticated user @centralizedAuth',
+  async (fence, indexd, users, files) => {
+    console.log('Use user2 to create signed URL for open access file');
+    console.log(indexed_files.openAccessFile.did);
+    const signedUrlRes = await fence.do.createSignedUrlForUser(
+      indexed_files.openAccessFile.did, users.user2.accessTokenHeader);
+
+    let fileContents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlRes);
+
+    chai.expect(fileContents,
+      'User with access could NOT create signed urls and read file for records in ' +
+      'authorized namespace with authorized consent code'
+    ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+});
+
+// TODO: Uncomment when fence is updated to check for "public" indexd files
+// Scenario('Test open access data with anonymous user @centralizedAuth1',
+//   async (fence, indexd, users, files) => {
+//     const signedUrlRes = await fence.do.createSignedUrlForUser(
+//       indexed_files.openAccessFile.did, {});
+
+//     let fileContents = await fence.do.getFileFromSignedUrlRes(
+//       signedUrlRes);
+
+//     chai.expect(fileContents,
+//       'User with access could NOT create signed urls and read file for records in ' +
+//       'authorized namespace with authorized consent code'
+//     ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+// });
+
+/********************************** CONSENT CODES *************************************/
 
 /*
    - Create some records in indexd with consent codes, assign a user both permission
      to the data and permission to use that consent code in separate policies
 */
-// Scenario(' @centralizedAuth',
-//   async (fence, indexd, users, files) => {
-// });
+Scenario('Test create signed URL for file in authorized namespace with authorized consent code (multiple policies) @centralizedAuth',
+  async (fence, indexd, users, files) => {
+    // dcf-integration-test-0@planx-pla.net (user0)
+    //     - gen3-admin
+    //     - hmb-researcher
+    //
+    // gen3HmbResearchFile in `/gen3` namespace but also requires `/consents/HMB`
+    console.log('Use user0 to create signed URL for file under `/gen3` with authorized consent code (multiple policies)')
+    const signedUrlRes = await fence.do.createSignedUrlForUser(
+      indexed_files.gen3HmbResearchFile.did, users.user0.accessTokenHeader);
+
+    let fileContents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlRes);
+
+    chai.expect(fileContents,
+      'User with access could NOT create signed urls and read file for records in ' +
+      'authorized namespace with authorized consent code'
+    ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+});
 
 /*
    - Do the same as above but in a single policy
 */
+Scenario('Test create signed URL for file in authorized namespace with authorized consent code (single policies) @centralizedAuth',
+  async (fence, indexd, users, files) => {
+    // dcf-integration-test-1@planx-pla.net (user1)
+    //     - gen3-hmb-researcher
+    //
+    // gen3HmbResearchFile in `/gen3` namespace but also requires `/consents/HMB`
+    console.log('Use user1 to create signed URL for file under `/gen3` with authorized consent code (single policy)')
+    const signedUrlRes = await fence.do.createSignedUrlForUser(
+      indexed_files.gen3HmbResearchFile.did, users.user1.accessTokenHeader);
+
+    let fileContents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlRes);
+
+    chai.expect(fileContents,
+      'User with access could NOT create signed urls and read file for records in ' +
+      'authorized namespace with authorized consent code'
+    ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+});
 
 
 /*
    - Give user access to program/proj but don't give consent code, make sure they cannot access
      the data
 */
+Scenario('Test cannot create signed URL for file in authorized namespace with UNauthorized consent code @centralizedAuth',
+  async (fence, indexd, users, files) => {
+    // cdis.autotest@gmail.com (mainAcct)
+    //     - abc-admin
+    //
+    // abcHmbResearchFile in `/abc` namespace but also requires `/consents/HMB`
+    console.log('Use mainAcct to create signed URL for file under `/abc` with UNauthorized consent code')
+    const signedUrlRes = await fence.do.createSignedUrlForUser(
+      indexed_files.abcHmbResearchFile.did, users.mainAcct.accessTokenHeader);
+
+    let fileContents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlRes);
+
+    chai.expect(fileContents,
+      'User WITHOUT access COULD create signed urls and read file for records in ' +
+      'authorized namespace with UNauthorized consent code'
+    ).to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+});
 
 
 /*
    - Give user access to program/proj and HMB policy, make sure they CAN access
      files with GRU
 */
+Scenario('Test create signed URL for file in authorized namespace with IMPLIED authorized consent code (based on DUO hierarchy) @centralizedAuth',
+  async (fence, indexd, users, files) => {
+    // dcf-integration-test-0@planx-pla.net (user0)
+    //     - gen3-admin
+    //     - hmb-researcher
+    //
+    // gruResearchFile in `/gen3` namespace but also requires `/consents/HMB`
+    console.log('Use user0 to create signed URL for file under `/gen3` with authorized consent code (multiple policies)')
+    const signedUrlRes = await fence.do.createSignedUrlForUser(
+      indexed_files.gruResearchFile.did, users.user0.accessTokenHeader);
+
+    let fileContents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlRes);
+
+    chai.expect(fileContents,
+      'User with access could NOT create signed urls and read file for records in ' +
+      'authorized namespace with authorized consent code'
+    ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+});
