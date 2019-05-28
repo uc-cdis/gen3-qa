@@ -294,17 +294,29 @@ module.exports = async function (done) {
 
     console.log('Delete then create basic client...\n');
     deleteClient('basic-test-client');
-    const basicClient = createClient(
-      'basic-test-client', 'test-client@example.com', 'basic',
-      arboristPolicies='abc-admin gen3-admin'
-    );
+    if (isIncluded('@centralizedAuth')) {
+      const basicClient = createClient(
+        'basic-test-client', 'test-client@example.com', 'basic',
+        arboristPolicies='abc-admin gen3-admin'
+      );
+    } else {
+      const basicClient = createClient(
+        'basic-test-client', 'test-client@example.com', 'basic'
+      );
+    }
 
     console.log('Delete then create another basic client...\n');
     deleteClient('basic-test-abc-client');
-    const basicAbcClient = createClient(
-      'basic-test-abc-client', 'test-abc-client@example.com', 'basic',
-      arboristPolicies='abc-admin'
-    );
+    if (isIncluded('@centralizedAuth')) {
+      const basicAbcClient = createClient(
+        'basic-test-abc-client', 'test-abc-client@example.com', 'basic',
+        arboristPolicies='abc-admin'
+      );
+    } else {
+      const basicAbcClient = createClient(
+        'basic-test-abc-client', 'test-abc-client@example.com', 'basic'
+      );
+    }
 
     console.log('Delete then create implicit client...\n');
     deleteClient('implicit-test-client');
