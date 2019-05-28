@@ -21,8 +21,11 @@ module.exports = {
    * @returns {Promise<void>}
    */
   async deleteFile(indexdFile) {
-    await indexdTasks.deleteFile(indexdFile);
-    indexdQuestions.deleteFileSuccess(indexdFile);
+    const res = await indexdTasks.deleteFile(indexdFile);
+    indexdQuestions.deleteFileSuccess(indexdFile, res);
+
+    const getRes = await indexdTasks.getFileFullRes(indexdFile);
+    indexdQuestions.recordDoesNotExist(getRes);
   },
 
   /**

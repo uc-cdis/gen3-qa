@@ -1,7 +1,7 @@
 const fenceProps = require('./fenceProps.js');
 const user = require('../../../utils/user.js');
 const portal = require('../../../utils/portal.js');
-const { Gen3Response, getCookie } = require('../../../utils/apiUtil');
+const { Gen3Response, getCookie, getAccessTokenHeader } = require('../../../utils/apiUtil');
 const { Bash, takeLastLine } = require('../../../utils/bash');
 
 const { container } = require('codeceptjs');
@@ -9,7 +9,7 @@ const bash = new Bash();
 
 const I = actor();
 
-const GOOGLE_FILE_FROM_URL_ERROR = 'Could not get Google file contents from signed url response';
+const FILE_FROM_URL_ERROR = 'Could not get file contents from signed url response';
 
 /**
  * Determines if browser is on Google's "Choose account" page
@@ -111,7 +111,7 @@ module.exports = {
     return I.sendGetRequest(url).then(res => res.body);
   },
 
-  getGoogleFileFromSignedUrlRes(signedUrlRes) {
+  getFileFromSignedUrlRes(signedUrlRes) {
     if (
       signedUrlRes
       && signedUrlRes.hasOwnProperty('body')
@@ -120,8 +120,8 @@ module.exports = {
     ){
       return I.sendGetRequest(signedUrlRes["body"].url).then(res => res.body);
     }
-    console.log(GOOGLE_FILE_FROM_URL_ERROR);
-    return GOOGLE_FILE_FROM_URL_ERROR;
+    console.log(FILE_FROM_URL_ERROR);
+    return FILE_FROM_URL_ERROR;
   },
 
   /**
@@ -523,10 +523,7 @@ module.exports = {
    * @param {string} accessToken - access token
    */
   async getUserInfo(accessToken) {
-    const header = {
-      Accept: 'application/json',
-      Authorization: `bearer ${accessToken}`,
-    };
+    const header = getAccessTokenHeader(accessToken);
     const response = await I.sendGetRequest(fenceProps.endpoints.userEndPoint, header);
     return response;
   },
@@ -536,10 +533,7 @@ module.exports = {
    * @param {string} accessToken - access token
    */
   async getAdminInfo(accessToken) {
-    const header = {
-      Accept: 'application/json',
-      Authorization: `bearer ${accessToken}`,
-    };
+    const header = getAccessTokenHeader(accessToken);
     const response = await I.sendGetRequest(fenceProps.endpoints.adminEndPoint, header);
     return response;
   },

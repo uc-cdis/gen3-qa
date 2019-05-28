@@ -8,6 +8,7 @@ const fenceQuestions = require('./fenceQuestions.js');
 const fenceTasks = require('./fenceTasks.js');
 const fenceProps = require('./fenceProps.js');
 const { Gen3Response } = require('../../../utils/apiUtil');
+const user = require('../../../utils/user.js');
 
 const I = actor();
 
@@ -161,6 +162,32 @@ module.exports = {
   async deleteFile(guid) {
     const res = await fenceTasks.deleteFile(guid);
     fenceQuestions.assertStatusCode(res, 204);
+  },
+
+  async getUserTokensWithClient(
+      user = user.mainAcct, client = fenceProps.clients.client,
+      scopes = 'openid+user+data+google_credentials+google_service_account+google_link') {
+    // set user with cookie
+    await I.amOnPage("/");
+    await I.setCookie({name: "dev_login", value: user.username});
+
+    const urlStr = await fenceTasks.getConsentCode(client.id, 'code', scopes);
+    fenceQuestions.assertContainSubStr(urlStr, ['code=']);
+    const match = urlStr.match(RegExp('/?code=(.*)'));
+    const code = match && match[1];
+    fenceQuestions.assertTruthyResult(
+      code,
+      `fence\'s oauth2/authorize endpoint should have returned a consent code in url "${urlStr}"`
+    );
+    let res = await fenceTasks.getTokensWithAuthCode(
+      client.id,
+      client.secret, code, 'authorization_code',
+    );
+
+    fenceQuestions.asssertTokensSuccess(
+      res, `Did not get client (${client.id}) tokens for user (${user.username}) successfully.`);
+
+    return res;
   },
 
   /**

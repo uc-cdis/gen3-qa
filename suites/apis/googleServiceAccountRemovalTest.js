@@ -133,7 +133,7 @@ Scenario('SA removal job test: no access removal when SA is valid @reqGoogle', a
   chai.expect(user0AccessQAResAfter,
     'User should have bucket access after clean up job'
   ).to.have.property('id');
-}).retry(2);
+}).retry(3);
 
 
 Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (fence, users, google, files) => {
@@ -184,7 +184,7 @@ Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (
   chai.expect(user0CannotAccessQAAfter,
     'User should NOT have bucket access after clean up job'
   ).to.be.true;
-}).retry(2);
+}).retry(3);
 
 
 Scenario('SA removal job test: user does not have access to data @reqGoogle', async (fence, users, google, files) => {
@@ -239,7 +239,7 @@ Scenario('SA removal job test: user does not have access to data @reqGoogle', as
   chai.expect(user0CannotAccessQAAfter,
     'User should NOT have bucket access after clean up job'
   ).to.be.true;
-}).retry(2);
+}).retry(3);
 
 
 Scenario('SA removal job test: SA has external access @reqGoogle', async (fence, users, google, files) => {
@@ -299,7 +299,7 @@ Scenario('SA removal job test: SA has external access @reqGoogle', async (fence,
   chai.expect(user0CannotAccessQAAfter,
     'User should NOT have bucket access after clean up job'
   ).to.be.true;
-}).retry(2);
+}).retry(3);
 
 
 // We run this test last because if the roles update at the end fails,
@@ -411,4 +411,4 @@ Scenario('SA removal job test: monitor SA does not have access @reqGoogle', asyn
       `Failed to update monitor SA roles in Google project ${googleProject.id} (owner ${googleProject.owner}). Next tests may fail. Will try to add them again at the end of this test suite.\n`
     ).to.not.have.property('code');
   }
-}).retry(2);
+}).retry(3);

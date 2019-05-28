@@ -126,11 +126,11 @@ Scenario('User without role cannot upload @dataUpload', async (fence, users) => 
 
 /**
  * This time, use the gen3 data client to upload and download the file
- * 
+ *
  * Disabled in run-tests.sh for now - dataClient manages configuration
  * in a shared home directory folder - need to add locking, or make
  * the config folder configurable ...
- *     
+ *
  */
 Scenario('File upload and download via client @dataClientCLI @dataUpload', async (dataClient, fence, users, indexd, files, dataUpload) => {
   // configure the gen3-client
@@ -200,7 +200,7 @@ Scenario('Data file deletion @dataUpload', async (fence, users, indexd, sheepdog
   // no download after delete
   let signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid);
   fence.ask.assertStatusCode(signedUrlRes, 404, 'File download should not be possible after file deletion');
-});
+}).retry(2);
 
 /**
  * Upload 2 files with the same contents (so same hash and size) and

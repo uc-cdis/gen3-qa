@@ -66,6 +66,15 @@ module.exports = {
   },
 
   /**
+   * AWS bucket info
+   */
+   awsBucketInfo: {
+      cdis_presigned_url_test: {
+        testdata: 'Hi Zac!\ncdis-data-client uploaded this!\n'
+      }
+   },
+
+  /**
    * Google group for testing
    */
   googleGroupTestEmail: 'gen3-autoqa@googlegroups.com',
@@ -425,9 +434,18 @@ module.exports = {
     owner: 'gen3.autotest@gmail.com',
   },
 
+  /*
+  Clients are expected to have the following authZ policies:
+
+  client/CLIENT has both abc-admin and gen3-admin
+  abcClient/ABC_CLIENT has abc-admin
+  */
   clients: {
     client: new Client({
       envVarsName: 'CLIENT',
+    }),
+    abcClient: new Client({
+      envVarsName: 'ABC_CLIENT',
     }),
     clientImplicit: new Client({
       envVarsName: 'CLIENTB',

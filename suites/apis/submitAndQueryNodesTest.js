@@ -168,7 +168,7 @@ Scenario('test with_path_to - first to last node @reqData', async (peregrine, sh
   }
 
   await sheepdog.complete.deleteNodes(nodes.getPathToFile());
-});
+}).retry(2);
 
 // FIXME: This is a known bug that needs to be fixed. See PXP-1569
 Scenario('test with_path_to - last to first node @reqData', async (peregrine, sheepdog, nodes) => {
@@ -190,7 +190,7 @@ Scenario('test with_path_to - last to first node @reqData', async (peregrine, sh
   }
 
   await sheepdog.complete.deleteNodes(nodes.getPathToFile());
-});
+}).retry(2);
 
 
 BeforeSuite(async (sheepdog) => {

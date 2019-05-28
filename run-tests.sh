@@ -45,6 +45,7 @@ getServiceVersion() {
   echo $version
 }
 
+
 # Takes 3 arguments:
 #   $1 test tag to avoid until service version is greater than last arg
 #   $2 service name
@@ -77,6 +78,7 @@ runTestsIfServiceVersion() {
     # version is actually a pinned number, not a branch name or master
     versionAsNumber=$currentVersion
   fi
+
 
   min=$(echo "$3" "$versionAsNumber" | awk '{if ($1 < $2) print $1; else print $2}')
   if [ "$min" = "$3" ]; then
@@ -197,21 +199,28 @@ donot '@dataClientCLI'
 donot '@Performance'
 
 #
-# Google Data Access tests are not yet stable enough to run in all PR's -
-# so just enable in PR's for some projects now
+# Google Data Access tests are only required for some envs
 #
 if [[ "$service" != "gen3-qa" && "$service" != "fence" && !("$service" == "cdis-manifest" && $envsRequireGoogle =~ (^| )$testedEnv($| )) ]]; then
-  # run all tests except for those that require dcf google configuration
+  # run all tests except for those that require google configuration
   echo "INFO: disabling Google Data Access tests for $service"
   donot '@reqGoogle'
 else
   #
-  # Run tests including dcf google backend
-  # Acquire google test lock - only one test can interact with the GCP test project
+  # Run tests including google backend
   #
   echo "INFO: enabling Google Data Access tests for $service"
 fi
 
+# TODO: eventually enable for all services, but need arborist and fence updates first
+#       in all environments
+if [[ "$service" == "cdis-manifest" ]]; then
+  echo "INFO: disabling Centralized Auth tests for $service"
+  donot '@centralizedAuth'
+  donot '@indexdJWT'
+else
+  echo "INFO: enabling Centralized Auth tests for $service"
+fi
 
 echo "Checking kubernetes for optional services to test"
 if ! (g3kubectl get pods --no-headers -l app=spark | grep spark) > /dev/null 2>&1; then
@@ -225,6 +234,7 @@ fi
 ########################################################################################
 
 testArgs="--reporter mocha-multi"
+
 if [[ -n "$doNotRunRegex" ]]; then
   testArgs="${testArgs} --grep '${doNotRunRegex}' --invert"
 fi
