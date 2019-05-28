@@ -66,6 +66,8 @@ class Gen3Response {
       this.requestURL = request.uri.href;
     } catch (e) {
       // ignore if missing request attribute
+      console.log('Gen3Response could not parse expected `request` attributes like `method`, `headers`, `body`, etc.')
+      console.log(`Gen3Response got request: ${request}`)
     }
   }
 }

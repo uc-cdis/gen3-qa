@@ -13,6 +13,7 @@ const getRevFromResponse = function (res) {
   try {
     return res.body.rev;
   } catch (e) {
+    console.log(`Could not get res.body.rev from response: ${res}`);
     return 'ERROR_GETTING_INDEXD';
   }
 };

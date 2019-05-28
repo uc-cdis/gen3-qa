@@ -517,6 +517,8 @@ Scenario('Client (with access) with user token (with access) can CRUD indexd rec
     // make sure updated file has updated file name
     const abc_read_response_after_update = await indexd.do.getFileFullRes(
         new_abc_records.fooBarFile, users.mainAcct.accessTokenHeader)
+    console.log(`abc file after update: ${new_abc_records.fooBarFile}`);
+    console.log(`abc file read response after update: ${abc_read_response_after_update}`);
     fence.ask.assertStatusCode(
         abc_read_response_after_update, 200,
         msg='should have gotten authorized 200 for reading record under `/abc` after updating'
