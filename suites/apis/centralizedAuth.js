@@ -148,16 +148,6 @@ const indexed_files = {
     ],
     size: 11,
   },
-  generalResearchUseFile: {
-    filename: 'testdata',
-    link: 's3://cdis-presigned-url-test/testdata',
-    md5: '73d643ec3f4beb9020eef0beed440ae9',
-    authz: [
-      '/gen3/programs/test_program/projects/test_project1',
-      '/consents/GRU'
-    ],
-    size: 42,
-  },
   gen3HmbResearchFile: {
     filename: 'testdata',
     link: 's3://cdis-presigned-url-test/testdata',
