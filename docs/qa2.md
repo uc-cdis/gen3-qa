@@ -1,6 +1,3 @@
-# Kickoff meeting - 2019/05/23
-
-
 # TL;DR
 
 Vision for behavior driven development in gen3.
@@ -33,7 +30,6 @@ new `gen3` release is suitable for production.
 * test automation should work standalone and in conjunction with CICD
     - test automation can assume the user or CICD has setup a test environment
 * pupeteer - https://www.youtube.com/watch?v=MbnATLCuKI4
-* automation should be language agnostic - suites for different features may be independently developed as long as the suite unambiguously communicates success/failures and information
 * we need to provide utilities 
    - auth 
    - archive files for review
