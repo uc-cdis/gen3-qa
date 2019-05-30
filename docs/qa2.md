@@ -1,3 +1,6 @@
+# Kickoff meeting - 2019/05/23
+
+
 # TL;DR
 
 Vision for behavior driven development in gen3.
@@ -7,10 +10,12 @@ Vision for behavior driven development in gen3.
 that allows us to link test automation with human readable test plans
 * We want to associate acceptance tests with Jiras and PR's to ensure we develop what we initended to develop.
 * We want to have scheduled `gen3` releases that intentionally introduce planned new features that have gone through a validation process with QA
+* We want to track and rate outstanding `gen3` bugs and defects
+* We want to define and track service level objectives (SLO's) for different gen3 features
 * We want to have a clear test plan for evaluating whether a
 new `gen3` release is suitable for production.
 * We want to have a large suite of regression tests.
-
+* We want our QA tools to be a recursive example of our QA process
 
 ## Test Plans
 
@@ -98,4 +103,4 @@ throughput, response time, availability - that we should track with metrics.
 * arborist authz
 * consent code authz
 * qa2 utilities
-
+* bug tracking
