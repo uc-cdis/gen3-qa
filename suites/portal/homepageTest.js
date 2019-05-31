@@ -5,4 +5,4 @@ Scenario('login', (home) => {
   home.complete.login();
   home.ask.seeDetails();
   home.complete.logout();
-});
+}).retry();;
