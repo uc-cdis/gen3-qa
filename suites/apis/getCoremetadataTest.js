@@ -38,7 +38,7 @@ BeforeSuite(async (nodes, sheepdog) => {
 
   invalid_id_file = nodes.getFileNode().clone();
   invalid_id_file.data.object_id = 'invalid_object_id';
-});
+}).retry();
 
 AfterSuite(async (sheepdog) => {
   await sheepdog.complete.findDeleteAllNodes();
