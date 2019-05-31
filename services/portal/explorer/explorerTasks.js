@@ -23,7 +23,8 @@ module.exports = {
   
   async openDataExplorer() {
     I.amOnPage('/explorer');
-    await I.waitForElement('.data-explorer', 10);
+    await I.waitForElement('.nav-bar__logo-img', 10);
+    await I.waitForElement('.guppy-data-explorer', 10);
   },
   
   async clickNthFilterTab(n) {
@@ -51,7 +52,7 @@ module.exports = {
     });
   },
   
-  async pingArranger() {
+  async pingGuppy() {
     const payload = {
       query: "{ subject { __typename } }"
     };

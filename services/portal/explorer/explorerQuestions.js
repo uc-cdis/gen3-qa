@@ -10,19 +10,19 @@ const explorerProps = require('./explorerProps.js');
  */
 module.exports = {
   seeVisualizations() {
-    this.seeElement('.data-explorer__visualizations');
+    I.seeElement('.data-explorer__visualizations');
   },
   
   seeSQON() {
-    this.seeElement('.sqon-view')
+    I.seeElement('.sqon-view')
   },
   
   seeSQONLabelsCountCorrect(n) {
-    this.waitNumberOfVisibleElements('.sqon-value', n, 10);
+    I.waitNumberOfVisibleElements('.sqon-value', n, 10);
   },
   
   dontSeeSQON() {
-    this.dontSeeElement('.sqon-view');
+    I.dontSeeElement('.sqon-view');
   },
   
   seeArrangerReturnedCorrectly(res) {

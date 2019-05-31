@@ -4,9 +4,13 @@ const user = require('../../utils/user.js');
 const I = actor();
 const portal = require('../../utils/portal.js');
 
+Before((home) => {
+  home.complete.login();
+});
+
 Scenario('test exploring data using filters and sqon view @explorer-only', async (dataExplorer) => {
   await dataExplorer.do.openDataExplorer();
-  I.seeVisualizations();
+  dataExplorer.ask.seeVisualizations();
 
   // test filters
   const filterTabsNumber = await I.grabNumberOfVisibleElements('.filter-group__tab');
@@ -37,16 +41,16 @@ Scenario('test exploring data using filters and sqon view @explorer-only', async
   I.dontSeeSQON();
 });
 
-Scenario('test arranger service @explorer-only', async I => {
-  let res = await I.pingArranger();
-  I.seeArrangerReturnedCorrectly(res);
+Scenario('test guppy service @explorer-only', async (dataExplorer) => {
+  let res = await dataExplorer.do.pingGuppy();
+  dataExplorer.do.seeGuppyReturnedCorrectly(res);
 
-  res = await I.arrangerColumnStateQuery();
-  I.seeArrangerReturnedCorrectly(res);
+  res = await dataExplorer.do.GuppyColumnStateQuery();
+  dataExplorer.do.seeGuppyReturnedCorrectly(res);
 
-  res = await I.arrangerAggsStateQuery();
-  I.seeArrangerReturnedCorrectly(res);
+  res = await dataExplorer.do.GuppyAggsStateQuery();
+  dataExplorer.do.seeGuppyReturnedCorrectly(res);
 
-  res = await I.arrangerSubjectAggregationQuery();
-  I.seeArrangerReturnedCorrectly(res);
+  res = await dataExplorer.do.GuppySubjectAggregationQuery();
+  dataExplorer.do.seeGuppyReturnedCorrectly(res);
 });

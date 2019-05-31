@@ -18,6 +18,8 @@ Use:
 EOM
 }
 
+echo '-----ufhsflk'
+
 isDryRun=false
 
 dryrun() {

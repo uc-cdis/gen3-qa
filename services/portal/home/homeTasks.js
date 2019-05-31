@@ -12,13 +12,18 @@ module.exports = {
     portal.seeProp(homeProps.ready_cue, 30);
   },
 
+  goToLogin() {
+    I.amOnPage('/login');
+    portal.seeProp(homeProps.ready_cue, 30);
+  },
+
   /**
    * Logs into windmill. Uses the "dev_login" cookie to tell fence
    * which username to use when mocking the login.
    * /!\ remember to logout after logging in or following tests will fail!
    */
   login(username) {
-    this.goToHomepage();
+    this.goToLogin();
     I.setCookie({ name: 'dev_login', value: username });
     portal.clickProp(homeProps.googleLoginButton);
   },
