@@ -1,11 +1,11 @@
-Pidgin is a light-weight API on which works on top of Peregrine. It takes a file's GUID as input which queries Peregrine for information about the file and returns an abstract of the file to the user.
+Pidgin is a light-weight API which works on top of Peregrine. It takes a file's GUID as input which queries Peregrine for information about the file and returns an abstract of the file to the user.
 
 Integration Test Coverage for Pidgin :
-Pidgin has a single endpoint  - /<GUID of a file>
+Pidgin has a single endpoint  - `/<GUID of a file>`
 
 Endpoints :	
 
-1. `<GUID of file>` - this endpoint queries Peregrine and returns core metadata about the file. By default, it returns core metadata as JSON document.
+1. `/<GUID of file>` - this endpoint queries Peregrine and returns core metadata about the file. By default, it returns core metadata as JSON document.
                 
     Three formats are supported by this endpoint - JSON, bibliography, and JSON-LD. The user should specify the format of the output with the help of "Accept" header. 
     ```
@@ -30,7 +30,7 @@ Endpoints :
     d.Invalid GUID - `No core metadata was found for this object_id`
     ```
 
-2. `_status` - Health-check endpoint
+2. `/_status` - Health-check endpoint
     
     ```
     200 if `healthy`
