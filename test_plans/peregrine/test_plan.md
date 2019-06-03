@@ -5,6 +5,7 @@ Integration Test Coverage for Peregrine :
 `/graphql` is the endpoint for Peregrine.
 
 A. Wildcard Nodes 
+    
     1. `node` - Query all custom node types for common fields.
 
     2. `node : category` filter (description to be added)
@@ -14,11 +15,13 @@ A. Wildcard Nodes
     4. `_node_type` - Query the dictionary structure.
 
 B. Submission Graph
+    
     1. Link resolver endpoint - This endpoint help to identify if there is a link between two nodes in the dataset. The Link resolver helps us to identify the parent-child relationship between      two nodes. 
 
     2. Count resolver endpoint - This endpoint helps us to identify the number of nodes that each node type have. The count resolver is associated with a single node.
 
 C. User Defined Querying
+    
     1. Generic node - This endpoint provides the user to query with any defined properties in the dictionary for any node in the dictionary in any structure the user wants it to be in. The          user-defined structure should comply with the dictionary rules. 
       Example : 
       Correct Structure:
@@ -47,6 +50,7 @@ C. User Defined Querying
     2. `transaction_log` - After submitting metadata with sheepdog, there should be transaction logs containing details (success/failure, entities submitted...).
 
 D. Filters
+    
     1. `with_path_to`/ `with_path_to_any`/ `without_path_to` - This filter applies to the generic-node node, limiting to the nodes which possess a concrete or any relationship (could include        multiple levels of relationships) to a given node type in the query.
 
     2. `boolean` - This filter limits the result to only the node instances that have the same boolean property value as given in the filter.
