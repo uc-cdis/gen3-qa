@@ -304,7 +304,6 @@ Scenario('SA removal job test: SA has external access @reqGoogle', async (fence,
 
 // We run this test last because if the roles update at the end fails,
 // the following tests would fail.
-// TODO: reenable when all prod envs that use DCF features have fence>=2.7.1 (PXP-2759)
 Scenario('SA removal job test: monitor SA does not have access @reqGoogle', async (fence, users, google, files) => {
   // test invalid SA because the monitor does not have access
 
