@@ -230,19 +230,13 @@ if ! (g3kubectl get pods --no-headers -l app=ssjdispatcher | grep ssjdispatcher)
   # do not run data upload tests if the data upload flow is not deployed
   donot '@dataUpload'
 fi
-if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1; then
-  donot '@exportToWorkspace'
-fi
-if ! (g3kubectl get pods --no-headers -l app=wts | grep wts) > /dev/null 2>&1; then
-  donot '@exportToWorkspace'
-fi
-if ! (g3kubectl get pods --no-headers -l app=jupyter-hub | grep jupyter-hub) > /dev/null 2>&1; then
-  donot '@exportToWorkspace'
-fi
 
 hostname="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.hostname')"
 portalConfigURL="https://${hostname}/data/config/gitops.json"
-if ! (curl -s "$portalConfigURL" | jq -r 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}})'); then
+if ! (g3kubectl get pods --no-headers -l app=jupyter-hub | grep jupyter-hub) > /dev/null 2>&1 ||
+! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1 ||
+! (g3kubectl get pods --no-headers -l app=wts | grep wts) > /dev/null 2>&1 ||
+! (curl -s "$portalConfigURL" | jq -r 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}})'); then
   donot '@exportToWorkspace'
 fi
 
