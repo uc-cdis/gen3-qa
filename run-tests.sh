@@ -160,6 +160,21 @@ fi
 if ! (g3kubectl get pods --no-headers -l app=ssjdispatcher | grep ssjdispatcher) > /dev/null 2>&1; then
   donot '@dataUpload'
 fi
+if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1; then
+  donot '@exportToWorkspace'
+fi
+if ! (g3kubectl get pods --no-headers -l app=wts | grep wts) > /dev/null 2>&1; then
+  donot '@exportToWorkspace'
+fi
+if ! (g3kubectl get pods --no-headers -l app=jupyter-hub | grep jupyter-hub) > /dev/null 2>&1; then
+  donot '@exportToWorkspace'
+fi
+
+hostname="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.hostname')"
+portalConfigURL="https://${hostname}/data/config/gitops.json"
+if ! (curl -s "$portalConfigURL" | jq -r 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}})'); then
+  donot '@exportToWorkspace'
+fi
 
 testArgs="--reporter mocha-multi"
 if [[ -n "$doNotRunRegex" ]]; then
