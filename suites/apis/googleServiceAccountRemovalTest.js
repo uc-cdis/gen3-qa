@@ -308,8 +308,6 @@ Scenario('SA removal job test: SA has external access @reqGoogle', async (fence,
 Scenario('SA removal job test: monitor SA does not have access @reqGoogle', async (fence, users, google, files) => {
   // test invalid SA because the monitor does not have access
 
-  return; // skip test - for some reason using xScenario makes codeceptjs crash
-
   // Setup
   const googleProject = fence.props.googleProjectDynamic;
   await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
