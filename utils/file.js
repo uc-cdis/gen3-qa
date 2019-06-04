@@ -5,7 +5,6 @@
 
 const fs = require('fs');
 const { smartWait } = require('./apiUtil.js');
-const I = actor();
 
 module.exports = {
   /**
@@ -50,6 +49,29 @@ module.exports = {
       fileSize,
       fileMd5,
     };
+  },
+
+  /**
+   * Create a large file in local storage
+   * @param {string} filePath - where to save the file
+   * @param {string} megabytes - size of the file in MB
+   */
+  async createBigTmpFile(filePath, megabytes) {
+    // this contains 1024 bytes = 1KB of text
+    const text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi sit amet iaculis neque, at mattis mi. Donec pharetra lacus sit amet dui tincidunt, a varius risus tempor. Duis dictum sodales dignissim. Ut luctus turpis non nibh pretium consequat. Fusce faucibus vulputate magna vel congue. Proin sit amet libero mauris. Lorem ipsum dolor sit amet, consectetur adipiscing elit. In sed dictum lacus. Vestibulum bibendum ipsum quis lacus dignissim euismod. Mauris et dignissim leo. Phasellus pretium molestie nunc, varius gravida augue congue quis. Maecenas faucibus, velit dignissim feugiat viverra, eros diam tempor tortor, sed maximus mi justo a massa. Mauris at metus tincidunt augue iaculis mollis et id eros. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam sagittis porta vestibulum. Cras molestie nulla metus, a sollicitudin neque suscipit nec. Nunc sem lectus, molestie eu mauris eget, volutpat posuere mauris. Donec gravida venenatis sodales. Pellentesque risus lorem, pulvinar nec molestie eu amet. ";
+    return new Promise((resolve, reject) => {
+      var writeStream = fs.createWriteStream(filePath, { flags : 'w' });
+      // 1MB = 1024 times the previous text
+      for (let i = 0; i < megabytes * 1024; i++) {
+        writeStream.write(text);
+      }
+      writeStream.end();
+      writeStream.on("finish", () => {
+        console.log(`Created ${megabytes}MB file "${filePath}"`);
+        resolve();
+      });
+      writeStream.on("error", reject);
+    });
   },
 
   /**

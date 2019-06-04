@@ -1,7 +1,7 @@
 const fenceProps = require('./fenceProps.js');
 const user = require('../../../utils/user.js');
 const portal = require('../../../utils/portal.js');
-const { Gen3Response, getCookie } = require('../../../utils/apiUtil');
+const { Gen3Response, getCookie, getAccessTokenHeader } = require('../../../utils/apiUtil');
 const { Bash, takeLastLine } = require('../../../utils/bash');
 
 const { container } = require('codeceptjs');
@@ -9,7 +9,7 @@ const bash = new Bash();
 
 const I = actor();
 
-const GOOGLE_FILE_FROM_URL_ERROR = 'Could not get Google file contents from signed url response';
+const FILE_FROM_URL_ERROR = 'Could not get file contents from signed url response';
 
 /**
  * Determines if browser is on Google's "Choose account" page
@@ -111,7 +111,7 @@ module.exports = {
     return I.sendGetRequest(url).then(res => res.body);
   },
 
-  getGoogleFileFromSignedUrlRes(signedUrlRes) {
+  getFileFromSignedUrlRes(signedUrlRes) {
     if (
       signedUrlRes
       && signedUrlRes.hasOwnProperty('body')
@@ -120,8 +120,8 @@ module.exports = {
     ){
       return I.sendGetRequest(signedUrlRes["body"].url).then(res => res.body);
     }
-    console.log(GOOGLE_FILE_FROM_URL_ERROR);
-    return GOOGLE_FILE_FROM_URL_ERROR;
+    console.log(FILE_FROM_URL_ERROR);
+    return FILE_FROM_URL_ERROR;
   },
 
   /**
@@ -150,7 +150,14 @@ module.exports = {
     return I.sendGetRequest(
       fenceProps.endpoints.googleCredentials,
       accessTokenHeader,
-    ).then(res => res.body);
+    ).then(res => {
+      if (!res.body || !res.body.access_keys) {
+        console.log('Could not get user google creds:');
+        console.log(res);
+        return { access_keys: [] };
+      }
+      return res.body;
+    });
   },
 
   /**
@@ -169,7 +176,13 @@ module.exports = {
       url,
       {},
       accessTokenHeader,
-    ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
+    ).then(res => {
+      if (res.statusCode != 200) {
+        console.error('Error creating temp google creds');
+        console.log(res);
+      }
+      return new Gen3Response(res);
+    });
   },
 
   /**
@@ -218,7 +231,7 @@ module.exports = {
    * @param {int} expires_in - requested expiration time (in seconds)
    * @returns {Promise<Gen3Response|*>}
    */
-  async linkGoogleAcctMocked(userAcct,expires_in=null) {
+  async linkGoogleAcctMocked(userAcct, expires_in=null) {
     // visit link endpoint. Google login is mocked
     let headers = userAcct.accessTokenHeader;
     headers.Cookie = 'dev_login=' + userAcct.username;
@@ -324,23 +337,30 @@ module.exports = {
           'Content-Type': 'application/json',
         },
       ).then(function(res) {
-        if (res.error && res.error.code == 'ETIMEDOUT') {
-          return 'ETIMEDOUT: Google SA registration timed out';
-        }
         if (res.body && res.body.errors) {
           console.log('Failed SA registration:');
           // stringify to print all the nested objects
           console.log(JSON.stringify(res.body.errors, null, 2));
         }
         else if (res.error) {
-          console.log('Failed SA registration:');
-          console.log(res.error);
+          if (res.error.code == 'ETIMEDOUT') {
+            return 'ETIMEDOUT: Google SA registration timed out';
+          }
+          else if (res.error.code == 'ECONNRESET') {
+            return 'ECONNRESET: Google SA registration socket hung up';
+          }
+          else {
+            console.log('Failed SA registration:');
+            console.log(res.error);
+          }
         }
         return new Gen3Response(res)
       });
 
-      // if the request timed out: retry
-      if (typeof postRes == 'string' && postRes.includes('ETIMEDOUT')) {
+      // if request timeout or socket hung up: retry
+      if (typeof postRes == 'string' &&
+      (postRes.includes('ETIMEDOUT') || postRes.includes('ECONNRESET')))
+      {
         console.log(`registerGoogleServiceAccount: try ${tries}/${MAX_TRIES}`);
         console.log(postRes);
         tries++;
@@ -375,18 +395,6 @@ module.exports = {
     const formattedIDList = googleProjectIDList.join();
     return I.sendGetRequest(
       `${fenceProps.endpoints.getGoogleServiceAccounts}/?google_project_ids=${formattedIDList}`,
-      userAcct.accessTokenHeader,
-    ).then(res => new Gen3Response(res));
-  },
-
-  /**
-   * Gets the fence service account used for monitoring users' Google Cloud Projects
-   * @param userAcct
-   * @returns {Promise<Gen3Response>}
-   */
-  async getGoogleServiceAccountMonitor(userAcct) {
-    return I.sendGetRequest(
-      fenceProps.endpoints.getGoogleServiceAccountMonitor,
       userAcct.accessTokenHeader,
     ).then(res => new Gen3Response(res));
   },
@@ -515,10 +523,7 @@ module.exports = {
    * @param {string} accessToken - access token
    */
   async getUserInfo(accessToken) {
-    const header = {
-      Accept: 'application/json',
-      Authorization: `bearer ${accessToken}`,
-    };
+    const header = getAccessTokenHeader(accessToken);
     const response = await I.sendGetRequest(fenceProps.endpoints.userEndPoint, header);
     return response;
   },
@@ -528,10 +533,7 @@ module.exports = {
    * @param {string} accessToken - access token
    */
   async getAdminInfo(accessToken) {
-    const header = {
-      Accept: 'application/json',
-      Authorization: `bearer ${accessToken}`,
-    };
+    const header = getAccessTokenHeader(accessToken);
     const response = await I.sendGetRequest(fenceProps.endpoints.adminEndPoint, header);
     return response;
   },
@@ -548,6 +550,65 @@ module.exports = {
       fenceProps.endpoints.uploadFile,
       JSON.stringify({
         file_name: fileName,
+      }),
+      accessHeader,
+    ).then(res => new Gen3Response(res));
+  },
+
+  /**
+   * Hits fence's multipart upload initialization endpoint
+   * @param {string} fileName - name of the file that will be uploaded
+   * @param {string} accessToken - access token
+   * @returns {Promise<Gen3Response>}
+   */
+  async initMultipartUpload(fileName, accessHeader) {
+    accessHeader['Content-Type'] = 'application/json';
+    return I.sendPostRequest(
+      fenceProps.endpoints.multipartUploadInit,
+      JSON.stringify({
+        file_name: fileName,
+      }),
+      accessHeader,
+    ).then(res => new Gen3Response(res));
+  },
+
+  /**
+   * Hits fence's signed url for multipart upload endpoint
+   * @param {string} key - object's key in format "GUID/filename" (GUID as returned by initMultipartUpload)
+   * @param {string} uploadId - object's uploadId (as returned by initMultipartUpload)
+   * @param {string} partNumber - upload part number, starting from 1
+   * @param {string} accessToken - access token
+   * @returns {Promise<Gen3Response>}
+   */
+  async getUrlForMultipartUpload(key, uploadId, partNumber, accessHeader) {
+    accessHeader['Content-Type'] = 'application/json';
+    return I.sendPostRequest(
+      fenceProps.endpoints.multipartUpload,
+      JSON.stringify({
+        key,
+        uploadId,
+        partNumber,
+      }),
+      accessHeader,
+    ).then(res => new Gen3Response(res));
+  },
+
+  /**
+   * Hits fence's multipart upload completion endpoint
+   * @param {string} key - object's key in format "GUID/filename" (GUID as returned by initMultipartUpload)
+   * @param {string} uploadId - object's uploadId (as returned by initMultipartUpload)
+   * @param {string} parts - list of {partNumber, ETag} objects (as returned when uploading using the URL returned by getUrlForMultipartUpload)
+   * @param {string} accessToken - access token
+   * @returns {Promise<Gen3Response>}
+   */
+  async completeMultipartUpload(key, uploadId, parts, accessHeader) {
+    accessHeader['Content-Type'] = 'application/json';
+    return I.sendPostRequest(
+      fenceProps.endpoints.multipartUploadComplete,
+      JSON.stringify({
+        key,
+        uploadId,
+        parts,
       }),
       accessHeader,
     ).then(res => new Gen3Response(res));

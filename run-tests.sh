@@ -31,11 +31,63 @@ dryrun() {
   fi
 }
 
+# Takes one argument, being service name
+getServiceVersion() {
+  local command
+  local response
+  local version
+  command="g3kubectl get configmap manifest-versions -o json | jq -r .data.json | jq -r .$1"
+  response=$(eval "$command")
+
+  # Get last item of delimited string using string operators:
+  #    https://www.linuxjournal.com/article/8919
+  version=${response##*:}
+  echo $version
+}
+
+
+# Takes 3 arguments:
+#   $1 test tag to avoid until service version is greater than last arg
+#   $2 service name
+#   $3 version of service where tests apply >=
 #
-# DataClientCLI tests require a fix to avoid parallel test runs
-# contending over config files in the home directory
-#      
-doNotRunRegex="@dataClientCLI"
+# ex: runTestsIfServiceVersion "@multipartupload" "fence" "3.0.0"
+runTestsIfServiceVersion() {
+  # make sure args provided
+  if [[ -z "$1" || -z "$2" || -z "$3" ]]; then
+    return 0
+  fi
+
+  local currentVersion
+  currentVersion=$(getServiceVersion $2)
+
+  # check if currentVersion is actually a number
+  # NOTE: this assumes that all releases are tagged with actual numbers like:
+  #       2.8.0, 3.0.0, 3.0, 0.2, 0.2.1.5, etc
+  re='[0-9]+([.][0-9])+'
+  if ! [[ $currentVersion =~ $re ]] ; then
+    # force non-version numbers (e.g. branches and master)
+    # to be some arbitrary large number, so that it will
+    # cause next comparison to run the optional test.
+    # NOTE: The assumption here is that branches and master should run all the tests,
+    #       if you've branched off an old version that actually should NOT run the tests..
+    #       this script cannot currently handle that
+    # hopefully our service versions are never "OVER 9000!"
+    versionAsNumber=9000
+  else
+    # version is actually a pinned number, not a branch name or master
+    versionAsNumber=$currentVersion
+  fi
+
+
+  min=$(echo "$3" "$versionAsNumber" | awk '{if ($1 < $2) print $1; else print $2}')
+  if [ "$min" = "$3" ]; then
+    echo "RUNNING $1 tests b/c $2 version ($currentVersion) is greater than $3"
+  else
+    echo "SKIPPING $1 tests b/c $2 version ($currentVersion) is less than $3"
+    donot $1
+  fi
+}
 
 # little helper to maintain doNotRunRegex
 donot() {
@@ -50,8 +102,7 @@ donot() {
   doNotRunRegex="${doNotRunRegex}${or}$1"
 }
 
-# Do not run performance testing
-donot '@Performance'
+doNotRunRegex=""
 
 #----------------------------------------------------
 # main
@@ -129,35 +180,54 @@ EOM
 echo 'INFO: installing dependencies'
 dryrun npm ci
 
-exitCode=0
+################################ Disable Test Tags #####################################
 
+runTestsIfServiceVersion "@multipartUpload" "fence" "2.8.0"
+runTestsIfServiceVersion "@centralizedAuth" "fence" "3.0.0"
 
 # environments that use DCF features
-# we will run Google Data Access tests for cdis-manifest PRs to these
-envsRequireGoogle="dcp.bionimbus.org gen3.datastage.io nci-crdc-demo.datacommons.io nci-crdc-staging.datacommons.io nci-crdc.datacommons.io"
+# we only run Google Data Access tests for cdis-manifest PRs to these
+envsRequireGoogle="dcp.bionimbus.org gen3.datastage.io nci-crdc-staging.datacommons.io nci-crdc.datacommons.io"
 
 #
-# Google Data Access tests are not yet stable enough to run in all PR's -
-# so just enable in PR's for some projects now
+# DataClientCLI tests require a fix to avoid parallel test runs
+# contending over config files in the home directory
+#
+donot '@dataClientCLI'
+
+# Do not run performance testing
+donot '@Performance'
+
+#
+# Google Data Access tests are only required for some envs
 #
 if [[ "$service" != "gen3-qa" && "$service" != "fence" && !("$service" == "cdis-manifest" && $envsRequireGoogle =~ (^| )$testedEnv($| )) ]]; then
-  # run all tests except for those that require dcf google configuration
+  # run all tests except for those that require google configuration
   echo "INFO: disabling Google Data Access tests for $service"
   donot '@reqGoogle'
 else
   #
-  # Run tests including dcf google backend
-  # Acquire google test lock - only one test can interact with the GCP test project
+  # Run tests including google backend
   #
   echo "INFO: enabling Google Data Access tests for $service"
 fi
 
+# TODO: eventually enable for all services, but need arborist and fence updates first
+#       in all environments
+if [[ "$service" == "cdis-manifest" ]]; then
+  echo "INFO: disabling Centralized Auth tests for $service"
+  donot '@centralizedAuth'
+  donot '@indexdJWT'
+else
+  echo "INFO: enabling Centralized Auth tests for $service"
+fi
 
 echo "Checking kubernetes for optional services to test"
 if ! (g3kubectl get pods --no-headers -l app=spark | grep spark) > /dev/null 2>&1; then
   donot '@etl'
 fi
 if ! (g3kubectl get pods --no-headers -l app=ssjdispatcher | grep ssjdispatcher) > /dev/null 2>&1; then
+  # do not run data upload tests if the data upload flow is not deployed
   donot '@dataUpload'
 fi
 if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1; then
@@ -176,10 +246,15 @@ if ! (curl -s "$portalConfigURL" | jq -r 'contains({dataExplorerConfig: {buttons
   donot '@exportToWorkspace'
 fi
 
+########################################################################################
+
 testArgs="--reporter mocha-multi"
+
 if [[ -n "$doNotRunRegex" ]]; then
   testArgs="${testArgs} --grep '${doNotRunRegex}' --invert"
 fi
+
+exitCode=0
 
 (
   export NAMESPACE="$namespaceName"

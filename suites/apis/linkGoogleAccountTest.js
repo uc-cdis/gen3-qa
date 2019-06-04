@@ -78,7 +78,7 @@ Scenario('link an acct to a user that already has a linked acct @reqGoogle', asy
   expect(linkRes.finalURL, 'Linking a google account twice should fail').to.contain(fence.props.resUserAlreadyLinked);
 
   await fence.complete.unlinkGoogleAcct(users.mainAcct);
-});
+}).retry(2);
 
 Scenario('link an acct that is already linked to a different user @reqGoogle', async (fence, users) => {
   // link user auxAcct1 to mainAcct's google account

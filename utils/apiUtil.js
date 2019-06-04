@@ -66,6 +66,8 @@ class Gen3Response {
       this.requestURL = request.uri.href;
     } catch (e) {
       // ignore if missing request attribute
+      console.log('Gen3Response could not parse expected `request` attributes like `method`, `headers`, `body`, etc.')
+      console.log(`Gen3Response got request: ${request}`)
     }
   }
 }
@@ -83,7 +85,7 @@ const gen3Res = function (_chai, _) {
   // language chain method
   Assertion.addMethod('gen3Res', function (expectedRes) {
     const obj = this._obj; // eslint-disable-line
-    
+
     // see https://github.com/chaijs/chai/issues/81
     // Unfortunately - this does not seem to work, so add try/catch below instead ...
     // _.flag(this, 'message', `gen3 response ${JSON.stringify(obj ? obj.body : obj)}`);
@@ -113,6 +115,18 @@ const gen3Res = function (_chai, _) {
 };
 
 module.exports = {
+  /**
+   * Returns the JSON for an access token header given the token itself
+   * @param {string} accessToken - access token string
+   * @returns {JSON}
+   */
+  getAccessTokenHeader(accessToken) {
+    return {
+      Accept: 'application/json',
+      Authorization: `bearer ${accessToken}`,
+    };
+  },
+
   /**
    * Runs a fence command for fetching access token for a user
    * @param {string} username - username to fetch token for

@@ -8,6 +8,7 @@ const fenceQuestions = require('./fenceQuestions.js');
 const fenceTasks = require('./fenceTasks.js');
 const fenceProps = require('./fenceProps.js');
 const { Gen3Response } = require('../../../utils/apiUtil');
+const user = require('../../../utils/user.js');
 
 const I = actor();
 
@@ -107,6 +108,54 @@ module.exports = {
   },
 
   /**
+   * Hits fence's multipart upload initialization endpoint
+   * @param {string} fileName - name of the file that will be uploaded
+   * @param {string} accessToken - access token
+   * @returns {object} { guid, uploadId }
+   */
+  async initMultipartUpload(fileName, accessHeader) {
+      const res = await fenceTasks.initMultipartUpload(fileName, accessHeader);
+      expect(res, 'Unable to initialize multipart upload').to.have.property('statusCode', 201);
+      expect(res, 'Unable to initialize multipart upload').to.have.nested.property('body.guid');
+      expect(res, 'Unable to initialize multipart upload').to.have.nested.property('body.uploadId');
+      return {
+        guid: res.body.guid,
+        uploadId: res.body.uploadId,
+      }
+  },
+
+  /**
+   * Hits fence's signed url for multipart upload endpoint
+   * @param {string} key - object's key in format "GUID/filename" (GUID as returned by initMultipartUpload)
+   * @param {string} uploadId - object's uploadId (as returned by initMultipartUpload)
+   * @param {string} partNumber - upload part number, starting from 1
+   * @param {string} accessToken - access token
+   * @returns {object} { url }
+   */
+  async getUrlForMultipartUpload(key, uploadId, partNumber, accessHeader) {
+      const res = await fenceTasks.getUrlForMultipartUpload(key, uploadId, partNumber, accessHeader);
+      expect(res, 'Unable to upload a part during multipart upload').to.have.property('statusCode', 200);
+      expect(res, 'Fence did not return a URL for multipart upload').to.have.nested.property('body.presigned_url');
+      return {
+        url: res.body.presigned_url,
+      }
+  },
+
+  /**
+   * Hits fence's multipart upload completion endpoint
+   * @param {string} key - object's key in format "GUID/filename" (GUID as returned by initMultipartUpload)
+   * @param {string} uploadId - object's uploadId (as returned by initMultipartUpload)
+   * @param {string} parts - list of {partNumber, ETag} objects (as returned when uploading using the URL returned by getUrlForMultipartUpload)
+   * @param {string} accessToken - access token
+   * @returns {Promise<Gen3Response>}
+   */
+  async completeMultipartUpload(key, uploadId, parts, accessHeader) {
+    const res = await fenceTasks.completeMultipartUpload(key, uploadId, parts, accessHeader);
+    expect(res, 'Unable to complete multipart upload').to.have.property('statusCode', 200);
+    return res;
+  },
+
+  /**
    * Deletes a file from indexd and S3
    * @param {string} guid - GUID of the file to delete
    */
@@ -115,6 +164,31 @@ module.exports = {
     fenceQuestions.assertStatusCode(res, 204);
   },
 
+  async getUserTokensWithClient(
+      user = user.mainAcct, client = fenceProps.clients.client,
+      scopes = 'openid+user+data+google_credentials+google_service_account+google_link') {
+    // set user with cookie
+    await I.amOnPage("/");
+    await I.setCookie({name: "dev_login", value: user.username});
+
+    const urlStr = await fenceTasks.getConsentCode(client.id, 'code', scopes);
+    fenceQuestions.assertContainSubStr(urlStr, ['code=']);
+    const match = urlStr.match(RegExp('/?code=(.*)'));
+    const code = match && match[1];
+    fenceQuestions.assertTruthyResult(
+      code,
+      `fence\'s oauth2/authorize endpoint should have returned a consent code in url "${urlStr}"`
+    );
+    let res = await fenceTasks.getTokensWithAuthCode(
+      client.id,
+      client.secret, code, 'authorization_code',
+    );
+
+    fenceQuestions.asssertTokensSuccess(
+      res, `Did not get client (${client.id}) tokens for user (${user.username}) successfully.`);
+
+    return res;
+  },
 
   /**
    * Cleans up fence's DBs for links and service accounts
@@ -122,10 +196,6 @@ module.exports = {
    * @returns {Promise<void>}
    */
   async suiteCleanup(google, users) {
-    // unlock the lockable google project. no assert: if the lock belongs
-    // to another session, we can't unlock and that's fine
-    await google.unlockGoogleProject(fenceProps.googleProjectDynamic);
-
     // google projects to 'clean up'
     const googleProjects = [
       fenceProps.googleProjectA,

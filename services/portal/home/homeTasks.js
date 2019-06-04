@@ -9,7 +9,7 @@ const I = actor();
 module.exports = {
   goToHomepage() {
     I.amOnPage(homeProps.path);
-    portal.seeProp(homeProps.ready_cue, 10);
+    portal.seeProp(homeProps.ready_cue, 60);
   },
 
   /**

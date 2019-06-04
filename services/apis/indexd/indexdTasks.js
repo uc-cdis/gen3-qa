@@ -13,6 +13,7 @@ const getRevFromResponse = function (res) {
   try {
     return res.body.rev;
   } catch (e) {
+    console.log(`Could not get res.body.rev from response: ${res}`);
     return 'ERROR_GETTING_INDEXD';
   }
 };
@@ -24,13 +25,16 @@ module.exports = {
   /**
    * Adds files to indexd
    * @param {Object[]} files - array of indexd files
+   * @param {Object} authHeaders - headers in include in request. defaults to main
+   *                 user account (mainAcct)'s access token
    * @returns {Array<Promise<>>}
    */
-  async addFileIndices(files) {
-    const headers = user.mainAcct.indexdAuthHeader;
-    headers['Content-Type'] = 'application/json; charset=UTF-8';
+  async addFileIndices(files, authHeaders = user.mainAcct.indexdAuthHeader) {
+    authHeaders['Content-Type'] = 'application/json; charset=UTF-8';
     const promiseList = files.map((file) => {
-      file.did = uuid.v4().toString();
+      if (!file.did) {
+        file.did = uuid.v4().toString();
+      }
       const data = {
         file_name: file.filename,
         did: file.did,
@@ -42,13 +46,16 @@ module.exports = {
         metadata: file.metadata,
       };
 
-      if (file.link !== null && file.link !== undefined) {
+      if (file.link) {
         data.urls = [file.link];
+      }
+      if (file.authz) {
+        data.authz = file.authz;
       }
       return data;
     }).map((data) => {
       const strData = JSON.stringify(data);
-      return I.sendPostRequest(indexdProps.endpoints.add, strData, headers).then(
+      return I.sendPostRequest(indexdProps.endpoints.add, strData, authHeaders).then(
         (res) => {
           if (res.status === 200 && res.body && res.body.rev) {
             file.rev = res.body.rev;
@@ -68,7 +75,7 @@ module.exports = {
     // This Promise.all trick does not work for some reason - ugh!
     // Have to figure it out later
     const success = await Promise.all(promiseList).then(
-      () => true, 
+      () => true,
       (v) => {
         return false;
       }
@@ -78,15 +85,35 @@ module.exports = {
   },
 
   /**
-   * Fetches indexd data for file and assigns 'rev', given an indexd file object with a did
-   * @param {Object} fileNode - Assumed to have a did property
+   * Fetches indexd res data for file and assigns 'rev', given an indexd file object with a did
+   * @param {Object} file - Assumed to have a did property
+   * @param {Object} authHeaders - headers in include in request. defaults to main
+   *                 user account (mainAcct)'s access token
    * @returns {Promise<Gen3Response>}
    */
-  async getFile(file) {
+  async getFileFullRes(file, authHeaders = user.mainAcct.accessTokenHeader) {
     // get data from indexd
     return I.sendGetRequest(
       `${indexdProps.endpoints.get}/${file.did}`,
-      user.mainAcct.accessTokenHeader,
+      authHeaders,
+    ).then((res) => {
+      file.rev = getRevFromResponse(res);
+      return new Gen3Response(res);
+    });
+  },
+
+  /**
+   * Fetches indexd data for file and assigns 'rev', given an indexd file object with a did
+   * @param {Object} file - Assumed to have a did property
+   * @param {Object} authHeaders - headers in include in request. defaults to main
+   *                 user account (mainAcct)'s access token
+   * @returns {Promise<Gen3Response>}
+   */
+  async getFile(file, authHeaders = user.mainAcct.accessTokenHeader) {
+    // get data from indexd
+    return I.sendGetRequest(
+      `${indexdProps.endpoints.get}/${file.did}`,
+      authHeaders,
     ).then((res) => {
       file.rev = getRevFromResponse(res);
       return res.body;
@@ -94,19 +121,59 @@ module.exports = {
   },
 
   /**
+   * Updates indexd data for file
+   * @param {Object} file - Assumed to have a did property
+   * @param {Object} authHeaders - headers in include in request. defaults to main
+   *                 user account (mainAcct)'s access token
+   * @returns {Promise<Gen3Response>}
+   */
+  async updateFile(file, data, authHeaders = user.mainAcct.indexdAuthHeader) {
+    authHeaders['Content-Type'] = 'application/json; charset=UTF-8';
+    return I.sendGetRequest(
+      `${indexdProps.endpoints.get}/${file.did}`,
+      authHeaders,
+    ).then((res) => {
+      // get last revision
+      file.rev = getRevFromResponse(res);
+
+      const strData = JSON.stringify(data);
+      return I.sendPutRequest(
+        `${indexdProps.endpoints.put}/${file.did}?rev=${file.rev}`,
+        strData,
+        authHeaders,
+      ).then((res) => {
+        return res.body;
+      });
+    });
+  },
+
+  /**
    * Deletes the file from indexd, given an indexd file object with did and rev
    * Response is added to the file object
-   * @param {Object} file
+   * @param {Object} file - Assumed to have a did property
+   * @param {Object} authHeaders - headers in include in request. defaults to main
+   *                 user account (mainAcct)'s access token
    * @returns {Promise<Promise|*|PromiseLike<T>|Promise<T>>}
    */
-  async deleteFile(file) {
-    return I.sendDeleteRequest(
-      `${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`,
-      user.mainAcct.indexdAuthHeader,
+  async deleteFile(file, authHeaders = user.mainAcct.indexdAuthHeader) {
+    authHeaders['Content-Type'] = 'application/json; charset=UTF-8';
+    // always update revision
+    return I.sendGetRequest(
+      `${indexdProps.endpoints.get}/${file.did}`,
+      authHeaders,
     ).then((res) => {
-      // Note that we use the entire response, not just the response body
-      file.indexd_delete_res = res;
-      return res;
+      console.log(`deleting file: ${file.did}`);
+      // get last revision
+      file.rev = getRevFromResponse(res);
+      console.log(`deleting file with rev: ${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`);
+      return I.sendDeleteRequest(
+        `${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`,
+        authHeaders,
+      ).then((res) => {
+        // Note that we use the entire response, not just the response body
+        file.indexd_delete_res = res;
+        return new Gen3Response(res);
+      });
     });
   },
 
@@ -133,9 +200,13 @@ module.exports = {
       var file = {
         did: guid
       };
-      await this.getFile(file); // adds 'rev' to the file
-      var res = await this.deleteFile(file);
-      fileList.push(file)
+      var fileRes = await this.getFile(file); // adds 'rev' to the file
+      if (!fileRes.error) {
+        var res = await this.deleteFile(file);
+        fileList.push(file);
+      } else {
+        console.log(`Could not delete file, since attempting to get it resulted in error: ${fileRes.error}`);
+      }
     }
     return fileList;
   },
@@ -146,7 +217,7 @@ module.exports = {
    */
   async clearPreviousUploadFiles(userAccount) {
     I.sendGetRequest(
-      `${indexdProps.endpoints.get}/?acl=null&uploader=${userAccount.username}`,
+      `${indexdProps.endpoints.get}/?acl=null&authz=null&uploader=${userAccount.username}`,
       userAccount.accessTokenHeader,
     ).then((res) => {
       if (!res.body && !res.body.records) return;
