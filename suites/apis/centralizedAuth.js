@@ -350,7 +350,7 @@ Scenario('User without policies cannot CRUD indexd records in /gen3 or /abc @ind
       new_abc_records.deleteMe,
       msg='should have gotten unauthorized for deleting record under `/abc`'
     );
-});
+}).retry(2);
 
 /*
    - Test user with `abc-admin` policy, test creating record, reading record, updating
@@ -455,7 +455,7 @@ Scenario('User with access can CRUD indexd records in namespace, not outside nam
     );
     const getRes = await indexd.do.getFileFullRes(new_abc_records.deleteMe);
     indexd.ask.recordDoesNotExist(getRes);
-});
+}).retry(2);
 
 /*
    - Test the same thing as above, but use a client's access_token for that user
@@ -564,7 +564,7 @@ Scenario('Client (with access) with user token (with access) can CRUD indexd rec
     );
     const getRes = await indexd.do.getFileFullRes(new_abc_records.deleteMe);
     indexd.ask.recordDoesNotExist(getRes);
-});
+}).retry(2);
 
 /*
    - Test ABC_CLIENT creating signed urls for data under /abc, ensure they cannot create
@@ -601,7 +601,7 @@ Scenario('Client (with access) with user token (with access) can create signed u
       'User token WITHOUT access COULD create signed urls and read file for records ' +
       'in unauthorized namespace'
     ).to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-});
+}).retry(2);
 
 /*
    - Test client WITH access creating signed urls for data for user WITHOUT access in namespace.
@@ -625,7 +625,7 @@ Scenario('Client (with access) with user token (WITHOUT access) in namespace @ce
       'Client using user token WITHOUT access COULD create signed urls and read file ' +
       'for records in namespace'
     ).to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-});
+}).retry(2);
 
 /*
    - Test client WITHOUT access creating signed urls for data for user WITH access in namespace.
@@ -649,7 +649,7 @@ Scenario('Client (WITHOUT access) with user token (with access) in namespace @ce
       'Client WITHOUT access using user token WITH access COULD create signed urls ' +
       'and read file for records in namespace'
     ).to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-});
+}).retry(2);
 
 /*
    - Test that a user with `abc-admin` can create signed urls with their own access_token
@@ -678,7 +678,7 @@ Scenario('User with access can create signed urls for records in namespace, not 
       'User WITHOUT access COULD create signed urls and read file for records in ' +
       'unauthorized namespace'
     ).to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-});
+}).retry(2);
 
 /*
    - Test client flow to get id_token, compare to what's in userinfo endpoint, ensure
@@ -705,7 +705,7 @@ Scenario('Test that userinfo endpoint contains authorization information (resour
       resourcesOfUser.length,
       `Number of resources is not identical in id token and user info`
     ).to.not.equal(0)
-});
+}).retry(2);
 
 /*
    - Create some records in indexd with AND logic, have ABC_CLIENT try to create signed
@@ -730,7 +730,7 @@ Scenario('Client with user token WITHOUT permission CANNOT create signed URL for
       'Client using user token WITHOUT access COULD create signed urls and read file ' +
       'for record with authz AND logic in indexd'
     ).to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-});
+}).retry(2);
 
 /*
    - Same as above test but user DOES have permissions. Ensure successful signed URL that
@@ -755,7 +755,7 @@ Scenario('Client with user token WITH permission CAN create signed URL for recor
       'Client using user token WITH access CANNOT create signed urls and read file ' +
       'for record with authz AND logic in indexd'
     ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-});
+}).retry(2);
 
 /******************************** OPEN ACCESS DATA ************************************/
 Scenario('Test open access data with authenticated user @centralizedAuth',
@@ -772,7 +772,7 @@ Scenario('Test open access data with authenticated user @centralizedAuth',
       'User with access could NOT create signed urls and read file for records in ' +
       'authorized namespace with authorized consent code'
     ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-});
+}).retry(2);
 
 // TODO: Uncomment when fence is updated to check for "public" indexd files
 // Scenario('Test open access data with anonymous user @centralizedAuth1',
@@ -813,7 +813,7 @@ Scenario('Test create signed URL for file in authorized namespace with authorize
       'User with access could NOT create signed urls and read file for records in ' +
       'authorized namespace with authorized consent code'
     ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-});
+}).retry(2);
 
 /*
    - Do the same as above but in a single policy
@@ -835,7 +835,7 @@ Scenario('Test create signed URL for file in authorized namespace with authorize
       'User with access could NOT create signed urls and read file for records in ' +
       'authorized namespace with authorized consent code'
     ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-});
+}).retry(2);
 
 
 /*
@@ -859,7 +859,7 @@ Scenario('Test cannot create signed URL for file in authorized namespace with UN
       'User WITHOUT access COULD create signed urls and read file for records in ' +
       'authorized namespace with UNauthorized consent code'
     ).to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-});
+}).retry(2);
 
 
 /*
@@ -884,4 +884,4 @@ Scenario('Test create signed URL for file in authorized namespace with IMPLIED a
       'User with access could NOT create signed urls and read file for records in ' +
       'authorized namespace with authorized consent code'
     ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-});
+}).retry(2);
