@@ -22,8 +22,10 @@ B. Submission Graph
 
 C. User Defined Querying
     
-1. Generic node - This endpoint provides the user to query with any defined properties in the dictionary for any node in the dictionary in any structure the user wants it to be in. The    user-defined structure should comply with the dictionary rules. 
+1. Generic node - This endpoint provides the user to query with any defined properties in the dictionary for any node in the dictionary in any structure the user wants it to be in. The user defined structure should comply with the dictionary rules. 
+    
     Example : 
+    
     Correct Structure:
     ```
       Parent {
