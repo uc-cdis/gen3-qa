@@ -26,7 +26,7 @@ function timeNow() {
 Scenario('link and unlink google account @reqGoogle', async (fence, users) => {
   await fence.complete.linkGoogleAcctMocked(users.mainAcct);
   await fence.complete.unlinkGoogleAcct(users.mainAcct);
-});
+}).retry(2);
 
 Scenario('extend account link expiration before it expires @reqGoogle', async (fence, users) => {
   await fence.complete.linkGoogleAcctMocked(users.mainAcct);
@@ -34,7 +34,7 @@ Scenario('extend account link expiration before it expires @reqGoogle', async (f
   const extendRes = await fence.do.extendGoogleLink(users.mainAcct);
   fence.ask.linkExtendSuccess(extendRes, requestTime);
   await fence.complete.unlinkGoogleAcct(users.mainAcct);
-});
+}).retry(2);
 
 Scenario('extend account link expiration after it expired @reqGoogle', async (fence, users) => {
   // link with short expiration
@@ -56,17 +56,17 @@ Scenario('extend account link expiration after it expired @reqGoogle', async (fe
   fence.ask.linkExtendSuccess(extendRes, requestTime);
 
   await fence.complete.unlinkGoogleAcct(users.mainAcct);
-});
+}).retry(2);
 
 Scenario('try to unlink when acct is not linked @reqGoogle', async (fence, users) => {
   const linkRes = await fence.do.unlinkGoogleAcct(users.auxAcct2);
   fence.ask.responsesEqual(linkRes, fence.props.resUnlinkNoGoogleAcctLinked);
-});
+}).retry(2);
 
 Scenario('try to extend link when acct is not linked @reqGoogle', async (fence, users) => {
   const extendRes = await fence.do.extendGoogleLink(users.mainAcct);
   fence.ask.responsesEqual(extendRes, fence.props.resExtendNoGoogleAcctLinked);
-});
+}).retry(2);
 
 Scenario('link an acct to a user that already has a linked acct @reqGoogle', async (fence, users) => {
   // link mainAcct to its google account
@@ -91,4 +91,4 @@ Scenario('link an acct that is already linked to a different user @reqGoogle', a
 
   await fence.complete.unlinkGoogleAcct(users.auxAcct1);
   await fence.do.unlinkGoogleAcct(users.mainAcct);
-});
+}).retry(2);
