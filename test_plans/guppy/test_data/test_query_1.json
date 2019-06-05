@@ -1,0 +1,17 @@
+{
+  "query": "query ($filter: JSON) {\n    case (accessibility: accessible, offset: 0, first: 10000, sort: [ { bmi: \"asc\" } ], filter: $filter) { \n      project_id\ngender\nbmi\nage_at_index\ndiastolic_blood_pressure\nsystolic_blood_pressure\ndiabetes\nhypertension\ncerebrovascular_disease\nchronic_respiratory_disease\ncoronary_artery_disease\nheart_failure\nmyocardial_infarction\nstroke\nhypertension_meds\n    }\n  }",
+  "variables": {
+    "filter": {
+      "AND": [
+        {
+          "<": {
+            "age_at_index": 30
+          }, 
+          "=": {
+            "stroke": "Yes"
+          }
+        }
+      ]
+    }
+  }
+}
