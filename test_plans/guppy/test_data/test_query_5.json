@@ -1,0 +1,3 @@
+{
+	"query": "{\n  _mapping {\n    case\n  }\n}\n\n"
+}

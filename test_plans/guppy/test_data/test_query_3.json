@@ -1,0 +1,3 @@
+{
+  "query": "query { \n  _aggregation {\n      case {\n        stroke {\n          histogram {\n            key\n            count\n          }\n        }\n     }     \n    }\n  }\n\n"
+}

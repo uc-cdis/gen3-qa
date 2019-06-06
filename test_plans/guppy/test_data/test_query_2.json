@@ -1,0 +1,19 @@
+{
+  "query": "query ($filter: JSON) { _aggregation {\n case (accessibility: accessible, filter: $filter) { \n _totalCount \n } \n } }",
+  "variables": {
+    "filter": {
+      "AND": [
+        {
+          "<": {
+            "age_at_index": 30
+          } 
+        }, 
+        {
+          "=": {
+            "stroke": "Yes"
+          }
+        }
+      ]
+    }
+  }
+}
