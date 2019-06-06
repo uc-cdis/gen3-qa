@@ -11,6 +11,7 @@ actual results from the API (perform a key-by-key check in an implementation rat
 Guppy Endpoints: /graphql, /download
 
 Background:
+	
 	Given a data commons with a Fence deployment running at /user
 
 	And a a Guppy deployment running at /guppy 
