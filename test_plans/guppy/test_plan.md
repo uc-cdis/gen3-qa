@@ -12,10 +12,15 @@ Guppy Endpoints: /graphql, /download
 
 Background:
 	Given a data commons with a Fence deployment running at /user
+
 	And a a Guppy deployment running at /guppy 
+	
 	And a user mingfei@example.com registered in the Fence database
+	
 	And a manifest dictionary_url value of https://s3.amazonaws.com/dictionary-artifacts/gtexdictionary/master/schema.json
+	
 	And a test database containing case documents in test_data/test_data_1.json
+	
 	And an ETL job completed so as to enable the use of flat queries
 
 Feature: A user will be denied access to Guppy in the case that their auth is expired, and will be informed that their auth is invalid.
