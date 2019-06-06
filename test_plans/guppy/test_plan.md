@@ -1,9 +1,9 @@
-Guppy is a server that support GraphQL queries on data from elasticsearch. 
-It allows you to query raw data with offset, maximum number of rows, sorting and filters.
+Guppy is a server that supports GraphQL queries on data from elasticsearch. 
+It allows you to query raw data with offset, maximum number of rows, sorting, and filters.
 Guppy is like a lightweight version of arranger, but with user-friendly GraphQL query syntax and more fine-grained access control. 
 The Windmill data explorer uses these tools to build charts, tables, and download/export functionalities.
 
-Note that the mock responses in the test plan may contain their keys in a different order than the
+Note that the mock responses in the test_data/test_response_*.json may contain their keys in a different order than the
 actual results from the API (perform a key-by-key check in an implementation rather than a direct text comparison).
 
 [Guppy Doc](https://github.com/uc-cdis/guppy/blob/master/doc/queries.md)
@@ -59,16 +59,3 @@ Feature: A user can list the fields on a document type with a mapping query.
 		When Mingfei makes an API request to guppy/graphql with test_query_5.json
 		Then the response will be successful with status code 200
 		And match the contents of test_response_5.json
-
-
-
-
-
-
-
-
-
-
-
-
-
