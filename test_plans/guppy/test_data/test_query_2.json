@@ -1,5 +1,11 @@
 {
-  "query": "query ($filter: JSON) { _aggregation {\n case (accessibility: accessible, filter: $filter) { \n _totalCount \n } \n } }",
+  "query": "query ($filter: JSON) {
+    _aggregation {
+      case (accessibility: accessible, filter: $filter) { 
+        _totalCount 
+      } 
+    } 
+  }",
   "variables": {
     "filter": {
       "AND": [

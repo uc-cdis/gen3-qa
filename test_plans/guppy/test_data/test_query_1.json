@@ -1,5 +1,23 @@
 {
-  "query": "query ($filter: JSON) {\n    case (accessibility: accessible, offset: 0, first: 10000, sort: [ { bmi: \"asc\" } ], filter: $filter) { \n      project_id\ngender\nbmi\nage_at_index\ndiastolic_blood_pressure\nsystolic_blood_pressure\ndiabetes\nhypertension\ncerebrovascular_disease\nchronic_respiratory_disease\ncoronary_artery_disease\nheart_failure\nmyocardial_infarction\nstroke\nhypertension_meds\n    }\n  }",
+  "query": "query ($filter: JSON) {
+    case (accessibility: accessible, offset: 0, first: 10000, sort: [ { bmi: \"asc\" } ], filter: $filter) { 
+      project_id
+      gender
+      bmi
+      age_at_index
+      diastolic_blood_pressure
+      systolic_blood_pressure
+      diabetes
+      hypertension
+      cerebrovascular_disease
+      chronic_respiratory_disease
+      coronary_artery_disease
+      heart_failure
+      myocardial_infarction
+      stroke
+      hypertension_meds
+    }
+  }",
   "variables": {
     "filter": {
       "AND": [

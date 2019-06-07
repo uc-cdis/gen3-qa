@@ -1,3 +1,16 @@
 {
-  "query": "query { \n  _aggregation {\n   		case {\n        age_at_index {\n          histogram(rangeStart: 0, rangeEnd: 100, rangeStep: 29) {\n            key\n            min\n            max\n            count            \n          }\n        }\n        }\n  		}     \n    }"
+	"query": "query { 
+		_aggregation {
+			case {
+				age_at_index {
+					histogram(rangeStart: 0, rangeEnd: 100, rangeStep: 29) {
+						key
+						min
+						max
+						count
+					}
+				}
+			}
+		}     
+	}"
 }

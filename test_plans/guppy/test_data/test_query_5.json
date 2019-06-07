@@ -1,3 +1,7 @@
 {
-	"query": "{\n  _mapping {\n    case\n  }\n}\n\n"
+	"query": "{
+		_mapping {
+			case
+		}
+	}"
 }
