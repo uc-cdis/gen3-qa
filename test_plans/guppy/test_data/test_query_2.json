@@ -1,7 +1,7 @@
 {
   "query": "query ($filter: JSON) {
     _aggregation {
-      case (accessibility: accessible, filter: $filter) { 
+      case (filter: $filter) { 
         _totalCount 
       } 
     } 

@@ -1,6 +1,6 @@
 {
   "query": "query ($filter: JSON) {
-    case (accessibility: accessible, offset: 0, first: 10000, sort: [ { bmi: \"asc\" } ], filter: $filter) { 
+    case (offset: 0, first: 10000, sort: [ { bmi: \"asc\" } ], filter: $filter) { 
       project_id
       gender
       bmi
