@@ -235,9 +235,11 @@ hostname="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.host
 portalConfigURL="https://${hostname}/data/config/gitops.json"
 if ! (g3kubectl get pods --no-headers -l app=jupyter-hub | grep jupyter-hub) > /dev/null 2>&1 ||
 ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1 ||
-! (g3kubectl get pods --no-headers -l app=wts | grep wts) > /dev/null 2>&1 ||
-! (curl -s "$portalConfigURL" | jq -r 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}})'); then
-  donot '@exportToWorkspace'
+! (g3kubectl get pods --no-headers -l app=wts | grep wts) > /dev/null 2>&1; then
+  donot '@exportToWorkspaceAPI'
+fi
+if ! (curl -s "$portalConfigURL" | jq -r 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}})'); then
+  donot '@exportToWorkspacePortal'
 fi
 
 ########################################################################################

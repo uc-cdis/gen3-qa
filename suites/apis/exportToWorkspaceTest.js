@@ -5,7 +5,7 @@ const I = actor();
 /* POST request with user creds to the manifestservice endpoint at /manifests/ to get a list of exported manifests of that user.
 Verify that user cannot see other users' manifests if don't have their creds.
 This scenario requires two user accounts */
-Scenario('Export default manifest and check if it exists in manifestservice endpoint @exportToWorkspace', async (manifestService, users) => {
+Scenario('Export default manifest and check if it exists in manifestservice endpoint @exportToWorkspaceAPI', async (manifestService, users) => {
   // Create manifest for user1 using dummy data
   const postRes = await manifestService.do.postManifestForUser(users.mainAcct);
   // Check if the response looks correct
