@@ -68,30 +68,3 @@ Feature: The Guppy API supports GraphQL queries on data from elasticsearch.
 		When I make an API request to /guppy/download with test_query_8.json
 		Then the response will be successful with status code 200
 		And match the contents of test_response_8.json
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
