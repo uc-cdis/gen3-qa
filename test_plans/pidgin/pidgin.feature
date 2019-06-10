@@ -1,4 +1,5 @@
-Feature : GetCoremetadata
+@Pidgintests
+Feature : GetCoremetadata 
 
     @JsonFormat
     Scenario : Get data in JSON format with valid_id
