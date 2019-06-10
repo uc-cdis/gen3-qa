@@ -233,21 +233,23 @@ fi
 
 hostname="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.hostname')"
 portalConfigURL="https://${hostname}/data/config/gitops.json"
+
 echo "hostname=$hostname"
 echo "portalConfigURL=$portalConfigURL"
 echo "namespaceName=$namespaceName"
 g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice
 g3kubectl get pods --no-headers -l app=wts | grep wts
 g3kubectl get pods --no-headers -l app=jupyter-hub | grep jupyterhub
-curl -s "$portalConfigURL" | jq -r 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}})'
-[ "$namespaceName" == "jenkins-dcp" ]
+! (curl -s "$portalConfigURL" | jq -r 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}})')
+[ ! "$namespaceName" == "jenkins-dcp" ]
+
 if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1 ||
 ! (g3kubectl get pods --no-headers -l app=wts | grep wts) > /dev/null 2>&1; then
   donot '@exportToWorkspaceAPI'
   donot '@exportToWorkspacePortal'
 elif ! (g3kubectl get pods --no-headers -l app=jupyter-hub | grep jupyterhub) > /dev/null 2>&1 ||
 ! (curl -s "$portalConfigURL" | jq -r 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}})') ||
-[ ! "$namespaceName" == "jenkins-dcp" ]; then
+[ ! "$namespaceName" == "jenkins-dcp" ]; then # for now only testing on jenkins-dcp
   donot '@exportToWorkspacePortal'
 fi
 
