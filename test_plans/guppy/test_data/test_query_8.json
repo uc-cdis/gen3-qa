@@ -1,0 +1,37 @@
+{
+  "type": "case",
+  "fields": [ 
+    "project_id",
+    "gender",
+    "bmi",
+    "age_at_index",
+    "diastolic_blood_pressure",
+    "systolic_blood_pressure",
+    "diabetes",
+    "hypertension",
+    "cerebrovascular_disease",
+    "chronic_respiratory_disease",
+    "coronary_artery_disease",
+    "heart_failure",
+    "myocardial_infarction",
+    "stroke",
+    "hypertension_meds"
+  ],
+  "sort": [
+    { "bmi": "asc" }
+  ],
+  "filter": {
+    "AND": [
+      {
+        "<": {
+          "age_at_index": 30
+        } 
+      }, 
+      {
+        "=": {
+          "stroke": "Yes"
+        }
+      }
+    ]
+  }
+}

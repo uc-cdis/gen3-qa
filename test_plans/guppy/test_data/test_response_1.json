@@ -1,0 +1,60 @@
+{
+  "data": {
+    "case": [
+      {
+        "project_id": "jnkns-jenkins",
+        "gender": "unspecified",
+        "bmi": 0.28662873944259,
+        "age_at_index": 14.158801791311566,
+        "diastolic_blood_pressure": 24.663520131882322,
+        "systolic_blood_pressure": 51.48342217796035,
+        "diabetes": "Yes",
+        "hypertension": "Unknown",
+        "cerebrovascular_disease": "Yes",
+        "chronic_respiratory_disease": "Not reported",
+        "coronary_artery_disease": "Yes",
+        "heart_failure": "No",
+        "myocardial_infarction": "No",
+        "stroke": "Yes",
+        "hypertension_meds": "true",
+        "submitter_id": "case_606337b2ad"
+      },
+      {
+        "project_id": "jnkns-jenkins",
+        "gender": "unknown",
+        "bmi": 25.188983418705934,
+        "age_at_index": 7.76892380991251,
+        "diastolic_blood_pressure": null,
+        "systolic_blood_pressure": null,
+        "diabetes": "Unknown",
+        "hypertension": "Not reported",
+        "cerebrovascular_disease": "Yes",
+        "chronic_respiratory_disease": "No",
+        "coronary_artery_disease": "No",
+        "heart_failure": "No",
+        "myocardial_infarction": "Yes",
+        "stroke": "Yes",
+        "hypertension_meds": null,
+        "submitter_id": "case_518d492127"
+      },
+      {
+        "project_id": "jnkns-jenkins",
+        "gender": "unspecified",
+        "bmi": 70.17869760713795,
+        "age_at_index": 11.59961023125994,
+        "diastolic_blood_pressure": 63.02157950832182,
+        "systolic_blood_pressure": 90.8732946401428,
+        "diabetes": "No",
+        "hypertension": "No",
+        "cerebrovascular_disease": "Unknown",
+        "chronic_respiratory_disease": "No",
+        "coronary_artery_disease": "Yes",
+        "heart_failure": "No",
+        "myocardial_infarction": "Unknown",
+        "stroke": "Yes",
+        "hypertension_meds": "true",
+        "submitter_id": "case_606337b2ac"
+      }
+    ]
+  }
+}
