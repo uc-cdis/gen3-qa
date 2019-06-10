@@ -245,7 +245,7 @@ if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestserv
 ! (g3kubectl get pods --no-headers -l app=wts | grep wts) > /dev/null 2>&1; then
   donot '@exportToWorkspaceAPI'
   donot '@exportToWorkspacePortal'
-elif ! (g3kubectl get pods --no-headers -l app=jupyter-hub | grep jupyter-hub) > /dev/null 2>&1 ||
+elif ! (g3kubectl get pods --no-headers -l app=jupyter-hub | grep jupyterhub) > /dev/null 2>&1 ||
 ! (curl -s "$portalConfigURL" | jq -r 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}})') ||
 [ "$namespaceName" != "jenkins-dcp" ]; then
   donot '@exportToWorkspacePortal'
