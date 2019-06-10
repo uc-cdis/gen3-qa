@@ -240,7 +240,7 @@ echo "namespaceName=$namespaceName"
 g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice
 g3kubectl get pods --no-headers -l app=wts | grep wts
 g3kubectl get pods --no-headers -l app=jupyter-hub | grep jupyterhub
-! (curl -s "$portalConfigURL" | jq -r 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}})')
+curl -s "$portalConfigURL" | jq 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}}) | not'
 [ ! "$namespaceName" == "jenkins-dcp" ]
 
 if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1 ||
@@ -248,7 +248,7 @@ if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestserv
   donot '@exportToWorkspaceAPI'
   donot '@exportToWorkspacePortal'
 elif ! (g3kubectl get pods --no-headers -l app=jupyter-hub | grep jupyterhub) > /dev/null 2>&1 ||
-! (curl -s "$portalConfigURL" | jq -r 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}})') ||
+curl -s "$portalConfigURL" | jq 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}}) | not' ||
 [ ! "$namespaceName" == "jenkins-dcp" ]; then # for now only testing on jenkins-dcp
   donot '@exportToWorkspacePortal'
 fi
@@ -258,7 +258,7 @@ fi
 testArgs="--reporter mocha-multi"
 
 if [[ -n "$doNotRunRegex" ]]; then
-  testArgs="${testArgs} --grep '@exportToWorkspaceAPI|exportToWorkspacePortal'"
+  testArgs="${testArgs} --grep '${doNotRunRegex}' --invert"
 fi
 
 exitCode=0
