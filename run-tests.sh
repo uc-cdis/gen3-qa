@@ -242,9 +242,10 @@ curl -s "$portalConfigURL" | jq -r 'contains({dataExplorerConfig: {buttons: [{en
 if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1 ||
 ! (g3kubectl get pods --no-headers -l app=wts | grep wts) > /dev/null 2>&1; then
   donot '@exportToWorkspaceAPI'
-fi
-if ! (g3kubectl get pods --no-headers -l app=jupyter-hub | grep jupyter-hub) > /dev/null 2>&1 ||
-! (curl -s "$portalConfigURL" | jq -r 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}})'); then
+  donot '@exportToWorkspacePortal'
+elif ! (g3kubectl get pods --no-headers -l app=jupyter-hub | grep jupyter-hub) > /dev/null 2>&1 ||
+! (curl -s "$portalConfigURL" | jq -r 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}})') ||
+! [[ "$namespaceName" == "jenkins-dcp" ]]; then
   donot '@exportToWorkspacePortal'
 fi
 
