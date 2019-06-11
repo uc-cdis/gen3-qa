@@ -14,7 +14,7 @@ module.exports = {
   exportToWorkspaceFooterClass: '.map-data-model__submission-footer',
   loginPageClass: '.login-page',
 
-  exportToWorkspaceButtonXPath: '//*[contains(@class, "g3-button--primary") and contains(., "Export To Workspace")]',
+  exportToWorkspaceButtonXPath: '//button[contains(@class, "g3-button--primary") and contains(lower-case(text()), "export to workspace")]',
   goToWorkspaceButtonXPath: '//button[contains(@class, "g3-button--primary") and contains(text(), "Go To Workspace")]',
   closeButtonXPath: '//button[contains(@class, "g3-button--primary") and contains(text(), "Close")]',
   deleteButtonXPath: '//button[contains(@class, "delete-button") and contains(@title, "Delete selected")]',
