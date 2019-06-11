@@ -40,15 +40,12 @@ module.exports = {
         did: file.did,
         form: 'object',
         size: file.size,
-        urls: [],
+        urls: file.urls || [file.link],
         hashes: { md5: file.md5 },
         acl: file.acl,
         metadata: file.metadata,
       };
 
-      if (file.link) {
-        data.urls = [file.link];
-      }
       if (file.authz) {
         data.authz = file.authz;
       }

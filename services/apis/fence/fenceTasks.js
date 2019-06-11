@@ -79,13 +79,13 @@ module.exports = {
    * @param {string[]} args - additional args for endpoint
    * @returns {Promise<Gen3Response>}
    */
-  createSignedUrl(id, args = []) {
+  createSignedUrl(id, args = [], userHeader=user.mainAcct.accessTokenHeader) {
     return I.sendGetRequest(
       `${fenceProps.endpoints.getFile}/${id}?${args.join('&')}`.replace(
         /[?]$/g,
         '',
       ),
-      user.mainAcct.accessTokenHeader,
+      userHeader,
     ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
   },
 
@@ -551,6 +551,20 @@ module.exports = {
       JSON.stringify({
         file_name: fileName,
       }),
+      accessHeader,
+    ).then(res => new Gen3Response(res));
+  },
+
+  /**
+   * Hits fence's signed url for data upload endpoint
+   * @param {string} guid - guid of the file that will be written to
+   * @param {string} accessToken - access token
+   * @returns {Promise<Gen3Response>}
+   */
+  async getUploadUrlForExistingFile(guid, accessHeader) {
+    accessHeader['Content-Type'] = 'application/json';
+    return I.sendGetRequest(
+      fenceProps.endpoints.uploadFile + `/${guid}`,
       accessHeader,
     ).then(res => new Gen3Response(res));
   },

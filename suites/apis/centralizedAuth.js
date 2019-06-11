@@ -83,11 +83,6 @@ Additionally:
     - DOES NOT work when user is anonymous
     - Works when user is logged in
 
-We probably want some tests to make sure that after usersyncing and changing a user's
-policies, they can no longer create signed urls?
-
-dbgap syncing tests would be good too (since all these rely on user.yaml)
-
 ------------------------------------
 Default Authorization Details
 ------------------------------------
