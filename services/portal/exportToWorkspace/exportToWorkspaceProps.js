@@ -11,11 +11,11 @@ module.exports = {
 
   workspaceIFrameClass: '.workspace',
   explorerHeaderClass: '.data-explorer',
-  exportToWorkspaceFooterClass: '.map-data-model__submission-footer',
+  exportToWorkspaceToasterClass: '.data-explorer__toaster-div.toaster__div',
   loginPageClass: '.login-page',
 
   exportToWorkspaceButtonXPath: '//button[contains(@class, "g3-button--primary") and contains(translate(text(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "export to workspace")]',
-  goToWorkspaceButtonXPath: '//button[contains(@class, "g3-button--primary") and contains(text(), "Go To Workspace")]',
+  goToWorkspaceButtonXPath: '//button[contains(@class, "g3-button--primary") and contains(translate(text(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "go to workspace")]',
   closeButtonXPath: '//button[contains(@class, "g3-button--primary") and contains(text(), "Close")]',
   deleteButtonXPath: '//button[contains(@class, "delete-button") and contains(@title, "Delete selected")]',
   deleteConfirmButtonXPath: '//button[contains(@class, "btn btn-default btn-sm btn-danger") and contains(@data-dismiss, "modal")]',

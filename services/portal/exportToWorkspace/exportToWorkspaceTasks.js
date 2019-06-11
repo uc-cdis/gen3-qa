@@ -84,7 +84,7 @@ module.exports = {
   /* Get the mounted manifest filename from python output */
   async grabManifestFilename() {
     console.log('grab the filename of exported manifest file');
-    const result = await I.grabTextFrom(exportToWorkspaceProps.exportToWorkspaceFooterClass);
+    const result = await I.grabTextFrom(exportToWorkspaceProps.exportToWorkspaceToasterClass);
     const splittedResult = result.split('File Name: ');
     if (splittedResult.length === 2) {
       return splittedResult[1];

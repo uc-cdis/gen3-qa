@@ -10,26 +10,26 @@ const I = actor();
 module.exports = {
   async isManifestSavedToWorkspaceSucceeded() {
     console.log('check for the success message toaster');
-    const result = await I.grabTextFrom(exportToWorkspaceProps.exportToWorkspaceFooterClass);
+    const result = await I.grabTextFrom(exportToWorkspaceProps.exportToWorkspaceToasterClass);
     expect(result).to.contain(exportToWorkspaceProps.succeededToasterMessage);
   },
 
   async isManifestSaveToWorkspaceFailed() {
     console.log('check for the failed message toaster');
-    const result = await I.grabTextFrom(exportToWorkspaceProps.exportToWorkspaceFooterClass);
+    const result = await I.grabTextFrom(exportToWorkspaceProps.exportToWorkspaceToasterClass);
     expect(result).to.contain(exportToWorkspaceProps.failedToasterMessage);
   },
 
   doesSucceededMessageToasterLookCorrect() {
     console.log('validate the success message toaster format');
-    I.seeElement(exportToWorkspaceProps.exportToWorkspaceFooterClass);
+    I.seeElement(exportToWorkspaceProps.exportToWorkspaceToasterClass);
     I.seeElement(exportToWorkspaceProps.goToWorkspaceButtonXPath);
     I.seeElement(exportToWorkspaceProps.closeButtonXPath);
   },
 
   doesFailedMessageToasterLookCorrect() {
     console.log('validate the failed message toaster format');
-    I.seeElement(exportToWorkspaceProps.exportToWorkspaceFooterClass);
+    I.seeElement(exportToWorkspaceProps.exportToWorkspaceToasterClass);
     I.dontSeeElement(exportToWorkspaceProps.goToWorkspaceButtonXPath);
     I.seeElement(exportToWorkspaceProps.closeButtonXPath);
   },
