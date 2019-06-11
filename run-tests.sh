@@ -250,7 +250,7 @@ if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestserv
 elif ! (g3kubectl get pods --no-headers -l app=jupyter-hub | grep jupyterhub) > /dev/null 2>&1; then
   echo "1"
   donot '@exportToWorkspacePortal'
-elif [[ curl -s "$portalConfigURL" | jq 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}}) | not' == "false" ]]; then
+elif [[ $(curl -s "$portalConfigURL" | jq 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}}) | not') == "true" ]]; then
   echo "2"
   donot '@exportToWorkspacePortal'
 elif [[ ! "$namespaceName" == "jenkins-dcp" ]]; then # for now only testing on jenkins-dcp
