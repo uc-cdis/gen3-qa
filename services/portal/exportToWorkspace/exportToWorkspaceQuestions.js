@@ -23,14 +23,14 @@ module.exports = {
   doesSucceededMessageToasterLookCorrect() {
     console.log('validate the success message toaster format');
     I.seeElement(exportToWorkspaceProps.exportToWorkspaceFooterClass);
-    I.seeElement(exportToWorkspaceProps.exportToWorkspaceButtonXPath);
+    I.seeElement(exportToWorkspaceProps.goToWorkspaceButtonXPath);
     I.seeElement(exportToWorkspaceProps.closeButtonXPath);
   },
 
   doesFailedMessageToasterLookCorrect() {
     console.log('validate the failed message toaster format');
     I.seeElement(exportToWorkspaceProps.exportToWorkspaceFooterClass);
-    I.dontSeeElement(exportToWorkspaceProps.exportToWorkspaceButtonXPath);
+    I.dontSeeElement(exportToWorkspaceProps.goToWorkspaceButtonXPath);
     I.seeElement(exportToWorkspaceProps.closeButtonXPath);
   },
 
