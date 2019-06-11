@@ -86,7 +86,10 @@ D. Filters
 
 13. `offset` - This filter applies offset to the head of the set and displays the result set.
 
-Datasets Endpoints `/datasets`
+Datasets Endpoints `/datasets` 
+
+(true/false are PUBLIC_DATASETS configuration variables)
+
 ```
 false - Need to be logged in to see data. When logged in, only see the projects you have access to.
 
