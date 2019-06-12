@@ -263,7 +263,7 @@ fi
 testArgs="--reporter mocha-multi"
 
 if [[ -n "$doNotRunRegex" ]]; then
-  testArgs="${testArgs} --grep '@exportToWorkspacePortal'"
+  testArgs="${testArgs} --grep '@exportToWorkspaceAPI|@exportToWorkspacePortal'"
 fi
 
 exitCode=0
