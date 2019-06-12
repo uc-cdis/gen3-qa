@@ -65,16 +65,7 @@ const indexed_files = {
     md5: '73d643ec3f4beb9020eef0beed440ad1',
     acl: ['test'],
     size: 10,
-  },
-  phs000178File: {
-    filename: 'testdata',
-    urls: [
-      's3://cdis-presigned-url-test/testdata',
-      'gs://' + fenceProps.googleBucketInfo.QA.bucketId + '/' + fenceProps.googleBucketInfo.QA.fileName],
-    md5: '73d643ec3f4beb9020eef0beed440ad2',
-    authz: ['/dbgap/programs/phs000178'],
-    size: 11,
-  },
+  }
 }
 
 BeforeSuite(async (indexd) => {
