@@ -387,7 +387,7 @@ module.exports = async function (done) {
       await setupGoogleProjectDynamic();
     }
 
-    Create a program and project (does nothing if already exists)
+    // Create a program and project (does nothing if already exists)
     console.log('Creating program/project\n');
     await tryCreateProgramProject(3);
 
