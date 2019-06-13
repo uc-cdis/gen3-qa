@@ -207,7 +207,7 @@ Scenario('dbGaP + user.yaml Sync: ensure combined access @dbgapSyncing',
     ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
 });
 
-Scenario('dbGaP + user.yaml Sync (from prev test): ensure user cannot create/update/delete dbGaP indexd records @dbgapSyncing',
+Scenario('dbGaP + user.yaml Sync (from prev test): ensure user without dbGap access cannot create/update/delete dbGaP indexd records @dbgapSyncing',
   async (fence, indexd, users, files) => {
     console.log('populating guids for indexd records to attempt to create...');
     // populate new GUIDs per test
