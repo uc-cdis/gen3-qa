@@ -11,7 +11,7 @@ module.exports = {
 
   workspaceIFrameClass: '.workspace',
   explorerHeaderClass: '.data-explorer',
-  exportToWorkspaceToasterClass: '.data-explorer__toaster-div.toaster__div',
+  exportToWorkspaceToasterClass: '.data-explorer__toaster-div',
   loginPageClass: '.login-page',
 
   exportToWorkspaceButtonXPath: '//button[contains(@class, "g3-button--primary") and contains(translate(text(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "export to workspace")]',
