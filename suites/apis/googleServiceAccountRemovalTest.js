@@ -231,7 +231,7 @@ Scenario('SA removal job test: user does not have access to data @reqGoogle', as
   );
 
   console.log(`Running usersync job`);
-  bash.runJob('usersync');
+  bash.runJob('usersync', args='FORCE true');
 
   // Asserts
   fence.ask.detected_invalid_google_project(jobRes, fence.props.monitorSAJobLog.noDataAccess);

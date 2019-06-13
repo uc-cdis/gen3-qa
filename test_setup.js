@@ -382,7 +382,7 @@ module.exports = async function (done) {
       assertGen3Client();
     }
 
-    if (isIncluded('@reqGoogle') || isIncluded('@dbgapSyncing')) {
+    if (isIncluded('@reqGoogle')) {
       createGoogleTestBuckets();
       await setupGoogleProjectDynamic();
     }

@@ -73,6 +73,7 @@ async function loginGoogle(googleCreds) {
  * fence Tasks
  */
 module.exports = {
+  FILE_FROM_URL_ERROR,
   /**
    * Hits fence's signed url endpoint
    * @param {string} id - id/did of an indexd file
