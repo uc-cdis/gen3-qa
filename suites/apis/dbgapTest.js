@@ -268,3 +268,72 @@ Scenario('dbGaP + user.yaml Sync (from prev test): ensure user without dbGap acc
       msg='should have gotten unauthorized for deleting record under `/dbgap`'
     );
 });
+
+Scenario('dbGaP + user.yaml Sync (from prev test): ensure users with dbGap access cannot create/update/delete dbGaP indexd records @dbgapSyncing',
+  async (fence, indexd, users, files) => {
+    console.log('populating guids for indexd records to attempt to create...');
+    // populate new GUIDs per test
+    const dbgapFooBarFileGuid = uuid.v4().toString();
+    new_dbgap_records.fooBarFile.did = dbgapFooBarFileGuid;
+
+    // create
+    const dbgap_create_success = await indexd.do.addFileIndices(
+        Object.values(new_dbgap_records), users.mainAcct.accessTokenHeader
+    );
+
+    // read to test creation
+    const dbgap_read_response = await indexd.do.getFileFullRes(
+        new_dbgap_records.fooBarFile, users.mainAcct.accessTokenHeader
+    );
+
+    // asserts for read to test creation
+    fence.ask.assertStatusCode(
+        dbgap_read_response, 404,
+        msg='should have gotten 404 for reading record under `/dbgap` (no permission to create so it was not created)'
+    );
+
+    // force creation of records
+    const dbgap_force_create_success = await indexd.do.addFileIndices(
+        Object.values(new_dbgap_records)
+    );
+    chai.expect(
+      dbgap_force_create_success, 'unable to force add files to indexd as part of setup'
+    ).to.be.true;
+
+    // read again
+    const dbgap_read_response_after_force_create = await indexd.do.getFileFullRes(
+        new_dbgap_records.fooBarFile, users.mainAcct.accessTokenHeader
+    );
+
+    // asserts for read
+    fence.ask.assertStatusCode(
+        dbgap_read_response_after_force_create, 200,
+        msg='should have gotten authorized 200 for reading record under `/dbgap`'
+    );
+
+    // update
+    const filename_change = {
+      'file_name': 'test_filename'
+    };
+    const dbgap_update_response = await indexd.do.updateFile(
+        new_dbgap_records.fooBarFile, filename_change, users.mainAcct.accessTokenHeader
+    );
+
+    // asserts for update
+    chai.expect(
+      dbgap_update_response,
+      'should NOT have got successful response when updating record under `/dbgap`'
+    ).to.not.have.property('did');
+
+    // delete
+    const dbgap_delete_response = await indexd.do.deleteFile(
+        new_dbgap_records.fooBarFile, users.mainAcct.accessTokenHeader
+    );
+
+    // asserts for delete
+    indexd.ask.deleteFileNotSuccessful(
+      dbgap_delete_response,
+      new_dbgap_records.fooBarFile,
+      msg='should have gotten unauthorized for deleting record under `/dbgap`'
+    );
+});
