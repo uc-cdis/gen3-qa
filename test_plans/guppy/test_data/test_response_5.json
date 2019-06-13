@@ -1,0 +1,45 @@
+{
+  "data": {
+    "_mapping": {
+      "case": [
+        "_aliquots_count",
+        "_read_groups_count",
+        "_samples_count",
+        "_simple_germline_variations_count",
+        "_submitted_aligned_reads_files_count",
+        "_submitted_snp_array_files_count",
+        "_submitted_unaligned_reads_files_count",
+        "age_at_index",
+        "asthma",
+        "auth_resource_path",
+        "biospecimen_anatomic_site",
+        "bmi",
+        "cabg_presence",
+        "case_id",
+        "cerebrovascular_disease",
+        "chronic_respiratory_disease",
+        "consent_codes",
+        "copd",
+        "coronary_artery_disease",
+        "data_format",
+        "data_type",
+        "diabetes",
+        "diastolic_blood_pressure",
+        "emphysema",
+        "ethnicity",
+        "gender",
+        "heart_failure",
+        "hypertension",
+        "hypertension_meds",
+        "metabolic_syndrome_diagnosis",
+        "myocardial_infarction",
+        "node_id",
+        "project_id",
+        "race",
+        "stroke",
+        "submitter_id",
+        "systolic_blood_pressure"
+      ]
+    }
+  }
+}

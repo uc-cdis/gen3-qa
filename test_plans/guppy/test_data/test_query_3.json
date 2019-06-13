@@ -1,0 +1,14 @@
+{
+  "query": "query { 
+  	_aggregation {
+      case {
+        stroke {
+          histogram {
+            key
+            count
+          }
+        }
+      }     
+    }
+  }"
+}
