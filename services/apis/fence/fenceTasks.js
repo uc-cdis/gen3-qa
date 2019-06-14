@@ -236,9 +236,20 @@ module.exports = {
     let headers = userAcct.accessTokenHeader;
     headers.Cookie = 'dev_login=' + userAcct.username;
     url = '/user/link/google?redirect=/login';
-    if (expires_in)
+    if (expires_in) {
       url += `&expires_in=${expires_in}`;
+    }
     return I.sendGetRequest(url, headers).then((res) => {
+
+      // response is flaky, seems to cause tests to randomly fail. so log
+      // some more info when it does
+      if (!res.headers || !res.headers.location) {
+        console.log(
+          'Error in response for linking google account, no headers or ' +
+          `no location in headers. Response: ${res}`
+        );
+      }
+
       // follow redirect back to fence
       let sessionCookie = getCookie('fence', res.headers['set-cookie']);
       headers.Cookie += `; fence=${sessionCookie}`;
