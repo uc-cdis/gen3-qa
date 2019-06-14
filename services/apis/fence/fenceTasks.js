@@ -245,7 +245,7 @@ module.exports = {
       // some more info when it does
       if (!res.headers || !res.headers.location) {
         console.log(
-          'Error in response for linking google account, no headers or ' +
+          'Error in response for linking google account (first GET), no headers or ' +
           `no location in headers. Response: ${res}`
         );
       }
@@ -254,6 +254,16 @@ module.exports = {
       let sessionCookie = getCookie('fence', res.headers['set-cookie']);
       headers.Cookie += `; fence=${sessionCookie}`;
       return I.sendGetRequest(res.headers.location, headers).then((res) => {
+        
+        // response is flaky, seems to cause tests to randomly fail. so log
+        // some more info when it does
+        if (!res.headers || !res.headers.location) {
+          console.log(
+            'Error in response for linking google account (second GET), no headers or ' +
+            `no location in headers. Response: ${res}`
+          );
+        }
+        
         // return the body and the current url
         const url = res.headers.location;
         const body = res.body;
