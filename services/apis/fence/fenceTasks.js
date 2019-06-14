@@ -246,8 +246,9 @@ module.exports = {
       if (!res.headers || !res.headers.location) {
         console.log(
           'Error in response for linking google account (first GET), no headers or ' +
-          `no location in headers. Response: ${res}`
+          `no location in headers. Response:`
         );
+        console.log(res);
       }
 
       // follow redirect back to fence
@@ -260,8 +261,9 @@ module.exports = {
         if (!res.headers || !res.headers.location) {
           console.log(
             'Error in response for linking google account (second GET), no headers or ' +
-            `no location in headers. Response: ${res}`
+            `no location in headers. Response:`
           );
+          console.log(res);
         }
         
         // return the body and the current url
