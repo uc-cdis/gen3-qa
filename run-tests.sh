@@ -258,6 +258,10 @@ elif [[ ! "$namespaceName" == "jenkins-dcp" ]]; then # for now only testing on j
   donot '@exportToWorkspacePortal'
 fi
 
+npm list codeceptjs
+npm list selenium-standalone
+npm list webdriverio
+
 ########################################################################################
 
 testArgs="--reporter mocha-multi"
