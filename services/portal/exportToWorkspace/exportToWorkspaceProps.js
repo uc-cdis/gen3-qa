@@ -19,6 +19,7 @@ module.exports = {
   closeButtonXPath: '//button[contains(@class, "g3-button--primary") and contains(text(), "Close")]',
   deleteButtonXPath: '//button[contains(@class, "delete-button") and contains(@title, "Delete selected")]',
   deleteConfirmButtonXPath: '//button[contains(@class, "btn btn-default btn-sm btn-danger") and contains(@data-dismiss, "modal")]',
+  dataHyperlinkXPath: '//a[contains(@class, "item_link") and contains(@href, "/tree/data")]',
 
   startButtonSelector: '#start',
   spawnListOptionSelector: '#profile-item-0',

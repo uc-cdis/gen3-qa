@@ -11,13 +11,10 @@ module.exports = {
   async checkExportDefaultManifestToWorkspace() {
     exportToWorkspaceTasks.exportDefaultManifestToWorkspace();
     exportToWorkspaceQuestions.isManifestSavedToWorkspaceSucceeded();
-    const manifestFilename = await exportToWorkspaceTasks.grabManifestFilename();
+    const manifestName = await exportToWorkspaceTasks.grabManifestName();
     await exportToWorkspaceTasks.jumpToWorkspacePage();
     await exportToWorkspaceTasks.startWorkspace();
-    const mountOutput = await exportToWorkspaceTasks.mountLatestManifestInJupyterNotebook();
-    await exportToWorkspaceQuestions.doesMountOutputLookSuccessful(mountOutput, manifestFilename);
-    await exportToWorkspaceTasks.backToWorkspace();
-    await exportToWorkspaceTasks.deleteAllJupyterNotebooks();
+    exportToWorkspaceTasks.mountLatestManifestInJupyterNotebook(manifestName);
   },
 
   /* The 'Click Workspace tab when logged out and logged in' test sequence */

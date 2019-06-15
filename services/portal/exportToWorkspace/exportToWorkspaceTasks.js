@@ -61,64 +61,27 @@ module.exports = {
   },
 
   /* Mount the latest manifest using python codes as defined in 'exportToWorkspaceProps.mountManifestCode' */
-  async mountLatestManifestInJupyterNotebook() {
-    const output = await within({ frame: exportToWorkspaceProps.workspaceIFrameClass }, () => {
+  mountLatestManifestInJupyterNotebook(manifestName) {
+    within({ frame: exportToWorkspaceProps.workspaceIFrameClass }, () => {
       I.waitForVisible(exportToWorkspaceProps.mainWorkspaceAppSelector, 600);
-      console.log('create a python notebook');
-      I.click(exportToWorkspaceProps.newDropDownButtonSelector);
-      I.click(exportToWorkspaceProps.newPython3ButtonSelector);
-      I.waitForVisible(exportToWorkspaceProps.pythonNotebookPanelSelector, 60); // wait for new notebook to show up
-      console.log('mount the latest manifest using python code');
-      exportToWorkspaceProps.mountManifestCode.forEach((line) => {
-        I.pressKey(line);
-        I.pressKey('Enter');
-      });
-      I.wait(3); // give it some time for updating input area and top tool bar
-      I.click(exportToWorkspaceProps.runNotebookButtonSelector);
-      console.log('grab mounted filename from output area');
-      I.waitForVisible(exportToWorkspaceProps.pythonNotebookOutputAreaSelector, 60);
-      return I.grabTextFrom(exportToWorkspaceProps.pythonNotebookOutputAreaSelector);
+      I.waitForVisible(exportToWorkspaceProps.dataHyperlinkXPath, 10);
+      I.click(exportToWorkspaceProps.dataHyperlinkXPath);
+      console.log('in /data');
+      const mountedManifestHyperlinkXPath = `//a[contains(@class, "item_link") and contains(@href, ${manifestName})]`;
+      I.waitForVisible(mountedManifestHyperlinkXPath, 60);
     });
-    return output;
   },
 
-  /* Get the mounted manifest filename from python output */
-  async grabManifestFilename() {
+  /* Get the manifest name to be mounted from python output */
+  async grabManifestName() {
     console.log('grab the filename of exported manifest file');
     const result = await I.grabTextFrom(exportToWorkspaceProps.exportToWorkspaceToasterClass);
     const splittedResult = result.split('File Name: ');
     if (splittedResult.length === 2) {
-      return splittedResult[1];
+      const manifestName = splittedResult[1].split('.json');
+      return manifestName[0];
     }
     return '';
-  },
-
-  /* Step out from notebook and go back to workspace page */
-  async backToWorkspace() {
-    console.log('go back to workspace');
-    within({ frame: exportToWorkspaceProps.workspaceIFrameClass }, () => {
-      I.waitForVisible(exportToWorkspaceProps.saveNotebookButtonSelector, 10);
-      I.click(exportToWorkspaceProps.saveNotebookButtonSelector);
-      I.wait(3); // give it some time to finish the saving work
-      I.click(exportToWorkspaceProps.backToWorkspaceLinkSelector);
-    });
-  },
-
-  /* Remove all notebooks from workspace */
-  async deleteAllJupyterNotebooks() {
-    console.log('delete all Jupyter notebooks');
-    within({ frame: exportToWorkspaceProps.workspaceIFrameClass }, async () => {
-      I.waitForVisible(exportToWorkspaceProps.selectAllCheckboxSelector, 30);
-      I.click(exportToWorkspaceProps.selectAllCheckboxSelector);
-      I.waitForVisible(exportToWorkspaceProps.selectAllDropDownButtonSelector, 30);
-      I.click(exportToWorkspaceProps.selectAllDropDownButtonSelector);
-      I.waitForVisible(exportToWorkspaceProps.selectAllNotebookButtonSelector, 10);
-      I.click(exportToWorkspaceProps.selectAllNotebookButtonSelector);
-      I.waitForVisible(exportToWorkspaceProps.deleteButtonXPath, 10);
-      I.click(exportToWorkspaceProps.deleteButtonXPath);
-      I.waitForVisible(exportToWorkspaceProps.deleteConfirmButtonXPath, 10);
-      I.click(exportToWorkspaceProps.deleteConfirmButtonXPath);
-    });
   },
 
   /* Attempt to get to 'Workspace' page when user has logged out */
