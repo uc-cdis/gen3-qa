@@ -261,6 +261,7 @@ fi
 npm list codeceptjs
 npm list selenium-standalone
 npm list webdriverio
+npm list mocha-multi
 
 ########################################################################################
 
