@@ -11,6 +11,7 @@ exports.config = {
       url: `https://${process.env.HOSTNAME}`,
       smartWait: 5000,
       browser: 'chrome',
+      fullPageScreenshots: true,
       desiredCapabilities: {
         chromeOptions: {
           args: [
