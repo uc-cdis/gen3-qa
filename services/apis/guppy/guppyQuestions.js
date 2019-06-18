@@ -53,35 +53,4 @@ module.exports = {
     expect(response, err).to.have.property('statusCode', statusCode);
   },
 
-  /**
-   * Assert that the stringURL contains sub-strings
-   * @param {string} resURL - response url
-   * @param {array} containSubStr
-   * @param {array} notContainSubStr
-   */
-  assertContainSubStr(resURL, containSubStr) {
-    let i;
-    for (i = 0; i < containSubStr.length; i += 1) {
-      expect(resURL).to.contain(containSubStr[i]);
-    }
-  },
-
-  /**
-   * Assert that the stringURL contains sub-strings
-   * @param {string} resURL - response url
-   * @param {array} containSubStr
-   * @param {array} notContainSubStr
-   */
-  assertNotContainSubStr(resURL, notContainSubStr) {
-    let i;
-    for (i = 0; i < notContainSubStr.length; i += 1) {
-      expect(resURL).to.not.contain(notContainSubStr[i]);
-    }
-  },  
-
-  assertTruthyResult(result, msg='') {
-    err = `Expected a parameter to be "truthy" but received ${result}: ` + msg;
-    expect(!!result, err).to.be.true;
-  },
-
 };

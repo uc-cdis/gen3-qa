@@ -19,7 +19,7 @@ module.exports = {
    * @param {string[]} userHeader - a user's access token header
    * @returns {Promise<Gen3Response>}
    */
-  submitGraphQLQuery(id, userHeader=user.mainAcct.accessTokenHeader) {
+  submitGraphQLQuery(queryToSubmit, userHeader=user.mainAcct.accessTokenHeader) {
     return I.sendGetRequest(guppyProps.endpoints.graphqlEndpoint,
       userHeader,
     ).then(res => new Gen3Response(res));

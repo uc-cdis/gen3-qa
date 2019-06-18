@@ -16,12 +16,24 @@ const I = actor();
  * guppy sequences
  */
 module.exports = {
-  async checkQueryResponseEquals() {
-    guppyQuestions.hasUrl(signedUrlRes);
-    const fileContents = await guppyTasks.getFile(signedUrlRes.body.url);
-    expect(fileContents).to.equal(contents);
-  }
+  async checkQueryResponseEquals(queryToSubmitFilename, expectedResponseFilename) {
+    if (fs.existsSync(queryToSubmitFilename)) {
+      const queryToSubmit = fs.readFileSync(queryToSubmitFilename).toString().split('\n');
+    }
 
+    if (fs.existsSync(expectedResponseFilename)) {
+      const expectedResponse = fs.readFileSync(expectedResponseFilename).toString().split('\n');
+    }
+
+    console.log(queryToSubmit);
+    console.log(expectedResponse);
+
+    const queryResponse = await guppyTasks.submitGraphQLQuery(queryToSubmit);
+    console.log(queryResponse);
+
+    guppyQuestions.hasStatusCode(queryResponse, 200);
+    expect(queryResponse.body).to.equal(expectedResponse);
+  }
 
   // /**
   //  * Gets a files contents then asserts their contents are as expected
