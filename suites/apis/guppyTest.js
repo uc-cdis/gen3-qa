@@ -1,3 +1,10 @@
+Feature('Guppy');
+
+const chai = require('chai');
+const expect = chai.expect;
+
+const { Gen3Response } = require('../../utils/apiUtil');
+
 const { Before } = require('cucumber')
 
 Given('a data commons with a Fence deployment running at \/user', function () {
@@ -34,4 +41,12 @@ When('I make an API request to \/guppy\/graphql with test_query_{int}.json', fun
 
 Then('the response will fail with a status code {int}', function (int) {
 	return '';
+});
+
+Scenario('get presigned-url', async (I, fence) => {
+  const signedUrlRes = await fence.do.createSignedUrl(files.allowed.did);
+  await fence.complete.checkFileEquals(
+    signedUrlRes,
+    'Hi Zac!\ncdis-data-client uploaded this!\n',
+  );
 });
