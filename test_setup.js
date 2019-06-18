@@ -292,46 +292,46 @@ module.exports = async function (done) {
       process.env[user.envTokenName] = at;
     }
 
-    console.log('Delete then create basic client...\n');
-    deleteClient('basic-test-client');
-    var basicClient;
-    if (isIncluded('@centralizedAuth')) {
-      basicClient = createClient(
-        'basic-test-client', 'test-client@example.com', 'basic',
-        arboristPolicies='abc-admin gen3-admin'
-      );
-    } else {
-      basicClient = createClient(
-        'basic-test-client', 'test-client@example.com', 'basic'
-      );
-    }
+    // console.log('Delete then create basic client...\n');
+    // deleteClient('basic-test-client');
+    // var basicClient;
+    // if (isIncluded('@centralizedAuth')) {
+    //   basicClient = createClient(
+    //     'basic-test-client', 'test-client@example.com', 'basic',
+    //     arboristPolicies='abc-admin gen3-admin'
+    //   );
+    // } else {
+    //   basicClient = createClient(
+    //     'basic-test-client', 'test-client@example.com', 'basic'
+    //   );
+    // }
 
-    console.log('Delete then create another basic client...\n');
-    deleteClient('basic-test-abc-client');
-    var basicAbcClient;
-    if (isIncluded('@centralizedAuth')) {
-      basicAbcClient = createClient(
-        'basic-test-abc-client', 'test-abc-client@example.com', 'basic',
-        arboristPolicies='abc-admin'
-      );
-    } else {
-      basicAbcClient = createClient(
-        'basic-test-abc-client', 'test-abc-client@example.com', 'basic'
-      );
-    }
+    // console.log('Delete then create another basic client...\n');
+    // deleteClient('basic-test-abc-client');
+    // var basicAbcClient;
+    // if (isIncluded('@centralizedAuth')) {
+    //   basicAbcClient = createClient(
+    //     'basic-test-abc-client', 'test-abc-client@example.com', 'basic',
+    //     arboristPolicies='abc-admin'
+    //   );
+    // } else {
+    //   basicAbcClient = createClient(
+    //     'basic-test-abc-client', 'test-abc-client@example.com', 'basic'
+    //   );
+    // }
 
-    console.log('Delete then create implicit client...\n');
-    deleteClient('implicit-test-client');
-    const implicitClient = createClient(
-      'implicit-test-client', 'test@example.com', 'implicit'
-    );
+    // console.log('Delete then create implicit client...\n');
+    // deleteClient('implicit-test-client');
+    // const implicitClient = createClient(
+    //   'implicit-test-client', 'test@example.com', 'implicit'
+    // );
 
-    //Setup environment variables
-    process.env[`${fenceProps.clients.client.envVarsName}_ID`] = basicClient.client_id;
-    process.env[`${fenceProps.clients.client.envVarsName}_SECRET`] = basicClient.client_secret;
-    process.env[`${fenceProps.clients.abcClient.envVarsName}_ID`] = basicAbcClient.client_id;
-    process.env[`${fenceProps.clients.abcClient.envVarsName}_SECRET`] = basicAbcClient.client_secret;
-    process.env[`${fenceProps.clients.clientImplicit.envVarsName}_ID`] = implicitClient.client_id;
+    // //Setup environment variables
+    // process.env[`${fenceProps.clients.client.envVarsName}_ID`] = basicClient.client_id;
+    // process.env[`${fenceProps.clients.client.envVarsName}_SECRET`] = basicClient.client_secret;
+    // process.env[`${fenceProps.clients.abcClient.envVarsName}_ID`] = basicAbcClient.client_id;
+    // process.env[`${fenceProps.clients.abcClient.envVarsName}_SECRET`] = basicAbcClient.client_secret;
+    // process.env[`${fenceProps.clients.clientImplicit.envVarsName}_ID`] = implicitClient.client_id;
 
     // Export expired access token for main acct
     const mainAcct = users.mainAcct;
@@ -366,18 +366,18 @@ module.exports = async function (done) {
     assertEnvVars(basicVars.concat(googleVars, submitDataVars));
     console.log('TEST_DATA_PATH: ', process.env.TEST_DATA_PATH);
 
-    if (isIncluded('@dataClientCLI')) {
-      assertGen3Client();
-    }
+    // if (isIncluded('@dataClientCLI')) {
+    //   assertGen3Client();
+    // }
 
-    if (isIncluded('@reqGoogle')) {
-      createGoogleTestBuckets();
-      await setupGoogleProjectDynamic();
-    }
+    // if (isIncluded('@reqGoogle')) {
+    //   createGoogleTestBuckets();
+    //   await setupGoogleProjectDynamic();
+    // }
 
-    // Create a program and project (does nothing if already exists)
-    console.log('Creating program/project\n');
-    await tryCreateProgramProject(3);
+    // // Create a program and project (does nothing if already exists)
+    // console.log('Creating program/project\n');
+    // await tryCreateProgramProject(3);
 
     done();
   }

@@ -14,8 +14,8 @@ exports.config = {
       desiredCapabilities: {
         chromeOptions: {
           args: [
-            '--headless', // for dev, you can comment this line to open actual chrome for easier test
-            '--disable-gpu',
+            // '--headless', // for dev, you can comment this line to open actual chrome for easier test
+            // '--disable-gpu',
             '--window-size=1920,1080'
           ],
         },
@@ -52,6 +52,7 @@ exports.config = {
     fence: './services/apis/fence/fenceService.js',
     dataClient: './services/apis/dataClient/dataClientService.js',
     etl: './services/apis/etl/etlService.js',
+    guppy: './services/apis/guppy/guppyService.js',
 
     // Pages
     home: './services/portal/home/homeService.js',
