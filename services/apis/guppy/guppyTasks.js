@@ -1,13 +1,10 @@
 const guppyProps = require('./guppyProps.js');
 const user = require('../../../utils/user.js');
-const portal = require('../../../utils/portal.js');
 const { Gen3Response, getCookie, getAccessTokenHeader } = require('../../../utils/apiUtil');
 const { Bash, takeLastLine } = require('../../../utils/bash');
 
 const { container } = require('codeceptjs');
 const bash = new Bash();
-
-const I = actor();
 
 /**
  * guppy Tasks

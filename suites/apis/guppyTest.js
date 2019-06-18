@@ -1,14 +1,17 @@
-Feature('Guppy');
-
 const chai = require('chai');
 const expect = chai.expect;
 
-const { Gen3Response } = require('../../utils/apiUtil');
+const apiUtil = require('../../utils/apiUtil.js');
 
-const { Before } = require('cucumber')
+// Feature('Guppy');
+
+// const { Gen3Response } = require('../../utils/apiUtil');
+
+const { Before, Given, When, Then } = require('cucumber')
 
 Given('a data commons with a Fence deployment running at \/user', function () {
-	return '';
+	console.log('ayeee');
+	return 8;
 });
 
 Given('a a Guppy deployment running at \/guppy', function () {
@@ -43,10 +46,8 @@ Then('the response will fail with a status code {int}', function (int) {
 	return '';
 });
 
-Scenario('get presigned-url', async (I, fence) => {
-  const signedUrlRes = await fence.do.createSignedUrl(files.allowed.did);
-  await fence.complete.checkFileEquals(
-    signedUrlRes,
-    'Hi Zac!\ncdis-data-client uploaded this!\n',
-  );
-});
+// Scenario('I want a list of patients (cases) strictly younger than 30 with a past stroke in ascending order of BMI.', async (I, guppy) => {
+//   let queryFile = '../../test_plans/test_query_1.json';
+//   let expectedResponseFile = '../../test_plans/test_response_1.json';
+//   await guppy.complete.checkQueryResponseEquals(queryFile, expectedResponseFile);
+// });

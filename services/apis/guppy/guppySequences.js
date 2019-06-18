@@ -10,8 +10,6 @@ const guppyProps = require('./guppyProps.js');
 const { Gen3Response } = require('../../../utils/apiUtil');
 const user = require('../../../utils/user.js');
 
-const I = actor();
-
 /**
  * guppy sequences
  */
