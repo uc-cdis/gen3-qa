@@ -22,7 +22,7 @@ module.exports = {
     this.goToExplorerPage();
     I.seeElement(exportToWorkspaceProps.exportToWorkspaceButtonXPath);
     I.click(exportToWorkspaceProps.exportToWorkspaceButtonXPath);
-    I.wait(15);
+    I.wait(60);
     I.switchTo();
     I.waitForElement(exportToWorkspaceProps.exportToWorkspaceToasterClass, 30);
   },
