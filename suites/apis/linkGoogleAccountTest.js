@@ -69,11 +69,6 @@ Scenario('try to extend link when acct is not linked @reqGoogle', async (fence, 
 }).retry(2);
 
 Scenario('link an acct to a user that already has a linked acct @reqGoogle', async (fence, users) => {
-  
-  // TODO: enable this test after fixing "Cannot read property 'location' of undefined" error
-  console.log('Skipping test "link an acct to a user that already has a linked acct"');
-  return;
-  
   // link mainAcct to its google account
   await fence.complete.linkGoogleAcctMocked(users.mainAcct);
 
