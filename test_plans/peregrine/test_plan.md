@@ -53,7 +53,7 @@ C. User Defined Querying
 
 D. Filters
     
-1. `with_path_to`/ `with_path_to_any`/ `without_path_to` - This filter applies to the generic-node node, limiting to the nodes which possess a concrete or any relationship (could include multiple levels of relationships) to a given node type in the query.
+1. `with_path_to`/ `with_path_to_any` - This filter applies to the generic-node node, limiting to the nodes which possess a concrete or any relationship (could include multiple levels of relationships) to a given node type in the query.
 
 2. `boolean` - This filter limits the result to only the node instances that have the same boolean property value as given in the filter.
 
@@ -69,7 +69,7 @@ D. Filters
 
 8. `updated_after` / `updated_before` - This filter returns the result of datasets updated depending on the date and time specified in the query.	
 
-9. `with_links` / `with_links_any` / `without_links` - 	(description to be added)
+9. `with_links` / `with_links_any` - 	(description to be added)
 
 10. `project_id` - This filter returns node/nodes with the given logical project_id.
 
