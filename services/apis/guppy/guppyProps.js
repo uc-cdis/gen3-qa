@@ -3,7 +3,6 @@ const { Gen3Response } = require('../../../utils/apiUtil');
 /**
  * guppy Properties
  */
-const rootEndpoint = '/guppy';
 
 class Client {
   constructor({ envVarsName }) {
@@ -17,14 +16,17 @@ class Client {
   }
 }
 
+const namespace = process.env.NAMESPACE;
+const hostname = 'https://' + namespace + '.planx-pla.net';
+
 module.exports = {
   /**
    * Guppy endpoints
    */
   endpoints: {
-    root: rootEndpoint,
-    graphqlEndpoint: `${rootEndpoint}/guppy/graphql`,
-    downloadEndpoint: `${rootEndpoint}/guppy/download`,
+    graphqlEndpoint: hostname + `/guppy/graphql`,
+    downloadEndpoint: hostname + `/guppy/download`,
+    hostname: hostname
   },
 
   /**
