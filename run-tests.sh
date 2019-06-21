@@ -268,7 +268,7 @@ npm list mocha-multi
 testArgs="--reporter mocha-multi"
 
 if [[ -n "$doNotRunRegex" ]]; then
-  testArgs="${testArgs} --grep '@exportToWorkspaceAPI|@exportToWorkspacePortal'"
+  testArgs="${testArgs} --grep '@exportToWorkspacePortal'"
 fi
 
 exitCode=0
