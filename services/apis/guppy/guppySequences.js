@@ -10,28 +10,51 @@ const guppyProps = require('./guppyProps.js');
 const { Gen3Response } = require('../../../utils/apiUtil');
 const user = require('../../../utils/user.js');
 
+const fs = require('fs');
+
+function recordWithSubmitterID(id, arr) {
+  for (let i = 0; i < arr.length; i++) {
+    if(arr['submitter_id'] == id) {
+      return arr[i];
+    }
+  }
+}
+
 /**
  * guppy sequences
  */
 module.exports = {
-  async checkQueryResponseEquals(queryToSubmitFilename, expectedResponseFilename) {
-    if (fs.existsSync(queryToSubmitFilename)) {
-      const queryToSubmit = fs.readFileSync(queryToSubmitFilename).toString().split('\n');
+  async checkQueryResponseEquals(endpoint, queryToSubmitFilename, expectedResponseFilename, access_token) {
+    const queryResponse = await guppyTasks.submitQueryFileToGuppy(endpoint, queryToSubmitFilename, access_token);
+    // console.log('response: ', queryResponse);
+    expect(queryResponse.status).to.equal(200);
+
+    let responseJSON = await queryResponse.json();
+    // console.log(responseJSON);
+    let expectedResponse = fs.readFileSync(expectedResponseFilename).toString();
+    expectedResponse = JSON.parse(expectedResponse)['data']['case'];
+    console.log('expectedResponse: ', expectedResponse);
+
+    let actualResponse = responseJSON['data']['case'];
+    console.log('actualResponse: ', actualResponse);
+    // expect(actualResponse.length).to.equal(expectedResponse.length);
+    for (let i = 0; i < actualResponse.length; i++) {
+      let caseObj = recordWithSubmitterID(actualResponse[i].submitter_id, expectedResponse);
+      console.log('case: ', caseObj);
+      expect(caseObj).to.not.equal(null);
+      expect(typeof(caseObj), 'A matching case was not found for that submitter ID.').to.not.equal('undefined');
+      for(var key in caseObj) {
+        expect(caseObj[key]).to.equal(actualResponse[i][key]);
+      }
+      // console.log('key: ', key);
+      // console.log('val: ', actualResponse[key]);
+      // console.log('val2: ', expectedResponse[key]);
+      // expect(actualResponse[key]).to.equal(expectedResponse[key]);
     }
 
-    if (fs.existsSync(expectedResponseFilename)) {
-      const expectedResponse = fs.readFileSync(expectedResponseFilename).toString().split('\n');
-    }
+    // expect(responseJSON).to.equal(expectedResponse);
 
-    console.log(queryToSubmit);
-    console.log(expectedResponse);
-
-    const queryResponse = await guppyTasks.submitGraphQLQuery(queryToSubmit);
-    console.log(queryResponse);
-
-    guppyQuestions.hasStatusCode(queryResponse, 200);
-    expect(queryResponse.body).to.equal(expectedResponse);
-  }
+  },
 
   // /**
   //  * Gets a files contents then asserts their contents are as expected

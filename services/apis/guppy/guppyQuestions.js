@@ -13,6 +13,13 @@ const guppyProps = require('./guppyProps.js');
  * guppy Questions
  */
 module.exports = {
+  
+  async checkQueryMatches(endpoint, queryToSubmitFilename, expectedResponseFilename) {
+    const actualResponse = await submitQueryToGuppy(guppy.guppyProps.endpoints.graphqlEndpoint, queryFile);
+    const expectedResponse = fs.readFileSync(expectedResponseFile).toString();
+    expect(queryResponse).to.equal(expectedResponse);
+  },
+
   /**
    * Asserts a res has data key property
    * @param apiKeyRes
