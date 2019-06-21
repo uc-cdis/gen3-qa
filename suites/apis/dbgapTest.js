@@ -42,9 +42,20 @@ const indexed_files = {
       'gs://' + fenceProps.googleBucketInfo.test.bucketId + '/' + fenceProps.googleBucketInfo.test.fileName
     ],
     md5: '73d643ec3f4beb9020eef0beed440ad0',
-    authz: ['/dbgap/programs/phs000178'],
+    authz: ['/programs/phs000178'],
     size: 9,
   },
+  // NOTE: phs000179 should be configured in the Fence Configuration Mapping to point
+  //       to a namespaces `orgA` and `orgB`. This is to test the case where a single
+  //       study has data in multiple different authorization namespaces
+  //
+  // FENCE CONFIG SHOULD CONTAIN:
+  //
+  //    dbGaP:
+  //      ...
+  //      study_to_resource_namespaces:
+  //        '_default': ['/']
+  //        'phs000179': ['/orgA/', '/orgB/']
   phs000179File: {
     filename: 'testdata',
     urls: [
@@ -52,8 +63,18 @@ const indexed_files = {
       'gs://' + fenceProps.googleBucketInfo.QA.bucketId + '/' + fenceProps.googleBucketInfo.QA.fileName
     ],
     md5: '73d643ec3f4beb9020eef0beed440ad1',
-    authz: ['/dbgap/programs/phs000179'],
+    authz: ['/orgA/programs/phs000179'],
     size: 10,
+  },
+  anotherPhs000179File: {
+    filename: 'testdata',
+    urls: [
+      's3://cdis-presigned-url-test/testdata',
+      'gs://' + fenceProps.googleBucketInfo.QA.bucketId + '/' + fenceProps.googleBucketInfo.QA.fileName
+    ],
+    md5: '73d643ec3f4beb9020eef0beed440ad2',
+    authz: ['/orgB/programs/phs000179'],
+    size: 11,
   },
   QAFile: {
     filename: 'testdata',
@@ -63,7 +84,7 @@ const indexed_files = {
     ],
     md5: '73d643ec3f4beb9020eef0beed440ac5',
     authz: ['/gen3/programs/QA/projects/foobar'],
-    size: 11,
+    size: 12,
   }
 }
 
@@ -72,8 +93,8 @@ let new_dbgap_records = {
     filename: 'testdata',
     link: 's3://cdis-presigned-url-test/testdata',
     md5: '73d643ec3f4beb9020eef0beed440ad4',
-    authz: ['/dbgap/programs/phs000178'],
-    size: 12,
+    authz: ['/programs/phs000178'],
+    size: 13,
   }
 }
 
@@ -93,14 +114,19 @@ AfterSuite(async (fence, indexd, users) => {
   await indexd.do.deleteFileIndices(Object.values(indexed_files));
   await indexd.do.deleteFileIndices(Object.values(new_dbgap_records));
 
-  console.log('Running usersync after dbgap testing');
-  bash.runJob('usersync', args='FORCE true');
+  // console.log('Running usersync after dbgap testing');
+
+  console.log('start time: ' + Math.floor(Date.now() / 1000))
+  // bash.runJob('usersync', args='FORCE true');
+  console.log('end time: ' + Math.floor(Date.now() / 1000))
 });
 
 Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try creating urls to upload @dbgapSyncing @reqGoogle',
   async (fence, indexd, users, files) => {
     console.log(`Running usersync job and forcing only dbgap sync`);
+    console.log('start time: ' + Math.floor(Date.now() / 1000))
     bash.runJob('usersync', args='FORCE true ONLY_DBGAP true');
+    console.log('end time: ' + Math.floor(Date.now() / 1000))
 
     // users.mainAcct has access to phs000178
     console.log('Use mainAcct to create s3 signed URL for file phs000178')
@@ -129,30 +155,52 @@ Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try crea
     ).to.equal(fence.props.googleBucketInfo.test.fileContents);
 
     // users.mainAcct does NOT have access to phs000179
-    console.log('Use mainAcct to create s3 signed URL for file phs000179')
+    console.log('Use mainAcct to create s3 signed URL for phs000179 file in orgA namespace')
     const signedUrls3phs000179Res = await fence.do.createSignedUrl(
       indexed_files.phs000179File.did, ['protocol=s3'],
       users.mainAcct.accessTokenHeader
     );
-    console.log('Use mainAcct to create gs signed URL for file phs000179')
+    console.log('Use mainAcct to create s3 signed URL for phs000179 file in orgB namespace')
+    const signedUrls3anotherPhs000179FileRes = await fence.do.createSignedUrl(
+      indexed_files.anotherPhs000179File.did, ['protocol=s3'],
+      users.mainAcct.accessTokenHeader
+    );
+    console.log('Use mainAcct to create gs signed URL for file phs000179 in default namespace')
     const signedUrlgsPhs000179Res = await fence.do.createSignedUrl(
       indexed_files.phs000179File.did, ['protocol=gs'],
       users.mainAcct.accessTokenHeader
     );
+    console.log('Use mainAcct to create gs signed URL for phs000179 file in orgB namespace')
+    const signedUrlgsAnotherPhs000179FileRes = await fence.do.createSignedUrl(
+      indexed_files.anotherPhs000179File.did, ['protocol=gs'],
+      users.mainAcct.accessTokenHeader
+    );
 
-    let phst000179s3FileContents = await fence.do.getFileFromSignedUrlRes(
+    let phs000179s3FileContents = await fence.do.getFileFromSignedUrlRes(
       signedUrls3phs000179Res);
-    let phst000179gsFileContents = await fence.do.getFileFromSignedUrlRes(
+    let anotherPhs000179s3FileContents = await fence.do.getFileFromSignedUrlRes(
+      signedUrls3anotherPhs000179FileRes);
+    let phs000179gsFileContents = await fence.do.getFileFromSignedUrlRes(
       signedUrlgsPhs000179Res);
+    let anotherPhs000179gsFileContents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlgsAnotherPhs000179FileRes);
 
-    chai.expect(phst000179s3FileContents,
+    chai.expect(phs000179s3FileContents,
       `User ${users.mainAcct.username} WITHOUT access COULD create s3 signed urls ` +
-      'and read file for a record in unauthorized dbGaP project phs000179'
-    ).to.equal(fence.do.FILE_FROM_URL_ERROR);
-    chai.expect(phst000179gsFileContents,
+      'and read file for a record in unauthorized dbGaP project phs000179 in namespace OrgA'
+    ).to.equal(fence.props.FILE_FROM_URL_ERROR);
+    chai.expect(anotherPhs000179s3FileContents,
+      `User ${users.mainAcct.username} WITHOUT access COULD create s3 signed urls ` +
+      'and read file for a record in unauthorized dbGaP project phs000179 in namespace OrgB'
+    ).to.equal(fence.props.FILE_FROM_URL_ERROR);
+    chai.expect(phs000179gsFileContents,
       `User ${users.mainAcct.username} WITHOUT access COULD create gs signed urls ` +
-      'and read file for a record in unauthorized dbGaP project phs000179'
-    ).to.equal(fence.do.FILE_FROM_URL_ERROR);
+      'and read file for a record in unauthorized dbGaP project phs000179 in namespace orgA'
+    ).to.equal(fence.props.FILE_FROM_URL_ERROR);
+    chai.expect(anotherPhs000179gsFileContents,
+      `User ${users.mainAcct.username} WITHOUT access COULD create gs signed urls ` +
+      'and read file for a record in unauthorized dbGaP project phs000179 in namespace orgB'
+    ).to.equal(fence.props.FILE_FROM_URL_ERROR);
 
     // request an UPLOAD presigned URL from fence
     let fenceUploadRes = await fence.do.getUploadUrlForExistingFile(
@@ -169,7 +217,9 @@ Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try crea
 Scenario('dbGaP + user.yaml Sync: ensure combined access @dbgapSyncing @reqGoogle',
   async (fence, indexd, users, files) => {
     console.log('Running usersync job and adding dbgap sync to yaml sync');
+    console.log('start time: ' + Math.floor(Date.now() / 1000))
     bash.runJob('usersync', args='ADD_DBGAP true FORCE true');
+    console.log('end time: ' + Math.floor(Date.now() / 1000))
 
     // users.mainAcct has access to phs000178 through dbgap
     console.log('Use mainAcct to create s3 signed URL for file phs000178')
@@ -220,7 +270,7 @@ Scenario('dbGaP + user.yaml Sync (from prev test): ensure user without dbGap acc
     // asserts for read to test creation
     fence.ask.assertStatusCode(
         dbgap_read_response, 404,
-        msg='should have gotten 404 for reading record under `/dbgap` (no permission to create so it was not created)'
+        msg='should have gotten 404 for reading dbgap record (no permission to create so it was not created)'
     );
 
     // force creation of records
@@ -239,7 +289,7 @@ Scenario('dbGaP + user.yaml Sync (from prev test): ensure user without dbGap acc
     // asserts for read
     fence.ask.assertStatusCode(
         dbgap_read_response_after_force_create, 200,
-        msg='should have gotten authorized 200 for reading record under `/dbgap`'
+        msg='should have gotten authorized 200 for reading dbgap record'
     );
 
     // update
@@ -253,7 +303,7 @@ Scenario('dbGaP + user.yaml Sync (from prev test): ensure user without dbGap acc
     // asserts for update
     chai.expect(
       dbgap_update_response,
-      'should NOT have got successful response when updating record under `/dbgap`'
+      'should NOT have got successful response when updating dbgap record'
     ).to.not.have.property('did');
 
     // delete
@@ -265,11 +315,11 @@ Scenario('dbGaP + user.yaml Sync (from prev test): ensure user without dbGap acc
     indexd.ask.deleteFileNotSuccessful(
       dbgap_delete_response,
       new_dbgap_records.fooBarFile,
-      msg='should have gotten unauthorized for deleting record under `/dbgap`'
+      msg='should have gotten unauthorized for deleting dbgap record'
     );
 });
 
-Scenario('dbGaP + user.yaml Sync (from prev test): ensure users with dbGap access cannot create/update/delete dbGaP indexd records @dbgapSyncing',
+Scenario('dbGaP + user.yaml Sync (from prev test): ensure users with dbGap access cannot create/update/delete dbGaP indexd records @dbgapSyncing @reqGoogle',
   async (fence, indexd, users, files) => {
     console.log('populating guids for indexd records to attempt to create...');
     // populate new GUIDs per test
@@ -289,7 +339,7 @@ Scenario('dbGaP + user.yaml Sync (from prev test): ensure users with dbGap acces
     // asserts for read to test creation
     fence.ask.assertStatusCode(
         dbgap_read_response, 404,
-        msg='should have gotten 404 for reading record under `/dbgap` (no permission to create so it was not created)'
+        msg='should have gotten 404 for reading dbgap record (no permission to create so it was not created)'
     );
 
     // force creation of records
@@ -308,7 +358,7 @@ Scenario('dbGaP + user.yaml Sync (from prev test): ensure users with dbGap acces
     // asserts for read
     fence.ask.assertStatusCode(
         dbgap_read_response_after_force_create, 200,
-        msg='should have gotten authorized 200 for reading record under `/dbgap`'
+        msg='should have gotten authorized 200 for reading dbgap record'
     );
 
     // update
@@ -322,7 +372,7 @@ Scenario('dbGaP + user.yaml Sync (from prev test): ensure users with dbGap acces
     // asserts for update
     chai.expect(
       dbgap_update_response,
-      'should NOT have got successful response when updating record under `/dbgap`'
+      'should NOT have got successful response when updating dbgap record'
     ).to.not.have.property('did');
 
     // delete
@@ -334,6 +384,6 @@ Scenario('dbGaP + user.yaml Sync (from prev test): ensure users with dbGap acces
     indexd.ask.deleteFileNotSuccessful(
       dbgap_delete_response,
       new_dbgap_records.fooBarFile,
-      msg='should have gotten unauthorized for deleting record under `/dbgap`'
+      msg='should have gotten unauthorized for deleting dbgap record'
     );
 });

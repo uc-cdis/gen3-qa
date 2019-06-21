@@ -9,8 +9,6 @@ const bash = new Bash();
 
 const I = actor();
 
-const FILE_FROM_URL_ERROR = 'Could not get file contents from signed url response';
-
 /**
  * Determines if browser is on Google's "Choose account" page
  * @returns {Promise<boolean>}
@@ -73,7 +71,6 @@ async function loginGoogle(googleCreds) {
  * fence Tasks
  */
 module.exports = {
-  FILE_FROM_URL_ERROR,
   /**
    * Hits fence's signed url endpoint
    * @param {string} id - id/did of an indexd file
@@ -121,8 +118,8 @@ module.exports = {
     ){
       return I.sendGetRequest(signedUrlRes["body"].url).then(res => res.body);
     }
-    console.log(FILE_FROM_URL_ERROR);
-    return FILE_FROM_URL_ERROR;
+    console.log(fenceProps.FILE_FROM_URL_ERROR);
+    return fenceProps.FILE_FROM_URL_ERROR;
   },
 
   /**

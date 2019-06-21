@@ -47,6 +47,8 @@ module.exports = {
 
   monitorServiceAccount: 'fence-service@dcf-integration.iam.gserviceaccount.com',
 
+  FILE_FROM_URL_ERROR: 'Could not get file contents from signed url response',
+
   /**
    * Project.auth_ids to bucket info
    */
