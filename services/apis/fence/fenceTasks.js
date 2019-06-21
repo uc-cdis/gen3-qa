@@ -242,7 +242,7 @@ module.exports = {
     return I.sendGetRequest(url, headers).then(async (res) => {
 
       // if no error, follow redirect back to fence
-      if (!res.headers.location.includes("error=")) {
+      if (res.headers.location && !res.headers.location.includes("error=")) {
         let sessionCookie = getCookie('fence', res.headers['set-cookie']);
         headers.Cookie += `; fence=${sessionCookie}`;
         res = await I.sendGetRequest(res.headers.location, headers);
