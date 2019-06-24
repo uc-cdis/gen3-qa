@@ -73,7 +73,7 @@ module.exports = {
   getPortalConfig(field) {
     const portalConfigURL = `https://${process.env.HOSTNAME}/data/config/gitops.json`;
     I.sendGetRequest(portalConfigURL)
-      .then(res => res.json())
+      .then(res => JSON.parse(JSON.stringify(res)))
       .then((data) => {
         if (field === undefined) {
           return data;
