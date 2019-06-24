@@ -242,6 +242,7 @@ g3kubectl get pods --no-headers -l app=wts | grep wts
 g3kubectl get pods --no-headers -l app=jupyter-hub | grep jupyterhub
 curl -s "$portalConfigURL" | jq 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}}) | not'
 [ ! "$namespaceName" == "jenkins-dcp" ]
+curl -s "$portalConfigURL"
 
 if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1 ||
 ! (g3kubectl get pods --no-headers -l app=wts | grep wts) > /dev/null 2>&1; then
