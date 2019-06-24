@@ -1,5 +1,6 @@
 /* eslint-disable max-len */
 const exportToWorkspaceProps = require('./exportToWorkspaceProps.js');
+const portal = require('../../../utils/portal');
 
 const I = actor();
 
@@ -14,7 +15,11 @@ module.exports = {
 
   goToExplorerPage() {
     I.amOnPage(exportToWorkspaceProps.explorerPath);
-    I.waitForVisible(exportToWorkspaceProps.explorerHeaderClass, 10);
+    if (portal.isPortalUsingGuppy()) {
+      I.waitForVisible(exportToWorkspaceProps.guppyExplorerHeaderClass, 10);
+    } else {
+      I.waitForVisible(exportToWorkspaceProps.explorerHeaderClass, 10);
+    }
   },
 
   exportDefaultManifestToWorkspace() {
@@ -52,7 +57,7 @@ module.exports = {
       if (spawnOptionCount === 1) { // see "Spawn" options
         I.click(exportToWorkspaceProps.spawnListOptionSelector);
         I.noTimeoutEnter(); // I.click() with Spawn button selector will randomly has timeout issues, this is a hacky workaround to ensure spawn input works every time
-        I.wait(10); // wait for workspace spawn 
+        I.wait(10); // wait for workspace spawn
         I.refreshPage(); // if not refresh, codeceptjs sometimes cannot pick up the main workspace app page automatically
         I.wait(10); // wait for refresh to get page updated
       }

@@ -69,4 +69,23 @@ module.exports = {
     validateProp(prop);
     I.waitForVisible(Object.values(prop.locator)[0], seconds);
   },
+
+  getPortalConfig(field) {
+    const portalConfigURL = `https://${process.env.HOSTNAME}/data/config/gitops.json`;
+    I.sendPutRequest(portalConfigURL)
+      .then(res => res.json())
+      .then((data) => {
+        if (field === undefined) {
+          return data;
+        }
+        return data[field];
+      });
+  },
+
+  isPortalUsingGuppy() {
+    if (this.getPortalConfig('dataExplorerConfig').guppyConfig === undefined) {
+      return false;
+    }
+    return true;
+  },
 };
