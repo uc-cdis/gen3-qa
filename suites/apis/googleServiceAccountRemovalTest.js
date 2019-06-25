@@ -58,7 +58,7 @@ AfterSuite(async (google, fence, users) => {
 
 
 function runVerifyUserSAsJob() {
-  var fenceCmd = 'fence-create --verbose google-manage-user-registrations';
+  var fenceCmd = 'fence-create google-manage-user-registrations';
   console.log(`Running: ${fenceCmd}`);
   var jobRes = bash.runCommand(fenceCmd, 'fence');
   console.log(jobRes);

@@ -234,24 +234,28 @@ module.exports = {
     let headers = userAcct.accessTokenHeader;
     headers.Cookie = 'dev_login=' + userAcct.username;
     url = '/user/link/google?redirect=/login';
-    if (expires_in)
+    if (expires_in) {
       url += `&expires_in=${expires_in}`;
-    return I.sendGetRequest(url, headers).then((res) => {
-      // follow redirect back to fence
-      let sessionCookie = getCookie('fence', res.headers['set-cookie']);
-      headers.Cookie += `; fence=${sessionCookie}`;
-      return I.sendGetRequest(res.headers.location, headers).then((res) => {
-        // return the body and the current url
-        const url = res.headers.location;
-        const body = res.body;
+    }
+    return I.sendGetRequest(url, headers).then(async (res) => {
 
-        const gen3Res = new Gen3Response({ body });
-        gen3Res.parsedFenceError = undefined;
-        gen3Res.body = body;
-        gen3Res.statusCode = 200;
-        gen3Res.finalURL = url;
-        return gen3Res;
-      });
+      // if no error, follow redirect back to fence
+      if (!res.headers.location.includes("error=")) {
+        let sessionCookie = getCookie('fence', res.headers['set-cookie']);
+        headers.Cookie += `; fence=${sessionCookie}`;
+        res = await I.sendGetRequest(res.headers.location, headers);
+      }
+
+      // return the body and the current url
+      const url = res.headers.location;
+      const body = res.body;
+
+      const gen3Res = new Gen3Response({ body });
+      gen3Res.parsedFenceError = undefined;
+      gen3Res.body = body;
+      gen3Res.statusCode = 200;
+      gen3Res.finalURL = url;
+      return gen3Res;
     });
   },
 
