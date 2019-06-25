@@ -175,24 +175,12 @@ function createGoogleTestBuckets() {
     console.log(`Running: ${fenceCmd}`);
     bash.runCommand(fenceCmd, 'fence');
 
-    // Google signed urls are testing for dbgap syncing as well, link phs ids to
-    // existing buckets
-    var fenceCmd = `fence-create link-bucket-to-project --project_auth_id phs000179 --bucket_id ${bucketId} --bucket_provider google`
-    console.log(`Running: ${fenceCmd}`);
-    bash.runCommand(fenceCmd, 'fence');
-
     bucketId = fenceProps.googleBucketInfo.test.bucketId
     googleProjectId = fenceProps.googleBucketInfo.test.googleProjectId
     projectAuthId = 'test';
     fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
     console.log(`Running: ${fenceCmd}`);
     response = bash.runCommand(fenceCmd, 'fence');
-
-    // Google signed urls are testing for dbgap syncing as well, link phs ids to
-    // existing buckets
-    var fenceCmd = `fence-create link-bucket-to-project --project_auth_id phs000178 --bucket_id ${bucketId} --bucket_provider google`
-    console.log(`Running: ${fenceCmd}`);
-    bash.runCommand(fenceCmd, 'fence');
 
     console.log('Clean up Google Bucket Access Groups from previous runs...');
     bash.runJob('google-verify-bucket-access-group');

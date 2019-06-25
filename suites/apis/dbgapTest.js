@@ -107,6 +107,23 @@ BeforeSuite(async (fence, users, indexd) => {
   const ok = await indexd.do.addFileIndices(Object.values(indexed_files));
   chai.expect(
     ok, 'unable to add files to indexd as part of dbgapTest setup').to.be.true;
+
+  console.log(`Running usersync job and forcing only dbgap sync`);
+  console.log('start time: ' + Math.floor(Date.now() / 1000))
+  bash.runJob('usersync', args='FORCE true ONLY_DBGAP true');
+  console.log('end time: ' + Math.floor(Date.now() / 1000))
+
+  // Google signed urls are testing for dbgap syncing as well, link phs ids to
+  // existing buckets
+  var fenceCmd = `fence-create link-bucket-to-project --project_auth_id phs000179 --bucket_id ${bucketId} --bucket_provider google`
+  console.log(`Running: ${fenceCmd}`);
+  bash.runCommand(fenceCmd, 'fence');
+
+  // Google signed urls are testing for dbgap syncing as well, link phs ids to
+  // existing buckets
+  var fenceCmd = `fence-create link-bucket-to-project --project_auth_id phs000178 --bucket_id ${bucketId} --bucket_provider google`
+  console.log(`Running: ${fenceCmd}`);
+  bash.runCommand(fenceCmd, 'fence');
 });
 
 AfterSuite(async (fence, indexd, users) => {
@@ -122,10 +139,7 @@ AfterSuite(async (fence, indexd, users) => {
 
 Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try creating urls to upload @dbgapSyncing @reqGoogle',
   async (fence, indexd, users, files) => {
-    console.log(`Running usersync job and forcing only dbgap sync`);
-    console.log('start time: ' + Math.floor(Date.now() / 1000))
-    bash.runJob('usersync', args='FORCE true ONLY_DBGAP true');
-    console.log('end time: ' + Math.floor(Date.now() / 1000))
+    // ASSUME BeforeSuite has run the ONLY_DBGAP usersync
 
     // users.mainAcct has access to phs000178
     console.log('Use mainAcct to create s3 signed URL for file phs000178')
