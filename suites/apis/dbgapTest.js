@@ -114,10 +114,9 @@ AfterSuite(async (fence, indexd, users) => {
   await indexd.do.deleteFileIndices(Object.values(indexed_files));
   await indexd.do.deleteFileIndices(Object.values(new_dbgap_records));
 
-  // console.log('Running usersync after dbgap testing');
-
+  console.log('Running usersync after dbgap testing');
   console.log('start time: ' + Math.floor(Date.now() / 1000))
-  // bash.runJob('usersync', args='FORCE true');
+  bash.runJob('usersync', args='FORCE true');
   console.log('end time: ' + Math.floor(Date.now() / 1000))
 });
 
@@ -165,7 +164,7 @@ Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try crea
       indexed_files.anotherPhs000179File.did, ['protocol=s3'],
       users.mainAcct.accessTokenHeader
     );
-    console.log('Use mainAcct to create gs signed URL for file phs000179 in default namespace')
+    console.log('Use mainAcct to create gs signed URL for file phs000179 in orgA namespace')
     const signedUrlgsPhs000179Res = await fence.do.createSignedUrl(
       indexed_files.phs000179File.did, ['protocol=gs'],
       users.mainAcct.accessTokenHeader
@@ -187,11 +186,11 @@ Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try crea
 
     chai.expect(phs000179s3FileContents,
       `User ${users.mainAcct.username} WITHOUT access COULD create s3 signed urls ` +
-      'and read file for a record in unauthorized dbGaP project phs000179 in namespace OrgA'
+      'and read file for a record in unauthorized dbGaP project phs000179 in namespace orgA'
     ).to.equal(fence.props.FILE_FROM_URL_ERROR);
     chai.expect(anotherPhs000179s3FileContents,
       `User ${users.mainAcct.username} WITHOUT access COULD create s3 signed urls ` +
-      'and read file for a record in unauthorized dbGaP project phs000179 in namespace OrgB'
+      'and read file for a record in unauthorized dbGaP project phs000179 in namespace orgB'
     ).to.equal(fence.props.FILE_FROM_URL_ERROR);
     chai.expect(phs000179gsFileContents,
       `User ${users.mainAcct.username} WITHOUT access COULD create gs signed urls ` +
@@ -250,7 +249,7 @@ Scenario('dbGaP + user.yaml Sync: ensure combined access @dbgapSyncing @reqGoogl
     ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
 });
 
-Scenario('dbGaP + user.yaml Sync (from prev test): ensure user without dbGap access cannot create/update/delete dbGaP indexd records @dbgapSyncing',
+Scenario('dbGaP + user.yaml Sync (from prev test): ensure user without dbGap access cannot create/update/delete dbGaP indexd records @dbgapSyncing @reqGoogle',
   async (fence, indexd, users, files) => {
     console.log('populating guids for indexd records to attempt to create...');
     // populate new GUIDs per test
