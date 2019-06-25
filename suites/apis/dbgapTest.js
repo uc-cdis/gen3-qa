@@ -115,12 +115,14 @@ BeforeSuite(async (fence, users, indexd) => {
 
   // Google signed urls are testing for dbgap syncing as well, link phs ids to
   // existing buckets
+  var bucketId = fenceProps.googleBucketInfo.QA.bucketId;
   var fenceCmd = `fence-create link-bucket-to-project --project_auth_id phs000179 --bucket_id ${bucketId} --bucket_provider google`
   console.log(`Running: ${fenceCmd}`);
   bash.runCommand(fenceCmd, 'fence');
 
   // Google signed urls are testing for dbgap syncing as well, link phs ids to
   // existing buckets
+  bucketId = fenceProps.googleBucketInfo.test.bucketId;
   var fenceCmd = `fence-create link-bucket-to-project --project_auth_id phs000178 --bucket_id ${bucketId} --bucket_provider google`
   console.log(`Running: ${fenceCmd}`);
   bash.runCommand(fenceCmd, 'fence');
