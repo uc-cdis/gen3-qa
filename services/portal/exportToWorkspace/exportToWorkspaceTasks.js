@@ -26,6 +26,7 @@ module.exports = {
     console.log('from \'Explore\' page, click \'Export to workspace\' button to export default manifest to workspace');
     this.goToExplorerPage();
     I.seeElement(exportToWorkspaceProps.exportToWorkspaceButtonXPath);
+    I.waitForEnabled(exportToWorkspaceProps.exportToWorkspaceButtonXPath, 10);
     I.click(exportToWorkspaceProps.exportToWorkspaceButtonXPath);
     I.waitForElement(exportToWorkspaceProps.exportToWorkspaceToasterClass, 30);
   },
@@ -81,7 +82,7 @@ module.exports = {
   async grabManifestName() {
     console.log('grab the filename of exported manifest file');
     const result = await I.grabTextFrom(exportToWorkspaceProps.exportToWorkspaceToasterClass);
-    const splittedResult = result.split('File Name: ');
+    const splittedResult = result.split(': ');
     if (splittedResult.length === 2) {
       const manifestName = splittedResult[1].split('.json');
       return manifestName[0];
