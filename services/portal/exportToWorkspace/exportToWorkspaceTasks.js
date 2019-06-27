@@ -27,9 +27,7 @@ module.exports = {
     this.goToExplorerPage();
     I.seeElement(exportToWorkspaceProps.exportToWorkspaceButtonXPath);
     I.click(exportToWorkspaceProps.exportToWorkspaceButtonXPath);
-    I.wait(300);
-    I.switchTo();
-    I.waitForElement(exportToWorkspaceProps.exportToWorkspaceToasterClass, 300);
+    I.waitForElement(exportToWorkspaceProps.exportToWorkspaceToasterClass, 30);
   },
 
   /* Direct to workspace by clicking the `Go to workspace` button in message toaster */

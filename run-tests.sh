@@ -232,7 +232,8 @@ if ! (g3kubectl get pods --no-headers -l app=ssjdispatcher | grep ssjdispatcher)
 fi
 
 hostname="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.hostname')"
-portalConfigURL="https://${hostname}/data/config/gitops.json"
+portalApp="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.portal_app')"
+portalConfigURL="https://${hostname}/data/config/${portalApp}.json"
 
 echo "hostname=$hostname"
 echo "portalConfigURL=$portalConfigURL"
