@@ -69,12 +69,12 @@ module.exports = {
   /**
    * Asserts sheepdog response has status
    * @param {Gen3Response} res
-   * @param {int} statusCode HTTP response code
+   * @param {int} status HTTP response code
    * @param {string} msg Message to display in case of failure
    */
-  hasStatusCode(res, statusCode, msg='') {
+  hasStatusCode(res, status, msg='') {
     err = 'Wrong status code: ' + msg;
-    expect(res && res.statusCode, err).to.equal(statusCode);
+    expect(res && res.status, err).to.equal(status);
   },
 
   /**
@@ -82,9 +82,9 @@ module.exports = {
    * @param {Gen3Response} res
    */
   hasInternalServerError(res) {
-    expect(res).to.have.nested.property('body.transactional_errors');
+    expect(res).to.have.nested.property('data.transactional_errors');
     expect(sheepdogProps.internalServerErrorMsg).to.be.oneOf(
-      res.body.transactional_errors,
+      res.data.transactional_errors,
     );
   },
 

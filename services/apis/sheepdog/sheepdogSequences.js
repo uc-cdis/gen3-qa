@@ -15,22 +15,22 @@ const deleteByIdRecursively = async function (id) {
     user.mainAcct.accessTokenHeader,
   );
 
-  if (!('dependent_ids' in res.body)) {
+  if (!('dependent_ids' in res.data)) {
     throw new Error(
       `Error deleting by ID recursively. Result missing 'dependent_ids' property: ${
-        res.body
+        res.data
       }`,
     );
   }
 
   // deleted successfully
-  if (res.body.code === 200 && res.body.dependent_ids === '') {
+  if (res.data.code === 200 && res.data.dependent_ids === '') {
     return;
   }
 
   // need to delete dependent(s)
-  if (res.body.code !== 200 && res.body.dependent_ids !== '') {
-    const dependents = res.body.dependent_ids.split(',');
+  if (res.data.code !== 200 && res.data.dependent_ids !== '') {
+    const dependents = res.data.dependent_ids.split(',');
     await deleteByIdRecursively(dependents[0]);
     await deleteByIdRecursively(id);
   }

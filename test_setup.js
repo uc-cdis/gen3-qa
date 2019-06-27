@@ -10,8 +10,6 @@ const fs = require('fs');
 
 const { Commons } = require('./utils/commons');
 const { Bash, takeLastLine } = require('./utils/bash');
-const users = require('./utils/user');
-const apiUtil = require('./utils/apiUtil');
 const google = require('./utils/google.js');
 const fenceProps = require('./services/apis/fence/fenceProps');
 const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
@@ -19,12 +17,10 @@ const bash = new Bash();
 
 'use strict';
 
-
 // get the tags passed in as arguments
 const testTags = parseTestTags();
 console.log('Tags:');
 console.log(testTags);
-
 
 /**
  * Export to environment all variables configured in nconf
@@ -208,7 +204,9 @@ function parseTestTags() {
 }
 
 /**
- * Returns true if the tag is included in the tests, false otherwise
+ * Returns true if the tag is included in the tests, false otherwise.
+ * Should really be named `isNotExcluded` - since it returns true
+ * if the tag is not mentioned or if the tag is mentioned and invert is not passed.
  */
 function isIncluded(tag) {
   return (!testTags.includes(tag) && testTags.includes('--invert')) || (testTags.includes(tag) && !testTags.includes('--invert'));

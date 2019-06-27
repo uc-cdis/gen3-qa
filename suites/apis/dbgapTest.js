@@ -140,9 +140,8 @@ AfterSuite(async (fence, indexd, users) => {
 });
 
 Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try creating urls to upload @dbgapSyncing @reqGoogle',
-  async (fence, indexd, users, files) => {
+  async (fence, users) => {
     // ASSUME BeforeSuite has run the ONLY_DBGAP usersync
-
     // users.mainAcct has access to phs000178
     console.log('Use mainAcct to create s3 signed URL for file phs000178')
     const signedUrls3phs000178Res = await fence.do.createSignedUrl(
@@ -155,10 +154,25 @@ Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try crea
       users.mainAcct.accessTokenHeader
     );
 
-    let phs000178s3FileContents = await fence.do.getFileFromSignedUrlRes(
-      signedUrls3phs000178Res);
-    let phs000178gsFileContents = await fence.do.getFileFromSignedUrlRes(
-      signedUrlgsPhs000178Res);
+    let phs000178s3FileContents = null;
+    let phs000178gsFileContents = null;
+
+    try {
+      phs000178s3FileContents = await fence.do.getFileFromSignedUrlRes(
+        signedUrls3phs000178Res);
+    } catch (err) {
+      let url = signedUrls3phs000178Res && signedUrls3phs000178Res.data && signedUrls3phs000178Res.data.url;
+      console.log(`Failed to fetch signed url ${url}`, err);
+      chai.expect(false, `Failed to fetch signed url ${url}`).to.be.true;
+    }
+    try {
+      phs000178gsFileContents = await fence.do.getFileFromSignedUrlRes(
+        signedUrlgsPhs000178Res);
+    } catch (err) {
+      let url = signedUrlgsPhs000178Res && signedUrlgsPhs000178Res.data && signedUrlgsPhs000178Res.data.url;
+      console.log(`Failed to fetch signed url ${url}`, err);
+      chai.expect(false, `Failed to fetch signed url ${url}`).to.be.true;
+    }
 
     chai.expect(phs000178s3FileContents,
       `User ${users.mainAcct.username} with access could NOT create s3 signed urls ` +
@@ -230,7 +244,7 @@ Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try crea
 });
 
 Scenario('dbGaP + user.yaml Sync: ensure combined access @dbgapSyncing @reqGoogle',
-  async (fence, indexd, users, files) => {
+  async (fence, users) => {
     console.log('Running usersync job and adding dbgap sync to yaml sync');
     console.log('start time: ' + Math.floor(Date.now() / 1000))
     bash.runJob('usersync', args='ADD_DBGAP true FORCE true');
@@ -266,7 +280,7 @@ Scenario('dbGaP + user.yaml Sync: ensure combined access @dbgapSyncing @reqGoogl
 });
 
 Scenario('dbGaP + user.yaml Sync (from prev test): ensure user without dbGap access cannot create/update/delete dbGaP indexd records @dbgapSyncing @reqGoogle',
-  async (fence, indexd, users, files) => {
+  async (fence, indexd, users) => {
     console.log('populating guids for indexd records to attempt to create...');
     // populate new GUIDs per test
     const dbgapFooBarFileGuid = uuid.v4().toString();
@@ -335,7 +349,7 @@ Scenario('dbGaP + user.yaml Sync (from prev test): ensure user without dbGap acc
 });
 
 Scenario('dbGaP + user.yaml Sync (from prev test): ensure users with dbGap access cannot create/update/delete dbGaP indexd records @dbgapSyncing @reqGoogle',
-  async (fence, indexd, users, files) => {
+  async (fence, indexd, users) => {
     console.log('populating guids for indexd records to attempt to create...');
     // populate new GUIDs per test
     const dbgapFooBarFileGuid = uuid.v4().toString();

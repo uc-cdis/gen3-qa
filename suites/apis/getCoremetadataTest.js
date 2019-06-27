@@ -1,3 +1,6 @@
+const chai = require('chai');
+const expect = chai.expect;
+
 Feature('GetCoreMetadata');
 
 // test data
@@ -17,13 +20,13 @@ Scenario('test core metadata', async(pidgin, users) => {
 });
 
 Scenario('test core metadata invalid object_id', async(pidgin, users) => {
-  let data = await pidgin.do.getCoremetadata(invalid_id_file, 'json', users.mainAcct.accessTokenHeader);
+  let data = await pidgin.do.getCoremetadata(invalid_id_file, 'application/json', users.mainAcct.accessTokenHeader);
   pidgin.ask.seePidginError(data);
 });
 
 Scenario('test core metadata no permission', async(pidgin) => {
   let invalid_token = { 'Authorization': 'invalid' };
-  let data = await pidgin.do.getCoremetadata(valid_file, 'json', invalid_token);
+  let data = await pidgin.do.getCoremetadata(valid_file, 'application/json', invalid_token);
   pidgin.ask.seePidginError(data);
 });
 
@@ -35,9 +38,11 @@ BeforeSuite(async (nodes, sheepdog) => {
 
   valid_file = nodes.getFileNode().clone();
   await sheepdog.complete.addNode(valid_file);
-
+  //console.log('Got file', valid_file);
+  expect(!! valid_file.did).to.be.true;
   invalid_id_file = nodes.getFileNode().clone();
   invalid_id_file.data.object_id = 'invalid_object_id';
+  invalid_id_file.did = 'invalid_object_id';
 });
 
 AfterSuite(async (sheepdog) => {

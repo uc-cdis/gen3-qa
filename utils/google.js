@@ -99,34 +99,30 @@ const googleApp = {
  */
 module.exports = {
   async getFileFromBucket(googleProject, pathToCredsKeyFile, bucketName, fileName) {
-    return new Promise((resolve) => {
-      // returns a https://cloud.google.com/nodejs/docs/reference/storage/2.0.x/File
-      // see https://cloud.google.com/docs/authentication/production for info about
-      // passing creds
-      const storage = new Storage({
-        projectId: googleProject,
-        keyFilename: pathToCredsKeyFile,
-        bucketName: bucketName
-      });
-
-      const file = storage.bucket(bucketName).file(fileName);
-
-      resolve(
-        file.get()
-        .then(function(data) {
+    // returns a https://cloud.google.com/nodejs/docs/reference/storage/2.0.x/File
+    // see https://cloud.google.com/docs/authentication/production for info about
+    // passing creds
+    const storage = new Storage({
+      projectId: googleProject,
+      keyFilename: pathToCredsKeyFile,
+      bucketName: bucketName
+    });
+    const file = storage.bucket(bucketName).file(fileName);
+    return file.get()
+      .then(
+        function(data) {
           // Note: data[0] is the file; data[1] is the API response
           console.log(`Got file ${fileName} from bucket ${bucketName}`);
           return data[0];
-        })
-        .catch((err) => {
-          console.log(`Cannot get file ${fileName} from bucket ${bucketName}`);
+        },
+        function(err) {
+          console.log(`Cannot get file ${fileName} from bucket ${bucketName}`, err);
           return {
-            statusCode: err.code || 403,
+            status: err.code || 403,
             message: err.message
           };
-        })
-      )
-    });
+        }
+      );
   },
 
   /**
@@ -141,13 +137,13 @@ module.exports = {
     const isDataInaccessible = async function() {
       try {
         // Try to access data
-        user0AccessQAResAfter = await module.exports.getFileFromBucket(
+        let user0AccessQAResAfter = await module.exports.getFileFromBucket(
           googleBucket.googleProjectId,
           pathToKeyFile,
           googleBucket.bucketId,
           googleBucket.fileName
         );
-        chai.expect(user0AccessQAResAfter).to.have.property('statusCode', 403);
+        chai.expect(user0AccessQAResAfter).to.have.property('status', 403);
         return true;
       }
       catch {

@@ -70,7 +70,7 @@ Scenario('get presigned-url with protocol not available in indexed document', as
   fence.ask.responsesEqual(
     signedUrlRes,
     new Gen3Response({
-      statusCode: 404,
+      status: 404,
       fenceError: `File ${files.allowed.did} does not have a location with specified protocol s2.`,
     }),
   );
@@ -83,7 +83,7 @@ Scenario('get presigned-url with protocol not exist for file', async (fence) => 
   fence.ask.responsesEqual(
     signedUrlRes,
     new Gen3Response({
-      statusCode: 404,
+      status: 404,
       fenceError: `File ${files.http_link.did} does not have a location with specified protocol s3.`,
     }),
   );
@@ -96,7 +96,7 @@ Scenario('get presigned-url no data', async (fence) => {
   fence.ask.responsesEqual(
     signedUrlRes,
     new Gen3Response({
-      statusCode: 404,
+      status: 404,
       fenceError: `File ${files.no_link.did} does not have a location with specified protocol s3.`,
     }),
   );

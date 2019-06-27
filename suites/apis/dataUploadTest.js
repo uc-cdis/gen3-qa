@@ -45,9 +45,9 @@ const getUploadUrlFromFence = async function (fence, users) {
 Scenario('File upload and download via API calls @dataUpload', async (fence, users, nodes, indexd, sheepdog, dataUpload) => {
   // request a  presigned URL from fence
   let fenceUploadRes = await getUploadUrlFromFence(fence, users);
-  let fileGuid = fenceUploadRes.body.guid;
+  let fileGuid = fenceUploadRes.data.guid;
   createdGuids.push(fileGuid);
-  let presignedUrl = fenceUploadRes.body.url;
+  let presignedUrl = fenceUploadRes.data.url;
 
   // check that a (blank) record was created in indexd
   let fileNode = {
@@ -165,8 +165,8 @@ Scenario('File upload and download via client @dataClientCLI @dataUpload', async
 Scenario('Data file deletion @dataUpload', async (fence, users, indexd, sheepdog, nodes, dataUpload) => {
   // request a  presigned URL from fence
   let fenceUploadRes = await getUploadUrlFromFence(fence, users);
-  let fileGuid = fenceUploadRes.body.guid;
-  let presignedUrl = fenceUploadRes.body.url;
+  let fileGuid = fenceUploadRes.data.guid;
+  let presignedUrl = fenceUploadRes.data.url;
 
   // upload the file to the S3 bucket using the presigned URL
   await dataUpload.uploadFileToS3(presignedUrl, filePath, fileSize);
@@ -213,9 +213,9 @@ Scenario('Upload the same file twice @dataUpload', async (sheepdog, indexd, node
 
   // request a  presigned URL from fence
   let fenceUploadRes = await getUploadUrlFromFence(fence, users);
-  let fileGuid = fenceUploadRes.body.guid;
+  let fileGuid = fenceUploadRes.data.guid;
   createdGuids.push(fileGuid);
-  let presignedUrl = fenceUploadRes.body.url;
+  let presignedUrl = fenceUploadRes.data.url;
 
   // upload the file to the S3 bucket using the presigned URL
   await dataUpload.uploadFileToS3(presignedUrl, filePath, fileSize);
@@ -248,9 +248,9 @@ Scenario('Upload the same file twice @dataUpload', async (sheepdog, indexd, node
 
   // request a  presigned URL from fence
   fenceUploadRes = await getUploadUrlFromFence(fence, users);
-  fileGuid = fenceUploadRes.body.guid;
+  fileGuid = fenceUploadRes.data.guid;
   createdGuids.push(fileGuid);
-  presignedUrl = fenceUploadRes.body.url;
+  presignedUrl = fenceUploadRes.data.url;
 
   // upload the file to the S3 bucket using the presigned URL
   await dataUpload.uploadFileToS3(presignedUrl, filePath, fileSize);
@@ -360,7 +360,7 @@ Scenario('Failed multipart upload: wrong ETag for completion @dataUpload @multip
   // complete the multipart upload
   console.log("Trying to complete multipart upload");
   const completeRes = await fence.do.completeMultipartUpload(key, initRes.uploadId, partsSummary, accessHeader);
-  expect(completeRes, 'Should not have been able to complete multipart upload with wrong ETags').to.not.have.property('statusCode', 200);
+  expect(completeRes, 'Should not have been able to complete multipart upload with wrong ETags').to.not.have.property('status', 200);
 
   // try to download the file
   console.log("Try to download the file");

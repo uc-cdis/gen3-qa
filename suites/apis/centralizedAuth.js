@@ -429,7 +429,7 @@ Scenario('User with access can CRUD indexd records in namespace, not outside nam
         msg='should have gotten authorized 200 for reading record under `/abc` after updating'
     );
     chai.expect(
-        abc_read_response_after_update.body, 'update record response does not have file_name we updated it with'
+        abc_read_response_after_update.data, 'update record response does not have file_name we updated it with'
     ).to.have.property('file_name', 'test_filename');
 
     // delete
@@ -459,7 +459,7 @@ Scenario('Client (with access) with user token (with access) can CRUD indexd rec
   async (fence, indexd, users, files) => {
     // NOTE: default CLIENT is abc-admin and gen3-admin
     const tokenRes = await fence.complete.getUserTokensWithClient(users.mainAcct);
-    const accessToken = tokenRes.body.access_token;
+    const accessToken = tokenRes.data.access_token;
 
     // create
     const gen3_create_success = await indexd.do.addFileIndices(
@@ -538,7 +538,7 @@ Scenario('Client (with access) with user token (with access) can CRUD indexd rec
         msg='should have gotten authorized 200 for reading record under `/abc` after updating'
     );
     chai.expect(
-        abc_read_response_after_update.body, 'update record response does not have file_name we updated it with'
+        abc_read_response_after_update.data, 'update record response does not have file_name we updated it with'
     ).to.have.property('file_name', 'test_filename');
 
     // delete
@@ -571,7 +571,7 @@ Scenario('Client (with access) with user token (with access) can create signed u
     // NOTE: users.mainAcct and ABC_CLIENT have abc-admin role
     const tokenRes = await fence.complete.getUserTokensWithClient(
       users.mainAcct, fence.props.clients.abcClient);
-    const accessToken = tokenRes.body.access_token;
+    const accessToken = tokenRes.data.access_token;
 
     console.log('Use mainAcct to create signed URL for file under `/abc`')
     // NOTE: passing in accessToken to accessTokenHeader overrides the default one with
@@ -607,7 +607,7 @@ Scenario('Client (with access) with user token (WITHOUT access) in namespace @ce
     //       CLIENT does have access to both
     const tokenRes = await fence.complete.getUserTokensWithClient(
       users.mainAcct);
-    const accessToken = tokenRes.body.access_token;
+    const accessToken = tokenRes.data.access_token;
 
     console.log('Use mainAcct to create signed URL for file under `/gen3`')
     const signedUrlGen3Res = await fence.do.createSignedUrlForUser(
@@ -631,7 +631,7 @@ Scenario('Client (WITHOUT access) with user token (with access) in namespace @ce
     // user0 only access to /gen3
     const tokenRes = await fence.complete.getUserTokensWithClient(
       users.user0, fence.props.clients.abcClient);
-    const accessToken = tokenRes.body.access_token;
+    const accessToken = tokenRes.data.access_token;
 
     console.log('Use user0 to create signed URL for file under `/gen3`')
     const signedUrlGen3Res = await fence.do.createSignedUrlForUser(
@@ -682,12 +682,12 @@ Scenario('User with access can create signed urls for records in namespace, not 
 Scenario('Test that userinfo endpoint contains authorization information (resources) @centralizedAuth',
   async (fence, indexd, users, files) => {
     const tokenRes = await fence.complete.getUserTokensWithClient(users.mainAcct);
-    const accessToken = tokenRes.body.access_token;
+    const accessToken = tokenRes.data.access_token;
 
     // list of resources the user endpoint shows access to
     const userInfoRes = await fence.do.getUserInfo(accessToken);
     fence.ask.assertUserInfo(userInfoRes);
-    const resourcesOfUser = userInfoRes.body.resources;
+    const resourcesOfUser = userInfoRes.data.resources;
     console.log('list of resources the user endpoint shows access to:')
     console.log(resourcesOfUser);
 
@@ -711,7 +711,7 @@ Scenario('Client with user token WITHOUT permission CANNOT create signed URL for
     // users.auxAcct1 does not have access to both resources
     const tokenRes = await fence.complete.getUserTokensWithClient(
       users.auxAcct1, fence.props.clients.abcClient);
-    const accessToken = tokenRes.body.access_token;
+    const accessToken = tokenRes.data.access_token;
 
     console.log('Use auxAcct1 to create signed URL for file under with indexd authz ' +
       'AND logic')
@@ -736,7 +736,7 @@ Scenario('Client with user token WITH permission CAN create signed URL for recor
     // users.mainAcct does have access to both resources
     const tokenRes = await fence.complete.getUserTokensWithClient(
       users.mainAcct, fence.props.clients.abcClient);
-    const accessToken = tokenRes.body.access_token;
+    const accessToken = tokenRes.data.access_token;
 
     console.log('Use mainAcct to create signed URL for file under with indexd authz ' +
       'AND logic')

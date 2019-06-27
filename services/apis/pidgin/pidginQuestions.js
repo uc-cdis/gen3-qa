@@ -1,9 +1,8 @@
-let chai = require('chai');
-let expect = chai.expect;
+const chai = require('chai');
+const expect = chai.expect;
 chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 
-const pidginProps = require('./pidginProps.js');
 
 /**
  * pidgin Questions
@@ -13,7 +12,7 @@ module.exports = {
   seeJsonCoremetadata(file, metadata) {
     let data;
     try {
-      data = JSON.parse(metadata);
+      data = (typeof metadata === 'string') ? JSON.parse(metadata) : metadata;
     }
     catch {
       console.log(metadata);

@@ -88,6 +88,7 @@ class User {
     return {
       Accept: 'application/json',
       Authorization: `bearer ${this.accessToken}`,
+      'Content-Type': 'application/json',
     };
   }
 
@@ -99,6 +100,7 @@ class User {
     return {
       Accept: 'application/json',
       Authorization: `bearer ${this.expiredAccessToken}`,
+      'Content-Type': 'application/json',
     };
   }
 

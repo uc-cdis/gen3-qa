@@ -1,8 +1,14 @@
 const Helper = codecept_helper; // eslint-disable-line
 const { Commons } = require('../utils/commons');
-const user = require('../utils/user');
 
 class CDISHelper extends Helper {
+  _beforeSuite(suite) {
+    const helper = this.helpers.WebDriver;
+    // get the session id for the web driver
+    global.seleniumSessionId = helper.browser.sessionId; //requestHandler.sessionID;
+    console.log('Got sessionId: ' + global.seleniumSessionId);
+  }
+
   async _failed(testResult) { // eslint-disable-line class-methods-use-this
     // append health of services to error stack
     const healthCheck = await Commons.makeHealthCheck();

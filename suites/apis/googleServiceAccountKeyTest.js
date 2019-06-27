@@ -20,7 +20,6 @@ After(async (google, fence, users) => {
 
 
 Scenario('Get current SA creds @reqGoogle', async (fence, users) => {
-
   const EXPIRES_IN = 5;
 
   // Make sure there are no creds for this user
@@ -32,12 +31,12 @@ Scenario('Get current SA creds @reqGoogle', async (fence, users) => {
 
   // Get temporary google creds
   let tempCredsRes = await fence.complete.createTempGoogleCreds(users.user0.accessTokenHeader);
-  const keyId1 = tempCredsRes.body.private_key_id;
+  const keyId1 = tempCredsRes.data.private_key_id;
   console.log(`Generated key ${keyId1}`);
 
   // Get temporary google creds with custom expiration
   tempCredsRes = await fence.complete.createTempGoogleCreds(users.user0.accessTokenHeader, EXPIRES_IN);
-  const keyId2 = tempCredsRes.body.private_key_id;
+  const keyId2 = tempCredsRes.data.private_key_id;
   console.log(`Generated key ${keyId2}`);
 
   // Get list of current creds
@@ -105,16 +104,15 @@ Scenario('Get current SA creds @reqGoogle', async (fence, users) => {
 
 Scenario('Test no data access anymore after SA key is deleted @reqGoogle', async (fence, users, google, files) => {
   // Get temporary Service Account creds, get object in bucket, delete creds
-
   // Get creds to access data
   const tempCreds0Res = await fence.complete.createTempGoogleCreds(users.user0.accessTokenHeader);
-  const creds0Key = tempCreds0Res.body.private_key_id;
+  const creds0Key = tempCreds0Res.data.private_key_id;
   const pathToCreds0KeyFile = creds0Key + '.json';
-  await files.createTmpFile(pathToCreds0KeyFile, JSON.stringify(tempCreds0Res.body));
-  console.log(`Google creds file ${pathToCreds0KeyFile} saved!`);
+  await files.createTmpFile(pathToCreds0KeyFile, JSON.stringify(tempCreds0Res.data));
+  console.log(`Google creds file ${pathToCreds0KeyFile} saved with contents ${tempCreds0Res.data}!`);
 
   // Access data
-  user0AccessQARes = await google.getFileFromBucket(
+  let user0AccessQARes = await google.getFileFromBucket(
     fence.props.googleBucketInfo.QA.googleProjectId,
     pathToCreds0KeyFile,
     fence.props.googleBucketInfo.QA.bucketId,
@@ -126,7 +124,7 @@ Scenario('Test no data access anymore after SA key is deleted @reqGoogle', async
     creds0Key, users.user0.accessTokenHeader);
 
   // Try to access data
-  user0AccessQAResExpired = await google.getFileFromBucket(
+  let user0AccessQAResExpired = await google.getFileFromBucket(
     fence.props.googleBucketInfo.QA.googleProjectId,
     pathToCreds0KeyFile,
     fence.props.googleBucketInfo.QA.bucketId,
@@ -146,7 +144,7 @@ Scenario('Test no data access anymore after SA key is deleted @reqGoogle', async
   ).to.have.property('id');
   chai.expect(user0AccessQAResExpired,
     'User should NOT have bucket access after key deletion'
-  ).to.have.property('statusCode', 403);
+  ).to.have.property('status', 403);
 }).retry(2);
 
 
@@ -156,24 +154,23 @@ Scenario('Delete SA creds that do not exist @reqGoogle', async (fence, users) =>
     fakeKeyId, users.user0.accessTokenHeader);
   expect(deleteRes,
     'Deleting a SA key that does not exist should return 404'
-  ).has.property('statusCode', 404);
+  ).has.property('status', 404);
 }).retry(2);
 
 
 Scenario('SA key removal job test: remove expired creds @reqGoogle', async (fence, users, google, files) => {
   // Test that we do not have access to data anymore after the SA key is expired
-
   const EXPIRES_IN = 1;
 
   // Get creds to access data
   const tempCreds0Res = await fence.complete.createTempGoogleCreds(users.user0.accessTokenHeader, EXPIRES_IN);
-  const creds0Key = tempCreds0Res.body.private_key_id;
+  const creds0Key = tempCreds0Res.data.private_key_id;
   const pathToCreds0KeyFile = creds0Key + '.json';
-  await files.createTmpFile(pathToCreds0KeyFile, JSON.stringify(tempCreds0Res.body));
+  await files.createTmpFile(pathToCreds0KeyFile, JSON.stringify(tempCreds0Res.data));
   console.log(`Google creds file ${pathToCreds0KeyFile} saved!`);
 
   // Access data
-  user0AccessQARes = await google.getFileFromBucket(
+  let user0AccessQARes = await google.getFileFromBucket(
     fence.props.googleBucketInfo.QA.googleProjectId,
     pathToCreds0KeyFile,
     fence.props.googleBucketInfo.QA.bucketId,
@@ -189,7 +186,7 @@ Scenario('SA key removal job test: remove expired creds @reqGoogle', async (fenc
   bash.runJob('google-manage-keys-job');
 
   // Try to access data
-  user0AccessQAResExpired = await google.getFileFromBucket(
+  let user0AccessQAResExpired = await google.getFileFromBucket(
     fence.props.googleBucketInfo.QA.googleProjectId,
     pathToCreds0KeyFile,
     fence.props.googleBucketInfo.QA.bucketId,
@@ -212,7 +209,7 @@ Scenario('SA key removal job test: remove expired creds @reqGoogle', async (fenc
   ).to.have.property('id');
   chai.expect(user0AccessQAResExpired,
     'User should NOT have bucket access after expiration'
-  ).to.have.property('statusCode', 403);
+  ).to.have.property('status', 403);
 }).retry(2);
 
 
@@ -223,11 +220,11 @@ Scenario('SA key removal job test: remove expired creds that do not exist in goo
 
   // Get creds to access data
   let tempCredsRes = await fence.complete.createTempGoogleCreds(users.user0.accessTokenHeader, EXPIRES_IN);
-  let credsKey1 = tempCredsRes.body.private_key_id;
+  let credsKey1 = tempCredsRes.data.private_key_id;
 
   // Get other creds to access data, with short expiration time
   tempCredsRes = await fence.complete.createTempGoogleCreds(users.user0.accessTokenHeader, EXPIRES_IN);
-  let credsKey2 = tempCredsRes.body.private_key_id;
+  let credsKey2 = tempCredsRes.data.private_key_id;
 
   // Get the complete name of the generated key and delete it in google
   let getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);

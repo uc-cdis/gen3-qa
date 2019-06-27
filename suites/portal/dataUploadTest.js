@@ -14,10 +14,10 @@ const generateFileAndGetUrlFromFence = async function(files, fence, accessTokenH
   // request a  presigned URL from fence
   const fenceUploadRes = await fence.do.getUrlForDataUpload(fileName, accessTokenHeader);
   fence.ask.hasUrl(fenceUploadRes);
-  const fileGuid = fenceUploadRes.body.guid;
+  const fileGuid = fenceUploadRes.data.guid;
   createdGuids.push(fileGuid);
   createdFileNames.push(fileName);
-  const presignedUrl = fenceUploadRes.body.url;
+  const presignedUrl = fenceUploadRes.data.url;
   return {
     fileObj: {...fileObj, fileGuid},
     presignedUrl,
