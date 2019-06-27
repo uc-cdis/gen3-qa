@@ -1,19 +1,77 @@
 const { Gen3Response } = require('../../../utils/apiUtil');
+const { Bash, takeLastLine } = require('../../../utils/bash');
+const bash = new Bash();
 
 /**
  * fence Properties
  */
 const rootEndpoint = '/user';
 
+/**
+ * Runs a fence command for creating a client
+ * @param {string} clientName - client name
+ * @param {string} userName - user name
+ * @param {string} clientType - client type (implicit or basic)
+ * @param {string} arboristPolicies - space-delimited list of arborist policies to give to client
+ * @returns {json}
+ */
+function createClient(clientName, userName, clientType, arboristPolicies=null) {
+  let fenceCmd = 'fence-create'
+
+  // see test_setup.js for the ARBORIST_... global flag setup
+  if (arboristPolicies && process.env['ARBORIST_CLIENT_POLICIES']) {
+    fenceCmd = `${fenceCmd} --arborist http://arborist-service/`;
+  }
+
+  fenceCmd = `${fenceCmd} client-create --client ${clientName} --user ${userName} --urls https://${process.env.HOSTNAME}`;
+
+  if (clientType === 'implicit') {
+    fenceCmd = `${fenceCmd} --grant-types implicit --public`;
+  }
+  // see test_setup.js for the ARBORIST_... global flag setup
+  if (arboristPolicies && process.env['ARBORIST_CLIENT_POLICIES']) {
+    fenceCmd = `${fenceCmd} --policies ${arboristPolicies}`;
+  }
+  console.log(`running: ${fenceCmd}`);
+  const resCmd = bash.runCommand(fenceCmd, 'fence', takeLastLine);
+  const arr = resCmd.replace(/[()']/g, '').split(',').map(val => val.trim());
+  return { client_id: arr[0], client_secret: arr[1] };
+}
+
+
+
+/**
+ * Runs a fence command for delete a client
+ * @param {string} clientName - client name
+ */
+function deleteClient(clientName) {
+  bash.runCommand(`fence-create client-delete --client ${clientName}`, 'fence', takeLastLine);
+}
+
+/**
+ * Lazy-load container for fence clients
+ */
 class Client {
-  constructor({ envVarsName }) {
-    this.envVarsName = envVarsName;
+  constructor({ clientName, userName, clientType, arboristPolicies }) {
+    this.clientName = clientName;
+    this.userName = userName;
+    this.clientType = clientType;
+    this.arboristPolicies = arboristPolicies;
+    this._client = null;
+  }
+
+  get client() {
+    if (! this._client) {
+      deleteClient(this.clientName);
+      this._client = createClient(this.clientName, this.userName, this.clientType, this.arboristPolicies);
+    }
+    return {...this._client};
   }
   get id() {
-    return process.env[`${this.envVarsName}_ID`];
+    return this.client.client_id;
   }
   get secret() {
-    return process.env[`${this.envVarsName}_SECRET`];
+    return this.client.client_secret;
   }
 }
 
@@ -90,16 +148,19 @@ module.exports = {
    * Create Access Token Responses
    */
   resExpiredAccessToken: new Gen3Response({
+    request: {},
     fenceError: 'Authentication Error: Signature has expired',
     statusCode: 401,
   }),
 
   resInvalidAPIKey: new Gen3Response({
+    request: {},
     fenceError: 'Not enough segments',
     statusCode: 401,
   }),
 
   resMissingAPIKey: new Gen3Response({
+    request: {},
     fenceError: 'Please provide an api_key in payload',
     statusCode: 400,
   }),
@@ -108,16 +169,19 @@ module.exports = {
    * Presigned URL responses
    */
   resMissingFilePermission: new Gen3Response({
+    request: {},
     fenceError: "You don't have access permission on this file",
     statusCode: 401,
   }),
 
   resInvalidFileProtocol: new Gen3Response({
+    request: {},
     fenceError: 'The specified protocol s2 is not supported',
     statusCode: 400,
   }),
 
   resNoFileProtocol: new Gen3Response({
+    request: {},
     fenceError: "Can't find any file locations.",
     statusCode: 404,
   }),
@@ -125,14 +189,16 @@ module.exports = {
   /**
    * Link Google responses
    */
-  resUnlinkSuccess: new Gen3Response({ statusCode: 200 }),
+  resUnlinkSuccess: new Gen3Response({ request:{}, statusCode: 200 }),
 
   resExtendNoGoogleAcctLinked: new Gen3Response({
+    request: {},
     fenceError: 'User does not have a linked Google account.',
     statusCode: 404,
   }),
 
   resUnlinkNoGoogleAcctLinked: new Gen3Response({
+    request: {},
     body: {
       error: 'g_acnt_link_error',
       error_description: "Couldn't unlink account for user, no linked Google account found.",
@@ -204,11 +270,12 @@ module.exports = {
   /**
    * Google Service Account responses
    */
-  resRegisterServiceAccountSuccess: new Gen3Response({ statusCode: 200 }),
+  resRegisterServiceAccountSuccess: new Gen3Response({ request: {}, statusCode: 200 }),
 
-  resDeleteServiceAccountSuccess: new Gen3Response({ statusCode: 200 }),
+  resDeleteServiceAccountSuccess: new Gen3Response({ request: {}, statusCode: 200 }),
 
   resRegisterServiceAccountNotLinked: new Gen3Response({
+    request: {}, 
     statusCode: 400,
     body: {
       errors: {
@@ -224,6 +291,7 @@ module.exports = {
   }),
 
   resRegisterServiceAccountHasParentOrg: new Gen3Response({
+    request: {}, 
     statusCode: 400,
     body: {
       errors: {
@@ -242,6 +310,7 @@ module.exports = {
   }),
 
   resRegisterServiceAccountInvalidMemberType: new Gen3Response({
+    request: {}, 
     statusCode: 400,
     body: {
       errors: {
@@ -258,6 +327,7 @@ module.exports = {
   }),
 
   resRegisterServiceAccountFenceNoAccess: new Gen3Response({
+    request: {}, 
     statusCode: 400,
     body: {
       errors: {
@@ -273,6 +343,7 @@ module.exports = {
   }),
 
   resRegisterServiceAccountInvalidServiceAcct: new Gen3Response({
+    request: {}, 
     statusCode: 400,
     body: {
       errors: {
@@ -285,6 +356,7 @@ module.exports = {
   }),
 
   resRegisterServiceAccountInaccessibleServiceAcct: new Gen3Response({
+    request: {}, 
     statusCode: 400,
     body: {
       errors: {
@@ -297,6 +369,7 @@ module.exports = {
   }),
 
   resRegisterServiceAccountInvalidProject: new Gen3Response({
+    request: {}, 
     statusCode: 400,
     body: {
       errors: {
@@ -310,6 +383,7 @@ module.exports = {
   }),
 
   resRegisterServiceAccountWrongProject: new Gen3Response({
+    request: {}, 
     statusCode: 400,
     body: {
       errors: {
@@ -323,6 +397,7 @@ module.exports = {
 
 
   resRegisterServiceAccountMissingProjectPrivilege: new Gen3Response({
+    request: {}, 
     statusCode: 400,
     body: {
       errors: {
@@ -335,9 +410,10 @@ module.exports = {
     },
   }),
 
-  resDeleteServiceAccountWhenNotLinked: new Gen3Response({ statusCode: 403 }),
+  resDeleteServiceAccountWhenNotLinked: new Gen3Response({ request: {}, statusCode: 403 }),
 
   resDeleteServiceAccountNotRegistered: new Gen3Response({
+    request: {}, 
     statusCode: 404,
     fenceError: 'Could not find a registered service account from given email',
   }),
@@ -444,13 +520,22 @@ module.exports = {
   */
   clients: {
     client: new Client({
-      envVarsName: 'CLIENT',
+      clientName: 'basic-test-client', 
+      userName: 'test-client@example.com', 
+      clientType: 'basic',
+      arboristPolicies:'abc-admin gen3-admin'
     }),
     abcClient: new Client({
-      envVarsName: 'ABC_CLIENT',
+      clientName: 'basic-test-abc-client', 
+      userName: 'test-abc-client@example.com', 
+      clientType: 'basic',
+      arboristPolicies: 'abc-admin'
     }),
     clientImplicit: new Client({
-      envVarsName: 'CLIENTB',
+      clientName: 'implicit-test-client', 
+      userName: 'test@example.com', 
+      clientType: 'implicit',
+      arboristPolicies: null
     }),
   },
 };

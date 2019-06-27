@@ -13,6 +13,9 @@ docker run -d -p 4444:4444 --name=selenium --rm -v /dev/shm:/dev/shm selenium/st
 RUNNING_LOCAL=true NAMESPACE=yourDevNamespace npm test -- --verbose --grep '@dataClientCLI|@reqGoogle' --invert suites/.../myTest.js
 ```
 
+Notes:
+* the OAuth flow tests require `fence-config.yaml` to be configured with `MOCK_GOOGLE_AUTH: true`
+
 ## Generating test data for tests
 
 ```

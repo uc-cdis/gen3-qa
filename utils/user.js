@@ -3,11 +3,37 @@
  * @module usersUtil
  */
 
-const ACCESS_TOKEN_MISSING_ERROR = 'No access token was found for user ';
-const GOOGLE_CREDS_MISSING_ERROR = 'No google credentials found for user ';
+const apiUtil = require('./apiUtil');
+const { Bash } = require('./bash');
+const bash = new Bash();
+
+const DEFAULT_TOKEN_EXP = 3600;
+var indexdCache = null;
+
 
 /**
- * Class for a test user
+ * Gets indexd password for a commons
+ * @returns {string}
+ */
+function getIndexPassword() {
+  if (! indexdCache) {
+    const credsCmd = 'cat /var/www/sheepdog/creds.json';
+    const secret = bash.runCommand(credsCmd,'sheepdog');
+    console.error(secret);
+    indexdCache = {
+      indexdUsername: JSON.parse(secret).indexd_client != undefined ? JSON.parse(secret).indexd_client : 'gdcapi',
+      indexdPassword: JSON.parse(secret).indexd_password
+    };
+
+    console.log(`Cached indexd creds: ${JSON.stringify(indexdCache)}`);
+  }
+  return { ...indexdCache };
+}
+
+
+
+/**
+ * Lazy-load container for access token and indexd creds
  */
 class User {
   /**
@@ -16,34 +42,31 @@ class User {
    * @param {string} options.username - Gen3 commons username/email
    * @param {string} options.envVarsName - Suffix for getting environment variables for user
    */
-  constructor({ username, envVarsName }) {
+  constructor({ username, googleEmail, googlePassword }) {
     this.username = username;
-    this.envTokenName = `ACCESS_TOKEN_${envVarsName}`;
-    this.envExpTokenName = `EXPIRED_ACCESS_TOKEN_${envVarsName}`;
-    this.envGoogleEmail = `GOOGLE_EMAIL_${envVarsName}`;
-    this.envGooglePassword = `GOOGLE_PASSWORD_${envVarsName}`;
+    this._accessToken = null;
+    this._expiredAccessToken = null;
+    this.googleEmail = googleEmail;
+    this.googlePassword = googlePassword;
   }
 
-  /**
-   * The Gen3 commons access token
-   * @returns {string}
-   */
   get accessToken() {
-    if (process.env[this.envTokenName] === '') {
-      throw Error(ACCESS_TOKEN_MISSING_ERROR + this.username);
+    if (! this._accessToken) {
+      const at = apiUtil.getAccessToken(this.username, DEFAULT_TOKEN_EXP);
+      // make sure the access token looks valid - base64 encoded JSON :-p
+      const token = apiUtil.parseJwt(at);
+      this._accessToken = at;
     }
-    return process.env[this.envTokenName];
+    return this._accessToken;
   }
 
-  /**
-   * The Gen3 commons expired access token
-   * @returns {string}
-   */
   get expiredAccessToken() {
-    if (process.env[this.envExpTokenName] === '') {
-      throw Error(ACCESS_TOKEN_MISSING_ERROR + this.username);
+    if (! this._expiredAccessToken) {
+      const at = apiUtil.getAccessToken(this.username, 1);
+      const token = apiUtil.parseJwt(at);
+      this._expiredAccessToken = at;
     }
-    return process.env[this.envExpTokenName];
+    return this._expiredAccessToken;
   }
 
   /**
@@ -51,13 +74,9 @@ class User {
    * @returns {{email: string, password: string}}
    */
   get googleCreds() {
-    if (!process.env[this.envGoogleEmail] || !process.env[this.envGooglePassword]) {
-      process.env[this.envGoogleEmail] = "test@example.com"
-      process.env[this.envGooglePassword] = "dummypassword"
-    }
     return {
-      email: process.env[this.envGoogleEmail],
-      password: process.env[this.envGooglePassword],
+      email: this.googleEmail,
+      password: this.googlePassword
     };
   }
 
@@ -88,9 +107,8 @@ class User {
    * @returns {{Accept: string, "Content-Type": string, Authorization: string}}
    */
   get indexdAuthHeader() { // eslint-disable-line
-    const username = process.env.INDEX_USERNAME;
-    const password = process.env.INDEX_PASSWORD;
-    const indexAuth = Buffer.from(`${username}:${password}`).toString('base64');
+    const info = getIndexPassword();
+    const indexAuth = Buffer.from(`${info.indexdUsername}:${info.indexdPassword}`).toString('base64');
     return {
       Accept: 'application/json',
       'Content-Type': 'application/json; charset=UTF-8',
@@ -99,35 +117,37 @@ class User {
   }
 }
 
+const gCreds = { googleEmail: 'test@example.com', googlePassword: 'dummypassword' };
+
 module.exports = {
   /**
    * Main User account
    * Note that this user has the "data-upload" role
    * Note that this user has the "abc-admin" policy
    */
-  mainAcct: new User({ username: 'cdis.autotest@gmail.com', envVarsName: 'MAIN' }),
+  mainAcct: new User({ username: 'cdis.autotest@gmail.com', ...gCreds }),
   /**
    * Auxiliary User account 1
    * Note that this user doesn't have the "data-upload" role
    * Note that this user has the "abc.programs.test_program.projects.test_project1-viewer" policy
    */
-  auxAcct1: new User({ username: 'dummy-one@planx-pla.net', envVarsName: 'AUX1' }),
+  auxAcct1: new User({ username: 'dummy-one@planx-pla.net', ...gCreds }),
   /**
    * Auxiliary User account 2
    * Note that this user also has the "data-upload" role
    * Note that this user has the "abc.programs.test_program2.projects.test_project3-viewer" policy
    */
-  auxAcct2: new User({ username: 'smarty-two@planx-pla.net', envVarsName: 'AUX2' }),
+  auxAcct2: new User({ username: 'smarty-two@planx-pla.net', ...gCreds }),
   /**
    * User.yaml User account 0
    */
-  user0: new User({ username: 'dcf-integration-test-0@planx-pla.net', envVarsName: 'USER0' }),
+  user0: new User({ username: 'dcf-integration-test-0@planx-pla.net', ...gCreds }),
   /**
    * User.yaml User account 1
    */
-  user1: new User({ username: 'dcf-integration-test-1@planx-pla.net', envVarsName: 'USER1' }),
+  user1: new User({ username: 'dcf-integration-test-1@planx-pla.net', ...gCreds }),
   /**
    * User.yaml User account 2
    */
-  user2: new User({ username: 'dcf-integration-test-2@planx-pla.net', envVarsName: 'USER2' })
+  user2: new User({ username: 'dcf-integration-test-2@planx-pla.net', ...gCreds })
 };

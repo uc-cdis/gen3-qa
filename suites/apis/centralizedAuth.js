@@ -106,7 +106,7 @@ dcf-integration-test-0@planx-pla.net (user0)
     - hmb-researcher
 
 */
-const { Commons } = require('../../utils/commons.js');
+
 const chai = require('chai');
 const { Bash } = require('../../utils/bash.js');
 const apiUtil = require('../../utils/apiUtil.js');

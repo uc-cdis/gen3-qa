@@ -59,15 +59,19 @@ class Gen3Response {
     this.parsedFenceError = (isErrorPage(body) ? parseFenceError(body) : undefined);
     this.body = this.parsedFenceError ? undefined : body; // include body if not error page
     this.statusCode = statusCode;
-    try {
-      this.requestMethod = request.method;
-      this.requestHeaders = request.headers;
-      this.requestBody = request.body;
-      this.requestURL = request.uri.href;
-    } catch (e) {
-      // ignore if missing request attribute
-      console.log('Gen3Response could not parse expected `request` attributes like `method`, `headers`, `body`, etc.')
-      console.log(`Gen3Response got request: ${request}`)
+    if (request) {
+      try {
+        this.requestMethod = request.method;
+        this.requestHeaders = request.headers;
+        this.requestBody = request.body;
+        this.requestURL = request.uri ? request.uri.href : undefined;
+      } catch (e) {
+        // ignore if missing request attribute
+        console.log('Gen3Response could not parse expected `request` attributes like `method`, `headers`, `body`, etc.')
+        console.log(`Gen3Response got request: ${request}`);
+      }
+    } else {
+      console.trace('Gen3Response constructor given undefined request');
     }
   }
 }

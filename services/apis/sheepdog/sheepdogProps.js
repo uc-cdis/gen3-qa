@@ -36,6 +36,7 @@ module.exports = {
    * Gen3Response when added node successfully
    */
   resAddSuccess: new Gen3Response({
+    request: {},
     ...resSuccessBase,
     ...{ body: { ...resSuccessBase.body, created_entity_count: 1 } },
   }),
@@ -44,6 +45,7 @@ module.exports = {
    * Gen3Response when deleted node successfully
    */
   resDeleteSuccess: new Gen3Response({
+    request: {},
     ...resSuccessBase,
     ...{ body: { ...resSuccessBase.body, deleted_entity_count: 1 } },
   }),
@@ -52,6 +54,7 @@ module.exports = {
    * Gen3Response when deleted node successfully
    */
   resUpdateSuccess: new Gen3Response({
+    request: {},
     ...resSuccessBase,
     ...{ body: { ...resSuccessBase.body, updated_entity_count: 1 } },
   }),
@@ -60,6 +63,7 @@ module.exports = {
    * Gen3Response when no authentication provided
    */
   resNoAuth: new Gen3Response({
+    request: {},
     statusCode: 401,
     body: { message: 'Authentication Error: Signature has expired' },
   }),

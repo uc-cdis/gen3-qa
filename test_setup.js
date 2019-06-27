@@ -14,8 +14,6 @@ const users = require('./utils/user');
 const apiUtil = require('./utils/apiUtil');
 const google = require('./utils/google.js');
 const fenceProps = require('./services/apis/fence/fenceProps');
-
-const DEFAULT_TOKEN_EXP = 3600;
 const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
 const bash = new Bash();
 
@@ -27,65 +25,6 @@ const testTags = parseTestTags();
 console.log('Tags:');
 console.log(testTags);
 
-
-// let rootCas = require('ssl-root-cas/latest').create();
-// rootCas
-//   .addFile(__dirname + '/../compose-services/temp_creds/ca.pem')
-// ;
-//
-// // will work with all https requests will all libraries (i.e. request.js)
-// require('https').globalAgent.options.ca = rootCas;
-
-/**
- * Runs a fence command for creating a client
- * @param {string} clientName - client name
- * @param {string} userName - user name
- * @param {string} clientType - client type (implicit or basic)
- * @param {string} arboristPolicies - space-delimited list of arborist policies to give to client
- * @returns {json}
- */
-function createClient(clientName, userName, clientType, arboristPolicies = null) {
-  let fenceCmd = 'fence-create';
-
-  if (arboristPolicies) {
-    fenceCmd = `${fenceCmd} --arborist http://arborist-service/`;
-  }
-
-  fenceCmd = `${fenceCmd} client-create --client ${clientName} --user ${userName} --urls https://${process.env.HOSTNAME}`;
-
-  if (clientType === 'implicit') {
-    fenceCmd = `${fenceCmd} --grant-types implicit --public`;
-  }
-  if (arboristPolicies) {
-    fenceCmd = `${fenceCmd} --policies ${arboristPolicies}`;
-  }
-  console.log(`running: ${fenceCmd}`);
-  const resCmd = bash.runCommand(fenceCmd, 'fence', takeLastLine);
-  const arr = resCmd.replace(/[()']/g, '').split(',').map(val => val.trim());
-  return { client_id: arr[0], client_secret: arr[1] };
-}
-
-/**
- * Runs a fence command for delete a client
- * @param {string} clientName - client name
- */
-function deleteClient(clientName) {
-  bash.runCommand(`fence-create client-delete --client ${clientName}`, 'fence', takeLastLine);
-}
-
-/**
- * Gets indexd password for a commons
- * @returns {string}
- */
-function getIndexPassword() {
-  const credsCmd = 'cat /var/www/sheepdog/creds.json';
-  const secret = bash.runCommand(credsCmd, 'sheepdog');
-  console.error(secret);
-  return {
-    client: JSON.parse(secret).indexd_client != undefined ? JSON.parse(secret).indexd_client : 'gdcapi',
-    password: JSON.parse(secret).indexd_password,
-  };
-}
 
 /**
  * Export to environment all variables configured in nconf
@@ -119,12 +58,12 @@ function assertEnvVars(varNames) {
 /**
  * Attempts to create a program and project
  * Throws an error if unable to do so
- * @param {string} nAttempts - number of times to try creating the program/project
+ * @param {int} nAttempts - number of times to try creating the program/project
  * @returns {Promise<void>}
  */
 async function tryCreateProgramProject(nAttempts) {
   let success = false;
-  for (const i of [...Array(nAttempts).keys()]) {
+  for (let i=0; i < nAttempts; ++i) {
     if (success === true) {
       break;
     }
@@ -279,65 +218,10 @@ module.exports = async function (done) {
   try {
     // get some vars from the commons
     console.log('Setting environment variables...\n');
-
-    // Export access tokens
-    for (const user of Object.values(users)) {
-      const at = apiUtil.getAccessToken(user.username, DEFAULT_TOKEN_EXP);
-      // make sure the access token looks valid - base64 encoded JSON :-p
-      const token = apiUtil.parseJwt(at);
-      process.env[user.envTokenName] = at;
-    }
-
-    console.log('Delete then create basic client...\n');
-    deleteClient('basic-test-client');
-    let basicClient;
+    // annoying flag used by fenceProps ...
     if (isIncluded('@centralizedAuth')) {
-      basicClient = createClient(
-        'basic-test-client', 'test-client@example.com', 'basic',
-        arboristPolicies = 'abc-admin gen3-admin',
-      );
-    } else {
-      basicClient = createClient(
-        'basic-test-client', 'test-client@example.com', 'basic',
-      );
+      process.env['ARBORIST_CLIENT_POLICIES'] = 'true';
     }
-
-    console.log('Delete then create another basic client...\n');
-    deleteClient('basic-test-abc-client');
-    let basicAbcClient;
-    if (isIncluded('@centralizedAuth')) {
-      basicAbcClient = createClient(
-        'basic-test-abc-client', 'test-abc-client@example.com', 'basic',
-        arboristPolicies = 'abc-admin',
-      );
-    } else {
-      basicAbcClient = createClient(
-        'basic-test-abc-client', 'test-abc-client@example.com', 'basic',
-      );
-    }
-
-    console.log('Delete then create implicit client...\n');
-    deleteClient('implicit-test-client');
-    const implicitClient = createClient(
-      'implicit-test-client', 'test@example.com', 'implicit',
-    );
-
-    // Setup environment variables
-    process.env[`${fenceProps.clients.client.envVarsName}_ID`] = basicClient.client_id;
-    process.env[`${fenceProps.clients.client.envVarsName}_SECRET`] = basicClient.client_secret;
-    process.env[`${fenceProps.clients.abcClient.envVarsName}_ID`] = basicAbcClient.client_id;
-    process.env[`${fenceProps.clients.abcClient.envVarsName}_SECRET`] = basicAbcClient.client_secret;
-    process.env[`${fenceProps.clients.clientImplicit.envVarsName}_ID`] = implicitClient.client_id;
-
-    // Export expired access token for main acct
-    const mainAcct = users.mainAcct;
-    const expAccessToken = apiUtil.getAccessToken(mainAcct.username, 1);
-    process.env[mainAcct.envExpTokenName] = expAccessToken;
-
-    // Export indexd credentials
-    const indexd_cred = getIndexPassword();
-    process.env.INDEX_USERNAME = indexd_cred.client;
-    process.env.INDEX_PASSWORD = indexd_cred.password;
 
     // Create configuration values based on hierarchy then export them to the process
     nconf.argv()
@@ -351,7 +235,7 @@ module.exports = async function (done) {
     exportNconfVars();
 
     // Assert required env vars are defined
-    const basicVars = [mainAcct.envTokenName, mainAcct.envExpTokenName, 'INDEX_USERNAME', 'INDEX_PASSWORD', 'HOSTNAME'];
+    const basicVars = ['HOSTNAME'];
     const googleVars = [
       'GOOGLE_APP_CREDS_JSON',
     ];

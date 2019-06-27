@@ -18,6 +18,7 @@ const getRevFromResponse = function (res) {
   }
 };
 
+
 /**
  * indexd Tasks
  */
@@ -79,12 +80,16 @@ module.exports = {
     //console.log("indexd addFileIndices waiting on promiseList of length: " + promiseList.length, promiseList);
     // This Promise.all trick does not work for some reason - ugh!
     // Have to figure it out later
-    const success = await Promise.all(promiseList).then(
-      () => true,
-      (v) => {
-        return false;
+    const success = await (
+      async () => {
+        return Promise.all(promiseList).then(
+          () => true,
+          (v) => {
+            return false;
+          }
+        );
       }
-    );
+    )();
     //console.log("addFileIndices result: " + success);
     return true;  // always return true till we figure out the Promise.all issue above ...
   },
