@@ -40,7 +40,7 @@ module.exports = {
         did: file.did,
         form: 'object',
         size: file.size,
-        urls: file.urls || [file.link],
+        urls: file.urls || [file.link] || [],
         hashes: { md5: file.md5 },
         acl: file.acl,
         metadata: file.metadata,
