@@ -1,8 +1,16 @@
 const { clean } = require('../string');
 
 class Base {
+  runJob(jobName, args) {
+    let command = `gen3 job run ${jobName} ${args}`;
+    console.log(`Running command: ${command}`);
+    this.runCommand(command);
+  }
+
   runJobAndWait(jobName, args) {
-    this.runCommand(`gen3 job run ${jobName} -w ${args}`);
+    let command = `gen3 job run ${jobName} -w ${args}`;
+    console.log(`Running command: ${command}`);
+    this.runCommand(command);
     return this.runCommand(`g3kubectl get jobs ${jobName} -o json | jq -r '.status.succeeded'`) === '1';
   }
 
