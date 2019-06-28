@@ -236,14 +236,9 @@ portalApp="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.por
 portalConfigURL="https://${hostname}/data/config/${portalApp}.json"
 
 echo "hostname=$hostname"
+echo "portalApp=$portalApp"
 echo "portalConfigURL=$portalConfigURL"
 echo "namespaceName=$namespaceName"
-g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice
-g3kubectl get pods --no-headers -l app=wts | grep wts
-g3kubectl get pods --no-headers -l app=jupyter-hub | grep jupyterhub
-curl -s "$portalConfigURL" | jq 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}}) | not'
-[ ! "$namespaceName" == "jenkins-dcp" ]
-curl -s "$portalConfigURL"
 
 if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1 ||
 ! (g3kubectl get pods --no-headers -l app=wts | grep wts) > /dev/null 2>&1; then
