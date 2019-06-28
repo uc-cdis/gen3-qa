@@ -25,7 +25,8 @@ module.exports = {
   exportDefaultManifestToWorkspace() {
     console.log('from \'Explore\' page, click \'Export to workspace\' button to export default manifest to workspace');
     this.goToExplorerPage();
-    I.wait(10);
+    I.wait(60);
+    I.waitForEnabled(exportToWorkspaceProps.exportToWorkspaceButtonXPath, 60);
     I.seeElement(exportToWorkspaceProps.exportToWorkspaceButtonXPath);
     I.click(exportToWorkspaceProps.exportToWorkspaceButtonXPath);
     I.waitForElement(exportToWorkspaceProps.exportToWorkspaceToasterClass, 30);
