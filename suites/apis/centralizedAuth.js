@@ -769,19 +769,20 @@ Scenario('Test open access data with authenticated user @centralizedAuth',
     ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
 }).retry(2);
 
-Scenario('Test open access data with anonymous user @centralizedAuth',
-  async (fence, indexd, users, files) => {
-    const signedUrlRes = await fence.do.createSignedUrlForUser(
-      indexed_files.openAccessFile.did, {});
+// TODO: Uncomment when fence is updated to check for "public" indexd files
+// Scenario('Test open access data with anonymous user @centralizedAuth1',
+//   async (fence, indexd, users, files) => {
+//     const signedUrlRes = await fence.do.createSignedUrlForUser(
+//       indexed_files.openAccessFile.did, {});
 
-    let fileContents = await fence.do.getFileFromSignedUrlRes(
-      signedUrlRes);
+//     let fileContents = await fence.do.getFileFromSignedUrlRes(
+//       signedUrlRes);
 
-    chai.expect(fileContents,
-      'User with access could NOT create signed urls and read file for records in ' +
-      'authorized namespace with authorized consent code'
-    ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-});
+//     chai.expect(fileContents,
+//       'User with access could NOT create signed urls and read file for records in ' +
+//       'authorized namespace with authorized consent code'
+//     ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+// });
 
 /********************************** CONSENT CODES *************************************/
 
