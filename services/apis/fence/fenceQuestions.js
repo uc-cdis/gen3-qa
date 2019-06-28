@@ -209,7 +209,7 @@ module.exports = {
   assertUserInfo(response) {
     expect(
       response,
-      'response from userinfo endpoint does not have property: statusCode'
+      'response from userinfo endpoint should have property statusCode of 200'
     ).to.have.property('statusCode', 200);
     expect(
       response,

@@ -218,7 +218,8 @@ Scenario('Implicit flow: Test that can create an access token which can be used 
   const resULR = await fence.do.getTokensImplicitFlow(
     fence.props.clients.clientImplicit.id, 'id_token+token', 'openid+user');
   const match = resULR.match(RegExp('access_token=(.*)'));
-  const token = match && match[1];
+  let token = match && match[1];
+  token = token.split('&')[0] // remove other query parameters
   fence.ask.assertTruthyResult(
     token,
     `fence\'s oauth2/authorize endpoint in implicit flow should have returned an access token in url "${resULR}"`
