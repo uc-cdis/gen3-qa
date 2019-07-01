@@ -22,10 +22,13 @@ class Bash{
       return new Docker();
   }
 
-  runJob(jobName, args='') {
-    return this.commander.runJobAndWait(jobName, args);
+  runJob(jobName, args='', wait=true) {
+    if (wait) {
+      return this.commander.runJobAndWait(jobName, args);
+    } else {
+      return this.commander.runJob(jobName, args);
+    }
   }
-
 
   /**
    * Generates a child process and runs the given command in a kubernetes namespace
@@ -39,8 +42,8 @@ class Bash{
 }
 
 /**
- * pop off the last line to avoid log messages - ignore empty lines 
- * @param {string} str 
+ * pop off the last line to avoid log messages - ignore empty lines
+ * @param {string} str
  */
 function takeLastLine(str) {
   return str.split(/[\r\n]+/).filter(line => !!line.trim()).pop();
