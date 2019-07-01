@@ -244,7 +244,8 @@ if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestserv
 ! (g3kubectl get pods --no-headers -l app=wts | grep wts) > /dev/null 2>&1; then
   donot '@exportToWorkspaceAPI'
   donot '@exportToWorkspacePortal'
-elif ! (g3kubectl get pods --no-headers -l app=jupyter-hub | grep jupyterhub) > /dev/null 2>&1; then
+elif ! (g3kubectl get pods --no-headers -l app=jupyter-hub | grep jupyterhub) > /dev/null 2>&1 &&
+! (g3kubectl get pods --no-headers -l app=hatchery | grep hatchery) > /dev/null 2>&1; then
   echo "1"
   donot '@exportToWorkspacePortal'
 elif [[ $(curl -s "$portalConfigURL" | jq 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}}) | not') == "true" ]]; then
@@ -265,7 +266,7 @@ npm list mocha-multi
 testArgs="--reporter mocha-multi"
 
 if [[ -n "$doNotRunRegex" ]]; then
-  testArgs="${testArgs} --grep '${doNotRunRegex}' --invert"
+  testArgs="${testArgs} --grep '@exportToWorkspacePortal'"
 fi
 
 exitCode=0
