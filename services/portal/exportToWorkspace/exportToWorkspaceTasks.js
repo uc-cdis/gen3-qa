@@ -25,7 +25,17 @@ module.exports = {
   exportDefaultManifestToWorkspace() {
     console.log('from \'Explore\' page, click \'Export to workspace\' button to export default manifest to workspace');
     this.goToExplorerPage();
+    I.saveScreenshot('etw1.png', true);
+    I.wait(30);
+    I.click('g3-filter-group__collapse-link');
+    I.saveScreenshot('etw2.png', true);
+    I.wait(30);
+    I.click('g3-filter-group__collapse-link');
+    I.saveScreenshot('etw3.png', true);
+    I.waitForInvisible('button[contains(@class, "g3-button--disabled")]', 30);
+    I.saveScreenshot('etw4.png', true);
     I.waitForElement(exportToWorkspaceProps.exportToWorkspaceButtonXPath, 60);
+    I.saveScreenshot('etw5.png', true);
     I.seeElement(exportToWorkspaceProps.exportToWorkspaceButtonXPath);
     I.click(exportToWorkspaceProps.exportToWorkspaceButtonXPath);
     I.waitForElement(exportToWorkspaceProps.exportToWorkspaceToasterClass, 30);
