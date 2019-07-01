@@ -2,7 +2,7 @@ Feature('ExportToWorkspaceTest');
 
 const I = actor();
 
-Before((home) => {
+BeforeSuite((home) => {
   home.complete.login();
 });
 
@@ -25,6 +25,6 @@ Scenario('Export default manifest, mount it and check manifest name @exportToWor
   await portalExportToWorkspace.complete.checkExportDefaultManifestToWorkspace();
 });
 
-After((home) => {
+BeforeSuite((home) => {
   home.complete.logout();
 });
