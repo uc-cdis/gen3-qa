@@ -28,14 +28,14 @@ Feature: The Guppy API supports GraphQL queries on data from elasticsearch.
 		And match the contents of 'test_response_2.json'
 
 	Scenario: I want to render a set of visualizations summarizing data in the commons.
-		Given a test database containing case documents in 'test_data/test_data_2.json'
+		Given a test database containing case documents in 'test_data/test_data_1.json'
 		And an ETL job completed so as to enable the use of flat queries
 		When I make an API request to /guppy/graphql with test_query_6.json'
 		Then the response will be successful with status code 200
 		And match the contents of 'test_response_6.json'
 
 	Scenario: I want to make multiple histograms describing the BMI parameter to gain an understanding of its distribution.
-		Given a test database containing case documents in 'test_data/test_data_2.json'
+		Given a test database containing case documents in 'test_data/test_data_1.json'
 		And an ETL job completed so as to enable the use of flat queries
 		When I make an API request to /guppy/graphql with test_query_7.json'
 		Then the response will be successful with status code 200
@@ -63,7 +63,7 @@ Feature: The Guppy API supports GraphQL queries on data from elasticsearch.
 		And match the contents of 'test_response_5.json'
 
 	Scenario: I want to make a filtering query without worrying about paginating the results, or whether the result will be > 10k records.
-		Given a test database containing case documents in 'test_data/test_data_2.json'
+		Given a test database containing case documents in 'test_data/test_data_1.json'
 		And an ETL job completed so as to enable the use of flat queries
 		When I make an API request to /guppy/download with test_query_8.json'
 		Then the response will be successful with status code 200

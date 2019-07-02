@@ -9,8 +9,20 @@ const guppyTasks = require('./guppyTasks.js');
 const guppyProps = require('./guppyProps.js');
 const { Gen3Response } = require('../../../utils/apiUtil');
 const user = require('../../../utils/user.js');
+const util = require('util')
 
 const fs = require('fs');
+
+function arraysEqual(a, b) {
+  // order of elements matters
+  if (a === b) return true;
+  if (a == null || b == null) return false;
+  if (a.length != b.length) return false;  
+  for (var i = 0; i < a.length; ++i) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
 
 function objectsAreEquivalent(a, b) {
   // http://adripofjavascript.com/blog/drips/object-equality-in-javascript.html
@@ -22,9 +34,12 @@ function objectsAreEquivalent(a, b) {
   }
   for (var i = 0; i < aProps.length; i++) {
       var propName = aProps[i];
-      if (a[propName] !== b[propName]) {
-          console.log('28', propName);
-          return false;
+      if (Array.isArray(a[propName]) && !arraysEqual(a, b)) {
+        return false;
+      }
+
+      if (!Array.isArray(a[propName]) && a[propName] !== b[propName]) {
+        return false;
       }
   }
   return true;
@@ -51,20 +66,33 @@ function matchAggregation(actualResponse, expectedResponse) {
 function matchHistogram(actualResponse, expectedResponse) {
   expectedResponse = JSON.parse(expectedResponse)['data'];
   actualResponse = actualResponse['data'];
+  
   expect(actualResponse).to.have.own.property('_aggregation');
   expect(actualResponse['_aggregation']).to.have.own.property('case');
   for(var key in expectedResponse['_aggregation']['case']) {
     let expectedHistogramList = expectedResponse['_aggregation']['case'][key]['histogram'];
-    expectedHistogramList.sort((a, b) => (a["key"] > b["key"]) ? 1 : -1);
+    expectedHistogramList.sort((a, b) => (a["key"].toString() > b["key"].toString()) ? 1 : -1);
 
     let actualHistogramList = actualResponse['_aggregation']['case'][key]['histogram'];
-    actualHistogramList.sort((a, b) => (a["key"] > b["key"]) ? 1 : -1);
+    actualHistogramList.sort((a, b) => (a["key"].toString() > b["key"].toString()) ? 1 : -1);
 
     expect(expectedHistogramList.length).to.equal(actualHistogramList.length);
     for(let k = 0; k < expectedHistogramList.length; k++) {
+      console.log('ACTUAL', util.inspect(expectedHistogramList[k], false, null, true));
+      console.log('EXPECTED', util.inspect(actualHistogramList[k], false, null, true));
       expect(objectsAreEquivalent(expectedHistogramList[k], actualHistogramList[k])).to.be.true;
     }    
    }
+}
+
+function matchMapping(actualResponse, expectedResponse) {
+  expectedResponse = JSON.parse(expectedResponse)['data'];
+  actualResponse = actualResponse['data'];
+  expect(actualResponse).to.have.own.property('_mapping');
+  expect(actualResponse['_mapping']).to.have.own.property('case');
+  for(var key in expectedResponse['_aggregation']['case']) {
+    expect(actualResponse['_aggregation']['case'][key]).to.equal(expectedResponse['_aggregation']['case'][key]);
+  }
 }
 
 function matchDataQuery(actualResponse, expectedResponse) {

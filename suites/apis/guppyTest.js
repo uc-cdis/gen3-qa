@@ -30,22 +30,22 @@ Scenario('I want a total count of patients matching the filter in the scenario a
 });
 
 // data 2
-// Scenario('I want to render a set of visualizations summarizing data in the commons.', async (I, guppy) => {
-//   let token = await I.grabCookie('access_token');
-//   const queryFile = 'test_plans/guppy/test_data/test_query_3.json';
-//   const expectedResponseFile = 'test_plans/guppy/test_data/test_response_3.json';
-//   let queryType = 'aggregation';
-//   await guppy.complete.checkQueryResponseEquals(guppy.props.endpoints.graphqlEndpoint, queryFile, expectedResponseFile, token.value, queryType);
-//   await guppy.complete.checkQueryResponseEquals(guppy.props.endpoints.graphqlEndpoint, queryFile, expectedResponseFile, token.value);
-// });
+Scenario('I want to render a set of visualizations summarizing data in the commons.', async (I, guppy) => {
+  let token = await I.grabCookie('access_token');
+  const queryFile = 'test_plans/guppy/test_data/test_query_6.json';
+  const expectedResponseFile = 'test_plans/guppy/test_data/test_response_6.json';
+  let queryType = 'histogram';
+  await guppy.complete.checkQueryResponseEquals(guppy.props.endpoints.graphqlEndpoint, queryFile, expectedResponseFile, token.value, queryType);
+});
 
 // data 2
-// Scenario('I want to make multiple histograms describing the BMI parameter to gain an understanding of its distribution.', async (I, guppy) => {
-//   let token = await I.grabCookie('access_token');
-//   const queryFile = 'test_plans/guppy/test_data/test_query_2.json';
-//   const expectedResponseFile = 'test_plans/guppy/test_data/test_response_1.json';
-//   await guppy.complete.checkQueryResponseEquals(guppy.props.endpoints.graphqlEndpoint, queryFile, expectedResponseFile, token.value);
-// });
+Scenario('I want to make multiple histograms describing the BMI parameter to gain an understanding of its distribution.', async (I, guppy) => {
+  let token = await I.grabCookie('access_token');
+  const queryFile = 'test_plans/guppy/test_data/test_query_7.json';
+  const expectedResponseFile = 'test_plans/guppy/test_data/test_response_7.json';
+  let queryType = 'histogram';
+  await guppy.complete.checkQueryResponseEquals(guppy.props.endpoints.graphqlEndpoint, queryFile, expectedResponseFile, token.value, queryType);
+});
 
 Scenario('I want a high-level overview of the data in the database as it pertains to stroke occurence and age groups represented.', async (I, guppy) => {
   let token = await I.grabCookie('access_token');
@@ -55,12 +55,12 @@ Scenario('I want a high-level overview of the data in the database as it pertain
   await guppy.complete.checkQueryResponseEquals(guppy.props.endpoints.graphqlEndpoint, queryFile, expectedResponseFile, token.value, queryType);
 });
 
-
+// This test fails due to what looks to me like a bug in Guppy. But I'll double-check
 // Scenario('I want a range-stepped high-level overview of the data in the database as it pertains to stroke occurence and age groups represented.', async (I, guppy) => {
 //   let token = await I.grabCookie('access_token');
 //   const queryFile = 'test_plans/guppy/test_data/test_query_4.json';
 //   const expectedResponseFile = 'test_plans/guppy/test_data/test_response_4.json';
-//   let queryType = 'aggregation';
+//   let queryType = 'histogram';
 //   await guppy.complete.checkQueryResponseEquals(guppy.props.endpoints.graphqlEndpoint, queryFile, expectedResponseFile, token.value, queryType);
 // });
 
@@ -69,7 +69,7 @@ Scenario('I want a high-level overview of the data in the database as it pertain
 //   let token = await I.grabCookie('access_token');
 //   const queryFile = 'test_plans/guppy/test_data/test_query_5.json';
 //   const expectedResponseFile = 'test_plans/guppy/test_data/test_response_5.json';
-//   let queryType = 'aggregation';
+//   let queryType = 'mapping';
 //   await guppy.complete.checkQueryResponseEquals(guppy.props.endpoints.graphqlEndpoint, queryFile, expectedResponseFile, token.value, queryType);
 // });
 
