@@ -105,7 +105,7 @@ module.exports = {
    * Note that this user has the "data-upload" role
    * Note that this user has the "abc-admin" policy
    */
-  mainAcct: new User({ username: 'cdis.autotest@gmail.com', envVarsName: 'MAIN' }),
+  mainAcct: new User({ username: 'test@example.com', envVarsName: 'MAIN' }),
   /**
    * Auxiliary User account 1
    * Note that this user doesn't have the "data-upload" role

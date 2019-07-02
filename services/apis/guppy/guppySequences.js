@@ -12,11 +12,73 @@ const user = require('../../../utils/user.js');
 
 const fs = require('fs');
 
+function objectsAreEquivalent(a, b) {
+  // http://adripofjavascript.com/blog/drips/object-equality-in-javascript.html
+  var aProps = Object.getOwnPropertyNames(a);
+  var bProps = Object.getOwnPropertyNames(b);
+  if (aProps.length != bProps.length) {
+      console.log('22', aProps, ' ' , bProps);
+      return false;
+  }
+  for (var i = 0; i < aProps.length; i++) {
+      var propName = aProps[i];
+      if (a[propName] !== b[propName]) {
+          console.log('28', propName);
+          return false;
+      }
+  }
+  return true;
+}
+
 function recordWithSubmitterID(id, arr) {
   for (let i = 0; i < arr.length; i++) {
-    if(arr['submitter_id'] == id) {
+    if(arr[i]['submitter_id'] == id) {
       return arr[i];
     }
+  }
+}
+
+function matchAggregation(actualResponse, expectedResponse) {
+  expectedResponse = JSON.parse(expectedResponse)['data'];
+  actualResponse = actualResponse['data'];
+  expect(actualResponse).to.have.own.property('_aggregation');
+  expect(actualResponse['_aggregation']).to.have.own.property('case');
+  for(var key in expectedResponse['_aggregation']['case']) {
+    expect(actualResponse['_aggregation']['case'][key]).to.equal(expectedResponse['_aggregation']['case'][key]);
+  }
+}
+
+function matchHistogram(actualResponse, expectedResponse) {
+  expectedResponse = JSON.parse(expectedResponse)['data'];
+  actualResponse = actualResponse['data'];
+  expect(actualResponse).to.have.own.property('_aggregation');
+  expect(actualResponse['_aggregation']).to.have.own.property('case');
+  for(var key in expectedResponse['_aggregation']['case']) {
+    let expectedHistogramList = expectedResponse['_aggregation']['case'][key]['histogram'];
+    expectedHistogramList.sort((a, b) => (a["key"] > b["key"]) ? 1 : -1);
+
+    let actualHistogramList = actualResponse['_aggregation']['case'][key]['histogram'];
+    actualHistogramList.sort((a, b) => (a["key"] > b["key"]) ? 1 : -1);
+
+    expect(expectedHistogramList.length).to.equal(actualHistogramList.length);
+    for(let k = 0; k < expectedHistogramList.length; k++) {
+      expect(objectsAreEquivalent(expectedHistogramList[k], actualHistogramList[k])).to.be.true;
+    }    
+   }
+}
+
+function matchDataQuery(actualResponse, expectedResponse) {
+  expectedResponse = JSON.parse(expectedResponse)['data']['case'];
+  actualResponse = actualResponse['data']['case'];
+  
+  expect(actualResponse.length).to.equal(expectedResponse.length);
+  for (let i = 0; i < expectedResponse.length; i++) {
+    let expectedCaseObj = expectedResponse[i];
+    let actualCaseObj = recordWithSubmitterID(expectedResponse[i].submitter_id, actualResponse);
+    expect(typeof(expectedCaseObj), 'A matching case was not found for that submitter ID.').to.not.equal('undefined');
+    for(var key in expectedCaseObj) {
+       expect(actualCaseObj[key]).to.equal(expectedCaseObj[key]);
+     }
   }
 }
 
@@ -24,110 +86,24 @@ function recordWithSubmitterID(id, arr) {
  * guppy sequences
  */
 module.exports = {
-  async checkQueryResponseEquals(endpoint, queryToSubmitFilename, expectedResponseFilename, access_token) {
-    const queryResponse = await guppyTasks.submitQueryFileToGuppy(endpoint, queryToSubmitFilename, access_token);
-    // console.log('response: ', queryResponse);
+  async checkQueryResponseEquals(endpoint, queryToSubmitFilename, expectedResponseFilename, accessToken, queryType) {
+    const queryResponse = await guppyTasks.submitQueryFileToGuppy(endpoint, queryToSubmitFilename, accessToken);
+    
+    // let msg = await queryResponse.text();
+    // console.log('msg: ', msg);
+
     expect(queryResponse.status).to.equal(200);
 
-    let responseJSON = await queryResponse.json();
-    // console.log(responseJSON);
+    let actualResponseJSON = await queryResponse.json();
+    console.log(actualResponseJSON);
     let expectedResponse = fs.readFileSync(expectedResponseFilename).toString();
-    expectedResponse = JSON.parse(expectedResponse)['data']['case'];
-    console.log('expectedResponse: ', expectedResponse);
-
-    let actualResponse = responseJSON['data']['case'];
-    console.log('actualResponse: ', actualResponse);
-    // expect(actualResponse.length).to.equal(expectedResponse.length);
-    for (let i = 0; i < actualResponse.length; i++) {
-      let caseObj = recordWithSubmitterID(actualResponse[i].submitter_id, expectedResponse);
-      console.log('case: ', caseObj);
-      expect(caseObj).to.not.equal(null);
-      expect(typeof(caseObj), 'A matching case was not found for that submitter ID.').to.not.equal('undefined');
-      for(var key in caseObj) {
-        expect(caseObj[key]).to.equal(actualResponse[i][key]);
-      }
-      // console.log('key: ', key);
-      // console.log('val: ', actualResponse[key]);
-      // console.log('val2: ', expectedResponse[key]);
-      // expect(actualResponse[key]).to.equal(expectedResponse[key]);
+    // console.log('thing:  ', JSON.parse(expectedResponse));
+    if(queryType == 'aggregation') {
+      return matchAggregation(actualResponseJSON, expectedResponse);
+    } else if (queryType == 'histogram') {
+      return matchHistogram(actualResponseJSON, expectedResponse);
+    } else {
+      return matchDataQuery(actualResponseJSON, expectedResponse);
     }
-
-    // expect(responseJSON).to.equal(expectedResponse);
-
   },
-
-  // /**
-  //  * Gets a files contents then asserts their contents are as expected
-  //  * @param {Object} signedUrlRes - result from creating a signed url
-  //  * @param {string} contents - expected file contents
-  //  * @returns {Promise<void>}
-  //  */
-  // async checkFileEquals(signedUrlRes, contents) {
-  //   guppyQuestions.hasUrl(signedUrlRes);
-  //   const fileContents = await guppyTasks.getFile(signedUrlRes.body.url);
-  //   expect(fileContents).to.equal(contents);
-  // },
-
-  // /**
-  //  * Creates an api key then asserts it was successful
-  //  * @param {string[]} scope - access token scopes
-  //  * @param {Object} accessTokenHeaders
-  //  * @returns {Promise<Gen3Response>}
-  //  */
-  // async createAPIKey(scope, accessTokenHeaders) {
-  //   const apiKeyRes = await guppyTasks.createAPIKey(scope, accessTokenHeaders);
-  //   guppyQuestions.hasAPIKey(apiKeyRes);
-  //   return apiKeyRes;
-  // },
-
-  // /**
-  //  * Cleans up guppy's DBs for links and service accounts
-  //  * Takes the google and users utils as params
-  //  * @returns {Promise<void>}
-  //  */
-  // async suiteCleanup(google, users) {
-  //   // google projects to 'clean up'
-  //   const googleProjects = [
-  //     guppyProps.googleProjectA,
-  //     guppyProps.googleProjectDynamic,
-  //     guppyProps.googleProjectWithComputeServiceAcct,
-  //   ];
-  //   // remove unimportant roles from google projects
-  //   for (const proj of googleProjects) {
-  //     await google.removeAllOptionalUsers(proj.id);
-  //   }
-
-  //   // delete all service accounts from guppy
-  //   for (const proj of googleProjects) {
-  //     // TRY to delete the service account
-  //     // NOTE: the service account might have been registered unsuccessfully or deleted,
-  //     //  we are just hitting the endpoints as if it still exists and ignoring errors
-  //     const projUser = users.mainAcct;
-
-  //     if (!projUser.linkedGoogleAccount) {
-  //       // If the project user is not linked, link to project owner then delete
-  //       await guppyTasks.forceLinkGoogleAcct(projUser, proj.owner)
-  //         .then(() =>
-  //         guppyTasks.deleteGoogleServiceAccount(projUser, proj.serviceAccountEmail),
-  //         );
-  //     } else if (projUser.linkedGoogleAccount !== proj.owner) {
-  //       // If the project user is linked, but not to project owner,
-  //       // unlink user, then link to project owner and delete service account
-  //       await module.exports.unlinkGoogleAcct(projUser)
-  //         .then(() =>
-  //         guppyTasks.forceLinkGoogleAcct(projUser, proj.owner),
-  //         )
-  //         .then(() =>
-  //         guppyTasks.deleteGoogleServiceAccount(projUser, proj.serviceAccountEmail),
-  //         );
-  //     } else {
-  //       // If project user is linked to the project owner, delete the service account
-  //       await guppyTasks.deleteGoogleServiceAccount(projUser, proj.serviceAccountEmail);
-  //     }
-  //   }
-
-  //   // unlink all google accounts
-  //   const unlinkPromises = Object.values(users).map(user => guppyTasks.unlinkGoogleAcct(user));
-  //   await Promise.all(unlinkPromises);
-  // },
 };

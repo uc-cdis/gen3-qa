@@ -19,8 +19,7 @@ module.exports = {
       // const filePathPrefix = 'test_plans/guppy/test_data/';
       const queryFile = queryToSubmitFilename;
       let queryToSubmit = fs.readFileSync(queryFile).toString().split('\n'); 
-      queryToSubmit = queryToSubmit.join('');
-      // const queryResponse = await this.submitGraphQLQuery(queryToSubmit);
+      queryToSubmit = queryToSubmit.join('').replace(/\/t/g, '/');;
 
       const URL = guppyProps.endpoints.graphqlEndpoint;
       // console.log('bout to submit: ', queryToSubmit);

@@ -48,7 +48,7 @@ Feature: The Guppy API supports GraphQL queries on data from elasticsearch.
 		Then the response will be successful with status code 200
 		And match the contents of 'test_response_3.json'
 
-	Scenario: I want a high-level overview of the data in the database as it pertains to stroke occurence and age groups represented.
+	Scenario: I want a range-stepped high-level overview of the data in the database as it pertains to stroke occurence and age groups represented.
 		Given a test database containing case documents in 'test_data/test_data_1.json'
 		And an ETL job completed so as to enable the use of flat queries
 		When I make an API request to /guppy/graphql with test_query_4.json'
