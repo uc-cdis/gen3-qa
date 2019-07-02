@@ -14,6 +14,7 @@ const users = require('./utils/user');
 const apiUtil = require('./utils/apiUtil');
 const google = require('./utils/google.js');
 const fenceProps = require('./services/apis/fence/fenceProps');
+
 const DEFAULT_TOKEN_EXP = 3600;
 const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
 const bash = new Bash();
@@ -22,8 +23,8 @@ const bash = new Bash();
 
 
 // get the tags passed in as arguments
-let testTags = parseTestTags();
-console.log('Tags:')
+const testTags = parseTestTags();
+console.log('Tags:');
 console.log(testTags);
 
 
@@ -43,9 +44,8 @@ console.log(testTags);
  * @param {string} arboristPolicies - space-delimited list of arborist policies to give to client
  * @returns {json}
  */
-function createClient(clientName, userName, clientType, arboristPolicies=null) {
-
-  let fenceCmd = 'fence-create'
+function createClient(clientName, userName, clientType, arboristPolicies = null) {
+  let fenceCmd = 'fence-create';
 
   if (arboristPolicies) {
     fenceCmd = `${fenceCmd} --arborist http://arborist-service/`;
@@ -79,11 +79,11 @@ function deleteClient(clientName) {
  */
 function getIndexPassword() {
   const credsCmd = 'cat /var/www/sheepdog/creds.json';
-  const secret = bash.runCommand(credsCmd,'sheepdog');
+  const secret = bash.runCommand(credsCmd, 'sheepdog');
   console.error(secret);
   return {
     client: JSON.parse(secret).indexd_client != undefined ? JSON.parse(secret).indexd_client : 'gdcapi',
-    password: JSON.parse(secret).indexd_password
+    password: JSON.parse(secret).indexd_password,
   };
 }
 
@@ -150,13 +150,13 @@ async function tryCreateProgramProject(nAttempts) {
 function assertGen3Client() {
   // check if the client is set up in the workspace
   console.log('Looking for data client executable...');
-  let client_dir = process.env.DATA_CLIENT_PATH || homedir;
+  const client_dir = process.env.DATA_CLIENT_PATH || homedir;
   if (!fs.existsSync(`${client_dir}/gen3-client`)) {
-    let msg = `Did not find a gen3-client executable in ${client_dir}`;
+    const msg = `Did not find a gen3-client executable in ${client_dir}`;
     if (inJenkins) {
       throw Error(msg);
     }
-    console.log('WARNING: ' + msg);
+    console.log(`WARNING: ${  msg}`);
   }
 }
 
@@ -168,15 +168,15 @@ function createGoogleTestBuckets() {
   try {
     console.log('Ensure test buckets are linked to projects in this commons...');
 
-    var bucketId = fenceProps.googleBucketInfo.QA.bucketId;
-    var googleProjectId = fenceProps.googleBucketInfo.QA.googleProjectId;
-    var projectAuthId = 'QA';
-    var fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
+    let bucketId = fenceProps.googleBucketInfo.QA.bucketId;
+    let googleProjectId = fenceProps.googleBucketInfo.QA.googleProjectId;
+    let projectAuthId = 'QA';
+    let fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
     console.log(`Running: ${fenceCmd}`);
     bash.runCommand(fenceCmd, 'fence');
 
-    bucketId = fenceProps.googleBucketInfo.test.bucketId
-    googleProjectId = fenceProps.googleBucketInfo.test.googleProjectId
+    bucketId = fenceProps.googleBucketInfo.test.bucketId;
+    googleProjectId = fenceProps.googleBucketInfo.test.googleProjectId;
     projectAuthId = 'test';
     fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
     console.log(`Running: ${fenceCmd}`);
@@ -184,8 +184,7 @@ function createGoogleTestBuckets() {
 
     console.log('Clean up Google Bucket Access Groups from previous runs...');
     bash.runJob('google-verify-bucket-access-group');
-  }
-  catch (e) {
+  } catch (e) {
     if (inJenkins) {
       throw e;
     }
@@ -197,40 +196,39 @@ async function setupGoogleProjectDynamic() {
   // Update the id and SA email depending on the current namespace
   if (process.env.RUNNING_LOCAL) { // local run
     namespace = 'validationjobtest';
-  }
-  else { // jenkins run. a google project exists for each jenkins env
+  } else { // jenkins run. a google project exists for each jenkins env
     namespace = process.env.NAMESPACE;
   }
   fenceProps.googleProjectDynamic.id = fenceProps.googleProjectDynamic.id.replace(
     'NAMESPACE',
-    namespace
+    namespace,
   );
   fenceProps.googleProjectDynamic.serviceAccountEmail = fenceProps.googleProjectDynamic.serviceAccountEmail.replace(
     'NAMESPACE',
-    namespace
+    namespace,
   );
   console.log(`googleProjectDynamic: ${fenceProps.googleProjectDynamic.id}`);
 
   // Add the IAM access needed by the monitor service account
   const monitorRoles = [
     'roles/resourcemanager.projectIamAdmin',
-    'roles/editor'
+    'roles/editor',
   ];
-  for (var role of monitorRoles) {
-    let res = await google.updateUserRole(
+  for (let role of monitorRoles) {
+    const res = await google.updateUserRole(
       fenceProps.googleProjectDynamic.id,
       {
         role,
-        members: [`serviceAccount:${fenceProps.monitorServiceAccount}`]
-      }
+        members: [`serviceAccount:${fenceProps.monitorServiceAccount}`],
+      },
     );
     if (res.code) {
       console.error(res);
-      let msg = `Failed to update monitor SA roles in Google project ${fenceProps.googleProjectDynamic.id} (owner ${fenceProps.googleProjectDynamic.owner}).`
+      const msg = `Failed to update monitor SA roles in Google project ${fenceProps.googleProjectDynamic.id} (owner ${fenceProps.googleProjectDynamic.owner}).`;
       if (inJenkins) {
         throw Error(msg);
       }
-      console.log('WARNING: ' + msg);
+      console.log(`WARNING: ${  msg}`);
     }
   }
 
@@ -240,11 +238,10 @@ async function setupGoogleProjectDynamic() {
   if (!saKeys.keys) {
     console.error(saKeys);
     console.log(`WARNING: cannot get list of keys on service account ${saName}.`);
-  }
-  else {
+  } else {
     saKeys.keys.map(async (key) => {
       res = await google.deleteServiceAccountKey(key.name);
-    })
+    });
   }
 }
 
@@ -254,17 +251,16 @@ async function setupGoogleProjectDynamic() {
  * Note: this function does not handle complex grep/invert combinations
  */
 function parseTestTags() {
-  tags = [];
-  args = process.env.npm_package_scripts_test.split(' '); // all args
+  let tags = [];
+  let args = process.env.npm_package_scripts_test.split(' '); // all args
   args = args.map(item => item.replace(/(^"|"$)/g, '')); // remove quotes
   if (args.includes('--grep')) {
     // get tags and whether the grep is inverted
-    args.map(item => {
+    args.map((item) => {
       if (item.startsWith('@')) {
         // e.g. "@reqGoogle|@Performance"
         tags = tags.concat(item.split('|'));
-      }
-      else if (item == '--invert') {
+      } else if (item === '--invert') {
         tags.push(item);
       }
     });
@@ -276,7 +272,12 @@ function parseTestTags() {
  * Returns true if the tag is included in the tests, false otherwise
  */
 function isIncluded(tag) {
-  return !testTags.includes(tag) || (testTags.includes(tag) && !testTags.includes('--invert'));
+  console.log(testTags);
+  console.log(tag);
+  console.log(testTags.includes(tag));
+  console.log(testTags.includes('--invert'));
+  console.log((!testTags.includes(tag) && testTags.includes('--invert')) || (testTags.includes(tag) && !testTags.includes('--invert')));
+  return (!testTags.includes(tag) && testTags.includes('--invert')) || (testTags.includes(tag) && !testTags.includes('--invert'));
 }
 
 module.exports = async function (done) {
@@ -294,36 +295,36 @@ module.exports = async function (done) {
 
     console.log('Delete then create basic client...\n');
     deleteClient('basic-test-client');
-    var basicClient;
+    let basicClient;
     if (isIncluded('@centralizedAuth')) {
       basicClient = createClient(
         'basic-test-client', 'test-client@example.com', 'basic',
-        arboristPolicies='abc-admin gen3-admin'
+        arboristPolicies = 'abc-admin gen3-admin',
       );
     } else {
       basicClient = createClient(
-        'basic-test-client', 'test-client@example.com', 'basic'
+        'basic-test-client', 'test-client@example.com', 'basic',
       );
     }
 
     console.log('Delete then create another basic client...\n');
     deleteClient('basic-test-abc-client');
-    var basicAbcClient;
+    let basicAbcClient;
     if (isIncluded('@centralizedAuth')) {
       basicAbcClient = createClient(
         'basic-test-abc-client', 'test-abc-client@example.com', 'basic',
-        arboristPolicies='abc-admin'
+        arboristPolicies = 'abc-admin',
       );
     } else {
       basicAbcClient = createClient(
-        'basic-test-abc-client', 'test-abc-client@example.com', 'basic'
+        'basic-test-abc-client', 'test-abc-client@example.com', 'basic',
       );
     }
 
     console.log('Delete then create implicit client...\n');
     deleteClient('implicit-test-client');
     const implicitClient = createClient(
-      'implicit-test-client', 'test@example.com', 'implicit'
+      'implicit-test-client', 'test@example.com', 'implicit',
     );
 
     // Setup environment variables
@@ -339,7 +340,7 @@ module.exports = async function (done) {
     process.env[mainAcct.envExpTokenName] = expAccessToken;
 
     // Export indexd credentials
-    let indexd_cred = getIndexPassword();
+    const indexd_cred = getIndexPassword();
     process.env.INDEX_USERNAME = indexd_cred.client;
     process.env.INDEX_PASSWORD = indexd_cred.password;
 
@@ -380,8 +381,7 @@ module.exports = async function (done) {
     await tryCreateProgramProject(3);
 
     done();
-  }
-  catch (ex) {
+  } catch (ex) {
     console.error('Failed initialization', ex);
     process.exit(1);
   }
