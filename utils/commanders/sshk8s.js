@@ -24,11 +24,11 @@ class SshK8s extends Base {
     const namespace = process.env.NAMESPACE;
     const commonsUser = userFromNamespace(namespace);
     if (service === undefined) {
-      return cleanResult(execSync(`ssh ${commonsUser}@cdistest.csoc 'set -i; source ~/.bashrc; ${cmd}'`,
+      return cleanResult(execSync(`ssh ${commonsUser}@cdistest_dev.csoc 'set -i; source ~/.bashrc; ${cmd}'`,
         { shell: '/bin/bash' }).toString('utf8'));
     } else {
       return cleanResult(execSync(
-        `ssh ${commonsUser}@cdistest.csoc 'set -i; source ~/.bashrc; g3kubectl exec $(gen3 pod ${service} ${namespace}) -- ${cmd}'`,
+        `ssh ${commonsUser}@cdistest_dev.csoc 'set -i; source ~/.bashrc; g3kubectl exec $(gen3 pod ${service} ${namespace}) -- ${cmd}'`,
         { shell: '/bin/sh' }
       ).toString('utf8'));
     }
