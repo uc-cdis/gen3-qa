@@ -25,6 +25,6 @@ Scenario('Export default manifest, mount it and check manifest name @exportToWor
   await portalExportToWorkspace.complete.checkExportDefaultManifestToWorkspace();
 });
 
-BeforeSuite((home) => {
+AfterSuite((home) => {
   home.complete.logout();
 });
