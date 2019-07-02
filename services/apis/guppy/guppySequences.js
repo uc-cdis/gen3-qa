@@ -78,8 +78,6 @@ function matchHistogram(actualResponse, expectedResponse) {
 
     expect(expectedHistogramList.length).to.equal(actualHistogramList.length);
     for(let k = 0; k < expectedHistogramList.length; k++) {
-      console.log('ACTUAL', util.inspect(expectedHistogramList[k], false, null, true));
-      console.log('EXPECTED', util.inspect(actualHistogramList[k], false, null, true));
       expect(objectsAreEquivalent(expectedHistogramList[k], actualHistogramList[k])).to.be.true;
     }    
    }
@@ -90,21 +88,21 @@ function matchMapping(actualResponse, expectedResponse) {
   actualResponse = actualResponse['data'];
   expect(actualResponse).to.have.own.property('_mapping');
   expect(actualResponse['_mapping']).to.have.own.property('case');
-  for(var key in expectedResponse['_aggregation']['case']) {
-    expect(actualResponse['_aggregation']['case'][key]).to.equal(expectedResponse['_aggregation']['case'][key]);
+  for(var key in expectedResponse['_mapping']['case']) {
+    expect(actualResponse['_mapping']['case'][key]).to.equal(expectedResponse['_mapping']['case'][key]);
   }
 }
 
 function matchDataQuery(actualResponse, expectedResponse) {
-  expectedResponse = JSON.parse(expectedResponse)['data']['case'];
-  actualResponse = actualResponse['data']['case'];
-  
   expect(actualResponse.length).to.equal(expectedResponse.length);
   for (let i = 0; i < expectedResponse.length; i++) {
     let expectedCaseObj = expectedResponse[i];
     let actualCaseObj = recordWithSubmitterID(expectedResponse[i].submitter_id, actualResponse);
     expect(typeof(expectedCaseObj), 'A matching case was not found for that submitter ID.').to.not.equal('undefined');
     for(var key in expectedCaseObj) {
+       console.log(key);
+       console.log(expectedCaseObj.submitter_id);
+       console.log(actualCaseObj.submitter_id);
        expect(actualCaseObj[key]).to.equal(expectedCaseObj[key]);
      }
   }
@@ -116,21 +114,23 @@ function matchDataQuery(actualResponse, expectedResponse) {
 module.exports = {
   async checkQueryResponseEquals(endpoint, queryToSubmitFilename, expectedResponseFilename, accessToken, queryType) {
     const queryResponse = await guppyTasks.submitQueryFileToGuppy(endpoint, queryToSubmitFilename, accessToken);
-    
-    // let msg = await queryResponse.text();
-    // console.log('msg: ', msg);
 
     expect(queryResponse.status).to.equal(200);
 
     let actualResponseJSON = await queryResponse.json();
-    console.log(actualResponseJSON);
     let expectedResponse = fs.readFileSync(expectedResponseFilename).toString();
-    // console.log('thing:  ', JSON.parse(expectedResponse));
     if(queryType == 'aggregation') {
       return matchAggregation(actualResponseJSON, expectedResponse);
     } else if (queryType == 'histogram') {
       return matchHistogram(actualResponseJSON, expectedResponse);
+    } else if (queryType == 'mapping') {
+      return matchMapping(actualResponseJSON, expectedResponse);
+    } else if (queryType == 'download') {
+      expectedResponse = JSON.parse(expectedResponse);
+      return matchDataQuery(actualResponseJSON, expectedResponse);
     } else {
+      expectedResponse = JSON.parse(expectedResponse)['data']['case'];
+      actualResponseJSON = actualResponseJSON['data']['case'];
       return matchDataQuery(actualResponseJSON, expectedResponse);
     }
   },

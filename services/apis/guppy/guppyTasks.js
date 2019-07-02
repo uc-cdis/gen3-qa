@@ -20,9 +20,6 @@ module.exports = {
       const queryFile = queryToSubmitFilename;
       let queryToSubmit = fs.readFileSync(queryFile).toString().split('\n'); 
       queryToSubmit = queryToSubmit.join('').replace(/\/t/g, '/');;
-
-      const URL = guppyProps.endpoints.graphqlEndpoint;
-      // console.log('bout to submit: ', queryToSubmit);
       const data = {
         method: 'POST', // or 'PUT'
         body: queryToSubmit,
@@ -32,7 +29,7 @@ module.exports = {
         }
       };
 
-      return fetch(URL, data).then(function(response) {
+      return fetch(endpoint, data).then(function(response) {
         //console.log('response: ', response);
         return response; //.json();
       });

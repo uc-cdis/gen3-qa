@@ -6,7 +6,7 @@ Feature: The Guppy API supports GraphQL queries on data from elasticsearch.
 		And a user test_user@example.com registered in the Fence database
 		And a manifest dictionary_url value of 'https://s3.amazonaws.com/dictionary-artifacts/gtexdictionary/master/schema.json'
 
-	Scenario: I want to make a query to Guppy, but my access token is expired.
+	Scenario: I want to make a query to Guppy, but my access token is invalid or expired.
 		Given a test database containing case documents in 'test_data/test_data_1.json'
 		And an ETL job completed so as to enable the use of flat queries
 		And test_user@example.com with access token is expired
