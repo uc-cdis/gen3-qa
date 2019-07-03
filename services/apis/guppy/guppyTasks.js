@@ -1,9 +1,5 @@
 const guppyProps = require('./guppyProps.js');
-const user = require('../../../utils/user.js');
 const { Gen3Response, getCookie, getAccessTokenHeader } = require('../../../utils/apiUtil');
-const { Bash, takeLastLine } = require('../../../utils/bash');
-const { container } = require('codeceptjs');
-const bash = new Bash();
 const fetch = require('node-fetch');
 const fs = require('fs');
 
