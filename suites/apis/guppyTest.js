@@ -14,12 +14,12 @@ Before( async (home, etl, nodes) => {
 });
 
 // This test fails due to what looks to me like a bug in Guppy that should be fixed. I made a ticket for it.
-// Scenario('I want to make a query to Guppy, but my access token is invalid or expired.', async (I, guppy) => {
-//   let invalidToken = 'eyJhbGciOiJSUzI1N';
-//   const queryFile = 'test_plans/guppy/test_data/test_query_1.json';
-//   const queryResponse = await guppy.do.submitQueryFileToGuppy(guppy.props.endpoints.graphqlEndpoint, queryFile, invalidToken);
-//   expect(queryResponse.status).to.equal(401);
-// });
+xScenario('I want to make a query to Guppy, but my access token is invalid or expired.', async (I, guppy) => {
+  let invalidToken = 'eyJhbGciOiJSUzI1N';
+  const queryFile = 'test_plans/guppy/test_data/test_query_1.json';
+  const queryResponse = await guppy.do.submitQueryFileToGuppy(guppy.props.endpoints.graphqlEndpoint, queryFile, invalidToken);
+  expect(queryResponse.status).to.equal(401);
+});
 
 Scenario('I want a list of patients (cases) strictly younger than 30 with a past stroke in ascending order of BMI.', async (I, guppy) => {
   let token = await I.grabCookie('access_token');
@@ -62,13 +62,13 @@ Scenario('I want a high-level overview of the data in the database as it pertain
 });
 
 // This test fails due to what looks to me like a bug in Guppy that needs to be investigated. The "max" value calculation is off by < 0.1% of the actual value.
-// Scenario('I want a range-stepped high-level overview of the data in the database as it pertains to stroke occurence and age groups represented.', async (I, guppy) => {
-//   let token = await I.grabCookie('access_token');
-//   const queryFile = 'test_plans/guppy/test_data/test_query_4.json';
-//   const expectedResponseFile = 'test_plans/guppy/test_data/test_response_4.json';
-//   let queryType = 'histogram';
-//   await guppy.complete.checkQueryResponseEquals(guppy.props.endpoints.graphqlEndpoint, queryFile, expectedResponseFile, token.value, queryType);
-// });
+xScenario('I want a range-stepped high-level overview of the data in the database as it pertains to stroke occurence and age groups represented.', async (I, guppy) => {
+  let token = await I.grabCookie('access_token');
+  const queryFile = 'test_plans/guppy/test_data/test_query_4.json';
+  const expectedResponseFile = 'test_plans/guppy/test_data/test_response_4.json';
+  let queryType = 'histogram';
+  await guppy.complete.checkQueryResponseEquals(guppy.props.endpoints.graphqlEndpoint, queryFile, expectedResponseFile, token.value, queryType);
+});
 
 Scenario('I would like to list the fields on the case document.', async (I, guppy) => {
   let token = await I.grabCookie('access_token');
