@@ -19,8 +19,13 @@ module.exports = {
 
   /* The 'Click Workspace tab when logged out and logged in' test sequence */
   checkClickWorkspaceTabWithLogoutAndLogin(home) {
-    exportToWorkspaceTasks.logoutAndGetToWorkspace(home);
-    exportToWorkspaceTasks.loginAndGetToWorkspace(home);
+    // exportToWorkspaceTasks.logoutAndGetToWorkspace(home);
+    // exportToWorkspaceTasks.loginAndGetToWorkspace(home);
+    I.amOnPage('/identity');
+    I.saveScreenshot('etw0.png', true);
+    I.waitForVisible('.base-table__cell', 10);
+    I.saveScreenshot('etw01.png', true);
+    I.say('saw it!');
   },
 
   /* The 'Check export to workspace success message toaster' test sequence */
