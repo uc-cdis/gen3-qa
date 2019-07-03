@@ -4,7 +4,6 @@ const expect = chai.expect;
 chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 
-const guppyQuestions = require('./guppyQuestions.js');
 const guppyTasks = require('./guppyTasks.js');
 const guppyProps = require('./guppyProps.js');
 const { Gen3Response } = require('../../../utils/apiUtil');
