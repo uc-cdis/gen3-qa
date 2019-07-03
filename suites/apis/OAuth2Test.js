@@ -217,8 +217,9 @@ Scenario('Implicit flow: Test that fails to generate tokens due to openid scope 
 Scenario('Implicit flow: Test that can create an access token which can be used in fence', async (fence) => {
   const resULR = await fence.do.getTokensImplicitFlow(
     fence.props.clients.clientImplicit.id, 'id_token+token', 'openid+user');
-  const match = resULR.match(RegExp('access_token=(.*)&expires'));
-  const token = match && match[1];
+  const match = resULR.match(RegExp('access_token=(.*)'));
+  let token = match && match[1];
+  token = token.split('&')[0] // remove other query parameters
   fence.ask.assertTruthyResult(
     token,
     `fence\'s oauth2/authorize endpoint in implicit flow should have returned an access token in url "${resULR}"`

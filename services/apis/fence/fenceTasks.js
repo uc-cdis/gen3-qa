@@ -9,8 +9,6 @@ const bash = new Bash();
 
 const I = actor();
 
-const FILE_FROM_URL_ERROR = 'Could not get file contents from signed url response';
-
 /**
  * Determines if browser is on Google's "Choose account" page
  * @returns {Promise<boolean>}
@@ -79,13 +77,13 @@ module.exports = {
    * @param {string[]} args - additional args for endpoint
    * @returns {Promise<Gen3Response>}
    */
-  createSignedUrl(id, args = []) {
+  createSignedUrl(id, args = [], userHeader=user.mainAcct.accessTokenHeader) {
     return I.sendGetRequest(
       `${fenceProps.endpoints.getFile}/${id}?${args.join('&')}`.replace(
         /[?]$/g,
         '',
       ),
-      user.mainAcct.accessTokenHeader,
+      userHeader,
     ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
   },
 
@@ -120,8 +118,8 @@ module.exports = {
     ){
       return I.sendGetRequest(signedUrlRes["body"].url).then(res => res.body);
     }
-    console.log(FILE_FROM_URL_ERROR);
-    return FILE_FROM_URL_ERROR;
+    console.log(fenceProps.FILE_FROM_URL_ERROR);
+    return fenceProps.FILE_FROM_URL_ERROR;
   },
 
   /**
@@ -242,7 +240,7 @@ module.exports = {
     return I.sendGetRequest(url, headers).then(async (res) => {
 
       // if no error, follow redirect back to fence
-      if (!res.headers.location.includes("error=")) {
+      if (res.headers.location && !res.headers.location.includes("error=")) {
         let sessionCookie = getCookie('fence', res.headers['set-cookie']);
         headers.Cookie += `; fence=${sessionCookie}`;
         res = await I.sendGetRequest(res.headers.location, headers);
@@ -555,6 +553,20 @@ module.exports = {
       JSON.stringify({
         file_name: fileName,
       }),
+      accessHeader,
+    ).then(res => new Gen3Response(res));
+  },
+
+  /**
+   * Hits fence's signed url for data upload endpoint
+   * @param {string} guid - guid of the file that will be written to
+   * @param {string} accessToken - access token
+   * @returns {Promise<Gen3Response>}
+   */
+  async getUploadUrlForExistingFile(guid, accessHeader) {
+    accessHeader['Content-Type'] = 'application/json';
+    return I.sendGetRequest(
+      fenceProps.endpoints.uploadFile + `/${guid}`,
       accessHeader,
     ).then(res => new Gen3Response(res));
   },

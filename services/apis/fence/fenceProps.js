@@ -47,6 +47,8 @@ module.exports = {
 
   monitorServiceAccount: 'fence-service@dcf-integration.iam.gserviceaccount.com',
 
+  FILE_FROM_URL_ERROR: 'Could not get file contents from signed url response',
+
   /**
    * Project.auth_ids to bucket info
    */
@@ -138,9 +140,9 @@ module.exports = {
     statusCode: 404,
   }),
 
-  resUserAlreadyLinked: 'error_description=User+already+has+a+linked+Google+account.&error=g_acnt_link_error',
+  resUserAlreadyLinked: 'error_description=User+already+has+a+linked+Google+account.',
 
-  resAccountAlreadyLinked: 'error_description=Could+not+link+Google+account.+The+account+specified+is+already+linked+to+a+different+user.&error=g_acnt_link_error',
+  resAccountAlreadyLinked: 'error_description=Could+not+link+Google+account.+The+account+specified+is+already+linked+to+a+different+user.',
 
   /**
    * Consent page

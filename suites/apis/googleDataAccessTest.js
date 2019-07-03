@@ -76,7 +76,7 @@ BeforeSuite(async (indexd) => {
 
 AfterSuite(async (fence, indexd, users) => {
   console.log(`Running usersync job`);
-  bash.runJob('usersync');
+  bash.runJob('usersync', args='FORCE true');
   console.log('Removing indexd files used to test signed urls');
   await indexd.do.deleteFileIndices(Object.values(indexed_files));
 });
