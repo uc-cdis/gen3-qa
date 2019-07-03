@@ -14,8 +14,8 @@ exports.config = {
       desiredCapabilities: {
         chromeOptions: {
           args: [
-            // '--headless', // for dev, you can comment this line to open actual chrome for easier test
-            // '--disable-gpu',
+            '--headless', // for dev, you can comment this line to open actual chrome for easier test
+            '--disable-gpu',
             '--window-size=1920,1080'
           ],
         },
