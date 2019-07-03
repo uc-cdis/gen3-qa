@@ -5,114 +5,386 @@
         "myocardial_infarction": {
           "histogram": [
             {
-              "count": 2, 
-              "key": "No"
-            }, 
-            {
-              "count": 2, 
-              "key": "Yes"
-            }, 
-            {
-              "count": 1, 
+              "count": 14, 
               "key": "Not reported"
             }, 
             {
-              "count": 1, 
+              "count": 11, 
+              "key": "Yes"
+            }, 
+            {
+              "count": 10, 
               "key": "Unknown"
+            }, 
+            {
+              "count": 5, 
+              "key": "No"
             }
           ]
         }, 
         "consent_codes": {
           "histogram": [
             {
-              "count": 6, 
-              "key": "no data"
+              "count": 1, 
+              "key": "7a854a4766"
+            }, 
+            {
+              "count": 1, 
+              "key": "00ae0ad755"
+            }, 
+            {
+              "count": 1, 
+              "key": "0717e64438"
+            }, 
+            {
+              "count": 1, 
+              "key": "0ccb89755c"
+            }, 
+            {
+              "count": 1, 
+              "key": "1b264b9f52"
+            }, 
+            {
+              "count": 1, 
+              "key": "1c8f757100"
+            }, 
+            {
+              "count": 1, 
+              "key": "2e05ebb534"
+            }, 
+            {
+              "count": 1, 
+              "key": "2e7d7114e6"
+            }, 
+            {
+              "count": 1, 
+              "key": "3073084c06"
+            }, 
+            {
+              "count": 1, 
+              "key": "3918744498"
+            }, 
+            {
+              "count": 1, 
+              "key": "3fbe213cc3"
+            }, 
+            {
+              "count": 1, 
+              "key": "41a10b9470"
+            }, 
+            {
+              "count": 1, 
+              "key": "434db6ae8e"
+            }, 
+            {
+              "count": 1, 
+              "key": "47e9be08fe"
+            }, 
+            {
+              "count": 1, 
+              "key": "4e99d0a42b"
+            }, 
+            {
+              "count": 1, 
+              "key": "503d76a03b"
+            }, 
+            {
+              "count": 1, 
+              "key": "5b95aa9fe6"
+            }, 
+            {
+              "count": 1, 
+              "key": "64697f5b9c"
+            }, 
+            {
+              "count": 1, 
+              "key": "64709a6759"
+            }, 
+            {
+              "count": 1, 
+              "key": "75d7db6f78"
+            }, 
+            {
+              "count": 1, 
+              "key": "06547d19dd"
+            }, 
+            {
+              "count": 1, 
+              "key": "7cfa35fe9b"
+            }, 
+            {
+              "count": 1, 
+              "key": "89d1e3ebba"
+            }, 
+            {
+              "count": 1, 
+              "key": "8b03f380cd"
+            }, 
+            {
+              "count": 1, 
+              "key": "8e284d2360"
+            }, 
+            {
+              "count": 1, 
+              "key": "9b02256769"
+            }, 
+            {
+              "count": 1, 
+              "key": "a46415140f"
+            }, 
+            {
+              "count": 1, 
+              "key": "afc08ab854"
+            }, 
+            {
+              "count": 1, 
+              "key": "b60234786d"
+            }, 
+            {
+              "count": 1, 
+              "key": "b91fd988ab"
+            }, 
+            {
+              "count": 1, 
+              "key": "c5974a04b9"
+            }, 
+            {
+              "count": 1, 
+              "key": "d67a4d02e7"
+            }, 
+            {
+              "count": 1, 
+              "key": "dbb4835706"
+            }, 
+            {
+              "count": 1, 
+              "key": "e2fc6aa446"
+            }, 
+            {
+              "count": 1, 
+              "key": "e59d35768b"
+            }, 
+            {
+              "count": 1, 
+              "key": "e5c56f28e0"
+            }, 
+            {
+              "count": 1, 
+              "key": "eaff45b6e1"
+            }, 
+            {
+              "count": 1, 
+              "key": "f5ba391bfd"
+            }, 
+            {
+              "count": 1, 
+              "key": "f8edb4b156"
+            }, 
+            {
+              "count": 1, 
+              "key": "fc9c80ccdf"
             }
           ]
         }, 
         "stroke": {
           "histogram": [
             {
-              "count": 4, 
+              "count": 17, 
+              "key": "No"
+            }, 
+            {
+              "count": 8, 
+              "key": "Unknown"
+            }, 
+            {
+              "count": 8, 
               "key": "Yes"
             }, 
             {
-              "count": 2, 
-              "key": "No"
+              "count": 7, 
+              "key": "Not reported"
             }
           ]
         }, 
         "hypertension": {
           "histogram": [
             {
-              "count": 3, 
-              "key": "No"
-            }, 
-            {
-              "count": 1, 
-              "key": "Not reported"
-            }, 
-            {
-              "count": 1, 
+              "count": 14, 
               "key": "Unknown"
             }, 
             {
-              "count": 1, 
+              "count": 9, 
+              "key": "Not reported"
+            }, 
+            {
+              "count": 9, 
               "key": "Yes"
+            }, 
+            {
+              "count": 8, 
+              "key": "No"
             }
           ]
         }, 
         "ethnicity": {
           "histogram": [
             {
+              "count": 10, 
+              "key": "hispanic or latino"
+            }, 
+            {
+              "count": 10, 
+              "key": "not allowed to collect"
+            }, 
+            {
+              "count": 10, 
+              "key": "not reported"
+            }, 
+            {
               "count": 6, 
-              "key": "no data"
+              "key": "not hispanic or latino"
+            }, 
+            {
+              "count": 4, 
+              "key": "Unknown"
             }
           ]
         }, 
         "asthma": {
           "histogram": [
             {
-              "count": 6, 
-              "key": "no data"
+              "count": 10, 
+              "key": "No"
+            }, 
+            {
+              "count": 10, 
+              "key": "Not reported"
+            }, 
+            {
+              "count": 10, 
+              "key": "Unknown"
+            }, 
+            {
+              "count": 10, 
+              "key": "Yes"
             }
           ]
         }, 
         "data_type": {
           "histogram": [
             {
-              "count": 6, 
-              "key": "no data"
+              "count": 40, 
+              "key": "Unaligned Reads"
+            }, 
+            {
+              "count": 40, 
+              "key": "Allele Specific Expression Quantification"
+            }, 
+            {
+              "count": 40, 
+              "key": "Copy Number Estimate"
+            }, 
+            {
+              "count": 40, 
+              "key": "Simple Germline Variation"
+            }, 
+            {
+              "count": 40, 
+              "key": "Exon Expression Quantification"
+            }, 
+            {
+              "count": 40, 
+              "key": "Gene Expression Quantification"
+            }, 
+            {
+              "count": 40, 
+              "key": "SNP Raw Intensity"
+            }, 
+            {
+              "count": 40, 
+              "key": "Aligned Reads"
+            }, 
+            {
+              "count": 37, 
+              "key": "Aggregated SNP Alleles"
+            }, 
+            {
+              "count": 30, 
+              "key": "SNP Array Variation"
+            }, 
+            {
+              "count": 30, 
+              "key": "Transcript Expression Quantification"
+            }, 
+            {
+              "count": 29, 
+              "key": "Individual SNP Alleles"
+            }, 
+            {
+              "count": 29, 
+              "key": "Masked Copy Number Segment"
+            }, 
+            {
+              "count": 29, 
+              "key": "Copy Number Segment"
+            }, 
+            {
+              "count": 28, 
+              "key": "Gene Level Copy Number"
+            }, 
+            {
+              "count": 23, 
+              "key": "Gene Level Copy Number Scores"
             }
           ]
         }, 
         "heart_failure": {
           "histogram": [
             {
-              "count": 5, 
+              "count": 12, 
+              "key": "Yes"
+            }, 
+            {
+              "count": 10, 
+              "key": "Unknown"
+            }, 
+            {
+              "count": 9, 
               "key": "No"
             }, 
             {
-              "count": 1, 
-              "key": "Unknown"
+              "count": 9, 
+              "key": "Not reported"
             }
           ]
         }, 
         "emphysema": {
           "histogram": [
             {
-              "count": 6, 
-              "key": "no data"
+              "count": 14, 
+              "key": "No"
+            }, 
+            {
+              "count": 9, 
+              "key": "Not reported"
+            }, 
+            {
+              "count": 9, 
+              "key": "Unknown"
+            }, 
+            {
+              "count": 8, 
+              "key": "Yes"
             }
           ]
         }, 
         "diastolic_blood_pressure": {
           "histogram": [
             {
-              "count": 4, 
+              "count": 30, 
               "key": [
-                24.66352081298828, 
-                94.1362533569336
+                2.774888753890991, 
+                97.95586395263672
               ]
             }
           ]
@@ -120,15 +392,15 @@
         "hypertension_meds": {
           "histogram": [
             {
-              "count": 2, 
-              "key": "false"
-            }, 
-            {
-              "count": 2, 
+              "count": 16, 
               "key": "true"
             }, 
             {
-              "count": 2, 
+              "count": 14, 
+              "key": "false"
+            }, 
+            {
+              "count": 10, 
               "key": "no data"
             }
           ]
@@ -136,25 +408,49 @@
         "cabg_presence": {
           "histogram": [
             {
-              "count": 6, 
-              "key": "no data"
+              "count": 11, 
+              "key": "Unknown"
+            }, 
+            {
+              "count": 10, 
+              "key": "No"
+            }, 
+            {
+              "count": 10, 
+              "key": "Yes"
+            }, 
+            {
+              "count": 9, 
+              "key": "Not reported"
             }
           ]
         }, 
         "copd": {
           "histogram": [
             {
+              "count": 12, 
+              "key": "Unknown"
+            }, 
+            {
+              "count": 11, 
+              "key": "Not reported"
+            }, 
+            {
+              "count": 11, 
+              "key": "Yes"
+            }, 
+            {
               "count": 6, 
-              "key": "no data"
+              "key": "No"
             }
           ]
         }, 
         "bmi": {
           "histogram": [
             {
-              "count": 6, 
+              "count": 40, 
               "key": [
-                0.28662875294685364, 
+                0.5388098359107971, 
                 97.2737808227539
               ]
             }
@@ -163,39 +459,39 @@
         "chronic_respiratory_disease": {
           "histogram": [
             {
-              "count": 2, 
+              "count": 14, 
+              "key": "Yes"
+            }, 
+            {
+              "count": 12, 
               "key": "No"
             }, 
             {
-              "count": 2, 
-              "key": "Unknown"
-            }, 
-            {
-              "count": 1, 
+              "count": 8, 
               "key": "Not reported"
             }, 
             {
-              "count": 1, 
-              "key": "Yes"
+              "count": 6, 
+              "key": "Unknown"
             }
           ]
         }, 
         "diabetes": {
           "histogram": [
             {
-              "count": 3, 
+              "count": 11, 
               "key": "No"
             }, 
             {
-              "count": 1, 
+              "count": 10, 
               "key": "Not reported"
             }, 
             {
-              "count": 1, 
+              "count": 10, 
               "key": "Unknown"
             }, 
             {
-              "count": 1, 
+              "count": 9, 
               "key": "Yes"
             }
           ]
@@ -203,19 +499,27 @@
         "coronary_artery_disease": {
           "histogram": [
             {
-              "count": 4, 
+              "count": 13, 
               "key": "No"
             }, 
             {
-              "count": 2, 
+              "count": 12, 
+              "key": "Unknown"
+            }, 
+            {
+              "count": 11, 
               "key": "Yes"
+            }, 
+            {
+              "count": 4, 
+              "key": "Not reported"
             }
           ]
         }, 
         "project_id": {
           "histogram": [
             {
-              "count": 6, 
+              "count": 40, 
               "key": "jnkns-jenkins"
             }
           ]
@@ -223,43 +527,99 @@
         "gender": {
           "histogram": [
             {
-              "count": 3, 
+              "count": 12, 
+              "key": "male"
+            }, 
+            {
+              "count": 8, 
+              "key": "not reported"
+            }, 
+            {
+              "count": 8, 
               "key": "unknown"
             }, 
             {
-              "count": 2, 
-              "key": "unspecified"
+              "count": 7, 
+              "key": "female"
             }, 
             {
-              "count": 1, 
-              "key": "male"
+              "count": 5, 
+              "key": "unspecified"
             }
           ]
         }, 
         "data_format": {
           "histogram": [
             {
-              "count": 6, 
-              "key": "no data"
+              "count": 40, 
+              "key": "BAM"
+            }, 
+            {
+              "count": 40, 
+              "key": "VCF"
+            }, 
+            {
+              "count": 40, 
+              "key": "TXT"
+            }, 
+            {
+              "count": 38, 
+              "key": "GCT"
+            }, 
+            {
+              "count": 38, 
+              "key": "CRAM"
+            }, 
+            {
+              "count": 33, 
+              "key": "TSV"
+            }, 
+            {
+              "count": 32, 
+              "key": "FASTQ"
+            }, 
+            {
+              "count": 30, 
+              "key": "CSV"
+            }, 
+            {
+              "count": 28, 
+              "key": "PED"
+            }, 
+            {
+              "count": 26, 
+              "key": "IND"
+            }, 
+            {
+              "count": 25, 
+              "key": "CEL"
+            }, 
+            {
+              "count": 22, 
+              "key": "GTC"
+            }, 
+            {
+              "count": 19, 
+              "key": "IDAT"
             }
           ]
         }, 
         "cerebrovascular_disease": {
           "histogram": [
             {
-              "count": 2, 
-              "key": "No"
-            }, 
-            {
-              "count": 2, 
+              "count": 13, 
               "key": "Yes"
             }, 
             {
-              "count": 1, 
+              "count": 11, 
+              "key": "No"
+            }, 
+            {
+              "count": 9, 
               "key": "Not reported"
             }, 
             {
-              "count": 1, 
+              "count": 7, 
               "key": "Unknown"
             }
           ]
@@ -267,10 +627,10 @@
         "systolic_blood_pressure": {
           "histogram": [
             {
-              "count": 4, 
+              "count": 30, 
               "key": [
-                42.95784378051758, 
-                90.873291015625
+                1.7220436334609985, 
+                97.99482727050781
               ]
             }
           ]
@@ -278,18 +638,54 @@
         "race": {
           "histogram": [
             {
+              "count": 9, 
+              "key": "black or african american"
+            }, 
+            {
               "count": 6, 
-              "key": "no data"
+              "key": "american indian or alaska native"
+            }, 
+            {
+              "count": 6, 
+              "key": "other"
+            }, 
+            {
+              "count": 4, 
+              "key": "Unknown"
+            }, 
+            {
+              "count": 4, 
+              "key": "white"
+            }, 
+            {
+              "count": 3, 
+              "key": "hispanic"
+            }, 
+            {
+              "count": 3, 
+              "key": "not reported"
+            }, 
+            {
+              "count": 2, 
+              "key": "asian"
+            }, 
+            {
+              "count": 2, 
+              "key": "not allowed to collect"
+            }, 
+            {
+              "count": 1, 
+              "key": "native hawaiian or other pacific islander"
             }
           ]
         }, 
         "age_at_index": {
           "histogram": [
             {
-              "count": 6, 
+              "count": 40, 
               "key": [
-                7.768923759460449, 
-                81.5157470703125
+                1.200052261352539, 
+                88.82612609863281
               ]
             }
           ]

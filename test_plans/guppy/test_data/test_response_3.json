@@ -5,12 +5,20 @@
         "stroke": {
           "histogram": [
             {
-              "count": 2, 
+              "count": 17, 
               "key": "No"
             }, 
             {
-              "count": 4, 
+              "count": 8, 
+              "key": "Unknown"
+            }, 
+            {
+              "count": 8, 
               "key": "Yes"
+            }, 
+            {
+              "count": 7, 
+              "key": "Not reported"
             }
           ]
         }
