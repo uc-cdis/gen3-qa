@@ -105,7 +105,7 @@ module.exports = {
    * Note that this user has the "data-upload" role
    * Note that this user has the "abc-admin" policy
    */
-  mainAcct: new User({ username: 'test@example.com', envVarsName: 'MAIN' }),
+  mainAcct: new User({ username: 'cdis.autotest@gmail.com', envVarsName: 'MAIN' }),
   /**
    * Auxiliary User account 1
    * Note that this user doesn't have the "data-upload" role
@@ -120,14 +120,14 @@ module.exports = {
   auxAcct2: new User({ username: 'smarty-two@planx-pla.net', envVarsName: 'AUX2' }),
   /**
    * User.yaml User account 0
-  //  */
-  // user0: new User({ username: 'dcf-integration-test-0@planx-pla.net', envVarsName: 'USER0' }),
-  // /**
-  //  * User.yaml User account 1
-  //  */
-  // user1: new User({ username: 'dcf-integration-test-1@planx-pla.net', envVarsName: 'USER1' }),
-  // /**
-  //  * User.yaml User account 2
-  //  */
-  // user2: new User({ username: 'dcf-integration-test-2@planx-pla.net', envVarsName: 'USER2' })
+   */
+  user0: new User({ username: 'dcf-integration-test-0@planx-pla.net', envVarsName: 'USER0' }),
+  /**
+   * User.yaml User account 1
+   */
+  user1: new User({ username: 'dcf-integration-test-1@planx-pla.net', envVarsName: 'USER1' }),
+  /**
+   * User.yaml User account 2
+   */
+  user2: new User({ username: 'dcf-integration-test-2@planx-pla.net', envVarsName: 'USER2' })
 };
