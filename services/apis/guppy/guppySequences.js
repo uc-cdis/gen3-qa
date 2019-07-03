@@ -10,7 +10,6 @@ const { Gen3Response } = require('../../../utils/apiUtil');
 const user = require('../../../utils/user.js');
 const generalUtils = require('../../../utils/generalUtils.js');
 const util = require('util')
-
 const fs = require('fs');
 
 function recordWithSubmitterID(id, arr) {
@@ -68,9 +67,6 @@ function matchDataQuery(actualResponse, expectedResponse) {
     let actualCaseObj = recordWithSubmitterID(expectedResponse[i].submitter_id, actualResponse);
     expect(typeof(expectedCaseObj), 'A matching case was not found for that submitter ID.').to.not.equal('undefined');
     for(var key in expectedCaseObj) {
-       console.log(key);
-       console.log(expectedCaseObj.submitter_id);
-       console.log(actualCaseObj.submitter_id);
        expect(actualCaseObj[key]).to.equal(expectedCaseObj[key]);
      }
   }
