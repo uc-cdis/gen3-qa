@@ -29,7 +29,7 @@ module.exports = {
     I.waitForElement(exportToWorkspaceProps.exportToWorkspaceButtonXPath, 30);
     I.seeElement(exportToWorkspaceProps.exportToWorkspaceButtonXPath);
     I.click(exportToWorkspaceProps.exportToWorkspaceButtonXPath);
-    I.waitForElement(exportToWorkspaceProps.exportToWorkspaceToasterClass, 120);
+    I.waitForElement(exportToWorkspaceProps.exportToWorkspaceToasterClass, 600);
   },
 
   /* Direct to workspace by clicking the `Go to workspace` button in message toaster */
