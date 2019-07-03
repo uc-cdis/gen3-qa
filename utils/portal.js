@@ -77,23 +77,16 @@ module.exports = {
     const cmd = 'g3kubectl get configmaps manifest-global -o json | jq -r \'.data.portal_app\'';
     const portalApp = bash.runCommand(cmd);
     const portalConfigURL = `https://${process.env.HOSTNAME}/data/config/${portalApp}.json`;
-    await I.sendGetRequest(portalConfigURL)
-      .then((res) => {
-        const data = res.body;
-        if (field === undefined) {
-          return data;
-        }
-        return data[field];
-      });
+    return I.sendGetRequest(portalConfigURL)
+      .then(res => res.body[field]);
   },
 
   async isPortalUsingGuppy() {
-    await this.getPortalConfig('dataExplorerConfig')
-      .then((res) => {
-        if (res && res.guppyConfig === undefined) {
-          return false;
-        }
-        return true;
-      });
+    const data = await this.getPortalConfig('dataExplorerConfig');
+    I.say(JSON.stringify(data));
+    if (data === undefined || data.guppyConfig === undefined) {
+      return false;
+    }
+    return true;
   },
 };

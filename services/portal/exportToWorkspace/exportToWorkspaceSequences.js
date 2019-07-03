@@ -9,7 +9,7 @@ const I = actor();
 module.exports = {
   /* The 'Export default manifest, mount it and check manifest filename' test sequence */
   async checkExportDefaultManifestToWorkspace() {
-    exportToWorkspaceTasks.exportDefaultManifestToWorkspace();
+    await exportToWorkspaceTasks.exportDefaultManifestToWorkspace();
     exportToWorkspaceQuestions.isManifestSavedToWorkspaceSucceeded();
     const manifestName = await exportToWorkspaceTasks.grabManifestName();
     await exportToWorkspaceTasks.jumpToWorkspacePage();
@@ -24,8 +24,8 @@ module.exports = {
   },
 
   /* The 'Check export to workspace success message toaster' test sequence */
-  checkMessageToasterSuccess() {
-    exportToWorkspaceTasks.exportDefaultManifestToWorkspace();
+  async checkMessageToasterSuccess() {
+    await exportToWorkspaceTasks.exportDefaultManifestToWorkspace();
     exportToWorkspaceQuestions.isManifestSavedToWorkspaceSucceeded();
     exportToWorkspaceQuestions.doesSucceededMessageToasterLookCorrect();
   },

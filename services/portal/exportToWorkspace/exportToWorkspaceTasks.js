@@ -13,18 +13,18 @@ module.exports = {
     I.waitForVisible(exportToWorkspaceProps.workspaceIFrameClass, 10);
   },
 
-  goToExplorerPage() {
+  async goToExplorerPage() {
     I.amOnPage(exportToWorkspaceProps.explorerPath);
-    // if (portal.isPortalUsingGuppy()) {
-    I.waitForVisible(exportToWorkspaceProps.guppyExplorerHeaderClass, 10);
-    // } else {
-    //   I.waitForVisible(exportToWorkspaceProps.explorerHeaderClass, 10);
-    // }
+    if (await portal.isPortalUsingGuppy()) {
+      I.waitForVisible(exportToWorkspaceProps.guppyExplorerHeaderClass, 10);
+    } else {
+      I.waitForVisible(exportToWorkspaceProps.explorerHeaderClass, 10);
+    }
   },
 
-  exportDefaultManifestToWorkspace() {
+  async exportDefaultManifestToWorkspace() {
     console.log('from \'Explore\' page, click \'Export to workspace\' button to export default manifest to workspace');
-    this.goToExplorerPage();
+    await this.goToExplorerPage();
     I.saveScreenshot('etw1.png', true);
     I.waitForElement(exportToWorkspaceProps.exportToWorkspaceButtonXPath, 30);
     I.seeElement(exportToWorkspaceProps.exportToWorkspaceButtonXPath);
