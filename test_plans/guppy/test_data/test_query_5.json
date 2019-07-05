@@ -1,7 +1,7 @@
 {
-	"query": "{
-		_mapping {
-			case
-		}
-	}"
+    "query": "{
+        _mapping {
+            case
+        }
+    }"
 }

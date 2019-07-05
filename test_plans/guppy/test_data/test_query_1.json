@@ -16,6 +16,7 @@
       myocardial_infarction
       stroke
       hypertension_meds
+      submitter_id
     }
   }",
   "variables": {

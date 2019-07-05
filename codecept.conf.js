@@ -52,6 +52,7 @@ exports.config = {
     fence: './services/apis/fence/fenceService.js',
     dataClient: './services/apis/dataClient/dataClientService.js',
     etl: './services/apis/etl/etlService.js',
+    guppy: './services/apis/guppy/guppyService.js',
 
     // Pages
     home: './services/portal/home/homeService.js',
