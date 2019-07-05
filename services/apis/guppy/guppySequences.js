@@ -83,19 +83,25 @@ module.exports = {
 
     let actualResponseJSON = await queryResponse.json();
     let expectedResponse = fs.readFileSync(expectedResponseFilename).toString();
-    if(queryType == 'aggregation') {
-      return matchAggregation(actualResponseJSON, expectedResponse);
-    } else if (queryType == 'histogram') {
-      return matchHistogram(actualResponseJSON, expectedResponse);
-    } else if (queryType == 'mapping') {
-      return matchMapping(actualResponseJSON, expectedResponse);
-    } else if (queryType == 'download') {
-      expectedResponse = JSON.parse(expectedResponse);
-      return matchDataQuery(actualResponseJSON, expectedResponse);
-    } else {
-      expectedResponse = JSON.parse(expectedResponse)['data']['case'];
-      actualResponseJSON = actualResponseJSON['data']['case'];
-      return matchDataQuery(actualResponseJSON, expectedResponse);
+
+    switch(queryType) {
+      case 'aggregation':
+        return matchAggregation(actualResponseJSON, expectedResponse);
+        break;
+      case 'histogram':
+        return matchHistogram(actualResponseJSON, expectedResponse);
+        break;
+      case 'mapping':
+        return matchMapping(actualResponseJSON, expectedResponse);
+        break;
+      case 'download':
+        expectedResponse = JSON.parse(expectedResponse);
+        return matchDataQuery(actualResponseJSON, expectedResponse);
+        break;
+      default:
+        expectedResponse = JSON.parse(expectedResponse)['data']['case'];
+        actualResponseJSON = actualResponseJSON['data']['case'];
+        return matchDataQuery(actualResponseJSON, expectedResponse);
     }
   },
 };
