@@ -44,4 +44,4 @@ if [[ -z "$NAMESPACE" ]]; then
   exit 1
 fi
 
-npm run test -- --reporter mocha-multi --verbose --grep "@dataClientCLI|@reqGoogle|@Performance" --invert "$@"
+npm run test -- --reporter mocha-multi --grep "@pelican|@dataClientCLI|@reqGoogle" --invert
