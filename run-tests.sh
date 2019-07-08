@@ -231,7 +231,7 @@ if ! (g3kubectl get pods --no-headers -l app=ssjdispatcher | grep ssjdispatcher)
   donot '@dataUpload'
 fi
 if ! (g3kubectl get pods --no-headers -l app=guppy | grep guppy) > /dev/null 2>&1; then
-  # do not run data upload tests if the data upload flow is not deployed
+  # do not run Guppy API tests if Guppy is not deployed
   donot '@guppyAPI'
 fi
 
