@@ -1,4 +1,4 @@
-Feature('Guppy')
+Feature('Guppy');
 
 const chai = require('chai');
 const expect = chai.expect;
@@ -29,56 +29,56 @@ xScenario('I want to make a query to Guppy, but my access token is invalid or ex
 Scenario('I want a list of patients (cases) strictly younger than 30 with a past stroke in ascending order of BMI. @guppyAPI', async (I, guppy) => {
   const queryFile = 'test_plans/guppy/test_data/test_query_1.json';
   const expectedResponseFile = 'test_plans/guppy/test_data/test_response_1.json';
-  let queryType = 'data';
+  const queryType = 'data';
   await guppy.complete.checkQueryResponseEquals(guppy.props.endpoints.graphqlEndpoint, queryFile, expectedResponseFile, token, queryType);
 });
 
 Scenario('I want a total count of patients matching the filter in the scenario above. @guppyAPI', async (I, guppy) => {
   const queryFile = 'test_plans/guppy/test_data/test_query_2.json';
   const expectedResponseFile = 'test_plans/guppy/test_data/test_response_2.json';
-  let queryType = 'aggregation';
+  const queryType = 'aggregation';
   await guppy.complete.checkQueryResponseEquals(guppy.props.endpoints.graphqlEndpoint, queryFile, expectedResponseFile, token, queryType);
 });
 
 Scenario('I want to render a set of visualizations summarizing data in the commons. @guppyAPI', async (I, guppy) => {
   const queryFile = 'test_plans/guppy/test_data/test_query_6.json';
   const expectedResponseFile = 'test_plans/guppy/test_data/test_response_6.json';
-  let queryType = 'histogram';
+  const queryType = 'histogram';
   await guppy.complete.checkQueryResponseEquals(guppy.props.endpoints.graphqlEndpoint, queryFile, expectedResponseFile, token, queryType);
 });
 
 Scenario('I want to make multiple histograms describing the BMI parameter to gain an understanding of its distribution. @guppyAPI', async (I, guppy) => {
   const queryFile = 'test_plans/guppy/test_data/test_query_7.json';
   const expectedResponseFile = 'test_plans/guppy/test_data/test_response_7.json';
-  let queryType = 'histogram';
+  const queryType = 'histogram';
   await guppy.complete.checkQueryResponseEquals(guppy.props.endpoints.graphqlEndpoint, queryFile, expectedResponseFile, token, queryType);
 });
 
-Scenario('I want a high-level overview of the data in the database as it pertains to stroke occurence and age groups represented. @guppyAPI', async (I, guppy) => {
+Scenario('I want a high-level overview of the data in the database as it pertains to stroke occurrence and age groups represented. @guppyAPI', async (I, guppy) => {
   const queryFile = 'test_plans/guppy/test_data/test_query_3.json';
   const expectedResponseFile = 'test_plans/guppy/test_data/test_response_3.json';
-  let queryType = 'histogram';
+  const queryType = 'histogram';
   await guppy.complete.checkQueryResponseEquals(guppy.props.endpoints.graphqlEndpoint, queryFile, expectedResponseFile, token, queryType);
 });
 
 // This test fails due to what looks to me like a bug in Guppy that needs to be investigated. The "max" value calculation is off by < 0.1% of the actual value.
-xScenario('I want a range-stepped high-level overview of the data in the database as it pertains to stroke occurence and age groups represented. @guppyAPI', async (I, guppy) => {
+xScenario('I want a range-stepped high-level overview of the data in the database as it pertains to stroke occurrence and age groups represented. @guppyAPI', async (I, guppy) => {
   const queryFile = 'test_plans/guppy/test_data/test_query_4.json';
   const expectedResponseFile = 'test_plans/guppy/test_data/test_response_4.json';
-  let queryType = 'histogram';
+  const queryType = 'histogram';
   await guppy.complete.checkQueryResponseEquals(guppy.props.endpoints.graphqlEndpoint, queryFile, expectedResponseFile, token, queryType);
 });
 
 Scenario('I would like to list the fields on the case document. @guppyAPI', async (I, guppy) => {
   const queryFile = 'test_plans/guppy/test_data/test_query_5.json';
   const expectedResponseFile = 'test_plans/guppy/test_data/test_response_5.json';
-  let queryType = 'mapping';
+  const queryType = 'mapping';
   await guppy.complete.checkQueryResponseEquals(guppy.props.endpoints.graphqlEndpoint, queryFile, expectedResponseFile, token, queryType);
 });
 
 Scenario('I want to make a filtering query without worrying about paginating the results, or whether the result will be > 10k records. @guppyAPI', async (I, guppy) => {
   const queryFile = 'test_plans/guppy/test_data/test_query_8.json';
   const expectedResponseFile = 'test_plans/guppy/test_data/test_response_8.json';
-  let queryType = 'download';
+  const queryType = 'download';
   await guppy.complete.checkQueryResponseEquals(guppy.props.endpoints.downloadEndpoint, queryFile, expectedResponseFile, token, queryType);
 });
