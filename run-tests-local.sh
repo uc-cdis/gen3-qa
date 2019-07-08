@@ -28,4 +28,4 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
-npm run test -- --reporter mocha-multi --grep "@reqGoogle|@Performance" --invert
+npm run test -- --reporter mocha-multi --grep "@pelican|@dataClientCLI|@reqGoogle" --invert

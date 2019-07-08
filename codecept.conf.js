@@ -55,6 +55,7 @@ exports.config = {
 
     // Pages
     home: './services/portal/home/homeService.js',
+    pelican: './services/portal/pelican/pelicanService.js',
     portalDataUpload: './services/portal/dataUpload/dataUploadService.js',
   },
   mocha: {
