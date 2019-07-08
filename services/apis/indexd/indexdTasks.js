@@ -46,9 +46,14 @@ module.exports = {
         metadata: file.metadata,
       };
 
-      if (file.link) {
+      if (file.urls) {
+        data.urls = file.urls
+      } else if (file.link) {
         data.urls = [file.link];
+      } else {
+        data.urls = []
       }
+
       if (file.authz) {
         data.authz = file.authz;
       }

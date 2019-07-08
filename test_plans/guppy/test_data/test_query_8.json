@@ -15,7 +15,8 @@
     "heart_failure",
     "myocardial_infarction",
     "stroke",
-    "hypertension_meds"
+    "hypertension_meds",
+    "submitter_id"
   ],
   "sort": [
     { "bmi": "asc" }

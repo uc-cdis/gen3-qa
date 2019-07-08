@@ -326,7 +326,7 @@ module.exports = async function (done) {
       'implicit-test-client', 'test@example.com', 'implicit'
     );
 
-    //Setup environment variables
+    // Setup environment variables
     process.env[`${fenceProps.clients.client.envVarsName}_ID`] = basicClient.client_id;
     process.env[`${fenceProps.clients.client.envVarsName}_SECRET`] = basicClient.client_secret;
     process.env[`${fenceProps.clients.abcClient.envVarsName}_ID`] = basicAbcClient.client_id;
