@@ -54,6 +54,7 @@ exports.config = {
     dataClient: './services/apis/dataClient/dataClientService.js',
     etl: './services/apis/etl/etlService.js',
     manifestService: './services/apis/manifestService/manifestServiceService.js',
+    guppy: './services/apis/guppy/guppyService.js',
 
     // Pages
     home: './services/portal/home/homeService.js',
