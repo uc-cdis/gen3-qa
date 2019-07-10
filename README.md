@@ -7,7 +7,8 @@ gen3 integration tests - run by https://jenkins.planx-pla.net/ via a `Jenkinsfil
 Run a test locally against a dev environment like this:
 ```
 # start selenium
-docker run -d -p 4444:4444 --name=selenium --rm -v /dev/shm:/dev/shm selenium/standalone-chrome
+# Note: 3.141 is the version currently deployed in jenkins as of 2019/07/10
+docker run -d -p 4444:4444 --name=selenium --rm -v /dev/shm:/dev/shm selenium/standalone-chrome:3.141
 
 # basic run - some tests require more setup than this
 RUNNING_LOCAL=true NAMESPACE=yourDevNamespace TEST_DATA_PATH=./testData ./npm test -- --verbose --grep '@dataClientCLI|@reqGoogle' --invert suites/.../myTest.js

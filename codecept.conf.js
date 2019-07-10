@@ -91,6 +91,15 @@ exports.config = {
     },
   },
   bootstrap: './test_setup.js',
+  teardown() {
+    /*
+    // session id is a global var retrieved in the helper
+    if ( typeof seleniumSessionId !== 'undefined' && seleniumSessionId ) {
+      console.log(`Killing Selenium session ${seleniumSessionId}`);
+      request.del(`http://localhost:4444/wd/hub/session/${seleniumSessionId}`);
+    }
+    */
+  },
   hooks: [],
   tests: './suites/*/*.js',
   timeout: 60000,

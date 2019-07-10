@@ -144,7 +144,7 @@ Scenario('Test no data access anymore after SA key is deleted @reqGoogle', async
   ).to.have.property('id');
   chai.expect(user0AccessQAResExpired,
     'User should NOT have bucket access after key deletion'
-  ).to.have.property('status', 403);
+  ).to.have.property('status').that.is.oneOf([400, 403, '400', '403']);
 }).retry(2);
 
 
@@ -209,7 +209,7 @@ Scenario('SA key removal job test: remove expired creds @reqGoogle', async (fenc
   ).to.have.property('id');
   chai.expect(user0AccessQAResExpired,
     'User should NOT have bucket access after expiration'
-  ).to.have.property('status', 403);
+  ).to.have.property('status').that.is.oneOf([400, 403, '400', '403']);
 }).retry(2);
 
 

@@ -217,12 +217,12 @@ module.exports = {
     }
     
     let res = await getNoRedirect(url, headers);
-    console.log('linkGoogleAcctMocked response 1', res);
+    //console.log('linkGoogleAcctMocked response 1', res);
     if (res && res.headers.location && !res.headers.location.includes("error=")) {
       let sessionCookie = getCookie('fence', res.headers['set-cookie']);
       headers.Cookie += `; fence=${sessionCookie}`;
       res = await getNoRedirect(res.headers.location, headers);
-      console.log('linkGoogleAcctMocked response 2', res);
+      //console.log('linkGoogleAcctMocked response 2', res);
     }
 
     // return the body and the current url

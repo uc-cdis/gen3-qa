@@ -275,24 +275,26 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
   const User1signedUrlTest2Res = await fence.do.createSignedUrlForUser(
     indexed_files.testFile.did, apiUtil.getAccessTokenHeader(newUser1AccessToken));
   let User1signedUrlTest2ResFileContents = await fence.do.getFileFromSignedUrlRes(
-    User1signedUrlTest2Res);
+    User1signedUrlTest2Res
+    ).catch(err => err && err.response && err.response.data || err)
 
   console.log('Use User2 to create signed URL for file in test')
   const User2signedUrlTest2Res = await fence.do.createSignedUrlForUser(
-    indexed_files.testFile.did, apiUtil.getAccessTokenHeader(newUser2AccessToken));
+    indexed_files.testFile.did, apiUtil.getAccessTokenHeader(newUser2AccessToken)
+    );
 
   // use old signed urls to try and access data again
   console.log('Use signed URL from User0 to try and access QA data again')
   let User0AccessRemovedQA = await fence.do.getFileFromSignedUrlRes(
-    User0signedUrlQA1Res);
+    User0signedUrlQA1Res).catch(err => err && err.response && err.response.data || err);
 
   console.log('Use signed URL from User1 to try and access QA data again')
   let User1AccessRemovedQA = await fence.do.getFileFromSignedUrlRes(
-    User1signedUrlQA1Res);
+    User1signedUrlQA1Res).catch(err => err && err.response && err.response.data || err);
 
   console.log('Use signed URL from User1 to try and access test data again')
   let User1AccessRemainsTest = await fence.do.getFileFromSignedUrlRes(
-    User1signedUrlTest1Res);
+    User1signedUrlTest1Res).catch(err => err && err.response && err.response.data || err);
 
   console.log('deleting temporary google credentials');
   // call our endpoint to delete temporary creds
