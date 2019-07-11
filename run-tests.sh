@@ -251,7 +251,8 @@ elif [[ $(curl -s "$portalConfigURL" | jq 'contains({dataExplorerConfig: {button
   donot '@exportToWorkspacePortalHatchery'
 elif ! (g3kubectl get pods --no-headers -l app=jupyter-hub | grep jupyterhub) > /dev/null 2>&1; then
   donot '@exportToWorkspacePortalJupyterHub'
-elif ! (g3kubectl get pods --no-headers -l app=hatchery | grep hatchery) > /dev/null 2>&1; then
+elif ! (g3kubectl get pods --no-headers -l app=hatchery | grep hatchery) > /dev/null 2>&1 || 
+! (g3kubectl get pods --no-headers -l service=ambassador | grep ambassador) > /dev/null 2>&1; then
   donot '@exportToWorkspacePortalHatchery'
 fi
 
@@ -260,7 +261,6 @@ fi
 testArgs="--reporter mocha-multi"
 
 if [[ -n "$doNotRunRegex" ]]; then
-  echo doNotRunRegex
   testArgs="${testArgs} --grep '${doNotRunRegex}' --invert"
 fi
 
