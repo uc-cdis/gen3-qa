@@ -6,7 +6,6 @@
 
 const nconf = require('nconf');
 const homedir = require('os').homedir();
-const fs = require('fs');
 
 const { Commons } = require('./utils/commons');
 const { Bash, takeLastLine } = require('./utils/bash');
@@ -74,24 +73,6 @@ async function tryCreateProgramProject(nAttempts) {
           throw err;
         }
       });
-  }
-}
-
-/**
- * Checks if the gen3-client executable is present in the workspace.
- * During a local run, checks in the homedir instead.
- * It is needed for the data upload test suite
- */
-function assertGen3Client() {
-  // check if the client is set up in the workspace
-  console.log('Looking for data client executable...');
-  const client_dir = process.env.DATA_CLIENT_PATH || homedir;
-  if (!fs.existsSync(`${client_dir}/gen3-client`)) {
-    const msg = `Did not find a gen3-client executable in ${client_dir}`;
-    if (inJenkins) {
-      throw Error(msg);
-    }
-    console.log(`WARNING: ${  msg}`);
   }
 }
 
@@ -243,10 +224,6 @@ module.exports = async function (done) {
 
     assertEnvVars(basicVars.concat(googleVars, submitDataVars));
     console.log('TEST_DATA_PATH: ', process.env.TEST_DATA_PATH);
-
-    if (isIncluded('@dataClientCLI')) {
-      assertGen3Client();
-    }
 
     if (isIncluded('@reqGoogle')) {
       createGoogleTestBuckets();

@@ -1,5 +1,6 @@
 const chai = require('chai');
 const fs = require('fs');
+const homedir = require('os').homedir();
 
 const expect = chai.expect;
 
@@ -368,7 +369,27 @@ Scenario('Failed multipart upload: wrong ETag for completion @dataUpload @multip
   fence.ask.assertStatusCode(signedUrlRes, 404, "Should not be able to get signed URL for file download when multipart upload completion failed");
 }).retry(2);
 
+
+/**
+ * Checks if the gen3-client executable is present in the workspace.
+ * During a local run, checks in the homedir instead.
+ * It is needed for the data upload test suite
+ */
+function assertGen3Client() {
+  // check if the client is set up in the workspace
+  console.log('Looking for data client executable...');
+  let client_dir = process.env.DATA_CLIENT_PATH || homedir;
+  if (!fs.existsSync(`${client_dir}/gen3-client`)) {
+    let msg = `Did not find a gen3-client executable in ${client_dir}`;
+    if (inJenkins) {
+      throw Error(msg);
+    }
+    console.log('WARNING: ' + msg);
+  }
+}
+
 BeforeSuite(async (sheepdog, files) => {
+  assertGen3Client();
   // clean up in sheepdog
   await sheepdog.complete.findDeleteAllNodes();
 

@@ -59,7 +59,7 @@ module.exports = {
         /[?]$/g,
         '',
       ),
-      { 'Content-Type': 'application/json', ... userHeader },
+      userHeader,
     ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
   },
 
@@ -72,7 +72,7 @@ module.exports = {
   async createSignedUrlForUser(id, userHeader=user.mainAcct.accessTokenHeader) {
     return I.sendGetRequest(
       `${fenceProps.endpoints.getFile}/${id}`,
-      { 'Content-Type': 'application/json', ... userHeader },
+      userHeader,
     ).then(res => new Gen3Response(res));
   },
 
@@ -114,7 +114,7 @@ module.exports = {
       {
         scope,
       },
-      { 'Content-Type': 'application/json', ... accessTokenHeader },
+      accessTokenHeader,
       ).then(res => new Gen3Response(res)); 
   },
 
@@ -125,7 +125,7 @@ module.exports = {
   async getUserGoogleCreds(accessTokenHeader) {
     return I.sendGetRequest(
       fenceProps.endpoints.googleCredentials,
-      { 'Content-Type': 'application/json', ... accessTokenHeader },
+      accessTokenHeader,
     ).then(res => {
       if (!res.data || !res.data.access_keys) {
         console.log('Could not get user google creds:');
@@ -150,7 +150,7 @@ module.exports = {
     return I.sendPostRequest(
       url,
       {},
-      { 'Content-Type': 'application/json', ... accessTokenHeader },
+      accessTokenHeader,
     ).then(res => {
       const g3res = new Gen3Response(res);
       if (g3res.status != 200) {
@@ -170,7 +170,7 @@ module.exports = {
   async deleteTempGoogleCreds(googleKeyId, accessTokenHeader) {
     return I.sendDeleteRequest(
       `${fenceProps.endpoints.googleCredentials}${googleKeyId}`,
-      { 'Content-Type': 'application/json', ... accessTokenHeader },
+      accessTokenHeader,
     ).then(res => new Gen3Response(res));
   },
 
@@ -182,7 +182,7 @@ module.exports = {
   async deleteAPIKey(apiKey) {
     return I.sendDeleteRequest(
       `${fenceProps.endpoints.deleteAPIKey}/${apiKey}`,
-      { 'Content-Type': 'application/json', ...user.mainAcct.accessTokenHeader },
+      user.mainAcct.accessTokenHeader,
     ).then(res => res.data);
   },
 
@@ -310,10 +310,7 @@ module.exports = {
           google_project_id: googleProject.id,
           project_access: projectAccessList,
         },
-        {
-          ...userAcct.accessTokenHeader,
-          'Content-Type': 'application/json',
-        },
+        userAcct.accessTokenHeader,
       ).then(function(res) {
         if (res.data && res.data.errors) {
           console.log('Failed SA registration:');
@@ -390,10 +387,7 @@ module.exports = {
       {
         project_access: projectAccessList,
       },
-      {
-        ...userAcct.accessTokenHeader,
-        'Content-Type': 'application/json',
-      },
+      userAcct.accessTokenHeader,
     ).then(res => new Gen3Response(res));
   },
 
@@ -536,7 +530,7 @@ module.exports = {
       {
         file_name: fileName,
       },
-      { 'Content-Type': 'application/json', ... accessHeader },
+      accessHeader,
     ).then(res => new Gen3Response(res));
   },
 
@@ -550,7 +544,7 @@ module.exports = {
     return I.sendGetRequest(
       fenceProps.endpoints.uploadFile + `/${guid}`,
       accessHeader,
-      { 'Content-Type': 'application/json', ... accessHeader },
+      accessHeader,
     ).then(res => new Gen3Response(res));
   },
 
@@ -566,7 +560,7 @@ module.exports = {
       {
         file_name: fileName,
       },
-      { 'Content-Type': 'application/json', ... accessHeader },
+      accessHeader,
     ).then(res => new Gen3Response(res));
   },
 
@@ -586,7 +580,7 @@ module.exports = {
         uploadId,
         partNumber,
       },
-      { 'Content-Type': 'application/json', ... accessHeader },
+      accessHeader,
     ).then(res => new Gen3Response(res));
   },
 
@@ -606,7 +600,7 @@ module.exports = {
         uploadId,
         parts,
       },
-      { 'Content-Type': 'application/json', ... accessHeader },
+      accessHeader,
     ).then(res => new Gen3Response(res));
   },
 
@@ -617,7 +611,7 @@ module.exports = {
   async deleteFile(guid, userHeader=user.mainAcct.accessTokenHeader) {
     return I.sendDeleteRequest(
       `${fenceProps.endpoints.deleteFile}/${guid}`,
-      { 'Content-Type': 'application/json', ... userHeader },
+      userHeader,
     ).then(res => new Gen3Response(res));
   },
 };
