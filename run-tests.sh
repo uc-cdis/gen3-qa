@@ -184,6 +184,7 @@ dryrun npm ci
 
 runTestsIfServiceVersion "@multipartUpload" "fence" "2.8.0"
 runTestsIfServiceVersion "@centralizedAuth" "fence" "3.0.0"
+runTestsIfServiceVersion "@dbgapSyncing" "fence" "3.0.0"
 
 # environments that use DCF features
 # we only run Google Data Access tests for cdis-manifest PRs to these
