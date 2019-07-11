@@ -9,8 +9,6 @@ const I = actor();
 module.exports = {
   async haveAccessToken() {
     I.seeCookie('access_token');
-    const cookie = await I.grabCookie('access_token');
-    I.say(JSON.stringify(cookie));
   },
 
   seeDetails() {

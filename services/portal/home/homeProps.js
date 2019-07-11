@@ -2,7 +2,7 @@
  * home Properties
  */
 module.exports = {
-  path: '/',
+  path: '/login',
 
   ready_cue: {
     locator: {

@@ -83,7 +83,6 @@ module.exports = {
 
   async isPortalUsingGuppy() {
     const data = await this.getPortalConfig('dataExplorerConfig');
-    I.say(JSON.stringify(data));
     if (data === undefined || data.guppyConfig === undefined) {
       return false;
     }

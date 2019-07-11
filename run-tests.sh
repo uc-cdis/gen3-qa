@@ -239,38 +239,28 @@ hostname="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.host
 portalApp="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.portal_app')"
 portalConfigURL="https://${hostname}/data/config/${portalApp}.json"
 
-echo "hostname=$hostname"
-echo "portalApp=$portalApp"
-echo "portalConfigURL=$portalConfigURL"
-echo "namespaceName=$namespaceName"
-
 if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1 ||
 ! (g3kubectl get pods --no-headers -l app=wts | grep wts) > /dev/null 2>&1; then
   donot '@exportToWorkspaceAPI'
-  donot '@exportToWorkspacePortal'
-elif ! (g3kubectl get pods --no-headers -l app=jupyter-hub | grep jupyterhub) > /dev/null 2>&1 &&
-! (g3kubectl get pods --no-headers -l app=hatchery | grep hatchery) > /dev/null 2>&1; then
-  echo "1"
-  donot '@exportToWorkspacePortal'
+  donot '@exportToWorkspacePortalGeneral'
+  donot '@exportToWorkspacePortalJupyterHub'
+  donot '@exportToWorkspacePortalHatchery'
 elif [[ $(curl -s "$portalConfigURL" | jq 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}}) | not') == "true" ]]; then
-  echo "2"
-  donot '@exportToWorkspacePortal'
-elif [[ ! "$namespaceName" == "jenkins-dcp" ]]; then # for now only testing on jenkins-dcp
-  echo "3"
-  donot '@exportToWorkspacePortal'
+  donot '@exportToWorkspacePortalGeneral'
+  donot '@exportToWorkspacePortalJupyterHub'
+  donot '@exportToWorkspacePortalHatchery'
+elif ! (g3kubectl get pods --no-headers -l app=jupyter-hub | grep jupyterhub) > /dev/null 2>&1; then
+  donot '@exportToWorkspacePortalJupyterHub'
+elif ! (g3kubectl get pods --no-headers -l app=hatchery | grep hatchery) > /dev/null 2>&1; then
+  donot '@exportToWorkspacePortalHatchery'
 fi
-
-npm list codeceptjs
-npm list selenium-standalone
-npm list webdriverio
-npm list mocha-multi
 
 ########################################################################################
 
 testArgs="--reporter mocha-multi"
 
 if [[ -n "$doNotRunRegex" ]]; then
-  testArgs="${testArgs} --grep '@exportToWorkspacePortal'"
+  testArgs="${testArgs} --grep '@exportToWorkspacePortalGeneral|@exportToWorkspacePortalHatchery'"
 fi
 
 exitCode=0

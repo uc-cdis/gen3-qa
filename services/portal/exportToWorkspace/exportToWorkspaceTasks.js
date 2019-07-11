@@ -10,7 +10,7 @@ const I = actor();
 module.exports = {
   goToWorkspacePage() {
     I.amOnPage(exportToWorkspaceProps.workspacePath);
-    I.waitForVisible(exportToWorkspaceProps.workspaceIFrameClass, 10);
+    I.waitForVisible(exportToWorkspaceProps.workspaceDivClass, 10);
   },
 
   async goToExplorerPage() {
@@ -25,11 +25,10 @@ module.exports = {
   async exportDefaultManifestToWorkspace() {
     console.log('from \'Explore\' page, click \'Export to workspace\' button to export default manifest to workspace');
     await this.goToExplorerPage();
-    I.saveScreenshot('etw1.png', true);
     I.waitForElement(exportToWorkspaceProps.exportToWorkspaceButtonXPath, 30);
     I.seeElement(exportToWorkspaceProps.exportToWorkspaceButtonXPath);
     I.click(exportToWorkspaceProps.exportToWorkspaceButtonXPath);
-    I.waitForElement(exportToWorkspaceProps.exportToWorkspaceToasterClass, 600);
+    I.waitForElement(exportToWorkspaceProps.exportToWorkspaceToasterClass, 60);
   },
 
   /* Direct to workspace by clicking the `Go to workspace` button in message toaster */
@@ -37,13 +36,13 @@ module.exports = {
     console.log('redirect to workspace');
     I.seeElement(exportToWorkspaceProps.goToWorkspaceButtonXPath);
     I.click(exportToWorkspaceProps.goToWorkspaceButtonXPath);
-    I.waitForVisible(exportToWorkspaceProps.workspaceIFrameClass, 10);
+    I.waitForVisible(exportToWorkspaceProps.workspaceDivClass, 10);
   },
 
-  /* Spawn up a workspace */
-  async startWorkspace() {
-    console.log('start workspace main app, spawn a new one if none exists');
-    await within({ frame: exportToWorkspaceProps.workspaceIFrameClass }, async () => {
+  /* Spawn up a workspace using JupyterHub */
+  async startWorkspaceJupyterHub() {
+    console.log('start workspace main app using JupyterHub, spawn a new one if none exists');
+    await within({ frame: exportToWorkspaceProps.workspaceIFrameXPath }, async () => {
       /* Check to see if a workspace has already been spawned for current user in this common
       If not, spawn a new workspace for current user
       else, wait for main workspace app to appear
@@ -52,7 +51,7 @@ module.exports = {
       if (startCount === 1) { // see "Start My Server" button
         I.click(exportToWorkspaceProps.startButtonSelector);
       }
-      I.wait(1); // wait for spawn form to appear, if any
+      I.wait(3); // wait for spawn form to appear, if any
       const spawnOptionCount = await I.grabNumberOfVisibleElements(exportToWorkspaceProps.spawnListOptionSelector);
       if (spawnOptionCount === 1) { // see "Spawn" options
         I.click(exportToWorkspaceProps.spawnListOptionSelector);
@@ -62,21 +61,53 @@ module.exports = {
         I.wait(10); // wait for refresh to get page updated
       }
     });
-    I.switchTo(exportToWorkspaceProps.workspaceIFrameClass); // go back to '.workspace' iframe
-    I.waitForVisible(exportToWorkspaceProps.mainWorkspaceAppSelector, 600);
+    I.switchTo(exportToWorkspaceProps.workspaceIFrameXPath); // go back to '.workspace' iframe
+    I.waitForVisible(exportToWorkspaceProps.mainWorkspaceAppSelector, 60);
     I.switchTo(); // get out
   },
 
-  /* Mount the latest manifest using python codes as defined in 'exportToWorkspaceProps.mountManifestCode' */
-  mountLatestManifestInJupyterNotebook(manifestName) {
-    within({ frame: exportToWorkspaceProps.workspaceIFrameClass }, () => {
-      I.waitForVisible(exportToWorkspaceProps.mainWorkspaceAppSelector, 600);
-      I.waitForVisible(exportToWorkspaceProps.dataHyperlinkXPath, 10);
-      I.click(exportToWorkspaceProps.dataHyperlinkXPath);
+  /* Spawn up a workspace using Hatchery */
+  async startWorkspaceHatchery() {
+    console.log('start workspace main app using Hatchery');
+    I.waitForVisible(exportToWorkspaceProps.hatcheryLaunchNotebookButtonXPath, 10);
+    I.click(exportToWorkspaceProps.hatcheryLaunchNotebookButtonXPath);
+    I.waitForVisible(exportToWorkspaceProps.workspaceIFrameDivClass, 120);
+    I.switchTo(exportToWorkspaceProps.workspaceIFrameXPath); // go to '.workspace' iframe
+    I.waitForVisible(exportToWorkspaceProps.mainWorkspaceAppSelector, 10);
+    I.switchTo(); // get out
+  },
+
+  /* Mount the latest manifest for JupyterHub */
+  mountLatestManifestInJupyterNotebookJupyterHub(manifestName) {
+    within({ frame: exportToWorkspaceProps.workspaceIFrameXPath }, () => {
+      I.waitForVisible(exportToWorkspaceProps.mainWorkspaceAppSelector, 60);
+      I.waitForVisible(exportToWorkspaceProps.jupyterHubDataHyperlinkXPath, 10);
+      I.click(exportToWorkspaceProps.jupyterHubDataHyperlinkXPath);
       console.log('in /data');
       const mountedManifestHyperlinkXPath = `//a[contains(@class, "item_link") and contains(@href, ${manifestName})]`;
       I.waitForVisible(mountedManifestHyperlinkXPath, 60);
     });
+  },
+
+  /* Mount the latest manifest for Hatchery */
+  mountLatestManifestInJupyterNotebookHatchery(manifestName) {
+    within({ frame: exportToWorkspaceProps.workspaceIFrameXPath }, () => {
+      I.waitForVisible(exportToWorkspaceProps.mainWorkspaceAppSelector, 60);
+      I.waitForVisible(exportToWorkspaceProps.hatcheryPDHyperlinkXPath, 10);
+      I.click(exportToWorkspaceProps.hatcheryPDHyperlinkXPath);
+      I.click(exportToWorkspaceProps.hatcheryDataHyperlinkXPath);
+      console.log('in /pd/data');
+      // const mountedManifestHyperlinkXPath = `//a[contains(@class, "item_link") and contains(@href, /lw-workspace/proxy/tree/pd/data/${manifestName})]`;
+      // I.waitForVisible(mountedManifestHyperlinkXPath, 60);
+    });
+  },
+
+  /* Terminate up a workspace using Hatchery */
+  async terminateWorkspaceHatchery() {
+    const terminateBtnCount = await I.grabNumberOfVisibleElements(exportToWorkspaceProps.terminateWorkspaceButtonXPath)
+    if (terminateBtnCount !== 0) {
+      I.click(exportToWorkspaceProps.terminateWorkspaceButtonXPath);
+    }
   },
 
   /* Get the manifest name to be mounted from python output */

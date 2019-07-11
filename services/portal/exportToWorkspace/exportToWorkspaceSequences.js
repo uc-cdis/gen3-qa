@@ -8,13 +8,22 @@ const I = actor();
  */
 module.exports = {
   /* The 'Export default manifest, mount it and check manifest filename' test sequence */
-  async checkExportDefaultManifestToWorkspace() {
+  async checkExportDefaultManifestToWorkspaceJupyterHub() {
     await exportToWorkspaceTasks.exportDefaultManifestToWorkspace();
     exportToWorkspaceQuestions.isManifestSavedToWorkspaceSucceeded();
     const manifestName = await exportToWorkspaceTasks.grabManifestName();
     await exportToWorkspaceTasks.jumpToWorkspacePage();
-    await exportToWorkspaceTasks.startWorkspace();
-    exportToWorkspaceTasks.mountLatestManifestInJupyterNotebook(manifestName);
+    await exportToWorkspaceTasks.startWorkspaceJupyterHub();
+    exportToWorkspaceTasks.mountLatestManifestInJupyterNotebookJupyterHub(manifestName);
+  },
+
+  async checkExportDefaultManifestToWorkspaceHatchery() {
+    await exportToWorkspaceTasks.exportDefaultManifestToWorkspace();
+    exportToWorkspaceQuestions.isManifestSavedToWorkspaceSucceeded();
+    const manifestName = await exportToWorkspaceTasks.grabManifestName();
+    await exportToWorkspaceTasks.jumpToWorkspacePage();
+    await exportToWorkspaceTasks.startWorkspaceHatchery();
+    exportToWorkspaceTasks.mountLatestManifestInJupyterNotebookHatchery(manifestName);
   },
 
   /* The 'Click Workspace tab when logged out and logged in' test sequence */
