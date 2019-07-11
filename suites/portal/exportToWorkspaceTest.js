@@ -2,8 +2,7 @@ Feature('ExportToWorkspaceTest');
 
 const I = actor();
 
-Before(async (portalExportToWorkspace, home) => {
-  await portalExportToWorkspace.do.terminateWorkspaceHatchery();
+Before((home) => {
   home.complete.login();
 });
 
@@ -31,6 +30,6 @@ Scenario('Export default manifest, mount it and check manifest name @exportToWor
 });
 
 After(async (portalExportToWorkspace, home) => {
-  await portalExportToWorkspace.do.terminateWorkspaceHatchery();
+  await portalExportToWorkspace.do.terminateWorkspaceHatcheryAndExit();
   home.complete.logout();
 });

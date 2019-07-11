@@ -71,7 +71,7 @@ module.exports = {
     console.log('start workspace main app using Hatchery');
     I.waitForVisible(exportToWorkspaceProps.hatcheryLaunchNotebookButtonXPath, 10);
     I.click(exportToWorkspaceProps.hatcheryLaunchNotebookButtonXPath);
-    I.waitForVisible(exportToWorkspaceProps.workspaceIFrameDivClass, 120);
+    I.waitForVisible(exportToWorkspaceProps.workspaceIFrameDivClass, 600);
     I.switchTo(exportToWorkspaceProps.workspaceIFrameXPath); // go to '.workspace' iframe
     I.waitForVisible(exportToWorkspaceProps.mainWorkspaceAppSelector, 10);
     I.switchTo(); // get out
@@ -103,11 +103,14 @@ module.exports = {
   },
 
   /* Terminate up a workspace using Hatchery */
-  async terminateWorkspaceHatchery() {
-    const terminateBtnCount = await I.grabNumberOfVisibleElements(exportToWorkspaceProps.terminateWorkspaceButtonXPath)
+  async terminateWorkspaceHatcheryAndExit() {
+    I.amOnPage(exportToWorkspaceProps.workspacePath);
+    I.wait(10);
+    const terminateBtnCount = await I.grabNumberOfVisibleElements(exportToWorkspaceProps.terminateWorkspaceButtonXPath);
     if (terminateBtnCount !== 0) {
       I.click(exportToWorkspaceProps.terminateWorkspaceButtonXPath);
     }
+    I.amOnPage('/');
   },
 
   /* Get the manifest name to be mounted from python output */

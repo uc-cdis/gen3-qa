@@ -18,6 +18,7 @@ module.exports = {
   },
 
   async checkExportDefaultManifestToWorkspaceHatchery() {
+    await exportToWorkspaceTasks.terminateWorkspaceHatcheryAndExit();
     await exportToWorkspaceTasks.exportDefaultManifestToWorkspace();
     exportToWorkspaceQuestions.isManifestSavedToWorkspaceSucceeded();
     const manifestName = await exportToWorkspaceTasks.grabManifestName();
