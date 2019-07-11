@@ -21,7 +21,7 @@ exports.config = {
           ],
         },
       },
-      restart: true,
+      restart: false,
       timeouts: {
         script: 6000,
         'page load': 10000,
