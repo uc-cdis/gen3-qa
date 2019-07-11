@@ -2,7 +2,8 @@ Feature('ExportToWorkspaceTest');
 
 const I = actor();
 
-Before((home) => {
+Before(async (portalExportToWorkspace, home) => {
+  await portalExportToWorkspace.do.terminateWorkspaceHatchery();
   home.complete.login();
 });
 
