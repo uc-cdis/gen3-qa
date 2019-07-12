@@ -97,8 +97,8 @@ module.exports = {
       I.click(exportToWorkspaceProps.hatcheryPDHyperlinkXPath);
       I.click(exportToWorkspaceProps.hatcheryDataHyperlinkXPath);
       console.log('in /pd/data');
-      // const mountedManifestHyperlinkXPath = `//a[contains(@class, "item_link") and contains(@href, /lw-workspace/proxy/tree/pd/data/${manifestName})]`;
-      // I.waitForVisible(mountedManifestHyperlinkXPath, 60);
+      const mountedManifestHyperlinkXPath = `//a[contains(@class, "item_link") and contains(@href, /lw-workspace/proxy/tree/pd/data/${manifestName})]`;
+      I.waitForVisible(mountedManifestHyperlinkXPath, 60);
     });
   },
 
