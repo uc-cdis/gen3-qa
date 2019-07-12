@@ -32,7 +32,7 @@ Note that the `--grep ... --invert ...` is necessary to disable
 setup for "google" tests that require a custom test environment.
 
 After running the test suite several times (or once) you may need to clear out the
-databases in your dev environment, so that old data does not interfere with new test runs.  The `gen3 reset` command automates the process to reset the `fence`, `indexd`, and `sheepdog` databases, but should only be run against a personal copy of the database (most of our dev environments point at a personal database schema).
+databases in your dev environment, so that old data does not interfere with new test runs.  The [`gen3 reset`](https://github.com/uc-cdis/cloud-automation/blob/master/doc/reset.md) command automates the process to reset the `fence`, `indexd`, and `sheepdog` databases, but should only be run against a personal copy of the database (most of our dev environments point at a personal database schema). `gen3 reset` also deletes and recreates all deployments and secrets, so you will need to run usersync again too (`gen3 job run usersync`).
 
 ## Install data-client for data-upload tests
 
