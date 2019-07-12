@@ -23,7 +23,7 @@ module.exports = {
   },
 
   async extractManifestFilenameFromResponse(res) {
-    return res.body.filename;
+    return res.data.filename;
   },
 
   /* Retrieve manifests for a given user account by GETing from the manifestservice endpoint */
