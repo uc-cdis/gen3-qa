@@ -11,12 +11,13 @@ exports.config = {
       url: `https://${process.env.HOSTNAME}`,
       smartWait: 5000,
       browser: 'chrome',
+      fullPageScreenshots: true,
       desiredCapabilities: {
         chromeOptions: {
           args: [
             '--headless', // for dev, you can comment this line to open actual chrome for easier test
             '--disable-gpu',
-            '--window-size=1920,1080'
+            '--window-size=1920,1080',
           ],
         },
       },
@@ -52,11 +53,13 @@ exports.config = {
     fence: './services/apis/fence/fenceService.js',
     dataClient: './services/apis/dataClient/dataClientService.js',
     etl: './services/apis/etl/etlService.js',
+    manifestService: './services/apis/manifestService/manifestServiceService.js',
     guppy: './services/apis/guppy/guppyService.js',
 
     // Pages
     home: './services/portal/home/homeService.js',
     portalDataUpload: './services/portal/dataUpload/dataUploadService.js',
+    portalExportToWorkspace: './services/portal/exportToWorkspace/exportToWorkspaceService.js',
   },
   mocha: {
     reporterOptions: {

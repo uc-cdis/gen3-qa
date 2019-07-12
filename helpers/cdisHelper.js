@@ -11,6 +11,15 @@ class CDISHelper extends Helper {
       testResult.err.stack += res;
     });
   }
+
+  noTimeoutEnter() {
+    const helper = this.helpers.WebDriverIO;
+    try {
+      helper.browser.keys('Enter');
+    } catch (err) {
+      // do nothing
+    }
+  }
 }
 
 module.exports = CDISHelper;

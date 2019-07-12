@@ -236,6 +236,30 @@ if ! (g3kubectl get pods --no-headers -l app=guppy | grep guppy) > /dev/null 2>&
   donot '@guppyAPI'
 fi
 
+#
+# try to read configs of portal 
+#
+hostname="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.hostname')"
+portalApp="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.portal_app')"
+portalConfigURL="https://${hostname}/data/config/${portalApp}.json"
+
+if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1 ||
+! (g3kubectl get pods --no-headers -l app=wts | grep wts) > /dev/null 2>&1; then
+  donot '@exportToWorkspaceAPI'
+  donot '@exportToWorkspacePortalGeneral'
+  donot '@exportToWorkspacePortalJupyterHub'
+  donot '@exportToWorkspacePortalHatchery'
+elif [[ $(curl -s "$portalConfigURL" | jq 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}}) | not') == "true" ]]; then
+  donot '@exportToWorkspacePortalGeneral'
+  donot '@exportToWorkspacePortalJupyterHub'
+  donot '@exportToWorkspacePortalHatchery'
+elif ! (g3kubectl get pods --no-headers -l app=jupyter-hub | grep jupyterhub) > /dev/null 2>&1; then
+  donot '@exportToWorkspacePortalJupyterHub'
+elif ! (g3kubectl get pods --no-headers -l app=hatchery | grep hatchery) > /dev/null 2>&1 || 
+! (g3kubectl get pods --no-headers -l service=ambassador | grep ambassador) > /dev/null 2>&1; then
+  donot '@exportToWorkspacePortalHatchery'
+fi
+
 ########################################################################################
 
 testArgs="--reporter mocha-multi"

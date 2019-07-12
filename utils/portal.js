@@ -2,6 +2,9 @@
  * Util for performing actions in portal using service props
  * @module portalUtil
  */
+const { Bash } = require('./bash');
+
+const bash = new Bash();
 
 const I = actor();
 
@@ -68,5 +71,21 @@ module.exports = {
   waitForVisibleProp(prop, seconds) {
     validateProp(prop);
     I.waitForVisible(Object.values(prop.locator)[0], seconds);
+  },
+
+  async getPortalConfig(field) {
+    const cmd = 'g3kubectl get configmaps manifest-global -o json | jq -r \'.data.portal_app\'';
+    const portalApp = bash.runCommand(cmd);
+    const portalConfigURL = `https://${process.env.HOSTNAME}/data/config/${portalApp}.json`;
+    return I.sendGetRequest(portalConfigURL)
+      .then(res => res.body[field]);
+  },
+
+  async isPortalUsingGuppy() {
+    const data = await this.getPortalConfig('dataExplorerConfig');
+    if (data === undefined || data.guppyConfig === undefined) {
+      return false;
+    }
+    return true;
   },
 };

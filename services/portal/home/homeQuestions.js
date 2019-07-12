@@ -7,7 +7,7 @@ const I = actor();
  * home Questions
  */
 module.exports = {
-  haveAccessToken() {
+  async haveAccessToken() {
     I.seeCookie('access_token');
   },
 
@@ -21,6 +21,6 @@ module.exports = {
   },
 
   isLoggedOut() {
-    portal.seeProp(homeProps.googleLoginButton, 5);
+    portal.seeProp(homeProps.googleLoginButton, 10);
   },
 };
