@@ -34,7 +34,7 @@ module.exports = {
         'Content-Type': 'application/json',
         Authorization: `bearer ${userAcct.accessToken}`,
       },
-    ).then(res => JSON.stringify(res));
+    ).then(res => JSON.stringify(res.data));
   },
 
 };
