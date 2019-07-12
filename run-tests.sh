@@ -237,7 +237,7 @@ if ! (g3kubectl get pods --no-headers -l app=guppy | grep guppy) > /dev/null 2>&
 fi
 
 #
-# try to read configs of portal
+# try to read configs of portal 
 #
 hostname="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.hostname')"
 portalApp="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.portal_app')"
