@@ -272,11 +272,6 @@ function parseTestTags() {
  * Returns true if the tag is included in the tests, false otherwise
  */
 function isIncluded(tag) {
-  console.log(testTags);
-  console.log(tag);
-  console.log(testTags.includes(tag));
-  console.log(testTags.includes('--invert'));
-  console.log((!testTags.includes(tag) && testTags.includes('--invert')) || (testTags.includes(tag) && !testTags.includes('--invert')));
   return (!testTags.includes(tag) && testTags.includes('--invert')) || (testTags.includes(tag) && !testTags.includes('--invert'));
 }
 
