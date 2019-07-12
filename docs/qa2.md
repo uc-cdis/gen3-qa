@@ -92,6 +92,12 @@ acceptance tests (is there a difference?) for all our feature.s
 Our acceptance tests may include a service level objective (SLO)[https://en.wikipedia.org/wiki/Service-level_objective] specifying
 throughput, response time, availability - that we should track with metrics.
 
+##QA Process
+
+(initial thoughts)
+There are two parts to the QA process carried by both Devs and the QA team. The Dev codes a new feature and performs unit testing. Simultaneously the QA team would create a test plan for the feature and create new test cases for manual testing. Also create test-cases/feature files for automation testing (automate the test cases when feasible). after the unit tests are completed, the feature is deplyed to QA environment. Prior to deployment, there is healthcheck is performed by running the regression suite. This would give us details about if the feature broke something or something is already broken (saves lots of time!). The QA team creates ‘Test Cycle’ (JIRA + Zephyr thing or anyother option instead of Zephyr that works fine with JIRA) to carry out the manual and automated tests on the feature in the QA environment. The report is generated for the manual and automated tests respectively.
+
+For the idea of Test cycle, we could have two folders per test cycle - one is regression tests and others would be featurre tests. after the testing phase is done, move some of the important test cases from feature folder to regression folder. For automating, label the test cases with ‘tobeautomated’ (something like that). As there is bandwidth, someone can start automating those manual tests.
 
 ## First Uses
 
