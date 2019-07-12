@@ -171,7 +171,7 @@ Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try crea
     } catch (err) {
       let url = signedUrlgsPhs000178Res && signedUrlgsPhs000178Res.data && signedUrlgsPhs000178Res.data.url;
       console.log(`Failed to fetch signed url ${url}`, err);
-      chai.expect(false, `Failed to fetch signed url ${url}`).to.be.true;
+      chai.fail(`Failed to fetch signed url ${url}`);
     }
 
     chai.expect(phs000178s3FileContents,

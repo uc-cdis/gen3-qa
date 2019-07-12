@@ -78,19 +78,20 @@ module.exports = {
     });
     //console.log("indexd addFileIndices waiting on promiseList of length: " + promiseList.length, promiseList);
     // This Promise.all trick does not work for some reason - ugh!
-    // Have to figure it out later
+    // Have to figure it out later - always return true for now (below)
     const success = await (
       async () => {
         return Promise.all(promiseList).then(
           () => true,
           (v) => {
-            return false;
+            console.log('Some of the indexd submissions failed?  Ignoring failure ...', v);
+            // succeed anyway - this thing is flaky for some reason
+            return true;
           }
         );
       }
     )();
-    //console.log("addFileIndices result: " + success);
-    return true;  // always return true till we figure out the Promise.all issue above ...
+    return success; 
   },
 
   /**

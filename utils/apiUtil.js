@@ -47,9 +47,11 @@ class Gen3Response {
   /**
    * Creates instance from a response object -
    * some goofiness as codecept v2 moved from unirest to axios for REST calls,
-   * and the response structure is different
+   * and the response structure is different.
+   * In general the constructor should only take data or body, not both - prefer data
    * 
    * @param {string|Object} body
+   * @param {string|object} data new REST library returns data instead of body
    * @param {number|Object} status or {status}
    * @param {Object} [request]
    * @param {string} [request.method]

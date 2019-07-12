@@ -39,7 +39,7 @@ BeforeSuite(async (nodes, sheepdog) => {
   valid_file = nodes.getFileNode().clone();
   await sheepdog.complete.addNode(valid_file);
   //console.log('Got file', valid_file);
-  expect(!! valid_file.did).to.be.true;
+  expect(!! valid_file.did, 'Sheepdog addNode did not set .did').to.be.true;
   invalid_id_file = nodes.getFileNode().clone();
   invalid_id_file.data.object_id = 'invalid_object_id';
   invalid_id_file.did = 'invalid_object_id';

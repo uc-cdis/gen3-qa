@@ -544,7 +544,6 @@ module.exports = {
     return I.sendGetRequest(
       fenceProps.endpoints.uploadFile + `/${guid}`,
       accessHeader,
-      accessHeader,
     ).then(res => new Gen3Response(res));
   },
 
