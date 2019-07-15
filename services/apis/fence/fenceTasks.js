@@ -217,7 +217,7 @@ module.exports = {
     }
     
     let res = await getNoRedirect(url, headers);
-    //console.log('linkGoogleAcctMocked response 1', res);
+    // if no error, follow redirect back to fence
     if (res && res.headers.location && !res.headers.location.includes("error=")) {
       let sessionCookie = getCookie('fence', res.headers['set-cookie']);
       headers.Cookie += `; fence=${sessionCookie}`;
