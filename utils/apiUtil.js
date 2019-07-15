@@ -45,29 +45,39 @@ function parseFenceError(responseBody) {
  */
 class Gen3Response {
   /**
-   * Creates instance from a response object, expected to be comparable to Unirest response object
+   * Creates instance from a response object -
+   * some goofiness as codecept v2 moved from unirest to axios for REST calls,
+   * and the response structure is different.
+   * In general the constructor should only take data or body, not both - prefer data
+   * 
    * @param {string|Object} body
-   * @param {number} statusCode
+   * @param {string|object} data new REST library returns data instead of body
+   * @param {number|Object} status or {status}
    * @param {Object} [request]
    * @param {string} [request.method]
    * @param {string} [request.headers]
    * @param {string} [request.uri.href]
    * @param {string} [fenceError] Parsed from body if determined to be an error page
    */
-  constructor({ body, statusCode, request, fenceError }) {
+  constructor({ data, body, status, request, fenceError }) {
     this.fenceError = fenceError;
-    this.parsedFenceError = (isErrorPage(body) ? parseFenceError(body) : undefined);
-    this.body = this.parsedFenceError ? undefined : body; // include body if not error page
-    this.statusCode = statusCode;
-    try {
-      this.requestMethod = request.method;
-      this.requestHeaders = request.headers;
-      this.requestBody = request.body;
-      this.requestURL = request.uri.href;
-    } catch (e) {
-      // ignore if missing request attribute
-      console.log('Gen3Response could not parse expected `request` attributes like `method`, `headers`, `body`, etc.')
-      console.log(`Gen3Response got request: ${request}`)
+    this.parsedFenceError = (isErrorPage(data) ? parseFenceError(data) : undefined);
+    this.body = this.parsedFenceError ? undefined : (data || body); // include body if not error page
+    this.data = data || body;
+    this.status = status;
+    if (request) {
+      try {
+        this.requestMethod = request.method;
+        this.requestHeaders = request.headers;
+        this.requestBody = request.body;
+        this.requestURL = request.uri ? request.uri.href : undefined;
+      } catch (e) {
+        // ignore if missing request attribute
+        console.log('Gen3Response could not parse expected `request` attributes like `method`, `headers`, `body`, etc.')
+        console.log(`Gen3Response got request: ${request}`);
+      }
+    } else {
+      console.trace('Gen3Response constructor given undefined request');
     }
   }
 }
@@ -110,7 +120,7 @@ const gen3Res = function (_chai, _) {
         throw err;
       }
     }
-    new Assertion(obj).to.have.property('statusCode', expectedRes.statusCode);
+    new Assertion(obj).to.have.property('status', expectedRes.status);
   });
 };
 

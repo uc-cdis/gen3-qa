@@ -53,9 +53,9 @@ module.exports = {
   async query(queryString, variablesString) {
     return I.sendPostRequest(
       peregrineProps.endpoints.query,
-      JSON.stringify({ query: queryString, variables: variablesString }),
+      { query: queryString, variables: variablesString },
       user.mainAcct.accessTokenHeader,
-    ).then(res => res.body);
+    ).then(res => res.data);
   },
 
   /**

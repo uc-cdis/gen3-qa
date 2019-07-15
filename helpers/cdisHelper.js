@@ -1,6 +1,5 @@
 const Helper = codecept_helper; // eslint-disable-line
 const { Commons } = require('../utils/commons');
-const user = require('../utils/user');
 
 class CDISHelper extends Helper {
   async _failed(testResult) { // eslint-disable-line class-methods-use-this

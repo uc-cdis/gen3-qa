@@ -18,7 +18,7 @@ module.exports = {
    * @param createUrlRes
    */
   hasUrl(createUrlRes) {
-    expect(createUrlRes, 'Fence did not return a URL (check fence logs for more info on why)').to.have.nested.property('body.url');
+    expect(createUrlRes, 'Fence did not return a URL (check fence logs for more info on why)').to.have.nested.property('data.url');
   },
 
   /**
@@ -26,7 +26,7 @@ module.exports = {
    * @param createUrlRes
    */
   hasNoUrl(createUrlRes) {
-    expect(createUrlRes, 'Fence should not have returned a URL').to.not.have.nested.property('body.url');
+    expect(createUrlRes, 'Fence should not have returned a URL').to.not.have.nested.property('data.url');
   },
 
   /**
@@ -36,7 +36,7 @@ module.exports = {
   hasAPIKey(apiKeyRes) {
     expect(apiKeyRes,
       'response does not have a "api_key" field in the body'
-    ).to.have.nested.property('body.api_key');
+    ).to.have.nested.property('data.api_key');
   },
 
   /**
@@ -46,7 +46,7 @@ module.exports = {
   hasAccessToken(accessTokenRes) {
     expect(accessTokenRes,
       'response does not have a "access_token" field in the body'
-    ).has.nested.property('body.access_token');
+    ).has.nested.property('data.access_token');
   },
 
   /**
@@ -72,17 +72,20 @@ module.exports = {
       'response after Google linking doesnt have finalURL prop'
     ).to.have.property('finalURL');
 
-    const linkUrl = new URL(linkRes.finalURL);
-
-    console.log(`when checking mocked Google Linking success, got final URL: ${linkUrl}`)
-
+    console.log(`when checking mocked Google Linking success, got final URL: ${linkRes.finalURL}`);
+    let linkUrl = ''
+    try {
+      linkUrl = new URL(linkRes.finalURL);
+    } catch (err) {
+      chai.fail(`Failed to parse URL: ${linkRes.finalURL}`);
+    }
     expect(linkUrl.searchParams.get('linked_email'),
       'response after Google linking doesnt include linked_email'
     ).to.not.be.null;
 
     expect(linkUrl.searchParams.get('exp'),
       'response after Google linking doesnt include exp'
-    ).to.not.be.null; // eslint-disable-line
+    ).to.not.be.null; // eslint-disable-line    
   },
 
   /**
@@ -101,7 +104,7 @@ module.exports = {
    * @param unlinkRes
    */
   unlinkSuccess(unlinkRes) {
-    expect(unlinkRes).to.have.property('statusCode', 200);
+    expect(unlinkRes).to.have.property('status', 200);
   },
 
   /**
@@ -111,15 +114,15 @@ module.exports = {
    * @param {int} expires_in - requested expiration time (in seconds)
    */
   linkExtendSuccess(extendRes, timeRequest, expires_in=null) {
-    expect(extendRes).to.have.property('statusCode', 200);
+    expect(extendRes).to.have.property('status', 200);
 
     // Check the expiration is within expected range
     const timeBuff = 60;
-    expect(extendRes).to.have.nested.property('body.exp');
+    expect(extendRes).to.have.nested.property('data.exp');
     if (!expires_in) {
       expires_in = fenceProps.linkExtendDefaultAmount;
     }
-    expect(extendRes.body.exp, 'the link expiration is not in the expected range').to.be.within(
+    expect(extendRes.data.exp, 'the link expiration is not in the expected range').to.be.within(
       (timeRequest + expires_in) - timeBuff,
       (timeRequest + expires_in) + timeBuff,
     );
@@ -156,24 +159,24 @@ module.exports = {
    * Assert that the response has tokens
    * @param {Gen3Response} response
    */
-  asssertTokensSuccess(response, msg='') {
+  assertTokensSuccess(response, msg='') {
     err = 'Token Response failure. ' + msg;
-    expect(response, err).to.have.property('statusCode', 200);
-    expect(response, err).to.have.nested.property('body.access_token');
-    expect(response, err).to.have.nested.property('body.refresh_token');
-    expect(response, err).to.have.nested.property('body.id_token');
-    expect(response, err).to.have.nested.property('body.expires_in');
+    expect(response, err).to.have.property('status', 200);
+    expect(response, err).to.have.nested.property('data.access_token');
+    expect(response, err).to.have.nested.property('data.refresh_token');
+    expect(response, err).to.have.nested.property('data.id_token');
+    expect(response, err).to.have.nested.property('data.expires_in');
   },
 
   /**
    * Assert that the response status code
    * @param {Gen3Response} response
-   * @param {int} statusCode HTTP response code
+   * @param {int} status HTTP response code
    * @param {string} msg Message to display in case of failure
    */
-  assertStatusCode(response, statusCode, msg='') {
+  assertStatusCode(response, status, msg='') {
     err = 'Wrong status code: ' + msg;
-    expect(response, err).to.have.property('statusCode', statusCode);
+    expect(response, err).to.have.property('status', status);
   },
 
   /**
@@ -209,16 +212,16 @@ module.exports = {
   assertUserInfo(response) {
     expect(
       response,
-      'response from userinfo endpoint should have property statusCode of 200'
-    ).to.have.property('statusCode', 200);
+      'response from userinfo endpoint does not have property: status'
+    ).to.have.property('status', 200);
     expect(
       response,
-      'response from userinfo endpoint does not have property: body.username'
-    ).to.have.nested.property('body.username');
+      'response from userinfo endpoint does not have property: data.username'
+    ).to.have.nested.property('data.username');
     expect(
       response,
-      'response from userinfo endpoint does not have property: body.user_id'
-    ).to.have.nested.property('body.user_id');
+      'response from userinfo endpoint does not have property: data.user_id'
+    ).to.have.nested.property('data.user_id');
   },
 
   /**
@@ -226,10 +229,10 @@ module.exports = {
    * @param {Gen3Response} response
    */
   assertRefreshAccessToken(response) {
-    expect(response).to.have.property('statusCode', 200);
-    expect(response).to.have.nested.property('body.access_token');
-    expect(response).to.have.nested.property('body.refresh_token');
-    expect(response).to.have.nested.property('body.expires_in');
+    expect(response).to.have.property('status', 200);
+    expect(response).to.have.nested.property('data.access_token');
+    expect(response).to.have.nested.property('data.refresh_token');
+    expect(response).to.have.nested.property('data.expires_in');
   },
 
   assertTruthyResult(result, msg='') {

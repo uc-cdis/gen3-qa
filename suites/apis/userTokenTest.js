@@ -22,9 +22,9 @@ Scenario('create APIKey with expired access token', async (fence, users) => {
 Scenario('refresh access token with apiKey', async (fence, users) => {
   const scope = ['data', 'user'];
   const apiKeyRes = await fence.complete.createAPIKey(scope, users.mainAcct.accessTokenHeader);
-  const accessTokenRes = await fence.do.getAccessToken(apiKeyRes.body.api_key);
+  const accessTokenRes = await fence.do.getAccessToken(apiKeyRes.data.api_key);
   fence.ask.hasAccessToken(accessTokenRes);
-  fence.do.deleteAPIKey(apiKeyRes.body.key_id);
+  fence.do.deleteAPIKey(apiKeyRes.data.key_id);
 });
 
 Scenario('refresh access token with invalid apiKey', async (fence) => {

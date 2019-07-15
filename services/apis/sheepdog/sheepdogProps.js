@@ -12,7 +12,7 @@ const apiRoot = `/api/v0/submission/${Commons.program.name}/${
 
 // Base properties for a successful result (add/delete/etc)
 const resSuccessBase = {
-  statusCode: 200,
+  status: 200,
   body: {
     code: 200,
     success: true,
@@ -36,36 +36,40 @@ module.exports = {
    * Gen3Response when added node successfully
    */
   resAddSuccess: new Gen3Response({
+    request: {},
     ...resSuccessBase,
-    ...{ body: { ...resSuccessBase.body, created_entity_count: 1 } },
+    ...{ body: { ...resSuccessBase.data, created_entity_count: 1 } },
   }),
 
   /**
    * Gen3Response when deleted node successfully
    */
   resDeleteSuccess: new Gen3Response({
+    request: {},
     ...resSuccessBase,
-    ...{ body: { ...resSuccessBase.body, deleted_entity_count: 1 } },
+    ...{ body: { ...resSuccessBase.data, deleted_entity_count: 1 } },
   }),
 
   /**
    * Gen3Response when deleted node successfully
    */
   resUpdateSuccess: new Gen3Response({
+    request: {},
     ...resSuccessBase,
-    ...{ body: { ...resSuccessBase.body, updated_entity_count: 1 } },
+    ...{ body: { ...resSuccessBase.data, updated_entity_count: 1 } },
   }),
 
   /**
    * Gen3Response when no authentication provided
    */
   resNoAuth: new Gen3Response({
-    statusCode: 401,
+    request: {},
+    status: 401,
     body: { message: 'Authentication Error: Signature has expired' },
   }),
 
   resLocators: {
-    entityErrorType: 'body.entities[0].errors[0].type',
+    entityErrorType: 'data.entities[0].errors[0].type',
   },
 
   internalServerErrorMsg:

@@ -1,70 +1,46 @@
+const { container } = require('codeceptjs');
+const ax = require('axios');
+
 const fenceProps = require('./fenceProps.js');
 const user = require('../../../utils/user.js');
 const portal = require('../../../utils/portal.js');
 const { Gen3Response, getCookie, getAccessTokenHeader } = require('../../../utils/apiUtil');
 const { Bash, takeLastLine } = require('../../../utils/bash');
 
-const { container } = require('codeceptjs');
 const bash = new Bash();
 
 const I = actor();
-
-/**
- * Determines if browser is on Google's "Choose account" page
- * @returns {Promise<boolean>}
- */
-async function onChooseAcctPage() {
-  return new Promise((resolve) => {
-    const wdio = container.helpers('WebDriverIO');
-    wdio._locate(fenceProps.googleLogin.useAnotherAcctBtn.locator.xpath).then((res) => { // eslint-disable-line
-      resolve(res.value.length > 0);
-    });
-  });
-}
 
 /**
  * Determines if browser is on consent page
  * @returns {Promise<boolean>}
  */
 async function onConsentPage() {
-  return new Promise((resolve) => {
-    const wdio = container.helpers('WebDriverIO');
-    wdio._locate(fenceProps.consentPage.consentBtn.locator.xpath).then((res) => { // eslint-disable-line
-      resolve(res.value.length > 0);
-    });
-  });
+  const wdio = container.helpers('WebDriver');
+  return wdio._locate(fenceProps.consentPage.consentBtn.locator.xpath, true).then(
+    els => els.length > 0
+  );
 }
 
-/**
- * Goes through google oauth flow in the browser (saving screenshots along the way)
- * @param {Object} googleCreds - google credentials (email and password)
- * @returns {Promise<void>}
- */
-async function loginGoogle(googleCreds) {
-  I.say('Logging in to Google...');
-  await portal.seeProp(fenceProps.googleLogin.readyCue, 10);
-  I.saveScreenshot('login1.png');
-
-  // if shown option to choose account, just click the choose acct button
-  const acctLoaded = await onChooseAcctPage();
-  if (acctLoaded) {
-    portal.clickProp(fenceProps.googleLogin.useAnotherAcctBtn);
-  }
-
-  // fill out username and password
-  portal.waitForVisibleProp(fenceProps.googleLogin.emailField, 5);
-  I.retry({ retries: 3, minTimeout: 2000 })
-    .fillField(fenceProps.googleLogin.emailField.locator, googleCreds.email);
-  I.saveScreenshot('login2.png');
-  portal.clickProp(fenceProps.googleLogin.emailNext);
-  I.saveScreenshot('login3.png');
-  portal.waitForVisibleProp(fenceProps.googleLogin.passwordField, 5);
-  I.saveScreenshot('login4.png');
-  I.retry({ retries: 3, minTimeout: 2000 })
-    .fillField(fenceProps.googleLogin.passwordField.locator, googleCreds.password);
-  I.saveScreenshot('login5.png');
-  portal.clickProp(fenceProps.googleLogin.passwordNext);
-  I.saveScreenshot('login6.png');
+async function getNoRedirect(url, headers) {
+    //
+    // axios follows redirects by default, so do things this way
+    // to stop that.
+    // Note: if codecept changes its freakin REST library again,
+    //    then just use axios directly
+    //
+    return ax.request( 
+      { 
+        url,
+        baseURL: `https://${process.env.HOSTNAME}`,
+        method: 'get',
+        maxRedirects: 0, 
+        headers,
+      }
+    ).then(
+      resp => resp,
+      err => err.response || err
+    );
 }
 
 /**
@@ -77,7 +53,7 @@ module.exports = {
    * @param {string[]} args - additional args for endpoint
    * @returns {Promise<Gen3Response>}
    */
-  createSignedUrl(id, args = [], userHeader=user.mainAcct.accessTokenHeader) {
+  async createSignedUrl(id, args = [], userHeader=user.mainAcct.accessTokenHeader) {
     return I.sendGetRequest(
       `${fenceProps.endpoints.getFile}/${id}?${args.join('&')}`.replace(
         /[?]$/g,
@@ -93,7 +69,7 @@ module.exports = {
    * @param {string[]} userHeader - a user's access token header
    * @returns {Promise<Gen3Response>}
    */
-  createSignedUrlForUser(id, userHeader=user.mainAcct.accessTokenHeader) {
+  async createSignedUrlForUser(id, userHeader=user.mainAcct.accessTokenHeader) {
     return I.sendGetRequest(
       `${fenceProps.endpoints.getFile}/${id}`,
       userHeader,
@@ -103,22 +79,26 @@ module.exports = {
   /**
    * Fetch signed URL contents
    * @param {string} url - url for the file
-   * @returns {string | Object} response.body - file contents
+   * @returns {string | Object} response.data - file contents
    */
-  getFile(url) {
-    return I.sendGetRequest(url).then(res => res.body);
+  async getFile(url) {
+    return I.sendGetRequest(url).then(res => res.data);
   },
 
-  getFileFromSignedUrlRes(signedUrlRes) {
+  async getFileFromSignedUrlRes(signedUrlRes) {
     if (
       signedUrlRes
-      && signedUrlRes.hasOwnProperty('body')
-      && signedUrlRes["body"] !== undefined
-      && signedUrlRes["body"].hasOwnProperty('url')
+      && signedUrlRes.body
+      && signedUrlRes.body.url
     ){
-      return I.sendGetRequest(signedUrlRes["body"].url).then(res => res.body);
+      // Note: google freaks out if unexpected headers 
+      //     are passed with signed url requests
+      console.log(`Fetching signed URL: ${signedUrlRes.body.url}`);
+      return ax.get(signedUrlRes.body.url).then(
+          resp => resp.data
+        );
     }
-    console.log(fenceProps.FILE_FROM_URL_ERROR);
+    console.log(fenceProps.FILE_FROM_URL_ERROR, signedUrlRes);
     return fenceProps.FILE_FROM_URL_ERROR;
   },
 
@@ -128,33 +108,31 @@ module.exports = {
    * @param {Object} accessTokenHeader
    * @returns {Promise<Gen3Response>}
    */
-  createAPIKey(scope, accessTokenHeader) {
-    accessTokenHeader['Content-Type'] = 'application/json';
+  async createAPIKey(scope, accessTokenHeader) {
     return I.sendPostRequest(
       fenceProps.endpoints.createAPIKey,
-      JSON.stringify({
+      {
         scope,
-      }),
+      },
       accessTokenHeader,
-    ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
+      ).then(res => new Gen3Response(res)); 
   },
 
   /**
    * List the existing Google credentials for the user
    * @param {Object} accessTokenHeader
    */
-  getUserGoogleCreds(accessTokenHeader) {
-    accessTokenHeader['Content-Type'] = 'application/json';
+  async getUserGoogleCreds(accessTokenHeader) {
     return I.sendGetRequest(
       fenceProps.endpoints.googleCredentials,
       accessTokenHeader,
     ).then(res => {
-      if (!res.body || !res.body.access_keys) {
+      if (!res.data || !res.data.access_keys) {
         console.log('Could not get user google creds:');
         console.log(res);
         return { access_keys: [] };
       }
-      return res.body;
+      return res.data;
     });
   },
 
@@ -164,9 +142,8 @@ module.exports = {
    * @param {int} expires_in - requested expiration time (in seconds)
    * @returns {Promise<Gen3Response>}
    */
-  createTempGoogleCreds(accessTokenHeader, expires_in=null) {
-    accessTokenHeader['Content-Type'] = 'application/json';
-    url = fenceProps.endpoints.googleCredentials;
+  async createTempGoogleCreds(accessTokenHeader, expires_in=null) {
+    let url = fenceProps.endpoints.googleCredentials;
     if (expires_in) {
       url += `?expires_in=${expires_in}`;
     }
@@ -175,11 +152,12 @@ module.exports = {
       {},
       accessTokenHeader,
     ).then(res => {
-      if (res.statusCode != 200) {
+      const g3res = new Gen3Response(res);
+      if (g3res.status != 200) {
         console.error('Error creating temp google creds');
         console.log(res);
       }
-      return new Gen3Response(res);
+      return g3res;
     });
   },
 
@@ -189,12 +167,11 @@ module.exports = {
    * @param {Object} accessTokenHeader
    * @returns {Promise<Gen3Response>}
    */
-  deleteTempGoogleCreds(googleKeyId, accessTokenHeader) {
-    accessTokenHeader['Content-Type'] = 'application/json';
+  async deleteTempGoogleCreds(googleKeyId, accessTokenHeader) {
     return I.sendDeleteRequest(
       `${fenceProps.endpoints.googleCredentials}${googleKeyId}`,
       accessTokenHeader,
-    ).then(res => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
+    ).then(res => new Gen3Response(res));
   },
 
   /**
@@ -202,11 +179,11 @@ module.exports = {
    * @param {string} apiKey
    * @returns {Promise<Object>}
    */
-  deleteAPIKey(apiKey) {
+  async deleteAPIKey(apiKey) {
     return I.sendDeleteRequest(
       `${fenceProps.endpoints.deleteAPIKey}/${apiKey}`,
       user.mainAcct.accessTokenHeader,
-    ).then(res => res.body);
+    ).then(res => res.data);
   },
 
   /**
@@ -214,11 +191,12 @@ module.exports = {
    * @param {string} apiKey
    * @returns {Promise<Gen3Response>}
    */
-  getAccessToken(apiKey) {
+  async getAccessToken(apiKey) {
     const data = apiKey !== null ? { api_key: apiKey } : {};
     return I.sendPostRequest(
       fenceProps.endpoints.getAccessToken,
       data,
+      {'Content-Type': 'application/json'}
     ).then(res => new Gen3Response(res));
   },
 
@@ -233,30 +211,28 @@ module.exports = {
     // visit link endpoint. Google login is mocked
     let headers = userAcct.accessTokenHeader;
     headers.Cookie = 'dev_login=' + userAcct.username;
-    url = '/user/link/google?redirect=/login';
+    let url = '/user/link/google?redirect=/login';
     if (expires_in) {
       url += `&expires_in=${expires_in}`;
     }
-    return I.sendGetRequest(url, headers).then(async (res) => {
+    
+    let res = await getNoRedirect(url, headers);
+    // if no error, follow redirect back to fence
+    if (res && res.headers.location && !res.headers.location.includes("error=")) {
+      let sessionCookie = getCookie('fence', res.headers['set-cookie']);
+      headers.Cookie += `; fence=${sessionCookie}`;
+      res = await getNoRedirect(res.headers.location, headers);
+      //console.log('linkGoogleAcctMocked response 2', res);
+    }
 
-      // if no error, follow redirect back to fence
-      if (res.headers.location && !res.headers.location.includes("error=")) {
-        let sessionCookie = getCookie('fence', res.headers['set-cookie']);
-        headers.Cookie += `; fence=${sessionCookie}`;
-        res = await I.sendGetRequest(res.headers.location, headers);
-      }
-
-      // return the body and the current url
-      const url = res.headers.location;
-      const body = res.body;
-
-      const gen3Res = new Gen3Response({ body });
-      gen3Res.parsedFenceError = undefined;
-      gen3Res.body = body;
-      gen3Res.statusCode = 200;
-      gen3Res.finalURL = url;
-      return gen3Res;
-    });
+    // return the body and the current url
+    url = res.headers.location;
+    const gen3Res = new Gen3Response({ data: res.data });
+    gen3Res.parsedFenceError = undefined;
+    //gen3Res.body = body;
+    gen3Res.status = 200;
+    gen3Res.finalURL = url;
+    return gen3Res;
   },
 
   /**
@@ -334,15 +310,12 @@ module.exports = {
           google_project_id: googleProject.id,
           project_access: projectAccessList,
         },
-        {
-          ...userAcct.accessTokenHeader,
-          'Content-Type': 'application/json',
-        },
+        userAcct.accessTokenHeader,
       ).then(function(res) {
-        if (res.body && res.body.errors) {
+        if (res.data && res.data.errors) {
           console.log('Failed SA registration:');
           // stringify to print all the nested objects
-          console.log(JSON.stringify(res.body.errors, null, 2));
+          console.log(JSON.stringify(res.data.errors, null, 2));
         }
         else if (res.error) {
           if (res.error.code == 'ETIMEDOUT') {
@@ -414,10 +387,7 @@ module.exports = {
       {
         project_access: projectAccessList,
       },
-      {
-        ...userAcct.accessTokenHeader,
-        'Content-Type': 'application/json',
-      },
+      userAcct.accessTokenHeader,
     ).then(res => new Gen3Response(res));
   },
 
@@ -443,13 +413,13 @@ module.exports = {
       } else {
         portal.clickProp(fenceProps.consentPage.consentBtn);
       }
-      I.saveScreenshot('consent_auth_code_flow.png');
     }
     if (expectCode) {
-      await I.waitInUrl('code=', 3);
+      await I.waitInUrl('code=', 10);
     } else {
       await I.wait(5);
     }
+    I.saveScreenshot('consent_auth_code_flow.png');
     const urlStr = await I.grabCurrentUrl();
     return urlStr;
   },
@@ -465,7 +435,13 @@ module.exports = {
   async getTokensWithAuthCode(clientId, clientSecret, code, grantType) {
     const fullURL = `https://${process.env.HOSTNAME}${fenceProps.endpoints.tokenOAuth2Client}?code=${code}&grant_type=${grantType}&redirect_uri=https%3A%2F%2F${process.env.HOSTNAME}`;
     const data = { client_id: clientId, client_secret: clientSecret };
-    const response = await I.sendPostRequest(fullURL, data);
+    const auth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+    const response = await I.sendPostRequest(fullURL, data, 
+      {
+        'Content-Type': 'application/json',
+        Authorization: `Basic ${auth}`,
+      }
+    );
     return response;
   },
 
@@ -487,7 +463,9 @@ module.exports = {
       grant_type: grantType,
       scope,
     };
-    const response = await I.sendPostRequest(fullURL, data);
+    const response = await I.sendPostRequest(fullURL, data,
+      {'Content-Type': 'application/json'}
+      );
     return response;
   },
 
@@ -547,12 +525,11 @@ module.exports = {
    * @returns {Promise<Gen3Response>}
    */
   async getUrlForDataUpload(fileName, accessHeader) {
-    accessHeader['Content-Type'] = 'application/json';
     return I.sendPostRequest(
       fenceProps.endpoints.uploadFile,
-      JSON.stringify({
+      {
         file_name: fileName,
-      }),
+      },
       accessHeader,
     ).then(res => new Gen3Response(res));
   },
@@ -564,7 +541,6 @@ module.exports = {
    * @returns {Promise<Gen3Response>}
    */
   async getUploadUrlForExistingFile(guid, accessHeader) {
-    accessHeader['Content-Type'] = 'application/json';
     return I.sendGetRequest(
       fenceProps.endpoints.uploadFile + `/${guid}`,
       accessHeader,
@@ -578,12 +554,11 @@ module.exports = {
    * @returns {Promise<Gen3Response>}
    */
   async initMultipartUpload(fileName, accessHeader) {
-    accessHeader['Content-Type'] = 'application/json';
     return I.sendPostRequest(
       fenceProps.endpoints.multipartUploadInit,
-      JSON.stringify({
+      {
         file_name: fileName,
-      }),
+      },
       accessHeader,
     ).then(res => new Gen3Response(res));
   },
@@ -597,14 +572,13 @@ module.exports = {
    * @returns {Promise<Gen3Response>}
    */
   async getUrlForMultipartUpload(key, uploadId, partNumber, accessHeader) {
-    accessHeader['Content-Type'] = 'application/json';
     return I.sendPostRequest(
       fenceProps.endpoints.multipartUpload,
-      JSON.stringify({
+      {
         key,
         uploadId,
         partNumber,
-      }),
+      },
       accessHeader,
     ).then(res => new Gen3Response(res));
   },
@@ -618,14 +592,13 @@ module.exports = {
    * @returns {Promise<Gen3Response>}
    */
   async completeMultipartUpload(key, uploadId, parts, accessHeader) {
-    accessHeader['Content-Type'] = 'application/json';
     return I.sendPostRequest(
       fenceProps.endpoints.multipartUploadComplete,
-      JSON.stringify({
+      {
         key,
         uploadId,
         parts,
-      }),
+      },
       accessHeader,
     ).then(res => new Gen3Response(res));
   },

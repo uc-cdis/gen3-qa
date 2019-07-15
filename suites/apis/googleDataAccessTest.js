@@ -146,20 +146,20 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
     indexed_files.testFile.did, users.user2.accessTokenHeader);
 
   console.log('saving temporary google creds to file');
-  const creds0Key = tempCreds0Res.body.private_key_id;
-  const creds1Key = tempCreds1Res.body.private_key_id;
-  const creds2Key = tempCreds2Res.body.private_key_id;
+  const creds0Key = tempCreds0Res.data.private_key_id;
+  const creds1Key = tempCreds1Res.data.private_key_id;
+  const creds2Key = tempCreds2Res.data.private_key_id;
   const pathToCreds0KeyFile = creds0Key + '.json';
   const pathToCreds1KeyFile = creds1Key + '.json';
   const pathToCreds2KeyFile = creds2Key + '.json';
 
-  await files.createTmpFile(pathToCreds0KeyFile, JSON.stringify(tempCreds0Res.body));
+  await files.createTmpFile(pathToCreds0KeyFile, JSON.stringify(tempCreds0Res.data));
   console.log(`Google creds file ${pathToCreds0KeyFile} saved!`);
 
-  await files.createTmpFile(pathToCreds1KeyFile, JSON.stringify(tempCreds1Res.body));
+  await files.createTmpFile(pathToCreds1KeyFile, JSON.stringify(tempCreds1Res.data));
   console.log(`Google creds file ${pathToCreds1KeyFile} saved!`);
 
-  await files.createTmpFile(pathToCreds2KeyFile, JSON.stringify(tempCreds2Res.body));
+  await files.createTmpFile(pathToCreds2KeyFile, JSON.stringify(tempCreds2Res.data));
   console.log(`Google creds file ${pathToCreds2KeyFile} saved!`);
 
   console.log('using saved google creds to access google bucket!! Save responses to check later');
@@ -275,24 +275,26 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
   const User1signedUrlTest2Res = await fence.do.createSignedUrlForUser(
     indexed_files.testFile.did, apiUtil.getAccessTokenHeader(newUser1AccessToken));
   let User1signedUrlTest2ResFileContents = await fence.do.getFileFromSignedUrlRes(
-    User1signedUrlTest2Res);
+    User1signedUrlTest2Res
+    ).catch(err => err && err.response && err.response.data || err)
 
   console.log('Use User2 to create signed URL for file in test')
   const User2signedUrlTest2Res = await fence.do.createSignedUrlForUser(
-    indexed_files.testFile.did, apiUtil.getAccessTokenHeader(newUser2AccessToken));
+    indexed_files.testFile.did, apiUtil.getAccessTokenHeader(newUser2AccessToken)
+    );
 
   // use old signed urls to try and access data again
   console.log('Use signed URL from User0 to try and access QA data again')
   let User0AccessRemovedQA = await fence.do.getFileFromSignedUrlRes(
-    User0signedUrlQA1Res);
+    User0signedUrlQA1Res).catch(err => err && err.response && err.response.data || err);
 
   console.log('Use signed URL from User1 to try and access QA data again')
   let User1AccessRemovedQA = await fence.do.getFileFromSignedUrlRes(
-    User1signedUrlQA1Res);
+    User1signedUrlQA1Res).catch(err => err && err.response && err.response.data || err);
 
   console.log('Use signed URL from User1 to try and access test data again')
   let User1AccessRemainsTest = await fence.do.getFileFromSignedUrlRes(
-    User1signedUrlTest1Res);
+    User1signedUrlTest1Res).catch(err => err && err.response && err.response.data || err);
 
   console.log('deleting temporary google credentials');
   // call our endpoint to delete temporary creds
@@ -305,11 +307,11 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
 
   console.log('test cleanup: deleting google service accounts from google');
   const deleteServiceAccount0Res = await google.deleteServiceAccount(
-    tempCreds0Res.body.client_email, tempCreds0Res.body.project_id);
+    tempCreds0Res.data.client_email, tempCreds0Res.data.project_id);
   const deleteServiceAccount1Res = await google.deleteServiceAccount(
-    tempCreds1Res.body.client_email, tempCreds1Res.body.project_id);
+    tempCreds1Res.data.client_email, tempCreds1Res.data.project_id);
   const deleteServiceAccount2Res = await google.deleteServiceAccount(
-    tempCreds2Res.body.client_email, tempCreds2Res.body.project_id);
+    tempCreds2Res.data.client_email, tempCreds2Res.data.project_id);
 
   console.log('deleting temporary google credentials file');
   files.deleteFile(pathToCreds0KeyFile);
@@ -331,7 +333,7 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
   ).to.have.property('id');
   chai.expect(user0AccessTest1Res,
     'First sync: Check User0 CAN NOT access bucket for project: test. FAILED.'
-  ).to.have.property('statusCode', 403);
+  ).to.have.property('status', 403);
 
   chai.expect(user1AccessQA1Res,
     'First sync: Check User1 access bucket for project: QA. FAILED.'
@@ -342,10 +344,10 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
 
   chai.expect(user2AccessQA1Res,
     'First sync: Check User2 access CAN NOT bucket for project: QA. FAILED.'
-  ).to.have.property('statusCode', 403);
+  ).to.have.property('status', 403);
   chai.expect(user2AccessTest1Res,
     'First sync: Check User2 access CAN NOT bucket for project: test. FAILED.'
-  ).to.have.property('statusCode', 403);
+  ).to.have.property('status', 403);
 
   // FIRST RUN
   //  - Check Signed URLs
@@ -361,11 +363,11 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
 
   chai.expect(User2signedUrlQA1Res,
     'First sync: Check that User2 could NOT get a signed URL to read file in QA. FAILED.'
-  ).to.have.property('statusCode', 401);
+  ).to.have.property('status', 401);
 
   chai.expect(User0signedUrlTest1Res,
     'First sync: Check that User0 could NOT get a signed URL to read file in test. FAILED.'
-  ).to.have.property('statusCode', 401);
+  ).to.have.property('status', 401);
 
   chai.expect(User1signedUrlTest1ResFileContents,
     "First sync: Check User1 can use signed URL to read file in test. FAILED."
@@ -373,7 +375,7 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
 
   chai.expect(User2signedUrlTest1Res,
     'First sync: Check that User2 could NOT get a signed URL to read file in test. FAILED.'
-  ).to.have.property('statusCode', 401);
+  ).to.have.property('status', 401);
 
   // SECOND RUN (new authZ)
   //  - Check Temporary Service Account Creds
@@ -382,14 +384,14 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
 
   chai.expect(user0AccessQA2Res,
     '2nd sync: Check User0 CAN NOT access bucket for project: QA. FAILED.'
-  ).to.have.property('statusCode', 403);
+  ).to.have.property('status', 403);
   chai.expect(user0AccessTest2Res,
     '2nd sync: Check User0 CAN NOT access bucket for project: test. FAILED.'
-  ).to.have.property('statusCode', 403);
+  ).to.have.property('status', 403);
 
   chai.expect(user1AccessQA2Res,
     '2nd sync: Check User1 CAN NOT access bucket for project: QA. FAILED.'
-  ).to.have.property('statusCode', 403);
+  ).to.have.property('status', 403);
   chai.expect(user1AccessTest2Res,
     '2nd sync: Check User1 access bucket for project: test. FAILED.'
   ).to.have.property('id');
@@ -399,7 +401,7 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
   ).to.have.property('id');
   chai.expect(user2AccessTest2Res,
     '2nd sync: Check User2 access CAN NOT bucket for project: test. FAILED.'
-  ).to.have.property('statusCode', 403);
+  ).to.have.property('status', 403);
 
   // SECOND RUN (new authZ)
   //  - Check Signed URLs from SECOND RUN
@@ -407,11 +409,11 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
 
   chai.expect(User1signedUrlQA2Res,
     '2nd sync: Check that User1 could NOT get a signed URL to read file in QA. FAILED.'
-  ).to.have.property('statusCode', 401);
+  ).to.have.property('status', 401);
 
   chai.expect(User0signedUrlQA2Res,
     '2nd sync: Check that User0 could NOT get a signed URL to read file in QA. FAILED.'
-  ).to.have.property('statusCode', 401);
+  ).to.have.property('status', 401);
 
   chai.expect(User2signedUrlQA2ResFileContents,
     "2nd sync: Check User2 can use signed URL to read file in QA. FAILED."
@@ -419,7 +421,7 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
 
   chai.expect(User0signedUrlTest2Res,
     '2nd sync: Check that User0 could NOT get a signed URL to read file in test. FAILED.'
-  ).to.have.property('statusCode', 401);
+  ).to.have.property('status', 401);
 
   chai.expect(User1signedUrlTest2ResFileContents,
     "2nd sync: Check User1 can use signed URL to read file in test. FAILED."
@@ -427,7 +429,7 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
 
   chai.expect(User2signedUrlTest2Res,
     '2nd sync: Check that User2 could NOT get a signed URL to read file in test. FAILED.'
-  ).to.have.property('statusCode', 401);
+  ).to.have.property('status', 401);
 
   // SECOND RUN
   //  - Check signed URLs from FIRST RUN
@@ -448,13 +450,13 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
 
   chai.expect(deleteCreds0Res,
     'Cleanup of temporary Google creds for User 0 FAILED.'
-  ).to.have.property('statusCode', 204);
+  ).to.have.property('status', 204);
   chai.expect(deleteCreds1Res,
     'Cleanup of temporary Google creds for User 1 FAILED.'
-  ).to.have.property('statusCode', 204);
+  ).to.have.property('status', 204);
   chai.expect(deleteCreds2Res,
     'Cleanup of temporary Google creds for User 2 FAILED.'
-  ).to.have.property('statusCode', 204);
+  ).to.have.property('status', 204);
 
   chai.expect(deleteServiceAccount0Res,
     'Cleanup of Google service account for User 0 FAILED.'

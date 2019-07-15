@@ -10,8 +10,11 @@ Run a test locally against a dev environment like this:
 docker run -d -p 4444:4444 --name=selenium --rm -v /dev/shm:/dev/shm selenium/standalone-chrome
 
 # basic run - some tests require more setup than this
-RUNNING_LOCAL=true NAMESPACE=yourDevNamespace npm test -- --verbose --grep '@dataClientCLI|@reqGoogle' --invert suites/.../myTest.js
+RUNNING_LOCAL=true NAMESPACE=yourDevNamespace TEST_DATA_PATH=./testData ./npm test -- --verbose --grep '@dataClientCLI|@reqGoogle' --invert suites/.../myTest.js
 ```
+
+Notes:
+* the OAuth flow tests require `fence-config.yaml` to be configured with `MOCK_GOOGLE_AUTH: true`
 
 ## Generating test data for tests
 
@@ -109,7 +112,8 @@ You can kill the server with `npm run selenium-kill`
 ## Running Tests
 Once you have your environment variables configured and the Selenium server is running, you should be able to successfully run the tests.
 
-If you want to run `gen3-qa` against a dev environment, you just need to set the environment variable `NAMESPACE={dev env namespace}` and the `GOOGLE_APP_CREDS_JSON` to the credentials getting from Google, then run `./run-tests-local.sh`.
+If you want to run `gen3-qa` against a dev environment, you just need to set the environment variable `NAMESPACE={dev env namespace}` and the `GOOGLE_APP_CREDS_JSON` to the credentials getting from Google
+(`export GOOGLE_APP_CREDS_JSON="$(cat creds.json)"`), then run `./run-tests-local.sh`.
 
 But as mentioned above, some tests have special requirements so you may not want to run them. Instead, you can run a selection of tests that have certain tag by altering the line in `run-tests-local.sh` file `npm test -- --grep "@MyTag"` (see info about tags in the Writing Tests section).
 
@@ -156,7 +160,7 @@ Services have the following attributes
 
 ##### task
 A task is usually composed of calls to CodeceptJS's `actor()`, which is referenced as `I`. CodeceptJS's actor gives us easy access to things like navigating webpages and making REST API calls (e.g. `I.click('.my-button')` and `I.sendGetRequest('/user/user')`). Get familiar with the CodeceptJS helpers and their functions:
-- [WebdriverIO](https://codecept.io/helpers/WebDriverIO/) (web page stuff)
+- [WebdriverIO](https://codecept.io/helpers/WebDriver/) (web page stuff)
 - [REST](https://codecept.io/helpers/REST/) (API stuff)
 
 ##### question

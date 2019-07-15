@@ -11,12 +11,13 @@ const I = actor();
  */
 const getRevFromResponse = function (res) {
   try {
-    return res.body.rev;
+    return res.data.rev;
   } catch (e) {
-    console.log(`Could not get res.body.rev from response: ${res}`);
+    console.log(`Could not get res.data.rev from response: ${res}`);
     return 'ERROR_GETTING_INDEXD';
   }
 };
+
 
 /**
  * indexd Tasks
@@ -59,14 +60,13 @@ module.exports = {
       }
       return data;
     }).map((data) => {
-      const strData = JSON.stringify(data);
-      return I.sendPostRequest(indexdProps.endpoints.add, strData, authHeaders).then(
+      return I.sendPostRequest(indexdProps.endpoints.add, data, authHeaders).then(
         (res) => {
-          if (res.status === 200 && res.body && res.body.rev) {
-            file.rev = res.body.rev;
+          if (res.status === 200 && res.data && res.data.rev) {
+            file.rev = res.data.rev;
             return Promise.resolve(file);
           } else {
-            console.error(`Failed indexd submission got status ${res.status} for ${strData}`, res.body);
+            console.error(`Failed indexd submission got status ${res.status} for ${strData}`, res.data);
             return Promise.reject('Failed to register file with indexd');
           }
         },
@@ -78,15 +78,20 @@ module.exports = {
     });
     //console.log("indexd addFileIndices waiting on promiseList of length: " + promiseList.length, promiseList);
     // This Promise.all trick does not work for some reason - ugh!
-    // Have to figure it out later
-    const success = await Promise.all(promiseList).then(
-      () => true,
-      (v) => {
-        return false;
+    // Have to figure it out later - always return true for now (below)
+    const success = await (
+      async () => {
+        return Promise.all(promiseList).then(
+          () => true,
+          (v) => {
+            console.log('Some of the indexd submissions failed?  Ignoring failure ...', v);
+            // succeed anyway - this thing is flaky for some reason
+            return true;
+          }
+        );
       }
-    );
-    //console.log("addFileIndices result: " + success);
-    return true;  // always return true till we figure out the Promise.all issue above ...
+    )();
+    return success; 
   },
 
   /**
@@ -121,7 +126,7 @@ module.exports = {
       authHeaders,
     ).then((res) => {
       file.rev = getRevFromResponse(res);
-      return res.body;
+      return res.data;
     });
   },
 
@@ -141,13 +146,12 @@ module.exports = {
       // get last revision
       file.rev = getRevFromResponse(res);
 
-      const strData = JSON.stringify(data);
       return I.sendPutRequest(
         `${indexdProps.endpoints.put}/${file.did}?rev=${file.rev}`,
-        strData,
+        data,
         authHeaders,
       ).then((res) => {
-        return res.body;
+        return res.data;
       });
     });
   },
@@ -225,8 +229,8 @@ module.exports = {
       `${indexdProps.endpoints.get}/?acl=null&authz=null&uploader=${userAccount.username}`,
       userAccount.accessTokenHeader,
     ).then((res) => {
-      if (!res.body && !res.body.records) return;
-      const guidList = res.body.records.reduce((acc, cur) => {
+      if (!res.data && !res.data.records) return;
+      const guidList = res.data.records.reduce((acc, cur) => {
         acc.push(cur.did);
         return acc;
       }, []);

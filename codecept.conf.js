@@ -7,7 +7,7 @@ Env.setupEnvVariables();
 exports.config = {
   output: './output',
   helpers: {
-    WebDriverIO: {
+    WebDriver: {
       url: `https://${process.env.HOSTNAME}`,
       smartWait: 5000,
       browser: 'chrome',
@@ -21,7 +21,7 @@ exports.config = {
           ],
         },
       },
-      restart: true,
+      restart: false,
       timeouts: {
         script: 6000,
         'page load': 10000,
@@ -31,7 +31,17 @@ exports.config = {
     REST: {
       endpoint: `https://${process.env.HOSTNAME}`,
       timeout: 60000,
-      defaultHeaders: '',
+      defaultHeaders: {
+        common: {
+          'Accept': 'application/json',
+        },
+        get: {},
+        head: {},
+        delete: {},
+        post: {'Content-Type': 'application/json'},
+        patch: {'Content-Type': 'application/json'},
+        put: {'Content-Type': 'application/json'},
+      },
     },
     CDISHelper: {
       require: './helpers/cdisHelper.js',
