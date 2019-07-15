@@ -15,6 +15,6 @@ module.exports = {
   },
 
   assertPostManifestSuccess(res) {
-    expect(res.body).to.have.property('filename');
+    expect(res.data).to.have.property('filename');
   },
 };

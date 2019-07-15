@@ -277,7 +277,11 @@ exitCode=0
 ---------------------------
 Launching test in $NAMESPACE
 EOM
-  dryrun npm test -- $testArgs
+  dryrun npm 'test' -- $testArgs
+  # 
+  # Do this kind of thing (uncomment the following line, change the grep) 
+  # to limit your test run in jenkins:
+  #    dryrun npm 'test' -- --reporter mocha-multi --verbose --grep '@FRICKJACK'
 ) || exitCode=1
 
 exit $exitCode

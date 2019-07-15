@@ -52,7 +52,7 @@ Scenario('Authorization code flow: Test that successfully generate tokens', asyn
     fence.props.clients.client.id,
     fence.props.clients.client.secret, code, 'authorization_code',
   );
-  fence.ask.asssertTokensSuccess(res);
+  fence.ask.assertTokensSuccess(res);
 });
 
 Scenario('Authorization code flow: Test that fails to generate tokens due to invalid code', async (fence) => {
@@ -94,7 +94,7 @@ Scenario('Authorization code flow: Test that can create an access token which ca
     fence.props.clients.client.id,
     fence.props.clients.client.secret, code, 'authorization_code',
   );
-  res = await fence.do.getUserInfo(res.body.access_token);
+  res = await fence.do.getUserInfo(res.data.access_token);
   fence.ask.assertUserInfo(res);
 });
 
@@ -124,8 +124,8 @@ Scenario('Authorization code flow: Test project access in id token same as proje
     fence.props.clients.client.id,
     fence.props.clients.client.secret, code, 'authorization_code',
   );
-  let access_token = res.body.access_token
-  let id_token = res.body.id_token
+  let access_token = res.data.access_token
+  let id_token = res.data.id_token
 
   // list of projects the id token gives access to
   tokenClaims = apiUtil.parseJwt(id_token);
@@ -136,7 +136,7 @@ Scenario('Authorization code flow: Test project access in id token same as proje
   // list of projects the user endpoint shows access to
   userInfoRes = await fence.do.getUserInfo(access_token);
   fence.ask.assertUserInfo(userInfoRes);
-  projectsOfUser = userInfoRes.body.project_access;
+  projectsOfUser = userInfoRes.data.project_access;
   console.log('list of projects the user endpoint shows access to:')
   console.log(projectsOfUser);
 
@@ -171,10 +171,10 @@ Scenario('Authorization code flow: Test project access in id token same as proje
 //   res = await fence.do.refreshAccessToken(
 //     fence.props.clients.client.id,
 //     fence.props.clients.client.secret,
-//     res.body.refresh_token.trim(), 'openid+user', 'refresh_token',
+//     res.data.refresh_token.trim(), 'openid+user', 'refresh_token',
 //   );
 //   fence.ask.assertRefreshAccessToken(res);
-//   res = await fence.do.getUserInfo(res.body.access_token);
+//   res = await fence.do.getUserInfo(res.data.access_token);
 //   fence.ask.assertUserInfo(res);
 // });
 

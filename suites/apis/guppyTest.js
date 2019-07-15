@@ -14,8 +14,8 @@ var token;
 Before( async (users, fence) => {
   const scope = ['data', 'user'];
   const apiKeyRes = await fence.complete.createAPIKey(scope, users.mainAcct.accessTokenHeader);
-  token = await fence.do.getAccessToken(apiKeyRes.body.api_key);
-  token = token.body.access_token;
+  token = await fence.do.getAccessToken(apiKeyRes.data.api_key);
+  token = token.data.access_token;
 });
 
 // This test fails due to what looks to me like a bug in Guppy that should be fixed. I made a ticket for it.

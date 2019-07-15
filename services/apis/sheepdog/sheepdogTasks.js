@@ -17,9 +17,9 @@ const bash = new Bash();
  * @returns {*}
  */
 function getIdFromResponse(res) {
-  const body = res.body;
+  const data = res.data;
   try {
-    return body.entities[0].id;
+    return data.entities[0].id;
   } catch (e) {
     // return nothing
     return undefined;
@@ -33,7 +33,7 @@ function getIdFromResponse(res) {
  */
 function getDidFromResponse(res) {
   try {
-    const body = JSON.parse(res.body);
+    const body = (typeof res.data === 'string') ? JSON.parse(res.data) : res.data;
     return body[0].object_id;
   } catch (e) {
     // return nothing
@@ -76,12 +76,12 @@ module.exports = {
     // PUT to sheepdog
     return I.sendPutRequest(
       sheepdogProps.endpoints.add,
-      JSON.stringify(node.data),
+      node.data,
       accessTokenHeader || user.mainAcct.accessTokenHeader,
     ).then((res) => {
-      node.data.id = getIdFromResponse(res);
       node.addRes = new Gen3Response(res);
-      if (node.category === 'data_file' && [200, 201].includes(node.addRes.statusCode)) {
+      node.data.id = getIdFromResponse(node.addRes);
+      if (node.category === 'data_file' && [200, 201].includes(node.addRes.status)) {
         return getDidFromFileId(node, accessTokenHeader);
       }
       return node;
@@ -104,19 +104,19 @@ module.exports = {
       submitData = node.data.slice(index, Math.min(index + chunk, node.data.length));
       response = await I.sendPutRequest(
         sheepdogProps.endpoints.add,
-        JSON.stringify(submitData),
+        submitData,
         accessTokenHeader || user.mainAcct.accessTokenHeader,
       );
 
-      if (response.code === 413) {
+      if (response.status === 413) {
         chunk /= 2;
         if (chunk === 0) break;
       } else {
         index += chunk;
       }
     }
-    node.data.id = getIdFromResponse(response);
     node.addRes = new Gen3Response(response);
+    node.data.id = getIdFromResponse(node.addRes);
     return node;
   },
 
