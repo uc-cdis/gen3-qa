@@ -175,6 +175,7 @@ cat - <<EOM
 Running with:
   namespace=$namespaceName
   service=$service
+  testedEnv=$testedEnv
 EOM
 
 echo 'INFO: installing dependencies'
@@ -249,7 +250,9 @@ if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestserv
   donot '@exportToWorkspacePortalGeneral'
   donot '@exportToWorkspacePortalJupyterHub'
   donot '@exportToWorkspacePortalHatchery'
-elif [[ $(curl -s "$portalConfigURL" | jq 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}}) | not') == "true" ]]; then
+elif [[ $(curl -s "$portalConfigURL" | jq 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}}) | not') == "true" ]] || 
+[[ ! -z "$testedEnv" ]]; then 
+  # do not run export to workspace portal tests if not enabled or in a manifest PR
   donot '@exportToWorkspacePortalGeneral'
   donot '@exportToWorkspacePortalJupyterHub'
   donot '@exportToWorkspacePortalHatchery'
