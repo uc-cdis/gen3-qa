@@ -12,8 +12,8 @@ module.exports = {
   },
 
   seeDetails() {
-    portal.seeProp(homeProps.summary, 5, 1);
-    portal.seeProp(homeProps.cards, 5);
+    portal.seeProp(homeProps.summary, 10, 1);
+    portal.seeProp(homeProps.cards, 10);
   },
 
   seeUserLoggedIn(username) {
