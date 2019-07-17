@@ -313,7 +313,7 @@ module.exports = {
    * /!\ this function does not include a check for success or
    * failure of the data_file node's submission
    */
-  async submitGraphAndFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5, submitter_id=null) {
+  async submitGraphAndFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5, submitter_id=null, consent_codes=[]) {
     // submit metadata with object id via sheepdog
     metadata = nodes.getFileNode().clone();
     metadata.data.object_id = fileGuid;
@@ -322,6 +322,8 @@ module.exports = {
     if (submitter_id) {
       metadata.data.submitter_id = submitter_id;
     }
+    // Consent codes: This will clobber whatever was in the node before
+    metadata.data.consent_codes = consent_codes;
 
     // assuming all data files can be submitted with a single link to a
     // core_metadata_collection: add it, and remove other links
