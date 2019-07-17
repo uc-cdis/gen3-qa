@@ -53,10 +53,11 @@ exports.config = {
     dataClient: './services/apis/dataClient/dataClientService.js',
     etl: './services/apis/etl/etlService.js',
     guppy: './services/apis/guppy/guppyService.js',
+    pelicanAPI: './services/apis/pelican/pelicanService.js',
 
     // Pages
     home: './services/portal/home/homeService.js',
-    pelican: './services/portal/pelican/pelicanService.js',
+    pelicanPortal: './services/portal/pelican/pelicanService.js',
     portalDataUpload: './services/portal/dataUpload/dataUploadService.js',
   },
   mocha: {
