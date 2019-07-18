@@ -184,6 +184,7 @@ dryrun npm ci
 ################################ Disable Test Tags #####################################
 
 runTestsIfServiceVersion "@multipartUpload" "fence" "2.8.0"
+runTestsIfServiceVersion "@multipartUploadFailure" "fence" "3.0.0"
 runTestsIfServiceVersion "@centralizedAuth" "fence" "3.0.0"
 runTestsIfServiceVersion "@dbgapSyncing" "fence" "3.0.0"
 
