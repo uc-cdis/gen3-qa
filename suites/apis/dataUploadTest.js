@@ -329,7 +329,7 @@ Scenario('Successful multipart upload @dataUpload @multipartUpload', async (user
  * Use fence's multipart upload endpoints to upload a large data file (>5MB).
  * Fail to complete the upload because of a wrong ETag input
  */
-Scenario('Failed multipart upload: wrong ETag for completion @dataUpload @multipartUpload', async (users, fence, dataUpload) => {
+Scenario('Failed multipart upload: wrong ETag for completion @dataUpload @multipartUpload @multipartUploadFailure', async (users, fence, dataUpload) => {
   // initialize the multipart upload
   console.log("Initializing multipart upload");
   const accessHeader = users.mainAcct.accessTokenHeader;
