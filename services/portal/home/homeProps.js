@@ -14,7 +14,7 @@ module.exports = {
 
   summary: {
     locator: {
-      css: '.h1-typo',
+      css: '.introduction',
     },
   },
 
