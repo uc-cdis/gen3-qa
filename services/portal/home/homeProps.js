@@ -26,7 +26,7 @@ module.exports = {
 
   googleLoginButton: {
     locator: {
-      xpath: '//button[contains(text(), \'Google Login\')]',
+      xpath: '//button[contains(text(), \'Login from Google\')]',
     },
   },
 
