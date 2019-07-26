@@ -163,7 +163,7 @@ Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try crea
     } catch (err) {
       let url = signedUrls3phs000178Res && signedUrls3phs000178Res.data && signedUrls3phs000178Res.data.url;
       console.log(`Failed to fetch signed url ${url}`, err);
-      chai.fail(`Failed to fetch signed url ${url}`);
+      chai.assert.fail(`Failed to fetch signed url ${url}`);
     }
     try {
       phs000178gsFileContents = await fence.do.getFileFromSignedUrlRes(
@@ -171,7 +171,7 @@ Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try crea
     } catch (err) {
       let url = signedUrlgsPhs000178Res && signedUrlgsPhs000178Res.data && signedUrlgsPhs000178Res.data.url;
       console.log(`Failed to fetch signed url ${url}`, err);
-      chai.fail(`Failed to fetch signed url ${url}`);
+      chai.assert.fail(`Failed to fetch signed url ${url}`);
     }
 
     chai.expect(phs000178s3FileContents,

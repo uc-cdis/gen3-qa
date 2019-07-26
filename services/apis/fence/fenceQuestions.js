@@ -77,7 +77,7 @@ module.exports = {
     try {
       linkUrl = new URL(linkRes.finalURL);
     } catch (err) {
-      chai.fail(`Failed to parse URL: ${linkRes.finalURL}`);
+      chai.assert.fail(`Failed to parse URL: ${linkRes.finalURL}`);
     }
     expect(linkUrl.searchParams.get('linked_email'),
       'response after Google linking doesnt include linked_email'
