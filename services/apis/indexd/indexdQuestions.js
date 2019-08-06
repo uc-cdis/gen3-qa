@@ -32,6 +32,9 @@ module.exports = {
     if (fileNode.data.urls !== undefined) {
       expect(res).to.nested.include({ 'urls[0]': fileNode.data.urls });
     }
+    if (fileNode.authz !== undefined) {
+      expect(res).to.have.deep.property('authz', fileNode.authz );
+    }
   },
 
   /**

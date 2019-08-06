@@ -371,6 +371,60 @@ Scenario('Failed multipart upload: wrong ETag for completion @dataUpload @multip
 
 
 /**
+ * Test data upload flow with consent codes in metadata:
+ * - Get presigned URL from fence, upload file to s3
+ * - Link metadata with consent codes to the file via sheepdog
+ * - Check that the consent codes end up in the indexd record
+ */
+Scenario('File upload with consent codes @dataUpload @consentCodes', async (fence, users, nodes, indexd, sheepdog, dataUpload) => {
+
+  // request a presigned URL from fence
+  let fenceUploadRes = await getUploadUrlFromFence(fence, users);
+  let fileGuid = fenceUploadRes.body.guid;
+  createdGuids.push(fileGuid);
+  let presignedUrl = fenceUploadRes.body.url;
+
+  // check that a (blank) record was created in indexd
+  let fileNode = {
+    did: fileGuid,
+    data: {
+      md5sum: fileMd5,
+      file_size: fileSize
+    }
+  };
+  await indexd.complete.checkRecordExists(fileNode);
+
+  // now, upload the file to the S3 bucket using the presigned URL
+  await dataUpload.uploadFileToS3(presignedUrl, filePath, fileSize);
+
+  // wait for the indexd listener to add size, hashes and URL to the record
+  await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
+
+  // submit metadata for this file, including consent codes
+  sheepdogRes = await nodes.submitGraphAndFileMetadata(
+	  sheepdog, nodes, fileGuid, fileSize, fileMd5, submitter_id=null, consent_codes=["cc1", "cc_2"]
+  );
+  sheepdog.ask.addNodeSuccess(sheepdogRes);
+
+  // check that record was updated in indexd and has correct consent codes
+  let fileNodeWithCCs = {
+    did: fileGuid,
+    authz: [
+      "//programs/jnkns/projects/jenkins",
+      "/consents/cc1",
+      "/consents/cc_2",
+    ],
+    data: {
+      md5sum: fileMd5,
+      file_size: fileSize
+    }
+  };
+  await indexd.complete.checkFile(fileNodeWithCCs);
+
+}).retry(2);
+
+
+/**
  * Checks if the gen3-client executable is present in the workspace.
  * During a local run, checks in the homedir instead.
  * It is needed for the data upload test suite
