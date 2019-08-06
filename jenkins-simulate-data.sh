@@ -59,6 +59,17 @@ fi
 echo "Leaf node set to: $leafNode"
 
 #
+# check dictionary "case" node for "consent_codes" property
+# set TEST_CONSENT_CODES accordingly
+#
+if jq -re '.|map(select(.id=="case"))|map(.properties.consent_codes)|.[]' < "$TEST_DATA_PATH/schema.json" > /dev/null; then
+  export TEST_CONSENT_CODES=true
+else
+  export TEST_CONSENT_CODES=false
+fi
+echo "TEST_CONSENT_CODES set to: $TEST_CONSENT_CODES"
+
+#
 # assume that we are running in the data-simulator directory
 # try to trick pip into working in the WORKSPACE
 #

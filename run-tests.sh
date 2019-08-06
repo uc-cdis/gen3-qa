@@ -238,6 +238,12 @@ if ! (g3kubectl get pods --no-headers -l app=guppy | grep guppy) > /dev/null 2>&
   donot '@guppyAPI'
 fi
 
+# Conditionally run consent codes tests
+if [[ "$TEST_CONSENT_CODES" == false ]]; then
+  # do not run consent code tests if the dictionary "case" node doesn't have consent codes
+  donot '@consentCodes'
+fi
+
 #
 # try to read configs of portal 
 #
