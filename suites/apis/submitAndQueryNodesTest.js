@@ -193,6 +193,45 @@ Scenario('test with_path_to - last to first node @reqData', async (peregrine, sh
 }).retry(2);
 
 
+Scenario('submit data node with consent codes @consentCodes', async (sheepdog, indexd, nodes) => {
+  metadata = nodes.getFileNode().clone();
+  if (metadata.data.consent_codes) {
+      metadata.data.consent_codes = ["CC1", "CC2"];
+  }
+
+  // assuming all data files can be submitted with a single link to a
+  // core_metadata_collection: add it, and remove other links
+  const cmcSubmitterID = await nodes.generateAndAddCoremetadataNode(sheepdog);
+  console.log("cmcSubmitterID: " + cmcSubmitterID);
+  for (var prop in metadata.data) {
+    if (metadata.data.hasOwnProperty(prop) && metadata.data[prop].hasOwnProperty('submitter_id')) {
+      console.log("Deleting: " + metadata.data[prop]);
+      delete metadata.data[prop];
+    }
+  }
+  metadata.data.core_metadata_collections = {
+    submitter_id: cmcSubmitterID
+  };
+
+  await sheepdog.complete.addNode(metadata);
+
+  // check that the indexd record was created with the correct consent codes
+  let fileNodeWithCCs = {
+    did: metadata.did,
+    authz: [
+      "//programs/jnkns/projects/jenkins",
+      "/consents/CC1",
+      "/consents/CC2",
+    ],
+    data: {
+      md5sum: metadata.data.md5sum,
+      file_size: metadata.data.file_size
+    }
+  };
+  await indexd.complete.checkFile(fileNodeWithCCs);
+}).retry(2);
+
+
 BeforeSuite(async (sheepdog) => {
   // try to clean up any leftover nodes
   await sheepdog.complete.findDeleteAllNodes();
