@@ -313,12 +313,18 @@ module.exports = {
    * /!\ this function does not include a check for success or
    * failure of the data_file node's submission
    */
-  async submitGraphAndFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5, submitter_id=null, consent_codes=null) {
+  async submitGraphAndFileMetadata(sheepdog, nodes, fileGuid=null, fileSize=null, fileMd5=null, submitter_id=null, consent_codes=null) {
     // submit metadata with object id via sheepdog
     metadata = nodes.getFileNode().clone();
-    metadata.data.object_id = fileGuid;
-    metadata.data.file_size = fileSize;
-    metadata.data.md5sum = fileMd5;
+    if (fileGuid) {
+        metadata.data.object_id = fileGuid;
+    }
+    if (fileSize) {
+        metadata.data.file_size = fileSize;
+    }
+    if (fileMd5) {
+        metadata.data.md5sum = fileMd5;
+    }
     if (submitter_id) {
       metadata.data.submitter_id = submitter_id;
     }

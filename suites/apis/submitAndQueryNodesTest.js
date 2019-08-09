@@ -201,37 +201,22 @@ Scenario('test with_path_to - last to first node @reqData', async (peregrine, sh
  * Compare with cc test in dataUpload suite)
  */
 Scenario('submit data node with consent codes @indexRecordConsentCodes', async (sheepdog, indexd, nodes) => {
-  metadata = nodes.getFileNode().clone();
-  if (metadata.data.consent_codes) {
-      metadata.data.consent_codes = ["CC1", "CC2"];
-  }
-
-  // assuming all data files can be submitted with a single link to a
-  // core_metadata_collection: add it, and remove other links
-  const cmcSubmitterID = await nodes.generateAndAddCoremetadataNode(sheepdog);
-  console.log("cmcSubmitterID: " + cmcSubmitterID);
-  for (var prop in metadata.data) {
-    if (metadata.data.hasOwnProperty(prop) && metadata.data[prop].hasOwnProperty('submitter_id')) {
-      console.log("Deleting: " + metadata.data[prop]);
-      delete metadata.data[prop];
-    }
-  }
-  metadata.data.core_metadata_collections = {
-    submitter_id: cmcSubmitterID
-  };
-
-  await sheepdog.complete.addNode(metadata);
+  // submit metadata for this file, including consent codes
+  sheepdogRes = await nodes.submitGraphAndFileMetadata(
+	  sheepdog, nodes, null, null, null, null, consent_codes=["CC1", "CC2"]
+  );
+  sheepdog.ask.addNodeSuccess(sheepdogRes);
 
   // check that the indexd record was created with the correct consent codes
   let fileNodeWithCCs = {
-    did: metadata.did,
+    did: sheepdogRes.did,
     authz: [
       "/consents/CC1",
       "/consents/CC2",
     ],
     data: {
-      md5sum: metadata.data.md5sum,
-      file_size: metadata.data.file_size
+      md5sum: sheepdogRes.data.md5sum,
+      file_size: sheepdogRes.data.file_size
     }
   };
   await indexd.complete.checkFile(fileNodeWithCCs);
