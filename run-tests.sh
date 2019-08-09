@@ -239,6 +239,10 @@ if ! (g3kubectl get pods --no-headers -l app=guppy | grep guppy) > /dev/null 2>&
 fi
 
 
+if [[ -z "$TEST_DATA_PATH" ]]; then
+  echo "ERROR: TEST_DATA_PATH env var is not set--cannot find schema in run-tests.sh."
+  exit 1
+fi
 if ! jq -re '.|values|map(select(.data_file_properties.consent_codes!=null))|.[]' < "$TEST_DATA_PATH/schema.json" > /dev/null; then
   # do not run tests for consent codes in indexd records if the dictionary's data_file_properties doesn't have consent_codes
   donot '@indexRecordConsentCodes'
