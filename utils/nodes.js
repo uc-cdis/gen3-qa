@@ -325,7 +325,7 @@ module.exports = {
     if (consent_codes) {
         // check that the dictionary has consent codes
 	if (!metadata.data.consent_codes) {
-            throw "Tried to set consent_codes but consent_codes not in dictionary. Should test be disabled?"
+            throw new Error('Tried to set consent_codes but consent_codes not in dictionary. Should test be disabled?');
         }
 	metadata.data.consent_codes = consent_codes;
     }
