@@ -33,7 +33,7 @@ module.exports = {
       expect(res).to.nested.include({ 'urls[0]': fileNode.data.urls });
     }
     if (fileNode.authz !== undefined) {
-      expect(res).to.have.deep.property('authz', fileNode.authz );
+      expect(res.authz).to.include.members(fileNode.authz);
     }
   },
 

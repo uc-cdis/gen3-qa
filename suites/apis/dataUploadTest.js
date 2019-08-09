@@ -410,7 +410,6 @@ Scenario('File upload with consent codes @dataUpload @indexRecordConsentCodes', 
   let fileNodeWithCCs = {
     did: fileGuid,
     authz: [
-      "//programs/jnkns/projects/jenkins",
       "/consents/cc1",
       "/consents/cc_2",
     ],

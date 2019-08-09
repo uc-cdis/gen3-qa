@@ -219,7 +219,6 @@ Scenario('submit data node with consent codes @indexRecordConsentCodes', async (
   let fileNodeWithCCs = {
     did: metadata.did,
     authz: [
-      "//programs/jnkns/projects/jenkins",
       "/consents/CC1",
       "/consents/CC2",
     ],
