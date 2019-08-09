@@ -373,6 +373,7 @@ Scenario('Failed multipart upload: wrong ETag for completion @dataUpload @multip
 /**
  * Test data upload flow with consent codes in metadata:
  * - Get presigned URL from fence, upload file to s3
+ *   (indexd listener creates blank index record)
  * - Link metadata with consent codes to the file via sheepdog
  * - Check that the consent codes end up in the indexd record
  */

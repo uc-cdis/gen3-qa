@@ -193,6 +193,13 @@ Scenario('test with_path_to - last to first node @reqData', async (peregrine, sh
 }).retry(2);
 
 
+/**
+ * Test non-data-upload flow with consent codes in metadata:
+ * - Submit metadata with consent codes to sheepdog
+ * - Check that the consent codes end up in the new indexd record
+ * (In this flow there is no actual data file being uploaded, so the record is created "from scratch".
+ * Compare with cc test in dataUpload suite)
+ */
 Scenario('submit data node with consent codes @indexRecordConsentCodes', async (sheepdog, indexd, nodes) => {
   metadata = nodes.getFileNode().clone();
   if (metadata.data.consent_codes) {
