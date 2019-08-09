@@ -203,7 +203,7 @@ Scenario('test with_path_to - last to first node @reqData', async (peregrine, sh
 Scenario('submit data node with consent codes @indexRecordConsentCodes', async (sheepdog, indexd, nodes) => {
   // submit metadata for this file, including consent codes
   sheepdogRes = await nodes.submitGraphAndFileMetadata(
-	  sheepdog, nodes, null, null, null, null, consent_codes=["CC1", "CC2"]
+	  sheepdog, null, null, null, null, consent_codes=["CC1", "CC2"]
   );
   sheepdog.ask.addNodeSuccess(sheepdogRes);
 

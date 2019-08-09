@@ -65,7 +65,7 @@ Scenario('File upload and download via API calls @dataUpload', async (fence, use
   // we simulate not waiting by not uploading the file to the S3 bucket yet
 
   // fail to submit metadata for this file
-  let sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5);
+  let sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, fileGuid, fileSize, fileMd5);
   sheepdog.ask.hasStatusCode(sheepdogRes.addRes, 400, 'Linking metadata to file without hash and size should not be possible');
 
   // check that we CANNOT download the file (there is no URL in indexd yet)
@@ -93,7 +93,7 @@ Scenario('File upload and download via API calls @dataUpload', async (fence, use
   fence.ask.assertStatusCode(signedUrlRes, 401, 'User who is not the uploader should not successfully download file before metadata linking');
 
   // submit metadata for this file
-  sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5);
+  sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, fileGuid, fileSize, fileMd5);
   sheepdog.ask.addNodeSuccess(sheepdogRes);
 
   // a user who is not the uploader can now download the file
@@ -105,7 +105,7 @@ Scenario('File upload and download via API calls @dataUpload', async (fence, use
 
   // check that we cannot link metadata to a file that already has metadata:
   // try to submit metadata for this file again
-  sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5, submitter_id='submitter_id_new_value');
+  sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, fileGuid, fileSize, fileMd5, submitter_id='submitter_id_new_value');
   sheepdog.ask.addNodeSuccess(sheepdogRes);
 }).retry(2);
 
@@ -195,7 +195,7 @@ Scenario('Data file deletion @dataUpload', async (fence, users, indexd, sheepdog
   indexd.ask.resultFailure(indexdRes);
 
   // no metadata linking after delete
-  let sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5);
+  let sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, fileGuid, fileSize, fileMd5);
   sheepdog.ask.hasStatusCode(sheepdogRes.addRes, 400, 'Metadata linking should not be possible after file deletion');
 
   // no download after delete
@@ -233,7 +233,7 @@ Scenario('Upload the same file twice @dataUpload', async (sheepdog, indexd, node
   await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 
   // submit metadata for this file
-  let sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5);
+  let sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, fileGuid, fileSize, fileMd5);
   sheepdog.ask.addNodeSuccess(sheepdogRes, 'first upload');
 
   // check that the file can be downloaded
@@ -261,7 +261,7 @@ Scenario('Upload the same file twice @dataUpload', async (sheepdog, indexd, node
   await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 
   // submit metadata for this file
-  sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5, submitter_id='submitter_id_new_value');
+  sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, fileGuid, fileSize, fileMd5, submitter_id='submitter_id_new_value');
   sheepdog.ask.addNodeSuccess(sheepdogRes, 'second upload');
 
   // check that the file can be downloaded
@@ -403,7 +403,7 @@ Scenario('File upload with consent codes @dataUpload @indexRecordConsentCodes', 
 
   // submit metadata for this file, including consent codes
   sheepdogRes = await nodes.submitGraphAndFileMetadata(
-	  sheepdog, nodes, fileGuid, fileSize, fileMd5, submitter_id=null, consent_codes=["cc1", "cc_2"]
+	  sheepdog, fileGuid, fileSize, fileMd5, submitter_id=null, consent_codes=["cc1", "cc_2"]
   );
   sheepdog.ask.addNodeSuccess(sheepdogRes);
 
