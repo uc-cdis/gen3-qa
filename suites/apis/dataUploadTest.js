@@ -376,7 +376,7 @@ Scenario('Failed multipart upload: wrong ETag for completion @dataUpload @multip
  * - Link metadata with consent codes to the file via sheepdog
  * - Check that the consent codes end up in the indexd record
  */
-Scenario('File upload with consent codes @dataUpload @consentCodes', async (fence, users, nodes, indexd, sheepdog, dataUpload) => {
+Scenario('File upload with consent codes @dataUpload @indexRecordConsentCodes', async (fence, users, nodes, indexd, sheepdog, dataUpload) => {
 
   // request a presigned URL from fence
   let fenceUploadRes = await getUploadUrlFromFence(fence, users);

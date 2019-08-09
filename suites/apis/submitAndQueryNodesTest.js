@@ -193,7 +193,7 @@ Scenario('test with_path_to - last to first node @reqData', async (peregrine, sh
 }).retry(2);
 
 
-Scenario('submit data node with consent codes @consentCodes', async (sheepdog, indexd, nodes) => {
+Scenario('submit data node with consent codes @indexRecordConsentCodes', async (sheepdog, indexd, nodes) => {
   metadata = nodes.getFileNode().clone();
   if (metadata.data.consent_codes) {
       metadata.data.consent_codes = ["CC1", "CC2"];

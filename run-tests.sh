@@ -239,9 +239,9 @@ if ! (g3kubectl get pods --no-headers -l app=guppy | grep guppy) > /dev/null 2>&
 fi
 
 
-if ! jq -re '.|map(select(.id=="case"))|map(.properties.consent_codes)|.[]' < "$TEST_DATA_PATH/schema.json" > /dev/null; then
-  # do not run consent code tests if the dictionary "case" node doesn't have "consent_codes" property
-  donot '@consentCodes'
+if ! jq -re '.|values|map(select(.data_file_properties.consent_codes!=null))|.[]' < "$TEST_DATA_PATH/schema.json" > /dev/null; then
+  # do not run tests for consent codes in indexd records if the dictionary's data_file_properties doesn't have consent_codes
+  donot '@indexRecordConsentCodes'
 fi
 
 #
