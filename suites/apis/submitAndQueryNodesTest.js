@@ -193,6 +193,36 @@ Scenario('test with_path_to - last to first node @reqData', async (peregrine, sh
 }).retry(2);
 
 
+/**
+ * Test non-data-upload flow with consent codes in metadata:
+ * - Submit metadata with consent codes to sheepdog
+ * - Check that the consent codes end up in the new indexd record
+ * (In this flow there is no actual data file being uploaded, so the record is created "from scratch".
+ * Compare with cc test in dataUpload suite)
+ */
+Scenario('submit data node with consent codes @indexRecordConsentCodes', async (sheepdog, indexd, nodes) => {
+  // submit metadata for this file, including consent codes
+  sheepdogRes = await nodes.submitGraphAndFileMetadata(
+	  sheepdog, null, null, null, null, consent_codes=["CC1", "CC2"]
+  );
+  sheepdog.ask.addNodeSuccess(sheepdogRes);
+
+  // check that the indexd record was created with the correct consent codes
+  let fileNodeWithCCs = {
+    did: sheepdogRes.did,
+    authz: [
+      "/consents/CC1",
+      "/consents/CC2",
+    ],
+    data: {
+      md5sum: sheepdogRes.data.md5sum,
+      file_size: sheepdogRes.data.file_size
+    }
+  };
+  await indexd.complete.checkFile(fileNodeWithCCs);
+}).retry(2);
+
+
 BeforeSuite(async (sheepdog) => {
   // try to clean up any leftover nodes
   await sheepdog.complete.findDeleteAllNodes();

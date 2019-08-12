@@ -65,7 +65,7 @@ Scenario('File upload and download via API calls @dataUpload', async (fence, use
   // we simulate not waiting by not uploading the file to the S3 bucket yet
 
   // fail to submit metadata for this file
-  let sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5);
+  let sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, fileGuid, fileSize, fileMd5);
   sheepdog.ask.hasStatusCode(sheepdogRes.addRes, 400, 'Linking metadata to file without hash and size should not be possible');
 
   // check that we CANNOT download the file (there is no URL in indexd yet)
@@ -93,7 +93,7 @@ Scenario('File upload and download via API calls @dataUpload', async (fence, use
   fence.ask.assertStatusCode(signedUrlRes, 401, 'User who is not the uploader should not successfully download file before metadata linking');
 
   // submit metadata for this file
-  sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5);
+  sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, fileGuid, fileSize, fileMd5);
   sheepdog.ask.addNodeSuccess(sheepdogRes);
 
   // a user who is not the uploader can now download the file
@@ -105,7 +105,7 @@ Scenario('File upload and download via API calls @dataUpload', async (fence, use
 
   // check that we cannot link metadata to a file that already has metadata:
   // try to submit metadata for this file again
-  sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5, submitter_id='submitter_id_new_value');
+  sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, fileGuid, fileSize, fileMd5, submitter_id='submitter_id_new_value');
   sheepdog.ask.addNodeSuccess(sheepdogRes);
 }).retry(2);
 
@@ -195,7 +195,7 @@ Scenario('Data file deletion @dataUpload', async (fence, users, indexd, sheepdog
   indexd.ask.resultFailure(indexdRes);
 
   // no metadata linking after delete
-  let sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5);
+  let sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, fileGuid, fileSize, fileMd5);
   sheepdog.ask.hasStatusCode(sheepdogRes.addRes, 400, 'Metadata linking should not be possible after file deletion');
 
   // no download after delete
@@ -233,7 +233,7 @@ Scenario('Upload the same file twice @dataUpload', async (sheepdog, indexd, node
   await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 
   // submit metadata for this file
-  let sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5);
+  let sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, fileGuid, fileSize, fileMd5);
   sheepdog.ask.addNodeSuccess(sheepdogRes, 'first upload');
 
   // check that the file can be downloaded
@@ -261,7 +261,7 @@ Scenario('Upload the same file twice @dataUpload', async (sheepdog, indexd, node
   await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 
   // submit metadata for this file
-  sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, nodes, fileGuid, fileSize, fileMd5, submitter_id='submitter_id_new_value');
+  sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, fileGuid, fileSize, fileMd5, submitter_id='submitter_id_new_value');
   sheepdog.ask.addNodeSuccess(sheepdogRes, 'second upload');
 
   // check that the file can be downloaded
@@ -367,6 +367,60 @@ Scenario('Failed multipart upload: wrong ETag for completion @dataUpload @multip
   console.log("Try to download the file");
   const signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid);
   fence.ask.assertStatusCode(signedUrlRes, 404, "Should not be able to get signed URL for file download when multipart upload completion failed");
+}).retry(2);
+
+
+/**
+ * Test data upload flow with consent codes in metadata:
+ * - Get presigned URL from fence, upload file to s3
+ *   (indexd listener creates blank index record)
+ * - Link metadata with consent codes to the file via sheepdog
+ * - Check that the consent codes end up in the indexd record
+ */
+Scenario('File upload with consent codes @dataUpload @indexRecordConsentCodes', async (fence, users, nodes, indexd, sheepdog, dataUpload) => {
+
+  // request a presigned URL from fence
+  let fenceUploadRes = await getUploadUrlFromFence(fence, users);
+  let fileGuid = fenceUploadRes.body.guid;
+  createdGuids.push(fileGuid);
+  let presignedUrl = fenceUploadRes.body.url;
+
+  // check that a (blank) record was created in indexd
+  let fileNode = {
+    did: fileGuid,
+    data: {
+      md5sum: fileMd5,
+      file_size: fileSize
+    }
+  };
+  await indexd.complete.checkRecordExists(fileNode);
+
+  // now, upload the file to the S3 bucket using the presigned URL
+  await dataUpload.uploadFileToS3(presignedUrl, filePath, fileSize);
+
+  // wait for the indexd listener to add size, hashes and URL to the record
+  await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
+
+  // submit metadata for this file, including consent codes
+  sheepdogRes = await nodes.submitGraphAndFileMetadata(
+	  sheepdog, fileGuid, fileSize, fileMd5, submitter_id=null, consent_codes=["cc1", "cc_2"]
+  );
+  sheepdog.ask.addNodeSuccess(sheepdogRes);
+
+  // check that record was updated in indexd and has correct consent codes
+  let fileNodeWithCCs = {
+    did: fileGuid,
+    authz: [
+      "/consents/cc1",
+      "/consents/cc_2",
+    ],
+    data: {
+      md5sum: fileMd5,
+      file_size: fileSize
+    }
+  };
+  await indexd.complete.checkFile(fileNodeWithCCs);
+
 }).retry(2);
 
 
