@@ -241,7 +241,7 @@ Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try crea
       `User ${users.mainAcct.username} should not be able to upload for dbgap ` +
       'project phs000178, even though they have read access.'
     );
-});
+}).retry(2);
 
 Scenario('dbGaP + user.yaml Sync: ensure combined access @dbgapSyncing @reqGoogle',
   async (fence, users) => {
