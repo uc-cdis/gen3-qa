@@ -21,7 +21,7 @@ exports.config = {
           ],
         },
       },
-      restart: false,
+      restart: true, // restart browser for every test
       timeouts: {
         script: 6000,
         'page load': 10000,
