@@ -4,7 +4,7 @@ Feature('SubmitAndQueryNodesTest');
 
 Scenario('submit node unauthenticated @reqData', async (sheepdog, nodes, users) => {
   await sheepdog.do.addNode(nodes.getFirstNode(), users.mainAcct.expiredAccessTokenHeader);
-  sheepdog.ask.hasNoAuthError(nodes.getFirstNode().addRes);
+  sheepdog.ask.hasExpiredAuthError(nodes.getFirstNode().addRes);
   await sheepdog.do.deleteNode(nodes.getFirstNode());
 }).retry(2);
 

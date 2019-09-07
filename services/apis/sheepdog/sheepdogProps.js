@@ -62,12 +62,12 @@ module.exports = {
   /**
    * Expected contents of the response when no authentication is provided
    */
-  resNoAuth: {
+  resExpiredAuth: {
     status: 401,
     // Before sheepdog's arborist update, the error is:
     // "Authentication Error: Signature has expired"
     // After sheepdog's arborist update, the error is:
-    // "request to arborist failed: error decoding token: expired at time: 1567720295"
+    // "request to arborist failed: error decoding token: expired at time: 123456"
     errorMsg: 'expired',
   },
 
