@@ -92,7 +92,12 @@ module.exports = {
    * Asserts a sheepdog response has error due to missing authentication
    * @param {Gen3Response} res
    */
-  hasNoAuthError(res) {
-    expect(res).to.be.a.gen3Res(sheepdogProps.resNoAuth);
+  hasExpiredAuthError(res) {
+    expect(res).to.be.a.gen3Res;
+    expect(res.status).to.equal(sheepdogProps.resExpiredAuth.status);
+    // Before sheepdog's arborist update, the error is in body.message
+    // After sheepdog's arborist update, the error is in body.error
+    const msg = res.body.error || res.body.message;
+    expect(msg).to.contain(sheepdogProps.resExpiredAuth.errorMsg);
   },
 };
