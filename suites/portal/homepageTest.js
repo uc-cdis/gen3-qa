@@ -1,6 +1,6 @@
 Feature('Login');
 
-Scenario('login', (home) => {
+Scenario('login @portal', (home) => {
   home.do.goToHomepage();
   home.complete.login();
   home.ask.seeDetails();

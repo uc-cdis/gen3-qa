@@ -62,7 +62,7 @@ Before((home) => {
   home.complete.login();
 });
 
-Scenario('Map uploaded files in windmill submission page @dataUpload', async (sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUpload) => {
+Scenario('Map uploaded files in windmill submission page @dataUpload @portal', async (sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUpload) => {
   // generate file and register in fence, get url
   const {fileObj, presignedUrl} = await generateFileAndGetUrlFromFence(files, fence, users.mainAcct.accessTokenHeader);
 
@@ -82,7 +82,7 @@ Scenario('Map uploaded files in windmill submission page @dataUpload', async (sh
   portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage([]);
 });
 
-Scenario('Cannot see files uploaded by other users @dataUpload', async(sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUpload) => {
+Scenario('Cannot see files uploaded by other users @dataUpload @portal', async(sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUpload) => {
   // user2 upload file2
   const {fileObj, presignedUrl} = await generateFileAndGetUrlFromFence(files, fence, users.auxAcct2.accessTokenHeader);
   await uploadFile(dataUpload, indexd, sheepdog, nodes, fileObj, presignedUrl);

@@ -255,6 +255,10 @@ hostname="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.host
 portalApp="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.portal_app')"
 portalConfigURL="https://${hostname}/data/config/${portalApp}.json"
 
+if [[ "$hostname" == "niaiddata.org" ]]; then
+  donot '@portal'
+fi
+
 if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1 ||
 ! (g3kubectl get pods --no-headers -l app=wts | grep wts) > /dev/null 2>&1; then
   donot '@exportToWorkspaceAPI'
