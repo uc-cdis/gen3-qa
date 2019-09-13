@@ -254,8 +254,9 @@ fi
 hostname="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.hostname')"
 portalApp="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.portal_app')"
 portalConfigURL="https://${hostname}/data/config/${portalApp}.json"
+portalVersion="$(g3kubectl get configmaps manifest-all -o json | jq -r '.data.json | fromjson.versions.portal')"
 
-if [[ "$hostname" == "niaiddata.org" ]] || [[ "$hostname" == "jenkins-dcp.planx-pla.net" ]]; then
+if [[ "$portalVersion" == *"data-ecosystem-portal"* ]]; then
   donot '@portal'
 fi
 
