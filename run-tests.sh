@@ -256,6 +256,7 @@ portalApp="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.por
 portalConfigURL="https://${hostname}/data/config/${portalApp}.json"
 portalVersion="$(g3kubectl get configmaps manifest-all -o json | jq -r '.data.json | fromjson.versions.portal')"
 
+# do not run portal related tests for NDE portal
 if [[ "$portalVersion" == *"data-ecosystem-portal"* ]]; then
   donot '@portal'
 fi
