@@ -280,7 +280,6 @@ elif ! (g3kubectl get pods --no-headers -l app=hatchery | grep hatchery) > /dev/
   donot '@exportToWorkspacePortalHatchery'
 fi
 
-echo "$doNotRunRegex"
 ########################################################################################
 
 testArgs="--reporter mocha-multi"
