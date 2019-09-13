@@ -14,8 +14,8 @@ module.exports = {
     homeQuestions.seeUserLoggedIn(userAcct.username);
   },
 
-  logout() {
+  logout(userAcct = user.mainAcct) {
     homeTasks.logout();
-    homeQuestions.isLoggedOut();
+    homeQuestions.isLoggedOut(userAcct.username);
   },
 };

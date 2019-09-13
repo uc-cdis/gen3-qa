@@ -20,7 +20,8 @@ module.exports = {
     I.waitForText(username, 5);
   },
 
-  isLoggedOut() {
-    portal.seeProp(homeProps.googleLoginButton, 10);
+  isLoggedOut(username) {
+    I.wait(5);
+    I.dontSee(username);
   },
 };
