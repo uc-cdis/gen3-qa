@@ -254,6 +254,12 @@ fi
 hostname="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.hostname')"
 portalApp="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.portal_app')"
 portalConfigURL="https://${hostname}/data/config/${portalApp}.json"
+portalVersion="$(g3kubectl get configmaps manifest-all -o json | jq -r '.data.json | fromjson.versions.portal')"
+
+# do not run portal related tests for NDE portal
+if [[ "$portalVersion" == *"data-ecosystem-portal"* ]]; then
+  donot '@portal'
+fi
 
 if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1 ||
 ! (g3kubectl get pods --no-headers -l app=wts | grep wts) > /dev/null 2>&1; then
