@@ -121,7 +121,8 @@ But as mentioned above, some tests have special requirements so you may not want
 The special dev environment setup that is required by some tests is described [here](https://github.com/uc-cdis/cdis-wiki/blob/master/dev/gen3/guides/gen3qa-dev-env.md).
 
 ## Writing Tests
-Each API or web page feature is contained in a singe .js file. They are stored in `suites/apis` and `suites/portal`, with filenames matching the pattern `*Test.js`.
+
+Each API or web page feature is contained in a singe .js file. They are stored in `suites/**` filenames matching the pattern `*Test.js`.
 
 Refer to the [CodeceptJS docs](https://codecept.io/basics/) existing tests for info and writing patterns. TLDR for the basics:
 - A `*Test.js` file tests a single `Feature`
