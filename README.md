@@ -10,11 +10,12 @@ Run a test locally against a dev environment like this:
 docker run -d -p 4444:4444 --name=selenium --rm -v /dev/shm:/dev/shm selenium/standalone-chrome
 
 # basic run - some tests require more setup than this
-RUNNING_LOCAL=true NAMESPACE=yourDevNamespace TEST_DATA_PATH=./testData ./npm test -- --verbose --grep '@dataClientCLI|@reqGoogle' --invert suites/.../myTest.js
+RUNNING_LOCAL=true NAMESPACE=yourDevNamespace TEST_DATA_PATH=./testData npm test -- --verbose --grep '@dataClientCLI|@reqGoogle' --invert --reporter mocha-multi suites/.../myTest.js
 ```
 
 Notes:
 * the OAuth flow tests require `fence-config.yaml` to be configured with `MOCK_GOOGLE_AUTH: true`
+* set the GEN3_INTERACTIVE environment variabl to `false` to disable interactive tests that require user feedback
 
 ## Generating test data for tests
 
