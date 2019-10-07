@@ -285,9 +285,11 @@ fi
 
 testArgs="--reporter mocha-multi"
 
-if [[ -n "$doNotRunRegex" ]]; then
-  testArgs="${testArgs} --grep '${doNotRunRegex}' --invert"
-fi
+# if [[ -n "$doNotRunRegex" ]]; then
+#   testArgs="${testArgs} --grep '${doNotRunRegex}' --invert"
+# fi
+
+testArgs="${testArgs} --grep '@dataUpload|@portal'"
 
 exitCode=0
 
