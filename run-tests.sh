@@ -289,7 +289,7 @@ testArgs="--reporter mocha-multi"
 #   testArgs="${testArgs} --grep '${doNotRunRegex}' --invert"
 # fi
 
-testArgs="${testArgs} --grep '@dataUpload|@portal'"
+testArgs="${testArgs} --grep '@@coreMetadata|@portal'"
 
 exitCode=0
 
