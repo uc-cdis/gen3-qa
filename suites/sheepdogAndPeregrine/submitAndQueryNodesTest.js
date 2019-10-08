@@ -3,7 +3,8 @@ const { Commons } = require('../../utils/commons.js');
 Feature('SubmitAndQueryNodesTest');
 
 Scenario('submit node unauthenticated @reqData', async (sheepdog, nodes, users) => {
-  await sheepdog.do.addNode(nodes.getFirstNode(), users.mainAcct.expiredAccessTokenHeader);
+  const authHeader = await users.mainAcct.getExpiredAccessTokenHeader();
+  await sheepdog.do.addNode(nodes.getFirstNode(), authHeader);
   sheepdog.ask.hasExpiredAuthError(nodes.getFirstNode().addRes);
   await sheepdog.do.deleteNode(nodes.getFirstNode());
 }).retry(2);

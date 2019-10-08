@@ -1,6 +1,8 @@
 # TL;DR
 
-gen3-qa supports executable test plans via `interactive` helpers.
+Every gen3 feature should publish an executable test plan in https://github.com/uc-cdis/gen3-qa
+under the `suites/` folder.
+A test plan can support manual tests via `interactive` helpers.
 
 ## Overview
 
