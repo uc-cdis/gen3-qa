@@ -10,7 +10,7 @@ We implement a process that allows a test plan to evolve from manual checks carr
 
 The [interactive.js](../utils/interactive.js) helpers allow us to write codeceptjs test suites that present instructions to a qa tester, then interactively collect the results of the test.  This facility allows us to intermix manual and automated tests, and also support partially automated tests.
 
-For example, one scenario pelican's [exportPfbTest](../suites/pelican/exportPfbTest.js) looks like this:
+For example, one scenario in pelican's [exportPfbTest](../suites/pelican/exportPfbTest.js) looks like this:
 
 ```
 Scenario('Download whole of the database', ifInteractive(
