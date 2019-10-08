@@ -12,9 +12,10 @@ Scenario('test create APIKey success', async (fence, users) => {
 
 Scenario('create APIKey with expired access token', async (fence, users) => {
   const scope = ['data', 'user'];
+  const authHeader = await users.mainAcct.getExpiredAccessTokenHeader();
   const apiKeyRes = await fence.do.createAPIKey(
     scope,
-    users.mainAcct.expiredAccessTokenHeader,
+    authHeader,
   );
   fence.ask.responsesEqual(apiKeyRes, fence.props.resExpiredAccessToken);
 });

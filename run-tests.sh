@@ -293,6 +293,8 @@ exitCode=0
 
 (
   export NAMESPACE="$namespaceName"
+  # no interactive tests
+  export GEN3_INTERACTIVE=false  
   cat - <<EOM
 
 ---------------------------

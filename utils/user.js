@@ -60,11 +60,13 @@ class User {
     return this._accessToken;
   }
 
-  get expiredAccessToken() {
+  async getExpiredAccessToken() {
     if (! this._expiredAccessToken) {
       const at = apiUtil.getAccessToken(this.username, 1);
-      const token = apiUtil.parseJwt(at);
+      const token = apiUtil.parseJwt(at); // just a sanity check
       this._expiredAccessToken = at;
+      // better sleep for 1 seconds, so the token is actually expired when the caller gets it
+      await apiUtil.sleepMS(2000);
     }
     return this._expiredAccessToken;
   }
@@ -96,10 +98,11 @@ class User {
    * Simple auth header with bearer and expired access token
    * @returns {{Accept: string, Authorization: string}}
    */
-  get expiredAccessTokenHeader() {
+  async getExpiredAccessTokenHeader() {
+    const token = await this.getExpiredAccessToken();
     return {
       Accept: 'application/json',
-      Authorization: `bearer ${this.expiredAccessToken}`,
+      Authorization: `bearer ${token}`,
       'Content-Type': 'application/json',
     };
   }
