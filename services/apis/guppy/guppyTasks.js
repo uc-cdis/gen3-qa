@@ -1,5 +1,3 @@
-const guppyProps = require('./guppyProps.js');
-const { Gen3Response, getCookie, getAccessTokenHeader } = require('../../../utils/apiUtil');
 const fetch = require('node-fetch');
 const fs = require('fs');
 
