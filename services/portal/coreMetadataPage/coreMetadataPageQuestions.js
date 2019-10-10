@@ -24,7 +24,7 @@ const dateTransform = date => `Updated on ${date.substr(0, 10)}`;
  */
 module.exports = {
   doesCoreMetadataPageLooksCorrect(metadata) {
-    console.log('validate the appearance of CoreMetadataPage for a given file');
+    console.log('validate the appearance of core metadata page for a given file');
     I.seeElement(coreMetadataPageProps.coreMetadataPageBox1Class);
     I.seeElement(coreMetadataPageProps.coreMetadataPageBox2Class);
     I.seeElement(coreMetadataPageProps.coreMetadataPageBox3Class);

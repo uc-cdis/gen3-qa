@@ -188,6 +188,8 @@ runTestsIfServiceVersion "@multipartUploadFailure" "fence" "3.0.0"
 runTestsIfServiceVersion "@centralizedAuth" "fence" "3.0.0"
 runTestsIfServiceVersion "@dbgapSyncing" "fence" "3.0.0"
 runTestsIfServiceVersion "@indexRecordConsentCodes" "sheepdog" "1.1.13"
+# TODO: change this after the coremetadata portal pr is merged
+#runTestsIfServiceVersion "@coreMetadataPage" "portal" "VERSION_NUMBER"
 
 # environments that use DCF features
 # we only run Google Data Access tests for cdis-manifest PRs to these
@@ -289,7 +291,7 @@ testArgs="--reporter mocha-multi"
 #   testArgs="${testArgs} --grep '${doNotRunRegex}' --invert"
 # fi
 
-testArgs="${testArgs} --grep '@coreMetadata|@CoreMetadataPage'"
+testArgs="${testArgs} --grep '@coreMetadata|@coreMetadataPage'"
 
 exitCode=0
 

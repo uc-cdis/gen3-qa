@@ -17,7 +17,7 @@ Before((home) => {
   home.complete.login();
 });
 
-Scenario('test core metadata page @CoreMetadataPage', async (portalCoreMetadataPage) => {
+Scenario('test core metadata page @coreMetadataPage @portal', async (portalCoreMetadataPage) => {
   await portalCoreMetadataPage.complete.checkFileCoreMetadataPage(metadata);
 });
 
