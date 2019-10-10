@@ -5,6 +5,7 @@
 
 const atob = require('atob');
 const chai = require('chai');
+
 const expect = chai.expect;
 const { google } = require('googleapis');
 const { Storage } = require('@google-cloud/storage');
@@ -105,23 +106,23 @@ module.exports = {
     const storage = new Storage({
       projectId: googleProject,
       keyFilename: pathToCredsKeyFile,
-      bucketName: bucketName
+      bucketName,
     });
     const file = storage.bucket(bucketName).file(fileName);
     return file.get()
       .then(
-        function(data) {
+        (data) => {
           // Note: data[0] is the file; data[1] is the API response
           console.log(`Got file ${fileName} from bucket ${bucketName}`);
           return data[0];
         },
-        function(err) {
+        (err) => {
           console.log(`Cannot get file ${fileName} from bucket ${bucketName}`, err);
           return {
             status: err.code || 403,
-            message: err.message
+            message: err.message,
           };
-        }
+        },
       );
   },
 
@@ -134,19 +135,18 @@ module.exports = {
     /**
      * return true if the user can access data, false otherwise
      */
-    const isDataInaccessible = async function() {
+    const isDataInaccessible = async function () {
       try {
         // Try to access data
-        let user0AccessQAResAfter = await module.exports.getFileFromBucket(
+        const user0AccessQAResAfter = await module.exports.getFileFromBucket(
           googleBucket.googleProjectId,
           pathToKeyFile,
           googleBucket.bucketId,
-          googleBucket.fileName
+          googleBucket.fileName,
         );
         chai.expect(user0AccessQAResAfter).to.have.property('status', 403);
         return true;
-      }
-      catch {
+      } catch (error) {
         console.log('Data is still accessible: rerunning');
         return false;
       }
@@ -155,8 +155,7 @@ module.exports = {
     let dataAccessIsDenied = true;
     try {
       await apiUtil.smartWait(isDataInaccessible, [], timeout, '');
-    }
-    catch {
+    } catch (error) {
       dataAccessIsDenied = false;
     }
     return dataAccessIsDenied;
@@ -182,67 +181,61 @@ module.exports = {
   },
 
   async updateUserRole(projectID, { role, members }) {
-    return googleApp.authorize(googleApp.cloudManagerConfig, authClient =>
-      googleApp.getIAMPolicy(projectID, authClient)
-        .then((iamPolicy) => {
-          // update the policy
-          iamPolicy.bindings.push({ role, members });
+    return googleApp.authorize(googleApp.cloudManagerConfig, authClient => googleApp.getIAMPolicy(projectID, authClient)
+      .then((iamPolicy) => {
+        // update the policy
+        iamPolicy.bindings.push({ role, members });
 
-          // submit the updated policy
-          return googleApp.setIAMPolicy(projectID, iamPolicy, authClient);
-        })
-        .catch((err) => {
-          console.log(err);
-          return err;
-        }),
-    );
+        // submit the updated policy
+        return googleApp.setIAMPolicy(projectID, iamPolicy, authClient);
+      })
+      .catch((err) => {
+        console.log(err);
+        return err;
+      }));
   },
 
   async removeUserRole(projectID, { role, members }) {
-    return googleApp.authorize(googleApp.cloudManagerConfig, authClient =>
-      googleApp.getIAMPolicy(projectID, authClient)
-        .then((iamPolicy) => {
-          // find the binding with same role
-          const targetBinding = iamPolicy.bindings.find(binding => binding.role === role);
-          if (!targetBinding) {
-            return iamPolicy;
+    return googleApp.authorize(googleApp.cloudManagerConfig, authClient => googleApp.getIAMPolicy(projectID, authClient)
+      .then((iamPolicy) => {
+        // find the binding with same role
+        const targetBinding = iamPolicy.bindings.find(binding => binding.role === role);
+        if (!targetBinding) {
+          return iamPolicy;
+        }
+        // remove members
+        for (const member of members) {
+          const memberIdx = targetBinding.members.indexOf(member);
+          if (memberIdx > -1) {
+            targetBinding.members.splice(memberIdx, 1);
           }
-          // remove members
-          for (const member of members) {
-            const memberIdx = targetBinding.members.indexOf(member);
-            if (memberIdx > -1) {
-              targetBinding.members.splice(memberIdx, 1);
-            }
-          }
+        }
 
-          // submit the updated policy
-          return googleApp.setIAMPolicy(projectID, iamPolicy, authClient);
-        })
-        .catch((err) => {
-          console.log(err);
-          return err;
-        }),
-    );
+        // submit the updated policy
+        return googleApp.setIAMPolicy(projectID, iamPolicy, authClient);
+      })
+      .catch((err) => {
+        console.log(err);
+        return err;
+      }) );
   },
 
   async removeAllOptionalUsers(projectID) {
-    return googleApp.authorize(googleApp.cloudManagerConfig, authClient =>
-      googleApp.getIAMPolicy(projectID, authClient)
-        .then((iamPolicy) => {
-          const requiredRoles = [
-            'roles/owner',
-            'roles/resourcemanager.projectIamAdmin',
-            'roles/editor',
-          ];
-          const bindings = iamPolicy.bindings;
-          iamPolicy.bindings = bindings.filter(binding => requiredRoles.indexOf(binding.role) > -1);
-          return googleApp.setIAMPolicy(projectID, iamPolicy, authClient);
-        })
-        .catch((err) => {
-          console.log(err);
-          return err;
-        }),
-    );
+    return googleApp.authorize(googleApp.cloudManagerConfig, authClient => googleApp.getIAMPolicy(projectID, authClient)
+      .then((iamPolicy) => {
+        const requiredRoles = [
+          'roles/owner',
+          'roles/resourcemanager.projectIamAdmin',
+          'roles/editor',
+        ];
+        const bindings = iamPolicy.bindings;
+        iamPolicy.bindings = bindings.filter(binding => requiredRoles.indexOf(binding.role) > -1);
+        return googleApp.setIAMPolicy(projectID, iamPolicy, authClient);
+      })
+      .catch((err) => {
+        console.log(err);
+        return err;
+      }) );
   },
 
   /**
@@ -251,142 +244,132 @@ module.exports = {
    * @returns {object} the service account
    */
   async getServiceAccount(projectID, serviceAccount) {
-    return new Promise((resolve) => {
-      return googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
-        const cloudResourceManager = google.iam('v1');
-        const request = {
-          name: `projects/${projectID}/serviceAccounts/${serviceAccount}`,
-          auth: authClient,
-        };
-        cloudResourceManager.projects.serviceAccounts.get(request, (err, res) => {
-          if (err) {
-            if (err instanceof Error) {
-              resolve(err);
-            } else {
-              resolve(Error(err));
-            }
-            return;
-          }
-          if (res && res.data) {
-            resolve(res.data);
+    return new Promise(resolve => googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
+      const cloudResourceManager = google.iam('v1');
+      const request = {
+        name: `projects/${projectID}/serviceAccounts/${serviceAccount}`,
+        auth: authClient,
+      };
+      cloudResourceManager.projects.serviceAccounts.get(request, (err, res) => {
+        if (err) {
+          if (err instanceof Error) {
+            resolve(err);
           } else {
-            resolve(Error(`Unexpected get service account result: ${JSON.stringify(res)}`));
+            resolve(Error(err));
           }
-        });
+          return;
+        }
+        if (res && res.data) {
+          resolve(res.data);
+        } else {
+          resolve(Error(`Unexpected get service account result: ${JSON.stringify(res)}`));
+        }
       });
-    })
+    }));
   },
 
-  async createServiceAccount(projectID, serviceAccountName, description='') {
-    return new Promise((resolve) => {
-      return googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
-        const cloudResourceManager = google.iam('v1');
-        const request = {
-          resource: {
-            accountId: serviceAccountName,
-            serviceAccount: {
-              // the API does not allow description input, so use name
-              displayName: description
-            },
+  async createServiceAccount(projectID, serviceAccountName, description = '') {
+    return new Promise(resolve => googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
+      const cloudResourceManager = google.iam('v1');
+      const request = {
+        resource: {
+          accountId: serviceAccountName,
+          serviceAccount: {
+            // the API does not allow description input, so use name
+            displayName: description,
           },
-          name: `projects/${projectID}`,
-          auth: authClient,
-        };
-        cloudResourceManager.projects.serviceAccounts.create(request, (err, res) => {
-          if (err) {
-            if (err instanceof Error) {
-              resolve(err);
-            } else {
-              resolve(Error(err));
-            }
-            return;
-          }
-          if (res && res.data) {
-            resolve(res.data);
+        },
+        name: `projects/${projectID}`,
+        auth: authClient,
+      };
+      cloudResourceManager.projects.serviceAccounts.create(request, (err, res) => {
+        if (err) {
+          if (err instanceof Error) {
+            resolve(err);
           } else {
-            resolve(Error(`Unexpected create service account result: ${JSON.stringify(res)}`));
+            resolve(Error(err));
           }
-        });
+          return;
+        }
+        if (res && res.data) {
+          resolve(res.data);
+        } else {
+          resolve(Error(`Unexpected create service account result: ${JSON.stringify(res)}`));
+        }
       });
-    })
+    }));
   },
 
-  async deleteServiceAccount(serviceAccountID, projectID=null) {
+  async deleteServiceAccount(serviceAccountID, projectID = null) {
     if (!projectID) {
       projectID = '-'; // auto get project ID from SA ID
     }
-    return new Promise((resolve) => {
-      return googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
-        const cloudResourceManager = google.iam('v1');
-        const request = {
-          name: `projects/${projectID}/serviceAccounts/${serviceAccountID}`,
-          auth: authClient,
-        };
-        cloudResourceManager.projects.serviceAccounts.delete(request, (err, res) => {
-          if (err) {
-            resolve(Error(err));
-            return;
-          }
-          resolve(res.data);
-        });
+    return new Promise(resolve => googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
+      const cloudResourceManager = google.iam('v1');
+      const request = {
+        name: `projects/${projectID}/serviceAccounts/${serviceAccountID}`,
+        auth: authClient,
+      };
+      cloudResourceManager.projects.serviceAccounts.delete(request, (err, res) => {
+        if (err) {
+          resolve(Error(err));
+          return;
+        }
+        resolve(res.data);
       });
-    })
+    }));
   },
 
   async listServiceAccountKeys(projectID, serviceAccountName) {
-    return new Promise((resolve) => {
-      return googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
-        const cloudResourceManager = google.iam('v1');
-        const request = {
-          name: `projects/${projectID}/serviceAccounts/${serviceAccountName}`,
-          auth: authClient,
-        };
-        cloudResourceManager.projects.serviceAccounts.keys.list(request, (err, res) => {
-          if (err) {
-            console.log(err);
-            if (err instanceof Error) {
-              resolve(Error(err.code));
-            } else {
-              resolve(Error(err));
-            }
-            return;
-          }
-          if (res && res.data) {
-            resolve(res.data);
+    return new Promise(resolve => googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
+      const cloudResourceManager = google.iam('v1');
+      const request = {
+        name: `projects/${projectID}/serviceAccounts/${serviceAccountName}`,
+        auth: authClient,
+      };
+      cloudResourceManager.projects.serviceAccounts.keys.list(request, (err, res) => {
+        if (err) {
+          console.log(err);
+          if (err instanceof Error) {
+            resolve(Error(err.code));
           } else {
-            resolve(Error(`Unexpected list service account keys result: ${JSON.stringify(res)}`));
+            resolve(Error(err));
           }
-        });
+          return;
+        }
+        if (res && res.data) {
+          resolve(res.data);
+        } else {
+          resolve(Error(`Unexpected list service account keys result: ${JSON.stringify(res)}`));
+        }
       });
-    })
+    }));
   },
 
   async createServiceAccountKey(projectID, serviceAccountName) {
-    return new Promise((resolve) => {
-      return googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
-        const cloudResourceManager = google.iam('v1');
-        const request = {
-          name: `projects/${projectID}/serviceAccounts/${serviceAccountName}`,
-          auth: authClient,
-        };
-        cloudResourceManager.projects.serviceAccounts.keys.create(request, (err, res) => {
-          if (err) {
-            console.log(err);
-            if (err instanceof Error) {
-              resolve(Error(err.code));
-            } else {
-              resolve(Error(err));
-            }
-            return;
-          }
-          if (res && res.data) {
-            resolve(res.data);
+    return new Promise(resolve => googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
+      const cloudResourceManager = google.iam('v1');
+      const request = {
+        name: `projects/${projectID}/serviceAccounts/${serviceAccountName}`,
+        auth: authClient,
+      };
+      cloudResourceManager.projects.serviceAccounts.keys.create(request, (err, res) => {
+        if (err) {
+          console.log(err);
+          if (err instanceof Error) {
+            resolve(Error(err.code));
           } else {
-            resolve(Error(`Unexpected create service account key result: ${JSON.stringify(res)}`));
+            resolve(Error(err));
           }
-        });
+          return;
+        }
+        if (res && res.data) {
+          resolve(res.data);
+        } else {
+          resolve(Error(`Unexpected create service account key result: ${JSON.stringify(res)}`));
+        }
       });
-    })
+    }));
   },
 
   /**
@@ -394,32 +377,30 @@ module.exports = {
    * was saved and the name of that key
    */
   async createServiceAccountKeyFile(googleProject) {
-    var tempCredsRes = await this.createServiceAccountKey(googleProject.id, googleProject.serviceAccountEmail);
+    const tempCredsRes = await this.createServiceAccountKey(googleProject.id, googleProject.serviceAccountEmail);
     keyFullName = tempCredsRes.name;
     console.log(`Created key ${keyFullName}`);
-    var keyData = JSON.parse(atob(tempCredsRes.privateKeyData));
-    var pathToKeyFile = keyData.private_key_id + '.json';
+    const keyData = JSON.parse(atob(tempCredsRes.privateKeyData));
+    const pathToKeyFile = `${keyData.private_key_id }.json`;
     await files.createTmpFile(pathToKeyFile, JSON.stringify(keyData));
     console.log(`Google creds file ${pathToKeyFile} saved!`);
     return [pathToKeyFile, keyFullName];
   },
 
   async deleteServiceAccountKey(keyName) {
-    return new Promise((resolve) => {
-      return googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
-        const cloudResourceManager = google.iam('v1');
-        const request = {
-          name: keyName, // "projects/X/serviceAccounts/Y/keys/Z"
-          auth: authClient,
-        };
-        cloudResourceManager.projects.serviceAccounts.keys.delete(request, (err, res) => {
-          if (err) {
-            resolve(Error(err));
-            return;
-          }
-          resolve(res.data);
-        });
+    return new Promise(resolve => googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
+      const cloudResourceManager = google.iam('v1');
+      const request = {
+        name: keyName, // "projects/X/serviceAccounts/Y/keys/Z"
+        auth: authClient,
+      };
+      cloudResourceManager.projects.serviceAccounts.keys.delete(request, (err, res) => {
+        if (err) {
+          resolve(Error(err));
+          return;
+        }
+        resolve(res.data);
       });
-    })
+    }));
   },
 };
