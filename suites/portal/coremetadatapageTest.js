@@ -1,40 +1,30 @@
-// let nodes, nodes_list;
-//
-// Feature('Core Metadata');
-//
-// Scenario('test core metadata page', async(I) => {
-//
-//   // submit files
-//   await I.addNodes(I.getSheepdogRoot(), nodes_list);
-//   I.seeAllNodesAddSuccess(nodes_list);
-//
-//   I.goToFiles();
-//   I.loadFiles();
-//
-//   var fileNames = await I.grabTextFrom('//tr/td[2]');
-//   I.clickAFile(fileNames);
-//   I.loadCoreMetadata();
-//
-//   I.click('.boRitF'); // click back link
-//   I.loadFiles();
-//
-//   // delete files
-//   await I.deleteNodes(I.getSheepdogRoot(), nodes_list);
-//   I.seeAllNodesDeleteSuccess(nodes_list);
-//
-// });
-//
-// BeforeSuite(async (I) => {
-//   // try to clean up any leftover nodes
-//   await I.findDeleteAllNodes();
-// });
-//
-// Before((I) => {
-//   // load test data
-//   nodes = I.getNodePathToFile();
-//   nodes_list = I.sortNodes(Object.values(nodes));
-// });
-//
-// AfterSuite(async (I) => {
-//   await I.findDeleteAllNodes();
-// });
+// test data
+let metadata;
+
+Feature('CoreMetadataPageTest');
+
+const I = actor();
+
+BeforeSuite(async (nodes, sheepdog, pidgin, users) => {
+  await sheepdog.complete.findDeleteAllNodes();
+  await sheepdog.complete.addNodes(nodes.getPathToFile());
+  const validFile = nodes.getFileNode().clone();
+  await sheepdog.complete.addNode(validFile);
+  metadata = await pidgin.do.getCoremetadata(validFile, 'application/json', users.mainAcct.accessTokenHeader);
+});
+
+Before((home) => {
+  home.complete.login();
+});
+
+Scenario('test core metadata page', async (I) => {
+
+});
+
+After(async (home) => {
+  home.complete.logout();
+});
+
+AfterSuite(async (sheepdog) => {
+  await sheepdog.complete.findDeleteAllNodes();
+});
