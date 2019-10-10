@@ -4,18 +4,42 @@ gen3 integration tests - run by https://jenkins.planx-pla.net/ via a `Jenkinsfil
 
 ## Basic test run
 
-Run a test locally against a dev environment like this:
+### Start selenium
+
 ```
 # start selenium
 docker run -d -p 4444:4444 --name=selenium --rm -v /dev/shm:/dev/shm selenium/standalone-chrome
+```
 
+### Test with dev environment
+
+Run a test locally against a dev environment like this:
+
+```
 # basic run - some tests require more setup than this
 RUNNING_LOCAL=true NAMESPACE=yourDevNamespace TEST_DATA_PATH=./testData npm test -- --verbose --grep '@dataClientCLI|@reqGoogle' --invert --reporter mocha-multi suites/.../myTest.js
 ```
 
-Notes:
-* the OAuth flow tests require `fence-config.yaml` to be configured with `MOCK_GOOGLE_AUTH: true`
-* set the GEN3_INTERACTIVE environment variabl to `false` to disable interactive tests that require user feedback
+### Test an arbirtray remote hostname
+
+This currently only works for tests that do not require
+an access token (like interactive tests).
+It's on our TODO list to support tokens in environment variables,
+`secrets.json` configuration, or fetching with an API key.
+
+```
+# skip program/project creation at startup for now ...
+
+mkdir -p output
+
+GEN3_SKIP_PROJ_SETUP=true GEN3_COMMONS_HOSTNAME=qa-brain.planx-pla.net TEST_DATA_PATH=./testData npm test -- --verbose suites/portal/roleBasedUI.js | tee output/roleBasedResults.txt
+```
+
+### Notes
+
+* the OAuth flow tests require `fence-config.yaml` to be configured with `MOCK_GOOGLE_AUTH: true`, since Google doesn't trust robots
+* set the GEN3_INTERACTIVE environment variable to `false` to disable interactive tests that require user feedback.  See the [executable test plans overview](./doc/executableTestPlans.md) for more details.
+
 
 ## Generating test data for tests
 

@@ -230,9 +230,15 @@ module.exports = async function (done) {
       await setupGoogleProjectDynamic();
     }
 
-    // Create a program and project (does nothing if already exists)
-    console.log('Creating program/project\n');
-    await tryCreateProgramProject(3);
+    //
+    // may want to skip this if only running
+    // DCFS tests or interactive tests ...
+    //
+    if (process.env["GEN3_SKIP_PROJ_SETUP"] !== "true") {
+      // Create a program and project (does nothing if already exists)
+      console.log('Creating program/project\n');
+      await tryCreateProgramProject(3);
+    }
 
     done();
   } catch (ex) {

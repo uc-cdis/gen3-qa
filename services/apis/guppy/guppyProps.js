@@ -5,7 +5,7 @@ const { Gen3Response } = require('../../../utils/apiUtil');
  */
 
 const namespace = process.env.NAMESPACE;
-const hostname = 'https://' + namespace + '.planx-pla.net';
+const hostname = process.env.HOSTNAME || 'https://' + namespace + '.planx-pla.net';
 
 module.exports = {
   /**

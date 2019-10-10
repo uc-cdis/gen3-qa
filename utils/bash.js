@@ -6,6 +6,7 @@
 const { K8s } = require('./commanders/k8s');
 const { SshK8s } = require('./commanders/sshk8s');
 const { Docker } = require('./commanders/docker');
+const { NullCommander } = require('./commanders/null');
 const { ENV_TYPE, envVal } = require('./env');
 
 class Bash{
@@ -14,12 +15,16 @@ class Bash{
   }
 
   getCommander() {
-    if (envVal === ENV_TYPE.JENKINS)
+    if (envVal === ENV_TYPE.JENKINS){
       return new K8s();
-    if (envVal === ENV_TYPE.LOCAL_AGAISNT_GEN3_K8S)
+    }
+    if (envVal === ENV_TYPE.LOCAL_AGAINST_GEN3_K8S){
       return new SshK8s();
-    if (envVal === ENV_TYPE.LOCAL_AGAINST_DOCKER)
+    }
+    if (envVal === ENV_TYPE.LOCAL_AGAINST_DOCKER){
       return new Docker();
+    }
+    return new NullCommander();
   }
 
   runJob(jobName, args='', wait=true) {

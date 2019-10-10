@@ -145,6 +145,8 @@ module.exports = {
    */
   getAccessToken(username, expiration) {
     console.log(`getting access token for ${username}`);
+    // TODO - introduce support for getting token from environment variable
+    //     or with API key when running in LOCAL_AGAINST_REMOTE mode ...
     const fenceCmd = `fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account,google_credentials --type access_token --exp ${expiration} --username ${username}`;
     const accessToken = bash.runCommand(fenceCmd, 'fence', takeLastLine);
     return accessToken.trim();
