@@ -168,7 +168,7 @@ async function setupGoogleProjectDynamic() {
  */
 function parseTestTags() {
   let tags = [];
-  let args = process.env.npm_package_scripts_test.split(' '); // all args
+  let args = process.argv; //process.env.npm_package_scripts_test.split(' '); // all args
   args = args.map(item => item.replace(/(^"|"$)/g, '')); // remove quotes
   if (args.includes('--grep')) {
     // get tags and whether the grep is inverted
