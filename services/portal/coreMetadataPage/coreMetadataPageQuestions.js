@@ -1,12 +1,11 @@
-const coreMetadataPageProps = require('./coreMetadataPageProps.js');
 const chai = require('chai');
+const coreMetadataPageProps = require('./coreMetadataPageProps.js');
 
-const expect = chai.expect;
 const I = actor();
 
 // helper functions that come from portal
-const fileTypeTransform = function (fileType) {
-  let t = fileType.replace(/_/g, ' '); // '-' to ' '
+const typeTransform = function (type) {
+  let t = type.replace(/_/g, ' '); // '-' to ' '
   t = t.replace(/\b\w/g, l => l.toUpperCase()); // capitalize words
   return `| ${t} |`;
 };
@@ -18,6 +17,8 @@ const fileSizeTransform = function (fileSize) {
   return `${fileSizeStr} ${suffix}`;
 };
 
+const dateTransform = date => `Updated on ${date.substr(0, 10)}`;
+
 /**
  * coreMetadataPage Questions
  */
@@ -28,9 +29,26 @@ module.exports = {
     I.seeElement(coreMetadataPageProps.coreMetadataPageBox2Class);
     I.seeElement(coreMetadataPageProps.coreMetadataPageBox3Class);
 
-    expect(metadata).to.not.be.undefined;
+    chai.expect(metadata).to.not.be.undefined;
     const metadataJson = JSON.parse(metadata);
-    
+    for (const metadataKey of Object.keys(metadataJson)) {
+      switch (metadataKey) {
+        case 'project_id':
+          I.dontSee(metadataJson[metadataKey]);
+          break;
+        case 'file_size':
+          I.see(fileSizeTransform(metadataJson[metadataKey]));
+          break;
+        case 'type':
+          I.see(typeTransform(metadataJson[metadataKey]));
+          break;
+        case 'updated_datetime':
+          I.see(dateTransform(metadataJson[metadataKey]));
+          break;
+        default:
+          I.see(metadataJson[metadataKey]);
+          break;
+      }
+    }
   },
 };
-

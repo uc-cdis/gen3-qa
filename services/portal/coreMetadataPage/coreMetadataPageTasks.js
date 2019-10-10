@@ -6,8 +6,8 @@ const I = actor();
  * coreMetadataPage Tasks
  */
 module.exports = {
-  goToCoreMetadataPage(file) {
-    const coreMetadataPagePath = `${coreMetadataPageProps.filesPagePath}/${file.did}`;
+  goToCoreMetadataPage(guid) {
+    const coreMetadataPagePath = `${coreMetadataPageProps.filesPagePath}/${guid}`;
     I.amOnPage(coreMetadataPagePath);
     I.waitForVisible(coreMetadataPageProps.coreMetadataPageClass, 10);
   },

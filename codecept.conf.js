@@ -70,6 +70,7 @@ exports.config = {
     home: './services/portal/home/homeService.js',
     portalDataUpload: './services/portal/dataUpload/dataUploadService.js',
     portalExportToWorkspace: './services/portal/exportToWorkspace/exportToWorkspaceService.js',
+    portalCoreMetadataPage: './services/portal/coreMetadataPage/coreMetadataPageService.js',
   },
   mocha: {
     reporterOptions: {
