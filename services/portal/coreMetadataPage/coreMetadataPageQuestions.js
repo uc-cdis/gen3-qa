@@ -30,23 +30,22 @@ module.exports = {
     I.seeElement(coreMetadataPageProps.coreMetadataPageBox3Class);
 
     chai.expect(metadata).to.not.be.undefined;
-    const metadataJson = JSON.parse(metadata);
-    for (const metadataKey of Object.keys(metadataJson)) {
+    for (const metadataKey of Object.keys(metadata)) {
       switch (metadataKey) {
         case 'project_id':
-          I.dontSee(metadataJson[metadataKey]);
+          I.dontSee(metadata[metadataKey]);
           break;
         case 'file_size':
-          I.see(fileSizeTransform(metadataJson[metadataKey]));
+          I.see(fileSizeTransform(metadata[metadataKey]));
           break;
         case 'type':
-          I.see(typeTransform(metadataJson[metadataKey]));
+          I.see(typeTransform(metadata[metadataKey]));
           break;
         case 'updated_datetime':
-          I.see(dateTransform(metadataJson[metadataKey]));
+          I.see(dateTransform(metadata[metadataKey]));
           break;
         default:
-          I.see(metadataJson[metadataKey]);
+          I.see(metadata[metadataKey]);
           break;
       }
     }
