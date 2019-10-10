@@ -17,7 +17,7 @@ Before((home) => {
   home.complete.login();
 });
 
-Scenario('test core metadata page', async (I) => {
+Scenario('test core metadata page @CoreMetadataPage', async (I) => {
 
 });
 
