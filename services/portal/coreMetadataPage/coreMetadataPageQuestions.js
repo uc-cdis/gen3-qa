@@ -30,11 +30,14 @@ module.exports = {
     I.seeElement(coreMetadataPageProps.coreMetadataPageBox3Class);
 
     chai.expect(metadata).to.not.be.undefined;
+
     for (const metadataKey of Object.keys(metadata)) {
       switch (metadataKey) {
+        // no show for 'project_id'
         case 'project_id':
           I.dontSee(metadata[metadataKey]);
           break;
+        // special cases for 'file_size', 'type' and 'updated_datetime'
         case 'file_size':
           I.see(fileSizeTransform(metadata[metadataKey]));
           break;
@@ -44,6 +47,7 @@ module.exports = {
         case 'updated_datetime':
           I.see(dateTransform(metadata[metadataKey]));
           break;
+        // all other fields, showing normally
         default:
           I.see(metadata[metadataKey]);
           break;
