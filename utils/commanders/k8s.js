@@ -18,16 +18,21 @@ class K8s extends Base {
       const sourceCmd = `source "${process.env.GEN3_HOME}/gen3/lib/utils.sh"`;
       const gen3LoadCmd = 'gen3_load "gen3/gen3setup"';
       const namespace = process.env.NAMESPACE;
-      if (service === undefined) {
+      let fullCommand = 'undefined';
+      try {
+        if (service === undefined) {
+          fullCommand = `${sourceCmd}; ${gen3LoadCmd}; ${cmd}`;
+        } else {
+          fullCommand = `${sourceCmd}; ${gen3LoadCmd}; g3kubectl exec $(gen3 pod ${service} ${namespace}) -- ${cmd}`;
+        }
         return cleanResult(execSync(
-          `${sourceCmd}; ${gen3LoadCmd}; ${cmd}`,
+          fullCommand,
           { shell: '/bin/bash' }
         ).toString('utf8'));
-      } else {
-        return cleanResult(execSync(
-          `${sourceCmd}; ${gen3LoadCmd}; g3kubectl exec $(gen3 pod ${service} ${namespace}) -- ${cmd}`,
-          { shell: '/bin/bash' }
-        ).toString('utf8'));
+      } catch (err) {
+        const message = `ERROR: something went wrong with: ${fullCommand}`
+        console.log(message, err);
+        return message;
       }
     }
     throw Error('Env var GEN3_HOME is not defined - required for loading gen3 tools');

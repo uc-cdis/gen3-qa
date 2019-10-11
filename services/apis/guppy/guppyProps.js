@@ -1,11 +1,7 @@
-const { Gen3Response } = require('../../../utils/apiUtil');
-
 /**
  * guppy Properties
  */
-
-const namespace = process.env.NAMESPACE;
-const hostname = 'https://' + namespace + '.planx-pla.net';
+const hostname = 'https://' + process.env.HOSTNAME;
 
 module.exports = {
   /**
