@@ -3,12 +3,11 @@ const coreMetadataPageProps = require('./coreMetadataPageProps.js');
 
 const I = actor();
 
-// The following metadata fields are excluded from being checked because they are either:
-// 1. didn't show up in Portal (project_id)
-// or
-// 2. the string has been reformatted into a different style
-// in Portal ('file_size', 'type' and 'updated_datetime')
-const excludedFieldList = ['project_id', 'file_size', 'type', 'updated_datetime'];
+// Some metadata fields ('project_id' for now) should not show up in the page
+const noShowFieldList = ['project_id'];
+// Some metadata fields should show but we don't check the content since they
+// are reformatted into an different format in Portal
+const noCheckFieldList = ['file_size', 'type', 'updated_datetime'];
 
 /**
  * coreMetadataPage Questions
@@ -26,13 +25,12 @@ module.exports = {
 
     chai.expect(metadata).to.not.be.undefined;
 
-    Object.keys(metadata).forEach(metadataKey => {
-      if (excludedFieldList.includes(metadataKey)) {
+    Object.keys(metadata).forEach((metadataKey) => {
+      if (noShowFieldList.includes(metadataKey)) {
         I.dontSee(metadata[metadataKey]);
-      } else {
+      } else if (!noCheckFieldList.includes(metadataKey)) {
         I.see(metadata[metadataKey]);
       }
     });
-    }
   },
 };
