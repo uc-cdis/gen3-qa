@@ -5,20 +5,12 @@ module.exports = {
   filesPagePath: '/files',
 
   coreMetadataPageClass: '.core-metadata-page',
-  coreMetadataPageBox1Class: '.core-metadata-page__box1',
-  coreMetadataPageBox2Class: '.core-metadata-page__box2',
-  coreMetadataPageBox3Class: '.core-metadata-page__box3',
-  //
-  // ready_cue: {
-  //   locator: {
-  //     css: '.this-element-appears-when-page-loaded'
-  //   }
-  // },
-  //
-  // filterTab: {
-  //   context: '.some-container',
-  //   locator: {
-  //     css: '.my-tab-class'
-  //   }
-  // }
+  coreMetadataPagePictureClass: '.core-metadata-page__picture',
+  coreMetadataPageHeaderClass: '.core-metadata-page__header',
+  coreMetadataPageTableClass: '.core-metadata-page__table',
+  backLinkClass: '.back-link',
+
+  tableTitleText: 'More Data Info',
+
+  downloadButtonXPath: '//button[contains(@class, "button-primary-orange") and contains(text(), "Download")]',
 };

@@ -8,6 +8,6 @@ module.exports = {
   /* The 'check file metadata page appearance' test sequence */
   checkFileCoreMetadataPage(metadata) {
     coreMetadataPageTasks.goToCoreMetadataPage(metadata.object_id);
-    coreMetadataPageQuestions.doesCoreMetadataPageLooksCorrect(metadata);
+    coreMetadataPageQuestions.doesCoreMetadataPageLookCorrect(metadata);
   },
 };
