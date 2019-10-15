@@ -69,30 +69,30 @@ const getDataPathString = function (fileName) {
  * Loads all node data files and returns them as an object keyed by node name
  */
 const getAllNodes = function () {
-  var lines = fs.readFileSync(
-    getDataPathString('DataImportOrderPath.txt'), 'utf-8'
+  const lines = fs.readFileSync(
+    getDataPathString('DataImportOrderPath.txt'), 'utf-8',
   ).split('\n').filter(Boolean);
 
   const nodesDict = {};
   try {
-    var order = 1;
-    var target = 'project'; // first node (project) is related to program
-    for (line of lines) {
-      parts = line.split('\t');
+    let order = 1;
+    let target = 'project'; // first node (project) is related to program
+    for (const line of lines) {
+      const parts = line.split('\t');
       const nodeName = parts[0];
-      if (nodeName == 'project') continue; // project.json is not simulated
+      if (nodeName === 'project') continue; // project.json is not simulated
       nodesDict[nodeName] = new Node({
         data: JSON.parse(
           fs.readFileSync(getDataPathString(`${nodeName}.json`)),
         )[0],
-        order: order,
+        order,
         category: parts[1],
         name: nodeName,
-        target: target,
+        target,
       });
       target = nodeName;
-      order++;
-    };
+      order += 1;
+    }
     return nodesDict;
     // console.log(nodesDict);
   } catch (e) {
@@ -177,16 +177,16 @@ module.exports = {
       request(url, { json: true }, (err, res, body) => {
         if (err) { return reject(err); }
         resolve(body);
-      })
+      });
     });
   },
 
-  getNodeFromURL: async function(dataUrl) {
-    let fileContents = await this.downloadFile(dataUrl);
-    let nodeObj = JSON.parse(JSON.stringify(fileContents));
-    var node = new Node({});
+  async getNodeFromURL(dataUrl) {
+    const fileContents = await this.downloadFile(dataUrl);
+    const nodeObj = JSON.parse(JSON.stringify(fileContents));
+    const node = new Node({});
     node.data = nodeObj;
-    node.orig_props = {'data': nodeObj};
+    node.orig_props = { data: nodeObj };
     return node;
   },
 
@@ -297,7 +297,7 @@ module.exports = {
     const newCoremetadataNode = {
       data: {
         projects: {
-            code: 'jenkins',
+          code: 'jenkins',
         },
         submitter_id: newSubmitterID,
         type: 'core_metadata_collection',
@@ -313,39 +313,39 @@ module.exports = {
    * /!\ this function does not include a check for success or
    * failure of the data_file node's submission
    */
-  async submitGraphAndFileMetadata(sheepdog, fileGuid=null, fileSize=null, fileMd5=null, submitter_id=null, consent_codes=null) {
+  async submitGraphAndFileMetadata(sheepdog, fileGuid = null, fileSize = null, fileMd5 = null, submitter_id = null, consent_codes = null) {
     // submit metadata with object id via sheepdog
-    metadata = this.getFileNode().clone();
+    const metadata = this.getFileNode().clone();
     if (fileGuid) {
-        metadata.data.object_id = fileGuid;
+      metadata.data.object_id = fileGuid;
     }
     if (fileSize) {
-        metadata.data.file_size = fileSize;
+      metadata.data.file_size = fileSize;
     }
     if (fileMd5) {
-        metadata.data.md5sum = fileMd5;
+      metadata.data.md5sum = fileMd5;
     }
     if (submitter_id) {
       metadata.data.submitter_id = submitter_id;
     }
     if (consent_codes) {
-        // check that the dictionary has consent codes
-	if (!metadata.data.consent_codes) {
-            throw new Error('Tried to set consent_codes but consent_codes not in dictionary. Should test be disabled?');
-        }
-	metadata.data.consent_codes = consent_codes;
+      // check that the dictionary has consent codes
+      if (!metadata.data.consent_codes) {
+        throw new Error('Tried to set consent_codes but consent_codes not in dictionary. Should test be disabled?');
+      }
+      metadata.data.consent_codes = consent_codes;
     }
 
     // assuming all data files can be submitted with a single link to a
     // core_metadata_collection: add it, and remove other links
     const cmcSubmitterID = await this.generateAndAddCoremetadataNode(sheepdog);
-    for (var prop in metadata.data) {
+    for (const prop in metadata.data) {
       if (metadata.data.hasOwnProperty(prop) && metadata.data[prop].hasOwnProperty('submitter_id')) {
         delete metadata.data[prop];
       }
     }
     metadata.data.core_metadata_collections = {
-      submitter_id: cmcSubmitterID
+      submitter_id: cmcSubmitterID,
     };
 
     await sheepdog.do.addNode(metadata); // submit, but don't check for success

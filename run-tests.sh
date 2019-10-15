@@ -188,6 +188,7 @@ runTestsIfServiceVersion "@multipartUploadFailure" "fence" "3.0.0"
 runTestsIfServiceVersion "@centralizedAuth" "fence" "3.0.0"
 runTestsIfServiceVersion "@dbgapSyncing" "fence" "3.0.0"
 runTestsIfServiceVersion "@indexRecordConsentCodes" "sheepdog" "1.1.13"
+runTestsIfServiceVersion "@coreMetadataPage" "portal" "2.20.8"
 
 # environments that use DCF features
 # we only run Google Data Access tests for cdis-manifest PRs to these
