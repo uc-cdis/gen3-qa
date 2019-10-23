@@ -4,7 +4,7 @@ const chai = require('chai');
 const {interactive, ifInteractive} = require('../../utils/interactive.js');
 const expect = chai.expect;
 
-Scenario('AWS Sync - create a directory in $vpc_name/apis_configs called dcf_dataservice', ifInteractive(
+Scenario('AWS Sync - create a directory in $vpc_name/apis_configs called dcf_dataservice @manual', ifInteractive(
     async(I) => {
         const result = await interactive (`
             1. Login into $vpc_name
@@ -15,7 +15,7 @@ Scenario('AWS Sync - create a directory in $vpc_name/apis_configs called dcf_dat
     }
 ));
 
-Scenario('AWS Sync - put credentials and mapping file into directory /dcf_dataservice', ifInteactive(
+Scenario('AWS Sync - put credentials and mapping file into directory /dcf_dataservice @manual', ifInteractive(
     async(I) => {
         const result = await interactive (`
             1. put 'cred.json' into dcf_dataservice directory
@@ -26,7 +26,7 @@ Scenario('AWS Sync - put credentials and mapping file into directory /dcf_datase
     }
 ));
 
-Scenario('AWS Sync - upload the manifest', ifInteraactive(
+Scenario('AWS Sync - upload the manifest @manual', ifInteractive(
     async(I) => {
         const result = await interactive (`
             1. upload the manifest to S3 bucket
@@ -35,7 +35,7 @@ Scenario('AWS Sync - upload the manifest', ifInteraactive(
     }
 ));
 
-Scenario('AWS Sync - run the job', ifInteraactive(
+Scenario('AWS Sync - run the job @manual', ifInteractive(
     async(I) => {
         const result = await interactive (`
             1. run jobs/kube-script-setup.sh
@@ -45,7 +45,7 @@ Scenario('AWS Sync - run the job', ifInteraactive(
     }
 ));
 
-Scenario('GC Sync - put credentials and mapping file into directory /dcf_dataservice', ifInteactive(
+Scenario('GC Sync - put credentials and mapping file into directory /dcf_dataservice @manual', ifInteractive(
     async(I) => {
         const result = await interactive (`
             1. put 'gcloud-creds-secrets' and dcf_datservice_settings' into dcf_dataservice
@@ -55,7 +55,7 @@ Scenario('GC Sync - put credentials and mapping file into directory /dcf_dataser
     }
 ));
 
-Scenario('GC Sync - upload manifest to GS bucket', ifInteractive(
+Scenario('GC Sync - upload manifest to GS bucket @manual', ifInteractive(
     async(I) => {
         const result = await ifInteractive (`
             1. upload manifest to GS Bucket gs://INPUT_BUCKET/input/
@@ -66,7 +66,7 @@ Scenario('GC Sync - upload manifest to GS bucket', ifInteractive(
     }
 ));
 
-Scenario('AWS Sync - run the job', ifInteraactive(
+Scenario('AWS Sync - run the job @manual', ifInteractive(
     async(I) => {
         const result = await interactive (`
             1. run jobs/kube-script-setup.sh
@@ -76,7 +76,7 @@ Scenario('AWS Sync - run the job', ifInteraactive(
     }
 ));
 
-Scenario('Check Indexd for updated data', ifInteraactive(
+Scenario('Check Indexd for updated data @manual', ifInteractive(
     async(I) => {
         const result = await interactive (`
             1. Check if the new files in the data replication process have updated the indexd

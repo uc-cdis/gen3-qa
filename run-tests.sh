@@ -202,6 +202,9 @@ donot '@dataClientCLI'
 # Do not run performance testing
 donot '@Performance'
 
+# Do not run manual tests
+donot '@manual'
+
 #
 # Google Data Access tests are only required for some envs
 #
