@@ -11,28 +11,47 @@ gen3 integration tests - run by https://jenkins.planx-pla.net/ via a `Jenkinsfil
 docker run -d -p 4444:4444 --name=selenium --rm -v /dev/shm:/dev/shm selenium/standalone-chrome
 ```
 
-### Test with dev environment
+### Test with dev environment (ssh backend access)
 
-Run a test locally against a dev environment like this:
+Run a test locally against a dev environment that you can ssh to and run gen3 commands like this:
 
 ```
-# basic run - some tests require more setup than this
 RUNNING_LOCAL=true NAMESPACE=yourDevNamespace TEST_DATA_PATH=./testData npm test -- --verbose --grep '@dataClientCLI|@reqGoogle' --invert --reporter mocha-multi suites/.../myTest.js
 ```
 
-### Test an arbirtray remote hostname
+### Test an arbitrary gen3 commons
 
-This currently only works for tests that do not require
-an access token (like interactive tests).
-It's on our TODO list to support tokens in environment variables,
-`secrets.json` configuration, or fetching with an API key.
+Some of our test suites require access to the commons backend, but most of our tests can run against an arbitrary commons given an access token that can interact with the gen3 api.
+
+The `getAccessToken.sh` script is a little helper that can retrieve an access token given an API key.
+
+* First - generate some test data (if necessary for the test) with the appropriate dictionary (see below)
+* Next - generate an access token (it will expire in 20 minutes) using an API key from the target commons
 
 ```
-# skip program/project creation at startup for now ...
-
 mkdir -p output
+export GEN3_TOKEN_MAIN=$(bash ./getAccessToken.sh ~/Secrets/gen3/qa-brain.planx-pla.net/credentials.json)
+```
 
-GEN3_SKIP_PROJ_SETUP=true GEN3_COMMONS_HOSTNAME=qa-brain.planx-pla.net TEST_DATA_PATH=./testData npm test -- --verbose suites/portal/roleBasedUI.js | tee output/roleBasedResults.txt
+* Finally - run some tests
+```
+GEN3_SKIP_PROJ_SETUP=true GEN3_COMMONS_HOSTNAME=qa-brain.planx-pla.net npm test -- --verbose suites/portal/roleBasedUITest.js | tee output/roleBasedResults.txt
+```
+
+```
+GEN3_SKIP_PROJ_SETUP=true GEN3_COMMONS_HOSTNAME=qa-brain.planx-pla.net TEST_DATA_PATH=./testData npm test -- --verbose suites/sheepdogAndPeregrine/submitAndQueryNodesTest.js | tee output/sheepdogPeregrineResults.txt
+```
+
+### Run an interactive test plan
+
+Interactive test plans are our way of managing manual 
+test plans.  An interactive test presents a manual tester with 
+instructions, collects the results of each test, and
+generates a report.
+
+```
+mkdir -p output
+GEN3_SKIP_PROJ_SETUP=true GEN3_COMMONS_HOSTNAME=qa-brain.planx-pla.net npm test -- --verbose suites/portal/roleBasedUITest.js | tee output/roleBasedResults.txt
 ```
 
 ### Notes
@@ -53,7 +72,7 @@ docker run -it -v "${TEST_DATA_PATH}:/mnt/data" --rm --name=dsim --entrypoint=da
 
 docker run -it -v "${TEST_DATA_PATH}:/mnt/data" --rm --name=dsim --entrypoint=data-simulator quay.io/cdis/data-simulator:master submission_order --url "${TEST_DICTIONARY}" --path /mnt/data --node_name submitted_unaligned_reads
 
-RUNNING_LOCAL=true NAMESPACE=reuben npm test -- --verbose --grep '@dataClientCLI|@reqGoogle' --invert suites/apis/submitAndQueryNodesTest.js
+RUNNING_LOCAL=true NAMESPACE=reuben npm test -- --verbose --grep '@dataClientCLI|@reqGoogle' --invert suites/sheepdogAndPeregrine/submitAndQueryNodesTest.js
 ```
 
 Note that the `--grep ... --invert ...` is necessary to disable

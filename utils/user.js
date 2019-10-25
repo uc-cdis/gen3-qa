@@ -39,12 +39,13 @@ class User {
   /**
    * Constructor for User class
    * @param {Object} options
+   * @param {string} options.accessToken - provided access Token, or null to defer to getAccessToken
    * @param {string} options.username - Gen3 commons username/email
    * @param {string} options.envVarsName - Suffix for getting environment variables for user
    */
-  constructor({ username, googleEmail, googlePassword }) {
+  constructor({ username, accessToken, googleEmail, googlePassword }) {
     this.username = username;
-    this._accessToken = null;
+    this._accessToken = accessToken || null;
     this._expiredAccessToken = null;
     this.googleEmail = googleEmail;
     this.googlePassword = googlePassword;
@@ -130,29 +131,65 @@ module.exports = {
    * Note that this user has the "data-upload" role
    * Note that this user has the "abc-admin" policy
    */
-  mainAcct: new User({ username: 'cdis.autotest@gmail.com', ...gCreds }),
+  mainAcct: new User(
+    { 
+      username: 'cdis.autotest@gmail.com', 
+      accessToken: process.env["GEN3_TOKEN_MAIN"], ...
+      gCreds 
+    }
+  ),
   /**
    * Auxiliary User account 1
    * Note that this user doesn't have the "data-upload" role
    * Note that this user has the "abc.programs.test_program.projects.test_project1-viewer" policy
    */
-  auxAcct1: new User({ username: 'dummy-one@planx-pla.net', ...gCreds }),
+  auxAcct1: new User(
+    { 
+      username: 'dummy-one@planx-pla.net',
+      accessToken: process.env["GEN3_TOKEN_AUX1"],
+      ...gCreds
+    }
+  ),
   /**
    * Auxiliary User account 2
    * Note that this user also has the "data-upload" role
    * Note that this user has the "abc.programs.test_program2.projects.test_project3-viewer" policy
    */
-  auxAcct2: new User({ username: 'smarty-two@planx-pla.net', ...gCreds }),
+  auxAcct2: new User(
+    { 
+      username: 'smarty-two@planx-pla.net', 
+      accessToken: process.env["GEN3_TOKEN_AUX2"],
+      ...gCreds 
+    }
+  ),
   /**
    * User.yaml User account 0
    */
-  user0: new User({ username: 'dcf-integration-test-0@planx-pla.net', ...gCreds }),
+  user0: new User(
+    { 
+      username: 'dcf-integration-test-0@planx-pla.net', 
+      accessToken: process.env["GEN3_TOKEN_USER0"],
+      ...gCreds 
+    }
+  ),
   /**
    * User.yaml User account 1
    */
-  user1: new User({ username: 'dcf-integration-test-1@planx-pla.net', ...gCreds }),
+  user1: new User(
+    { 
+      username: 'dcf-integration-test-1@planx-pla.net', 
+      accessToken: process.env["GEN3_TOKEN_USER1"],
+      ...gCreds 
+    }
+  ),
   /**
    * User.yaml User account 2
    */
-  user2: new User({ username: 'dcf-integration-test-2@planx-pla.net', ...gCreds })
+  user2: new User(
+    { 
+      username: 'dcf-integration-test-2@planx-pla.net', 
+      accessToken: process.env["GEN3_TOKEN_USER2"],
+      ...gCreds 
+    }
+  )
 };
