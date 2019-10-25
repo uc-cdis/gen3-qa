@@ -100,7 +100,7 @@ Scenario('On the node browser - delete buttons are present if the user has delet
   }
 ));
 
-Scenario('On the node browser - delete buttons are not present if the user does not have delete permission on the project @manial', ifInteractive(
+Scenario('On the node browser - delete buttons are not present if the user does not have delete permission on the project @manual', ifInteractive(
   async (I) => {
     const result = await interactive(`
         1. Login as the user with access to the project
