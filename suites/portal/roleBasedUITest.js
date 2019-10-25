@@ -55,9 +55,9 @@ Scenario('On the all-projects page, the recent submissions table is present if t
 Scenario('On the all-projects page, the recent submissions table is not present if the user has no create or update permission @manual', ifInteractive(
   async (I) => {
     const result = await interactive(`
-        1. Login as the user with access to some, but not all projects
+        1. Login as the user with no create/update access on any projects
         2. Navigate to the all-projects page
-        3. Verify that the submit table is present
+        3. Verify that the recent submissions table is not present
         4. More details: https://docs.google.com/document/d/1IsUlRwoNLUNtT5I9D2tzmepC3y8vdhjmuLfUh-wumvU/edit?ts=5d72d22b#
         `);
     expect(result.didPass, result.details).to.be.true;
@@ -79,9 +79,9 @@ Scenario('On a project page - the submission tools are present if the user has s
 Scenario('On a project page - the submission tools are not present if the user does not have submit permission @manual', ifInteractive(
   async (I) => {
     const result = await interactive(`
-        1. Login as the user with access to the project
+        1. Login as the user with no access to the project
         2. Navigate to the project page
-        3. Verify that the submit tools are present
+        3. Verify that the submit tools are not present
         4. More details: https://docs.google.com/document/d/1IsUlRwoNLUNtT5I9D2tzmepC3y8vdhjmuLfUh-wumvU/edit?ts=5d72d22b#
         `);
     expect(result.didPass, result.details).to.be.true;
@@ -105,7 +105,7 @@ Scenario('On the node browser - delete buttons are not present if the user does 
     const result = await interactive(`
         1. Login as the user with access to the project
         2. Navigate to a project the user does not have access to
-        3. Verify that the delete buttons are present
+        3. Verify that the delete buttons are not present
         4. More details: https://docs.google.com/document/d/1IsUlRwoNLUNtT5I9D2tzmepC3y8vdhjmuLfUh-wumvU/edit?ts=5d72d22b#
         `);
     expect(result.didPass, result.details).to.be.true;
