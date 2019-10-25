@@ -17,7 +17,7 @@ Scenario('The dashboard reports should break down data by service @manual', ifIn
   }
 ));
 
-Scenario('The dashboard reports bucket response times in a useful way', ifInteractive(
+Scenario('The dashboard reports bucket response times in a useful way @manual', ifInteractive(
   async (I) => {
     const result = await interactive(`
     Given A user loads the report app at https://${hostname}/dashboard/Secure/reports/index.html
@@ -28,7 +28,7 @@ Scenario('The dashboard reports bucket response times in a useful way', ifIntera
   }
 ));
  
-Scenario('The dashboard reports bucket response codes in a useful way', ifInteractive(
+Scenario('The dashboard reports bucket response codes in a useful way @manual', ifInteractive(
   async (I) => {
     const result = await interactive(`
     Given A user loads the report app at https://${hostname}/dashboard/Secure/reports/index.html
@@ -39,7 +39,7 @@ Scenario('The dashboard reports bucket response codes in a useful way', ifIntera
   }
 ));
 
-Scenario('The dashboard reports require login to access', ifInteractive(
+Scenario('The dashboard reports require login to access @manual', ifInteractive(
   async (I) => {
     const result = await interactive(`
     Given A user loads the report app at https://${hostname}/dashboard/Secure/reports/index.html
@@ -50,7 +50,7 @@ Scenario('The dashboard reports require login to access', ifInteractive(
   }
 ));
 
-Scenario('The dashboard reports gracefully handle no data', ifInteractive(
+Scenario('The dashboard reports gracefully handle no data @manual', ifInteractive(
   async (I) => {
     const result = await interactive(`
     Given A user loads the report app at https://${hostname}/dashboard/Secure/reports/index.html
