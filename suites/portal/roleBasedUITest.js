@@ -4,6 +4,17 @@ const chai = require('chai');
 const {interactive, ifInteractive} = require('../../utils/interactive.js');
 const expect = chai.expect;
 
+Scenario('The following tests require Windmill to have some particular configs set @manual', ifInteractive(
+  async (I) => {
+    const result = await interactive(`
+        1. In gitops.json, useArboristUI should be true.
+        2. In gitops.json, componentToResourceMapping should have Workspace, Analyze Data, Query, and Query Data objects.
+        3. Config example here: https://github.com/uc-cdis/cdis-wiki/blob/master/dev/gen3/guides/ui_etl_configuration.md#portal-folder
+        `);
+    expect(result.didPass, result.details).to.be.true;
+  }
+));
+
 Scenario('The query button and data card work for the user with query access @manual', ifInteractive(
   async (I) => {
     const result = await interactive(`
@@ -129,6 +140,28 @@ Scenario('The workspace button is not present if the user does not have access @
         1. Login as the user with workspace access
         2. Verify that the workspace button is not present
         3. More details: https://docs.google.com/document/d/1IsUlRwoNLUNtT5I9D2tzmepC3y8vdhjmuLfUh-wumvU/edit?ts=5d72d22b#
+        `);
+    expect(result.didPass, result.details).to.be.true;
+  }
+));
+
+Scenario('The file page download button is present if the user has read-storage permission on the file @manual', ifInteractive(
+  async (I) => {
+    const result = await interactive(`
+        1. Login as a user with read-storage access on some project
+        2. Navigate to the file page for a file in that project (/files/{guid})
+        3. Verify that the download button is present
+        `);
+    expect(result.didPass, result.details).to.be.true;
+  }
+));
+
+Scenario('The file page download button is not present if the user does not have read-storage permission on the file @manual', ifInteractive(
+  async (I) => {
+    const result = await interactive(`
+        1. Login as a user with no read-storage access on some project
+        2. Navigate to the file page for a file in that project (/files/{guid})
+        3. Verify that the download button is not present
         `);
     expect(result.didPass, result.details).to.be.true;
   }
