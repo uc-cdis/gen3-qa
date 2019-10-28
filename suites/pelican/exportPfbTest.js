@@ -4,7 +4,7 @@ const chai = require('chai');
 const {interactive, ifInteractive} = require('../../utils/interactive.js');
 const expect = chai.expect;
 
-Scenario('Download whole of the database', ifInteractive(
+Scenario('Download whole of the database @manual', ifInteractive(
   async (I) => {
     const result = await interactive(`
         1. The user should login with a valid user login credentials (Google login). After successful login, user should be able to see all the cases in the Graph.
@@ -16,7 +16,7 @@ Scenario('Download whole of the database', ifInteractive(
   }
 ));
 
-Scenario('Download some of the database', ifInteractive(
+Scenario('Download some of the database @manual', ifInteractive(
   async (I) => {
       const result = await interactive(`
         1. The user should login with a valid user login credentials (Google login). After a successful login, user should be able to see all the cases in the Graph.
@@ -29,7 +29,7 @@ Scenario('Download some of the database', ifInteractive(
   }
 ));
 
-Scenario(`No permission`, ifInteractive(
+Scenario(`No permission @manual`, ifInteractive(
   async (I) => {
     const result = await interactive(`   
         1. When the user logs in with a valid user login credentials (Google login), but the user do not have permissions to the data commons. 
