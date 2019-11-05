@@ -38,7 +38,7 @@ Scenario('Wrong API key correct apiendpoint @manual', ifInteractive(
             1. user has a wrong cred.json (API key) and correct API endpoint
             2. the misconfiguration checker should show 401 which means the API key for the user is not correct
         `);
-    expect
+    expect (result.didPass, result.details).to,be.true;
     }
 ));
 
@@ -48,7 +48,7 @@ Scenario('correct API key wrong apiendpoint @manual', ifInteractive(
             1. user has a correct cred.json (API key) but wrong API endpoint
             2. the misconfiguration checker should show 404 or 405 which means user is hitting a wrong host  
         `);
-    expect
+    expect (result.didPass, result.details).to,be.true;
     }
 ));
 
