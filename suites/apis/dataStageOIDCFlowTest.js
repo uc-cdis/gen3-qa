@@ -107,6 +107,7 @@ function bootstrapDIDLists(I, ACCESS_TOKEN) {
 	    _401files = [];
 
 	    // adding record DIDs to their corresponding ACL key
+	    // ( I.records is created in BeforeSuite() )
 	    I.records.forEach(record => {
 		// console.log('ACLs for ' + record['did'] + ' - ' + record['acl']);
 		// Filtering accessible DIDs by checking if the record acl is in the project access list
@@ -139,6 +140,8 @@ BeforeSuite(async(I) => {
     // random number to be used in one occasion (it must be unique for every iteration)
     // making this data accessible in all scenarios through the actor's memory (the "I" object)
     I.NONCE = Date.now();
+
+    // Fetching public list of DIDs
     const http_resp = await I.sendGetRequest(
 	`${TARGET_ENVIRONMENT}/index/index`
     ).then(res => new Gen3Response(res));
