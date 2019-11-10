@@ -136,7 +136,7 @@ function fetchDIDLists(I, ACCESS_TOKEN) {
 }
 
 function performPreSignedURLTest(cloud_provider, type_of_test) {
-    Scenario(`Perform ${cloud_provider} PreSigned URL ${type_of_test} test against DID @mehtest`, ifInteractive(
+    Scenario(`Perform ${cloud_provider} PreSigned URL ${type_of_test} test against DID @manual`, ifInteractive(
 	async(I, fence) => {
 	    // Prompt user for ACCESS_TOKEN
 	    let ACCESS_TOKEN = await requestUserInput("Please paste in the ACCESS_TOKEN to verify your projects' access list: ");
@@ -221,43 +221,27 @@ Scenario('Initiate the OIDC Client flow with Google credentials to obtain the OA
 // Scenario #2 - Verify Nonce
 runVerifyNonceScenario();
 
-// Scenario #3  - Perform PreSignedURL test with Google account (should succeed)
-Scenario('Perform PreSigned URL tests with Google Account against the DIDs (Digital IDs) of the indexed records @manual', ifInteractive(
-    async(I, fence) => {
-	// Prompt user for ACCESS_TOKEN
-	let ACCESS_TOKEN = await requestUserInput("Please paste in the ACCESS_TOKEN obtained in the previous scenario: ");
+// Scenario #3 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
+// TODO: internalstaging.datastage is missing a sample file for this scenario
+performPreSignedURLTest("Google", "negative");
 
-	// Pick one of the dids from the list
-	let selected_did = I.records[0]['did'];
-	// e.g., dg.4503/00000dbc-ec18-4aac-a8c4-d2988e7e196d
+// Scenario #4 - Controlled Access Data - Google PreSignedURL test against DID the user can access
+performPreSignedURLTest("Google", "positive");
 
-	// PreSignedURL request
-	const signedUrlRes = await fence.do.createSignedUrl(
-	    `${selected_did}`,
-	    [],
-	    assembleCustomHeaders(ACCESS_TOKEN)
-	);
+// Scenario #5 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
+// TODO: internalstaging.datastage is missing a sample file for this scenario
+performPreSignedURLTest("AWS", "negative");
 
-	const result = await interactive (`
-            1. [Automated] Randomly selected record ID [${selected_did}] to perform PreSigned URL test.
-            2. [Automated] Executed an HTTP GET request (using the ACCESS_TOKEN provided: ${ACCESS_TOKEN}).
-            3. Verify if:
-               a. The HTTP response code is Ok/200.
-               b. The response contain valid URLs to the files stored in AWS S3 or GCP Buckets.
-
-            Manual verification:
-            HTTP Code: ${signedUrlRes.status}
-            RESPONSE: ${JSON.stringify(signedUrlRes.body) || signedUrlRes.parsedFenceError}
-            `);
-	expect(result.didPass, result.details).to.be.true;
-    }
-));
+// Scenario #6 - Controlled Access Data - Google PreSignedURL test against DID the user can access
+performPreSignedURLTest("AWS", "positive");
 
 /* ############################### */
 /* Scenarios with NIH account   */
 /* ############################### */
 
-// Scenario #4 - Starting the OIDC flow again with NIH credentials
+console.log('Click on the logout button so you can log back in with your NIH account.');
+
+// Scenario #7 - Starting the OIDC flow again with NIH credentials
 Scenario('Initiate the OIDC Client flow with NIH credentials to obtain the OAuth authorization code @manual', ifInteractive(
     async(I) => {
         const result = await interactive (printOIDCFlowInstructions(I, "NIH"));
@@ -265,18 +249,18 @@ Scenario('Initiate the OIDC Client flow with NIH credentials to obtain the OAuth
     }
 ));
 
-// Scenario #5 - Verify Nonce again
+// Scenario #8 - Verify Nonce again
 runVerifyNonceScenario();
 
-// Scenario #6 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
+// Scenario #9 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
 performPreSignedURLTest("Google", "negative");
 
-// Scenario #7 - Controlled Access Data - Google PreSignedURL test against DID the user can access
+// Scenario #10 - Controlled Access Data - Google PreSignedURL test against DID the user can access
 // TODO: internalstaging.datastage is missing a sample file for this scenario
 performPreSignedURLTest("Google", "positive");
 
-// Scenario #8 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
+// Scenario #11 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
 performPreSignedURLTest("AWS", "negative");
 
-// Scenario #9 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
+// Scenario #12 - Controlled Access Data - Google PreSignedURL test against DID the user can access
 performPreSignedURLTest("AWS", "positive");
