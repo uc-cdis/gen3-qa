@@ -90,7 +90,7 @@ function assembleCustomHeaders(ACCESS_TOKEN) {
     };
 }
 
-function bootstrapDIDLists(I, ACCESS_TOKEN) {
+function fetchDIDLists(I, ACCESS_TOKEN) {
     // Only assemble the didList if the list hasn't been initialized
     return new Promise(async(resolve) => {
 	if (!I.didList) {
@@ -101,10 +101,10 @@ function bootstrapDIDLists(I, ACCESS_TOKEN) {
 
 	    project_access_list = http_resp.body.project_access;
 
-	    // initialize list of accessible DIDs
-	    _200files = [];
-	    // initialize list of blocked DIDs
-	    _401files = [];
+	    // initialize dict of accessible DIDs
+	    _200files = {};
+	    // initialize dict of blocked DIDs
+	    _401files = {};
 
 	    // adding record DIDs to their corresponding ACL key
 	    // ( I.records is created in BeforeSuite() )
@@ -115,14 +115,14 @@ function bootstrapDIDLists(I, ACCESS_TOKEN) {
 		    return project_access_list.hasOwnProperty(acl);
 		});
 		if (accessible_did.length > 0) {
-		    _200files.push(record['did']);
+		    _200files[record['did']] = { "urls": record['urls'], "md5": record['md5'] };
 		} else {
-		    _401files.push(record['did']);
+		    _401files[record['did']] = { "urls": record['urls'], "md5": record['md5'] };
 		}
 	    });
 
-	    console.log('http 200 files: ' + _200files);
-	    console.log('http 401 files: ' + _401files);
+//	    console.log('http 200 files: ' + JSON.stringify(_200files));
+//	    console.log('http 401 files: ' + JSON.stringify(_401files));
 
 	    I.didList = {};
 	    I.didList['accessGrantedFiles'] = _200files;
@@ -133,6 +133,62 @@ function bootstrapDIDLists(I, ACCESS_TOKEN) {
 	    _401files: I.didList.accessDeniedFiles
 	});
     });
+}
+
+function performPreSignedURLTest(cloud_provider, type_of_test) {
+    Scenario(`Perform ${cloud_provider} PreSigned URL ${type_of_test} test against DID @mehtest`, ifInteractive(
+	async(I, fence) => {
+	    // Prompt user for ACCESS_TOKEN
+	    let ACCESS_TOKEN = await requestUserInput("Please paste in the ACCESS_TOKEN to verify your projects' access list: ");
+	    // Obtain project access list to determine which files(DIDs) the user can access
+	    // two lists: http 200 files and http 401 files
+	    const {_200files, _401files} = await fetchDIDLists(I, ACCESS_TOKEN);
+
+	    // positive: _200files | negative: _401files
+	    let list_of_DIDs = type_of_test == "positive" ? _200files : _401files;
+	    // AWS: s3:// | Google: gs://
+	    let preSignedURL_prefix = cloud_provider == "AWS" ? 's3://' : 'gs://';
+
+	    console.log('list_of_DIDs: ' + JSON.stringify(list_of_DIDs));
+
+	    let filteredDIDs = Object.keys(list_of_DIDs).reduce(function (filtered, key) {
+		list_of_DIDs[key]['urls'].forEach(url => {
+		    console.log('url.startsWith(...): ' + url.startsWith(preSignedURL_prefix));
+		    if (url.startsWith(preSignedURL_prefix)) filtered[key] = list_of_DIDs[key];
+		});
+		return filtered;
+	    }, {});
+
+	    console.log('filtered: ' + JSON.stringify(filteredDIDs));
+	    // Must have at least one sample to conduct this test
+	    let selected_did = Object.keys(filteredDIDs)[0];
+	    // PreSignedURL request
+	    const signedUrlRes = await fence.do.createSignedUrl(
+		`${selected_did}`,
+		[],
+		assembleCustomHeaders(ACCESS_TOKEN)
+	    );
+
+	    // TODO: Run `wget` with PreSignedURL and check if md5 matches the record['md5']
+
+	    let verification_message = type_of_test == "positive" ? `
+                a. The HTTP response code is Ok/200.
+                b. The response contain valid URLs to the files stored in AWS S3 or GCP Buckets.` : `
+	        a. The HTTP response code is 401.
+                b. The response contains a Fence error message.`;
+
+	    const result = await interactive (`
+              1. [Automated] Selected DID [${selected_did}] to perform a ${type_of_test} ${cloud_provider} PreSigned URL test.
+              2. [Automated] Executed an HTTP GET request (using the ACCESS_TOKEN provided).
+              3. Verify if:${verification_message}
+
+              Manual verification:
+                HTTP Code: ${signedUrlRes.status}
+                RESPONSE: ${JSON.stringify(signedUrlRes.body) || signedUrlRes.parsedFenceError}
+            `);
+	    expect(result.didPass, result.details).to.be.true;
+	}
+    ));
 }
 
 BeforeSuite(async(I) => {
@@ -150,11 +206,11 @@ BeforeSuite(async(I) => {
     I.records = records;
 });
 
-/* ################# */
-/* Scenarios - BEGIN */
-/* ################# */
+/* ############################### */
+/* Scenarios with Google account   */
+/* ############################### */
 
-// Scenario #1 - Testing with Google credentials
+// Scenario #1 - Testing OIDC flow with Google credentials
 Scenario('Initiate the OIDC Client flow with Google credentials to obtain the OAuth authorization code @manual', ifInteractive(
     async(I) => {
         const result = await interactive (printOIDCFlowInstructions(I, "Google"));
@@ -197,6 +253,10 @@ Scenario('Perform PreSigned URL tests with Google Account against the DIDs (Digi
     }
 ));
 
+/* ############################### */
+/* Scenarios with NIH account   */
+/* ############################### */
+
 // Scenario #4 - Starting the OIDC flow again with NIH credentials
 Scenario('Initiate the OIDC Client flow with NIH credentials to obtain the OAuth authorization code @manual', ifInteractive(
     async(I) => {
@@ -208,70 +268,15 @@ Scenario('Initiate the OIDC Client flow with NIH credentials to obtain the OAuth
 // Scenario #5 - Verify Nonce again
 runVerifyNonceScenario();
 
-// Scenario #6 - Controlled Access Data - Perform PreSignedURL test against DID the user can't access
-Scenario('Access Denied: Perform PreSigned URL tests against a DID the user cannot access @mehtest', ifInteractive(
-    async(I, fence) => {
-	// Prompt user for ACCESS_TOKEN
-	let ACCESS_TOKEN = await requestUserInput("Please paste in the ACCESS_TOKEN to verify your projects' access list: ");
-	// Obtain project access list to determine which files(DIDs) the user can access
-	// two lists: http 200 files and http 401 files
-	const {_200files, _401files} = await bootstrapDIDLists(I, ACCESS_TOKEN);
+// Scenario #6 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
+performPreSignedURLTest("Google", "negative");
 
-	// pick a blocked file for the negative test
-	let selected_did = _401files[0];
+// Scenario #7 - Controlled Access Data - Google PreSignedURL test against DID the user can access
+// TODO: internalstaging.datastage is missing a sample file for this scenario
+performPreSignedURLTest("Google", "positive");
 
-	// TODO: Cover both authorized and unauthorized scenarios (different dids)
-	// PreSignedURL request
-	const signedUrlRes = await fence.do.createSignedUrl(
-	    `${selected_did}`,
-	    [],
-	    assembleCustomHeaders(ACCESS_TOKEN)
-	);
+// Scenario #8 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
+performPreSignedURLTest("AWS", "negative");
 
-	const result = await interactive (`
-            1. [Automated] Select DID which cannot be accessed by the user: [${selected_did}] to perform PreSigned URL test.
-            2. [Automated] Executed an HTTP GET request (using the ACCESS_TOKEN provided).
-            3. Verify if:
-               a. The HTTP response code is 401.
-               b. The response contains a Fence error message.
-
-            Manual verification:
-            HTTP Code: ${signedUrlRes.status}
-            RESPONSE: ${JSON.stringify(signedUrlRes.body) || signedUrlRes.parsedFenceError}
-            `);
-	expect(result.didPass, result.details).to.be.true;
-    }
-));
-
-// Scenario #7 - Controlled Access Data - Perform PreSignedURL test against DID the user can't access
-Scenario('Access Granted: Perform PreSigned URL tests against a DID the user can access @mehtest', ifInteractive(
-    async(I, fence) => {
-	// Prompt user for ACCESS_TOKEN
-	let ACCESS_TOKEN = await requestUserInput("Please paste in the ACCESS_TOKEN to verify your projects' access list: ");
-	const {_200files, _401files} = await bootstrapDIDLists(I, ACCESS_TOKEN);
-
-	// pick an accessible file for the positive test
-	let selected_did = _200files[0];
-
-	// TODO: Cover both authorized and unauthorized scenarios (different dids)
-	// PreSignedURL request
-	const signedUrlRes = await fence.do.createSignedUrl(
-	    `${selected_did}`,
-	    [],
-	    assembleCustomHeaders(ACCESS_TOKEN)
-	);
-
-	const result = await interactive (`
-            1. [Automated] Select DID which can be accessed by the user: [${selected_did}] to perform PreSigned URL test.
-            2. [Automated] Executed an HTTP GET request (using the ACCESS_TOKEN provided).
-            3. Verify if:
-               a. The HTTP response code is 200.
-               b. The response contain valid URLs to the files stored in AWS S3 or GCP Buckets.
-
-            Manual verification:
-            HTTP Code: ${signedUrlRes.status}
-            RESPONSE: ${JSON.stringify(signedUrlRes.body) || signedUrlRes.parsedFenceError}
-            `);
-	expect(result.didPass, result.details).to.be.true;
-    }
-));
+// Scenario #9 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
+performPreSignedURLTest("AWS", "positive");
