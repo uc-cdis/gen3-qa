@@ -135,10 +135,10 @@ function fetchDIDLists(I, ACCESS_TOKEN) {
 }
 
 function performPreSignedURLTest(cloud_provider, type_of_test, type_of_creds) {
-    Scenario(`Perform ${cloud_provider} PreSigned URL ${type_of_test} test against DID with ${type_of_creds} credentials @mehtest`, ifInteractive(
+    Scenario(`Perform ${cloud_provider} PreSigned URL ${type_of_test} test against DID with ${type_of_creds} credentials @manual`, ifInteractive(
 	async(I, fence) => {
 	    // Prompt user for ACCESS_TOKEN
-	    let ACCESS_TOKEN = await requestUserInput("Please paste in the ACCESS_TOKEN to verify your projects' access list: ");
+	    let ACCESS_TOKEN = await requestUserInput("Please provide your ACCESS_TOKEN: ");
 	    // Obtain project access list to determine which files(DIDs) the user can access
 	    // two lists: http 200 files and http 401 files
 	    const {_200files, _401files} = await fetchDIDLists(I, ACCESS_TOKEN);
