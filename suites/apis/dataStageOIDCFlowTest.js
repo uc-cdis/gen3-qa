@@ -117,7 +117,6 @@ function fetchDIDLists(I, ACCESS_TOKEN) {
 
 		// Put DIDs urls and md5 hash into their respective lists (200 or 401)
 		let _files = accessible_did.length > 0 ? _200files : _401files;
-		console.log('_files: ' + _files);
 		_files[record['did']] = { "urls": record['urls'], "md5": record['md5'] };
 	    });
 
@@ -153,13 +152,11 @@ function performPreSignedURLTest(cloud_provider, type_of_test, type_of_creds) {
 
 	    let filteredDIDs = Object.keys(list_of_DIDs).reduce(function (filtered, key) {
 		list_of_DIDs[key]['urls'].forEach(url => {
-		    console.log('url.startsWith(...): ' + url.startsWith(preSignedURL_prefix));
 		    if (url.startsWith(preSignedURL_prefix)) filtered[key] = list_of_DIDs[key];
 		});
 		return filtered;
 	    }, {});
 
-	    console.log('filtered: ' + JSON.stringify(filteredDIDs));
 	    // Must have at least one sample to conduct this test
 	    let selected_did = Object.keys(filteredDIDs)[0];
 	    // PreSignedURL request
