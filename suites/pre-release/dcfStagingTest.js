@@ -21,14 +21,14 @@ const { Gen3Response } = require('../../utils/apiUtil');
 const expect = chai.expect;
 
 // Test elaborated for nci-crdc but it can be reused in other projects
-const hostname = process.env.HOSTNAME || 'nci-crdc-staging.datacommons.io';
-const TARGET_ENVIRONMENT = `https://${hostname}`
+const commons_hostname = process.env.GEN3_COMMONS_HOSTNAME || 'nci-crdc-staging.datacommons.io';
+const TARGET_ENVIRONMENT = `https://${commons_hostname}`
 
 function getCurrTimePlus(hours) {
     return new Date().getHours() + hours;
 }
 
-meh
+
 BeforeSuite(async(I) => {
     console.log('Setting up dependencies...');
     // random number to be used in one occasion (it must be unique for every iteration)
@@ -51,6 +51,7 @@ Scenario(`Login to ${TARGET_ENVIRONMENT} and check the Project Access list under
 ));
 
 // Scenario #2 - Link Google Service Account from the "customer" GCP account
+// TODO: Cannot leverage the ${user.mainAcct.accessToken} while working on an internal staging env. (i.e., no access to the underlying admin vm)
 Scenario(`Link Google identity to NIH user, set expiration parameter and unlink it @manual`, ifInteractive(
     async(I, fence) => {
 	const result = await interactive (`
@@ -58,9 +59,11 @@ Scenario(`Link Google identity to NIH user, set expiration parameter and unlink 
                  ${TARGET_ENVIRONMENT}/user/link/google?redirect=/login
               2. Provide the credentials of the Google account that owns the "Customer" GCP account
                  This Google account will be linked to the NIH account within this Gen3 environment.
+              3. Copy the contents of the 'access_token' cookie found in the browser (while logged in with NIH credentials) and declare an environment variable:
+                 export ACCESS_TOKEN="<access token>"
 
-              3. Run the following curl command to send a HTTP PATCH request and extend the expiration date of this Google account access (?expires_in=<current epoch time + 2 hours>):
-                 curl -v -X PATCH -H "Authorization: Bearer ${user.mainAcct.accessToken}" https://nci-crdc-staging.datacommons.io/user/link/google\?expires_in\=${getCurrTimePlus(2)}
+              4. Run the following curl command to send a HTTP PATCH request and extend the expiration date of this Google account access (?expires_in=<current epoch time + 2 hours>):
+                 curl -v -X PATCH -H "Authorization: Bearer \$\{ACCESS_TOKEN\}" https://nci-crdc-staging.datacommons.io/user/link/google\?expires_in\=${getCurrTimePlus(2)}
 
               Expect a < HTTP/1.1 200 OK response containing the new "exp" date.
             `);
