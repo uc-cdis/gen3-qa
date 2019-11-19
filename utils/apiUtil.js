@@ -4,6 +4,7 @@
  */
 
 const atob = require('atob');
+const ax = require('axios');
 const chai = require('chai');
 const jsdom = require('jsdom');
 const chaiSubset = require('chai-subset');
@@ -150,6 +151,32 @@ module.exports = {
     const fenceCmd = `fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account,google_credentials --type access_token --exp ${expiration} --username ${username}`;
     const accessToken = bash.runCommand(fenceCmd, 'fence', takeLastLine);
     return accessToken.trim();
+  },
+
+  /**
+   * Returns the access token by instrumenting the fence http api
+   * @param {string} api_key - api key from credentials.json (downloaded by an authenticated user)
+   * @returns {string}
+   */
+  getAccessTokenFromApiKey(the_api_key, target_environment) {
+    return new Promise(function(resolve, reject) {
+      ax.request({
+        url: '/user/credentials/cdis/access_token',
+        baseURL: 'https://' + target_environment,
+        method: 'post',
+        maxRedirects: 0,
+        header: {
+          "content-type": "application/json",
+          "accept": "application/json"
+        },
+        data: {
+          api_key: the_api_key
+        }
+      }).then(
+	  resp => resolve(resp.data['access_token']),
+	  err => reject(err.response || err)
+      );
+    });
   },
 
   /**
