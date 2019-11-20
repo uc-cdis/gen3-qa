@@ -3,37 +3,69 @@ Feature('Linking accounts - DCF Staging testing for release sign off - https://c
 
 // To be executed with GEN3_SKIP_PROJ_SETUP=true -- No need to set up program / retrieve access token, etc.
 
-const readline = require('readline');
 const user = require('../../../utils/user.js');
 const chai = require('chai');
 const {interactive, ifInteractive} = require('../../../utils/interactive.js');
-const { Gen3Response, getAccessTokenFromApiKey } = require('../../../utils/apiUtil');
+const { Gen3Response, getAccessTokenFromExecutableTest, getAccessTokenHeader } = require('../../../utils/apiUtil');
 const expect = chai.expect;
 
 // Test elaborated for nci-crdc but it can be reused in other projects
 const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'nci-crdc-staging.datacommons.io';
 
-function getCurrTimePlus(hours) {
-    return new Date().getHours() + hours;
+function linkGoogleAccount() {
+    Scenario(`Link Google identity to the NIH user @manual`, ifInteractive(
+	async(I) => {
+	    const result = await interactive (`
+              1. Navigate to https://${TARGET_ENVIRONMENT}/user/link/google?redirect=/login
+              2. Provide the credentials of the Google account that owns the "Customer" GCP account
+                 This Google account will be linked to the NIH account within this Gen3 environment.
+            `);
+	    expect(result.didPass, result.details).to.be.true;
+	}
+    ));
 }
 
-// TODO: Turn this into a more generic JS object and move it to utils/interactive.js
-function requestUserInput(question_text) {
-    return new Promise((resolve) => {
-	let rl = readline.createInterface({
-	    input: process.stdin,
-	    output: process.stdout
-	});
-       rl.question(question_text, (user_input) => {
-	  rl.close();
-	  resolve(user_input);
-       });
-    });
+function performAdjustExpDateTest(type_of_test) {
+    Scenario(`Adjust the expiration date of the Google account that has been linked @manual`, ifInteractive(
+	async(I, fence) => {
+	    let ACCESS_TOKEN = await getAccessTokenFromExecutableTest(I);
+	    console.log('access token: ' + ACCESS_TOKEN);
+
+	    // Arbitrarily setting linked Google account to expire in 2 hours
+	    const expiration_date_in_secs = 7200;
+
+	    // set a userAcct obj with an "accessTokenHeader" property to use Gen3-qa's Fence testing API
+	    let userAcct = {};
+	    userAcct['accessTokenHeader'] = getAccessTokenHeader(ACCESS_TOKEN);
+
+            const http_resp = await fence.do.extendGoogleLink(userAcct, expiration_date_in_secs);
+
+	    let {expected_status, expected_response} = type_of_test == 'positive' ?
+		{ expected_status: 200, expected_response: 'new "exp" date (should express <current time + 2hs>)'} :
+		{ expected_status: 404, expected_response: '"User does not have a linked Google account." message'};
+
+	    const result = await interactive (`
+              1. [Automated] Send a HTTP PATCH request with the NIH user's ACCESS TOKEN to adjust the expiration date of a Google account (?expires_in=<current epoch time + 2 hours>):
+              HTTP PATCH request to: https://${TARGET_ENVIRONMENT}/user/link/google\?expires_in\=${expiration_date_in_secs}
+              Manual verification:
+                Response status: ${http_resp.status} // Expect a HTTP ${expected_status}
+                Response data: ${JSON.stringify(http_resp.body) || http_resp.parsedFenceError} // Expect response containing the ${expected_response}
+
+              Converting epoch to timestamp: ${http_resp.status == 200 ? new Date(new Date(0).setUTCSeconds(http_resp.body['exp'])).toLocaleString() : 'cannot convert invalid response'}
+            `);
+	    expect(result.didPass, result.details).to.be.true;
+	}
+    ));
 }
+
+BeforeSuite(async(I) => {
+    console.log('Setting up dependencies...');
+    I.TARGET_ENVIRONMENT = TARGET_ENVIRONMENT;
+});
 
 // Scenario #1 - Verifying NIH access and permissions (project access)
 Scenario(`Login to https://${TARGET_ENVIRONMENT} and check the Project Access list under the Profile page @manual`, ifInteractive(
-    async(I, fence) => {
+    async(I) => {
 	const result = await interactive (`
               1. Go to https://${TARGET_ENVIRONMENT}
               2. Login with NIH account
@@ -45,31 +77,36 @@ Scenario(`Login to https://${TARGET_ENVIRONMENT} and check the Project Access li
     }
 ));
 
-// Scenario #2 - Link Google Service Account from the "customer" GCP account
-// Note: Cannot leverage the ${user.mainAcct.accessToken} while working on an internal staging env. (i.e., no access to the underlying admin vm, hence, using API Key + Fence HTTP API to retrieve the Access Token)
-Scenario(`Use API Key to obtain Access Token and link Google identity to NIH user, set expiration parameter and unlink it @manual`, ifInteractive(
+// Scenario #2 - Link Google account from the "customer" GCP account to the NIH user
+linkGoogleAccount();
+
+// Scenario #3 - Set expiration date for the linked Google Account
+performAdjustExpDateTest('positive');
+
+// Scenario #4 - Unlink Google account from the "customer" GCP account so it will be no longer associated with the NIH user
+Scenario(`Unlink Google identity from the NIH user @manual`, ifInteractive(
     async(I, fence) => {
-	// Prompt user for API_KEY to automatically obtain the ACCESS TOKEN
-	let API_KEY = await requestUserInput(`
-              1. Navigate to the "Profile" page on https://${TARGET_ENVIRONMENT} and click on "Create API key".
-              2. Download the "credentials.json" file, copy the value of the "api_key" parameter and paste it here:
-        `);
-	let ACCESS_TOKEN = await getAccessTokenFromApiKey(API_KEY, TARGET_ENVIRONMENT);
+	let ACCESS_TOKEN = await getAccessTokenFromExecutableTest(I);
 	console.log('access token: ' + ACCESS_TOKEN);
 
-	const result = await interactive (`
-              1. Copy and paste the following URL into your browser:
-                 https://${TARGET_ENVIRONMENT}/user/link/google?redirect=/login
-              2. Provide the credentials of the Google account that owns the "Customer" GCP account
-                 This Google account will be linked to the NIH account within this Gen3 environment.
-              3. [Automated] Send a HTTP PATCH request with the NIH user's ACCESS TOKEN to extend the expiration date of this Google account access (?expires_in=<current epoch time + 2 hours>):
-                 curl -v -X PATCH -H "Authorization: Bearer \$\{ACCESS_TOKEN\}" https://${TARGET_ENVIRONMENT}/user/link/google\?expires_in\=${getCurrTimePlus(2)}
+	// set a userAcct obj with an "accessTokenHeader" property to use Gen3-qa's Fence testing API
+	let userAcct = {};
+	userAcct['accessTokenHeader'] = getAccessTokenHeader(ACCESS_TOKEN);
 
-              Expect a < HTTP/1.1 200 OK response containing the new "exp" date.
+	const http_resp = await fence.do.unlinkGoogleAcct(userAcct);
+
+	const result = await interactive (`
+              1. [Automated] Send a HTTP DELETE request with the NIH user's ACCESS TOKEN to unlink the Google account:
+              HTTP DELETE request to: https://${TARGET_ENVIRONMENT}/user/link/google
+              Manual verification:
+                Response status: ${http_resp.status} // Expect a HTTP 200
+                Response data: ${JSON.stringify(http_resp.body) || http_resp.parsedFenceError} // Expect "undefined"
             `);
 	expect(result.didPass, result.details).to.be.true;
     }
 ));
 
+performAdjustExpDateTest('negative');
 
-
+// Scenario #5 - Link Google account with the NIH user again to support the next features in the sequence
+linkGoogleAccount();
