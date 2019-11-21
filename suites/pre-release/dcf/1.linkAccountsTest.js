@@ -1,9 +1,10 @@
 // Feature # 1 in the sequence of testing
 //  This test plan has a few pre-requisites: Check prereq.md for more details.
-Feature('Linking accounts - DCF Staging testing for release sign off - https://ctds-planx.atlassian.net/browse/PXP-3836');
+Feature('1. Linking accounts - DCF Staging testing for release sign off - https://ctds-planx.atlassian.net/browse/PXP-3836');
 
 // To be executed with GEN3_SKIP_PROJ_SETUP=true -- No need to set up program / retrieve access token, etc.
 
+const fenceProps = require('../../../services/apis/fence/fenceProps.js');
 const user = require('../../../utils/user.js');
 const chai = require('chai');
 const {interactive, ifInteractive} = require('../../../utils/interactive.js');
@@ -15,9 +16,9 @@ const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'nci-crdc-stagin
 
 function linkGoogleAccount() {
     Scenario(`Link Google identity to the NIH user @manual`, ifInteractive(
-	async(I) => {
+	async(I, fence) => {
 	    const result = await interactive (`
-              1. Navigate to https://${TARGET_ENVIRONMENT}/user/link/google?redirect=/login
+              1. Navigate to https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.linkGoogle}
               2. Provide the credentials of the Google account that owns the "Customer" GCP account
                  This Google account will be linked to the NIH account within this Gen3 environment.
             `);
@@ -35,11 +36,10 @@ function performAdjustExpDateTest(type_of_test) {
 	    // Arbitrarily setting linked Google account to expire in 2 hours
 	    const expiration_date_in_secs = 7200;
 
-	    // set a userAcct obj with an "accessTokenHeader" property to use Gen3-qa's Fence testing API
-	    let userAcct = {};
-	    userAcct['accessTokenHeader'] = getAccessTokenHeader(ACCESS_TOKEN);
-
-            const http_resp = await fence.do.extendGoogleLink(userAcct, expiration_date_in_secs);
+	    // set a userAcct obj {} with an "accessTokenHeader" property to use Gen3-qa's Fence testing API
+            const http_resp = await fence.do.extendGoogleLink(
+		{ accessTokenHeader: getAccessTokenHeader(ACCESS_TOKEN) },
+		expiration_date_in_secs);
 
 	    let {expected_status, expected_response} = type_of_test == 'positive' ?
 		{ expected_status: 200, expected_response: 'new "exp" date (should express <current time + 2hs>)'} :
@@ -47,7 +47,7 @@ function performAdjustExpDateTest(type_of_test) {
 
 	    const result = await interactive (`
               1. [Automated] Send a HTTP PATCH request with the NIH user's ACCESS TOKEN to adjust the expiration date of a Google account (?expires_in=<current epoch time + 2 hours>):
-              HTTP PATCH request to: https://${TARGET_ENVIRONMENT}/user/link/google\?expires_in\=${expiration_date_in_secs}
+              HTTP PATCH request to: https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.extendGoogleLink}\?expires_in\=${expiration_date_in_secs}
               Manual verification:
                 Response status: ${http_resp.status} // Expect a HTTP ${expected_status}
                 Response data: ${JSON.stringify(http_resp.body) || http_resp.parsedFenceError} // Expect response containing the ${expected_response}
@@ -90,15 +90,11 @@ Scenario(`Unlink Google identity from the NIH user @manual`, ifInteractive(
 	let ACCESS_TOKEN = await getAccessTokenFromExecutableTest(I);
 	console.log('access token: ' + ACCESS_TOKEN);
 
-	// set a userAcct obj with an "accessTokenHeader" property to use Gen3-qa's Fence testing API
-	let userAcct = {};
-	userAcct['accessTokenHeader'] = getAccessTokenHeader(ACCESS_TOKEN);
-
-	const http_resp = await fence.do.unlinkGoogleAcct(userAcct);
+	const http_resp = await fence.do.unlinkGoogleAcct({ accessTokenHeader: getAccessTokenHeader(ACCESS_TOKEN) });
 
 	const result = await interactive (`
               1. [Automated] Send a HTTP DELETE request with the NIH user's ACCESS TOKEN to unlink the Google account:
-              HTTP DELETE request to: https://${TARGET_ENVIRONMENT}/user/link/google
+              HTTP DELETE request to: https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.deleteGoogleLink}
               Manual verification:
                 Response status: ${http_resp.status} // Expect a HTTP 200
                 Response data: ${JSON.stringify(http_resp.body) || http_resp.parsedFenceError} // Expect "undefined"
