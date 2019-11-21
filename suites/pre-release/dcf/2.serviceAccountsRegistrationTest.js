@@ -47,11 +47,13 @@ function performSvcAcctRegistrationTest(type_of_test, test_instructions) {
 		I.cache.userAcct,
 		type_of_test != 'invalid_svc_account' ? I.cache.googleProject : { serviceAccountEmail: 'whatever@invalid.iam.gserviceaccount.com', id: I.cache.googleProject.id },
 		type_of_test != 'invalid_prj_access' ? I.cache.projectAccessList : ['phs666DoesNotExist'],
-		null);
+		null,
+		type_of_test != 'dry_run_registration' ? false : true
+	    );
 
 	    const result = await interactive (`
               1. [Automated] Send a HTTP POST request with the NIH user's ACCESS TOKEN to register a service account:
-              HTTP POST request to: https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.registerGoogleServiceAccount}
+              HTTP POST request to: https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.registerGoogleServiceAccount}${type_of_test != 'dry_run_registration' ? '' : '/_dry_run'}
               Manual verification:
                 Response status: ${http_resp.status} // Expect a HTTP ${test_instructions.expected_status}
                 Response data: ${JSON.stringify(http_resp.body) || http_resp.parsedFenceError} 
@@ -83,19 +85,23 @@ let svc_acct_registration_tests_map = {
     existing_svc_account: {
 	expected_status: 400,
 	expected_response: 'a "Conflict" message - http 409'
+    },
+    dry_run_registration: {
+	expected_status: 400,
+	expected_response: 'a "Service Account already registered" message'
     }
 };
 
-// Scenario #1 - Register an IAM service account from the GCP "customer" project owned by the Google account linked in Executable Test Plan #1 (linkAccountsTest.js)
+// Scenarios #1/2/3/4/5 - Register an IAM service account from the GCP "customer" project owned by the Google account linked in Executable Test Plan #1 (linkAccountsTest.js)
 for (const [type_of_test, test_instructions] of Object.entries(svc_acct_registration_tests_map)) {
     // console.log('key: ' + type_of_test + ' - val: ' + test_instructions.expected_status); 
     performSvcAcctRegistrationTest(type_of_test, test_instructions);
 }
 
-// Scenario #2 - Get details from the service account that has been successfully registered
+// Scenario #6 - Get details from the service account that has been successfully registered
 Scenario(`Get details from registered service account @manual`, ifInteractive(
     async(I, fence) => {
-	await collectUserInput(I);	
+	await collectUserInput(I);
 
 	const http_resp = await fence.do.getGoogleServiceAccounts(I.cache.userAcct, [ I.cache.googleProject.id ]);
 
@@ -109,3 +115,24 @@ Scenario(`Get details from registered service account @manual`, ifInteractive(
 	expect(result.didPass, result.details).to.be.true;
     }
 ));
+
+// Scenario #7 - Get id of the account that is monitoring the "customer" Google Cloud IAM space within a given project
+Scenario(`Get the ID of the GCP monitor ("fence-service" account) @manual`, ifInteractive(
+    async(I, fence) => {
+	let ACCESS_TOKEN = !I.cache ? await requestUserInput("Please provide your ACCESS_TOKEN: ") : I.cache.ACCESS_TOKEN;
+
+	const http_resp = await fence.do.getGoogleSvcAcctMonitor(I.cache.userAcct);
+
+	const result = await interactive (`
+              1. [Automated] Send a HTTP GET request with the NIH user's ACCESS TOKEN to retrieve the ID of the fence-service monitor account:
+              HTTP GET request to: https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.getGoogleSvcAcctMonitor}
+              Manual verification:
+                Response status: ${http_resp.status} // Expect a HTTP 200
+                Response data: ${JSON.stringify(http_resp.body) || http_resp.parsedFenceError}
+
+                // Expect the ID / email address of the fence-service account
+            `);
+	expect(result.didPass, result.details).to.be.true;
+    }
+));
+
