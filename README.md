@@ -57,7 +57,7 @@ GEN3_SKIP_PROJ_SETUP=true GEN3_COMMONS_HOSTNAME=qa-brain.planx-pla.net npm test 
 ### Notes
 
 * the OAuth flow tests require `fence-config.yaml` to be configured with `MOCK_GOOGLE_AUTH: true`, since Google doesn't trust robots
-* set the GEN3_INTERACTIVE environment variable to `false` to disable interactive tests that require user feedback.  See the [executable test plans overview](./doc/executableTestPlans.md) for more details.
+* set the GEN3_INTERACTIVE environment variable to `false` to disable interactive tests that require user feedback.  See the [executable test plans overview](./docs/executableTestPlans.md) for more details.
 
 
 ## Generating test data for tests
