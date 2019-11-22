@@ -11,8 +11,8 @@ Scenario('Install gen3-client', ifInteractive(
     async(I) => {
         const result = await interactive (`
             1. Download the newest version of gen3-client from github repo - https://github.com/uc-cdis/cdis-data-client/releases/tag/{latest-tag} (the user should make sure that downloaded version of gen3-client is appropriate platform (Windows/Mac))
-            2. Unzip the download and add the executable to directory, ~/.gen3/gen3-client.exe
-            3. on terminal, echo 'export PATH=$PATH:~/.gen3' >> ~/.bash_profile or ~/.zshrc  
+            2. Unzip the download and add the executable to user's directory
+            3. on terminal, echo 'export PATH=$PATH:<path>' >> ~/.bash_profile or ~/.zshrc  
             4. now run 'gen3-client' command on terminal. The user should see the version no and also list of available commands     
         `);
     expect(result.didPass, result.details).to,be.true;
@@ -80,19 +80,6 @@ Scenario('correct API key wrong apiendpoint @manual', ifInteractive(
             2. the misconfiguration checker displays a message 'The provided apiendpoint '<apiendpoint>' is possibly not a valid Gen3 data commons' 
         `);
     expect (result.didPass, result.details).to,be.true;
-    }
-));
-
-//download
-Scenario('Download the file @manual', ifInteractive(
-    async(I) => {
-        const result = await interactive (`
-            1. Get <GUID> of the file that you want to download
-            2. On terminal, run command - 'gen3-client download-single --profile=<YOUR_PROFILE_NAME> --guid=<GUID of the file>'
-            3. User should see a file downloaded
-            4. The content of the downloaded file should be the data of the <GUID> that was used to be downloaded
-        `);
-    expect(result.didPass, result.details).to.be.true;
     }
 ));
 
