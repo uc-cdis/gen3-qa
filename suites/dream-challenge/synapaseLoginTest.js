@@ -12,7 +12,7 @@ Scenario('Login with Google / Microsoft @manual', ifInteractive(
         const result = await interactive (`
             1. Go to https://qa-brain.planx-pla.net
             2. Check Dictionary button and check if graphic representation of data model is visible
-            3. Also check other button on the top menu bar such as Exploration, Files and Profile. 
+            3. Also check other button on the top menu bar such as Exploration and Profile. 
             4. Exploration, Files and Profile tab should take the user to the login page
             5. Login with Google / Microsoft credentials, check the login works
             6. Log out from the Google / Microsoft account
@@ -59,13 +59,14 @@ Scenario('Landing Page @manual', ifInteractive(
     }
 ));
 
-Scenario('File Page @manual', ifInteractive(
+Scenario('Exploration Page @manual', ifInteractive(
     async(I) => {
         const result = await interactive (`
-            1. Navigate to Files tab, user should see facet filter on left, file graphs and file table on the right
+            1. Navigate to Exploraton tab, user should see facet filter on left, file graphs and file table on the right
             2. the user selects from the facet and file table changes according to the facet selection
-            3. 'Download Manifest' should be enabled depending on the permissions the user has.
+            3. 'Download Manifest' and 'Download Data' should be enabled depending on the permissions the user has.
             4. Click 'Download Manifest' button and 'file-manifest.json' file is downloaded
+            5. Click 'Download Data' button and 'data.json' file is downloaded
         `);
     expect(result.didPass, result.details).to,be.true;
     }
