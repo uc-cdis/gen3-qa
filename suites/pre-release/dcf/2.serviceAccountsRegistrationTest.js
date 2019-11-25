@@ -25,11 +25,14 @@ function collectUserInput(I) {
 		userAcct: { accessTokenHeader: getAccessTokenHeader(ACCESS_TOKEN) },
 		// set a googleProject obj with "serviceAccountEmail" and "id" to use Gen3-qa's Fence testing API
 		googleProject: {
+		    // e.g., dcf-testing-sa@dcf-testing-staging.iam.gserviceaccount.com
 		    serviceAccountEmail: await requestUserInput('Please provide the service account email address:'),
+		    // e.g., dcf-testing-staging
 		    id: await requestUserInput('Please provide the id of the Google project:')
 		}
 	    };
 	    // TODO: Should we allow the user to input multiple project_access names (ACLs/DbGap prj names) ?
+	    // e.g., phs000123
 	    let prj = await requestUserInput('Please provide at least one project name to grant project access:');
 	    I.cache.projectAccessList = [prj];
 	}
@@ -64,6 +67,30 @@ function performSvcAcctRegistrationTest(type_of_test, test_instructions) {
     ));
 }
 
+function performSvcAcctUpdateTest(type_of_test, test_instructions) {
+  Scenario(`Update existing service account @manual`, ifInteractive(
+    async(I, fence) => {
+	await collectUserInput(I);
+	// patch existing svc acct to remove project access
+	const http_resp = await fence.do.updateGoogleServiceAccount(
+	    I.cache.userAcct,
+	    type_of_test != 'patch_unregistered_acc' ? I.cache.googleProject.serviceAccountEmail : 'whatever@invalid.iam.gserviceaccount.com',
+	    [],
+	    type_of_test != 'dry_run' ? false : true
+	);
+	const result = await interactive (`
+              1. [Automated] Send a HTTP PATCH request with the NIH user's ACCESS TOKEN to update the project access for svc acct: ${I.cache.googleProject.serviceAccountEmail}.
+              HTTP PATCH request to: https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.updateGoogleServiceAccount}${type_of_test != 'dry_run' ? '' : '/_dry_run'}/${type_of_test != 'patch_unregistered_acc' ? I.cache.googleProject.serviceAccountEmail : 'whatever@invalid.iam.gserviceaccount.com'}
+              Manual verification:
+                Response status: ${http_resp.status} // Expect a HTTP ${test_instructions.expected_status}
+                Response data: ${JSON.stringify(http_resp.body) || http_resp.parsedFenceError}
+                // Expect ${test_instructions.expected_response}
+            `);
+	expect(result.didPass, result.details).to.be.true;
+    }
+  ));
+}
+
 BeforeSuite(async(I) => {
     console.log('Setting up dependencies...');
     I.TARGET_ENVIRONMENT = TARGET_ENVIRONMENT;
@@ -94,7 +121,6 @@ let svc_acct_registration_tests_map = {
 
 // Scenarios #1/2/3/4/5 - Register an IAM service account from the GCP "customer" project owned by the Google account linked in Executable Test Plan #1 (linkAccountsTest.js)
 for (const [type_of_test, test_instructions] of Object.entries(svc_acct_registration_tests_map)) {
-    // console.log('key: ' + type_of_test + ' - val: ' + test_instructions.expected_status); 
     performSvcAcctRegistrationTest(type_of_test, test_instructions);
 }
 
@@ -136,3 +162,69 @@ Scenario(`Get the ID of the GCP monitor ("fence-service" account) @manual`, ifIn
     }
 ));
 
+let svc_acct_update_tests_map = {
+    regular_patch: {
+	expected_status: 204,
+	expected_response: '"undefined" (HTTP 204 = No content)'
+    },
+    patch_unregistered_acc: {
+	expected_status: 404,
+	expected_response: 'a "Could not find a registered service account from given email" message'
+    },
+    dry_run: {
+	expected_status: 200,
+	expected_response: '"success": true'
+    }
+}
+
+// Scenario #8/#9/#10 - Updating existing service account, unregistered account & dry run
+for (const [type_of_test, test_instructions] of Object.entries(svc_acct_update_tests_map)) {
+    performSvcAcctUpdateTest(type_of_test, test_instructions);
+}
+
+// Scenario #11 - Get billing projects
+Scenario(`Get billing GCP projects @manual`, ifInteractive(
+    async(I, fence) => {
+	let ACCESS_TOKEN = !I.cache ? await requestUserInput("Please provide your ACCESS_TOKEN: ") : I.cache.ACCESS_TOKEN;
+
+	const http_resp = await fence.do.getGoogleBillingProjects(I.cache.userAcct);
+
+	const result = await interactive (`
+              1. [Automated] Send a HTTP GET request with the NIH user's ACCESS TOKEN to retrieve the list of billing projects associated with the Google Account that was linked:
+              HTTP GET request to: https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.getGoogleBillingProjects}
+              Manual verification:
+                Response status: ${http_resp.status} // Expect a HTTP 200
+                Response data: ${JSON.stringify(http_resp.body) || http_resp.parsedFenceError}
+
+                // Expect json payload containing "project_id": null
+            `);
+	expect(result.didPass, result.details).to.be.true;
+    }
+));
+
+// Scenario #12 - Delete Google service account that has been registered in previous steps
+Scenario(`Delete existing service account @manual`, ifInteractive(
+  async(I, fence) => {
+    await collectUserInput(I);
+    // patch existing svc acct to remove project access
+    const http_resp = await fence.do.deleteGoogleServiceAccount(
+      I.cache.userAcct,
+      I.cache.googleProject.serviceAccountEmail
+   );
+   const result = await interactive (`
+              1. [Automated] Send a HTTP DELETE request with the NIH user's ACCESS TOKEN to delete the svc acct: ${I.cache.googleProject.serviceAccountEmail}.
+              HTTP DELETE request to: https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.deleteGoogleServiceAccount}/${I.cache.googleProject.serviceAccountEmail}
+              Manual verification:
+                Response status: ${http_resp.status} // Expect a HTTP 200
+                Response data: ${JSON.stringify(http_resp.body) || http_resp.parsedFenceError}
+                // Expect a "Successfully delete service account" message
+            `);
+      expect(result.didPass, result.details).to.be.true;
+  }
+));
+
+// Scenario #13 - Register account again to support next steps
+performSvcAcctRegistrationTest('valid_svc_account', {
+    expected_status: 200,
+    expected_response: 'service account registration details (service_account_email, google_project_id and project_access)'
+});

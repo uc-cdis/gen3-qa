@@ -394,12 +394,26 @@ module.exports = {
    * @param {string[]} projectAccessList - list of project names to set for service account's access
    * @returns {Promise<Gen3Response>}
    */
-  async updateGoogleServiceAccount(userAcct, serviceAccountEmail, projectAccessList) {
+    async updateGoogleServiceAccount(userAcct, serviceAccountEmail, projectAccessList, is_dry_run=false) {
+    url = fenceProps.endpoints.updateGoogleServiceAccount;
+    if (is_dry_run) url += '/_dry_run';
     return I.sendPatchRequest(
-      fenceProps.endpoints.updateGoogleServiceAccount,
+      `${url}/${serviceAccountEmail}`,
       {
         project_access: projectAccessList,
       },
+      userAcct.accessTokenHeader,
+    ).then(res => new Gen3Response(res));
+  },
+
+  /**
+   * Get GCP Billing Projects
+   * @param {User} userAcct - User to make request with
+   * @returns {Promise<Gen3Response>}
+   */
+  async getGoogleBillingProjects(userAcct) {
+    return I.sendGetRequest(
+      fenceProps.endpoints.getGoogleBillingProjects,
       userAcct.accessTokenHeader,
     ).then(res => new Gen3Response(res));
   },
