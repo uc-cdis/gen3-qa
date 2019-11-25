@@ -294,8 +294,9 @@ module.exports = {
    * @param {int} expires_in - requested expiration time (in seconds)
    * @returns {Promise<Gen3Response>}
    */
-  async registerGoogleServiceAccount(userAcct, googleProject, projectAccessList, expires_in=null) {
+  async registerGoogleServiceAccount(userAcct, googleProject, projectAccessList, expires_in=null, is_dry_run=false) {
     url = fenceProps.endpoints.registerGoogleServiceAccount;
+    if (is_dry_run) url += '/_dry_run';
     if (expires_in) {
       url += `?expires_in=${expires_in}`;
     }
@@ -375,18 +376,44 @@ module.exports = {
   },
 
   /**
+   * Gets the ID of the monitor account (fence-service account)
+   * @param {User} userAcct - User to make request with
+   * @returns {Promise<Gen3Response>}
+   */
+  async getGoogleSvcAcctMonitor(userAcct) {
+    return I.sendGetRequest(
+      fenceProps.endpoints.getGoogleSvcAcctMonitor,
+      userAcct.accessTokenHeader,
+    ).then(res => new Gen3Response(res));
+  },
+
+  /**
    * Updates a google service account
    * @param {User} userAcct - User to make request with
    * @param {string} serviceAccountEmail - email of service account to update
    * @param {string[]} projectAccessList - list of project names to set for service account's access
    * @returns {Promise<Gen3Response>}
    */
-  async updateGoogleServiceAccount(userAcct, serviceAccountEmail, projectAccessList) {
+  async updateGoogleServiceAccount(userAcct, serviceAccountEmail, projectAccessList, is_dry_run=false) {
+    url = fenceProps.endpoints.updateGoogleServiceAccount;
+    if (is_dry_run) url += '/_dry_run';
     return I.sendPatchRequest(
-      fenceProps.endpoints.updateGoogleServiceAccount,
+      `${url}/${serviceAccountEmail}`,
       {
         project_access: projectAccessList,
       },
+      userAcct.accessTokenHeader,
+    ).then(res => new Gen3Response(res));
+  },
+
+  /**
+   * Get GCP Billing Projects
+   * @param {User} userAcct - User to make request with
+   * @returns {Promise<Gen3Response>}
+   */
+  async getGoogleBillingProjects(userAcct) {
+    return I.sendGetRequest(
+      fenceProps.endpoints.getGoogleBillingProjects,
       userAcct.accessTokenHeader,
     ).then(res => new Gen3Response(res));
   },
