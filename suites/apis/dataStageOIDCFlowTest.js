@@ -292,3 +292,39 @@ Scenario(`Try to get Google Credentials as a client @manual`, ifInteractive(
 	expect(result.didPass, result.details).to.be.true;
     }
 ));
+
+// Scenario #15 - Run GraphQL Query against Peregrine (Graph Model)
+Scenario(`Test a GraphQL query from the Web GUI @manual`, ifInteractive(
+    async(I, fence) => {
+	const result = await interactive (`
+            1. Login with NIH credentials
+            2. Click "Query" tab
+            3. Click "Switch to Graph Model" button
+            4. On the left pane, enter the following query:
+               {
+                 project(first:0) {
+                   name
+                   dbgap_accession_number
+                   code
+                 }
+               }
+
+            Should see project(s) your NIH user has access to on the right pane:
+               {
+                 "data": {
+                   "project": [
+                     {
+                       "code": "COPD_DS-CS-RD",
+                       "dbgap_accession_number": "phs000179.v5.p2.c2",
+                       "name": "COPD_DS-CS-RD"
+                     }
+                   ]
+                 }
+               }
+            `);
+	expect(result.didPass, result.details).to.be.true;
+    }
+));
+
+// Scenario #16 - Implicit OIDC Client Flow
+// TBD...
