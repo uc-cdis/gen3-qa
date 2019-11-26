@@ -11,5 +11,5 @@ getAccessTokenFromApiKey(API_KEY, TARGET_ENVIRONMENT)
     .then((ACCESS_TOKEN) => {
 	console.log(ACCESS_TOKEN);
     }).catch((reason) => {
-	console.log('Failed: ' + reason.status +' - ' + reason.statusText);
+	console.log(`Failed: ${reason.status} - ${reason.statusText}`);
     });
