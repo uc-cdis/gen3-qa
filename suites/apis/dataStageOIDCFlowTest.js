@@ -268,7 +268,7 @@ Scenario(`Try to get Google Credentials as a regular user @manual`, ifInteractiv
     async(I, fence) => {
 	const result = await interactive (`
             1. Copy and paste the following URL into the browser:
-                 https://${TARGET_ENVIRONMENT}/user/credentials/google
+                 https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.googleCredentials}
             2. Expect a HTTP 401 message
             `);
 	expect(result.didPass, result.details).to.be.true;
