@@ -45,7 +45,7 @@ function runVerifyNonceScenario() {
             1. [Automated] Compare nonces:
                This is the nonce from the previous scenario: ${I.cache.NONCE}
                And this is the nonce obtained after decoding your ID Token: ${findNonce(id_token)}
-               Result: ${ I.NONCE == findNonce(id_token) }
+               Result: ${ I.cache.NONCE == findNonce(id_token) }
             2. Confirm if the numbers match.
             `);
             expect(result.didPass, result.details).to.be.true;
@@ -327,4 +327,94 @@ Scenario(`Test a GraphQL query from the Web GUI @manual`, ifInteractive(
 ));
 
 // Scenario #16 - Implicit OIDC Client Flow
-// TBD...
+Scenario('Initiate the Implicit OIDC Client flow with Google credentials to obtain the OAuth authorization code @manual', ifInteractive(
+    async(I) => {
+	console.log(`1. Using the "Implicit id" provided, paste the following URL into the browser (replacing the CLIENT_ID placeholder accordingly):
+               https://${TARGET_ENVIRONMENT}/user/oauth2/authorize?redirect_uri=https://${TARGET_ENVIRONMENT}/user&client_id=\$\{IMPLICIT_ID\}&scope=openid+user+data+google_credentials&response_type=id_token+token&nonce=test-nonce-${I.cache.NONCE}
+
+              NOTE: you may get a 401 error invalid_request: Replay attack failed to authorize (this has to do with the nonce provided, it should be unique per request so if someone else tried with it, you may see this error. Simply change the nonce to something else.)
+             // Expect a redirect with an URL containing the "id_token"`);
+
+	let id_token = await requestUserInput("Please paste in your ID Token to verify the nonce: ");
+
+        const result = await interactive (`
+            2. [Automated] Compare nonces:
+               This is the nonce from the previous step: ${I.cache.NONCE}
+               And this is the nonce obtained after decoding your ID Token: ${findNonce(id_token)}
+               Result: ${ I.cache.NONCE == findNonce(id_token) }
+
+            // Confirm if the numbers match.
+	`);
+	expect(result.didPass, result.details).to.be.true;
+    }
+));
+
+// Scenario #17 - Fence public keys endpoint
+Scenario(`Test Fence's public keys endpoint @manual`, ifInteractive(
+    async(I, fence) => {
+	const url = `https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.publicKeysEndpoint}`;
+	const http_resp = await I.sendGetRequest(url).then(res => new Gen3Response(res));
+	
+	const result = await interactive (`
+            1. [Automated] Go to ${url}
+            2. Should see a response like:
+               {
+                 keys: [
+                   [
+                     "fence_key_2019-06-18T19:50:41Z",
+                     "-----BEGIN PUBLIC KEY----- ..."
+                   ],
+                   [
+                     "fence_key_key-01",
+                     "-----BEGIN PUBLIC KEY----- ..."
+                   ]
+                 ]
+               }
+            `);
+	expect(result.didPass, result.details).to.be.true;
+    }
+));
+
+// Scenario #18 - Exploration page
+Scenario(`Test the exploration page @manual`, ifInteractive(
+    async(I, fence) => {
+	const result = await interactive (`
+            1. Login with NIH credentials
+            2. Click "Exploration" tab
+            3. Click on the "Case" tab and, under "Project Id", check the studies the user has access to:
+            // Expect a list of NIH projects, e.g.: topmed-COPD_DS-CS-RD
+            `);
+	expect(result.didPass, result.details).to.be.true;
+    }
+));
+
+// Scenario #19 - Export to PFB
+Scenario(`Test the "Export to PFB" button from the Exploration page @manual`, ifInteractive(
+    async(I, fence) => {
+	// TODO: Parse PFB and validate it
+	const result = await interactive (`
+            1. Login with NIH credentials
+            2. Click "Exploration" tab
+            3. Click on the "Case" tab and, under "Project Id", select one of the studies (e.g.: topmed-COPD_DS-CS-RD)
+            4. Click on the "Export to PFB" button. A message with the following instructions should appear:
+               " Your export is in progress.
+                 Please do not navigate away from this page until your export is finished. "
+            5. Once the message is updated and the URL shows up, download the file and check its contents.
+            6. Install and run a Python utility to validate the PFB file:
+               a. Run '% pip install pypfb'
+                 // Make sure you use Python2.7 (it does not support Py3 yet)
+                 // You can also use Docker:
+                 e.g.: % docker run -it -v /Users/marcelocostarodrigues/workspace/gen3-qa:/tmp/ quay.io/cdis/py27base:pybase2-1.0.2 /bin/sh
+                   # python -m pip install pypfb
+
+               b. Print the contents of the PFB file: 'pfb show -i ~/Downloads/<downloaded-file-name>.avro'
+                 // # cd tmp/; pfb show -i export_2019-11-26T19_34_39.avro
+               c. You can also try to visualize the nodes: 'pfb show -i ~/Downloads/<downloaded-file-name>.avro nodes'
+                 // # cd tmp/; pfb show -i export_2019-11-26T19_34_39.avro nodes
+
+            // Expect a valid JSON output
+            `);
+	expect(result.didPass, result.details).to.be.true;
+    }
+));
+
