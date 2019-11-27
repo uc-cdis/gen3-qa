@@ -376,7 +376,7 @@ module.exports = {
   },
 
   /**
-   * Updates a google service account
+   * Updates a Google service account
    * @param {User} userAcct - User to make request with
    * @param {string} serviceAccountEmail - email of service account to update
    * @param {string[]} projectAccessList - list of project names to set for service account's access
