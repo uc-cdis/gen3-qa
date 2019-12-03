@@ -4,6 +4,8 @@
  */
 
 const atob = require('atob');
+const ax = require('axios');
+const readline = require('readline');
 const chai = require('chai');
 const jsdom = require('jsdom');
 const chaiSubset = require('chai-subset');
@@ -150,6 +152,73 @@ module.exports = {
     const fenceCmd = `fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account,google_credentials --type access_token --exp ${expiration} --username ${username}`;
     const accessToken = bash.runCommand(fenceCmd, 'fence', takeLastLine);
     return accessToken.trim();
+  },
+
+  /**
+   * Returns the access token by instrumenting the fence http api
+   * @param {string} api_key - api key from credentials.json (downloaded by an authenticated user)
+   * @returns {string}
+   */
+  getAccessTokenFromApiKey(the_api_key, target_environment) {
+    return new Promise(function(resolve, reject) {
+      ax.request({
+        url: '/user/credentials/cdis/access_token',
+        baseURL: 'https://' + target_environment,
+        method: 'post',
+        maxRedirects: 0,
+        header: {
+          "content-type": "application/json",
+          "accept": "application/json"
+        },
+        data: {
+          api_key: the_api_key
+        }
+      }).then(
+	  resp => resolve(resp.data['access_token']),
+	  err => reject(err.response || err)
+      );
+    });
+  },
+
+  /**
+   * Calls getAccessTokenFromApiKey with an API Key provided by the user and returns the corresponding access token
+   * @param {object} I - CodeceptJS "I" actor accessible by all Scenarios - Used to share variables across tests
+   * @returns {string}
+   */
+  getAccessTokenFromExecutableTest(I) {
+  // Note: Cannot leverage the ${user.mainAcct.accessToken} while working on "closed" environments (Staging/PROD)
+  // (i.e., no access to the underlying admin vm, hence, using API Key + Fence HTTP API to retrieve the Access Token)
+    return new Promise(async(resolve) => {
+	// Only prompt the user for the API Key if it hasn't already been loaded from credentials.json
+	// Store API Key into the main actor object (I) so it can be accessed in all scenarios
+	if (!I.apiKey) {
+	    let apiKey = await module.exports.requestUserInput(`
+              == Instructions to obtain the API Key ==
+              a. Navigate to the "Profile" page on https://${I.TARGET_ENVIRONMENT} and click on "Create API key".
+              b. Download the "credentials.json" file, copy the value of the "api_key" parameter and paste it here:
+            `);
+	    I.apiKey = apiKey;
+	}
+	resolve(module.exports.getAccessTokenFromApiKey(I.apiKey, I.TARGET_ENVIRONMENT));
+    });
+  },
+
+  /**
+   * Prompts the user for some manual input (to support executable tests)
+   * @param {string} question_text - Text describing what piece of information the user should provide
+   * @returns {string}
+   */
+  requestUserInput(question_text) {
+    return new Promise((resolve) => {
+	let rl = readline.createInterface({
+	    input: process.stdin,
+	    output: process.stdout
+	});
+	rl.question(question_text, (user_input) => {
+	    rl.close();
+	    resolve(user_input);
+	});
+    });
   },
 
   /**
