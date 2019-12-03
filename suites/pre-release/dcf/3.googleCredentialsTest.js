@@ -58,3 +58,72 @@ Scenario(`List the available temporary access keys (Google Credentials) @manual`
     }
 ));
 
+// Scenario #3 - Delete access keys
+Scenario(`Delete access keys (Google Credentials) @manual`, ifInteractive(
+    async(I, fence) => {
+	if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput("Please provide your ACCESS_TOKEN: ");
+	const keys_http_resp = await fence.do.getUserGoogleCreds(getAccessTokenHeader(I.cache.ACCESS_TOKEN));
+	const some_key_id = keys_http_resp['access_keys'][0]['name'].split('/').slice(-1)[0];
+
+	const http_resp = await fence.do.deleteTempGoogleCreds(
+	    some_key_id,
+	    getAccessTokenHeader(I.cache.ACCESS_TOKEN)
+	);
+
+	const result = await interactive (`
+            1. [Automated] Send a HTTP DELETE request with the NIH user's ACCESS TOKEN to delete one of the access keys:
+              HTTP DELETE request to: https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.googleCredentials}/${some_key_id}
+            Manual verification:
+              Response status: ${http_resp.status} // Expect a HTTP 204
+              Response data: ${JSON.stringify(http_resp.body) || http_resp.parsedFenceError}
+                // Expect an empty response
+            `);
+	expect(result.didPass, result.details).to.be.true;
+    }
+));
+
+// Scenario #4 - Obtain temporary access keys with expiration time
+Scenario(`Obtain temporary access keys with specific expiration time (Google Credentials) @manual`, ifInteractive(
+    async(I, fence) => {
+	const expiration_date_in_secs = 7200;
+
+	if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput("Please provide your ACCESS_TOKEN: ");
+	const http_resp = await fence.do.createTempGoogleCreds(
+	    getAccessTokenHeader(I.cache.ACCESS_TOKEN),
+	    expiration_date_in_secs
+	);
+
+	const result = await interactive (`
+            1. [Automated] Send a HTTP POST request with the NIH user's ACCESS TOKEN to retrieve the contents of Google's temporary access keys:
+              HTTP POST request to: https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.googleCredentials}?expires_in=${expiration_date_in_secs}
+            Manual verification:
+              Response status: ${http_resp.status} // Expect a HTTP 200
+              Response data: ${JSON.stringify(http_resp.body) || http_resp.parsedFenceError}
+                // Expect a JSON payload containing client information (id, email, etc.) and a private key
+            `);
+	expect(result.didPass, result.details).to.be.true;
+    }
+));
+
+// Scenario #5 - Try to delete an access key that does not exist
+Scenario(`Negative test - Delete a non-existing access keys (Google Credentials) @manual`, ifInteractive(
+    async(I, fence) => {
+	if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput("Please provide your ACCESS_TOKEN: ");
+	const some_key_id = 'aa123bb456cc';
+
+	const http_resp = await fence.do.deleteTempGoogleCreds(
+	    some_key_id,
+	    getAccessTokenHeader(I.cache.ACCESS_TOKEN)
+	);
+
+	const result = await interactive (`
+            1. [Automated] Send a HTTP DELETE request with the NIH user's ACCESS TOKEN to delete one of the access keys:
+              HTTP DELETE request to: https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.googleCredentials}/${some_key_id}
+            Manual verification:
+              Response status: ${http_resp.status} // Expect a HTTP 404
+              Response data: ${JSON.stringify(http_resp.body) || http_resp.parsedFenceError}
+                // Expect a "key not found" message
+            `);
+	expect(result.didPass, result.details).to.be.true;
+    }
+));
