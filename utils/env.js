@@ -6,9 +6,8 @@
 const ENV_TYPE = { JENKINS: 0, LOCAL_AGAINST_GEN3_K8S: 1, LOCAL_AGAINST_DOCKER: 2, LOCAL_AGAINST_REMOTE: 3 };
 
 function getEnvType(){
-  console.error('getEnvType');
-  console.error(process.env.NAMESPACE);
-  console.error(process.env.RUNNING_LOCAL);
+  if (process.env.NAMESPACE) console.error(process.env.NAMESPACE);
+  if (process.env.RUNNING_LOCAL) console.error(process.env.RUNNING_LOCAL);
   if (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined) {
     return ENV_TYPE.JENKINS;
   } else if (process.env.GEN3_COMMONS_HOSTNAME) {

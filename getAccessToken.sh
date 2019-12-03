@@ -2,7 +2,7 @@
 
 help() {
   cat - <<EOM
-  Use: baseh ./getAccessToken.sh apiKey
+  Use: baseh ./getAccessToken.sh <path_to_credentials.json>
 EOM
 }
 
@@ -10,18 +10,22 @@ if [[ $# -lt 1 || "$1" =~ ^-*h(elp)?$ ]]; then
   help
   exit 1
 fi
-apiKey="$1"
+credentials_json_path="$1"
 shift
-if [[ ! -f "$apiKey" ]]; then
-  echo "ERROR - api key file does not exist: $apiKey"
+if [[ ! -f "$credentials_json_path" ]]; then
+  echo "ERROR - Invalid path to the credentials.json file: $credentials_json_path"
   help
   exit 1
 fi
 
-url="$(jq -r .api_key < "$apiKey" | awk -F . '{ print $2 }' | base64 --decode 2> /dev/null | jq -r .iss)"
-if [[ -z "$url" || ! "$url" =~ ^https://.+/user$ ]]; then
-  echo "ERROR: failed to derive valid url from access token - got: $url"
+api_key="$(jq -r .api_key < "$credentials_json_path")"
+RC1=$?
+target_environment="$(jq -r .api_key < "$credentials_json_path" | awk -F . '{ print $2 }' | base64 --decode 2> /dev/null | jq -r .iss | awk -F/ '{print $3}')"
+RC2=$?
+if [[ "$RC1$RC2" -ne "00" ]]; then
+  echo "ERROR: failed to retrieve a valid url from the api key within credentials.json - got: $target_environment"
   exit 1
 fi
-url="${url}/credentials/cdis/access_token"
-curl -s -H 'Content-type: application/json' -X POST "$url" "-d@$apiKey" | jq -r .access_token
+export GEN3_COMMONS_HOSTNAME="${target_environment}"
+export API_KEY="${api_key}"
+node getAccessToken.js
