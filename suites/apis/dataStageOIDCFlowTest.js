@@ -15,16 +15,16 @@ const user = require('../../utils/user.js');
 const fenceProps = require('../../services/apis/fence/fenceProps.js');
 const chai = require('chai');
 const {interactive, ifInteractive} = require('../../utils/interactive.js');
-const { Gen3Response, getAccessTokenHeader } = require('../../utils/apiUtil');
+const { Gen3Response, getAccessTokenHeader, requestUserInput } = require('../../utils/apiUtil');
 const expect = chai.expect;
 
 // Test elaborated for DataSTAGE but it can be reused in other projects
-const TARGET_ENVIRONMENT = process.env.HOSTNAME || 'internalstaging.datastage.io';
+const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'internalstaging.datastage.io';
 
 function printOIDCFlowInstructions(I, account_type) {
     return `
             1. Using the "client id" provided, paste the following URL into the browser (replacing the CLIENT_ID placeholder accordingly):
-                 https://"${TARGET_ENVIRONMENT}/user/oauth2/authorize?redirect_uri=https://${TARGET_ENVIRONMENT}/user&client_id=\$\{CLIENT_ID\}&scope=openid+user+data+google_credentials&response_type=code&nonce=test-nonce-${I.cache.NONCE}"
+                 https://${TARGET_ENVIRONMENT}/user/oauth2/authorize?redirect_uri=https://${TARGET_ENVIRONMENT}/user&client_id=\$\{CLIENT_ID\}&scope=openid+user+data+google_credentials&response_type=code&nonce=test-nonce-${I.cache.NONCE}
             2. Make sure you are logged in with your ${account_type} Account.
             3. On the Consent page click on the "Yes, I authorize" button.
             4. Once the user is redirected to a new page, copy the value of the "code" parameter that shows up in the URL (this code is valid for 60 seconds).
@@ -51,20 +51,6 @@ function runVerifyNonceScenario() {
             expect(result.didPass, result.details).to.be.true;
 	}
     ));
-}
-
-// TODO: Turn this into a more generic JS object and move it to utils/interactive.js
-function requestUserInput(question_text) {
-    return new Promise((resolve) => {
-	let rl = readline.createInterface({
-	   input: process.stdin,
-	   output: process.stdout
-       });
-	rl.question(question_text, (user_input) => {
-	   rl.close();
-	   resolve(user_input);
-       });
-    });
 }
 
 // Decode JWT token and find the Nonce value
