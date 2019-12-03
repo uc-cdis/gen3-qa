@@ -30,12 +30,29 @@ Scenario(`Obtain temporary access keys (Google Credentials) @manual`, ifInteract
 	const http_resp = await fence.do.createTempGoogleCreds(getAccessTokenHeader(I.cache.ACCESS_TOKEN));
 
 	const result = await interactive (`
-            1. [Automated] Send a HTTP POST request with the NIH user's ACCESS TOKEN to register a service account:
+            1. [Automated] Send a HTTP POST request with the NIH user's ACCESS TOKEN to retrieve the contents of Google's temporary access keys:
               HTTP POST request to: https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.googleCredentials}
             Manual verification:
               Response status: ${http_resp.status} // Expect a HTTP 200
               Response data: ${JSON.stringify(http_resp.body) || http_resp.parsedFenceError}
                 // Expect a JSON payload containing client information (id, email, etc.) and a private key
+            `);
+	expect(result.didPass, result.details).to.be.true;
+    }
+));
+
+// Scenario #2 - Get list of access keys
+Scenario(`List the available temporary access keys (Google Credentials) @manual`, ifInteractive(
+    async(I, fence) => {
+	if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput("Please provide your ACCESS_TOKEN: ");
+	const http_resp = await fence.do.getUserGoogleCreds(getAccessTokenHeader(I.cache.ACCESS_TOKEN));
+
+	const result = await interactive (`
+            1. [Automated] Send a HTTP GET request with the NIH user's ACCESS TOKEN to list the available keys:
+              HTTP GET request to: https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.googleCredentials}
+            Manual verification:
+              Response data: ${JSON.stringify(http_resp)}
+                // Expect a JSON payload containing a list of GOOGLE_PROVIDED keys
             `);
 	expect(result.didPass, result.details).to.be.true;
     }
