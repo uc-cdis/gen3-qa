@@ -232,7 +232,7 @@ Scenario('SA key removal job test: remove expired creds that do not exist in goo
   let key = credsList.filter(key => key.name.includes(credsKey1))[0];
   const deletionResult = await google.deleteServiceAccountKey(key.name);
     chai.expect(
-	deletionResult instanceof Error, 'Google service account deletion must not return an Error'
+	deletionResult instanceof Error, `Google service account deletion returned an Error: ${deletionResult}`
     ).to.equal(false);
 
   // Wait for the keys to expire
