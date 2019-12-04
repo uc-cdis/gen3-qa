@@ -93,7 +93,10 @@ exports.config = {
   },
   bootstrap: './test_setup.js',
   hooks: [],
-    tests: './suites/**/*.js',
+  tests: './suites/**/*.js',
+  plugins: {
+    "allure": {}
+  },
   timeout: 60000,
   name: 'selenium',
 };

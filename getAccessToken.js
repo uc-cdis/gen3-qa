@@ -1,5 +1,6 @@
 const { getAccessTokenFromApiKey } = require('./utils/apiUtil');
 
+// The following environment variables are set by 'getAccessToken.sh'
 TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME;
 // console.log('target environment: ' + TARGET_ENVIRONMENT);
 API_KEY = process.env.API_KEY;
