@@ -51,7 +51,6 @@ function performAdjustExpDateTest(type_of_test) {
               Manual verification:
                 Response status: ${http_resp.status} // Expect a HTTP ${expected_status}
                 Response data: ${JSON.stringify(http_resp.body) || http_resp.parsedFenceError} // Expect response containing the ${expected_response}
-
               Converting epoch to timestamp: ${http_resp.status == 200 ? new Date(new Date(0).setUTCSeconds(http_resp.body['exp'])).toLocaleString() : 'cannot convert invalid response'}
             `);
 	    expect(result.didPass, result.details).to.be.true;
@@ -71,7 +70,6 @@ Scenario(`Login to https://${TARGET_ENVIRONMENT} and check the Project Access li
               1. Go to https://${TARGET_ENVIRONMENT}
               2. Login with NIH account
               3. Check if the Profile page contains projects the user can access
-
               e.g., The projects are usually named as "phs000178".
             `);
 	expect(result.didPass, result.details).to.be.true;
