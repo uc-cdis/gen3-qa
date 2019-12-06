@@ -98,7 +98,7 @@ function fetchDIDLists(I) {
 		// console.log('ACLs for ' + record['did'] + ' - ' + record['acl']);
 		// Filtering accessible DIDs by checking if the record acl is in the project access list
 		let accessible_did = record['acl'].filter(acl => {
-		    return project_access_list.hasOwnProperty(acl);
+		    return project_access_list.hasOwnProperty(acl) || record['acl'] == "*";
 		});
 
 		// Put DIDs urls and md5 hash into their respective lists (200 or 401)
