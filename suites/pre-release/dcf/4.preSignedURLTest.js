@@ -14,17 +14,14 @@ const expect = chai.expect;
 // Test elaborated for nci-crdc but it can be reused in other projects
 const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'nci-crdc-staging.datacommons.io';
 
-BeforeSuite(async(I) => {
-    console.log('Setting up dependencies...');
-    I.cache = {};
-    I.TARGET_ENVIRONMENT = TARGET_ENVIRONMENT;
-    // Fetching public list of DIDs
-    const http_resp = await I.sendGetRequest(
-	`https://${TARGET_ENVIRONMENT}/index/index`
-    ).then(res => new Gen3Response(res));
-
-    I.cache.records = http_resp.body.records;
-});
+function assembleCustomHeaders(ACCESS_TOKEN) {
+    // Add ACCESS_TOKEN to custom headers
+    return {
+	Accept: 'application/json',
+	Authorization: `bearer ${ACCESS_TOKEN}`,
+	'Content-Type': 'application/json',
+    };
+}
 
 // TODO: Consolidate some of the common scenarios across other executable tests to avoid duplicates
 // e.g., The "fetchDIDLists()" function is also included in suites/apis/dataStageOIDCFlowTest.js
@@ -52,7 +49,7 @@ function fetchDIDLists(I) {
 		// console.log('ACLs for ' + record['did'] + ' - ' + record['acl']);
 		// Filtering accessible DIDs by checking if the record acl is in the project access list
 		let accessible_did = record['acl'].filter(acl => {
-		    return project_access_list.hasOwnProperty(acl);
+		    return project_access_list.hasOwnProperty(acl) || record['acl'] == "*";
 		});
 
 		// Put DIDs urls and md5 hash into their respective lists (200 or 401)
@@ -60,8 +57,8 @@ function fetchDIDLists(I) {
 		_files[record['did']] = { "urls": record['urls'], "md5": record['md5'] };
 	    });
 
-//	    console.log('http 200 files: ' + JSON.stringify(_200files));
-//	    console.log('http 401 files: ' + JSON.stringify(_401files));
+	    console.log('http 200 files: ' + JSON.stringify(_200files));
+	    console.log('http 401 files: ' + JSON.stringify(_401files));
 
 	    I.didList = {};
 	    I.didList['accessGrantedFiles'] = _200files;
@@ -125,6 +122,18 @@ function performPreSignedURLTest(cloud_provider, type_of_test, type_of_creds) {
 	}
     ));
 }
+
+BeforeSuite(async(I) => {
+    console.log('Setting up dependencies...');
+    I.cache = {};
+    I.TARGET_ENVIRONMENT = TARGET_ENVIRONMENT;
+    // Fetching public list of DIDs
+    const http_resp = await I.sendGetRequest(
+	`https://${TARGET_ENVIRONMENT}/index/index`
+    ).then(res => new Gen3Response(res));
+
+    I.cache.records = http_resp.body.records;
+});
 
 // Scenario #1 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
 performPreSignedURLTest("Google Storage", "negative", "Google");
