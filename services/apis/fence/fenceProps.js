@@ -92,6 +92,7 @@ module.exports = {
     registerGoogleServiceAccount: `${rootEndpoint}/google/service_accounts`,
     deleteGoogleServiceAccount: `${rootEndpoint}/google/service_accounts`,
     getGoogleServiceAccounts: `${rootEndpoint}/google/service_accounts`,
+    getGoogleSvcAcctMonitor: `${rootEndpoint}/google/service_accounts/monitor`,
     authorizeOAuth2Client: `${rootEndpoint}/oauth2/authorize`,
     tokenOAuth2Client: `${rootEndpoint}/oauth2/token`,
     publicKeysEndpoint: `${rootEndpoint}/jwt/keys`,
