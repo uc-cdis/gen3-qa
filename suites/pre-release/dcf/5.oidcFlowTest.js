@@ -23,22 +23,6 @@ function assembleCustomHeaders(ACCESS_TOKEN) {
     };
 }
 
-function runVerifyNonceScenario() {
-    Scenario('Verify if the "ID Token" produced in the previous scenario has the correct nonce value @manual', ifInteractive(
-	async(I) => {
-	    let id_token = await requestUserInput("Please paste in your ID Token to verify the nonce: ");
-            const result = await interactive (`
-            1. [Automated] Compare nonces:
-               This is the nonce from the previous scenario: ${I.cache.NONCE}
-               And this is the nonce obtained after decoding your ID Token: ${findNonce(id_token)}
-               Result: ${ I.cache.NONCE == findNonce(id_token) }
-            2. Confirm if the numbers match.
-            `);
-            expect(result.didPass, result.details).to.be.true;
-	}
-    ));
-}
-
 // Decode JWT token and find the Nonce value
 function findNonce(id_token) {
     data = id_token.split('.'); // [0] headers, [1] payload, [2] whatever
@@ -82,7 +66,19 @@ Scenario('Initiate the OIDC Client flow with NIH credentials to obtain the OAuth
 ));
 
 // Scenario #2 - Verify Nonce
-runVerifyNonceScenario();
+Scenario('Verify if the "ID Token" produced in the previous scenario has the correct nonce value @manual', ifInteractive(
+    async(I) => {
+	let id_token = await requestUserInput("Please paste in your ID Token to verify the nonce: ");
+        const result = await interactive (`
+            1. [Automated] Compare nonces:
+               This is the nonce from the previous scenario: ${I.cache.NONCE}
+               And this is the nonce obtained after decoding your ID Token: ${findNonce(id_token)}
+               Result: ${ I.cache.NONCE == findNonce(id_token) }
+            2. Confirm if the numbers match.
+            `);
+        expect(result.didPass, result.details).to.be.true;
+    }
+));
 
 // Scenario #3 - Run PreSigned URL with access token obtained through the OIDC flow
 Scenario(`Perform PreSigned URL test`, ifInteractive(
