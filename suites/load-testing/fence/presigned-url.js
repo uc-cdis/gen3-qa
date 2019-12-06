@@ -1,9 +1,9 @@
 import { check } from "k6";
 import http from "k6/http";
 
-const host = "qa-brain.planx-pla.net";
+//const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME;
 const guid = "00037250-f2e5-47e2-863c-5f225c7f79e8";
-const token = open('../token.txt', 'utf8').trim();
+//const ACCESS_TOKEN = requires('../../utils/apiUtils.js')
 
 export let options = {
     stages: [
@@ -18,11 +18,11 @@ export let options = {
 };
 
 export default function () {
-    var url = `https://${host}/user/data/download/${guid}?protocol=s3`;
+    var url = `https://${__ENV.GEN_HOST}/user/data/download/${guid}?protocol=s3`;
     var params = {
         headers: {
             "Content-Type": "application/json",
-            "authorization": `Bearer ${token}`,
+            "authorization": `Bearer ${__ENV.ACCESS_TOKEN}`,
         }
     }
     let res = http.get(url, params);
