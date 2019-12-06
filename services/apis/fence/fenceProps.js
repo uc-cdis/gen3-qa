@@ -97,6 +97,7 @@ module.exports = {
     getGoogleBillingProjects: `${rootEndpoint}/google/billing_projects`,
     authorizeOAuth2Client: `${rootEndpoint}/oauth2/authorize`,
     tokenOAuth2Client: `${rootEndpoint}/oauth2/token`,
+    publicKeysEndpoint: `${rootEndpoint}/jwt/keys`,
     userEndPoint: `${rootEndpoint}/user`,
     adminEndPoint: `${rootEndpoint}/admin`,
     uploadFile: `${rootEndpoint}/data/upload`,
