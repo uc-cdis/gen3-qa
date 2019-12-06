@@ -230,7 +230,11 @@ Scenario('SA key removal job test: remove expired creds that do not exist in goo
   let getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
   let credsList = getCredsRes.access_keys;
   let key = credsList.filter(key => key.name.includes(credsKey1))[0];
-  await google.deleteServiceAccountKey(key.name);
+  const deletionResult = await google.deleteServiceAccountKey(key.name);
+  chai.expect(
+    deletionResult instanceof Error,
+    `Error during Google service account deletion: ${deletionResult}`
+  ).to.equal(false);
 
   // Wait for the keys to expire
   console.log('waiting for the key to expire');
