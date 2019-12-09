@@ -40,13 +40,13 @@ docker-compose up -d
 
 * Install k6 locally `https://docs.k6.io/docs/installation`
 
-* Go to the target hostname and 'Create a API key' and download the API key in json
+* Go to the target Gen3 commons hostname and 'Create a API key' and download the API key in json
 
 * Start `Grafana` and `InfluxDB` through the docker-compose file which helps in visualization of the load testing execution and its progress
     `docker-compose up -d`
 
 * The Load test runner script is located at suites/load-testing folder. (the final location for the loadtestrunner script is TBD, so temporary location is this)
-    On terminal, from this location run `node loadtestrunner.js <path_to_credentails> <service> <load_test_scenario> `
+    On terminal, from this location run `node loadtestrunner.js <path_to_credentials> <service> <load_test_scenario> `
 
 * on terminal you would see some k6 execution results such as vus, status and checks
 

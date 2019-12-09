@@ -9,7 +9,7 @@ const readline = require('readline');
 const chai = require('chai');
 const jsdom = require('jsdom');
 const chaiSubset = require('chai-subset');
-var fs = require('fs');
+const fs = require('fs');
 
 const expect = chai.expect;
 chai.config.includeStack = true;
@@ -140,10 +140,15 @@ module.exports = {
     };
   },
 
+  /**
+   * Reads the credential.json, returns api_key and target_environment 
+   * @param {file_path} path_to_credentials_json - path to the credential.json 
+   * @returns {string, string}
+   */
   getJWTData(path_to_credentials_json) {
     const credentials = fs.readFileSync(path_to_credentials_json, 'utf8');
     const api_key = JSON.parse(credentials)['api_key'];
-
+y
     data = api_key.split('.'); // [0] headers, [1] payload, [2] signature
     payload = data[1];
     padding = "=".repeat(4 - payload.length % 4);
