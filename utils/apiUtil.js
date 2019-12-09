@@ -9,6 +9,7 @@ const readline = require('readline');
 const chai = require('chai');
 const jsdom = require('jsdom');
 const chaiSubset = require('chai-subset');
+const fs = require('fs');
 
 const expect = chai.expect;
 chai.config.includeStack = true;
@@ -138,6 +139,27 @@ module.exports = {
       Authorization: `bearer ${accessToken}`,
     };
   },
+
+  /**
+   * Reads the credential.json, returns api_key and target_environment 
+   * @param {file_path} path_to_credentials_json - path to the credential.json 
+   * @returns {string, string}
+   */
+  getJWTData(path_to_credentials_json) {
+    const credentials = fs.readFileSync(path_to_credentials_json, 'utf8');
+    const api_key = JSON.parse(credentials)['api_key'];
+y
+    data = api_key.split('.'); // [0] headers, [1] payload, [2] signature
+    payload = data[1];
+    padding = "=".repeat(4 - payload.length % 4);
+    decoded_data = Buffer.from((payload + padding), 'base64').toString();
+    // If the decoded data doesn't contain a nonce, that means the refresh token has expired
+    const target_environment = JSON.parse(decoded_data)['iss'].split('/')[2];
+    return {
+        'api_key': api_key,
+        'target_environment': target_environment
+    };
+  },   
 
   /**
    * Runs a fence command for fetching access token for a user
