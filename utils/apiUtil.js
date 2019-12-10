@@ -292,7 +292,7 @@ module.exports = {
       if (done) return;
 
       // if not done, keep waiting
-      await module.exportssleepMS(waitTime);
+      await module.exports.sleepMS(waitTime);
       waited += waitTime;
       waitTime *= 2; // wait longer every time
     }
