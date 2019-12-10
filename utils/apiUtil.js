@@ -148,7 +148,6 @@ module.exports = {
   getJWTData(path_to_credentials_json) {
     const credentials = fs.readFileSync(path_to_credentials_json, 'utf8');
     const api_key = JSON.parse(credentials)['api_key'];
-y
     data = api_key.split('.'); // [0] headers, [1] payload, [2] signature
     payload = data[1];
     padding = "=".repeat(4 - payload.length % 4);

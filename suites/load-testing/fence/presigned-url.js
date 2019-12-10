@@ -16,7 +16,7 @@ export let options = {
 };
 
 export default function () {
-    var url = `https://${__ENV.GEN_HOST}/user/data/download/${guid}?protocol=s3`;
+    var url = `https://${__ENV.GEN3_HOST}/user/data/download/${guid}?protocol=s3`;
     var params = {
         headers: {
             "Content-Type": "application/json",
