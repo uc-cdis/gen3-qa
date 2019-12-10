@@ -1,43 +1,45 @@
-# Starting Allure in your Dev VM and share executable test results
+# Generating and publishing Allure reports to share executable test results
 
-## Standing up the allure k8s pod:
+## Generating reports locally
 
-Download 2 files (`allure-deployment.yaml` & `allure-service.yaml`) from
-https://gist.github.com/themarcelor/59cf7938744444a9f789f51892e78294
-and `scp` them into your dev VM.
+Thanks to PR [#190](https://github.com/uc-cdis/gen3-qa/pull/190), the Allure plugin is already enabled in `codecept.conf.js` and the `package.json` contains an alias that augments the `npm test` command to run `codeceptjs run --plugins allure`. Therefore, whenever any test is executed, a new `<guid>-testsuite.xml` file is created inside the `output` folder.
 
-Run `kubectl apply -f allure-service.yaml`
-and `kubectl apply -f allure-deployment.yaml`.
+### Local preview of reports
 
-Make sure the pod is running ok:
-`kubectl get pods | grep allure`
+The following command can be used to visualize the test results in the Allure web server:
+`allure serve output`
 
-## Ad-hoc report publishing
+This will open a new browser window/tab with the Allure interface. This can be useful to preview the test results before they are ready for publishing.
 
-Run the following command in your terminal:
-% ssh -L 127.0.0.1:4040:localhost:$((OFFSET + 4040)) <your_name>@cdistest.csoc
+### Generating Static Website for Allure reports
 
-Once you're in the dev VM run this other command:
+The `allure generate <folder>` command is the one that generates the actual artifacts that will be published. It will create a folder called `allure-report` containing all the static web resources that assemble the Allure reporting interface and the `data/test-cases/*.json` files.
+
+e.g.:
 ```
-$ g3kubectl -n <the_namespace> port-forward deployment/allure-deployment $((OFFSET+4040)):4040
-Forwarding from 127.0.0.1:4163 -> 4040
-Forwarding from [::1]:4163 -> 4040
+% allure generate output
+Report successfully generated to allure-report
+% ls allure-report
+app.js      data        export      favicon.ico history     index.html  plugins     styles.css  widgets
 ```
-_*<the_namespace>=the name of the owner of the k8s namespace where the allure pod is running_
 
-Navigate to `http://localhost:4040/` and make sure you can access Allure's Web GUI.
+## Publishing reports through the Dashboard service
 
-## Quick and dirty way to publish the results of executable tests
+Test reports are published through a `cloud-automation` tool called `dashboard`, which allows users to upload static assets to an AWS S3 bucket and make web pages available through one of the Gen3 Commons instances' domains. [Here](https://github.com/uc-cdis/cloud-automation/blob/master/doc/dashboard.md) is the full documentation on it.
 
-From your terminal:
-`gen3-qa % scp output/b7bc67b3-a3c7-4859-aac9-032346577b7b-testsuite.xml <your_name>@cdistest.csoc:/home/<your_name>/devplanetv1/`
+The environment of choice that will host all reports is the "" instance.
 
-From the vm:
-`<your_name>@cdistest_dev_admin:~/devplanetv1$ kc cp b7bc67b3-a3c7-4859-aac9-032346577b7b-testsuite.xml allure-deployment-5979f79958-g6bvs:/allure-results -c allure`
+In order to publish the reports to the QA dashboard, the static files generated in the previous section must be copied to the Dev VM and then deployed as a new web page through the following command (this must be executed from the DEV VM, logged in as `qaplanetv1`
 
-Refresh your browser:
-`http://localhost:4040/`
+`gen3 dashboard publish secure ./allure-report <name_of_your_choice>`
+e.g.,
+`gen3 dashboard publish secure ./allure-report QA/2019/12/pre-release-tests-for-A`
 
-Share the port forwarding instructions with your colleagues.
-Make sure they are pointing to the correct Kubernetes namespace (`-n <the_namespace>`) where you have the Allure pod running:
-`$ g3kubectl -n <the_namespace> port-forward deployment/allure-deployment $((OFFSET+4040)):4040`
+Once that is executed, the Allure Web GUI containing all the test results can be visualized in an address such as:
+https://qa.planx-pla.net/dashboard/Secure/QA/2019/11/pre-release-tests-for-A/index.html
+
+Only authorized users with the `dashboard` capability declared in their environment-specific `users.yaml` will be allowed to access this page.
+
+## Automated test reports publishing
+
+The `` script was developed to 
