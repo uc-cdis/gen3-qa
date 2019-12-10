@@ -42,4 +42,5 @@ Only authorized users with the `dashboard` capability declared in their environm
 
 ## Automated test reports publishing
 
-The `` script was developed to 
+The `publish-test-reports.sh` script was developed to automate all these steps and allow QA engineers to publish reports through a single command.
+Please note the script assumes the user is connected to the VPN.
