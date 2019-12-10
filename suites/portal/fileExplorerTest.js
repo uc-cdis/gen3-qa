@@ -2,7 +2,7 @@ Feature('File Explorer - https://ctds-planx.atlassian.net/browse/PXP-4777');
 
 const chai = require('chai');
 const {interactive, ifInteractive} = require('../../utils/interactive.js');
-const expect = chai.expect
+const expect = chai.expect;
 
 /*
 Data Setup:
@@ -16,8 +16,8 @@ Data Setup:
 
 
 Scenario('Get Access button is not displayed when portal configuration "hideGetAccessButton" is set to true @manual', ifInteractive(
-   async (I) => {
-       const result = await interactive(`
+    async (I) => {
+        const result = await interactive(`
             1. Set the hideAccessButton to true in the portal config (portal/gitops.json) 
             2. Configure the Access Button URL (URL configured in gitops.json as "getAccessButtonLink": "https://dbgap.ncbi.nlm.nih.gov/")
             3. Roll the portal via "gen3 kube-setup-portal" command
@@ -30,7 +30,7 @@ Scenario('Get Access button is not displayed when portal configuration "hideGetA
             3. Navigate to Files Explorer page (e.g. https://qa-brain.planx-pla.net/files)
             4. "Get Access" button is not displayed
        `);
-   }
+    }
 ));
 
 Scenario('Get Access button is enabled when commons has url configured, hideGetAccessButton is set to false and user does not have full access @manual', ifInteractive(
@@ -74,6 +74,6 @@ Scenario('Get Access button is not displayed when commons does not have url conf
             2. Navigate to Files Explorer page (e.g. https://qa-brain.planx-pla.net/files)
             3. Get Access button is not displayed
         `);
-        expect(result.didPass, result.details).to, be.true;
+        expect(result.didPass, result.details).to,be.true;
     }
 ));
