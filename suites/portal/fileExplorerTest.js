@@ -2,7 +2,7 @@ Feature('File Explorer - https://ctds-planx.atlassian.net/browse/PXP-4777');
 
 const chai = require('chai');
 const {interactive, ifInteractive} = require('../../utils/interactive.js');
-const expect = chai.expect;
+const expect = chai.expect
 
 /*
 Data Setup:
