@@ -1,6 +1,3 @@
-env:
-  - REACT_APP_DISABLE_SOCKET=true
-  
 language: node_js
 git:
   depth: 1
