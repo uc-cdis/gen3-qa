@@ -15,6 +15,7 @@
   },
   "devDependencies": {
     "atob": "latest",
+    "babel-eslint": "latest",
     "es6-promise": "latest",
     "isomorphic-fetch": "latest",
     "mocha-junit-reporter": "latest",
