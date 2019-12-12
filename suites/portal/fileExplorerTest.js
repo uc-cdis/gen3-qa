@@ -42,7 +42,7 @@ Scenario('Get Access button is enabled when commons has url configured, hideGetA
             3. Get Access button is enabled
             4. Clicking on it takes the user to dbgap access request page
         `);
-    expect(result.didPass, result.details).to, be.true;
+    expect(result.didPass, result.details).to.be.true;
   },
 ));
 
@@ -53,7 +53,7 @@ Scenario('Get Access button is not displayed when commons has url configured, hi
             2. Navigate to Files Explorer page (e.g. https://qa-brain.planx-pla.net/files)
             3. Get Access button is not displayed
         `);
-    expect(result.didPass, result.details).to, be.true;
+    expect(result.didPass, result.details).to.be.true
   },
 ));
 
@@ -64,7 +64,7 @@ Scenario('Get Access button is disabled when commons does not have url configure
             2. Navigate to Files Explorer page (e.g. https://qa-brain.planx-pla.net/files)
             3. Get Access button is disabled with a tooltip saying "Coming Soon"
         `);
-    expect(result.didPass, result.details).to, be.true;
+    expect(result.didPass, result.details).to.be.true;
   },
 ));
 
@@ -75,6 +75,6 @@ Scenario('Get Access button is not displayed when commons does not have url conf
             2. Navigate to Files Explorer page (e.g. https://qa-brain.planx-pla.net/files)
             3. Get Access button is not displayed
         `);
-    expect(result.didPass, result.details).to, be.true;
+    expect(result.didPass, result.details).to.be.true;
   },
 ));
