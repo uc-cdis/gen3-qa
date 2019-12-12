@@ -1,6 +1,6 @@
+const { execSync } = require('child_process');
 const { Base } = require('./base');
 
-const { execSync } = require('child_process');
 const { clean } = require('../string');
 
 class Docker extends Base {
@@ -16,13 +16,12 @@ class Docker extends Base {
    * @param cleanResult lambda(string) => string cleans result string
    * @returns {*}
    */
-  runCommand(cmd, service=undefined, cleanResult=null) {
+  runCommand(cmd, service = undefined, cleanResult = null) {
     cleanResult = cleanResult || clean;
     if (service === undefined) {
       return cleanResult(execSync(`docker exec ${cmd}`, { shell: '/bin/bash' }).toString('utf8'));
-    } else {
-      return cleanResult(execSync(`docker exec ${service}-service ${cmd}`, { shell: '/bin/bash' }).toString('utf8'));
     }
+    return cleanResult(execSync(`docker exec ${service}-service ${cmd}`, { shell: '/bin/bash' }).toString('utf8'));
   }
 }
 

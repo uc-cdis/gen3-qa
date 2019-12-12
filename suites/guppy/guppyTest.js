@@ -1,12 +1,13 @@
 Feature('Guppy');
 
 const chai = require('chai');
-const expect = chai.expect;
+
+const { expect } = chai;
 
 
 var token;
 
-Before( async (users, fence) => {
+Before(async (users, fence) => {
   const scope = ['data', 'user'];
   const apiKeyRes = await fence.complete.createAPIKey(scope, users.mainAcct.accessTokenHeader);
   token = await fence.do.getAccessToken(apiKeyRes.data.api_key);
@@ -15,7 +16,7 @@ Before( async (users, fence) => {
 
 // This test fails due to what looks to me like a bug in Guppy that should be fixed. I made a ticket for it.
 xScenario('I want to make a query to Guppy, but my access token is invalid or expired. @guppyAPI', async (I, guppy) => {
-  let invalidToken = 'eyJhbGciOiJSUzI1N';
+  const invalidToken = 'eyJhbGciOiJSUzI1N';
   const queryFile = 'suites/guppy/testData/testQuery1.json';
   const queryResponse = await guppy.do.submitQueryFileToGuppy(guppy.props.endpoints.graphqlEndpoint, queryFile, invalidToken);
   expect(queryResponse.status).to.equal(401);

@@ -1,16 +1,16 @@
 module.exports = {
-    //"extends": "eslint:recommended",
-    "extends": "airbnb",
-    "plugins": [
-        "codeceptjs",
-        "chai-expect"
+    "extends": [
+        "airbnb",
+        "plugin:codeceptjs/recommended",
+        "plugin:chai-expect/recommended",
+        "plugin:chai-friendly/recommended"
     ],
     "root": true,
     "env": {
-        "codeceptjs/codeceptjs": true,
         "browser": true,
         "es6": true,
-        "jest": true
+        "jest": true,
+        'mocha': true
     },
     "parser": "babel-eslint",
     "parserOptions": {
@@ -38,15 +38,12 @@ module.exports = {
             "error",
             "always"
         ],
+        "no-underscore-dangle": ["error", {"allowAfterThis": true}],
         "func-names": ["error", "never"],
         "import/no-extraneous-dependencies": ["error", {"devDependencies": true}],
         "no-restricted-syntax": ["off", "ForOfStatement"],
         "no-await-in-loop": ["off"],
         "no-param-reassign": ["error", {"props": false}],
-        "no-console": ["off"],
-        "chai-expect/no-inner-compare": 2,
-        "chai-expect/no-inner-literal": 2,
-        "chai-expect/missing-assertion": 2,
-        "chai-expect/terminating-properties": 2
+        "no-console": ["off"]
     }
 };

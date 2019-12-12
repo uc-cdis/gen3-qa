@@ -108,9 +108,9 @@ dcf-integration-test-0@planx-pla.net (user0)
 */
 
 const chai = require('chai');
+const uuid = require('uuid');
 const { Bash } = require('../../utils/bash.js');
 const apiUtil = require('../../utils/apiUtil.js');
-const uuid = require('uuid');
 
 const bash = new Bash();
 
@@ -139,7 +139,7 @@ const indexed_files = {
     md5: '73d643ec3f4beb9020eef0beed440ad2',
     authz: [
       '/abc/programs/test_program/projects/test_project1',
-      '/abc/programs/test_program2/projects/test_project3'
+      '/abc/programs/test_program2/projects/test_project3',
     ],
     size: 11,
   },
@@ -149,7 +149,7 @@ const indexed_files = {
     md5: '73d643ec3f4beb9020eef0beed440af1',
     authz: [
       '/gen3/programs/test_program/projects/test_project1',
-      '/consents/HMB'
+      '/consents/HMB',
     ],
     size: 43,
   },
@@ -159,7 +159,7 @@ const indexed_files = {
     md5: '73d643ec3f4beb90213ef0beed440af1',
     authz: [
       '/abc/programs/test_program/projects/test_project1',
-      '/consents/HMB'
+      '/consents/HMB',
     ],
     size: 44,
   },
@@ -169,7 +169,7 @@ const indexed_files = {
     md5: '73d655ec3f4beb9020eef0beed440af1',
     authz: [
       '/gen3/programs/test_program/projects/test_project1',
-      '/consents/GRU'
+      '/consents/GRU',
     ],
     size: 45,
   },
@@ -178,13 +178,13 @@ const indexed_files = {
     link: 's3://cdis-presigned-url-test/testdata',
     md5: '73d643ec3f4beb90212ef0beed440af1',
     authz: [
-      '/open'
+      '/open',
     ],
     size: 46,
-  }
-}
+  },
+};
 
-let new_gen3_records = {
+const new_gen3_records = {
   fooBarFile: {
     filename: 'testdata',
     link: 's3://cdis-presigned-url-test/testdata',
@@ -198,10 +198,10 @@ let new_gen3_records = {
     md5: '73d643ec3f4beb9020eef0beed440ac0',
     authz: ['/gen3/programs/test_program/projects/test_project'],
     size: 12,
-  }
-}
+  },
+};
 
-let new_abc_records = {
+const new_abc_records = {
   fooBarFile: {
     filename: 'testdata',
     link: 's3://cdis-presigned-url-test/testdata',
@@ -215,8 +215,8 @@ let new_abc_records = {
     md5: '73d643ec3f4beb9020eef0beed440ac1',
     authz: ['/abc/programs/foo/projects/bar'],
     size: 12,
-  }
-}
+  },
+};
 
 BeforeSuite(async (fence, users, indexd) => {
   console.log('Removing test indexd records if they exist');
@@ -227,7 +227,8 @@ BeforeSuite(async (fence, users, indexd) => {
   console.log('Adding indexd files used to test signed urls');
   const ok = await indexd.do.addFileIndices(Object.values(indexed_files));
   chai.expect(
-    ok, 'unable to add files to indexd as part of centralizedAuth setup').to.be.true;
+    ok, 'unable to add files to indexd as part of centralizedAuth setup',
+  ).to.be.true;
 });
 
 AfterSuite(async (fence, indexd, users) => {
@@ -263,89 +264,103 @@ Scenario('User without policies cannot CRUD indexd records in /gen3 or /abc @ind
   async (fence, indexd, users, files) => {
     // create
     const gen3_create_success = await indexd.do.addFileIndices(
-        Object.values(new_gen3_records), users.user2.accessTokenHeader);
+      Object.values(new_gen3_records), users.user2.accessTokenHeader,
+    );
     const abc_create_success = await indexd.do.addFileIndices(
-        Object.values(new_abc_records), users.user2.accessTokenHeader);
+      Object.values(new_abc_records), users.user2.accessTokenHeader,
+    );
 
     // read to test creation
     const gen3_read_response = await indexd.do.getFileFullRes(
-        new_gen3_records.fooBarFile, users.user2.accessTokenHeader)
+      new_gen3_records.fooBarFile, users.user2.accessTokenHeader,
+    );
     const abc_read_response = await indexd.do.getFileFullRes(
-        new_abc_records.fooBarFile, users.user2.accessTokenHeader)
+      new_abc_records.fooBarFile, users.user2.accessTokenHeader,
+    );
 
     // asserts for read to test creation
     fence.ask.assertStatusCode(
-        gen3_read_response, 404,
-        msg='should have gotten 404 for reading record under `/gen3` (no permission to create)'
+      gen3_read_response, 404,
+      msg = 'should have gotten 404 for reading record under `/gen3` (no permission to create)',
     );
     fence.ask.assertStatusCode(
-        abc_read_response, 404,
-        msg='should have gotten 404 for reading record under `/abc` (no permission to create)'
+      abc_read_response, 404,
+      msg = 'should have gotten 404 for reading record under `/abc` (no permission to create)',
     );
 
     // force creation of records
     const gen3_force_create_success = await indexd.do.addFileIndices(
-        Object.values(new_gen3_records));
+      Object.values(new_gen3_records),
+    );
     const abc_force_create_success = await indexd.do.addFileIndices(
-        Object.values(new_abc_records));
+      Object.values(new_abc_records),
+    );
     chai.expect(
-      gen3_force_create_success, 'unable to force add files to indexd as part of setup').to.be.true;
+      gen3_force_create_success, 'unable to force add files to indexd as part of setup',
+    ).to.be.true;
     chai.expect(
-      abc_force_create_success, 'unable to force add files to indexd as part of setup').to.be.true;
+      abc_force_create_success, 'unable to force add files to indexd as part of setup',
+    ).to.be.true;
 
     // read again
     const gen3_read_response_after_force_create = await indexd.do.getFileFullRes(
-        new_gen3_records.fooBarFile, users.user2.accessTokenHeader)
+      new_gen3_records.fooBarFile, users.user2.accessTokenHeader,
+    );
     const abc_read_response_after_force_create = await indexd.do.getFileFullRes(
-        new_abc_records.fooBarFile, users.user2.accessTokenHeader)
+      new_abc_records.fooBarFile, users.user2.accessTokenHeader,
+    );
 
     // asserts for read
     fence.ask.assertStatusCode(
-        gen3_read_response_after_force_create, 200,
-        msg='should have gotten authorized 200 for reading record under `/gen3`'
+      gen3_read_response_after_force_create, 200,
+      msg = 'should have gotten authorized 200 for reading record under `/gen3`',
     );
     fence.ask.assertStatusCode(
-        abc_read_response_after_force_create, 200,
-        msg='should have gotten authorized 200 for reading record under `/abc`'
+      abc_read_response_after_force_create, 200,
+      msg = 'should have gotten authorized 200 for reading record under `/abc`',
     );
 
     // update
     const filename_change = {
-      'file_name': 'test_filename'
-    }
+      file_name: 'test_filename',
+    };
     const gen3_update_response = await indexd.do.updateFile(
-        new_gen3_records.fooBarFile, filename_change, users.user2.accessTokenHeader)
+      new_gen3_records.fooBarFile, filename_change, users.user2.accessTokenHeader,
+    );
     const abc_update_response = await indexd.do.updateFile(
-        new_abc_records.fooBarFile, filename_change, users.user2.accessTokenHeader)
+      new_abc_records.fooBarFile, filename_change, users.user2.accessTokenHeader,
+    );
 
     // asserts for update
     chai.expect(
       gen3_update_response,
-      'should NOT have got successful response when updating record under `/gen3`'
+      'should NOT have got successful response when updating record under `/gen3`',
     ).to.not.have.property('did');
     chai.expect(
       abc_update_response,
-      'should NOT have got successful response when updating record under `/abc`'
+      'should NOT have got successful response when updating record under `/abc`',
     ).to.not.have.property('did');
 
     // delete
     const gen3_delete_response = await indexd.do.deleteFile(
-        new_gen3_records.deleteMe, users.user2.accessTokenHeader)
+      new_gen3_records.deleteMe, users.user2.accessTokenHeader,
+    );
     const abc_delete_response = await indexd.do.deleteFile(
-        new_abc_records.deleteMe, users.user2.accessTokenHeader)
+      new_abc_records.deleteMe, users.user2.accessTokenHeader,
+    );
 
     // asserts for delete
     indexd.ask.deleteFileNotSuccessful(
       gen3_delete_response,
       new_gen3_records.deleteMe,
-      msg='should have gotten unauthorized for deleting record under `/gen3`'
+      msg = 'should have gotten unauthorized for deleting record under `/gen3`',
     );
     indexd.ask.deleteFileNotSuccessful(
       abc_delete_response,
       new_abc_records.deleteMe,
-      msg='should have gotten unauthorized for deleting record under `/abc`'
+      msg = 'should have gotten unauthorized for deleting record under `/abc`',
     );
-}).retry(2);
+  }).retry(2);
 
 /*
    - Test user with `abc-admin` policy, test creating record, reading record, updating
@@ -356,101 +371,114 @@ Scenario('User with access can CRUD indexd records in namespace, not outside nam
   async (fence, indexd, users, files) => {
     // create
     const gen3_create_success = await indexd.do.addFileIndices(
-        Object.values(new_gen3_records), users.mainAcct.accessTokenHeader);
+      Object.values(new_gen3_records), users.mainAcct.accessTokenHeader,
+    );
     const abc_create_success = await indexd.do.addFileIndices(
-        Object.values(new_abc_records), users.mainAcct.accessTokenHeader);
+      Object.values(new_abc_records), users.mainAcct.accessTokenHeader,
+    );
 
     // read to test creation
     const gen3_read_response = await indexd.do.getFileFullRes(
-        new_gen3_records.fooBarFile, users.mainAcct.accessTokenHeader)
+      new_gen3_records.fooBarFile, users.mainAcct.accessTokenHeader,
+    );
     const abc_read_response = await indexd.do.getFileFullRes(
-        new_abc_records.fooBarFile, users.mainAcct.accessTokenHeader)
+      new_abc_records.fooBarFile, users.mainAcct.accessTokenHeader,
+    );
 
     // asserts for read to test creation
     fence.ask.assertStatusCode(
-        gen3_read_response, 404,
-        msg='should have gotten 404 for reading record under `/gen3` (no permission to create)'
+      gen3_read_response, 404,
+      msg = 'should have gotten 404 for reading record under `/gen3` (no permission to create)',
     );
     fence.ask.assertStatusCode(
-        abc_read_response, 200,
-        msg='should have gotten 200 for reading record under `/abc` (has permission to create)'
+      abc_read_response, 200,
+      msg = 'should have gotten 200 for reading record under `/abc` (has permission to create)',
     );
 
     // force creation of gen3 records
     const gen3_force_create_success = await indexd.do.addFileIndices(
-        Object.values(new_gen3_records));
+      Object.values(new_gen3_records),
+    );
     chai.expect(
-      gen3_force_create_success, 'unable to force add files to indexd as part of setup').to.be.true;
+      gen3_force_create_success, 'unable to force add files to indexd as part of setup',
+    ).to.be.true;
 
     // read again
     const gen3_read_response_after_force_create = await indexd.do.getFileFullRes(
-        new_gen3_records.fooBarFile, users.mainAcct.accessTokenHeader)
+      new_gen3_records.fooBarFile, users.mainAcct.accessTokenHeader,
+    );
     const abc_read_response_after_force_create = await indexd.do.getFileFullRes(
-        new_abc_records.fooBarFile, users.mainAcct.accessTokenHeader)
+      new_abc_records.fooBarFile, users.mainAcct.accessTokenHeader,
+    );
 
     // asserts for read
     fence.ask.assertStatusCode(
-        gen3_read_response_after_force_create, 200,
-        msg='should have gotten authorized 200 for reading record under `/gen3`'
+      gen3_read_response_after_force_create, 200,
+      msg = 'should have gotten authorized 200 for reading record under `/gen3`',
     );
     fence.ask.assertStatusCode(
-        abc_read_response_after_force_create, 200,
-        msg='should have gotten authorized 200 for reading record under `/abc`'
+      abc_read_response_after_force_create, 200,
+      msg = 'should have gotten authorized 200 for reading record under `/abc`',
     );
 
     // update
     const filename_change = {
-      'file_name': 'test_filename'
-    }
+      file_name: 'test_filename',
+    };
     const gen3_update_response = await indexd.do.updateFile(
-        new_gen3_records.fooBarFile, filename_change, users.mainAcct.accessTokenHeader)
+      new_gen3_records.fooBarFile, filename_change, users.mainAcct.accessTokenHeader,
+    );
     const abc_update_response = await indexd.do.updateFile(
-        new_abc_records.fooBarFile, filename_change, users.mainAcct.accessTokenHeader)
+      new_abc_records.fooBarFile, filename_change, users.mainAcct.accessTokenHeader,
+    );
 
     // asserts for update
     chai.expect(
       gen3_update_response,
-      'should NOT have got successful response when updating record under `/gen3`'
+      'should NOT have got successful response when updating record under `/gen3`',
     ).to.not.have.property('did');
     chai.expect(
       abc_update_response,
-      'should have gotten `did` back (successful response) when updating record under `/abc`'
+      'should have gotten `did` back (successful response) when updating record under `/abc`',
     ).to.have.property('did');
     chai.expect(
       abc_update_response.did,
-      'should have SAME `did` back as we requested update for `/abc`'
+      'should have SAME `did` back as we requested update for `/abc`',
     ).to.equal(new_abc_records.fooBarFile.did);
 
     // make sure updated file has updated file name
     const abc_read_response_after_update = await indexd.do.getFileFullRes(
-        new_abc_records.fooBarFile, users.mainAcct.accessTokenHeader)
+      new_abc_records.fooBarFile, users.mainAcct.accessTokenHeader,
+    );
     fence.ask.assertStatusCode(
-        abc_read_response_after_update, 200,
-        msg='should have gotten authorized 200 for reading record under `/abc` after updating'
+      abc_read_response_after_update, 200,
+      msg = 'should have gotten authorized 200 for reading record under `/abc` after updating',
     );
     chai.expect(
-        abc_read_response_after_update.data, 'update record response does not have file_name we updated it with'
+      abc_read_response_after_update.data, 'update record response does not have file_name we updated it with',
     ).to.have.property('file_name', 'test_filename');
 
     // delete
     const gen3_delete_response = await indexd.do.deleteFile(
-        new_gen3_records.deleteMe, users.mainAcct.accessTokenHeader)
+      new_gen3_records.deleteMe, users.mainAcct.accessTokenHeader,
+    );
     const abc_delete_response = await indexd.do.deleteFile(
-        new_abc_records.deleteMe, users.mainAcct.accessTokenHeader)
+      new_abc_records.deleteMe, users.mainAcct.accessTokenHeader,
+    );
 
     // asserts for delete
     indexd.ask.deleteFileNotSuccessful(
       gen3_delete_response,
       new_gen3_records.deleteMe,
-      msg='should have gotten unauthorized for deleting record under `/gen3`'
+      msg = 'should have gotten unauthorized for deleting record under `/gen3`',
     );
     indexd.ask.deleteFileSuccess(
       new_abc_records.deleteMe, abc_delete_response,
-      msg='user with permission could not delete record under `/abc`.'
+      msg = 'user with permission could not delete record under `/abc`.',
     );
     const getRes = await indexd.do.getFileFullRes(new_abc_records.deleteMe);
     indexd.ask.recordDoesNotExist(getRes);
-}).retry(2);
+  }).retry(2);
 
 /*
    - Test the same thing as above, but use a client's access_token for that user
@@ -463,103 +491,116 @@ Scenario('Client (with access) with user token (with access) can CRUD indexd rec
 
     // create
     const gen3_create_success = await indexd.do.addFileIndices(
-        Object.values(new_gen3_records), apiUtil.getAccessTokenHeader(accessToken));
+      Object.values(new_gen3_records), apiUtil.getAccessTokenHeader(accessToken),
+    );
     const abc_create_success = await indexd.do.addFileIndices(
-        Object.values(new_abc_records), apiUtil.getAccessTokenHeader(accessToken));
+      Object.values(new_abc_records), apiUtil.getAccessTokenHeader(accessToken),
+    );
 
     // read to test creation
     const gen3_read_response = await indexd.do.getFileFullRes(
-        new_gen3_records.fooBarFile, apiUtil.getAccessTokenHeader(accessToken))
+      new_gen3_records.fooBarFile, apiUtil.getAccessTokenHeader(accessToken),
+    );
     const abc_read_response = await indexd.do.getFileFullRes(
-        new_abc_records.fooBarFile, apiUtil.getAccessTokenHeader(accessToken))
+      new_abc_records.fooBarFile, apiUtil.getAccessTokenHeader(accessToken),
+    );
 
     // asserts for read to test creation
     fence.ask.assertStatusCode(
-        gen3_read_response, 404,
-        msg='should have gotten 404 for reading record under `/gen3` (no permission to create)'
+      gen3_read_response, 404,
+      msg = 'should have gotten 404 for reading record under `/gen3` (no permission to create)',
     );
     fence.ask.assertStatusCode(
-        abc_read_response, 200,
-        msg='should have gotten 200 for reading record under `/abc` (has permission to create)'
+      abc_read_response, 200,
+      msg = 'should have gotten 200 for reading record under `/abc` (has permission to create)',
     );
 
     // force creation of gen3 records
     const gen3_force_create_success = await indexd.do.addFileIndices(
-        Object.values(new_gen3_records));
+      Object.values(new_gen3_records),
+    );
     chai.expect(
-      gen3_force_create_success, 'unable to force add files to indexd as part of setup').to.be.true;
+      gen3_force_create_success, 'unable to force add files to indexd as part of setup',
+    ).to.be.true;
 
     // read again
     const gen3_read_response_after_force_create = await indexd.do.getFileFullRes(
-        new_gen3_records.fooBarFile, apiUtil.getAccessTokenHeader(accessToken))
+      new_gen3_records.fooBarFile, apiUtil.getAccessTokenHeader(accessToken),
+    );
     const abc_read_response_after_force_create = await indexd.do.getFileFullRes(
-        new_abc_records.fooBarFile, apiUtil.getAccessTokenHeader(accessToken))
+      new_abc_records.fooBarFile, apiUtil.getAccessTokenHeader(accessToken),
+    );
 
     // asserts for read
     fence.ask.assertStatusCode(
-        gen3_read_response_after_force_create, 200,
-        msg='should have gotten authorized 200 for reading record under `/gen3`'
+      gen3_read_response_after_force_create, 200,
+      msg = 'should have gotten authorized 200 for reading record under `/gen3`',
     );
     fence.ask.assertStatusCode(
-        abc_read_response_after_force_create, 200,
-        msg='should have gotten authorized 200 for reading record under `/abc`'
+      abc_read_response_after_force_create, 200,
+      msg = 'should have gotten authorized 200 for reading record under `/abc`',
     );
 
     // update
     const filename_change = {
-      'file_name': 'test_filename'
-    }
+      file_name: 'test_filename',
+    };
     const gen3_update_response = await indexd.do.updateFile(
-        new_gen3_records.fooBarFile, filename_change, apiUtil.getAccessTokenHeader(accessToken))
+      new_gen3_records.fooBarFile, filename_change, apiUtil.getAccessTokenHeader(accessToken),
+    );
     const abc_update_response = await indexd.do.updateFile(
-        new_abc_records.fooBarFile, filename_change, apiUtil.getAccessTokenHeader(accessToken))
+      new_abc_records.fooBarFile, filename_change, apiUtil.getAccessTokenHeader(accessToken),
+    );
 
     // asserts for update
     chai.expect(
       gen3_update_response,
-      'should NOT have got successful response when updating record under `/gen3`'
+      'should NOT have got successful response when updating record under `/gen3`',
     ).to.not.have.property('did');
     chai.expect(
       abc_update_response,
-      'should have gotten `did` back (successful response) when updating record under `/abc`'
+      'should have gotten `did` back (successful response) when updating record under `/abc`',
     ).to.have.property('did');
     chai.expect(
       abc_update_response.did,
-      'should have SAME `did` back as we requested update for `/abc`'
+      'should have SAME `did` back as we requested update for `/abc`',
     ).to.equal(new_abc_records.fooBarFile.did);
 
     // make sure updated file has updated file name
     const abc_read_response_after_update = await indexd.do.getFileFullRes(
-        new_abc_records.fooBarFile, users.mainAcct.accessTokenHeader)
+      new_abc_records.fooBarFile, users.mainAcct.accessTokenHeader,
+    );
     console.log(`abc file after update: ${new_abc_records.fooBarFile}`);
     console.log(`abc file read response after update: ${abc_read_response_after_update}`);
     fence.ask.assertStatusCode(
-        abc_read_response_after_update, 200,
-        msg='should have gotten authorized 200 for reading record under `/abc` after updating'
+      abc_read_response_after_update, 200,
+      msg = 'should have gotten authorized 200 for reading record under `/abc` after updating',
     );
     chai.expect(
-        abc_read_response_after_update.data, 'update record response does not have file_name we updated it with'
+      abc_read_response_after_update.data, 'update record response does not have file_name we updated it with',
     ).to.have.property('file_name', 'test_filename');
 
     // delete
     const gen3_delete_response = await indexd.do.deleteFile(
-        new_gen3_records.deleteMe, apiUtil.getAccessTokenHeader(accessToken))
+      new_gen3_records.deleteMe, apiUtil.getAccessTokenHeader(accessToken),
+    );
     const abc_delete_response = await indexd.do.deleteFile(
-        new_abc_records.deleteMe, apiUtil.getAccessTokenHeader(accessToken))
+      new_abc_records.deleteMe, apiUtil.getAccessTokenHeader(accessToken),
+    );
 
     // asserts for delete
     indexd.ask.deleteFileNotSuccessful(
       gen3_delete_response,
       new_gen3_records.deleteMe,
-      msg='should have gotten unauthorized for deleting record under `/gen3`'
+      msg = 'should have gotten unauthorized for deleting record under `/gen3`',
     );
     indexd.ask.deleteFileSuccess(
       new_abc_records.deleteMe, abc_delete_response,
-      msg='user with permission could not delete record under `/abc`.'
+      msg = 'user with permission could not delete record under `/abc`.',
     );
     const getRes = await indexd.do.getFileFullRes(new_abc_records.deleteMe);
     indexd.ask.recordDoesNotExist(getRes);
-}).retry(2);
+  }).retry(2);
 
 /*
    - Test ABC_CLIENT creating signed urls for data under /abc, ensure they cannot create
@@ -570,33 +611,36 @@ Scenario('Client (with access) with user token (with access) can create signed u
   async (fence, indexd, users, files) => {
     // NOTE: users.mainAcct and ABC_CLIENT have abc-admin role
     const tokenRes = await fence.complete.getUserTokensWithClient(
-      users.mainAcct, fence.props.clients.abcClient);
+      users.mainAcct, fence.props.clients.abcClient,
+    );
     const accessToken = tokenRes.data.access_token;
 
-    console.log('Use mainAcct to create signed URL for file under `/abc`')
+    console.log('Use mainAcct to create signed URL for file under `/abc`');
     // NOTE: passing in accessToken to accessTokenHeader overrides the default one with
     // the one from the client
     const signedUrlAbcRes = await fence.do.createSignedUrlForUser(
-      indexed_files.abcFooBarFile.did, apiUtil.getAccessTokenHeader(accessToken));
+      indexed_files.abcFooBarFile.did, apiUtil.getAccessTokenHeader(accessToken),
+    );
 
-    console.log('Use mainAcct to create signed URL for file under `/gen3`')
+    console.log('Use mainAcct to create signed URL for file under `/gen3`');
     const signedUrlGen3Res = await fence.do.createSignedUrlForUser(
-      indexed_files.gen3TestTestFile.did, apiUtil.getAccessTokenHeader(accessToken));
+      indexed_files.gen3TestTestFile.did, apiUtil.getAccessTokenHeader(accessToken),
+    );
 
-    let fileAbcContents = await fence.do.getFileFromSignedUrlRes(
-      signedUrlAbcRes);
-    let fileGen3Contents = await fence.do.getFileFromSignedUrlRes(
-      signedUrlGen3Res);
+    const fileAbcContents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlAbcRes,
+    );
+    const fileGen3Contents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlGen3Res,
+    );
 
     chai.expect(fileAbcContents,
-      'User token with access could NOT create signed urls and read file for records ' +
-      'in authorized namespace'
-    ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+      'User token with access could NOT create signed urls and read file for records '
+      + 'in authorized namespace').to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
     chai.expect(fileGen3Contents,
-      'User token WITHOUT access COULD create signed urls and read file for records ' +
-      'in unauthorized namespace'
-    ).to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-}).retry(2);
+      'User token WITHOUT access COULD create signed urls and read file for records '
+      + 'in unauthorized namespace').to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+  }).retry(2);
 
 /*
    - Test client WITH access creating signed urls for data for user WITHOUT access in namespace.
@@ -606,21 +650,23 @@ Scenario('Client (with access) with user token (WITHOUT access) in namespace @ce
     // NOTE: users.mainAcct has access to /abc NOT /gen3
     //       CLIENT does have access to both
     const tokenRes = await fence.complete.getUserTokensWithClient(
-      users.mainAcct);
+      users.mainAcct,
+    );
     const accessToken = tokenRes.data.access_token;
 
-    console.log('Use mainAcct to create signed URL for file under `/gen3`')
+    console.log('Use mainAcct to create signed URL for file under `/gen3`');
     const signedUrlGen3Res = await fence.do.createSignedUrlForUser(
-      indexed_files.gen3TestTestFile.did, apiUtil.getAccessTokenHeader(accessToken));
+      indexed_files.gen3TestTestFile.did, apiUtil.getAccessTokenHeader(accessToken),
+    );
 
-    let fileGen3Contents = await fence.do.getFileFromSignedUrlRes(
-      signedUrlGen3Res);
+    const fileGen3Contents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlGen3Res,
+    );
 
     chai.expect(fileGen3Contents,
-      'Client using user token WITHOUT access COULD create signed urls and read file ' +
-      'for records in namespace'
-    ).to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-}).retry(2);
+      'Client using user token WITHOUT access COULD create signed urls and read file '
+      + 'for records in namespace').to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+  }).retry(2);
 
 /*
    - Test client WITHOUT access creating signed urls for data for user WITH access in namespace.
@@ -630,21 +676,23 @@ Scenario('Client (WITHOUT access) with user token (with access) in namespace @ce
     // abcClient only has access to /abc
     // user0 only access to /gen3
     const tokenRes = await fence.complete.getUserTokensWithClient(
-      users.user0, fence.props.clients.abcClient);
+      users.user0, fence.props.clients.abcClient,
+    );
     const accessToken = tokenRes.data.access_token;
 
-    console.log('Use user0 to create signed URL for file under `/gen3`')
+    console.log('Use user0 to create signed URL for file under `/gen3`');
     const signedUrlGen3Res = await fence.do.createSignedUrlForUser(
-      indexed_files.gen3TestTestFile.did, apiUtil.getAccessTokenHeader(accessToken));
+      indexed_files.gen3TestTestFile.did, apiUtil.getAccessTokenHeader(accessToken),
+    );
 
-    let fileGen3Contents = await fence.do.getFileFromSignedUrlRes(
-      signedUrlGen3Res);
+    const fileGen3Contents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlGen3Res,
+    );
 
     chai.expect(fileGen3Contents,
-      'Client WITHOUT access using user token WITH access COULD create signed urls ' +
-      'and read file for records in namespace'
-    ).to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-}).retry(2);
+      'Client WITHOUT access using user token WITH access COULD create signed urls '
+      + 'and read file for records in namespace').to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+  }).retry(2);
 
 /*
    - Test that a user with `abc-admin` can create signed urls with their own access_token
@@ -652,28 +700,30 @@ Scenario('Client (WITHOUT access) with user token (with access) in namespace @ce
 Scenario('User with access can create signed urls for records in namespace, not outside namespace @centralizedAuth',
   async (fence, indexd, users, files) => {
     // users.mainAcct has abc-admin role
-    console.log('Use mainAcct to create signed URL for file under `/abc`')
+    console.log('Use mainAcct to create signed URL for file under `/abc`');
     const signedUrlAbcRes = await fence.do.createSignedUrlForUser(
-      indexed_files.abcFooBarFile.did, users.mainAcct.accessTokenHeader);
+      indexed_files.abcFooBarFile.did, users.mainAcct.accessTokenHeader,
+    );
 
-    console.log('Use mainAcct to create signed URL for file under `/gen3`')
+    console.log('Use mainAcct to create signed URL for file under `/gen3`');
     const signedUrlGen3Res = await fence.do.createSignedUrlForUser(
-      indexed_files.gen3TestTestFile.did, users.mainAcct.accessTokenHeader);
+      indexed_files.gen3TestTestFile.did, users.mainAcct.accessTokenHeader,
+    );
 
-    let fileAbcContents = await fence.do.getFileFromSignedUrlRes(
-      signedUrlAbcRes);
-    let fileGen3Contents = await fence.do.getFileFromSignedUrlRes(
-      signedUrlGen3Res);
+    const fileAbcContents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlAbcRes,
+    );
+    const fileGen3Contents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlGen3Res,
+    );
 
     chai.expect(fileAbcContents,
-      'User with access could NOT create signed urls and read file for records in ' +
-      'authorized namespace'
-    ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+      'User with access could NOT create signed urls and read file for records in '
+      + 'authorized namespace').to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
     chai.expect(fileGen3Contents,
-      'User WITHOUT access COULD create signed urls and read file for records in ' +
-      'unauthorized namespace'
-    ).to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-}).retry(2);
+      'User WITHOUT access COULD create signed urls and read file for records in '
+      + 'unauthorized namespace').to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+  }).retry(2);
 
 /*
    - Test client flow to get id_token, compare to what's in userinfo endpoint, ensure
@@ -688,19 +738,21 @@ Scenario('Test that userinfo endpoint contains authorization information (resour
     const userInfoRes = await fence.do.getUserInfo(accessToken);
     fence.ask.assertUserInfo(userInfoRes);
     const resourcesOfUser = userInfoRes.data.resources;
-    console.log('list of resources the user endpoint shows access to:')
+    console.log('list of resources the user endpoint shows access to:');
     console.log(resourcesOfUser);
 
     // ensure user has authorization information (resources) in the response
     chai.expect(
-      resourcesOfUser, 'could not get resources field from id token').to.not.be.null;
+      resourcesOfUser, 'could not get resources field from id token',
+    ).to.not.be.null;
     chai.expect(
-      resourcesOfUser, 'could not get resources field from id token').to.not.be.undefined;
+      resourcesOfUser, 'could not get resources field from id token',
+    ).to.not.be.undefined;
     chai.expect(
       resourcesOfUser.length,
-      `Number of resources is not identical in id token and user info`
-    ).to.not.equal(0)
-}).retry(2);
+      'Number of resources is not identical in id token and user info',
+    ).to.not.equal(0);
+  }).retry(2);
 
 /*
    - Create some records in indexd with AND logic, have ABC_CLIENT try to create signed
@@ -710,22 +762,24 @@ Scenario('Client with user token WITHOUT permission CANNOT create signed URL for
   async (fence, indexd, users, files) => {
     // users.auxAcct1 does not have access to both resources
     const tokenRes = await fence.complete.getUserTokensWithClient(
-      users.auxAcct1, fence.props.clients.abcClient);
+      users.auxAcct1, fence.props.clients.abcClient,
+    );
     const accessToken = tokenRes.data.access_token;
 
-    console.log('Use auxAcct1 to create signed URL for file under with indexd authz ' +
-      'AND logic')
+    console.log('Use auxAcct1 to create signed URL for file under with indexd authz '
+      + 'AND logic');
     const signedUrlRes = await fence.do.createSignedUrlForUser(
-      indexed_files.twoProjectsFile.did, apiUtil.getAccessTokenHeader(accessToken));
+      indexed_files.twoProjectsFile.did, apiUtil.getAccessTokenHeader(accessToken),
+    );
 
-    let fileContents = await fence.do.getFileFromSignedUrlRes(
-      signedUrlRes);
+    const fileContents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlRes,
+    );
 
     chai.expect(fileContents,
-      'Client using user token WITHOUT access COULD create signed urls and read file ' +
-      'for record with authz AND logic in indexd'
-    ).to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-}).retry(2);
+      'Client using user token WITHOUT access COULD create signed urls and read file '
+      + 'for record with authz AND logic in indexd').to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+  }).retry(2);
 
 /*
    - Same as above test but user DOES have permissions. Ensure successful signed URL that
@@ -735,55 +789,59 @@ Scenario('Client with user token WITH permission CAN create signed URL for recor
   async (fence, indexd, users, files) => {
     // users.mainAcct does have access to both resources
     const tokenRes = await fence.complete.getUserTokensWithClient(
-      users.mainAcct, fence.props.clients.abcClient);
+      users.mainAcct, fence.props.clients.abcClient,
+    );
     const accessToken = tokenRes.data.access_token;
 
-    console.log('Use mainAcct to create signed URL for file under with indexd authz ' +
-      'AND logic')
+    console.log('Use mainAcct to create signed URL for file under with indexd authz '
+      + 'AND logic');
     const signedUrlRes = await fence.do.createSignedUrlForUser(
-      indexed_files.twoProjectsFile.did, apiUtil.getAccessTokenHeader(accessToken));
+      indexed_files.twoProjectsFile.did, apiUtil.getAccessTokenHeader(accessToken),
+    );
 
-    let fileContents = await fence.do.getFileFromSignedUrlRes(
-      signedUrlRes);
+    const fileContents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlRes,
+    );
 
     chai.expect(fileContents,
-      'Client using user token WITH access CANNOT create signed urls and read file ' +
-      'for record with authz AND logic in indexd'
-    ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-}).retry(2);
+      'Client using user token WITH access CANNOT create signed urls and read file '
+      + 'for record with authz AND logic in indexd').to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+  }).retry(2);
 
-/******************************** OPEN ACCESS DATA ************************************/
+/** ****************************** OPEN ACCESS DATA *********************************** */
 Scenario('Test open access data with authenticated user @centralizedAuth',
   async (fence, indexd, users, files) => {
     console.log('Use user2 to create signed URL for open access file');
     console.log(indexed_files.openAccessFile.did);
     const signedUrlRes = await fence.do.createSignedUrlForUser(
-      indexed_files.openAccessFile.did, users.user2.accessTokenHeader);
+      indexed_files.openAccessFile.did, users.user2.accessTokenHeader,
+    );
 
-    let fileContents = await fence.do.getFileFromSignedUrlRes(
-      signedUrlRes);
+    const fileContents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlRes,
+    );
 
     chai.expect(fileContents,
-      'User with access could NOT create signed urls and read file for records in ' +
-      'authorized namespace with authorized consent code'
-    ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-}).retry(2);
+      'User with access could NOT create signed urls and read file for records in '
+      + 'authorized namespace with authorized consent code').to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+  }).retry(2);
 
 Scenario('Test open access data with anonymous user @centralizedAuth',
   async (fence, indexd, users, files) => {
     const signedUrlRes = await fence.do.createSignedUrlForUser(
-      indexed_files.openAccessFile.did, {});
+      indexed_files.openAccessFile.did, {},
+    );
 
-    let fileContents = await fence.do.getFileFromSignedUrlRes(
-      signedUrlRes);
+    const fileContents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlRes,
+    );
 
     chai.expect(fileContents,
-      'User with access could NOT create signed urls and read file for records in ' +
-      'authorized namespace with authorized consent code'
-    ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-});
+      'User with access could NOT create signed urls and read file for records in '
+      + 'authorized namespace with authorized consent code').to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+  });
 
-/********************************** CONSENT CODES *************************************/
+/** ******************************** CONSENT CODES ************************************ */
 
 /*
    - Create some records in indexd with consent codes, assign a user both permission
@@ -796,18 +854,19 @@ Scenario('Test create signed URL for file in authorized namespace with authorize
     //     - hmb-researcher
     //
     // gen3HmbResearchFile in `/gen3` namespace but also requires `/consents/HMB`
-    console.log('Use user0 to create signed URL for file under `/gen3` with authorized consent code (multiple policies)')
+    console.log('Use user0 to create signed URL for file under `/gen3` with authorized consent code (multiple policies)');
     const signedUrlRes = await fence.do.createSignedUrlForUser(
-      indexed_files.gen3HmbResearchFile.did, users.user0.accessTokenHeader);
+      indexed_files.gen3HmbResearchFile.did, users.user0.accessTokenHeader,
+    );
 
-    let fileContents = await fence.do.getFileFromSignedUrlRes(
-      signedUrlRes);
+    const fileContents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlRes,
+    );
 
     chai.expect(fileContents,
-      'User with access could NOT create signed urls and read file for records in ' +
-      'authorized namespace with authorized consent code'
-    ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-}).retry(2);
+      'User with access could NOT create signed urls and read file for records in '
+      + 'authorized namespace with authorized consent code').to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+  }).retry(2);
 
 /*
    - Do the same as above but in a single policy
@@ -818,18 +877,19 @@ Scenario('Test create signed URL for file in authorized namespace with authorize
     //     - gen3-hmb-researcher
     //
     // gen3HmbResearchFile in `/gen3` namespace but also requires `/consents/HMB`
-    console.log('Use user1 to create signed URL for file under `/gen3` with authorized consent code (single policy)')
+    console.log('Use user1 to create signed URL for file under `/gen3` with authorized consent code (single policy)');
     const signedUrlRes = await fence.do.createSignedUrlForUser(
-      indexed_files.gen3HmbResearchFile.did, users.user1.accessTokenHeader);
+      indexed_files.gen3HmbResearchFile.did, users.user1.accessTokenHeader,
+    );
 
-    let fileContents = await fence.do.getFileFromSignedUrlRes(
-      signedUrlRes);
+    const fileContents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlRes,
+    );
 
     chai.expect(fileContents,
-      'User with access could NOT create signed urls and read file for records in ' +
-      'authorized namespace with authorized consent code'
-    ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-}).retry(2);
+      'User with access could NOT create signed urls and read file for records in '
+      + 'authorized namespace with authorized consent code').to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+  }).retry(2);
 
 
 /*
@@ -842,18 +902,19 @@ Scenario('Test cannot create signed URL for file in authorized namespace with UN
     //     - abc-admin
     //
     // abcHmbResearchFile in `/abc` namespace but also requires `/consents/HMB`
-    console.log('Use mainAcct to create signed URL for file under `/abc` with UNauthorized consent code')
+    console.log('Use mainAcct to create signed URL for file under `/abc` with UNauthorized consent code');
     const signedUrlRes = await fence.do.createSignedUrlForUser(
-      indexed_files.abcHmbResearchFile.did, users.mainAcct.accessTokenHeader);
+      indexed_files.abcHmbResearchFile.did, users.mainAcct.accessTokenHeader,
+    );
 
-    let fileContents = await fence.do.getFileFromSignedUrlRes(
-      signedUrlRes);
+    const fileContents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlRes,
+    );
 
     chai.expect(fileContents,
-      'User WITHOUT access COULD create signed urls and read file for records in ' +
-      'authorized namespace with UNauthorized consent code'
-    ).to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-}).retry(2);
+      'User WITHOUT access COULD create signed urls and read file for records in '
+      + 'authorized namespace with UNauthorized consent code').to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+  }).retry(2);
 
 
 /*
@@ -867,15 +928,16 @@ Scenario('Test create signed URL for file in authorized namespace with IMPLIED a
     //     - hmb-researcher
     //
     // gruResearchFile in `/gen3` namespace but also requires `/consents/HMB`
-    console.log('Use user0 to create signed URL for file under `/gen3` with authorized consent code (multiple policies)')
+    console.log('Use user0 to create signed URL for file under `/gen3` with authorized consent code (multiple policies)');
     const signedUrlRes = await fence.do.createSignedUrlForUser(
-      indexed_files.gruResearchFile.did, users.user0.accessTokenHeader);
+      indexed_files.gruResearchFile.did, users.user0.accessTokenHeader,
+    );
 
-    let fileContents = await fence.do.getFileFromSignedUrlRes(
-      signedUrlRes);
+    const fileContents = await fence.do.getFileFromSignedUrlRes(
+      signedUrlRes,
+    );
 
     chai.expect(fileContents,
-      'User with access could NOT create signed urls and read file for records in ' +
-      'authorized namespace with authorized consent code'
-    ).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-}).retry(2);
+      'User with access could NOT create signed urls and read file for records in '
+      + 'authorized namespace with authorized consent code').to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+  }).retry(2);

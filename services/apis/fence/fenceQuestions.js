@@ -2,7 +2,7 @@ const chai = require('chai');
 
 const { gen3Res } = require('../../../utils/apiUtil');
 
-const expect = chai.expect;
+const { expect } = chai;
 chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 chai.use(gen3Res);
@@ -35,8 +35,7 @@ module.exports = {
    */
   hasAPIKey(apiKeyRes) {
     expect(apiKeyRes,
-      'response does not have a "api_key" field in the body'
-    ).to.have.nested.property('data.api_key');
+      'response does not have a "api_key" field in the body').to.have.nested.property('data.api_key');
   },
 
   /**
@@ -45,8 +44,7 @@ module.exports = {
    */
   hasAccessToken(accessTokenRes) {
     expect(accessTokenRes,
-      'response does not have a "access_token" field in the body'
-    ).has.nested.property('data.access_token');
+      'response does not have a "access_token" field in the body').has.nested.property('data.access_token');
   },
 
   /**
@@ -69,22 +67,20 @@ module.exports = {
    */
   mockedLinkSuccess(linkRes) {
     expect(linkRes,
-      'response after Google linking doesnt have finalURL prop'
-    ).to.have.property('finalURL');
+      'response after Google linking doesnt have finalURL prop').to.have.property('finalURL');
 
     console.log(`when checking mocked Google Linking success, got final URL: ${linkRes.finalURL}`);
-    let linkUrl = ''
+    let linkUrl = '';
     try {
       linkUrl = new URL(linkRes.finalURL);
     } catch (err) {
       chai.assert.fail(`Failed to parse URL: ${linkRes.finalURL}`);
     }
     expect(linkUrl.searchParams.get('linked_email'),
-      'response after Google linking doesnt include linked_email'
-    ).to.not.be.null;
+      'response after Google linking doesnt include linked_email').to.not.be.null;
 
     expect(linkUrl.searchParams.get('exp'),
-      'response after Google linking doesnt include exp'
+      'response after Google linking doesnt include exp',
     ).to.not.be.null; // eslint-disable-line    
   },
 
@@ -113,7 +109,7 @@ module.exports = {
    * @param timeRequest
    * @param {int} expires_in - requested expiration time (in seconds)
    */
-  linkExtendSuccess(extendRes, timeRequest, expires_in=null) {
+  linkExtendSuccess(extendRes, timeRequest, expires_in = null) {
     expect(extendRes).to.have.property('status', 200);
 
     // Check the expiration is within expected range
@@ -159,8 +155,8 @@ module.exports = {
    * Assert that the response has tokens
    * @param {Gen3Response} response
    */
-  assertTokensSuccess(response, msg='') {
-    err = 'Token Response failure. ' + msg;
+  assertTokensSuccess(response, msg = '') {
+    err = `Token Response failure. ${msg}`;
     expect(response, err).to.have.property('status', 200);
     expect(response, err).to.have.nested.property('data.access_token');
     expect(response, err).to.have.nested.property('data.refresh_token');
@@ -174,8 +170,8 @@ module.exports = {
    * @param {int} status HTTP response code
    * @param {string} msg Message to display in case of failure
    */
-  assertStatusCode(response, status, msg='') {
-    err = 'Wrong status code: ' + msg;
+  assertStatusCode(response, status, msg = '') {
+    err = `Wrong status code: ${msg}`;
     expect(response, err).to.have.property('status', status);
   },
 
@@ -212,15 +208,15 @@ module.exports = {
   assertUserInfo(response) {
     expect(
       response,
-      'response from userinfo endpoint does not have property: status'
+      'response from userinfo endpoint does not have property: status',
     ).to.have.property('status', 200);
     expect(
       response,
-      'response from userinfo endpoint does not have property: data.username'
+      'response from userinfo endpoint does not have property: data.username',
     ).to.have.nested.property('data.username');
     expect(
       response,
-      'response from userinfo endpoint does not have property: data.user_id'
+      'response from userinfo endpoint does not have property: data.user_id',
     ).to.have.nested.property('data.user_id');
   },
 
@@ -235,16 +231,16 @@ module.exports = {
     expect(response).to.have.nested.property('data.expires_in');
   },
 
-  assertTruthyResult(result, msg='') {
-    err = `Expected a parameter to be "truthy" but received ${result}: ` + msg;
+  assertTruthyResult(result, msg = '') {
+    err = `Expected a parameter to be "truthy" but received ${result}: ${msg}`;
     expect(!!result, err).to.be.true;
   },
 
   /**
    * Check the google-manage-user-registrations output for invalid project
    */
-  detected_invalid_google_project(jobResponse, reason='') {
-    let errMsg = '"google-manage-user-registrations" should have detected an invalid Google project';
+  detected_invalid_google_project(jobResponse, reason = '') {
+    const errMsg = '"google-manage-user-registrations" should have detected an invalid Google project';
     expect(jobResponse, errMsg).to.contain('INVALID GOOGLE PROJECT');
     expect(jobResponse, errMsg).to.contain(reason);
   },
@@ -252,8 +248,8 @@ module.exports = {
   /**
    * Check the google-manage-user-registrations output for invalid SA
    */
-  detected_invalid_service_account(jobResponse, reason='') {
-    let errMsg = '"google-manage-user-registrations" should have detected an invalid Service Account';
+  detected_invalid_service_account(jobResponse, reason = '') {
+    const errMsg = '"google-manage-user-registrations" should have detected an invalid Service Account';
     expect(jobResponse, errMsg).to.contain('INVALID SERVICE ACCOUNT');
     expect(jobResponse, errMsg).to.contain(reason);
   },

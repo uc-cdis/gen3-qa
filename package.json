@@ -25,6 +25,7 @@
     "eslint": "latest",
     "eslint-config-airbnb": "latest",
     "eslint-plugin-chai-expect": "latest",
+    "eslint-plugin-chai-friendly": "latest",
     "eslint-plugin-codeceptjs": "latest",
     "eslint-plugin-import": "latest",
     "eslint-plugin-jsx-a11y": "latest",
@@ -32,6 +33,7 @@
     "googleapis": "latest",
     "isomorphic-fetch": "latest",
     "jsdom": "latest",
+    "lint-diff": "latest",
     "mocha-junit-reporter": "latest",
     "mocha-multi": "latest",
     "nconf": "latest",
@@ -49,6 +51,7 @@
     "selenium-start": "selenium-standalone start > /dev/null 2>&1 &",
     "selenium-kill": "pkill -f selenium-standalone",
     "eslint": "eslint --ignore-path .gitignore .",
+    "eslintdiff": "lint-diff $TRAVIS_COMMIT_RANGE",
     "test": "codeceptjs run --plugins allure",
     "grep-test": ". local_run.sh && codeceptjs run --verbose --grep",
     "create-service": "node scripts/create_service.js"

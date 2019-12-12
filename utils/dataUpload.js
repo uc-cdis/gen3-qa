@@ -5,6 +5,7 @@
 
 const fs = require('fs');
 const homedir = require('os').homedir();
+
 const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
 const { smartWait } = require('./apiUtil.js');
 const files = require('./file.js');
@@ -21,9 +22,9 @@ module.exports = {
       method: 'PUT',
       url: presignedUrl,
       headers: {
-        'Content-Length': fileSize
-      }
-    }, function (err, res, body) {
+        'Content-Length': fileSize,
+      },
+    }, (err, res, body) => {
       if (err) {
         throw new Error(err);
       }
@@ -37,7 +38,7 @@ module.exports = {
   async uploadFilePartToS3(presignedUrl, data) {
     return I.sendPutRequest(
       presignedUrl,
-      data
+      data,
     ).then((res) => {
       if (!res.headers || !res.headers.etag) {
         console.error(res);
@@ -63,12 +64,12 @@ module.exports = {
       // all the jenkins envs share the same S3 bucket
       //
       const dirName = `${homedir}/s3-cleanup`;
-      if (!fs.existsSync(dirName)){
+      if (!fs.existsSync(dirName)) {
         fs.mkdirSync(dirName);
       }
       await files.createTmpFile(
         `${dirName}/${fileName}`,
-        createdGuids.join("\n")
+        createdGuids.join('\n'),
       );
       console.log(`Created ${fileName} in ${dirName}`);
     }
@@ -81,7 +82,7 @@ module.exports = {
     /**
      * return true if the record has been updated in indexd, false otherwise
      */
-    const isRecordUpdated = async function(indexd, fileNode) {
+    const isRecordUpdated = async function (indexd, fileNode) {
       try {
         // check if indexd was updated with the correct hash and size
         await indexd.complete.checkFile(fileNode);
@@ -92,7 +93,7 @@ module.exports = {
     };
 
     const timeout = 300; // max number of seconds to wait
-    let errorMessage = `The indexd listener did not complete the record after ${timeout} seconds`;
+    const errorMessage = `The indexd listener did not complete the record after ${timeout} seconds`;
 
     await smartWait(isRecordUpdated, [indexd, fileNode], timeout, errorMessage);
   },
