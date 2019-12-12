@@ -12,7 +12,8 @@ services:
     - docker
 
 install:
-    - npm install --force
+    - npm install
 
 script:
+    - echo $TRAVIS_COMMIT_RANGE
     - npm run eslintdiff
