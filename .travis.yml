@@ -15,4 +15,4 @@ install:
     - npm install --force
 
 script:
-    - npm run eslint
+    - npm run eslintdiff
