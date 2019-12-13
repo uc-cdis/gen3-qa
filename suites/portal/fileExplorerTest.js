@@ -75,6 +75,6 @@ Scenario('Get Access button is not displayed when commons does not have url conf
             2. Navigate to Files Explorer page (e.g. https://qa-brain.planx-pla.net/files)
             3. Get Access button is not displayed
         `);
-    expect(result.didPass, result.details).to.be.true;
+    expect(result.didPass, result.details).to.be.true
   },
 ));
