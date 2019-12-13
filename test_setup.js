@@ -51,6 +51,17 @@ function assertEnvVars(varNames) {
 }
 
 /**
+ * Calculate the age of a given service account key based on its 'validAfterTime' parameter
+ * @param {int} number of days since the creation of the key
+ */
+function calculateSAKeyAge(creation_date) {
+    const date1 = new Date(creation_date);
+    const date2 = new Date(); // current date
+    const Difference_In_Time = date2.getTime() - date1.getTime();
+    return Difference_In_Time / (1000 * 3600 * 24); // Difference_In_Days
+}
+
+/**
  * Attempts to create a program and project
  * Throws an error if unable to do so
  * @param {int} nAttempts - number of times to try creating the program/project
@@ -148,6 +159,30 @@ async function setupGoogleProjectDynamic() {
     }
   }
 
+  // clear old keys from the service accounts in the dcf-integration GCP project
+  const dcfSvcAccounts = await google.listServiceAccounts('dcf-integration');
+  // console.log('#### ##: ' + dcfSvcAccounts);
+  dcfSvcAccounts.forEach(async(svcAccount) => {
+      // TODO: Design discussion: Concurrent PR check runs might try to remove the same keys concurrently
+      // Should every jenkins remove its own svc account keys? (jgmel, jblood, jniaid, jdcp, jbrain, etc.)
+      // e.g., jgmel-cdisautotestgmailcom-7@dcf-integration.iam.gserviceaccount.com/keys/66ce8cf794022065bff64a30c56d0f4923c8bdd6
+      // However... there seems to be some jenkins-namespace-agnotistic keys, such as:
+      // dcf-integration-test-0plan-55@dcf-integration.iam.gserviceaccount.com/keys/9ff76de1a6992709130e2a412c90d43f60f3afa3
+      console.log(svcAccount['email']);
+      const saName = svcAccount['email'];
+      const dcfSaKeys = await google.listServiceAccountKeys('dcf-integration', saName);
+      // console.log('#### ##:' + JSON.stringify(dcfSaKeys.keys));
+      if (dcfSaKeys.keys) {
+          dcfSaKeys.keys.forEach(key => {
+              const key_age = calculateSAKeyAge(key['validAfterTime']);
+              if (key_age > 7) { // if the key is older than a week
+                  console.log('the following key is eligible for deletion: ' + key['name']);
+		  console.log('key age: ' + key['validAfterTime']);
+		  console.log('--')
+              }
+          });
+      }
+  });
   // If there are existing keys on the "user service account", delete them
   const saName = `service-account@gen3qa-${namespace}.iam.gserviceaccount.com`;
   const saKeys = await google.listServiceAccountKeys(fenceProps.googleProjectDynamic.id, saName);
