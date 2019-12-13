@@ -165,9 +165,9 @@ async function setupGoogleProjectDynamic() {
   dcfSvcAccounts.forEach(async(svcAccount) => {
       // TODO: Design discussion: Concurrent PR check runs might try to remove the same keys concurrently
       // Should every jenkins remove its own svc account keys? (jgmel, jblood, jniaid, jdcp, jbrain, etc.)
-      // e.g., jgmel-cdisautotestgmailcom-7@dcf-integration.iam.gserviceaccount.com/keys/66ce8cf794022065bff64a30c56d0f4923c8bdd6
+      // e.g., jgmel-****@*****.iam.gserviceaccount.com/keys/***
       // However... there seems to be some jenkins-namespace-agnotistic keys, such as:
-      // dcf-integration-test-0plan-55@dcf-integration.iam.gserviceaccount.com/keys/9ff76de1a6992709130e2a412c90d43f60f3afa3
+      // dcf-integration-test-***@*****.iam.gserviceaccount.com/keys/***
       console.log(svcAccount['email']);
       const saName = svcAccount['email'];
       const dcfSaKeys = await google.listServiceAccountKeys('dcf-integration', saName);
