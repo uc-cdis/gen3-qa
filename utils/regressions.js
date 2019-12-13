@@ -153,8 +153,8 @@ function dictionaryToAdjacencyList(fullDictionary) {
   allNodeTypes = Object.keys(dataDictionary);
 
   const adjacencyList = {};
-  for (let nodeName in dataDictionary) {
-    if (Object.prototype.hasOwnProperty.call(dataDictionary, nodeName)){
+  for (const nodeName in dataDictionary) {
+    if (Object.prototype.hasOwnProperty.call(dataDictionary, nodeName)) {
       const linkArray = dataDictionary[nodeName].links;
       for (let i = 0; i < linkArray.length; i += 1) {
         if (linkArray[i].required) {
