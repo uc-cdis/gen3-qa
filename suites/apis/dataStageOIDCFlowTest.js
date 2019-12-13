@@ -225,6 +225,7 @@ performPreSignedURLTest("AWS S3", "positive", "Google");
 Scenario('Initiate the OIDC Client flow with NIH credentials to obtain the OAuth authorization code @manual', ifInteractive(
     async(I) => {
 	console.log('Click on the logout button so you can log back in with your NIH account.');
+
 	// reset access token
 	delete I.cache.ACCESS_TOKEN;
         const result = await interactive (printOIDCFlowInstructions(I, "NIH"));
