@@ -79,3 +79,14 @@ Scenario('Get Access button is not displayed when commons does not have url conf
     expect(result.didPass, result.details).to.be.true;
   },
 ));
+
+Scenario('Verify labels on the charts in File Explorer page @manual', ifInteractive(
+    async (I) => {
+        const result = await interactive(`
+            1. Log in to Commons_2 (URL not configured in gitops.json as "getAccessButtonLink") as User_22 (user with full access to data)
+            2. Navigate to Files Explorer page (e.g. https://qa-brain.planx-pla.net/files)
+            3. The charts are labeled correctly as "File Type" and "File Format"
+        `);
+        expect(result.didPass, result.details).to.be.true;
+    },
+));
