@@ -173,12 +173,16 @@ async function setupGoogleProjectDynamic() {
       const dcfSaKeys = await google.listServiceAccountKeys('dcf-integration', saName);
       // console.log('#### ##:' + JSON.stringify(dcfSaKeys.keys));
       if (dcfSaKeys.keys) {
-          dcfSaKeys.keys.forEach(key => {
+          dcfSaKeys.keys.forEach(async(key) => {
               const key_age = calculateSAKeyAge(key['validAfterTime']);
               if (key_age > 7) { // if the key is older than a week
                   console.log('the following key is eligible for deletion: ' + key['name']);
 		  console.log('key age: ' + key['validAfterTime']);
 		  console.log('--')
+		  const deletionResult = await google.deleteServiceAccountKey(key['name'] + 'delete_this_to_delete_key_for_realz');
+		  if(deletionResult instanceof Error) {
+		      console.log(`WARN: Failed to delete key [${key.name}] from Google service account [${saName}].`);
+		  }
               }
           });
       }
