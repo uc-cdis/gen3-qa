@@ -179,7 +179,7 @@ async function setupGoogleProjectDynamic() {
                   console.log('the following key is eligible for deletion: ' + key['name']);
 		  console.log('key age: ' + key['validAfterTime']);
 		  console.log('--')
-		  const deletionResult = await google.deleteServiceAccountKey(key['name'] + 'delete_this_to_delete_key_for_realz');
+		  const deletionResult = await google.deleteServiceAccountKey(key['name']);
 		  if(deletionResult instanceof Error) {
 		      console.log(`WARN: Failed to delete key [${key.name}] from Google service account [${saName}].`);
 		  }
