@@ -33,7 +33,7 @@ function createService(serviceName, typeDir, allFiles) {
 
   console.log(`Created template files for ${serviceName} at ${serviceDir}`);
   console.log(
-    "Add your service to the codecept.conf.js file in 'include' to use it.",
+    'Add your service to the codecept.conf.js file in \'include\' to use it.',
   );
 }
 

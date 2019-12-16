@@ -33,14 +33,14 @@ exports.config = {
       timeout: 60000,
       defaultHeaders: {
         common: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
         get: {},
         head: {},
         delete: {},
-        post: {'Content-Type': 'application/json'},
-        patch: {'Content-Type': 'application/json'},
-        put: {'Content-Type': 'application/json'},
+        post: { 'Content-Type': 'application/json' },
+        patch: { 'Content-Type': 'application/json' },
+        put: { 'Content-Type': 'application/json' },
       },
     },
     CDISHelper: {
@@ -79,7 +79,7 @@ exports.config = {
         options: {
           verbose: true,
           steps: true,
-        }
+        },
       },
       'mocha-junit-reporter': {
         stdout: 'output/result[hash].xml',
@@ -87,15 +87,15 @@ exports.config = {
           mochaFile: 'output/result[hash].xml',
           verbose: true,
           steps: true,
-        }
-      }
+        },
+      },
     },
   },
   bootstrap: './test_setup.js',
   hooks: [],
   tests: './suites/**/*.js',
   plugins: {
-    "allure": {}
+    allure: {},
   },
   timeout: 60000,
   name: 'selenium',

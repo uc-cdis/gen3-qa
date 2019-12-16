@@ -1,7 +1,8 @@
 Feature('PresignedUrlAPI');
 
 const chai = require('chai');
-const expect = chai.expect;
+
+const { expect } = chai;
 
 const { Gen3Response } = require('../../utils/apiUtil');
 

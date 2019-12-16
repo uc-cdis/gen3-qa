@@ -50,7 +50,7 @@ class Node {
   getFieldOfType(fieldType) {
     // find a field of specified type in the node's data
     return Object.keys(this.data).find(
-      key => typeof this.data[key] === fieldType, // eslint-disable-line valid-typeof
+      (key) => typeof this.data[key] === fieldType, // eslint-disable-line valid-typeof
     );
   }
 }
@@ -145,7 +145,7 @@ const nodePathToProject = function (startNodeName, allNodes) {
 const getPathWithFileNode = function (allNodes) {
   const allNodesClone = cloneNodes(allNodes);
   const fileNodeName = Object.keys(allNodesClone).find(
-    nodeName => allNodesClone[nodeName].category === 'data_file',
+    (nodeName) => allNodesClone[nodeName].category === 'data_file',
   );
   const file = allNodesClone[fileNodeName].clone();
   delete allNodesClone[fileNodeName];
@@ -159,7 +159,7 @@ const getPathWithFileNode = function (allNodes) {
 let allNodes;
 let pathAndFile;
 
-const localTestDataPresent = (DATA_PATH !== '' && DATA_PATH !== undefined && DATA_PATH !== "''");
+const localTestDataPresent = (DATA_PATH !== '' && DATA_PATH !== undefined && DATA_PATH !== '\'\'');
 
 // Check that the data path is defined and load the nodes
 if (localTestDataPresent) {
@@ -176,7 +176,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       request(url, { json: true }, (err, res, body) => {
         if (err) { return reject(err); }
-        resolve(body);
+        return resolve(body);
       });
     });
   },

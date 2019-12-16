@@ -55,7 +55,7 @@ module.exports = {
       peregrineProps.endpoints.query,
       { query: queryString, variables: variablesString },
       user.mainAcct.accessTokenHeader,
-    ).then(res => res.data);
+    ).then((res) => res.data);
   },
 
   /**

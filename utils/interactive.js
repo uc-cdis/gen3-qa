@@ -1,8 +1,9 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const readline = require("readline");
+
+Object.defineProperty(exports, '__esModule', { value: true });
+const readline = require('readline');
 const chai = require('chai');
-const expect = chai.expect;
+
+const { expect } = chai;
 
 /**
  * Little helper gives the user some instructions to
@@ -14,30 +15,29 @@ const expect = chai.expect;
  * @return Promise<Result>
  */
 function interactive(instructions) {
-    return new Promise((resolve) => {
-        const rl = readline.createInterface({
-            input: process.stdin,
-            output: process.stdout,
-        });
-        rl.question(`\n**** ${instructions}\nDid the test pass Y|n ? `, (didPass) => {
-            console.log(`Read line: ${didPass}`);
-            if (!didPass || didPass === "y" || didPass === "Y") {
-                rl.close();
-                resolve({ didPass: true, details: "" });
-            }
-            else {
-                rl.question("Give a one-line explanation of what went wrong : ", (details) => {
-                    rl.close();
-                    resolve({ didPass: false, details });
-                });
-            }
-        });
+  return new Promise((resolve) => {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
     });
+    rl.question(`\n**** ${instructions}\nDid the test pass Y|n ? `, (didPass) => {
+      console.log(`Read line: ${didPass}`);
+      if (!didPass || didPass === 'y' || didPass === 'Y') {
+        rl.close();
+        resolve({ didPass: true, details: '' });
+      } else {
+        rl.question('Give a one-line explanation of what went wrong : ', (details) => {
+          rl.close();
+          resolve({ didPass: false, details });
+        });
+      }
+    });
+  });
 }
 exports.interactive = interactive;
 
 const lambdaNotInteractive = () => {
-    expect(!!"skipping interactive test").to.be.true;
+  expect(!!'skipping interactive test').to.be.true;
 };
 
 /**
@@ -45,7 +45,7 @@ const lambdaNotInteractive = () => {
  * (process.env[GEN3_INTERACTIVE] === "false")
  */
 function isInteractive() {
-    return process.env.GEN3_INTERACTIVE !== "false";
+  return process.env.GEN3_INTERACTIVE !== 'false';
 }
 exports.isInteractive = isInteractive;
 
@@ -60,9 +60,9 @@ exports.isInteractive = isInteractive;
  */
 // tslint:disable-next-line
 function ifInteractive(lambda) {
-    if (isInteractive()) {
-        return lambda;
-    }
-    return lambdaNotInteractive;
+  if (isInteractive()) {
+    return lambda;
+  }
+  return lambdaNotInteractive;
 }
 exports.ifInteractive = ifInteractive;

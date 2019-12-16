@@ -14,7 +14,7 @@ class NullCommander {
    * @param cmd
    * @returns {*}
    */
-  runCommand(cmd, service=undefined, cleanResult=clean) {
+  runCommand(cmd, service = undefined, cleanResult = clean) {
     throw new Error('NullCommander cannot run backend commands');
   }
 }

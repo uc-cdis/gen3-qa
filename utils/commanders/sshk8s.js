@@ -19,19 +19,18 @@ class SshK8s extends Base {
    * @param cleanResult lambda(string) => string cleans result string
    * @returns {*}
    */
-  runCommand(cmd, service=undefined, cleanResult=null) {
+  runCommand(cmd, service = undefined, cleanResult = null) {
     cleanResult = cleanResult || clean;
     const namespace = process.env.NAMESPACE;
     const commonsUser = userFromNamespace(namespace);
     if (service === undefined) {
       return cleanResult(execSync(`ssh ${commonsUser}@cdistest_dev.csoc 'set -i; source ~/.bashrc; ${cmd}'`,
         { shell: '/bin/bash' }).toString('utf8'));
-    } else {
-      return cleanResult(execSync(
-        `ssh ${commonsUser}@cdistest_dev.csoc 'set -i; source ~/.bashrc; g3kubectl exec $(gen3 pod ${service} ${namespace}) -- ${cmd}'`,
-        { shell: '/bin/sh' }
-      ).toString('utf8'));
     }
+    return cleanResult(execSync(
+      `ssh ${commonsUser}@cdistest_dev.csoc 'set -i; source ~/.bashrc; g3kubectl exec $(gen3 pod ${service} ${namespace}) -- ${cmd}'`,
+      { shell: '/bin/sh' },
+    ).toString('utf8'));
   }
 }
 

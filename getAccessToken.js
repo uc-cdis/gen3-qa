@@ -8,8 +8,8 @@ API_KEY = process.env.API_KEY;
 
 // obtain access token through fence API
 getAccessTokenFromApiKey(API_KEY, TARGET_ENVIRONMENT)
-    .then((ACCESS_TOKEN) => {
-	console.log(ACCESS_TOKEN);
-    }).catch((reason) => {
-	console.log(`Failed: ${reason.status} - ${reason.statusText}`);
-    });
+  .then((ACCESS_TOKEN) => {
+    console.log(ACCESS_TOKEN);
+  }).catch((reason) => {
+    console.log(`Failed: ${reason.status} - ${reason.statusText}`);
+  });

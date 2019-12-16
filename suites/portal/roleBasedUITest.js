@@ -1,8 +1,9 @@
 Feature('RoleBasedUI - https://ctds-planx.atlassian.net/browse/PXP-4252');
 
 const chai = require('chai');
-const {interactive, ifInteractive} = require('../../utils/interactive.js');
-const expect = chai.expect;
+const { interactive, ifInteractive } = require('../../utils/interactive.js');
+
+const { expect } = chai;
 
 Scenario('The following tests require Windmill to have some particular configs set @manual', ifInteractive(
   async (I) => {
@@ -12,7 +13,7 @@ Scenario('The following tests require Windmill to have some particular configs s
         3. Config example here: https://github.com/uc-cdis/cdis-wiki/blob/master/dev/gen3/guides/ui_etl_configuration.md#portal-folder
         `);
     expect(result.didPass, result.details).to.be.true;
-  }
+  },
 ));
 
 Scenario('The query button and data card work for the user with query access @manual', ifInteractive(
@@ -23,7 +24,7 @@ Scenario('The query button and data card work for the user with query access @ma
         3. More details: https://docs.google.com/document/d/1IsUlRwoNLUNtT5I9D2tzmepC3y8vdhjmuLfUh-wumvU/edit?ts=5d72d22b#
         `);
     expect(result.didPass, result.details).to.be.true;
-  }
+  },
 ));
 
 Scenario('The query button and data card are not visible for the user without query access @manual', ifInteractive(
@@ -35,7 +36,7 @@ Scenario('The query button and data card are not visible for the user without qu
         4. More details: https://docs.google.com/document/d/1IsUlRwoNLUNtT5I9D2tzmepC3y8vdhjmuLfUh-wumvU/edit?ts=5d72d22b#
         `);
     expect(result.didPass, result.details).to.be.true;
-  }
+  },
 ));
 
 Scenario('On the projects page, the submit button is only present for projects the user may submit to - otherwise only browse is present @manual', ifInteractive(
@@ -48,7 +49,7 @@ Scenario('On the projects page, the submit button is only present for projects t
         5. More details: https://docs.google.com/document/d/1IsUlRwoNLUNtT5I9D2tzmepC3y8vdhjmuLfUh-wumvU/edit?ts=5d72d22b#
         `);
     expect(result.didPass, result.details).to.be.true;
-  }
+  },
 ));
 
 Scenario('On the all-projects page, the recent submissions table is present if the user has create or update permission on some project @manual', ifInteractive(
@@ -60,7 +61,7 @@ Scenario('On the all-projects page, the recent submissions table is present if t
         4. More details: https://docs.google.com/document/d/1IsUlRwoNLUNtT5I9D2tzmepC3y8vdhjmuLfUh-wumvU/edit?ts=5d72d22b#
         `);
     expect(result.didPass, result.details).to.be.true;
-  }
+  },
 ));
 
 Scenario('On the all-projects page, the recent submissions table is not present if the user has no create or update permission @manual', ifInteractive(
@@ -72,7 +73,7 @@ Scenario('On the all-projects page, the recent submissions table is not present 
         4. More details: https://docs.google.com/document/d/1IsUlRwoNLUNtT5I9D2tzmepC3y8vdhjmuLfUh-wumvU/edit?ts=5d72d22b#
         `);
     expect(result.didPass, result.details).to.be.true;
-  }
+  },
 ));
 
 Scenario('On a project page - the submission tools are present if the user has submit permission @manual', ifInteractive(
@@ -84,7 +85,7 @@ Scenario('On a project page - the submission tools are present if the user has s
         4. More details: https://docs.google.com/document/d/1IsUlRwoNLUNtT5I9D2tzmepC3y8vdhjmuLfUh-wumvU/edit?ts=5d72d22b#
         `);
     expect(result.didPass, result.details).to.be.true;
-  }
+  },
 ));
 
 Scenario('On a project page - the submission tools are not present if the user does not have submit permission @manual', ifInteractive(
@@ -96,7 +97,7 @@ Scenario('On a project page - the submission tools are not present if the user d
         4. More details: https://docs.google.com/document/d/1IsUlRwoNLUNtT5I9D2tzmepC3y8vdhjmuLfUh-wumvU/edit?ts=5d72d22b#
         `);
     expect(result.didPass, result.details).to.be.true;
-  }
+  },
 ));
 
 Scenario('On the node browser - delete buttons are present if the user has delete permission on the project @manual', ifInteractive(
@@ -108,7 +109,7 @@ Scenario('On the node browser - delete buttons are present if the user has delet
         4. More details: https://docs.google.com/document/d/1IsUlRwoNLUNtT5I9D2tzmepC3y8vdhjmuLfUh-wumvU/edit?ts=5d72d22b#
         `);
     expect(result.didPass, result.details).to.be.true;
-  }
+  },
 ));
 
 Scenario('On the node browser - delete buttons are not present if the user does not have delete permission on the project @manual', ifInteractive(
@@ -120,7 +121,7 @@ Scenario('On the node browser - delete buttons are not present if the user does 
         4. More details: https://docs.google.com/document/d/1IsUlRwoNLUNtT5I9D2tzmepC3y8vdhjmuLfUh-wumvU/edit?ts=5d72d22b#
         `);
     expect(result.didPass, result.details).to.be.true;
-  }
+  },
 ));
 
 Scenario('The workspace button is present if the user has access @manual', ifInteractive(
@@ -131,7 +132,7 @@ Scenario('The workspace button is present if the user has access @manual', ifInt
         3. More details: https://docs.google.com/document/d/1IsUlRwoNLUNtT5I9D2tzmepC3y8vdhjmuLfUh-wumvU/edit?ts=5d72d22b#
         `);
     expect(result.didPass, result.details).to.be.true;
-  }
+  },
 ));
 
 Scenario('The workspace button is not present if the user does not have access @manual', ifInteractive(
@@ -142,7 +143,7 @@ Scenario('The workspace button is not present if the user does not have access @
         3. More details: https://docs.google.com/document/d/1IsUlRwoNLUNtT5I9D2tzmepC3y8vdhjmuLfUh-wumvU/edit?ts=5d72d22b#
         `);
     expect(result.didPass, result.details).to.be.true;
-  }
+  },
 ));
 
 Scenario('The file page download button is present if the user has read-storage permission on the file @manual', ifInteractive(
@@ -153,7 +154,7 @@ Scenario('The file page download button is present if the user has read-storage 
         3. Verify that the download button is present
         `);
     expect(result.didPass, result.details).to.be.true;
-  }
+  },
 ));
 
 Scenario('The file page download button is not present if the user does not have read-storage permission on the file @manual', ifInteractive(
@@ -164,5 +165,5 @@ Scenario('The file page download button is not present if the user does not have
         3. Verify that the download button is not present
         `);
     expect(result.didPass, result.details).to.be.true;
-  }
+  },
 ));

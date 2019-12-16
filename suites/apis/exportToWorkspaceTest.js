@@ -21,4 +21,3 @@ Scenario('Export default manifest and check if it exists in manifestservice endp
   // Verify user2 cannot see the manifest created by user1
   manifestService.ask.doesNotHaveManifestVisible(getRes, manifestFilename);
 });
-

@@ -78,7 +78,7 @@ module.exports = {
     const portalApp = bash.runCommand(cmd);
     const portalConfigURL = `https://${process.env.HOSTNAME}/data/config/${portalApp}.json`;
     return I.sendGetRequest(portalConfigURL)
-      .then(res => res.data[field]);
+      .then((res) => res.data[field]);
   },
 
   async isPortalUsingGuppy() {
