@@ -8,13 +8,37 @@ const nconf = require('nconf');
 const homedir = require('os').homedir();
 
 const { Commons } = require('./utils/commons');
-const { Bash, takeLastLine } = require('./utils/bash');
+const { Bash } = require('./utils/bash');
 const google = require('./utils/google.js');
 const fenceProps = require('./services/apis/fence/fenceProps');
+
 const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
 const bash = new Bash();
 
-'use strict';
+'use strict'; // eslint-disable-line no-unused-expressions
+
+/**
+ * Returns the list of tags that were passed in as arguments, including
+ * "--invert" if it was passed in
+ * Note: this function does not handle complex grep/invert combinations
+ */
+function parseTestTags() {
+  let tags = [];
+  let args = process.argv; // process.env.npm_package_scripts_test.split(' '); // all args
+  args = args.map((item) => item.replace(/(^"|"$)/g, '')); // remove quotes
+  if (args.includes('--grep')) {
+    // get tags and whether the grep is inverted
+    args.forEach((item) => {
+      if (item.startsWith('@')) {
+        // e.g. "@reqGoogle|@Performance"
+        tags = tags.concat(item.split('|'));
+      } else if (item === '--invert') {
+        tags.push(item);
+      }
+    });
+  }
+  return tags;
+}
 
 // get the tags passed in as arguments
 const testTags = parseTestTags();
@@ -51,17 +75,6 @@ function assertEnvVars(varNames) {
 }
 
 /**
- * Calculate the age of a given service account key based on its 'validAfterTime' parameter
- * @param {int} number of days since the creation of the key
- */
-function calculateSAKeyAge(creation_date) {
-    const date1 = new Date(creation_date);
-    const date2 = new Date(); // current date
-    const Difference_In_Time = date2.getTime() - date1.getTime();
-    return Difference_In_Time / (1000 * 3600 * 24); // Difference_In_Days
-}
-
-/**
  * Attempts to create a program and project
  * Throws an error if unable to do so
  * @param {int} nAttempts - number of times to try creating the program/project
@@ -69,7 +82,7 @@ function calculateSAKeyAge(creation_date) {
  */
 async function tryCreateProgramProject(nAttempts) {
   let success = false;
-  for (let i=0; i < nAttempts; ++i) {
+  for (let i = 0; i < nAttempts; i += 1) {
     if (success === true) {
       break;
     }
@@ -95,8 +108,8 @@ function createGoogleTestBuckets() {
   try {
     console.log('Ensure test buckets are linked to projects in this commons...');
 
-    let bucketId = fenceProps.googleBucketInfo.QA.bucketId;
-    let googleProjectId = fenceProps.googleBucketInfo.QA.googleProjectId;
+    let { bucketId } = fenceProps.googleBucketInfo.QA;
+    let { googleProjectId } = fenceProps.googleBucketInfo.QA;
     let projectAuthId = 'QA';
     let fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
     console.log(`Running: ${fenceCmd}`);
@@ -107,9 +120,10 @@ function createGoogleTestBuckets() {
     projectAuthId = 'test';
     fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
     console.log(`Running: ${fenceCmd}`);
-    response = bash.runCommand(fenceCmd, 'fence');
+    const response = bash.runCommand(fenceCmd, 'fence');
 
     console.log('Clean up Google Bucket Access Groups from previous runs...');
+    console.log(`response: ${response}`);
     bash.runJob('google-verify-bucket-access-group');
   } catch (e) {
     if (inJenkins) {
@@ -121,16 +135,18 @@ function createGoogleTestBuckets() {
 
 async function setupGoogleProjectDynamic() {
   // Update the id and SA email depending on the current namespace
-  if (process.env.RUNNING_LOCAL) { // local run
-    namespace = 'validationjobtest';
-  } else { // jenkins run. a google project exists for each jenkins env
-    namespace = process.env.NAMESPACE;
+  let namespace = process.env.NAMESPACE; // jenkins run
+  if (process.env.RUNNING_LOCAL) {
+    namespace = 'validationjobtest'; // local run
   }
-  fenceProps.googleProjectDynamic.id = fenceProps.googleProjectDynamic.id.replace(
+  // a google project exists for each jenkins env
+  const gProjectId = fenceProps.googleProjectDynamic.id;
+  fenceProps.googleProjectDynamic.id = gProjectId.replace(
     'NAMESPACE',
     namespace,
   );
-  fenceProps.googleProjectDynamic.serviceAccountEmail = fenceProps.googleProjectDynamic.serviceAccountEmail.replace(
+  const gProjectSvcAccountEmail = fenceProps.googleProjectDynamic.serviceAccountEmail;
+  fenceProps.googleProjectDynamic.serviceAccountEmail = gProjectSvcAccountEmail.replace(
     'NAMESPACE',
     namespace,
   );
@@ -141,7 +157,7 @@ async function setupGoogleProjectDynamic() {
     'roles/resourcemanager.projectIamAdmin',
     'roles/editor',
   ];
-  for (let role of monitorRoles) {
+  for (const role of monitorRoles) {
     const res = await google.updateUserRole(
       fenceProps.googleProjectDynamic.id,
       {
@@ -155,38 +171,10 @@ async function setupGoogleProjectDynamic() {
       if (inJenkins) {
         throw Error(msg);
       }
-      console.log(`WARNING: ${  msg}`);
+      console.log(`WARNING: ${msg}`);
     }
   }
 
-  // clear old keys from the service accounts in the dcf-integration GCP project
-  const dcfSvcAccounts = await google.listServiceAccounts('dcf-integration');
-  // console.log('#### ##: ' + dcfSvcAccounts);
-  dcfSvcAccounts.forEach(async(svcAccount) => {
-      // TODO: Design discussion: Concurrent PR check runs might try to remove the same keys concurrently
-      // Should every jenkins remove its own svc account keys? (jgmel, jblood, jniaid, jdcp, jbrain, etc.)
-      // e.g., jgmel-****@*****.iam.gserviceaccount.com/keys/***
-      // However... there seems to be some jenkins-namespace-agnotistic keys, such as:
-      // dcf-integration-test-***@*****.iam.gserviceaccount.com/keys/***
-      console.log(svcAccount['email']);
-      const saName = svcAccount['email'];
-      const dcfSaKeys = await google.listServiceAccountKeys('dcf-integration', saName);
-      // console.log('#### ##:' + JSON.stringify(dcfSaKeys.keys));
-      if (dcfSaKeys.keys) {
-          dcfSaKeys.keys.forEach(async(key) => {
-              const key_age = calculateSAKeyAge(key['validAfterTime']);
-              if (key_age > 7) { // if the key is older than a week
-                  console.log('the following key is eligible for deletion: ' + key['name']);
-		  console.log('key age: ' + key['validAfterTime']);
-		  console.log('--')
-		  const deletionResult = await google.deleteServiceAccountKey(key['name']);
-		  if(deletionResult instanceof Error) {
-		      console.log(`WARN: Failed to delete key [${key.name}] from Google service account [${saName}].`);
-		  }
-              }
-          });
-      }
-  });
   // If there are existing keys on the "user service account", delete them
   const saName = `service-account@gen3qa-${namespace}.iam.gserviceaccount.com`;
   const saKeys = await google.listServiceAccountKeys(fenceProps.googleProjectDynamic.id, saName);
@@ -195,32 +183,10 @@ async function setupGoogleProjectDynamic() {
     console.log(`WARNING: cannot get list of keys on service account ${saName}.`);
   } else {
     saKeys.keys.map(async (key) => {
-      res = await google.deleteServiceAccountKey(key.name);
+      const res = await google.deleteServiceAccountKey(key.name);
+      console.log(`result: ${res}`);
     });
   }
-}
-
-/**
- * Returns the list of tags that were passed in as arguments, including
- * "--invert" if it was passed in
- * Note: this function does not handle complex grep/invert combinations
- */
-function parseTestTags() {
-  let tags = [];
-  let args = process.argv; //process.env.npm_package_scripts_test.split(' '); // all args
-  args = args.map(item => item.replace(/(^"|"$)/g, '')); // remove quotes
-  if (args.includes('--grep')) {
-    // get tags and whether the grep is inverted
-    args.map((item) => {
-      if (item.startsWith('@')) {
-        // e.g. "@reqGoogle|@Performance"
-        tags = tags.concat(item.split('|'));
-      } else if (item === '--invert') {
-        tags.push(item);
-      }
-    });
-  }
-  return tags;
 }
 
 /**
@@ -238,7 +204,7 @@ module.exports = async function (done) {
     console.log('Setting environment variables...\n');
     // annoying flag used by fenceProps ...
     if (isIncluded('@centralizedAuth')) {
-      process.env['ARBORIST_CLIENT_POLICIES'] = 'true';
+      process.env.ARBORIST_CLIENT_POLICIES = 'true';
     }
 
     // Create configuration values based on hierarchy then export them to the process
@@ -273,7 +239,7 @@ module.exports = async function (done) {
     // may want to skip this if only running
     // DCFS tests or interactive tests ...
     //
-    if (process.env["GEN3_SKIP_PROJ_SETUP"] !== "true") {
+    if (process.env.GEN3_SKIP_PROJ_SETUP !== 'true') {
       // Create a program and project (does nothing if already exists)
       console.log('Creating program/project\n');
       await tryCreateProgramProject(3);

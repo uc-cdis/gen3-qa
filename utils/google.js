@@ -6,7 +6,6 @@
 const atob = require('atob');
 const chai = require('chai');
 
-const expect = chai.expect;
 const { google } = require('googleapis');
 const { Storage } = require('@google-cloud/storage');
 
@@ -181,7 +180,7 @@ module.exports = {
   },
 
   async updateUserRole(projectID, { role, members }) {
-    return googleApp.authorize(googleApp.cloudManagerConfig, authClient => googleApp.getIAMPolicy(projectID, authClient)
+      return googleApp.authorize(googleApp.cloudManagerConfig, authClient) => googleApp.getIAMPolicy(projectID, authClient)
       .then((iamPolicy) => {
         // update the policy
         iamPolicy.bindings.push({ role, members });
@@ -235,7 +234,8 @@ module.exports = {
       .catch((err) => {
         console.log(err);
         return err;
-      }) );
+      })
+    );
   },
 
   /**
@@ -243,28 +243,31 @@ module.exports = {
    * @returns {Object[]} a list of service accounts
    */
   async listServiceAccounts(projectID) {
-    return new Promise(resolve => googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
-      const cloudResourceManager = google.iam('v1');
-      const request = {
+    return new Promise((resolve, reject) => googleApp.authorize(googleApp.cloudManagerConfig,
+      (authClient) => { // callback function from authorize
+        const cloudResourceManager = google.iam('v1');
+        const request = {
           name: `projects/${projectID}`,
-        auth: authClient,
-      };
-      cloudResourceManager.projects.serviceAccounts.list(request, (err, res) => {
-        if (err) {
-          if (err instanceof Error) {
-            resolve(err);
-          } else {
-            resolve(Error(err));
+          auth: authClient,
+        };
+        cloudResourceManager.projects.serviceAccounts.list(request, (err, res) => {
+          if (err) {
+            if (err instanceof Error) {
+              reject(err);
+            } else {
+              reject(Error(err));
+            }
+            return;
           }
-          return;
-        }
-        if (res && res.data) {
-          resolve(res.data['accounts']);
-        } else {
-          resolve(Error(`Unexpected get service account result: ${JSON.stringify(res)}`));
-        }
-      });
-    }));
+          if (res && res.data) {
+            resolve(res.data['accounts']);
+          } else {
+            // Resolving promise with a WARN as this is a non-blocking result
+            resolve(Error(`WARN: Unexpected get service account result: ${JSON.stringify(res)}`));
+          }
+        });
+      }
+    ));
   },
 
   /**
