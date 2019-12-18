@@ -32,7 +32,7 @@ BeforeSuite(async (google, fence, users) => {
         if (keyAge > 7) { // if the key is older than a week
           console.log(`the following key is eligible for deletion: ${key.name}`);
           console.log(`key age: ${key.validAfterTime}`);
-          const deletionResult = await google.deleteServiceAccountKey(key.name + '_test');
+          const deletionResult = await google.deleteServiceAccountKey(key.name);
           if (deletionResult instanceof Error) {
             console.log(`WARN: Failed to delete key [${key.name}_test] from Google service account [${saName}].`);
           }
