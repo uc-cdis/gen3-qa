@@ -20,16 +20,16 @@ const fenceProps = require('../../services/apis/fence/fenceProps.js');
 const { interactive, ifInteractive } = require('../../utils/interactive.js');
 const { Gen3Response, getAccessTokenHeader, requestUserInput } = require('../../utils/apiUtil');
 
-const { expect } = chai;
+const { expect } = chai.expect; // eslint-disable-line no-redeclare
 
 // Test elaborated for DataSTAGE but it can be reused in other projects
 const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'internalstaging.datastage.io';
 
-function printOIDCFlowInstructions(I, account_type) {
+function printOIDCFlowInstructions(I, accountType) {
   return `
             1. Using the "client id" provided, paste the following URL into the browser (replacing the CLIENT_ID placeholder accordingly):
-                 https://${TARGET_ENVIRONMENT}/user/oauth2/authorize?redirect_uri=https://${TARGET_ENVIRONMENT}/user&client_id=\$\{CLIENT_ID\}&scope=openid+user+data+google_credentials&response_type=code&nonce=test-nonce-${I.cache.NONCE}
-            2. Make sure you are logged in with your ${account_type} Account.
+                 https://${TARGET_ENVIRONMENT}/user/oauth2/authorize?redirect_uri=https://${TARGET_ENVIRONMENT}/user&client_id=<CLIENT_ID>&scope=openid+user+data+google_credentials&response_type=code&nonce=test-nonce-${I.cache.NONCE}
+            2. Make sure you are logged in with your ${accountType} Account.
             3. On the Consent page click on the "Yes, I authorize" button.
             4. Once the user is redirected to a new page, copy the value of the "code" parameter that shows up in the URL (this code is valid for 60 seconds).
             5. Run the following curl command with basic authentication (replacing the CODE + CLIENT_ID and CLIENT_SECRET placeholders accordingly) to obtain 3 pieces of data:
@@ -37,38 +37,38 @@ function printOIDCFlowInstructions(I, account_type) {
                b. ID Token
                c. Refresh token
 --
-            % curl --user "\$\{CLIENT_ID\}:\$\{CLIENT_SECRET\}" -X POST "https://${TARGET_ENVIRONMENT}/user/oauth2/token?grant_type=authorization_code&code=\$\{CODE\}&redirect_uri=https://${TARGET_ENVIRONMENT}/user"
+            % curl --user "<CLIENT_ID>:<CLIENT_SECRET>" -X POST "https://${TARGET_ENVIRONMENT}/user/oauth2/token?grant_type=authorization_code&code=<CODE>&redirect_uri=https://${TARGET_ENVIRONMENT}/user"
             `;
+}
+
+// Decode JWT token and find the Nonce value
+function findNonce(idToken) {
+  const data = idToken.split('.'); // [0] headers, [1] payload, [2] whatever
+  const payload = data[1];
+  const padding = '='.repeat((4 - payload.length) % 4);
+  const decodedData = Buffer.from((payload + padding), 'base64').toString();
+  // If the decoded data doesn't contain a nonce, that means the refresh token has expired
+  const nonceStr = JSON.parse(decodedData).nonce; // output: test-nounce-<number>
+  if (nonceStr === undefined) {
+    return 'Could not find nonce. Make sure your id_token is not expired.';
+  }
+  return parseInt(nonceStr.split('-')[2], 10);
 }
 
 function runVerifyNonceScenario() {
   Scenario('Verify if the "ID Token" produced in the previous scenario has the correct nonce value @manual', ifInteractive(
     async (I) => {
-	    const id_token = await requestUserInput('Please paste in your ID Token to verify the nonce: ');
+      const idToken = await requestUserInput('Please paste in your ID Token to verify the nonce: ');
       const result = await interactive(`
             1. [Automated] Compare nonces:
                This is the nonce from the previous scenario: ${I.cache.NONCE}
-               And this is the nonce obtained after decoding your ID Token: ${findNonce(id_token)}
-               Result: ${I.cache.NONCE == findNonce(id_token)}
+               And this is the nonce obtained after decoding your ID Token: ${findNonce(idToken)}
+               Result: ${I.cache.NONCE === findNonce(idToken)}
             2. Confirm if the numbers match.
-            `);
+      `);
       expect(result.didPass, result.details).to.be.true;
     },
   ));
-}
-
-// Decode JWT token and find the Nonce value
-function findNonce(id_token) {
-  data = id_token.split('.'); // [0] headers, [1] payload, [2] whatever
-  payload = data[1];
-  padding = '='.repeat(4 - payload.length % 4);
-  decoded_data = Buffer.from((payload + padding), 'base64').toString();
-  // If the decoded data doesn't contain a nonce, that means the refresh token has expired
-  nonce_str = JSON.parse(decoded_data).nonce; // output: test-nounce-<number>
-  if (nonce_str == undefined) {
-    return 'Could not find nonce. Make sure your id_token is not expired.';
-  }
-  return parseInt(nonce_str.split('-')[2]);
 }
 
 function assembleCustomHeaders(ACCESS_TOKEN) {
@@ -82,112 +82,110 @@ function assembleCustomHeaders(ACCESS_TOKEN) {
 
 function fetchDIDLists(I) {
   // Only assemble the didList if the list hasn't been initialized
-  return new Promise(async (resolve) => {
+  return new Promise((resolve) => {
     if (!I.didList) {
-	    const http_resp = await I.sendGetRequest(
+      const httpResp = I.sendGetRequest(
         `https://${TARGET_ENVIRONMENT}/user/user`,
         { Authorization: `bearer ${I.cache.ACCESS_TOKEN}` },
-	    ).then((res) => new Gen3Response(res));
+      ).then((res) => new Gen3Response(res));
 
-	    project_access_list = http_resp.body.project_access;
+      const projectAccessList = httpResp.body.project_access;
 
-	    // initialize dict of accessible DIDs
-	    _200files = {};
-	    // initialize dict of blocked DIDs
-	    _401files = {};
+      // initialize dict of accessible DIDs
+      let ok200files = {}; // eslint-disable-line prefer-const
+      // initialize dict of blocked DIDs
+      let unauthorized401files = {}; // eslint-disable-line prefer-const
 
-	    // adding record DIDs to their corresponding ACL key
-	    // ( I.cache.records is created in BeforeSuite() )
-	    I.cache.records.forEach((record) => {
+      // adding record DIDs to their corresponding ACL key
+      // ( I.cache.records is created in BeforeSuite() )
+      I.cache.records.forEach((record) => {
         // console.log('ACLs for ' + record['did'] + ' - ' + record['acl']);
         // Filtering accessible DIDs by checking if the record acl is in the project access list
-        const accessible_did = record.acl.filter((acl) => project_access_list.hasOwnProperty(acl));
+        const accessibleDid = record.acl.filter(
+          (acl) => projectAccessList.hasOwnProperty(acl) || record.acl === '*', // eslint-disable-line no-prototype-builtins
+        );
 
         // Put DIDs urls and md5 hash into their respective lists (200 or 401)
-        const _files = accessible_did.length > 0 ? _200files : _401files;
-        _files[record.did] = { urls: record.urls, md5: record.md5 };
-	    });
+        const theFiles = accessibleDid.length > 0 ? ok200files : unauthorized401files;
+        theFiles[record.did] = { urls: record.urls, md5: record.md5 };
+      });
 
-      //	    console.log('http 200 files: ' + JSON.stringify(_200files));
-      //	    console.log('http 401 files: ' + JSON.stringify(_401files));
+      console.log(`http 200 files: ${JSON.stringify(ok200files)}`);
+      console.log(`http 401 files: ${JSON.stringify(unauthorized401files)}`);
 
-	    I.didList = {};
-	    I.didList.accessGrantedFiles = _200files;
-	    I.didList.accessDeniedFiles = _401files;
+      I.didList = {};
+      I.didList.accessGrantedFiles = ok200files;
+      I.didList.accessDeniedFiles = unauthorized401files;
     }
     resolve({
-	    _200files: I.didList.accessGrantedFiles,
-	    _401files: I.didList.accessDeniedFiles,
+      ok200files: I.didList.accessGrantedFiles,
+      unauthorized401files: I.didList.accessDeniedFiles,
     });
   });
 }
 
-function performPreSignedURLTest(cloud_provider, type_of_test, type_of_creds) {
-  Scenario(`Perform ${cloud_provider} PreSigned URL ${type_of_test} test against DID with ${type_of_creds} credentials @manual`, ifInteractive(
+function performPreSignedURLTest(cloudProvider, typeOfTest, typeOfCreds) {
+  Scenario(`Perform ${cloudProvider} PreSigned URL ${typeOfTest} test against DID with ${typeOfCreds} credentials @manual`, ifInteractive(
     async (I, fence) => {
-	    if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
-	    // Obtain project access list to determine which files(DIDs) the user can access
-	    // two lists: http 200 files and http 401 files
-	    const { _200files, _401files } = await fetchDIDLists(I);
+      if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
+      // Obtain project access list to determine which files(DIDs) the user can access
+      // two lists: http 200 files and http 401 files
+      const { ok200files, unauthorized401files } = await fetchDIDLists(I);
 
-	    // positive: _200files | negative: _401files
-	    const list_of_DIDs = type_of_test == 'positive' ? _200files : _401files;
-	    // AWS: s3:// | Google: gs://
-	    const preSignedURL_prefix = cloud_provider == 'AWS S3' ? 's3://' : 'gs://';
+      // positive: _200files | negative: _401files
+      const listOfDIDs = typeOfTest === 'positive' ? ok200files : unauthorized401files;
+      // AWS: s3:// | Google: gs://
+      const preSignedURLPrefix = cloudProvider === 'AWS S3' ? 's3://' : 'gs://';
 
-	    console.log(`list_of_DIDs: ${JSON.stringify(list_of_DIDs)}`);
+      console.log(`list_of_DIDs: ${JSON.stringify(listOfDIDs)}`);
 
-	    const filteredDIDs = Object.keys(list_of_DIDs).reduce((filtered, key) => {
-        list_of_DIDs[key].urls.forEach((url) => {
-		    if (url.startsWith(preSignedURL_prefix)) filtered[key] = list_of_DIDs[key];
+      const filteredDIDs = Object.keys(listOfDIDs).reduce((filtered, key) => {
+        listOfDIDs[key].urls.forEach((url) => {
+          if (url.startsWith(preSignedURLPrefix)) filtered[key] = listOfDIDs[key];
         });
         return filtered;
-	    }, {});
+      }, {});
 
-	    // Must have at least one sample to conduct this test
-	    const selected_did = Object.keys(filteredDIDs)[0];
-	    // PreSignedURL request
-	    const signedUrlRes = await fence.do.createSignedUrl(
-        `${selected_did}`,
+      // Must have at least one sample to conduct this test
+      const selectedDid = Object.keys(filteredDIDs)[0];
+      // PreSignedURL request
+      const signedUrlRes = await fence.do.createSignedUrl(
+        `${selectedDid}`,
         [],
         assembleCustomHeaders(I.cache.ACCESS_TOKEN),
-	    );
+      );
 
-	    // TODO: Run `wget` with PreSignedURL and check if md5 matches the record['md5']
+      // TODO: Run `wget` with PreSignedURL and check if md5 matches the record['md5']
 
-	    const verification_message = type_of_test == 'positive' ? `
+      const verificationMessage = typeOfTest === 'positive' ? `
                 a. The HTTP response code is Ok/200.
                 b. The response contain valid URLs to the files stored in AWS S3 or GCP Buckets.` : `
-	        a. The HTTP response code is 401.
+                a. The HTTP response code is 401.
                 b. The response contains a Fence error message.`;
 
-	    const result = await interactive(`
-              1. [Automated] Selected DID [${selected_did}] to perform a ${type_of_test} ${cloud_provider} PreSigned URL test with ${type_of_creds} credentials.
+      const result = await interactive(`
+              1. [Automated] Selected DID [${selectedDid}] to perform a ${typeOfTest} ${cloudProvider} PreSigned URL test with ${typeOfCreds} credentials.
               2. [Automated] Executed an HTTP GET request (using the ACCESS_TOKEN provided).
-              3. Verify if:${verification_message}
-
+              3. Verify if:${verificationMessage}
               Manual verification:
                 HTTP Code: ${signedUrlRes.status}
                 RESPONSE: ${JSON.stringify(signedUrlRes.body) || signedUrlRes.parsedFenceError}
-            `);
-	    expect(result.didPass, result.details).to.be.true;
+      `);
+      expect(result.didPass, result.details).to.be.true;
     },
   ));
 }
 
 BeforeSuite(async (I) => {
   console.log('Setting up dependencies...');
-  // making this data accessible in all scenarios through the actor's memory (the "I" object)
   I.cache = {};
-  // random number to be used in one occasion (it must be unique for every iteration)
-  I.cache.NONCE = Date.now();
-
+  I.TARGET_ENVIRONMENT = TARGET_ENVIRONMENT;
   // Fetching public list of DIDs
-  const http_resp = await I.sendGetRequest(
+  const httpResp = await I.sendGetRequest(
     `https://${TARGET_ENVIRONMENT}/index/index`,
   ).then((res) => new Gen3Response(res));
 
-  I.cache.records = http_resp.body.records;
+  I.cache.records = httpResp.body.records;
 });
 
 /* ############################### */
@@ -238,14 +236,14 @@ Scenario('Initiate the OIDC Client flow with NIH credentials to obtain the OAuth
 // Scenario #8 - Verify Nonce again
 runVerifyNonceScenario();
 
-// Scenario #9 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
+// Scenario #9 - Controlled Access Data - Google PreSignedURL test against DID the user cant access
 performPreSignedURLTest('Google Storage', 'negative', 'NIH');
 
 // Scenario #10 - Controlled Access Data - Google PreSignedURL test against DID the user can access
 // TODO: internalstaging.datastage is missing a sample file for this scenario
 performPreSignedURLTest('Google Storage', 'positive', 'NIH');
 
-// Scenario #11 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
+// Scenario #11 - Controlled Access Data - Google PreSignedURL test against DID the user cant access
 performPreSignedURLTest('AWS S3', 'negative', 'NIH');
 
 // Scenario #12 - Controlled Access Data - Google PreSignedURL test against DID the user can access
@@ -253,7 +251,7 @@ performPreSignedURLTest('AWS S3', 'positive', 'NIH');
 
 // Scenario #13 - Temporary Service Account Credentials as User
 Scenario('Try to get Google Credentials as a regular user @manual', ifInteractive(
-  async (I, fence) => {
+  async () => {
     const result = await interactive(`
             1. Copy and paste the following URL into the browser:
                  https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.googleCredentials}
@@ -263,18 +261,21 @@ Scenario('Try to get Google Credentials as a regular user @manual', ifInteractiv
   },
 ));
 
-// Scenario #14 - Temporary Service Account Credentials as a client (with an access token generated through the OIDC flow)
+// Scenario #14 - Temporary Service Account Credentials as a client
+// (with an access token generated through the OIDC flow)
 Scenario('Try to get Google Credentials as a client @manual', ifInteractive(
   async (I, fence) => {
     if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
-    const http_resp = await fence.do.createTempGoogleCreds(getAccessTokenHeader(I.cache.ACCESS_TOKEN));
+    const httpResp = await fence.do.createTempGoogleCreds(
+      getAccessTokenHeader(I.cache.ACCESS_TOKEN),
+    );
 
     const result = await interactive(`
             1. [Automated] Send a HTTP POST request with the NIH user's ACCESS TOKEN to register a service account:
               HTTP POST request to: https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.googleCredentials}
             Manual verification:
-              Response status: ${http_resp.status} // Expect a HTTP 200
-              Response data: ${JSON.stringify(http_resp.body) || http_resp.parsedFenceError}
+              Response status: ${httpResp.status} // Expect a HTTP 200
+              Response data: ${JSON.stringify(httpResp.body) || httpResp.parsedFenceError}
                 // Expect a JSON payload containing client information (id, email, etc.) and a private key
             `);
     expect(result.didPass, result.details).to.be.true;
@@ -283,7 +284,7 @@ Scenario('Try to get Google Credentials as a client @manual', ifInteractive(
 
 // Scenario #15 - Run GraphQL Query against Peregrine (Graph Model)
 Scenario('Test a GraphQL query from the Web GUI @manual', ifInteractive(
-  async (I, fence) => {
+  async () => {
     const result = await interactive(`
             1. Login with NIH credentials
             2. Click "Query" tab
@@ -318,30 +319,30 @@ Scenario('Test a GraphQL query from the Web GUI @manual', ifInteractive(
 Scenario('Initiate the Implicit OIDC Client flow with Google credentials to obtain the OAuth authorization code @manual', ifInteractive(
   async (I) => {
     console.log(`1. Using the "Implicit id" provided, paste the following URL into the browser (replacing the CLIENT_ID placeholder accordingly):
-               https://${TARGET_ENVIRONMENT}/user/oauth2/authorize?redirect_uri=https://${TARGET_ENVIRONMENT}/user&client_id=\$\{IMPLICIT_ID\}&scope=openid+user+data+google_credentials&response_type=id_token+token&nonce=test-nonce-${I.cache.NONCE}
+               https://${TARGET_ENVIRONMENT}/user/oauth2/authorize?redirect_uri=https://${TARGET_ENVIRONMENT}/user&client_id=<IMPLICIT_ID>&scope=openid+user+data+google_credentials&response_type=id_token+token&nonce=test-nonce-${I.cache.NONCE}
 
               NOTE: you may get a 401 error invalid_request: Replay attack failed to authorize (this has to do with the nonce provided, it should be unique per request so if someone else tried with it, you may see this error. Simply change the nonce to something else.)
              // Expect a redirect with an URL containing the "id_token"`);
 
-    const id_token = await requestUserInput('Please paste in your ID Token to verify the nonce: ');
+    const idToken = await requestUserInput('Please paste in your ID Token to verify the nonce: ');
 
     const result = await interactive(`
             2. [Automated] Compare nonces:
                This is the nonce from the previous step: ${I.cache.NONCE}
-               And this is the nonce obtained after decoding your ID Token: ${findNonce(id_token)}
-               Result: ${I.cache.NONCE == findNonce(id_token)}
+               And this is the nonce obtained after decoding your ID Token: ${findNonce(idToken)}
+               Result: ${I.cache.NONCE === findNonce(idToken)}
 
             // Confirm if the numbers match.
-	`);
+    `);
     expect(result.didPass, result.details).to.be.true;
   },
 ));
 
 // Scenario #17 - Fence public keys endpoint
 Scenario('Test Fence\'s public keys endpoint @manual', ifInteractive(
-  async (I, fence) => {
+  async (I) => {
     const url = `https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.publicKeysEndpoint}`;
-    const http_resp = await I.sendGetRequest(url).then((res) => new Gen3Response(res));
+    const httpResp = await I.sendGetRequest(url).then((res) => new Gen3Response(res));
 
     const result = await interactive(`
             1. [Automated] Go to ${url}
@@ -358,6 +359,10 @@ Scenario('Test Fence\'s public keys endpoint @manual', ifInteractive(
                    ]
                  ]
                }
+            Manual verification:
+              Response status: ${httpResp.status} // Expect a HTTP 200
+              Response data: ${JSON.stringify(httpResp.body) || httpResp.parsedFenceError}
+                // Expect a JSON payload containing Public Key info
             `);
     expect(result.didPass, result.details).to.be.true;
   },
@@ -365,7 +370,7 @@ Scenario('Test Fence\'s public keys endpoint @manual', ifInteractive(
 
 // Scenario #18 - Exploration page
 Scenario('Test the exploration page @manual', ifInteractive(
-  async (I, fence) => {
+  async () => {
     const result = await interactive(`
             1. Login with NIH credentials
             2. Click "Exploration" tab
@@ -378,7 +383,7 @@ Scenario('Test the exploration page @manual', ifInteractive(
 
 // Scenario #19 - Export to PFB
 Scenario('Test the "Export to PFB" button from the Exploration page @manual', ifInteractive(
-  async (I, fence) => {
+  async () => {
     // TODO: Parse PFB and validate it
     const result = await interactive(`
             1. Login with NIH credentials
