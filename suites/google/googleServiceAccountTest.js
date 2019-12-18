@@ -1,8 +1,10 @@
 const chai = require('chai');
-const expect = chai.expect;
+
+const { expect } = chai;
 
 const apiUtil = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
+
 const bash = new Bash();
 
 
@@ -88,10 +90,8 @@ Scenario('Register SA with a user that has linked their Google Account @reqGoogl
   // Find a user's google email that's NOT in the GCP, meaning
   //   an email that is NOT the owner of the google project and NOT the current user
   // It is assumed that all users' usernames are google account emails
-  const userNotInGCP = Object.values(users).find(user =>
-    user.googleCreds.email !== currentUser.username &&
-    user.googleCreds.email !== googleProject.owner,
-  );
+  const userNotInGCP = Object.values(users).find((user) => user.googleCreds.email !== currentUser.username
+    && user.googleCreds.email !== googleProject.owner);
   // Link user to an email NOT in the GCP
   await fence.complete.forceLinkGoogleAcct(currentUser, userNotInGCP.username);
 
@@ -126,7 +126,6 @@ Scenario('Register SA from Google Project that has a parent org @reqGoogle', asy
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountHasParentOrg);
 }).retry(2);
-
 
 
 Scenario('Register SA from Google Project that doesn’t have fence’s monitoring SA @reqGoogle', async (fence, users) => {
@@ -231,7 +230,7 @@ Scenario('Register SA that looks like its from the Google Project but doesnt act
   const registerRes = await fence.do.registerGoogleServiceAccount(
     users.mainAcct,
     {
-      serviceAccountEmail: 'thisdoesntexist123@' + projectA.serviceAccountEmail.split('@')[1],
+      serviceAccountEmail: `thisdoesntexist123@${projectA.serviceAccountEmail.split('@')[1]}`,
       id: projectA.id,
     },
     ['test'],
@@ -368,7 +367,7 @@ Scenario('Register SA for data access where one Project member does not have pri
   const userWithPrivilege = users.mainAcct;
   const userWithoutPrivilege = users.auxAcct1;
 
-  //does NOT have privilege for requested commons proj
+  // does NOT have privilege for requested commons proj
   const commonsProjectAccessList = ['DEV'];
 
   // Setup
@@ -382,13 +381,11 @@ Scenario('Register SA for data access where one Project member does not have pri
   //   -an email that is NOT the email of the userWithoutPrivilege
   //   -an email that is NOT the email of the userWithPrivilege
   // It is assumed that all users' usernames are google account emails
-  const differentGoogleEmail = Object.values(users).find(user =>
-    user.username !== googleProject.owner &&
-    user.username !== userWithoutPrivilege.username &&
-    user.username !== userWithPrivilege.username,
-  ).username;
+  const differentGoogleEmail = Object.values(users).find((user) => user.username !== googleProject.owner
+    && user.username !== userWithoutPrivilege.username
+    && user.username !== userWithPrivilege.username).username;
   if (differentGoogleEmail === undefined) {
-    throw "Unable to find a user to add to Google project";
+    throw 'Unable to find a user to add to Google project';
   }
   const newRole = {
     role: 'roles/viewer',
@@ -474,13 +471,13 @@ Scenario('Delete a SA that was successfully registered before but was deleted fr
 
   const googleProject = fence.props.googleProjectDynamic;
   const serviceAccountName = 'tmp-service-account';
-  const serviceAccountEmail = `${serviceAccountName}@${googleProject.serviceAccountEmail.substring(googleProject.serviceAccountEmail.indexOf('@')+1)}`;
-  
+  const serviceAccountEmail = `${serviceAccountName}@${googleProject.serviceAccountEmail.substring(googleProject.serviceAccountEmail.indexOf('@') + 1)}`;
+
   const createRes = await google.createServiceAccount(googleProject.id, serviceAccountName);
   if (typeof createRes === 'object' && createRes instanceof Error && createRes.message.match(/already exist/)) {
     console.log(`${serviceAccountEmail} service account already exists`);
   } else {
-    fence.ask.createServiceAccountSuccess(createRes, serviceAccountName)
+    fence.ask.createServiceAccountSuccess(createRes, serviceAccountName);
     expect(createRes.email).to.equal(serviceAccountEmail);
   }
   await fence.complete.forceLinkGoogleAcct(users.mainAcct, googleProject.owner);
@@ -524,19 +521,19 @@ Scenario('Service Account registration expiration test @reqGoogle', async (fence
     users.user0,
     googleProject,
     ['QA'],
-    EXPIRES_IN
+    EXPIRES_IN,
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
 
   // Get creds to access data
-  let [pathToKeyFile, keyFullName] = await google.createServiceAccountKeyFile(googleProject);
+  const [pathToKeyFile, keyFullName] = await google.createServiceAccountKeyFile(googleProject);
 
   // Access data
   user0AccessQARes = await google.getFileFromBucket(
     fence.props.googleBucketInfo.QA.googleProjectId,
     pathToKeyFile,
     fence.props.googleBucketInfo.QA.bucketId,
-    fence.props.googleBucketInfo.QA.fileName
+    fence.props.googleBucketInfo.QA.fileName,
   );
 
   // Wait for the link to expire
@@ -546,7 +543,7 @@ Scenario('Service Account registration expiration test @reqGoogle', async (fence
   // Run the expired SA clean up job
   console.log('Clean up expired Service Accounts');
   bash.runJob('google-delete-expired-service-account-job');
-  
+
   // Wait for propagation to google
   user0CannotAccessQAAfterExpired = await google.waitForNoDataAccess(fence.props.googleBucketInfo.QA, pathToKeyFile);
 
@@ -569,10 +566,8 @@ Scenario('Service Account registration expiration test @reqGoogle', async (fence
 
   // Asserts
   chai.expect(user0AccessQARes,
-    'User should have bucket access before expiration'
-  ).to.have.property('id');
+    'User should have bucket access before expiration').to.have.property('id');
 
   chai.expect(user0CannotAccessQAAfterExpired,
-    'User should NOT have bucket access after expiration'
-  ).to.be.true;
+    'User should NOT have bucket access after expiration').to.be.true;
 }).retry(2);

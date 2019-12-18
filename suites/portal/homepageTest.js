@@ -1,8 +1,9 @@
 Feature('Login');
 
 const chai = require('chai');
-const {interactive, ifInteractive} = require('../../utils/interactive.js');
-const expect = chai.expect;
+const { interactive, ifInteractive } = require('../../utils/interactive.js');
+
+const { expect } = chai;
 
 Scenario('login @portal', (home) => {
   home.do.goToHomepage();

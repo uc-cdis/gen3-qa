@@ -13,8 +13,8 @@ module.exports = {
    * @param {string} dataString - file contents
    */
   async createTmpFile(filePath, dataString) {
-    let stream = fs.createWriteStream(filePath);
-    stream.once('open', function(fd) {
+    const stream = fs.createWriteStream(filePath);
+    stream.once('open', (fd) => {
       stream.write(dataString);
       stream.end();
     });
@@ -22,14 +22,14 @@ module.exports = {
     /**
      * return true if the contents of file have been written, false otherwise
      */
-    const isFileCreated = async function(filePath) {
+    const isFileCreated = async function (filePath) {
       if (!fs.existsSync(filePath)) return false;
-      let fileSize = fs.statSync(filePath).size;
+      const fileSize = fs.statSync(filePath).size;
       return !(fileSize == 0);
     };
 
     const timeout = 30; // max number of seconds to wait
-    let errorMessage = `The file at ${filePath} was not created after ${timeout} seconds`;
+    const errorMessage = `The file at ${filePath} was not created after ${timeout} seconds`;
     await smartWait(isFileCreated, [filePath], timeout, errorMessage);
   },
 
@@ -37,9 +37,9 @@ module.exports = {
    * Create a file in local storage
    */
   async createTmpFileWithRandomName(fileContents) {
-    let rand = (Math.random() + 1).toString(36).substring(2,7); // 5 random chars
+    const rand = (Math.random() + 1).toString(36).substring(2, 7); // 5 random chars
     const fileName = `qa-upload-file_${rand}.txt`;
-    const filePath = './' + fileName;
+    const filePath = `./${fileName}`;
     await this.createTmpFile(filePath, fileContents);
     const fileSize = await this.getFileSize(filePath);
     const fileMd5 = await this.getFileHash(filePath);
@@ -58,19 +58,19 @@ module.exports = {
    */
   async createBigTmpFile(filePath, megabytes) {
     // this contains 1024 bytes = 1KB of text
-    const text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi sit amet iaculis neque, at mattis mi. Donec pharetra lacus sit amet dui tincidunt, a varius risus tempor. Duis dictum sodales dignissim. Ut luctus turpis non nibh pretium consequat. Fusce faucibus vulputate magna vel congue. Proin sit amet libero mauris. Lorem ipsum dolor sit amet, consectetur adipiscing elit. In sed dictum lacus. Vestibulum bibendum ipsum quis lacus dignissim euismod. Mauris et dignissim leo. Phasellus pretium molestie nunc, varius gravida augue congue quis. Maecenas faucibus, velit dignissim feugiat viverra, eros diam tempor tortor, sed maximus mi justo a massa. Mauris at metus tincidunt augue iaculis mollis et id eros. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam sagittis porta vestibulum. Cras molestie nulla metus, a sollicitudin neque suscipit nec. Nunc sem lectus, molestie eu mauris eget, volutpat posuere mauris. Donec gravida venenatis sodales. Pellentesque risus lorem, pulvinar nec molestie eu amet. ";
+    const text = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi sit amet iaculis neque, at mattis mi. Donec pharetra lacus sit amet dui tincidunt, a varius risus tempor. Duis dictum sodales dignissim. Ut luctus turpis non nibh pretium consequat. Fusce faucibus vulputate magna vel congue. Proin sit amet libero mauris. Lorem ipsum dolor sit amet, consectetur adipiscing elit. In sed dictum lacus. Vestibulum bibendum ipsum quis lacus dignissim euismod. Mauris et dignissim leo. Phasellus pretium molestie nunc, varius gravida augue congue quis. Maecenas faucibus, velit dignissim feugiat viverra, eros diam tempor tortor, sed maximus mi justo a massa. Mauris at metus tincidunt augue iaculis mollis et id eros. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam sagittis porta vestibulum. Cras molestie nulla metus, a sollicitudin neque suscipit nec. Nunc sem lectus, molestie eu mauris eget, volutpat posuere mauris. Donec gravida venenatis sodales. Pellentesque risus lorem, pulvinar nec molestie eu amet. ';
     return new Promise((resolve, reject) => {
-      var writeStream = fs.createWriteStream(filePath, { flags : 'w' });
+      const writeStream = fs.createWriteStream(filePath, { flags: 'w' });
       // 1MB = 1024 times the previous text
       for (let i = 0; i < megabytes * 1024; i++) {
         writeStream.write(text);
       }
       writeStream.end();
-      writeStream.on("finish", () => {
+      writeStream.on('finish', () => {
         console.log(`Created ${megabytes}MB file "${filePath}"`);
         resolve();
       });
-      writeStream.on("error", reject);
+      writeStream.on('error', reject);
     });
   },
 
@@ -99,16 +99,16 @@ module.exports = {
    * @returns {string}
    */
   async getFileHash(filePath) {
-    var fd = fs.createReadStream(filePath);
-    var hash = require('crypto').createHash('md5');
+    const fd = fs.createReadStream(filePath);
+    const hash = require('crypto').createHash('md5');
     hash.setEncoding('hex');
-    fd.on('end', function() {
-        hash.end();
+    fd.on('end', () => {
+      hash.end();
     });
     fd.pipe(hash);
 
-    return new Promise(function(resolve, reject) {
-      fd.on('end', ()=>resolve(hash.read()));
-    });
+    return new Promise(((resolve, reject) => {
+      fd.on('end', () => resolve(hash.read()));
+    }));
   },
 };

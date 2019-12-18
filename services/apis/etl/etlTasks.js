@@ -38,7 +38,7 @@ module.exports = {
    */
   existAlias(alias) {
     try {
-      let res = bash.runCommand(`curl -I -s ${etlProps.endpoints.alias}/${alias}`, 'aws-es-proxy-deployment');
+      const res = bash.runCommand(`curl -I -s ${etlProps.endpoints.alias}/${alias}`, 'aws-es-proxy-deployment');
       if (res.startsWith('HTTP/1.1 200 OK')) {
         return true;
       }
@@ -56,13 +56,12 @@ module.exports = {
    */
   getIndexFromAlias(alias) {
     try {
-      let res = bash.runCommand(`curl -X GET -s ${etlProps.endpoints.alias}/${alias}`, 'aws-es-proxy-deployment');
+      const res = bash.runCommand(`curl -X GET -s ${etlProps.endpoints.alias}/${alias}`, 'aws-es-proxy-deployment');
       return Object.keys(JSON.parse(res))[0];
     } catch (ex) {
       // do not freak out if esproxy-service is not running
       return [];
     }
-
   },
 
   /**
@@ -72,21 +71,20 @@ module.exports = {
    */
   getIndex(index) {
     try {
-      let res = bash.runCommand(`curl -X GET -s ${etlProps.endpoints.root}/${index}`, 'arranger-deployment');
+      const res = bash.runCommand(`curl -X GET -s ${etlProps.endpoints.root}/${index}`, 'arranger-deployment');
       return JSON.parse(res);
     } catch (ex) {
       // do not freak out if esproxy-service is not running
       return null;
     }
-
   },
 
   runSubmissionJob() {
-    bash.runJob(`gentestdata`,
+    bash.runJob('gentestdata',
       `TEST_PROGRAM jnkns TEST_PROJECT jenkins MAX_EXAMPLES 100 SUBMISSION_USER ${user.mainAcct.username}`);
   },
 
   runETLJob() {
-    return bash.runJob(`etl`);
+    return bash.runJob('etl');
   },
 };

@@ -1,12 +1,13 @@
 Feature('Guppy');
 
 const chai = require('chai');
-const expect = chai.expect;
+
+const { expect } = chai;
 
 
 var token;
 
-Before( async (users, fence) => {
+Before(async (users, fence) => {
   const scope = ['data', 'user'];
   const apiKeyRes = await fence.complete.createAPIKey(scope, users.mainAcct.accessTokenHeader);
   token = await fence.do.getAccessToken(apiKeyRes.data.api_key);
@@ -14,12 +15,12 @@ Before( async (users, fence) => {
 });
 
 // This test fails due to what looks to me like a bug in Guppy that should be fixed. I made a ticket for it.
-xScenario('I want to make a query to Guppy, but my access token is invalid or expired. @guppyAPI', async (I, guppy) => {
-  let invalidToken = 'eyJhbGciOiJSUzI1N';
+/* Scenario('I want to make a query to Guppy, but my access token is invalid or expired. @guppyAPI', async (I, guppy) => {
+  const invalidToken = 'eyJhbGciOiJSUzI1N';
   const queryFile = 'suites/guppy/testData/testQuery1.json';
   const queryResponse = await guppy.do.submitQueryFileToGuppy(guppy.props.endpoints.graphqlEndpoint, queryFile, invalidToken);
   expect(queryResponse.status).to.equal(401);
-});
+}); */
 
 Scenario('I want a list of patients (cases) strictly younger than 30 with a past stroke in ascending order of BMI. @guppyAPI', async (I, guppy) => {
   const queryFile = 'suites/guppy/testData/testQuery1.json';
@@ -57,12 +58,12 @@ Scenario('I want a high-level overview of the data in the database as it pertain
 });
 
 // This test fails due to what looks to me like a bug in Guppy that needs to be investigated. The "max" value calculation is off by < 0.1% of the actual value.
-xScenario('I want a range-stepped high-level overview of the data in the database as it pertains to stroke occurrence and age groups represented. @guppyAPI', async (I, guppy) => {
+/* Scenario('I want a range-stepped high-level overview of the data in the database as it pertains to stroke occurrence and age groups represented. @guppyAPI', async (I, guppy) => {
   const queryFile = 'suites/guppy/testData/testQuery4.json';
   const expectedResponseFile = 'suites/guppy/testData/testResponse4.json';
   const queryType = 'histogram';
   await guppy.complete.checkQueryResponseEquals(guppy.props.endpoints.graphqlEndpoint, queryFile, expectedResponseFile, token, queryType);
-});
+}); */
 
 Scenario('I would like to list the fields on the case document. @guppyAPI', async (I, guppy) => {
   const queryFile = 'suites/guppy/testData/testQuery5.json';

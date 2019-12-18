@@ -6,10 +6,11 @@
 const request = require('request');
 const user = require('./user');
 const { Bash } = require('./bash');
+
 const bash = new Bash();
 const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
 
-class Commons{
+class Commons {
   static get program() {
     const programName = 'jnkns';
     return {
@@ -27,14 +28,14 @@ class Commons{
       dbgap_accession_number: 'jenkins',
       state: 'open',
       releasable: true,
-    }
+    };
   }
 
   // these files exist in cloud automation repo, check there for details
   static get userAccessFiles() {
     return {
-      newUserAccessFile2: 'test2_user.yaml' // used to modify access to integration tests users
-    }
+      newUserAccessFile2: 'test2_user.yaml', // used to modify access to integration tests users
+    };
   }
 
   /**
@@ -95,17 +96,16 @@ class Commons{
       fence: '/user/jwt/keys',
     };
     return Object.values(endpoints).map(
-      endpoint =>
-        new Promise((resolve) => {
-          request.get(
-            `https://${process.env.HOSTNAME}${endpoint}`,
-            (error, res) => {
-              resolve(
-                `${`\nHealth ${endpoint}`.padEnd(30)}: ${(res && res.statusCode) || error}`,
-              );
-            },
-          );
-        }),
+      (endpoint) => new Promise((resolve) => {
+        request.get(
+          `https://${process.env.HOSTNAME}${endpoint}`,
+          (error, res) => {
+            resolve(
+              `${`\nHealth ${endpoint}`.padEnd(30)}: ${(res && res.statusCode) || error}`,
+            );
+          },
+        );
+      }),
     );
   }
 
@@ -116,11 +116,11 @@ class Commons{
    * @returns {string}
    */
   static backupUserYaml(backupFile) {
-    var dir;
+    let dir;
     if (inJenkins) {
       dir = `${process.env.GEN3_HOME}/files/integration_testing`;
     } else {
-      dir = `~/cloud-automation/files/integration_testing`;
+      dir = '~/cloud-automation/files/integration_testing';
     }
 
     bash.runCommand(`rm -f ${dir}/${backupFile}`);
@@ -138,21 +138,20 @@ class Commons{
    * @returns {string}
    */
   static setUserYaml(useryaml) {
-    var dir;
+    let dir;
     if (inJenkins) {
       dir = `${process.env.GEN3_HOME}/files/integration_testing`;
     } else {
-      dir = `~/cloud-automation/files/integration_testing`;
+      dir = '~/cloud-automation/files/integration_testing';
     }
 
     bash.runCommand(`rm -f ${dir}/user.yaml`);
     bash.runCommand(`cp ${dir}/${useryaml} ${dir}/user.yaml`);
 
-    var cmd = `gen3 update_config fence ${dir}/user.yaml`;
+    const cmd = `gen3 update_config fence ${dir}/user.yaml`;
     const res = bash.runCommand(cmd);
     return res;
   }
-
 }
 
 module.exports = { Commons };

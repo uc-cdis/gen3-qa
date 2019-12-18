@@ -9,13 +9,15 @@ const readline = require('readline');
 const chai = require('chai');
 const jsdom = require('jsdom');
 const chaiSubset = require('chai-subset');
+const fs = require('fs');
 
-const expect = chai.expect;
+const { expect } = chai;
 chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 const { JSDOM } = jsdom;
 
 const { Bash, takeLastLine } = require('./bash');
+
 const bash = new Bash();
 
 /**
@@ -51,7 +53,7 @@ class Gen3Response {
    * some goofiness as codecept v2 moved from unirest to axios for REST calls,
    * and the response structure is different.
    * In general the constructor should only take data or body, not both - prefer data
-   * 
+   *
    * @param {string|Object} body
    * @param {string|object} data new REST library returns data instead of body
    * @param {number|Object} status or {status}
@@ -61,7 +63,9 @@ class Gen3Response {
    * @param {string} [request.uri.href]
    * @param {string} [fenceError] Parsed from body if determined to be an error page
    */
-  constructor({ data, body, status, request, fenceError }) {
+  constructor({
+    data, body, status, request, fenceError,
+  }) {
     this.fenceError = fenceError;
     this.parsedFenceError = (isErrorPage(data) ? parseFenceError(data) : undefined);
     this.body = this.parsedFenceError ? undefined : (data || body); // include body if not error page
@@ -75,7 +79,7 @@ class Gen3Response {
         this.requestURL = request.uri ? request.uri.href : undefined;
       } catch (e) {
         // ignore if missing request attribute
-        console.log('Gen3Response could not parse expected `request` attributes like `method`, `headers`, `body`, etc.')
+        console.log('Gen3Response could not parse expected `request` attributes like `method`, `headers`, `body`, etc.');
         console.log(`Gen3Response got request: ${request}`);
       }
     } else {
@@ -92,7 +96,7 @@ class Gen3Response {
  */
 const gen3Res = function (_chai, _) {
   _chai.use(chaiSubset);
-  const Assertion = _chai.Assertion;
+  const { Assertion } = _chai;
 
   // language chain method
   Assertion.addMethod('gen3Res', function (expectedRes) {
@@ -140,6 +144,26 @@ module.exports = {
   },
 
   /**
+   * Reads the credential.json, returns api_key and target_environment
+   * @param {file_path} path_to_credentials_json - path to the credential.json
+   * @returns {string, string}
+   */
+  getJWTData(path_to_credentials_json) {
+    const credentials = fs.readFileSync(path_to_credentials_json, 'utf8');
+    const { api_key } = JSON.parse(credentials);
+    data = api_key.split('.'); // [0] headers, [1] payload, [2] signature
+    payload = data[1];
+    padding = '='.repeat(4 - payload.length % 4);
+    decoded_data = Buffer.from((payload + padding), 'base64').toString();
+    // If the decoded data doesn't contain a nonce, that means the refresh token has expired
+    const target_environment = JSON.parse(decoded_data).iss.split('/')[2];
+    return {
+      api_key,
+      target_environment,
+    };
+  },
+
+  /**
    * Runs a fence command for fetching access token for a user
    * @param {string} username - username to fetch token for
    * @param {number} expiration - life duration for token
@@ -160,24 +184,24 @@ module.exports = {
    * @returns {string}
    */
   getAccessTokenFromApiKey(the_api_key, target_environment) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(((resolve, reject) => {
       ax.request({
         url: '/user/credentials/cdis/access_token',
-        baseURL: 'https://' + target_environment,
+        baseURL: `https://${target_environment}`,
         method: 'post',
         maxRedirects: 0,
         header: {
-          "content-type": "application/json",
-          "accept": "application/json"
+          'content-type': 'application/json',
+          accept: 'application/json',
         },
         data: {
-          api_key: the_api_key
-        }
+          api_key: the_api_key,
+        },
       }).then(
-	  resp => resolve(resp.data['access_token']),
-	  err => reject(err.response || err)
+	  (resp) => resolve(resp.data.access_token),
+	  (err) => reject(err.response || err),
       );
-    });
+    }));
   },
 
   /**
@@ -188,18 +212,18 @@ module.exports = {
   getAccessTokenFromExecutableTest(I) {
   // Note: Cannot leverage the ${user.mainAcct.accessToken} while working on "closed" environments (Staging/PROD)
   // (i.e., no access to the underlying admin vm, hence, using API Key + Fence HTTP API to retrieve the Access Token)
-    return new Promise(async(resolve) => {
-	// Only prompt the user for the API Key if it hasn't already been loaded from credentials.json
-	// Store API Key into the main actor object (I) so it can be accessed in all scenarios
-	if (!I.apiKey) {
-	    let apiKey = await module.exports.requestUserInput(`
+    return new Promise(async (resolve) => {
+      // Only prompt the user for the API Key if it hasn't already been loaded from credentials.json
+      // Store API Key into the main actor object (I) so it can be accessed in all scenarios
+      if (!I.apiKey) {
+	    const apiKey = await module.exports.requestUserInput(`
               == Instructions to obtain the API Key ==
               a. Navigate to the "Profile" page on https://${I.TARGET_ENVIRONMENT} and click on "Create API key".
               b. Download the "credentials.json" file, copy the value of the "api_key" parameter and paste it here:
             `);
 	    I.apiKey = apiKey;
-	}
-	resolve(module.exports.getAccessTokenFromApiKey(I.apiKey, I.TARGET_ENVIRONMENT));
+      }
+      resolve(module.exports.getAccessTokenFromApiKey(I.apiKey, I.TARGET_ENVIRONMENT));
     });
   },
 
@@ -210,14 +234,14 @@ module.exports = {
    */
   requestUserInput(question_text) {
     return new Promise((resolve) => {
-	let rl = readline.createInterface({
+      const rl = readline.createInterface({
 	    input: process.stdin,
-	    output: process.stdout
-	});
-	rl.question(question_text, (user_input) => {
+	    output: process.stdout,
+      });
+      rl.question(question_text, (user_input) => {
 	    rl.close();
 	    resolve(user_input);
-	});
+      });
     });
   },
 
@@ -250,7 +274,7 @@ module.exports = {
    * @param {int} ms
    */
   sleepMS(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   },
 
   /**
@@ -262,12 +286,12 @@ module.exports = {
    * @param {string} errorMessage - message to display if not done in time
    * @param {int} startWait - initial number of seconds to wait
    */
-  async smartWait(checkFunc, checkArgs, timeout, errorMessage, startWait=null) {
+  async smartWait(checkFunc, checkArgs, timeout, errorMessage, startWait = null) {
     waitTime = (startWait * 1000) || 50; // start by waiting 50 ms
     waited = 0; // keep track of how many ms have passed
     while (waited < timeout * 1000) {
       // check if the task is done
-      let done = await checkFunc(...checkArgs);
+      const done = await checkFunc(...checkArgs);
       if (done) return;
 
       // if not done, keep waiting
@@ -287,14 +311,14 @@ module.exports = {
    */
   getCookie(cookieName, cookieString) {
     // get name followed by anything except a semicolon
-    var cookiestring = RegExp("" + cookieName + "[^;]+").exec(cookieString);
+    const cookiestring = RegExp(`${cookieName}[^;]+`).exec(cookieString);
     // return everything after the equal sign, or an empty string if the cookie name not found
-    return decodeURIComponent(!!cookiestring ? cookiestring.toString().replace(/^[^=]+./,"") : "");
+    return decodeURIComponent(cookiestring ? cookiestring.toString().replace(/^[^=]+./, '') : '');
   },
 
-  parseJwt (token) {
-    var base64Url = token.split('.')[1];
-    var base64 = base64Url.replace('-', '+').replace('_', '/');
+  parseJwt(token) {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace('-', '+').replace('_', '/');
     return JSON.parse(atob(base64));
   },
 

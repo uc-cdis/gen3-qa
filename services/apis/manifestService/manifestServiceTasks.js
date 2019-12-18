@@ -1,8 +1,8 @@
-const manifestServiceProps = require('./manifestServiceProps.js');
 const chai = require('chai');
+const manifestServiceProps = require('./manifestServiceProps.js');
 const { Gen3Response } = require('../../../utils/apiUtil.js');
 
-const expect = chai.expect;
+const { expect } = chai;
 
 const I = actor();
 
@@ -34,7 +34,7 @@ module.exports = {
         'Content-Type': 'application/json',
         Authorization: `bearer ${userAcct.accessToken}`,
       },
-    ).then(res => JSON.stringify(res.data));
+    ).then((res) => JSON.stringify(res.data));
   },
 
 };

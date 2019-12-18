@@ -1,6 +1,6 @@
 const chai = require('chai');
 
-const expect = chai.expect;
+const { expect } = chai;
 chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 
@@ -41,16 +41,16 @@ module.exports = {
    * Asserts a record was successfully deleted from indexd
    * @param {Object} fileNode
    */
-  deleteFileSuccess(fileNode, res, msg='') {
-    const delete_msg = msg + ' The record was not deleted from indexd.';
+  deleteFileSuccess(fileNode, res, msg = '') {
+    const delete_msg = `${msg} The record was not deleted from indexd.`;
 
     // Note that the delete res is the entire response, not just the body
     expect(fileNode, delete_msg).to.nested.include(
-      { 'indexd_delete_res.data': '' }
+      { 'indexd_delete_res.data': '' },
     );
 
     if (res) {
-      const err = msg + 'Did not have expected status code of 200.';
+      const err = `${msg}Did not have expected status code of 200.`;
       expect(res, err).to.have.property('status', 200);
     }
   },
@@ -59,14 +59,14 @@ module.exports = {
    * Asserts a record was successfully deleted from indexd
    * @param {Object} fileNode
    */
-  deleteFileNotSuccessful(res, fileNode, msg='') {
-    const delete_msg = msg + ' The record WAS deleted from indexd!';
+  deleteFileNotSuccessful(res, fileNode, msg = '') {
+    const delete_msg = `${msg} The record WAS deleted from indexd!`;
     // Note that the delete res is the entire response, not just the body
     expect(fileNode, delete_msg).to.not.nested.include(
-      { 'indexd_delete_res.data': '' }
+      { 'indexd_delete_res.data': '' },
     );
 
-    const err = msg + 'Had UNexpected status code of 200.';
+    const err = `${msg}Had UNexpected status code of 200.`;
     expect(res, err).to.not.have.property('status', 200);
   },
 
@@ -86,11 +86,11 @@ module.exports = {
    */
   recordDoesNotExist(res) {
     expect(
-      res, 'Response does not have status code property'
+      res, 'Response does not have status code property',
     ).to.have.property('status');
     expect(
-      res.status, 'When checking if indexd record does not exist, ' +
-      'did NOT get 404 when GET-ing it, expected a 404 since the file should not exist.'
+      res.status, 'When checking if indexd record does not exist, '
+      + 'did NOT get 404 when GET-ing it, expected a 404 since the file should not exist.',
     ).to.equal(404);
   },
 

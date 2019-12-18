@@ -1,6 +1,6 @@
 const chai = require('chai');
 
-const expect = chai.expect;
+const { expect } = chai;
 chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 
@@ -34,7 +34,7 @@ module.exports = {
    * @param {int} expires_in - requested expiration time (in seconds)
    * @returns {Promise<Gen3Response>}
    */
-  async linkGoogleAcctMocked(userAcct, expires_in=null) {
+  async linkGoogleAcctMocked(userAcct, expires_in = null) {
     const linkRes = await fenceTasks.linkGoogleAcctMocked(userAcct, expires_in);
     fenceQuestions.mockedLinkSuccess(linkRes);
     return linkRes;
@@ -62,12 +62,11 @@ module.exports = {
   async forceUnlinkGoogleAcct(userAcct) {
     const unlinkRes = await fenceTasks.unlinkGoogleAcct(userAcct);
     expect(unlinkRes,
-      'response from unlinking Google Account does not have expected status property'
-    ).to.have.property('status');
+      'response from unlinking Google Account does not have expected status property').to.have.property('status');
     expect(
       unlinkRes.status,
-      'response from unlinking Google Account does not have expected status of 200 or 404'
-    ).to.be.oneOf([200, 404])
+      'response from unlinking Google Account does not have expected status of 200 or 404',
+    ).to.be.oneOf([200, 404]);
   },
 
   /**
@@ -98,12 +97,11 @@ module.exports = {
    * @param {int} expires_in - requested expiration time (in seconds)
    * @returns {Promise<Gen3Response>}
    */
-  async createTempGoogleCreds(accessTokenHeaders, expires_in=null) {
+  async createTempGoogleCreds(accessTokenHeaders, expires_in = null) {
     const response = await fenceTasks.createTempGoogleCreds(accessTokenHeaders, expires_in);
     expect(response,
-      'response from creating temporary Google credentials does not have nested ' +
-      'property data.private_key (which means we didn\'t get back valid Google credentials)'
-    ).has.nested.property('data.private_key');
+      'response from creating temporary Google credentials does not have nested '
+      + 'property data.private_key (which means we didn\'t get back valid Google credentials)').has.nested.property('data.private_key');
     return response;
   },
 
@@ -114,14 +112,14 @@ module.exports = {
    * @returns {object} { guid, uploadId }
    */
   async initMultipartUpload(fileName, accessHeader) {
-      const res = await fenceTasks.initMultipartUpload(fileName, accessHeader);
-      expect(res, 'Unable to initialize multipart upload').to.have.property('status', 201);
-      expect(res, 'Unable to initialize multipart upload').to.have.nested.property('data.guid');
-      expect(res, 'Unable to initialize multipart upload').to.have.nested.property('data.uploadId');
-      return {
-        guid: res.data.guid,
-        uploadId: res.data.uploadId,
-      }
+    const res = await fenceTasks.initMultipartUpload(fileName, accessHeader);
+    expect(res, 'Unable to initialize multipart upload').to.have.property('status', 201);
+    expect(res, 'Unable to initialize multipart upload').to.have.nested.property('data.guid');
+    expect(res, 'Unable to initialize multipart upload').to.have.nested.property('data.uploadId');
+    return {
+      guid: res.data.guid,
+      uploadId: res.data.uploadId,
+    };
   },
 
   /**
@@ -133,12 +131,12 @@ module.exports = {
    * @returns {object} { url }
    */
   async getUrlForMultipartUpload(key, uploadId, partNumber, accessHeader) {
-      const res = await fenceTasks.getUrlForMultipartUpload(key, uploadId, partNumber, accessHeader);
-      expect(res, 'Unable to upload a part during multipart upload').to.have.property('status', 200);
-      expect(res, 'Fence did not return a URL for multipart upload').to.have.nested.property('data.presigned_url');
-      return {
-        url: res.data.presigned_url,
-      }
+    const res = await fenceTasks.getUrlForMultipartUpload(key, uploadId, partNumber, accessHeader);
+    expect(res, 'Unable to upload a part during multipart upload').to.have.property('status', 200);
+    expect(res, 'Fence did not return a URL for multipart upload').to.have.nested.property('data.presigned_url');
+    return {
+      url: res.data.presigned_url,
+    };
   },
 
   /**
@@ -165,27 +163,29 @@ module.exports = {
   },
 
   async getUserTokensWithClient(
-      user = userMod.mainAcct, client = fenceProps.clients.client,
-      scopes = 'openid+user+data+google_credentials+google_service_account+google_link') {
+    user = userMod.mainAcct, client = fenceProps.clients.client,
+    scopes = 'openid+user+data+google_credentials+google_service_account+google_link',
+  ) {
     // set user with cookie
-    await I.amOnPage("/");
-    await I.setCookie({name: "dev_login", value: user.username});
+    await I.amOnPage('/');
+    await I.setCookie({ name: 'dev_login', value: user.username });
 
-    let urlStr = await fenceTasks.getConsentCode(client.id, 'code', scopes);
+    const urlStr = await fenceTasks.getConsentCode(client.id, 'code', scopes);
     fenceQuestions.assertContainSubStr(urlStr, ['code=']);
     const match = urlStr.match(RegExp('/?code=(.*)'));
     const code = match && match[1];
     fenceQuestions.assertTruthyResult(
       code,
-      `fence\'s oauth2/authorize endpoint should have returned a consent code in url "${urlStr}"`
+      `fence\'s oauth2/authorize endpoint should have returned a consent code in url "${urlStr}"`,
     );
-    let res = await fenceTasks.getTokensWithAuthCode(
+    const res = await fenceTasks.getTokensWithAuthCode(
       client.id,
       client.secret, code, 'authorization_code',
     );
 
     fenceQuestions.assertTokensSuccess(
-      res, `Did not get client (${client.id}) tokens for user (${user.username}) successfully.`);
+      res, `Did not get client (${client.id}) tokens for user (${user.username}) successfully.`,
+    );
 
     return res;
   },
@@ -203,12 +203,12 @@ module.exports = {
       fenceProps.googleProjectWithComputeServiceAcct,
     ];
     // remove unimportant roles from google projects
-    for (let proj of googleProjects) {
+    for (const proj of googleProjects) {
       await google.removeAllOptionalUsers(proj.id);
     }
 
     // delete all service accounts from fence
-    for (let proj of googleProjects) {
+    for (const proj of googleProjects) {
       // TRY to delete the service account
       // NOTE: the service account might have been registered unsuccessfully or deleted,
       //  we are just hitting the endpoints as if it still exists and ignoring errors
@@ -217,19 +217,13 @@ module.exports = {
       if (!projUser.linkedGoogleAccount) {
         // If the project user is not linked, link to project owner then delete
         await fenceTasks.forceLinkGoogleAcct(projUser, proj.owner)
-          .then(() =>
-          fenceTasks.deleteGoogleServiceAccount(projUser, proj.serviceAccountEmail),
-          );
+          .then(() => fenceTasks.deleteGoogleServiceAccount(projUser, proj.serviceAccountEmail));
       } else if (projUser.linkedGoogleAccount !== proj.owner) {
         // If the project user is linked, but not to project owner,
         // unlink user, then link to project owner and delete service account
         await module.exports.unlinkGoogleAcct(projUser)
-          .then(() =>
-          fenceTasks.forceLinkGoogleAcct(projUser, proj.owner),
-          )
-          .then(() =>
-          fenceTasks.deleteGoogleServiceAccount(projUser, proj.serviceAccountEmail),
-          );
+          .then(() => fenceTasks.forceLinkGoogleAcct(projUser, proj.owner))
+          .then(() => fenceTasks.deleteGoogleServiceAccount(projUser, proj.serviceAccountEmail));
       } else {
         // If project user is linked to the project owner, delete the service account
         await fenceTasks.deleteGoogleServiceAccount(projUser, proj.serviceAccountEmail);
@@ -237,7 +231,7 @@ module.exports = {
     }
 
     // unlink all google accounts
-    const unlinkPromises = Object.values(users).map(user => fenceTasks.unlinkGoogleAcct(user));
+    const unlinkPromises = Object.values(users).map((user) => fenceTasks.unlinkGoogleAcct(user));
     await Promise.all(unlinkPromises);
   },
 };

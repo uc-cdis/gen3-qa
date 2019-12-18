@@ -6,7 +6,7 @@
 const atob = require('atob');
 const chai = require('chai');
 
-const expect = chai.expect;
+const { expect } = chai;
 const { google } = require('googleapis');
 const { Storage } = require('@google-cloud/storage');
 
@@ -181,7 +181,7 @@ module.exports = {
   },
 
   async updateUserRole(projectID, { role, members }) {
-    return googleApp.authorize(googleApp.cloudManagerConfig, authClient => googleApp.getIAMPolicy(projectID, authClient)
+    return googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => googleApp.getIAMPolicy(projectID, authClient)
       .then((iamPolicy) => {
         // update the policy
         iamPolicy.bindings.push({ role, members });
@@ -196,10 +196,10 @@ module.exports = {
   },
 
   async removeUserRole(projectID, { role, members }) {
-    return googleApp.authorize(googleApp.cloudManagerConfig, authClient => googleApp.getIAMPolicy(projectID, authClient)
+    return googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => googleApp.getIAMPolicy(projectID, authClient)
       .then((iamPolicy) => {
         // find the binding with same role
-        const targetBinding = iamPolicy.bindings.find(binding => binding.role === role);
+        const targetBinding = iamPolicy.bindings.find((binding) => binding.role === role);
         if (!targetBinding) {
           return iamPolicy;
         }
@@ -217,25 +217,25 @@ module.exports = {
       .catch((err) => {
         console.log(err);
         return err;
-      }) );
+      }));
   },
 
   async removeAllOptionalUsers(projectID) {
-    return googleApp.authorize(googleApp.cloudManagerConfig, authClient => googleApp.getIAMPolicy(projectID, authClient)
+    return googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => googleApp.getIAMPolicy(projectID, authClient)
       .then((iamPolicy) => {
         const requiredRoles = [
           'roles/owner',
           'roles/resourcemanager.projectIamAdmin',
           'roles/editor',
         ];
-        const bindings = iamPolicy.bindings;
-        iamPolicy.bindings = bindings.filter(binding => requiredRoles.indexOf(binding.role) > -1);
+        const { bindings } = iamPolicy;
+        iamPolicy.bindings = bindings.filter((binding) => requiredRoles.indexOf(binding.role) > -1);
         return googleApp.setIAMPolicy(projectID, iamPolicy, authClient);
       })
       .catch((err) => {
         console.log(err);
         return err;
-      }) );
+      }));
   },
 
   /**
@@ -244,7 +244,7 @@ module.exports = {
    * @returns {object} the service account
    */
   async getServiceAccount(projectID, serviceAccount) {
-    return new Promise(resolve => googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
+    return new Promise((resolve) => googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
       const cloudResourceManager = google.iam('v1');
       const request = {
         name: `projects/${projectID}/serviceAccounts/${serviceAccount}`,
@@ -269,7 +269,7 @@ module.exports = {
   },
 
   async createServiceAccount(projectID, serviceAccountName, description = '') {
-    return new Promise(resolve => googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
+    return new Promise((resolve) => googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
       const cloudResourceManager = google.iam('v1');
       const request = {
         resource: {
@@ -304,7 +304,7 @@ module.exports = {
     if (!projectID) {
       projectID = '-'; // auto get project ID from SA ID
     }
-    return new Promise(resolve => googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
+    return new Promise((resolve) => googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
       const cloudResourceManager = google.iam('v1');
       const request = {
         name: `projects/${projectID}/serviceAccounts/${serviceAccountID}`,
@@ -321,7 +321,7 @@ module.exports = {
   },
 
   async listServiceAccountKeys(projectID, serviceAccountName) {
-    return new Promise(resolve => googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
+    return new Promise((resolve) => googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
       const cloudResourceManager = google.iam('v1');
       const request = {
         name: `projects/${projectID}/serviceAccounts/${serviceAccountName}`,
@@ -347,7 +347,7 @@ module.exports = {
   },
 
   async createServiceAccountKey(projectID, serviceAccountName) {
-    return new Promise(resolve => googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
+    return new Promise((resolve) => googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
       const cloudResourceManager = google.iam('v1');
       const request = {
         name: `projects/${projectID}/serviceAccounts/${serviceAccountName}`,
@@ -381,14 +381,14 @@ module.exports = {
     keyFullName = tempCredsRes.name;
     console.log(`Created key ${keyFullName}`);
     const keyData = JSON.parse(atob(tempCredsRes.privateKeyData));
-    const pathToKeyFile = `${keyData.private_key_id }.json`;
+    const pathToKeyFile = `${keyData.private_key_id}.json`;
     await files.createTmpFile(pathToKeyFile, JSON.stringify(keyData));
     console.log(`Google creds file ${pathToKeyFile} saved!`);
     return [pathToKeyFile, keyFullName];
   },
 
   async deleteServiceAccountKey(keyName) {
-    return new Promise(resolve => googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
+    return new Promise((resolve) => googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
       const cloudResourceManager = google.iam('v1');
       const request = {
         name: keyName, // "projects/X/serviceAccounts/Y/keys/Z"

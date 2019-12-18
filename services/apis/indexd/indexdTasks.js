@@ -48,50 +48,45 @@ module.exports = {
       };
 
       if (file.urls) {
-        data.urls = file.urls
+        data.urls = file.urls;
       } else if (file.link) {
         data.urls = [file.link];
       } else {
-        data.urls = []
+        data.urls = [];
       }
 
       if (file.authz) {
         data.authz = file.authz;
       }
       return data;
-    }).map((data) => {
-      return I.sendPostRequest(indexdProps.endpoints.add, data, authHeaders).then(
-        (res) => {
-          if (res.status === 200 && res.data && res.data.rev) {
-            file.rev = res.data.rev;
-            return Promise.resolve(file);
-          } else {
-            console.error(`Failed indexd submission got status ${res.status} for ${strData}`, res.data);
-            return Promise.reject('Failed to register file with indexd');
-          }
-        },
-        (err) => {
-          console.err('Error on indexd submission', err);
-          return Promise.reject(`indexd submission error on ${data.file_name}`);
+    }).map((data) => I.sendPostRequest(indexdProps.endpoints.add, data, authHeaders).then(
+      (res) => {
+        if (res.status === 200 && res.data && res.data.rev) {
+          file.rev = res.data.rev;
+          return Promise.resolve(file);
         }
-      );
-    });
-    //console.log("indexd addFileIndices waiting on promiseList of length: " + promiseList.length, promiseList);
+        console.error(`Failed indexd submission got status ${res.status} for ${strData}`, res.data);
+        return Promise.reject('Failed to register file with indexd');
+      },
+      (err) => {
+        console.err('Error on indexd submission', err);
+        return Promise.reject(`indexd submission error on ${data.file_name}`);
+      },
+    ));
+    // console.log("indexd addFileIndices waiting on promiseList of length: " + promiseList.length, promiseList);
     // This Promise.all trick does not work for some reason - ugh!
     // Have to figure it out later - always return true for now (below)
     const success = await (
-      async () => {
-        return Promise.all(promiseList).then(
-          () => true,
-          (v) => {
-            console.log('Some of the indexd submissions failed?  Ignoring failure ...', v);
-            // succeed anyway - this thing is flaky for some reason
-            return true;
-          }
-        );
-      }
+      async () => Promise.all(promiseList).then(
+        () => true,
+        (v) => {
+          console.log('Some of the indexd submissions failed?  Ignoring failure ...', v);
+          // succeed anyway - this thing is flaky for some reason
+          return true;
+        },
+      )
     )();
-    return success; 
+    return success;
   },
 
   /**
@@ -150,9 +145,7 @@ module.exports = {
         `${indexdProps.endpoints.put}/${file.did}?rev=${file.rev}`,
         data,
         authHeaders,
-      ).then((res) => {
-        return res.data;
-      });
+      ).then((res) => res.data);
     });
   },
 
@@ -193,9 +186,7 @@ module.exports = {
    */
   async deleteFileIndices(files) {
     await Promise.all(
-        files.map((file) => {
-          return this.deleteFile(file);
-        })
+      files.map((file) => this.deleteFile(file)),
     );
   },
 
@@ -204,14 +195,14 @@ module.exports = {
    * @param {array} guidList - list of GUIDs of the files to delete
    */
   async deleteFiles(guidList) {
-    var fileList = []
+    const fileList = [];
     for (guid of guidList) {
-      var file = {
-        did: guid
+      const file = {
+        did: guid,
       };
-      var fileRes = await this.getFile(file); // adds 'rev' to the file
+      const fileRes = await this.getFile(file); // adds 'rev' to the file
       if (!fileRes.error) {
-        var res = await this.deleteFile(file);
+        const res = await this.deleteFile(file);
         fileList.push(file);
       } else {
         console.log(`Could not delete file, since attempting to get it resulted in error: ${fileRes.error}`);

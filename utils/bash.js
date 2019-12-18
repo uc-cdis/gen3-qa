@@ -9,30 +9,29 @@ const { Docker } = require('./commanders/docker');
 const { NullCommander } = require('./commanders/null');
 const { ENV_TYPE, envVal } = require('./env');
 
-class Bash{
+class Bash {
   constructor() {
     this.commander = this.getCommander();
   }
 
   getCommander() {
-    if (envVal === ENV_TYPE.JENKINS){
+    if (envVal === ENV_TYPE.JENKINS) {
       return new K8s();
     }
-    if (envVal === ENV_TYPE.LOCAL_AGAINST_GEN3_K8S){
+    if (envVal === ENV_TYPE.LOCAL_AGAINST_GEN3_K8S) {
       return new SshK8s();
     }
-    if (envVal === ENV_TYPE.LOCAL_AGAINST_DOCKER){
+    if (envVal === ENV_TYPE.LOCAL_AGAINST_DOCKER) {
       return new Docker();
     }
     return new NullCommander();
   }
 
-  runJob(jobName, args='', wait=true) {
+  runJob(jobName, args = '', wait = true) {
     if (wait) {
       return this.commander.runJobAndWait(jobName, args);
-    } else {
-      return this.commander.runJob(jobName, args);
     }
+    return this.commander.runJob(jobName, args);
   }
 
   /**
@@ -41,7 +40,7 @@ class Bash{
    * @param {string} service - service name of pod in which command is run. undefined for running in admin vm
    * @returns {string}
    */
-  runCommand(cmd, service=undefined, clean=null) {
+  runCommand(cmd, service = undefined, clean = null) {
     return this.commander.runCommand(cmd, service, clean);
   }
 }
@@ -51,7 +50,7 @@ class Bash{
  * @param {string} str
  */
 function takeLastLine(str) {
-  return str.split(/[\r\n]+/).filter(line => !!line.trim()).pop();
+  return str.split(/[\r\n]+/).filter((line) => !!line.trim()).pop();
 }
 
 module.exports = { Bash, takeLastLine };

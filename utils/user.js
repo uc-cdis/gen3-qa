@@ -5,10 +5,11 @@
 
 const apiUtil = require('./apiUtil');
 const { Bash } = require('./bash');
+
 const bash = new Bash();
 
 const DEFAULT_TOKEN_EXP = 3600;
-var indexdCache = null;
+let indexdCache = null;
 
 
 /**
@@ -16,20 +17,19 @@ var indexdCache = null;
  * @returns {string}
  */
 function getIndexPassword() {
-  if (! indexdCache) {
+  if (!indexdCache) {
     const credsCmd = 'cat /var/www/sheepdog/creds.json';
-    const secret = bash.runCommand(credsCmd,'sheepdog');
+    const secret = bash.runCommand(credsCmd, 'sheepdog');
     console.error(secret);
     indexdCache = {
-      indexdUsername: JSON.parse(secret).indexd_client != undefined ? JSON.parse(secret).indexd_client : 'gdcapi',
-      indexdPassword: JSON.parse(secret).indexd_password
+      indexdUsername: JSON.parse(secret).indexd_client !== undefined ? JSON.parse(secret).indexd_client : 'gdcapi',
+      indexdPassword: JSON.parse(secret).indexd_password,
     };
 
     console.log(`Cached indexd creds: ${JSON.stringify(indexdCache)}`);
   }
   return { ...indexdCache };
 }
-
 
 
 /**
@@ -43,7 +43,9 @@ class User {
    * @param {string} options.username - Gen3 commons username/email
    * @param {string} options.envVarsName - Suffix for getting environment variables for user
    */
-  constructor({ username, accessToken, googleEmail, googlePassword }) {
+  constructor({
+    username, accessToken, googleEmail, googlePassword,
+  }) {
     this.username = username;
     this._accessToken = accessToken || null;
     this._expiredAccessToken = null;
@@ -52,19 +54,19 @@ class User {
   }
 
   get accessToken() {
-    if (! this._accessToken) {
+    if (!this._accessToken) {
       const at = apiUtil.getAccessToken(this.username, DEFAULT_TOKEN_EXP);
       // make sure the access token looks valid - base64 encoded JSON :-p
-      const token = apiUtil.parseJwt(at);
+      // const token = apiUtil.parseJwt(at);
       this._accessToken = at;
     }
     return this._accessToken;
   }
 
   async getExpiredAccessToken() {
-    if (! this._expiredAccessToken) {
+    if (!this._expiredAccessToken) {
       const at = apiUtil.getAccessToken(this.username, 1);
-      const token = apiUtil.parseJwt(at); // just a sanity check
+      // const token = apiUtil.parseJwt(at); // just a sanity check
       this._expiredAccessToken = at;
       // better sleep for 1 seconds, so the token is actually expired when the caller gets it
       await apiUtil.sleepMS(2000);
@@ -79,7 +81,7 @@ class User {
   get googleCreds() {
     return {
       email: this.googleEmail,
-      password: this.googlePassword
+      password: this.googlePassword,
     };
   }
 
@@ -132,11 +134,11 @@ module.exports = {
    * Note that this user has the "abc-admin" policy
    */
   mainAcct: new User(
-    { 
-      username: 'cdis.autotest@gmail.com', 
-      accessToken: process.env["GEN3_TOKEN_MAIN"], ...
-      gCreds 
-    }
+    {
+      username: 'cdis.autotest@gmail.com',
+      accessToken: process.env.GEN3_TOKEN_MAIN,
+      ...gCreds,
+    },
   ),
   /**
    * Auxiliary User account 1
@@ -144,11 +146,11 @@ module.exports = {
    * Note that this user has the "abc.programs.test_program.projects.test_project1-viewer" policy
    */
   auxAcct1: new User(
-    { 
+    {
       username: 'dummy-one@planx-pla.net',
-      accessToken: process.env["GEN3_TOKEN_AUX1"],
-      ...gCreds
-    }
+      accessToken: process.env.GEN3_TOKEN_AUX1,
+      ...gCreds,
+    },
   ),
   /**
    * Auxiliary User account 2
@@ -156,40 +158,40 @@ module.exports = {
    * Note that this user has the "abc.programs.test_program2.projects.test_project3-viewer" policy
    */
   auxAcct2: new User(
-    { 
-      username: 'smarty-two@planx-pla.net', 
-      accessToken: process.env["GEN3_TOKEN_AUX2"],
-      ...gCreds 
-    }
+    {
+      username: 'smarty-two@planx-pla.net',
+      accessToken: process.env.GEN3_TOKEN_AUX2,
+      ...gCreds,
+    },
   ),
   /**
    * User.yaml User account 0
    */
   user0: new User(
-    { 
-      username: 'dcf-integration-test-0@planx-pla.net', 
-      accessToken: process.env["GEN3_TOKEN_USER0"],
-      ...gCreds 
-    }
+    {
+      username: 'dcf-integration-test-0@planx-pla.net',
+      accessToken: process.env.GEN3_TOKEN_USER0,
+      ...gCreds,
+    },
   ),
   /**
    * User.yaml User account 1
    */
   user1: new User(
-    { 
-      username: 'dcf-integration-test-1@planx-pla.net', 
-      accessToken: process.env["GEN3_TOKEN_USER1"],
-      ...gCreds 
-    }
+    {
+      username: 'dcf-integration-test-1@planx-pla.net',
+      accessToken: process.env.GEN3_TOKEN_USER1,
+      ...gCreds,
+    },
   ),
   /**
    * User.yaml User account 2
    */
   user2: new User(
-    { 
-      username: 'dcf-integration-test-2@planx-pla.net', 
-      accessToken: process.env["GEN3_TOKEN_USER2"],
-      ...gCreds 
-    }
-  )
+    {
+      username: 'dcf-integration-test-2@planx-pla.net',
+      accessToken: process.env.GEN3_TOKEN_USER2,
+      ...gCreds,
+    },
+  ),
 };
