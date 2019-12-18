@@ -3,7 +3,7 @@ const apiUtil = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
 
 const bash = new Bash();
-const { expect } = chai.expect;
+const { expect } = chai.expect; // eslint-disable-line no-redeclare
 
 Feature('GoogleServiceAccountKey');
 

@@ -15,7 +15,7 @@ const fenceProps = require('./services/apis/fence/fenceProps');
 const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
 const bash = new Bash();
 
-'use strict'; // eslint-disable-line no-unused-expressions
+'use strict'; // eslint-disable-line chai-friendly/no-unused-expressions
 
 /**
  * Returns the list of tags that were passed in as arguments, including
@@ -82,7 +82,7 @@ function assertEnvVars(varNames) {
  */
 async function tryCreateProgramProject(nAttempts) {
   let success = false;
-   for (let i = 0; i < nAttempts; i += 1) {
+  for (let i = 0; i < nAttempts; i += 1) {
     if (success === true) {
       break;
     }
@@ -92,7 +92,10 @@ async function tryCreateProgramProject(nAttempts) {
         success = true;
       })
       .catch((err) => {
-        console.log(`Failed to create program/project on attempt ${i}:\n`, JSON.stringify(err));
+        console.log(
+          `Failed to create program/project on attempt ${i}:\n`,
+          JSON.stringify(err),
+        );
         if (i === nAttempts - 1) {
           throw err;
         }
