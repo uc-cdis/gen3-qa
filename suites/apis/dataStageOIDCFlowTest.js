@@ -179,6 +179,10 @@ function performPreSignedURLTest(cloudProvider, typeOfTest, typeOfCreds) {
 BeforeSuite(async (I) => {
   console.log('Setting up dependencies...');
   I.cache = {};
+
+  // random number to be used in one occasion (it must be unique for every iteration)
+  I.cache.NONCE = Date.now();
+
   I.TARGET_ENVIRONMENT = TARGET_ENVIRONMENT;
   // Fetching public list of DIDs
   const httpResp = await I.sendGetRequest(
