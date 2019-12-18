@@ -10,6 +10,7 @@ const { google } = require('googleapis'); // eslint-disable-line import/no-unres
 const apiUtil = require('./apiUtil.js');
 const files = require('./file.js');
 
+const { expect } = chai.expect; // eslint-disable-line no-redeclare
 
 /**
  * Internal object for managing google requests

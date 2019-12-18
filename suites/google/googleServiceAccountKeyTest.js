@@ -3,7 +3,6 @@ const apiUtil = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
 
 const bash = new Bash();
-const { expect } = chai.expect; // eslint-disable-line no-redeclare
 
 Feature('GoogleServiceAccountKey');
 
@@ -55,7 +54,7 @@ Scenario('Get current SA creds @reqGoogle', async (fence, users) => {
   // Make sure there are no creds for this user
   let getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
   const credsList1 = getCredsRes.access_keys;
-  expect(credsList1.length, 'There should not be existing SA keys at the beginning of the test').to.equal(0);
+  chai.expect(credsList1.length, 'There should not be existing SA keys at the beginning of the test').to.equal(0);
 
   // Get temporary google creds
   let tempCredsRes = await fence.complete.createTempGoogleCreds(users.user0.accessTokenHeader);
@@ -95,20 +94,20 @@ Scenario('Get current SA creds @reqGoogle', async (fence, users) => {
   );
 
   // Asserts
-  expect(
+  chai.expect(
     credsList2.length,
     'The 2 generated SA keys should be listed',
   ).to.equal(2);
 
   const key1 = credsList2.filter((key) => key.name.includes(keyId1));
-  expect(
+  chai.expect(
     key1.length,
     'The generated SA key should be listed',
   ).to.equal(1);
 
   let start = Date.parse(key1[0].validAfterTime);
   let end = Date.parse(key1[0].validBeforeTime);
-  expect(
+  chai.expect(
     (end - start) / 10000,
     `The key should be set to expire in ${fence.props.linkExtendDefaultAmount} secs`,
   ).to.be.within(
@@ -117,25 +116,25 @@ Scenario('Get current SA creds @reqGoogle', async (fence, users) => {
   );
 
   let key2 = credsList2.filter((key) => key.name.includes(keyId2));
-  expect(
+  chai.expect(
     key2.length,
     'The generated SA key should be listed',
   ).to.equal(1);
 
   start = Date.parse(key2[0].validAfterTime);
   end = Date.parse(key2[0].validBeforeTime);
-  expect(
+  chai.expect(
     (end - start) / 10000,
     `The key should be set to expire in ${EXPIRES_IN} secs`,
   ).to.be.within(EXPIRES_IN - 5, EXPIRES_IN + 5);
 
-  expect(
+  chai.expect(
     credsList3.length,
     'Only 1 SA key should be listed after the other one is deleted',
   ).to.equal(1);
 
   key2 = credsList3.filter((key) => key.name.includes(keyId2));
-  expect(
+  chai.expect(
     key2.length,
     'Only the SA key that was not deleted should be listed',
   ).to.equal(1);
@@ -200,7 +199,7 @@ Scenario('Delete SA creds that do not exist @reqGoogle', async (fence, users) =>
     fakeKeyId,
     users.user0.accessTokenHeader,
   );
-  expect(
+  chai.expect(
     deleteRes,
     'Deleting a SA key that does not exist should return 404',
   ).has.property('status', 404);
