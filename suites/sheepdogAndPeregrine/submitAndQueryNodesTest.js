@@ -204,21 +204,21 @@ Scenario('test with_path_to - last to first node @reqData', async (peregrine, sh
 Scenario('submit data node with consent codes @indexRecordConsentCodes', async (sheepdog, indexd, nodes) => {
   // submit metadata for this file, including consent codes
   sheepdogRes = await nodes.submitGraphAndFileMetadata(
-	  sheepdog, null, null, null, null, consent_codes=["CC1", "CC2"]
+	  sheepdog, null, null, null, null, consent_codes = ['CC1', 'CC2'],
   );
   sheepdog.ask.addNodeSuccess(sheepdogRes);
 
   // check that the indexd record was created with the correct consent codes
-  let fileNodeWithCCs = {
+  const fileNodeWithCCs = {
     did: sheepdogRes.did,
     authz: [
-      "/consents/CC1",
-      "/consents/CC2",
+      '/consents/CC1',
+      '/consents/CC2',
     ],
     data: {
       md5sum: sheepdogRes.data.md5sum,
-      file_size: sheepdogRes.data.file_size
-    }
+      file_size: sheepdogRes.data.file_size,
+    },
   };
   await indexd.complete.checkFile(fileNodeWithCCs);
 }).retry(2);

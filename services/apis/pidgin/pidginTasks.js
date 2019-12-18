@@ -8,13 +8,14 @@ const I = actor();
 module.exports = {
 
   async getCoremetadata(
-    file, format = 'application/json', access_token) {
+    file, format = 'application/json', access_token,
+  ) {
     const token = {
       Accept: format,
       Authorization: access_token.Authorization,
     };
 
     const endpoint = `${pidginProps.endpoints.getCoreMetadata}/${file.did}`;
-    return I.sendGetRequest(endpoint, token).then(res => res.data);
+    return I.sendGetRequest(endpoint, token).then((res) => res.data);
   },
 };

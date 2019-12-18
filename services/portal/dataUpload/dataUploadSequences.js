@@ -12,9 +12,7 @@ module.exports = {
     const expectedFileCount = fileObjects.length;
     let expectedFileTotalSize = 0;
     if (isReady) {
-      expectedFileTotalSize = fileObjects.reduce((acc, cur) => {
-        return acc + cur.fileSize;
-      }, 0);
+      expectedFileTotalSize = fileObjects.reduce((acc, cur) => acc + cur.fileSize, 0);
     }
     dataUploadQuestions.isNumberAndSizeOfUnmappedFilesCorrect(expectedFileCount, expectedFileTotalSize);
   },

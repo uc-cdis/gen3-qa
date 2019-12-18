@@ -1,7 +1,7 @@
-const exportToWorkspaceProps = require('./exportToWorkspaceProps.js');
 const chai = require('chai');
+const exportToWorkspaceProps = require('./exportToWorkspaceProps.js');
 
-const expect = chai.expect;
+const { expect } = chai;
 const I = actor();
 
 /**

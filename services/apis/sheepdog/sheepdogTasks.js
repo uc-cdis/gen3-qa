@@ -17,7 +17,7 @@ const bash = new Bash();
  * @returns {*}
  */
 function getIdFromResponse(res) {
-  const data = res.data;
+  const { data } = res;
   try {
     return data.entities[0].id;
   } catch (e) {
@@ -166,6 +166,6 @@ module.exports = {
 
   runGenTestData(maxSamples) {
     return bash.runJob('gentestdata',
-      `TEST_PROGRAM jnkns TEST_PROJECT jenkins MAX_EXAMPLES ${maxSamples} SUBMISSION_USER cdis.autotest@gmail.com`)
-  }
+      `TEST_PROGRAM jnkns TEST_PROJECT jenkins MAX_EXAMPLES ${maxSamples} SUBMISSION_USER cdis.autotest@gmail.com`);
+  },
 };

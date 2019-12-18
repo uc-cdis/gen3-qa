@@ -82,7 +82,7 @@ function assertEnvVars(varNames) {
  */
 async function tryCreateProgramProject(nAttempts) {
   let success = false;
-  for (let i = 0; i < nAttempts; i += 1) {
+   for (let i = 0; i < nAttempts; i += 1) {
     if (success === true) {
       break;
     }

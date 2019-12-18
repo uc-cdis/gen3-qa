@@ -1,6 +1,6 @@
 const chai = require('chai');
 
-const expect = chai.expect;
+const { expect } = chai;
 chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 
@@ -72,7 +72,7 @@ module.exports = {
    * @param {Node[]} nodesList - array of expected nodes
    */
   queryResultsEqualNodes(results, nodesList) {
-    const resultNodeList = nodesList.map(node => [results[node.name], node]);
+    const resultNodeList = nodesList.map((node) => [results[node.name], node]);
     apiUtil.applyQuestion(
       resultNodeList,
       this.queryResultEqualsNode,
@@ -107,7 +107,7 @@ module.exports = {
   allCountsIncrease(previousCounts, newCounts) {
     // assert that the count for each node increased by 1
     // previousCounts and newCounts are objects with results keyed by the node name
-    const resultsMergedList = Object.keys(previousCounts).map(nodeName => [
+    const resultsMergedList = Object.keys(previousCounts).map((nodeName) => [
       nodeName,
       previousCounts[nodeName],
       newCounts[nodeName],
