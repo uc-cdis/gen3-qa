@@ -6,7 +6,7 @@ module.exports = {
   mapFilesPath: '/submission/files',
 
   submissionHeaderClass: '.submission-header',
-  
+
   unmappedFilesHeaderClass: '.map-files',
   unmappedFileRowClass: '.map-files__table-row',
 
@@ -18,11 +18,11 @@ module.exports = {
 
   fileNodeSelectionDropdownSelector: '.map-data-model__node-form-section .Select-arrow',
   fileNodeSelectionOuterClass: '.map-data-model__node-form-section .Select-menu-outer',
-  fileNodeSelectionFirstItemClass: '.map-data-model__node-form-section .Select-menu-outer .Select-option:first-child', 
+  fileNodeSelectionFirstItemClass: '.map-data-model__node-form-section .Select-menu-outer .Select-option:first-child',
 
   fileNodeRequiredFieldTextInputXPath: '//*[contains(@class, "map-data-model__detail-section")]//*[contains(@class, "map-data-model__required-field")]//*[contains(@class, "map-data-model__input")]',
   fileNodeRequiredFieldSelectionInputXPath: '//*[contains(@class, "map-data-model__detail-section")]//*[contains(@class, "map-data-model__required-field")]//*[contains(@class, "map-data-model__dropdown")]',
-  
+
   selectionArrowXPath: '//span[contains(@class, "Select-arrow")]',
   selectionMenuXPath: '//div[contains(@class, "Select-menu-outer")]',
   firstSelectionItemXPath: '//div[contains(@class, "Select-menu-outer")]//div[contains(@class, "Select-option")][1]',
@@ -31,6 +31,6 @@ module.exports = {
 
   submitButtonXPath: '//button[contains(text(), "Submit")]',
 
-  unmappedFilesStringFormat: '%d files | %d B', 
+  unmappedFilesStringFormat: '%d files | %d B',
   successMessageFormate: '%d files mapped successfully!',
 };

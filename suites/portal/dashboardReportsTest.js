@@ -1,8 +1,9 @@
 Feature('DashboardReports - https://ctds-planx.atlassian.net/browse/PXP-4252');
 
 const chai = require('chai');
-const {interactive, ifInteractive} = require('../../utils/interactive.js');
-const expect = chai.expect;
+const { interactive, ifInteractive } = require('../../utils/interactive.js');
+
+const { expect } = chai;
 
 const hostname = process.env.HOSTNAME;
 
@@ -14,7 +15,7 @@ Scenario('The dashboard reports should break down data by service @manual', ifIn
     THEN response code and response times should be displayed in tabs per services
         `);
     expect(result.didPass, result.details).to.be.true;
-  }
+  },
 ));
 
 Scenario('The dashboard reports bucket response times in a useful way @manual', ifInteractive(
@@ -25,9 +26,9 @@ Scenario('The dashboard reports bucket response times in a useful way @manual', 
     THEN response times should be bucketed as : 0-1sec, 1-5sec, 5-10sec, 10+secs
         `);
     expect(result.didPass, result.details).to.be.true;
-  }
+  },
 ));
- 
+
 Scenario('The dashboard reports bucket response codes in a useful way @manual', ifInteractive(
   async (I) => {
     const result = await interactive(`
@@ -36,7 +37,7 @@ Scenario('The dashboard reports bucket response codes in a useful way @manual', 
     THEN response code should include details for error codes 400, 401, 402, 403, 404 and add key
         `);
     expect(result.didPass, result.details).to.be.true;
-  }
+  },
 ));
 
 Scenario('The dashboard reports require login to access @manual', ifInteractive(
@@ -47,7 +48,7 @@ Scenario('The dashboard reports require login to access @manual', ifInteractive(
     THEN the user is denied access with a basic error page
         `);
     expect(result.didPass, result.details).to.be.true;
-  }
+  },
 ));
 
 Scenario('The dashboard reports gracefully handle no data @manual', ifInteractive(
@@ -58,5 +59,5 @@ Scenario('The dashboard reports gracefully handle no data @manual', ifInteractiv
     THEN the reports render a "No Data" message
         `);
     expect(result.didPass, result.details).to.be.true;
-  }
+  },
 ));

@@ -1,6 +1,6 @@
-const { Base } = require("./base");
-
 const { execSync } = require('child_process');
+const { Base } = require('./base');
+
 const { clean } = require('../string');
 
 class K8s extends Base {
@@ -11,7 +11,7 @@ class K8s extends Base {
    * @param cleanResult lambda(string) => string cleans result string
    * @returns {*}
    */
-  runCommand(cmd, service=undefined, cleanResult=null) {
+  runCommand(cmd, service = undefined, cleanResult = null) {
     cleanResult = cleanResult || clean;
     if (process.env.GEN3_HOME) {
       // eslint-disable-line no-template-curly-in-string
@@ -27,10 +27,10 @@ class K8s extends Base {
         }
         return cleanResult(execSync(
           fullCommand,
-          { shell: '/bin/bash' }
+          { shell: '/bin/bash' },
         ).toString('utf8'));
       } catch (err) {
-        const message = `ERROR: something went wrong with: ${fullCommand}`
+        const message = `ERROR: something went wrong with: ${fullCommand}`;
         console.log(message, err);
         return message;
       }

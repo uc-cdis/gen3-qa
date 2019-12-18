@@ -1,5 +1,6 @@
 const chai = require('chai');
-const expect = chai.expect;
+
+const { expect } = chai;
 
 /**
  * fence Questions
@@ -11,7 +12,7 @@ module.exports = {
    * @returns {boolean}
    */
   hasVersionIncreased(index, previousVersion) {
-    let no = index.match(RegExp('.*?([0-9]+)$'))
+    const no = index.match(RegExp('.*?([0-9]+)$'));
     expect(Number.parseInt(no[1]), 'Fails to increase function').to.equal(previousVersion + 1);
   },
 };

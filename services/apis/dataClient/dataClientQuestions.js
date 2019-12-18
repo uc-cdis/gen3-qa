@@ -1,7 +1,7 @@
 const fs = require('fs');
 const chai = require('chai');
 
-const expect = chai.expect;
+const { expect } = chai;
 
 /**
  * dataClient Questions
@@ -14,13 +14,13 @@ module.exports = {
    */
   fileContains(filePath, expectedContents) {
     if (!fs.existsSync(filePath)) {
-      throw new Error(`Download failed for ${filePath}`)
+      throw new Error(`Download failed for ${filePath}`);
     }
 
     fs.readFile(filePath, (err, data) => {
       if (err) throw err;
-      let fileContents = data.toString();
+      const fileContents = data.toString();
       expect(fileContents).to.equal(expectedContents);
-    })
+    });
   },
 };

@@ -5,10 +5,10 @@ Feature('Export Performance Tests')
 const chai = require('chai');
 const r = require('../../utils/regressions.js');
 
-const expect = chai.expect;
+const { expect } = chai;
 
 Data(r.longestPath)
-  .Scenario(`Export all nodes of type:`, async (current, sheepdog) => {
+  .Scenario('Export all nodes of type:', async (current, sheepdog) => {
     const nodeType = await current.nodes;
     expect(r.programSlashProject).to.not.equal('', 'Please provide a value for the PROGRAM_SLASH_PROJECT environment variable');
     expect(typeof r.programSlashProject).to.not.equal('undefined', 'Please provide a value for the PROGRAM_SLASH_PROJECT environment variable');
@@ -18,7 +18,7 @@ Data(r.longestPath)
   });
 
 Data(r.representativeIDs)
-  .Scenario(`Exporting a record by ID on nodes of type:`, async (current, sheepdog) => {
+  .Scenario('Exporting a record by ID on nodes of type:', async (current, sheepdog) => {
     const id = await current.nodes;
     expect(r.programSlashProject).to.not.equal('', 'Please provide a value for the PROGRAM_SLASH_PROJECT environment variable');
     expect(typeof r.programSlashProject).to.not.equal('undefined', 'Please provide a value for the PROGRAM_SLASH_PROJECT environment variable');

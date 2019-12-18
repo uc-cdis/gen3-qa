@@ -11,6 +11,7 @@ const { Commons } = require('./utils/commons');
 const { Bash, takeLastLine } = require('./utils/bash');
 const google = require('./utils/google.js');
 const fenceProps = require('./services/apis/fence/fenceProps');
+
 const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
 const bash = new Bash();
 
@@ -58,7 +59,7 @@ function assertEnvVars(varNames) {
  */
 async function tryCreateProgramProject(nAttempts) {
   let success = false;
-  for (let i=0; i < nAttempts; ++i) {
+  for (let i = 0; i < nAttempts; ++i) {
     if (success === true) {
       break;
     }
@@ -84,8 +85,8 @@ function createGoogleTestBuckets() {
   try {
     console.log('Ensure test buckets are linked to projects in this commons...');
 
-    let bucketId = fenceProps.googleBucketInfo.QA.bucketId;
-    let googleProjectId = fenceProps.googleBucketInfo.QA.googleProjectId;
+    let { bucketId } = fenceProps.googleBucketInfo.QA;
+    let { googleProjectId } = fenceProps.googleBucketInfo.QA;
     let projectAuthId = 'QA';
     let fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
     console.log(`Running: ${fenceCmd}`);
@@ -130,7 +131,7 @@ async function setupGoogleProjectDynamic() {
     'roles/resourcemanager.projectIamAdmin',
     'roles/editor',
   ];
-  for (let role of monitorRoles) {
+  for (const role of monitorRoles) {
     const res = await google.updateUserRole(
       fenceProps.googleProjectDynamic.id,
       {
@@ -144,7 +145,7 @@ async function setupGoogleProjectDynamic() {
       if (inJenkins) {
         throw Error(msg);
       }
-      console.log(`WARNING: ${  msg}`);
+      console.log(`WARNING: ${msg}`);
     }
   }
 
@@ -168,8 +169,8 @@ async function setupGoogleProjectDynamic() {
  */
 function parseTestTags() {
   let tags = [];
-  let args = process.argv; //process.env.npm_package_scripts_test.split(' '); // all args
-  args = args.map(item => item.replace(/(^"|"$)/g, '')); // remove quotes
+  let args = process.argv; // process.env.npm_package_scripts_test.split(' '); // all args
+  args = args.map((item) => item.replace(/(^"|"$)/g, '')); // remove quotes
   if (args.includes('--grep')) {
     // get tags and whether the grep is inverted
     args.map((item) => {
@@ -199,7 +200,7 @@ module.exports = async function (done) {
     console.log('Setting environment variables...\n');
     // annoying flag used by fenceProps ...
     if (isIncluded('@centralizedAuth')) {
-      process.env['ARBORIST_CLIENT_POLICIES'] = 'true';
+      process.env.ARBORIST_CLIENT_POLICIES = 'true';
     }
 
     // Create configuration values based on hierarchy then export them to the process
@@ -234,7 +235,7 @@ module.exports = async function (done) {
     // may want to skip this if only running
     // DCFS tests or interactive tests ...
     //
-    if (process.env["GEN3_SKIP_PROJ_SETUP"] !== "true") {
+    if (process.env.GEN3_SKIP_PROJ_SETUP !== 'true') {
       // Create a program and project (does nothing if already exists)
       console.log('Creating program/project\n');
       await tryCreateProgramProject(3);
