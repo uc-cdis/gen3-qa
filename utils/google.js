@@ -4,7 +4,7 @@
  */
 
 const chai = require('chai');
-
+const { Storage } = require('@google-cloud/storage'); // eslint-disable-line no-redeclare
 const { google } = require('googleapis'); // eslint-disable-line import/no-unresolved
 
 const apiUtil = require('./apiUtil.js');
