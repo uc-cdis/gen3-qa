@@ -65,7 +65,12 @@ class Client {
   get client() {
     if (!this._client) {
       deleteClient(this.clientName);
-      this._client = createClient(this.clientName, this.userName, this.clientType, this.arboristPolicies);
+      this._client = createClient(
+        this.clientName,
+        this.userName,
+        this.clientType,
+        this.arboristPolicies,
+      );
     }
     return { ...this._client };
   }
@@ -94,9 +99,11 @@ module.exports = {
     deleteGoogleLink: `${rootEndpoint}/link/google`,
     extendGoogleLink: `${rootEndpoint}/link/google`,
     registerGoogleServiceAccount: `${rootEndpoint}/google/service_accounts`,
+    updateGoogleServiceAccount: `${rootEndpoint}/google/service_accounts`,
     deleteGoogleServiceAccount: `${rootEndpoint}/google/service_accounts`,
     getGoogleServiceAccounts: `${rootEndpoint}/google/service_accounts`,
     getGoogleSvcAcctMonitor: `${rootEndpoint}/google/service_accounts/monitor`,
+    getGoogleBillingProjects: `${rootEndpoint}/google/billing_projects`,
     authorizeOAuth2Client: `${rootEndpoint}/oauth2/authorize`,
     tokenOAuth2Client: `${rootEndpoint}/oauth2/token`,
     publicKeysEndpoint: `${rootEndpoint}/jwt/keys`,

@@ -1,5 +1,5 @@
 const { container } = require('codeceptjs');
-const ax = require('axios');
+const ax = require('axios'); // eslint-disable-line import/no-extraneous-dependencies
 
 const fenceProps = require('./fenceProps.js');
 const user = require('../../../utils/user.js');
@@ -17,7 +17,10 @@ const I = actor();
  */
 async function onConsentPage() {
   const wdio = container.helpers('WebDriver');
-  return wdio._locate(fenceProps.consentPage.consentBtn.locator.xpath, true).then(
+  return wdio._locate( // eslint-disable-line no-underscore-dangle
+    fenceProps.consentPage.consentBtn.locator.xpath,
+    true,
+  ).then(
     (els) => els.length > 0,
   );
 }
@@ -142,10 +145,10 @@ module.exports = {
    * @param {int} expires_in - requested expiration time (in seconds)
    * @returns {Promise<Gen3Response>}
    */
-  async createTempGoogleCreds(accessTokenHeader, expires_in = null) {
+  async createTempGoogleCreds(accessTokenHeader, expiresIn = null) {
     let url = fenceProps.endpoints.googleCredentials;
-    if (expires_in) {
-      url += `?expires_in=${expires_in}`;
+    if (expiresIn) {
+      url += `?expires_in=${expiresIn}`;
     }
     return I.sendPostRequest(
       url,
@@ -153,7 +156,7 @@ module.exports = {
       accessTokenHeader,
     ).then((res) => {
       const g3res = new Gen3Response(res);
-      if (g3res.status != 200) {
+      if (g3res.status !== 200) {
         console.error('Error creating temp google creds');
         console.log(res);
       }
@@ -207,13 +210,13 @@ module.exports = {
    * @param {int} expires_in - requested expiration time (in seconds)
    * @returns {Promise<Gen3Response|*>}
    */
-  async linkGoogleAcctMocked(userAcct, expires_in = null) {
+  async linkGoogleAcctMocked(userAcct, expiresIn = null) {
     // visit link endpoint. Google login is mocked
     const headers = userAcct.accessTokenHeader;
     headers.Cookie = `dev_login=${userAcct.username}`;
     let url = '/user/link/google?redirect=/login';
-    if (expires_in) {
-      url += `&expires_in=${expires_in}`;
+    if (expiresIn) {
+      url += `&expires_in=${expiresIn}`;
     }
 
     let res = await getNoRedirect(url, headers);
@@ -256,10 +259,10 @@ module.exports = {
    * @param {int} expires_in - requested expiration time (in seconds)
    * @returns {Promise<Gen3Response>}
    */
-  async extendGoogleLink(userAcct, expires_in = null) {
-    url = fenceProps.endpoints.extendGoogleLink;
-    if (expires_in) {
-      url += `?expires_in=${expires_in}`;
+  async extendGoogleLink(userAcct, expiresIn = null) {
+    let url = fenceProps.endpoints.extendGoogleLink;
+    if (expiresIn) {
+      url += `?expires_in=${expiresIn}`;
     }
     return I.sendPatchRequest(
       url, {}, userAcct.accessTokenHeader,
@@ -295,17 +298,19 @@ module.exports = {
    * @param {int} expires_in - requested expiration time (in seconds)
    * @returns {Promise<Gen3Response>}
    */
-  async registerGoogleServiceAccount(userAcct, googleProject, projectAccessList, expires_in = null, is_dry_run = false) {
-    url = fenceProps.endpoints.registerGoogleServiceAccount;
-    if (is_dry_run) url += '/_dry_run';
-    if (expires_in) {
-      url += `?expires_in=${expires_in}`;
+
+  async registerGoogleServiceAccount(
+    userAcct, googleProject, projectAccessList, expiresIn = null, isDryRun = false,
+  ) {
+    let url = fenceProps.endpoints.registerGoogleServiceAccount;
+    if (isDryRun) url += '/_dry_run';
+    if (expiresIn) {
+      url += `?expires_in=${expiresIn}`;
     }
     const MAX_TRIES = 3;
     let tries = 1;
-    let postRes;
     while (tries <= MAX_TRIES) {
-      postRes = await I.sendPostRequest(
+      const postRes = await I.sendPostRequest(
         url,
         {
           service_account_email: googleProject.serviceAccountEmail,
@@ -319,10 +324,10 @@ module.exports = {
           // stringify to print all the nested objects
           console.log(JSON.stringify(res.data.errors, null, 2));
         } else if (res.error) {
-          if (res.error.code == 'ETIMEDOUT') {
+          if (res.error.code === 'ETIMEDOUT') {
             return 'ETIMEDOUT: Google SA registration timed out';
           }
-          if (res.error.code == 'ECONNRESET') {
+          if (res.error.code === 'ECONNRESET') {
             return 'ECONNRESET: Google SA registration socket hung up';
           }
 
@@ -337,7 +342,7 @@ module.exports = {
       && (postRes.includes('ETIMEDOUT') || postRes.includes('ECONNRESET'))) {
         console.log(`registerGoogleServiceAccount: try ${tries}/${MAX_TRIES}`);
         console.log(postRes);
-        tries++;
+        tries += 1;
       } else {
         return postRes;
       }
@@ -373,18 +378,34 @@ module.exports = {
   },
 
   /**
-   * Updates a Google service account
+   * Updates a google service account
    * @param {User} userAcct - User to make request with
    * @param {string} serviceAccountEmail - email of service account to update
    * @param {string[]} projectAccessList - list of project names to set for service account's access
    * @returns {Promise<Gen3Response>}
    */
-  async updateGoogleServiceAccount(userAcct, serviceAccountEmail, projectAccessList) {
+  async updateGoogleServiceAccount(
+    userAcct, serviceAccountEmail, projectAccessList, isDryRun = false,
+  ) {
+    let url = fenceProps.endpoints.updateGoogleServiceAccount;
+    if (isDryRun) url += '/_dry_run';
     return I.sendPatchRequest(
-      fenceProps.endpoints.updateGoogleServiceAccount,
+      `${url}/${serviceAccountEmail}`,
       {
         project_access: projectAccessList,
       },
+      userAcct.accessTokenHeader,
+    ).then((res) => new Gen3Response(res));
+  },
+
+  /**
+   * Get GCP Billing Projects
+   * @param {User} userAcct - User to make request with
+   * @returns {Promise<Gen3Response>}
+   */
+  async getGoogleBillingProjects(userAcct) {
+    return I.sendGetRequest(
+      fenceProps.endpoints.getGoogleBillingProjects,
       userAcct.accessTokenHeader,
     ).then((res) => new Gen3Response(res));
   },
@@ -573,7 +594,8 @@ module.exports = {
 
   /**
    * Hits fence's signed url for multipart upload endpoint
-   * @param {string} key - object's key in format "GUID/filename" (GUID as returned by initMultipartUpload)
+   * @param {string} key - object's key in format "GUID/filename"
+   *                       (GUID as returned by initMultipartUpload)
    * @param {string} uploadId - object's uploadId (as returned by initMultipartUpload)
    * @param {string} partNumber - upload part number, starting from 1
    * @param {string} accessToken - access token
@@ -593,9 +615,12 @@ module.exports = {
 
   /**
    * Hits fence's multipart upload completion endpoint
-   * @param {string} key - object's key in format "GUID/filename" (GUID as returned by initMultipartUpload)
+   * @param {string} key - object's key in format "GUID/filename"
+   *                       (GUID as returned by initMultipartUpload)
    * @param {string} uploadId - object's uploadId (as returned by initMultipartUpload)
-   * @param {string} parts - list of {partNumber, ETag} objects (as returned when uploading using the URL returned by getUrlForMultipartUpload)
+   * @param {string} parts - list of {partNumber, ETag} objects
+   *                         (as returned when uploading using the URL
+   *                         returned by getUrlForMultipartUpload)
    * @param {string} accessToken - access token
    * @returns {Promise<Gen3Response>}
    */
