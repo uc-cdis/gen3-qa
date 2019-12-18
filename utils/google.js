@@ -178,75 +178,59 @@ module.exports = {
   },
 
   async updateUserRole(projectID, { role, members }) {
-    return googleApp.authorize(googleApp.cloudManagerConfig, (authClient) => {
-      googleApp.getIAMPolicy(projectID, authClient)
-        .then((iamPolicy) => {
-          // update the policy
-          iamPolicy.bindings.push({ role, members });
+    return googleApp.authorize(googleApp.cloudManagerConfig,
+      (authClient) => googleApp.getIAMPolicy(projectID, authClient).then((iamPolicy) => {
+        // update the policy
+        iamPolicy.bindings.push({ role, members });
 
-          // submit the updated policy
-          return googleApp.setIAMPolicy(projectID, iamPolicy, authClient);
-        })
-        .catch((err) => {
-          console.log(err);
-          return err;
-        });
-    });
+        // submit the updated policy
+        return googleApp.setIAMPolicy(projectID, iamPolicy, authClient);
+      }).catch((err) => {
+        console.log(err);
+        return err;
+      }));
   },
 
   async removeUserRole(projectID, { role, members }) {
-    return googleApp.authorize(
-      googleApp.cloudManagerConfig,
-      (authClient) => {
-        googleApp.getIAMPolicy(projectID, authClient)
-          .then((iamPolicy) => {
-            // find the binding with same role
-            const targetBinding = iamPolicy.bindings.find((binding) => binding.role === role);
-            if (!targetBinding) {
-              return iamPolicy;
-            }
-            // remove members
-            for (const member of members) {
-              const memberIdx = targetBinding.members.indexOf(member);
-              if (memberIdx > -1) {
-                targetBinding.members.splice(memberIdx, 1);
-              }
-            }
-
-            // submit the updated policy
-            return googleApp.setIAMPolicy(projectID, iamPolicy, authClient);
-          })
-          .catch((err) => {
-            console.log(err);
-            return err;
-          });
-      },
-    );
+    return googleApp.authorize(googleApp.cloudManagerConfig,
+      (authClient) => googleApp.getIAMPolicy(projectID, authClient).then((iamPolicy) => {
+        // find the binding with same role
+        const targetBinding = iamPolicy.bindings.find((binding) => binding.role === role);
+        if (!targetBinding) {
+          return iamPolicy;
+        }
+        // remove members
+        for (const member of members) {
+          const memberIdx = targetBinding.members.indexOf(member);
+          if (memberIdx > -1) {
+            targetBinding.members.splice(memberIdx, 1);
+          }
+        }
+        // submit the updated policy
+        return googleApp.setIAMPolicy(projectID, iamPolicy, authClient);
+      }).catch((err) => {
+        console.log(err);
+        return err;
+      }));
   },
 
   async removeAllOptionalUsers(projectID) {
-    return googleApp.authorize(
-      googleApp.cloudManagerConfig,
-      (authClient) => {
-        googleApp.getIAMPolicy(projectID, authClient)
-          .then((iamPolicy) => {
-            const requiredRoles = [
-              'roles/owner',
-              'roles/resourcemanager.projectIamAdmin',
-              'roles/editor',
-            ];
-            const { bindings } = iamPolicy;
-            iamPolicy.bindings = bindings.filter(
-              (binding) => requiredRoles.indexOf(binding.role) > -1,
-            );
-            return googleApp.setIAMPolicy(projectID, iamPolicy, authClient);
-          })
-          .catch((err) => {
-            console.log(err);
-            return err;
-          });
-      },
-    );
+    return googleApp.authorize(googleApp.cloudManagerConfig,
+      (authClient) => googleApp.getIAMPolicy(projectID, authClient).then((iamPolicy) => {
+        const requiredRoles = [
+          'roles/owner',
+          'roles/resourcemanager.projectIamAdmin',
+          'roles/editor',
+        ];
+        const { bindings } = iamPolicy;
+        iamPolicy.bindings = bindings.filter(
+          (binding) => requiredRoles.indexOf(binding.role) > -1,
+        );
+        return googleApp.setIAMPolicy(projectID, iamPolicy, authClient);
+      }).catch((err) => {
+        console.log(err);
+        return err;
+      }));
   },
 
   /**
