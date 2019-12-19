@@ -1,8 +1,8 @@
 Feature('DataUploadTest');
 
-const {interactive, ifInteractive} = require('../../utils/interactive');
+const { interactive, ifInteractive } = require('../../utils/interactive');
 
-const I = actor();
+//const I = actor();
 const createdGuids = [];
 const createdFileNames = [];
 let submitterID;
@@ -110,11 +110,11 @@ AfterSuite(async (sheepdog, indexd, files, dataUpload) => {
 });
 
 Scenario('Upload clinical data file through portal large enough to trigger chunking @manual @PXP-5053', ifInteractive(
-    async() => {
-      const result = await interactive(`
+  async () => {
+    const result = await interactive(`
         1. Submit a clinical data file with enough lines to trigger chunking (>30 rows in the default setting)
         2. Data is submitted successfully and the state is shown as Succeeded in the 'Recent Submissions' pane
       `);
-      expect(result.didPass, result.details).to.be.true;
-    }
+    expect(result.didPass, result.details).to.be.true;
+  },
 ));
