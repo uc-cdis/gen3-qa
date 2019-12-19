@@ -1,10 +1,12 @@
 const { spawn } = require('child_process');
 const { getJWTData, getAccessTokenFromApiKey } = require('../utils/apiUtil.js');
+const { fetchDIDList } = require('./indexd/indexdLTUtils.js');
 
 const args = process.argv.slice(2);
 
-if (args.length !== 3) {
-  console.log('read instructions');
+if (args.length < 3) {
+  console.log('read instructions: https://github.com/uc-cdis/gen3-qa/blob/master/docs/loadtesting.md');
+  process.exit(1);
 }
 
 const pathToCredentialsJson = args[0];
@@ -23,7 +25,7 @@ async function runLoadTestScenario() {
       return ACCESS_TOKEN;
     }).catch((reason) => {
       console.log(`Failed: ${reason.status} - ${reason.statusText}`);
-      return Error(`Failed: ${reason.status} - ${reason.statusText}`);
+      process.exit(1);
     });
 
   // Set fixed list of args for the load test run
@@ -32,9 +34,15 @@ async function runLoadTestScenario() {
   // Expand load test args based on special flags
   // TODO: Move the custom args parsing to a separate utils script
   if (customArgs === 'random-guids') {
-    const listOfDIDs = indexdLTUtils.fetchDIDList(token, targetEnvironment);
-    loadTestArgs.unshift(`GUIDS_LIST=${listOfDIDs}`);
-    loadTestArgs.unshift('-e');
+    const listOfDIDs = await fetchDIDList(token, targetEnvironment)
+      .then((DIDs) => DIDs).catch((reason) => {
+        console.log(`Failed: ${reason.status} - ${reason.statusText}`);
+        process.exit(1);
+      });
+
+    console.log(listOfDIDs);
+    // loadTestArgs.unshift(`GUIDS_LIST=${listOfDIDs}`);
+    // loadTestArgs.unshift('-e');
   }
 
   // The first arg should always be 'run'

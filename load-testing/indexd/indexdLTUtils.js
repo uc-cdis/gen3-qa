@@ -11,21 +11,22 @@ module.exports = {
    * @param {string} targetEnvironment
    * @returns {string[]}} list of indexd records / DIDs
    */
-  async fetchDIDList(accessToken, targetEnvironment) {
-    ax.request({
-      url: '/user/user',
-      baseURL: `https://${targetEnvironment}`,
-      method: 'get',
-      maxRedirects: 0,
-      header: {
-        Authorization: `bearer ${accessToken}`,
-        'content-type': 'application/json',
-        accept: 'application/json',
-      },
-    }).then(
-      (resp) => console.log(resp.data),
-      (err) => console.log(err.response || err),
-    );
-    return [];
+  fetchDIDList(accessToken, targetEnvironment) {
+    return new Promise(((resolve, reject) => {
+      ax.request({
+        url: '/user/user',
+        baseURL: `https://${targetEnvironment}`,
+        method: 'get',
+        maxRedirects: 0,
+        header: {
+          Authorization: `bearer ${accessToken}`,
+          'content-type': 'application/json',
+          accept: 'application/json',
+        },
+      }).then(
+        (resp) => resolve(resp.data),
+        (err) => reject(err.response || err),
+      );
+    }));
   },
 };
