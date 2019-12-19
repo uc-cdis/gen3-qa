@@ -1,0 +1,16 @@
+/**
+ * A module providing util functions to handle indexd records
+ * @module indexdLTUtils
+ */
+
+module.exports = {
+  /**
+   * Fetch a list of random index records
+   * @param {string} accessToken
+   * @param {string} targetEnvironment
+   * @returns {string[]}} list of indexd records / DIDs
+   */
+  async fetchDIDList(accessToken, targetEnvironment) {
+    
+  },
+};
