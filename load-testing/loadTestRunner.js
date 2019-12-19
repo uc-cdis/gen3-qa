@@ -34,15 +34,21 @@ async function runLoadTestScenario() {
   // Expand load test args based on special flags
   // TODO: Move the custom args parsing to a separate utils script
   if (customArgs === 'random-guids') {
-    const listOfDIDs = await fetchDIDList(token, targetEnvironment)
-      .then((DIDs) => DIDs).catch((reason) => {
+    const listOfDIDs = await fetchDIDList(targetEnvironment)
+      .then((records) => {
+        const dids = [];
+        records.forEach((record) => {
+          dids.push(record.did);
+        });
+	  return dids;
+      }).catch((reason) => {
         console.log(`Failed: ${reason.status} - ${reason.statusText}`);
         process.exit(1);
       });
 
     console.log(listOfDIDs);
-    // loadTestArgs.unshift(`GUIDS_LIST=${listOfDIDs}`);
-    // loadTestArgs.unshift('-e');
+    loadTestArgs.unshift(`GUIDS_LIST=${listOfDIDs.join()}`);
+    loadTestArgs.unshift('-e');
   }
 
   // The first arg should always be 'run'
