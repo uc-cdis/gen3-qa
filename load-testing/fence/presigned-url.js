@@ -21,11 +21,11 @@ export const options = {
     { duration: '60s', target: 15 },
     { duration: '60s', target: 20 },
     { duration: '60s', target: 20 },
-    { duration: '60s', target: 30 }, // Throughput impact starts here
+    { duration: '60s', target: 30 },
     { duration: '60s', target: 30 },
     { duration: '60s', target: 40 },
     { duration: '60s', target: 40 },
-    { duration: '60s', target: 50 }, // Objective
+    { duration: '60s', target: 50 },
     { duration: '60s', target: 50 },
     { duration: '60s', target: 50 },
     { duration: '60s', target: 50 },
