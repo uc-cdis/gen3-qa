@@ -40,7 +40,7 @@ async function runLoadTestScenario() {
         records.forEach((record) => {
           dids.push(record.did);
         });
-	  return dids;
+        return dids;
       }).catch((reason) => {
         console.log(`Failed: ${reason.status} - ${reason.statusText}`);
         process.exit(1);
