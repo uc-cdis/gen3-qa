@@ -243,6 +243,38 @@ module.exports = {
   },
 
   /**
+   * @param {string} projectID
+   * @returns {Object[]} a list of service accounts
+   */
+  async listServiceAccounts(projectID) {
+    return new Promise(
+      (resolve) => googleApp.authorize(googleApp.cloudManagerConfig,
+        (authClient) => {
+          const cloudResourceManager = google.iam('v1');
+          const request = {
+            name: `projects/${projectID}`,
+            auth: authClient,
+          };
+          cloudResourceManager.projects.serviceAccounts.list(request, (err, res) => {
+            if (err) {
+              if (err instanceof Error) {
+                resolve(err);
+              } else {
+                resolve(Error(err));
+              }
+              return;
+            }
+            if (res && res.data) {
+              resolve(res.data.accounts);
+            } else {
+              resolve(Error(`Unexpected get service account result: ${JSON.stringify(res)}`));
+            }
+          });
+        }),
+    );
+  },
+
+  /**
    * @param {string} serviceAccount - name or ID of the SA to get
    * @param {string} projectID
    * @returns {object} the service account
