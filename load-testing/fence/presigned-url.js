@@ -57,8 +57,8 @@ export default function () {
         'is status 200': (r) => r.status === 200,
       });
     });
-    group('wait 1 sec between requests', () => {
-      sleep(1);
+    group('wait 0.5s between requests', () => {
+      sleep(0.5);
     });
   });
 }
