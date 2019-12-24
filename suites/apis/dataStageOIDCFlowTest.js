@@ -14,7 +14,7 @@ Feature('Testing OIDC flow and pre-signed URL to check tokens - PXP-4649');
 
 // To be executed with GEN3_SKIP_PROJ_SETUP=true
 // No need to set up program / retrieve access token, etc.
-const { expect } = require('chai'); // eslint-disable-line no-redeclare
+const { expect } = require('chai');
 const fenceProps = require('../../services/apis/fence/fenceProps.js');
 const { interactive, ifInteractive } = require('../../utils/interactive.js');
 const { Gen3Response, getAccessTokenHeader, requestUserInput } = require('../../utils/apiUtil');
