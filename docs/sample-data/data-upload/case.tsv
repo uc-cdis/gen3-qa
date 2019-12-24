@@ -1,0 +1,51 @@
+*type	project_id	*submitter_id	*studies.submitter_id#1	age_at_enrollment	age_at_enrollment_gt89	age_of_immigration	case_submitter_id	collaboration_id	datasrc_data_source	days_to_birth	days_to_immigration	days_to_lost_to_followup	ethnicity	ethnicity_other	experimental_group	gender	handedness	index_date	lost_to_followup	military_branch	place_of_birth	race	race_not_specified_comment	race_other	species	year_of_birth
+case		test0101	test01										Hispanic or Latino													
+case		test0102	test01										Not Hispanic or Latino													
+case		test0103	test01										Not Reported													
+case		test0104	test01										Other (specify)													
+case		test0105	test01										Unknown													
+case		test0106	test01										Hispanic or Latino													
+case		test0107	test01										Not Hispanic or Latino													
+case		test0108	test01										Not Reported													
+case		test0109	test01										Other (specify)													
+case		test0110	test01										Unknown													
+case		test0111	test01										Hispanic or Latino													
+case		test0112	test01										Not Hispanic or Latino													
+case		test0113	test01										Not Reported													
+case		test0114	test01										Other (specify)													
+case		test0115	test01										Unknown													
+case		test0116	test01										Hispanic or Latino													
+case		test0117	test01										Not Hispanic or Latino													
+case		test0118	test01										Not Reported													
+case		test0119	test01										Other (specify)													
+case		test0120	test01										Unknown													
+case		test0121	test01										Hispanic or Latino													
+case		test0122	test01										Not Hispanic or Latino													
+case		test0123	test01										Not Reported													
+case		test0124	test01										Other (specify)													
+case		test0125	test01										Unknown													
+case		test0126	test01										Hispanic or Latino													
+case		test0127	test01										Not Hispanic or Latino													
+case		test0128	test01										Not Reported													
+case		test0129	test01										Other (specify)													
+case		test0130	test01										Unknown													
+case		test0131	test01										Hispanic or Latino													
+case		test0132	test01										Not Hispanic or Latino													
+case		test0133	test01										Not Reported													
+case		test0134	test01										Other (specify)													
+case		test0135	test01										Unknown													
+case		test0136	test01										Hispanic or Latino													
+case		test0137	test01										Not Hispanic or Latino													
+case		test0138	test01										Not Reported													
+case		test0139	test01										Other (specify)													
+case		test0140	test01										Unknown													
+case		test0141	test01										Hispanic or Latino													
+case		test0142	test01										Not Hispanic or Latino													
+case		test0143	test01										Not Reported													
+case		test0144	test01										Other (specify)													
+case		test0145	test01										Unknown													
+case		test0146	test01										Hispanic or Latino													
+case		test0147	test01										Not Hispanic or Latino													
+case		test0148	test01										Not Reported													
+case		test0149	test01										Other (specify)													
+case		test0150	test01										Unknown													

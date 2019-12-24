@@ -16,7 +16,7 @@ Scenario('Install gen3-client', ifInteractive(
             3. on terminal, echo 'export PATH=$PATH:<path>' >> ~/.bash_profile or ~/.zshrc  
             4. now run 'gen3-client' command on terminal. The user should see the version no and also list of available commands     
         `);
-    expect(result.didPass, result.details).to, be.true;
+    expect(result.didPass, result.details).to.be.true;
   },
 ));
 
@@ -28,7 +28,7 @@ Scenario('Installing the wrong binary file gen3-client @manual', ifInteractive(
             2. the user would see error message such as this '-bash: ./gen3-client.exe: cannot execute binary file'
             3. Now user executes the correct binary file and executes gen3-client command. 
         `);
-    expect(result.didPass, result.details).to, be.true;
+    expect(result.didPass, result.details).to.be.true;
   },
 ));
 
@@ -43,7 +43,7 @@ Scenario('Version Checker error @manual', ifInteractive(
             Note : This test can be done only locally currently as there are no versions for gen3-client. To carry out the test locally, follow this https://github.com/uc-cdis/cdis-data-client#installation and make a version change in 'gitversion' on path gen3-client/g3cmd/gitversion.go
             After the changes are made, run command 'go install .' and run any gen3-client command to see the response. 
         `);
-    expect(result.didPass, result.details).to, be.true;
+    expect(result.didPass, result.details).to.be.true;
   },
 ));
 
@@ -59,7 +59,7 @@ Scenario('Configuring gen3-client @manual', ifInteractive(
                 gen3-client configure --profile=bob --cred=/Users/Bob/Downloads/credentials.json --apiendpoint=https://data.mycommons.org
             5. go to ~/.gen3/config and check if the profile was created for the user. Also check if the API key is the same as used while configuring the profile
         `);
-    expect(result.didPass, result.details).to, be.true;
+    expect(result.didPass, result.details).to.be.true;
   },
 ));
 
@@ -70,7 +70,7 @@ Scenario('Wrong API key correct apiendpoint @manual', ifInteractive(
             1. user has a wrong cred.json (API key) and correct API endpoint
             2. the misconfiguration checker displays a message Invalid credentials for apiendpoint '<apiendpoint>': check if your credentials are expired or incorrect  
         `);
-    expect(result.didPass, result.details).to, be.true;
+    expect(result.didPass, result.details).to.be.true;
   },
 ));
 
@@ -80,7 +80,7 @@ Scenario('correct API key wrong apiendpoint @manual', ifInteractive(
             1. user has a correct cred.json (API key) but wrong API endpoint
             2. the misconfiguration checker displays a message 'The provided apiendpoint '<apiendpoint>' is possibly not a valid Gen3 data commons' 
         `);
-    expect(result.didPass, result.details).to, be.true;
+    expect(result.didPass, result.details).to.be.true;
   },
 ));
 
