@@ -227,6 +227,7 @@ Scenario('Initiate the OIDC Client flow with NIH credentials to obtain the OAuth
   async (I) => {
     // reset access token
     delete I.cache.ACCESS_TOKEN;
+    delete I.didList;
     const result = await interactive(printOIDCFlowInstructions(I, 'NIH'));
     expect(result.didPass, result.details).to.be.true;
   },
@@ -320,7 +321,7 @@ Scenario('Initiate the Implicit OIDC Client flow with Google credentials to obta
               NOTE: you may get a 401 error invalid_request: Replay attack failed to authorize (this has to do with the nonce provided, it should be unique per request so if someone else tried with it, you may see this error. Simply change the nonce to something else.)
              // Expect a redirect with an URL containing the "id_token"`);
 
-    const id_token = await requestUserInput('Please paste in your ID Token to verify the nonce: ');
+    const id_token = await requestUserInput('Please paste in your ID Token to verify the nonce (make sure you copy the entire id_token): ');
 
     const result = await interactive(`
             2. [Automated] Compare nonces:
@@ -366,7 +367,7 @@ Scenario('Test the exploration page @manual', ifInteractive(
     const result = await interactive(`
             1. Login with NIH credentials
             2. Click "Exploration" tab
-            3. Click on the "Case" tab and, under "Project Id", check the studies the user has access to:
+            3. Click on the "Subject" tab and, under "Project Id", check the studies the user has access to:
             // Expect a list of NIH projects, e.g.: topmed-COPD_DS-CS-RD
             `);
     expect(result.didPass, result.details).to.be.true;
