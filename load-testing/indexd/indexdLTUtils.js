@@ -16,8 +16,8 @@ module.exports = {
       // TODO: dynamically identify the records accessible by the owner of the access token
       // hardcoding the acl for now
       ax.request({
-        // url: '/index/index?acl=phs001143.c1',
-        url: '/index/index?url=s3://cdis-presigned-url-test/dcp-s3-test-2.bam',
+        url: '/index/index?acl=phs001143.c1',
+        // url: '/index/index?url=s3://cdis-presigned-url-test/dcp-s3-test-2.bam',
         baseURL: `https://${targetEnvironment}`,
         method: 'get',
         maxRedirects: 0,

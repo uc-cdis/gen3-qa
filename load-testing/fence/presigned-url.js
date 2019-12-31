@@ -12,7 +12,7 @@ const myFailRate = new Rate('failed requests');
 export const options = {
   rps: 90000,
   stages: [
-    /* { duration: '30s', target: 1 },
+    { duration: '30s', target: 1 },
     { duration: '30s', target: 5 },
     { duration: '30s', target: 10 },
     { duration: '60s', target: 20 },
@@ -26,8 +26,8 @@ export const options = {
     { duration: '60s', target: 70 },
     { duration: '60s', target: 50 },
     { duration: '60s', target: 30 },
-    { duration: '60s', target: 0 }, */
-    { duration: '1s', target: 1 },
+    { duration: '60s', target: 0 },
+    /* { duration: '1s', target: 1 },
     { duration: '5s', target: 1 },
     { duration: '1s', target: 2 },
     { duration: '5s', target: 2 },
@@ -152,8 +152,8 @@ export const options = {
 };
 
 export default function () {
-  const url = `https://${GEN3_HOST}/user/data/download/${guids[Math.floor(Math.random() * guids.length)]}?protocol=s3`;
-  // const url = `https://${GEN3_HOST}/user/data/download/dg.4503/c52a9f3a-7c6d-4416-ae82-130258b1bb42?protocol=s3`;
+  // const url = `https://${GEN3_HOST}/user/data/download/${guids[Math.floor(Math.random() * guids.length)]}?protocol=s3`;
+  const url = `https://${GEN3_HOST}/user/data/download/dg.4503/c52a9f3a-7c6d-4416-ae82-130258b1bb42?protocol=s3`;
   const params = {
     headers: {
       'Content-Type': 'application/json',
