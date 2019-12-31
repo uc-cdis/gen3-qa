@@ -2,7 +2,8 @@
 // This test plan has a few pre-requisites: Check prereq.md for more details.
 Feature('3. Google Credentials - DCF Staging testing for release sign off - https://ctds-planx.atlassian.net/browse/PXP-3836');
 
-// To be executed with GEN3_SKIP_PROJ_SETUP=true -- No need to set up program / retrieve access token, etc.
+// To be executed with GEN3_SKIP_PROJ_SETUP=true
+// No need to set up program / retrieve access token, etc.
 
 const fenceProps = require('../../../services/apis/fence/fenceProps.js');
 const user = require('../../../utils/user.js');
