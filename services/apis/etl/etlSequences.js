@@ -22,8 +22,11 @@ module.exports = {
    */
   runETLFirstTime() {
     etlProps.aliases.forEach(async (alias) => {
-      etlTasks.deleteIndices(alias);
-      expect(etlTasks.existAlias(alias), 'Fails to delete alias').to.equal(false);
+      let index = etlTasks.getIndexFromAlias(alias);
+      if(index !== 'error'){
+        etlTasks.deleteIndices(index);
+        expect(etlTasks.existAlias(alias), 'Fails to delete alias').to.equal(false);
+      }
     });
     expect(etlTasks.runETLJob()).to.equal(true);
   },
