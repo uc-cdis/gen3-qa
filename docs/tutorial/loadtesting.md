@@ -57,11 +57,11 @@ docker-compose up -d
 	e.g., `node load-testing/loadTestRunner.js /Users/$USER/.gen3/credentials.json load-testing/load-test-descriptor.json random-guids`
 
 * The `load-testing-descriptor.json` file is comprised of the following parameters:
-** _service_: The name of the service which you want to load test.
-** _load_test_scenario_: The specific feature of the service that is targeted by the load test.
-** _presigned_url_guids_: A hardcoded list of GUIDs to use in presigned url requests.
-** _indexd_record_url_: The url that is associated with one or more records from a given environment (Useful when the environment has been previously configured with some test data, e.g., by tailoring a manifest and creating new clinical metadata instaces using `indexd_utils`).
-** _virtual_users_: This array containing "duration" and "target" parameters are used to set the number of Virtual Users (VUs) that will execute the load test scenarios. The "duration" represents the time that it will take for the test to reach the "target" amount of VUs or maintain the same number if the target did not change between stages, this is used to increase or decrease the number of VUs in specific time-frames (and also to increase the number of requests that are produced by the test).
+  * _service_: The name of the service which you want to load test.
+  * _load_test_scenario_: The specific feature of the service that is targeted by the load test.
+  * _presigned_url_guids_: A hardcoded list of GUIDs to use in presigned url requests.
+  * _indexd_record_url_: The url that is associated with one or more records from a given environment (Useful when the environment has been previously configured with some test data, e.g., by tailoring a manifest and creating new clinical metadata instaces using `indexd_utils`).
+  * _virtual_users_: This array containing "duration" and "target" parameters are used to set the number of Virtual Users (VUs) that will execute the load test scenarios. The "duration" represents the time that it will take for the test to reach the "target" amount of VUs or maintain the same number if the target did not change between stages, this is used to increase or decrease the number of VUs in specific time-frames (and also to increase the number of requests that are produced by the test).
 
 
 * on terminal you would see some k6 execution results such as vus, status and checks
