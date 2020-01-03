@@ -1,20 +1,26 @@
 const { spawn } = require('child_process');
+const fs = require('fs');
 const { getJWTData, getAccessTokenFromApiKey } = require('../utils/apiUtil.js');
 const { fetchDIDList } = require('./indexd/indexdLTUtils.js');
 
 const args = process.argv.slice(2);
 
-if (args.length < 3) {
+if (args.length < 2) {
   console.log('read instructions: https://github.com/uc-cdis/gen3-qa/blob/master/docs/loadtesting.md');
   process.exit(1);
 }
 
 const pathToCredentialsJson = args[0];
-const targetService = args[1];
-const loadTestScenario = args[2];
-const customArgs = args[3];
+const testDescriptorFile = args[1];
+const customArgs = args[2];
 
 async function runLoadTestScenario() {
+  let testDescriptorData = fs.readFileSync(testDescriptorFile, 'utf8');
+  testDescriptorData = JSON.parse(testDescriptorData.trim());
+  console.log(`testDescriptorData: ${JSON.stringify(testDescriptorData)}`);
+
+  const targetService = testDescriptorData.service;
+  const loadTestScenario = testDescriptorData['load_test_scenario'];
   const jwtData = await getJWTData(pathToCredentialsJson);
   const apiKey = jwtData[Object.keys(jwtData)[0]];
   const targetEnvironment = jwtData[Object.keys(jwtData)[1]];
@@ -29,15 +35,16 @@ async function runLoadTestScenario() {
     });
 
   // Set fixed list of args for the load test run
-  const loadTestArgs = ['-e', `GEN3_HOST=${targetEnvironment}`, '-e', `ACCESS_TOKEN=${token}`, '--out', 'influxdb=http://localhost:8086/db0', `load-testing/${targetService}/${loadTestScenario}.js`];
+  const loadTestArgs = ['-e', `GEN3_HOST=${targetEnvironment}`, '-e', `ACCESS_TOKEN=${token}`, '-e', `VIRTUAL_USERS="${JSON.stringify(testDescriptorData.virtual_users)}"`, '--out', 'influxdb=http://localhost:8086/db0', `load-testing/${targetService}/${loadTestScenario}.js`];
 
   // Expand load test args based on special flags
   // TODO: Move the custom args parsing to a separate utils script
+  let listOfDIDs = [];
   if (customArgs === 'random-guids') {
-    const listOfDIDs = await fetchDIDList(targetEnvironment)
-      .then((records) => {
+    listOfDIDs = await fetchDIDList(targetEnvironment, testDescriptorData.indexd_record_url)
+      .then(async (records) => {
         const dids = [];
-        records.forEach((record) => {
+        await records.forEach((record) => {
           dids.push(record.did);
         });
         return dids;
@@ -45,11 +52,12 @@ async function runLoadTestScenario() {
         console.log(`Failed: ${reason.status} - ${reason.statusText}`);
         process.exit(1);
       });
-
-    console.log(listOfDIDs);
-    loadTestArgs.unshift(`GUIDS_LIST=${listOfDIDs.join()}`);
-    loadTestArgs.unshift('-e');
+  } else {
+    listOfDIDs = testDescriptorData.presigned_url_guids;
   }
+  console.log(listOfDIDs);
+  loadTestArgs.unshift(`GUIDS_LIST=${listOfDIDs.join()}`);
+  loadTestArgs.unshift('-e');
 
   // The first arg should always be 'run'
   loadTestArgs.unshift('run');
