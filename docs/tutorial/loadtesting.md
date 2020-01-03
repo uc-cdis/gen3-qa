@@ -51,12 +51,15 @@ docker-compose up -d
 	`node load-testing/loadTestRunner.js <path to the credentials.json file> <path to load-test-descriptor.json>`
 	
     e.g., `node load-testing/loadTestRunner.js /Users/$USER/.gen3/credentials.json load-testing/load-test-descriptor.json`
+          `node load-testing/loadTestRunner.js /Users/$USER/.gen3/internalstaging.datastage.io_credentials.json load-testing/load-test-stress.json`
 	
 	_optional argument:_ random-guids -> If an indexd record url is provided in `load-test-descriptor`, a set of GUIDs will be dynamically retrieved from the target environment and the requests will target random records (Note: For `fence/presigned-url` scenario only).
 	
 	e.g., `node load-testing/loadTestRunner.js /Users/$USER/.gen3/credentials.json load-testing/load-test-descriptor.json random-guids`
 
-* The `load-testing-descriptor.json` file is comprised of the following parameters:
+* The **Load Testing Descriptor** is a `.json` file that contains parameters to be used in a specific load testing scenario. This file is comprised of the following parameters:
+  * _objective_: Basic statement of what the load test is trying to achieve.
+  * _details_: Environment configuration that is expected to be set before the load test is initiated (no functional usage, purely informational).
   * _service_: The name of the service which you want to load test.
   * _load_test_scenario_: The specific feature of the service that is targeted by the load test.
   * _presigned_url_guids_: A hardcoded list of GUIDs to use in presigned url requests.

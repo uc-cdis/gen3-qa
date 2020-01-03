@@ -20,7 +20,7 @@ async function runLoadTestScenario() {
   console.log(`testDescriptorData: ${JSON.stringify(testDescriptorData)}`);
 
   const targetService = testDescriptorData.service;
-  const loadTestScenario = testDescriptorData['load_test_scenario'];
+  const loadTestScenario = testDescriptorData.load_test_scenario;
   const jwtData = await getJWTData(pathToCredentialsJson);
   const apiKey = jwtData[Object.keys(jwtData)[0]];
   const targetEnvironment = jwtData[Object.keys(jwtData)[1]];
