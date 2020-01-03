@@ -57,7 +57,8 @@ docker-compose up -d
 	
 	e.g., `node load-testing/loadTestRunner.js /Users/$USER/.gen3/credentials.json load-testing/load-test-descriptor.json random-guids`
 
-* The **Load Testing Descriptor** is a `.json` file that contains parameters to be used in a specific load testing scenario. This file is comprised of the following parameters:
+* The **Load Testing Descriptor** is a `.json` file that contains parameters to be used in a specific load testing scenario. This is a declarative way of running load tests and improve their reproducibility by sharing the descriptors among different users.
+This file is comprised of the following parameters:
   * _objective_: Basic statement of what the load test is trying to achieve.
   * _details_: Environment configuration that is expected to be set before the load test is initiated (no functional usage, purely informational).
   * _service_: The name of the service which you want to load test.
