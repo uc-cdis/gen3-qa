@@ -47,18 +47,21 @@ docker-compose up -d
 
 * The Load test runner script is located at the load-testing/ folder.
     On terminal, from this location run:
+	
 	`node load-testing/loadTestRunner.js <path to the credentials.json file> <path to load-test-descriptor.json>`
+	
     e.g., `node load-testing/loadTestRunner.js /Users/$USER/.gen3/credentials.json load-testing/load-test-descriptor.json`
 	
 	_optional argument:_ random-guids -> If an indexd record url is provided in `load-test-descriptor`, a set of GUIDs will be dynamically retrieved from the target environment and the requests will target random records (Note: For `fence/presigned-url` scenario only).
+	
 	e.g., `node load-testing/loadTestRunner.js /Users/$USER/.gen3/credentials.json load-testing/load-test-descriptor.json random-guids`
 
 * The `load-testing-descriptor.json` file is comprised of the following parameters:
-- _service_: The name of the service which you want to load test.
-- _load_test_scenario_: The specific feature of the service that is targeted by the load test.
-- _presigned_url_guids_: A hardcoded list of GUIDs to use in presigned url requests.
-- _indexd_record_url_: The url that is associated with one or more records from a given environment (Useful when the environment has been previously configured with some test data, e.g., by tailoring a manifest and creating new clinical metadata instaces using `indexd_utils`).
-- _virtual_users_: This array containing "duration" and "target" parameters are used to set the number of Virtual Users (VUs) that will execute the load test scenarios. The "duration" represents the time that it will take for the test to reach the "target" amount of VUs or maintain the same number if the target did not change between stages, this is used to increase or decrease the number of VUs in specific time-frames (and also to increase the number of requests that are produced by the test).
+** _service_: The name of the service which you want to load test.
+** _load_test_scenario_: The specific feature of the service that is targeted by the load test.
+** _presigned_url_guids_: A hardcoded list of GUIDs to use in presigned url requests.
+** _indexd_record_url_: The url that is associated with one or more records from a given environment (Useful when the environment has been previously configured with some test data, e.g., by tailoring a manifest and creating new clinical metadata instaces using `indexd_utils`).
+** _virtual_users_: This array containing "duration" and "target" parameters are used to set the number of Virtual Users (VUs) that will execute the load test scenarios. The "duration" represents the time that it will take for the test to reach the "target" amount of VUs or maintain the same number if the target did not change between stages, this is used to increase or decrease the number of VUs in specific time-frames (and also to increase the number of requests that are produced by the test).
 
 
 * on terminal you would see some k6 execution results such as vus, status and checks
