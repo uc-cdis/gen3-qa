@@ -1,2 +1,2 @@
-echo "hello world"
-echo $CTDS_QA_ACHECKER
+echo "Running section 508 compliance check..."
+node ../utils/section508.js
