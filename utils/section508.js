@@ -1,4 +1,7 @@
 var wcag = require('wcag');
+
+console.log(`Running check against ${process.env.TARGET_GEN3_ENVIRONMENT}}...`);
+
 var options = {
   id: `${process.env.CTDS_QA_ACHECKER}`,
   uri: `https://${process.env.TARGET_GEN3_ENVIRONMENT}`,
