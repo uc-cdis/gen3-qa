@@ -44,6 +44,7 @@
     "ssl-root-cas": "latest",
     "unirest": "latest",
     "uuid": "latest",
+    "wcag": "latest",
     "webdriverio": "^5.10.9"
   },
   "scripts": {
