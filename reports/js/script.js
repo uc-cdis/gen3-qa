@@ -43,18 +43,29 @@ $(() => {
 	    });
 	    console.log('all reports: ');
 	    console.log(reports);
-	    
-	    $('.mainbar').append('<div class="report">');
-	    let report_html_block = "";
-	    for (report in reports) {
-		report_html_block = `
-                     <h2><span>${months[report.month-1]} ${report.year}</span></h2>
-                     <div id="${report.nameOfTheFolder}" class="clr"></div>
-                        <a href="${report.url}">${report.nameOfTheFolder}</a>
+
+	    let currMonth = 0;
+	    var result = Object.keys(reports)
+                .sort((a, b) => reports[a].timestamp - reports[b].timestamp)
+                .map((reportKey) => {
+		    console.log(reportKey);
+                    const report = reports[reportKey];
+		    report_html_block = `
+                      <h3><span>${report.nameOfTheFolder.split('_').slice(0,-2).join(' ')}</span></h3>
+                      <div id="${report.nameOfTheFolder}" class="clr"></div>
+                      <a href="${report.url}">${report.nameOfTheFolder}</a></div>
                     `;
-	    }
-	    $('.mainbar').append('</div>');
-	    $('.mainbar').append(report_html_block);
+		    if (!(report.month === currMonth)) {
+			console.log('injecting report block!');
+			$('.mainbar').append(`
+                          <div id="month_${report.month}" class="report">
+                           <h2><span>${monthsDigitToString[report.month-1]} ${report.year}</span></h2>
+                          </div>`);
+			currMonth = report.month;
+		    }
+		    $(`#month_${report.month}`).append(report_html_block);
+		    console.log('OK!!!~ INJECTING BLOCK!!!');
+                });
 	}
     );
  });
