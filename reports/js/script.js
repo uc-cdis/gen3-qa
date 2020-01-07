@@ -35,7 +35,7 @@ $(() => {
 		            "year": year,
 		            "month": month,
 			    "timestamp": timestamp,
-		            "url": `/${year}/${month}/${nameOfTheFolder}/index.html`
+		            "url": `/dashboard/Secure/QA/${year}/${month}/${nameOfTheFolder}/index.html`
 			};
 		    }
 		    console.log(`folder: ${nameOfTheFolder}`);
@@ -48,7 +48,6 @@ $(() => {
 	    var result = Object.keys(reports)
                 .sort((a, b) => reports[a].timestamp - reports[b].timestamp)
                 .map((reportKey) => {
-		    console.log(reportKey);
                     const report = reports[reportKey];
 		    report_html_block = `
                       <h3><span>${report.nameOfTheFolder.split('_').slice(0,-2).join(' ')}</span></h3>
@@ -56,7 +55,6 @@ $(() => {
                       <a href="${report.url}">${report.nameOfTheFolder}</a></div>
                     `;
 		    if (!(report.month === currMonth)) {
-			console.log('injecting report block!');
 			$('.mainbar').append(`
                           <div id="month_${report.month}" class="report">
                            <h2><span>${monthsDigitToString[report.month-1]} ${report.year}</span></h2>
@@ -64,7 +62,6 @@ $(() => {
 			currMonth = report.month;
 		    }
 		    $(`#month_${report.month}`).append(report_html_block);
-		    console.log('OK!!!~ INJECTING BLOCK!!!');
                 });
 	}
     );

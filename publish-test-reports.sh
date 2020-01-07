@@ -51,7 +51,7 @@ if [ $RC -ne 0 ]; then
     exit 1
 fi
 
-report_url_path="QA/$(date +%Y)/$(date +%m)/${gen3_qa_report_folder}"
+report_url_path="QA/$(date +%Y)/$(date +%-m)/${gen3_qa_report_folder}"
 
 # ssh to the Dev VM and run the gen3 dashboard publish secure command to upload the contents of the folder and publish the report
 ssh qaplanetv1@cdistest.csoc "set -i;  source ~/.bashrc; gen3 dashboard publish secure ./reports/$gen3_qa_report_folder $report_url_path"
