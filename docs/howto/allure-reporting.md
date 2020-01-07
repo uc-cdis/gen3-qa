@@ -1,5 +1,9 @@
 # Generating and publishing Allure reports to share executable test results
 
+## Accessing the QA Reports landing page
+
+Authenticate against [qa.planx-pla.net](https://qa.planx-pla.net) and switch to [qa.planx-pla.net/dashboard/Secure/QA/reports/index.html](https://qa.planx-pla.net/dashboard/Secure/QA/reports/index.html) to see the full list of test reports organized by date.
+
 ## Generating reports locally
 
 Thanks to PR [#190](https://github.com/uc-cdis/gen3-qa/pull/190), the Allure plugin is already enabled in `codecept.conf.js` and the `package.json` contains an alias that augments the `npm test` command to run `codeceptjs run --plugins allure`. Therefore, whenever any test is executed, a new `<guid>-testsuite.xml` file is created inside the `output` folder.
@@ -39,6 +43,11 @@ Once that is executed, the Allure Web GUI containing all the test results can be
 https://qa.planx-pla.net/dashboard/Secure/QA/2019/11/pre-release-tests-for-A/index.html
 
 Only authorized users with the `dashboard` capability declared in their environment-specific `users.yaml` will be allowed to access this page.
+
+*NOTE*: To delete invalid / obsolete reports, run the following command from the DEV VM:
+`$ aws s3 rm --recursive $(gen3 dashboard prefix)/Secure/QA/<YYYY>/<MM>/<name_of_the_report>`
+e.g.,
+`$ aws s3 rm --recursive $(gen3 dashboard prefix)/Secure/QA/2019/12/dcf_release_test_20191212_130340`
 
 ## Automated test reports publishing
 
