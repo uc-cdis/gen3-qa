@@ -2,7 +2,7 @@
 
 ## Accessing the QA Reports landing page
 
-Authenticate against [qa.planx-pla.net](https://qa.planx-pla.net) and switch to [qa.planx-pla.net/dashboard/Secure/QA/reports/index.html](https://qa.planx-pla.net/dashboard/Secure/QA/reports/index.html) to see the full list of test reports organized by date.
+Authenticate against [qa.planx-pla.net](https://qa.planx-pla.net) and switch to [https://qa.planx-pla.net/dashboard/Secure/qa-reports/index.html](https://qa.planx-pla.net/dashboard/Secure/qa-reports/index.html) to see the full list of test reports organized by date.
 
 ## Generating reports locally
 
