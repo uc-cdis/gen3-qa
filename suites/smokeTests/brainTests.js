@@ -113,7 +113,7 @@ Scenario('Configuring gen3-client @manual @core', ifInteractive(
 
 // misconfiguration error checker
 Scenario('Wrong API key correct apiendpoint @manual @core', ifInteractive(
-  async (I) => {
+  async () => {
     const result = await interactive(`
             1. user has a wrong cred.json (API key) and correct API endpoint
             2. the misconfiguration checker displays a message Invalid credentials for apiendpoint '<apiendpoint>': check if your credentials are expired or incorrect  
