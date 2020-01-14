@@ -85,7 +85,7 @@ Scenario('Version Checker error @manual @core', ifInteractive(
   async () => {
     const result = await interactive(`
             1. After the successful installation and configuration of profile, user can use gen3-client command on terminal console
-            2. the version checker will show 'A new version of gen3-client is avaliable! The latest version is ${LATEST_VERSION}. You are using version ${CURRENT_VERSION}'
+            2. the version checker will show 'A new version of gen3-client is avaliable! The latest version is LATEST_VERSION. You are using version CURRENT_VERSION'
             Please download the latest gen3-client release from https://github.com/uc-cdis/cdis-data-client/releases/latest' message on the console if a newer version of gen3-client is available
 
             Note : This test can be done only locally currently as there are no versions for gen3-client. To carry out the test locally, follow this https://github.com/uc-cdis/cdis-data-client#installation and make a version change in 'gitversion' on path gen3-client/g3cmd/gitversion.go
