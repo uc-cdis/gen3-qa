@@ -31,7 +31,7 @@ Scenario('Login with Synapse @manual @dream', ifInteractive(
   },
 ));
 
-Scenario('Exploration Page @manual @core', ifInteractive(
+Scenario('Exploration Page @manual @smoke @brain', ifInteractive(
   async () => {
     const result = await interactive(`
             1. Navigate to Exploraton tab, the page loads with facet search tab on the left and statistic graphs, aggregated total of project and cases and project table
@@ -43,7 +43,7 @@ Scenario('Exploration Page @manual @core', ifInteractive(
   },
 ));
 
-Scenario('Profile Page @manual @core', ifInteractive(
+Scenario('Profile Page @manual @smoke @brain', ifInteractive(
   async () => {
     const result = await interactive(`
             1. Click on Profile Tab on the top bar
@@ -56,7 +56,7 @@ Scenario('Profile Page @manual @core', ifInteractive(
   },
 ));
 
-Scenario('Install gen3-client @manual @core', ifInteractive(
+Scenario('Install gen3-client @manual @smoke @brain', ifInteractive(
   async () => {
     const result = await interactive(`
             1. Download the newest version of gen3-client from github repo - https://github.com/uc-cdis/cdis-data-client/releases/tag/{latest-tag} (the user should make sure that downloaded version of gen3-client is appropriate platform (Windows/Mac))
@@ -69,7 +69,7 @@ Scenario('Install gen3-client @manual @core', ifInteractive(
 ));
 
 // wrong binary (windows) on mac platform
-Scenario('Installing the wrong binary file gen3-client @manual @core', ifInteractive(
+Scenario('Installing the wrong binary file gen3-client @manual @smoke @brain', ifInteractive(
   async () => {
     const result = await interactive(`
             1. the user downloads binary file for Windows and tries to execute the file on Mac
@@ -81,7 +81,7 @@ Scenario('Installing the wrong binary file gen3-client @manual @core', ifInterac
 ));
 
 // version checker
-Scenario('Version Checker error @manual @core', ifInteractive(
+Scenario('Version Checker error @manual @smoke @brain', ifInteractive(
   async () => {
     const result = await interactive(`
             1. After the successful installation and configuration of profile, user can use gen3-client command on terminal console
@@ -95,7 +95,7 @@ Scenario('Version Checker error @manual @core', ifInteractive(
   },
 ));
 
-Scenario('Configuring gen3-client @manual @core', ifInteractive(
+Scenario('Configuring gen3-client @manual @smoke @brain', ifInteractive(
   async () => {
     const result = await interactive(`
             1. go to the dedicated user's data commons you need your gen3-client configured with
@@ -112,7 +112,7 @@ Scenario('Configuring gen3-client @manual @core', ifInteractive(
 ));
 
 // misconfiguration error checker
-Scenario('Wrong API key correct apiendpoint @manual @core', ifInteractive(
+Scenario('Wrong API key correct apiendpoint @manual @smoke @brain', ifInteractive(
   async () => {
     const result = await interactive(`
             1. user has a wrong cred.json (API key) and correct API endpoint
@@ -122,7 +122,7 @@ Scenario('Wrong API key correct apiendpoint @manual @core', ifInteractive(
   },
 ));
 
-Scenario('correct API key wrong apiendpoint @manual @core', ifInteractive(
+Scenario('correct API key wrong apiendpoint @manual @smoke @brain', ifInteractive(
   async () => {
     const result = await interactive(`
             1. user has a correct cred.json (API key) but wrong API endpoint
@@ -133,7 +133,7 @@ Scenario('correct API key wrong apiendpoint @manual @core', ifInteractive(
 ));
 
 // download using a smaller manifest
-Scenario('Download multiple files using smaller manifest @manual @core', ifInteractive(
+Scenario('Download multiple files using smaller manifest @manual @smoke @brain', ifInteractive(
   async () => {
     const result = await interactive(`
             1. The user should login and navigate to the Exploration page
@@ -146,7 +146,7 @@ Scenario('Download multiple files using smaller manifest @manual @core', ifInter
 ));
 
 // download using a larger manifest
-Scenario('Download multiple files using larger manifest @manual @core', ifInteractive(
+Scenario('Download multiple files using larger manifest @manual @smoke @brain', ifInteractive(
   async () => {
     const result = await interactive(`
             1. The user should login and navigate to the Exploration page
@@ -160,7 +160,7 @@ Scenario('Download multiple files using larger manifest @manual @core', ifIntera
 ));
 
 // download a single file
-Scenario('Download a single file with GUID @manual @core', ifInteractive(
+Scenario('Download a single file with GUID @manual @smoke @brain', ifInteractive(
   async () => {
     const result = await interactive(`
             1. Login to the commons using Syanpse login credentials. Get <GUID> that you want to download via indexd endpoint '/index/index' 
@@ -173,7 +173,7 @@ Scenario('Download a single file with GUID @manual @core', ifInteractive(
   },
 ));
 
-Scenario('Download a single file with file format @manual @core', ifInteractive(
+Scenario('Download a single file with file format @manual @smoke @brain', ifInteractive(
   async () => {
     const result = await interactive(`
             1. Get <GUID> from indexd endpoint that you want to download
@@ -185,7 +185,7 @@ Scenario('Download a single file with file format @manual @core', ifInteractive(
   },
 ));
 
-Scenario('Upload a single file @manual @core', ifInteractive(
+Scenario('Upload a single file @manual @smoke @brain', ifInteractive(
   async () => {
     const result = await interactive(`
             1. Create a file which the user wants to upload using gen3-client
