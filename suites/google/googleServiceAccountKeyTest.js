@@ -47,7 +47,7 @@ After(async (google, fence, users) => {
   await fence.complete.suiteCleanup(google, users);
 });
 
-Scenario('Get current SA creds @reqGoogle @disabled', async (fence, users) => {
+Scenario('Get current SA creds @reqGoogle', async (fence, users) => {
   const EXPIRES_IN = 5;
 
   // Make sure there are no creds for this user
