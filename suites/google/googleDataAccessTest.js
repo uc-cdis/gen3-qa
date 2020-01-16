@@ -1,3 +1,4 @@
+/*eslint-disable */
 Feature('GoogleDataAccess');
 /*
 Test a full flow for a user accessing data on Google. Also test that when permissions
@@ -355,6 +356,7 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
     console.log('Make assertions for user access for first run');
     console.log('First: Check temporary service account credentials');
 
+    console.log(`user0AccessQA1Res: ${JSON.stringify(user0AccessQA1Res)}`);
     chai.expect(user0AccessQA1Res,
       'First sync: Check User0 access bucket for project: QA. FAILED.').to.have.property('id');
     chai.expect(user0AccessTest1Res,
