@@ -1,11 +1,9 @@
 Feature('ETL');
 
 Scenario('run ETL first time @etl', async (I, etl) => {
-  // await etl.complete.runETLFirstTime();
-  console.log('ETL tests disabled for now - pending delete fix');
+  await etl.complete.runETLFirstTime();
 }).retry(1);
 
 Scenario('run ETL second time @etl', async (I, etl) => {
-  // await etl.complete.runETLSecondTime();
-  console.log('ETL tests disabled for now - pending delete fix');
+  await etl.complete.runETLSecondTime();
 }).retry(1);

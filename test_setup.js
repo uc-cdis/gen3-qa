@@ -8,14 +8,37 @@ const nconf = require('nconf');
 const homedir = require('os').homedir();
 
 const { Commons } = require('./utils/commons');
-const { Bash, takeLastLine } = require('./utils/bash');
+const { Bash } = require('./utils/bash');
 const google = require('./utils/google.js');
 const fenceProps = require('./services/apis/fence/fenceProps');
 
 const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
 const bash = new Bash();
 
-'use strict';
+'use strict'; // eslint-disable-line chai-friendly/no-unused-expressions
+
+/**
+ * Returns the list of tags that were passed in as arguments, including
+ * "--invert" if it was passed in
+ * Note: this function does not handle complex grep/invert combinations
+ */
+function parseTestTags() {
+  let tags = [];
+  let args = process.argv; // process.env.npm_package_scripts_test.split(' '); // all args
+  args = args.map((item) => item.replace(/(^"|"$)/g, '')); // remove quotes
+  if (args.includes('--grep')) {
+    // get tags and whether the grep is inverted
+    args.forEach((item) => {
+      if (item.startsWith('@')) {
+        // e.g. "@reqGoogle|@Performance"
+        tags = tags.concat(item.split('|'));
+      } else if (item === '--invert') {
+        tags.push(item);
+      }
+    });
+  }
+  return tags;
+}
 
 // get the tags passed in as arguments
 const testTags = parseTestTags();
@@ -59,7 +82,7 @@ function assertEnvVars(varNames) {
  */
 async function tryCreateProgramProject(nAttempts) {
   let success = false;
-  for (let i = 0; i < nAttempts; ++i) {
+  for (let i = 0; i < nAttempts; i += 1) {
     if (success === true) {
       break;
     }
@@ -69,7 +92,10 @@ async function tryCreateProgramProject(nAttempts) {
         success = true;
       })
       .catch((err) => {
-        console.log(`Failed to create program/project on attempt ${i}:\n`, JSON.stringify(err));
+        console.log(
+          `Failed to create program/project on attempt ${i}:\n`,
+          JSON.stringify(err),
+        );
         if (i === nAttempts - 1) {
           throw err;
         }
@@ -97,9 +123,10 @@ function createGoogleTestBuckets() {
     projectAuthId = 'test';
     fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
     console.log(`Running: ${fenceCmd}`);
-    response = bash.runCommand(fenceCmd, 'fence');
+    const response = bash.runCommand(fenceCmd, 'fence');
 
     console.log('Clean up Google Bucket Access Groups from previous runs...');
+    console.log(`response: ${response}`);
     bash.runJob('google-verify-bucket-access-group');
   } catch (e) {
     if (inJenkins) {
@@ -111,16 +138,18 @@ function createGoogleTestBuckets() {
 
 async function setupGoogleProjectDynamic() {
   // Update the id and SA email depending on the current namespace
-  if (process.env.RUNNING_LOCAL) { // local run
-    namespace = 'validationjobtest';
-  } else { // jenkins run. a google project exists for each jenkins env
-    namespace = process.env.NAMESPACE;
+  let namespace = process.env.NAMESPACE; // jenkins run
+  if (process.env.RUNNING_LOCAL) {
+    namespace = 'validationjobtest'; // local run
   }
-  fenceProps.googleProjectDynamic.id = fenceProps.googleProjectDynamic.id.replace(
+  // a google project exists for each jenkins env
+  const gProjectId = fenceProps.googleProjectDynamic.id;
+  fenceProps.googleProjectDynamic.id = gProjectId.replace(
     'NAMESPACE',
     namespace,
   );
-  fenceProps.googleProjectDynamic.serviceAccountEmail = fenceProps.googleProjectDynamic.serviceAccountEmail.replace(
+  const gProjectSvcAccountEmail = fenceProps.googleProjectDynamic.serviceAccountEmail;
+  fenceProps.googleProjectDynamic.serviceAccountEmail = gProjectSvcAccountEmail.replace(
     'NAMESPACE',
     namespace,
   );
@@ -157,32 +186,10 @@ async function setupGoogleProjectDynamic() {
     console.log(`WARNING: cannot get list of keys on service account ${saName}.`);
   } else {
     saKeys.keys.map(async (key) => {
-      res = await google.deleteServiceAccountKey(key.name);
+      const res = await google.deleteServiceAccountKey(key.name);
+      console.log(`result: ${res}`);
     });
   }
-}
-
-/**
- * Returns the list of tags that were passed in as arguments, including
- * "--invert" if it was passed in
- * Note: this function does not handle complex grep/invert combinations
- */
-function parseTestTags() {
-  let tags = [];
-  let args = process.argv; // process.env.npm_package_scripts_test.split(' '); // all args
-  args = args.map((item) => item.replace(/(^"|"$)/g, '')); // remove quotes
-  if (args.includes('--grep')) {
-    // get tags and whether the grep is inverted
-    args.map((item) => {
-      if (item.startsWith('@')) {
-        // e.g. "@reqGoogle|@Performance"
-        tags = tags.concat(item.split('|'));
-      } else if (item === '--invert') {
-        tags.push(item);
-      }
-    });
-  }
-  return tags;
 }
 
 /**

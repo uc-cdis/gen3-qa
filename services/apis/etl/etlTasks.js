@@ -10,15 +10,15 @@ const bash = new Bash();
  */
 module.exports = {
   /**
-   * Check if an alias exists
-   * @param {string} index - name of index need to be checked
-   * @returns {boolean}
-   */
+     * Check if an alias exists
+     * @param {string} index - name of index need to be checked
+     * @returns {boolean}
+     */
   deleteIndices(index) {
     try {
       if (index) {
         const res = bash.runCommand(`curl -X DELETE -s ${etlProps.endpoints.root}/${index}`, 'aws-es-proxy-deployment');
-        if (res.startsWith('HTTP/1.1 200 OK')) {
+        if (res.includes('"acknowledged": true')) {
           return true;
         }
       } else {
@@ -32,10 +32,10 @@ module.exports = {
   },
 
   /**
-   * Check if an alias exists
-   * @param {string} alias - name of alias need to be checked
-   * @returns {boolean}
-   */
+     * Check if an alias exists
+     * @param {string} alias - name of alias need to be checked
+     * @returns {boolean}
+     */
   existAlias(alias) {
     try {
       const res = bash.runCommand(`curl -I -s ${etlProps.endpoints.alias}/${alias}`, 'aws-es-proxy-deployment');
@@ -50,10 +50,10 @@ module.exports = {
   },
 
   /**
-   * Get index from alias
-   * @param {string} alias - name of alias need to be checked
-   * @returns {string}
-   */
+     * Get index from alias
+     * @param {string} alias - name of alias need to be checked
+     * @returns {string}
+     */
   getIndexFromAlias(alias) {
     try {
       const res = bash.runCommand(`curl -X GET -s ${etlProps.endpoints.alias}/${alias}`, 'aws-es-proxy-deployment');
@@ -65,10 +65,10 @@ module.exports = {
   },
 
   /**
-   * Get content of index specified by index's name
-   * @param {string} index - name of index to be queried
-   * @returns {object}
-   */
+     * Get content of index specified by index's name
+     * @param {string} index - name of index to be queried
+     * @returns {object}
+     */
   getIndex(index) {
     try {
       const res = bash.runCommand(`curl -X GET -s ${etlProps.endpoints.root}/${index}`, 'arranger-deployment');
