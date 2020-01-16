@@ -1,3 +1,4 @@
+/*eslint-disable */
 const chai = require('chai');
 
 const { expect } = chai;
@@ -36,6 +37,7 @@ module.exports = {
    */
   async linkGoogleAcctMocked(userAcct, expires_in = null) {
     const linkRes = await fenceTasks.linkGoogleAcctMocked(userAcct, expires_in);
+    console.log(`### ## linkRes for [${userAcct.username}]: ${linkRes}`);
     fenceQuestions.mockedLinkSuccess(linkRes);
     return linkRes;
   },

@@ -1,3 +1,4 @@
+/*eslint-disable */
 const chai = require('chai');
 
 const { gen3Res } = require('../../../utils/apiUtil');
@@ -66,6 +67,7 @@ module.exports = {
    * @param {Gen3Response} linkRes - linking response
    */
   mockedLinkSuccess(linkRes) {
+    // TODO: In some cases the resp contains the property finalURL but its value is undefined.	
     expect(linkRes,
       'response after Google linking doesnt have finalURL prop').to.have.property('finalURL');
 
