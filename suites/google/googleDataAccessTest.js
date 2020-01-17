@@ -100,7 +100,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     console.log('linking user0 google accounts');
     const linkResult0 = await fence.complete.linkGoogleAcctMocked(users.user0);
     console.log(`linkResult0: ${JSON.stringify(linkResult0)}`);
-      
+
     console.log(`creating temporary google creds for user0 with username:  ${users.user0.username}`);
     // call our endpoint to get temporary creds
     // NOTE: If this fails and you don't know why, it *might* be that we've hit our limit
@@ -110,6 +110,8 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     //       the Google Cloud Platform. Check usersUtil.js for information about these users
     //       (specifically their username is their Google Account email, you can use that
     //        to find their service account in the GCP)
+    // UPDATE: This should be resolved by this PR:
+    //         https://github.com/uc-cdis/gen3-qa/pull/204/files
     const tempCreds0Res = await fence.complete.createTempGoogleCreds(
       users.user0.accessTokenHeader,
     );
@@ -260,7 +262,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     chai.expect(deleteServiceAccount0Res,
       'Cleanup of Google service account for User 0 FAILED.').to.be.empty;
   }
-);
+).retry(2);
 
 Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle @googleDataAccess',
   async (fence, users, google, files) => {
@@ -446,7 +448,7 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
     chai.expect(deleteServiceAccount1Res,
       'Cleanup of Google service account for User 1 FAILED.').to.be.empty;
   }
-);
+).retry(2);
 
 Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle @googleDataAccess',
   async (fence, users, google, files) => {
@@ -608,4 +610,4 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
     chai.expect(deleteServiceAccount2Res,
       'Cleanup of Google service account for User 2 FAILED.').to.be.empty;
   }
-);
+).retry(2);

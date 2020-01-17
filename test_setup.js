@@ -9,6 +9,7 @@ const homedir = require('os').homedir();
 
 const { Commons } = require('./utils/commons');
 const { Bash } = require('./utils/bash');
+const apiUtil = require('./utils/apiUtil.js');
 const google = require('./utils/google.js');
 const fenceProps = require('./services/apis/fence/fenceProps');
 
@@ -118,12 +119,24 @@ function createGoogleTestBuckets() {
     console.log(`Running: ${fenceCmd}`);
     bash.runCommand(fenceCmd, 'fence');
 
+    // Wait to check fence pod logs
+    console.log('waiting a few seconds before checking the results of the google-bucket-create QA command');
+    apiUtil.sleepMS((5 * 1000).then(() => {
+      bash.runCommand('set -i; source ~/.bashrc; kubectl logs -l app=fence --tail=3');
+    }));
+
     bucketId = fenceProps.googleBucketInfo.test.bucketId;
     googleProjectId = fenceProps.googleBucketInfo.test.googleProjectId;
     projectAuthId = 'test';
     fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
     console.log(`Running: ${fenceCmd}`);
     const response = bash.runCommand(fenceCmd, 'fence');
+
+    // Wait to check fence pod logs
+    console.log('waiting a few seconds before checking the results of the google-bucket-create Test command');
+    apiUtil.sleepMS((5 * 1000).then(() => {
+      bash.runCommand('set -i; source ~/.bashrc; kubectl logs -l app=fence --tail=3');
+    }));
 
     console.log('Clean up Google Bucket Access Groups from previous runs...');
     console.log(`response: ${response}`);

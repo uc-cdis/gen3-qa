@@ -1,3 +1,4 @@
+/*eslint-disable */
 /**
  * A module providing API utility functions
  * @module apiUtil
@@ -170,12 +171,30 @@ module.exports = {
    * @returns {string}
    */
   getAccessToken(username, expiration) {
-    console.log(`getting access token for ${username}`);
-    // TODO - introduce support for getting token from environment variable
-    //     or with API key when running in LOCAL_AGAINST_REMOTE mode ...
-    const fenceCmd = `fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account,google_credentials --type access_token --exp ${expiration} --username ${username}`;
-    const accessToken = bash.runCommand(fenceCmd, 'fence', takeLastLine);
-    return accessToken.trim();
+    const nAttempts = 3;
+    for (let i = 0; i < nAttempts; i += 1) {
+      console.log(`getting access token for ${username} - Attempt #${i}`);
+      // TODO - introduce support for getting token from environment variable
+      //     or with API key when running in LOCAL_AGAINST_REMOTE mode ...
+      const fenceCmd = `fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account,google_credentials --type access_token --exp ${expiration} --username ${username}`;
+      const accessToken = bash.runCommand(fenceCmd, 'fence', takeLastLine);
+      try {
+        decodedToken = module.exports.parseJwt(accessToken);
+        // console.log(`decodedToken: ${JSON.stringify(decodedToken)}`);
+        nameFromToken = decodedToken.context.user.name;
+        if (username === nameFromToken) {
+          console.log(`Successfully created an access token for ${username} on attempt ${i}`);
+          return accessToken.trim();
+        }
+      } catch (e) {
+        console.log(`Failed to create an access token for ${username} on attempt ${i}:`);
+        console.log(e);
+        if (i === nAttempts - 1) {
+          throw e;
+        }
+      }
+    }
+    return null;
   },
 
   /**
