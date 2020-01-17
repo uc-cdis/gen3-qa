@@ -57,8 +57,7 @@ Scenario('Get current SA creds @reqGoogle', async (fence, users) => {
 
   const credsList1 = getCredsRes.access_keys;
   console.log(`credsList1 - This is supposed to return zero keys: ${JSON.stringify(credsList1)}`);
-  await apiUtil.sleepMS((EXPIRES_IN + 5) * 1000);
-  chai.expect(credsList1.length, 'There should not be existing SA keys at the beginning of the test').to.equal(0);
+  chai.expect(credsList1.length, 'There should not be existing SA keys at the beginning of the test, but this key lingers: ${JSON.stringify(credsList1)}').to.equal(0);
 
   // Get temporary google creds
   let tempCredsRes = await fence.complete.createTempGoogleCreds(users.user0.accessTokenHeader);
@@ -147,6 +146,13 @@ Scenario('Get current SA creds @reqGoogle', async (fence, users) => {
 
 Scenario('Test no data access anymore after SA key is deleted @reqGoogle', async (fence, users, google, files) => {
   // Get temporary Service Account creds, get object in bucket, delete creds
+
+  // But first, make sure there are no lingering keys (fail-fast)
+  let checkGetCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
+  const checkCredsList1 = checkGetCredsRes.access_keys;
+  console.log(`checkCredsList1 - This is supposed to return zero keys: ${JSON.stringify(checkCredsList1)}`);
+  chai.expect(checkCredsList1.length, 'This test creates and deletes keys so it assumes zero keys at the beginning, this key was supposed to be deleted: ${JSON.stringify(checkCredsList1)}').to.equal(0);
+
   // Get creds to access data
   const tempCreds0Res = await fence.complete.createTempGoogleCreds(users.user0.accessTokenHeader);
   console.log(`tempCreds0Res: ${JSON.stringify(tempCreds0Res)}`);
