@@ -8,7 +8,7 @@ chai.config.truncateThreshold = 0;
 const fenceQuestions = require('./fenceQuestions.js');
 const fenceTasks = require('./fenceTasks.js');
 const fenceProps = require('./fenceProps.js');
-const { Gen3Response } = require('../../../utils/apiUtil');
+const { Gen3Response, sleepMS } = require('../../../utils/apiUtil');
 const userMod = require('../../../utils/user.js');
 
 const I = actor();
@@ -36,10 +36,22 @@ module.exports = {
    * @returns {Promise<Gen3Response>}
    */
   async linkGoogleAcctMocked(userAcct, expires_in = null) {
-    const linkRes = await fenceTasks.linkGoogleAcctMocked(userAcct, expires_in);
-    console.log(`### ## linkRes for [${JSON.stringify(userAcct.username)}]: ${JSON.stringify(linkRes)}`);
-    fenceQuestions.mockedLinkSuccess(linkRes);
-    return linkRes;
+    const nAttempts = 3;
+    for (let i = 0; i < nAttempts; i += 1) {
+      try {
+        console.log(`linking google account ${userAcct.username} - Attempt #${i}`);
+        const linkRes = await fenceTasks.linkGoogleAcctMocked(userAcct, expires_in);
+        console.log(`### ## linkRes for [${JSON.stringify(userAcct.username)}]: ${JSON.stringify(linkRes)}`);
+        fenceQuestions.mockedLinkSuccess(linkRes);
+        return linkRes;
+      } catch (e) {
+        console.log(`Failed to link google account ${userAcct.username} on attempt ${i}:`);
+        console.log(e);
+        if (i === nAttempts - 1) {
+          throw e;
+        }
+      }
+    }
   },
 
   /**
@@ -62,13 +74,22 @@ module.exports = {
    * @returns {Promise<void>}
    */
   async forceUnlinkGoogleAcct(userAcct) {
-    const unlinkRes = await fenceTasks.unlinkGoogleAcct(userAcct);
-    expect(unlinkRes,
-      'response from unlinking Google Account does not have expected status property').to.have.property('status');
-    expect(
-      unlinkRes.status,
-      'response from unlinking Google Account does not have expected status of 200 or 404',
-    ).to.be.oneOf([200, 404]);
+    const nAttempts = 3;
+    for (let i = 0; i < nAttempts; i += 1) {
+      const unlinkRes = await fenceTasks.unlinkGoogleAcct(userAcct);
+      expect(unlinkRes,
+       'response from unlinking Google Account does not have expected status property').to.have.property('status');
+      // Retry if response from unlinking Google Account does not have expected status of 200 or 404
+      if ([200,404].indexOf(unlinkRes.status) == -1) {
+        console.log(`Failed to unlink google account ${userAcct.username} on attempt ${i}:`);
+        console.log(`unlinkRes: ${JSON.stringify(unlinkRes)}`);
+        console.log('wait a second and try again...');
+        await sleepMS(1 * 1000);
+        if (i === nAttempts - 1) {
+          throw new Error('Failed to unlink google account');
+        }
+      }
+    }
   },
 
   /**
