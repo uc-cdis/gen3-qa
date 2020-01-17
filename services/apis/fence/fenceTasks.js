@@ -95,11 +95,7 @@ module.exports = {
       // Note: google freaks out if unexpected headers
       //     are passed with signed url requests
       console.log(`Fetching signed URL: ${signedUrlRes.body.url}`);
-      return ax.request({
-        url: signedUrlRes.body.url,
-        method: 'get',
-        maxRedirects: 0
-      }).then(
+      return ax.get(signedUrlRes.body.url).then(
         (resp) => resp.data,
         (err) => err.response || err,
       );

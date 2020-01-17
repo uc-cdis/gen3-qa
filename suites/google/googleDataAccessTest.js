@@ -122,10 +122,15 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
       indexed_files.qaFile.did, users.user0.accessTokenHeader,
     );
     console.log(`User0signedUrlQA1Res: ${JSON.stringify(User0signedUrlQA1Res)}`);
+    const User0signedUrlQA1FileContents = await fence.do.getFileFromSignedUrlRes(
+      User0signedUrlQA1Res,
+    );
+
+    console.log('Use User0 to create signed URL for file in test');
     const User0signedUrlTest1Res = await fence.do.createSignedUrlForUser(
       indexed_files.testFile.did, users.user0.accessTokenHeader,
     );
-    console.log(`User0signedUrlTest1Res: ${User0signedUrlTest1Res}`);
+    console.log(`User0signedUrlTest1Res: ${JSON.stringify(User0signedUrlTest1Res)}`);
 
     console.log('saving temporary google creds to file');
     const creds0Key = tempCreds0Res.data.private_key_id;
@@ -154,7 +159,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     // TODO: decide what to do with this command as it doesn't seem to be specific to users 0,1 or 2
     console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
-    bash.runJob('useryaml-job');
+    bash.runJob('useryaml');
 
     // get new access tokens b/c of changed access
     newUser0AccessToken = apiUtil.getAccessToken(users.user0.username, 3600);
@@ -262,7 +267,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     chai.expect(deleteServiceAccount0Res,
       'Cleanup of Google service account for User 0 FAILED.').to.be.empty;
   }
-).retry(2);
+);
 
 Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle @googleDataAccess',
   async (fence, users, google, files) => {
@@ -332,7 +337,7 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
     // TODO: decide what to do with this command as it doesn't seem to be specific to users 0,1 or 2
     console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
-    bash.runJob('useryaml-job');
+    bash.runJob('useryaml');
 
     // get new access tokens b/c of changed access
     newUser1AccessToken = apiUtil.getAccessToken(users.user1.username, 3600);
@@ -448,7 +453,7 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
     chai.expect(deleteServiceAccount1Res,
       'Cleanup of Google service account for User 1 FAILED.').to.be.empty;
   }
-).retry(2);
+);
 
 Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle @googleDataAccess',
   async (fence, users, google, files) => {
@@ -511,7 +516,7 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
     // TODO: decide what to do with this command as it doesn't seem to be specific to users 0,1 or 2
     console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
-    bash.runJob('useryaml-job');
+    bash.runJob('useryaml');
 
     // get new access tokens b/c of changed access
     newUser2AccessToken = apiUtil.getAccessToken(users.user2.username, 3600);
@@ -610,4 +615,4 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
     chai.expect(deleteServiceAccount2Res,
       'Cleanup of Google service account for User 2 FAILED.').to.be.empty;
   }
-).retry(2);
+);
