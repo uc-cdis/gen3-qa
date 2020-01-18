@@ -140,7 +140,7 @@ Scenario('Test Google Data Access user0 (signed urls only) @reqGoogle @googleDat
     console.log('Second: Check signed URLs');
 
     chai.expect(User0signedUrlQA1FileContents,
-      `First sync: Check User0 can use signed URL to read file in QA. FAILED.`).to.equal(fence.props.googleBucketInfo.QA.fileContents);
+      `First sync: Check User0 can use signed URL to read file in QA. FAILED.`).to.equal(fence.props.googleBucketInfo.NewQA.fileContents);
 
 //    chai.expect(User0signedUrlTest1Res,
 //      `First sync: Check that User0 could NOT get a signed URL to read file in test.`).to.have.property('status', 401);

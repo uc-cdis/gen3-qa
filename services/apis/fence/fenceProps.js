@@ -127,7 +127,7 @@ module.exports = {
       googleProjectId: 'dcf-integration',
       bucketId: 'dcf-integration-qa',
       fileName: 'qa-test.txt',
-      fileContents: 'qa rlz',
+      fileContents: 'qa rlz\n',
     },
     test: {
       googleProjectId: 'dcf-integration',
