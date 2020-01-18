@@ -123,6 +123,12 @@ module.exports = {
       fileName: 'file.txt',
       fileContents: 'dcf-integration-qa',
     },
+    NewQA: {
+      googleProjectId: 'dcf-integration',
+      bucketId: 'dcf-integration-qa',
+      fileName: 'qa-test.txt',
+      fileContents: 'qa rlz',
+    },
     test: {
       googleProjectId: 'dcf-integration',
       bucketId: 'dcf-integration-test',
