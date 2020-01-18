@@ -126,6 +126,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     const User0signedUrlQA1Res = await fence.do.createSignedUrlForUser(
       indexed_files.qaFile.did, users.user0.accessTokenHeader,
     );
+    await apiUtil.sleepMS(10 * 1000);
     console.log(`User0signedUrlQA1Res: ${JSON.stringify(User0signedUrlQA1Res)}`);
     const User0signedUrlQA1FileContents = await fence.do.getFileFromSignedUrlRes(
       User0signedUrlQA1Res,
@@ -275,7 +276,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     chai.expect(deleteServiceAccount0Res,
       'Cleanup of Google service account for User 0 FAILED.').to.be.empty;
   }
-);
+).retry(2);
 
 Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle @googleDataAccess',
   async (fence, users, google, files) => {
@@ -461,7 +462,7 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
     chai.expect(deleteServiceAccount1Res,
       'Cleanup of Google service account for User 1 FAILED.').to.be.empty;
   }
-);
+).retry(2);
 
 Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle @googleDataAccess',
   async (fence, users, google, files) => {
@@ -623,4 +624,4 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
     chai.expect(deleteServiceAccount2Res,
       'Cleanup of Google service account for User 2 FAILED.').to.be.empty;
   }
-);
+).retry(2);
