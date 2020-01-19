@@ -6,22 +6,11 @@ const bash = new Bash();
 
 Feature('GoogleServiceAccountKey');
 
-/**
- * Calculate the age of a given service account key based on its 'validAfterTime' parameter
- * @param {int} number of days since the creation of the key
- */
-function calculateSAKeyAge(creationDate) {
-  const date1 = new Date(creationDate);
-  const date2 = new Date(); // current date
-  const differenceInTime = date2.getTime() - date1.getTime();
-  return differenceInTime / (1000 * 3600 * 24); // Difference_In_Days
-}
-
 BeforeSuite(async (google, fence, users) => {
   console.log('cleaning up old keys from the user0 service account in the dcf-integration GCP project');
   const getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
   if (getCredsRes.access_keys.length > 0) {
-    let saName = getCredsRes.access_keys[0].name.split('/')[3];
+    const saName = getCredsRes.access_keys[0].name.split('/')[3];
     console.log(`delete any existing keys for service account ${saName}`);
     const dcfSaKeys = await google.listServiceAccountKeys('dcf-integration', saName);
     console.log(`#### ##:' ${JSON.stringify(dcfSaKeys.keys)}`);
@@ -36,8 +25,8 @@ BeforeSuite(async (google, fence, users) => {
             console.log(`INFO: Successfully deleted key [${key.name}] from Google service account [${saName}].`);
           }
         });
-      })
-    };
+      });
+    }
   }
   await fence.complete.suiteCleanup(google, users);
 });
