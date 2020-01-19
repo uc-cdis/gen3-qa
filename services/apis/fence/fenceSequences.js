@@ -121,11 +121,22 @@ module.exports = {
    * @returns {Promise<Gen3Response>}
    */
   async createTempGoogleCreds(accessTokenHeaders, expires_in = null) {
-    const response = await fenceTasks.createTempGoogleCreds(accessTokenHeaders, expires_in);
-    expect(response,
-      'response from creating temporary Google credentials does not have nested '
-      + 'property data.private_key (which means we didn\'t get back valid Google credentials)').has.nested.property('data.private_key');
-    return response;
+    const nAttempts = 3;
+    for (let i = 0; i < nAttempts; i += 1) {
+      const response = await fenceTasks.createTempGoogleCreds(accessTokenHeaders, expires_in);
+      // response from creating temporary Google credentials does not have
+      // nested property data.private_key (which means we didn't get back valid Google credentials
+      if (!myBadJson.hasOwnProperty('data') || !myBadJson.data['private_key']) {
+        console.log(`Failed to create google temp creds on attempt ${i}:`);
+        console.log(`Invalid response: ${JSON.stringify(response)}`);
+        await sleepMS(1 * 1000);
+        if (i === nAttempts - 1) {
+          throw new Error('Failed create temp google creds!');
+        }
+      } else {
+        return response;
+      }
+    }
   },
 
   /**
