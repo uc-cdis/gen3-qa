@@ -102,6 +102,7 @@ After(async (fence, users) => {
 
 Scenario('Test Google Data Access user0 (signed urls only) @reqGoogle @googleDataAccess',
   async (fence, indexd, users, google, files) => {
+    let User0signedUrlQA1FileContents = '';
     const nAttempts = 20;
     for (let i = 0; i < nAttempts; i += 1) {
       console.log('make sure google account user0 is unlinked');
@@ -130,7 +131,7 @@ Scenario('Test Google Data Access user0 (signed urls only) @reqGoogle @googleDat
 //      );
 
       console.log(`User0signedUrlQA1Res: ${JSON.stringify(User0signedUrlQA1Res)}`);
-      const User0signedUrlQA1FileContents = await fence.do.getFileFromSignedUrlRes(
+      User0signedUrlQA1FileContents = await fence.do.getFileFromSignedUrlRes(
         User0signedUrlQA1Res,
       );
       console.log(`The friggin\' contents of the QA file: ${stringify(User0signedUrlQA1FileContents)}`);
