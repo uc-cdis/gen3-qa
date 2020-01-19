@@ -90,21 +90,12 @@ AfterSuite(async (fence, indexd, users) => {
   await indexd.do.deleteFileIndices(Object.values(indexed_files));
 });
 
-After(async (fence, users) => {
-  // Cleanup after each scenario
-  const unlinkResults = Object.values(users).map(async(user) => {
-    await apiUtil.sleepMS(1 * 1000).then(() => {
-      fence.do.unlinkGoogleAcct(user)
-    });
-  });
-  await Promise.all(unlinkResults);
-});
-
-Scenario('Test Google Data Access user0 (signed urls only) @reqGoogle @googleDataAccess',
-  async (fence, indexd, users, google, files) => {
-    let User0signedUrlQA1FileContents = '';
-    console.log('checking the initial state of the account...');
-    const getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
+Before(async (fence, users) => {
+  // Cleanup before each scenario
+  console.log('deleting SA keys for user0, user1 and user2...');
+  ['user0', 'user1', 'user2'].forEach(async(user) => {
+    console.log(user);
+    const getCredsRes = await fence.do.getUserGoogleCreds(users[user].accessTokenHeader);
     if (getCredsRes.length > 0) {
       let saName = getCredsRes[0].name.split('/')[3];
       console.log(`delete any existing keys for service account ${saName}`);
@@ -124,6 +115,23 @@ Scenario('Test Google Data Access user0 (signed urls only) @reqGoogle @googleDat
         })
       };
     }
+  });
+});
+
+After(async (fence, users) => {
+  // Cleanup after each scenario
+  const unlinkResults = Object.values(users).map(async(user) => {
+    await apiUtil.sleepMS(1 * 1000).then(() => {
+      fence.do.unlinkGoogleAcct(user)
+    });
+  });
+  await Promise.all(unlinkResults);
+});
+
+Scenario('Test Google Data Access user0 (signed urls only) @reqGoogle @googleDataAccess',
+  async (fence, indexd, users, google, files) => {
+    let User0signedUrlQA1FileContents = '';
+
     console.log(`getCredsRes: ${JSON.stringify(getCredsRes)}`);
 
     const nAttempts = 20;
