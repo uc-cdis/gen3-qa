@@ -103,6 +103,10 @@ After(async (fence, users) => {
 Scenario('Test Google Data Access user0 (signed urls only) @reqGoogle @googleDataAccess',
   async (fence, indexd, users, google, files) => {
     let User0signedUrlQA1FileContents = '';
+    console.log('checking the initial state of the account...');
+    let getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
+    console.log(`getCredsRes: ${JSON.stringify(getCredsRes)}`);
+
     const nAttempts = 20;
     for (let i = 0; i < nAttempts; i += 1) {
       console.log('make sure google account user0 is unlinked');
