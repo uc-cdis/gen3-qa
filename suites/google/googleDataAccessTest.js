@@ -1,3 +1,4 @@
+/*eslint-disable */
 Feature('GoogleDataAccess');
 /*
 Test a full flow for a user accessing data on Google. Also test that when permissions
@@ -110,12 +111,15 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
     //        to find their service account in the GCP)
     const tempCreds0Res = await fence.complete.createTempGoogleCreds(
       users.user0.accessTokenHeader,
+      7200,
     );
     const tempCreds1Res = await fence.complete.createTempGoogleCreds(
       users.user1.accessTokenHeader,
+      7200,
     );
     const tempCreds2Res = await fence.complete.createTempGoogleCreds(
       users.user2.accessTokenHeader,
+      7200,	
     );
 
     console.log('Use User0 to create signed URL for file in QA');
