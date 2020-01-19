@@ -219,13 +219,13 @@ module.exports = {
     }
 
     let res = await getNoRedirect(url, headers);
-    console.log(`### NoRedirectURL Res: ${res.data}`);
+    // console.log(`### NoRedirectURL Res: ${res.data}`);
     // if no error, follow redirect back to fence
     if (res && res.headers.location && !res.headers.location.includes('error=')) {
       const sessionCookie = getCookie('fence', res.headers['set-cookie']);
       headers.Cookie += `; fence=${sessionCookie}`;
       res = await getNoRedirect(res.headers.location, headers);
-      console.log(`### NoRedirectURL Res header location: ${res.data}`);
+      // console.log(`### NoRedirectURL Res header location: ${res.data}`);
       // console.log('linkGoogleAcctMocked response 2', res);
     }
 

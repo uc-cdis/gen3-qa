@@ -174,7 +174,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
       );
       console.log(`The friggin\' contents of the QA file: ${stringify(User0signedUrlQA1FileContents).substring(User0signedUrlQA1FileContents.length-100, User0signedUrlQA1FileContents.length)}`);
 
-      if (User0signedUrlQA1FileContents == 'qa rlz\n') {
+      if (User0signedUrlQA1FileContents == fence.props.googleBucketInfo.QA.fileContents) {
         console.log(`Finally produced a valid presigned url after ${i} attempts.`);
         break;
       } else {
