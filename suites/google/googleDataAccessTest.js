@@ -104,7 +104,26 @@ Scenario('Test Google Data Access user0 (signed urls only) @reqGoogle @googleDat
   async (fence, indexd, users, google, files) => {
     let User0signedUrlQA1FileContents = '';
     console.log('checking the initial state of the account...');
-    let getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
+    const getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
+    if (getCredsRes.length > 0) {
+      let saName = getCredsRes[0].name.split('/')[3];
+      console.log(`delete any existing keys for service account ${saName}`);
+      const dcfSaKeys = await google.listServiceAccountKeys('dcf-integration', saName);
+      console.log(`#### ##:' ${JSON.stringify(dcfSaKeys.keys)}`);
+      if (dcfSaKeys.keys) {
+        dcfSaKeys.keys.forEach(async (key) => {
+          console.log(`the following key will be deleted: ${key.name}`);
+          await google.deleteServiceAccountKey(key.name).then((deletionResult) => {
+            console.log(`deletionResult: ${JSON.stringify(deletionResult)}`);
+            if (deletionResult instanceof Error) {
+              console.log(`WARN: Failed to delete key [${key.name}] from Google service account [${saName}].`);
+	      } else {
+                console.log(`INFO: Successfully deleted key [${key.name}] from Google service account [${saName}].`);
+	      }
+          });
+        })
+      };
+    }
     console.log(`getCredsRes: ${JSON.stringify(getCredsRes)}`);
 
     const nAttempts = 20;
@@ -138,30 +157,15 @@ Scenario('Test Google Data Access user0 (signed urls only) @reqGoogle @googleDat
       User0signedUrlQA1FileContents = await fence.do.getFileFromSignedUrlRes(
         User0signedUrlQA1Res,
       );
-      console.log(`The friggin\' contents of the QA file: ${stringify(User0signedUrlQA1FileContents)}`);
+      console.log(`The friggin\' contents of the QA file: ${stringify(User0signedUrlQA1FileContents).substring(User0signedUrlQA1FileContents.length-100, User0signedUrlQA1FileContents.length)}`);
 
       if (User0signedUrlQA1FileContents == 'qa rlz\n') {
         console.log(`Finally produced a valid presigned url after ${i} attempts.`);
         break;
       } else {
-        console.log(`Failed to create a valid presigned url on attempt ${i}:`);
-        if (tempCreds0Res.body.client_email) {
-          const svc_acct = tempCreds0Res.body.client_email;
-          console.log(`delete any existing keys for service account ${svc_acct}`);
-          const dcfSaKeys = await google.listServiceAccountKeys('dcf-integration', svc_acct);
-          console.log(`#### ##:' ${JSON.stringify(dcfSaKeys.keys)}`);
-          if (dcfSaKeys.keys) {
-            dcfSaKeys.keys.forEach(async (key) => {
-              console.log(`the following key will be deleted: ${key.name}`);
-              await google.deleteServiceAccountKey(key.name).then((deletionResult) => {
-	        console.log(`deletionResult: ${JSON.stringify(deletionResult)}`);
-	      });
-            })
-          };
-        } else {
-          throw new Error('Invalid temp credentials!');
-        }
-        await apiUtil.sleepMS(1 * 1000);
+        console.log(`Failed to create a valid presigned url on attempt ${i}.`);
+        console.log(`Waiting a couple of seconds before trying again...`);
+        await apiUtil.sleepMS(2 * 1000);
         if (i === nAttempts - 1) {
           throw new Error(`Failed to produce a valid PreSigned URL! Num of attempts: ${i}`);
         }
