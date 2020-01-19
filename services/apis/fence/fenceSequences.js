@@ -131,7 +131,7 @@ module.exports = {
         console.log(`Invalid response: ${JSON.stringify(response.data)}`);
         await sleepMS(2 * 1000);
         if (i === nAttempts - 1) {
-          throw new Error('Failed to create temp google creds due to: ${JSON.stringify(response.data)}! Num of attempts: ${i}.');
+          throw new Error(`Failed to create temp google creds due to: ${JSON.stringify(response.data)}! Num of attempts: ${i}.`);
         }
       } else {
         return response;
