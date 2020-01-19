@@ -127,7 +127,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     const indexdLookupRes = await indexd.do.getFile(indexed_files.qaFile, users.user0.accessTokenHeader);
     chai.expect(indexdLookupRes,
       `First sync: Check if the [indexed_files.qaFile] (${indexed_files.qaFile.filename}) has been indexed. Otherwise fail fast.`).to.have.property('file_name', indexed_files.qaFile.filename);
-/*
+
     let User0signedUrlQA1FileContents = '';
     let User0signedUrlQA1Res = '';
     let tempCreds0Res = '';
@@ -329,10 +329,10 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
       'Cleanup of temporary Google creds for User 0 FAILED.').to.have.property('status', 204);
 
     chai.expect(deleteServiceAccount0Res,
-      'Cleanup of Google service account for User 0 FAILED.').to.be.empty;*/
+      'Cleanup of Google service account for User 0 FAILED.').to.be.empty;
   }
-);//.retry(2);
-/*
+).retry(2);
+
 Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle @googleDataAccess',
   async (fence, users, google, files) => {
     console.log('make sure google account user1 is unlinked');
@@ -685,4 +685,3 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
       'Cleanup of Google service account for User 2 FAILED.').to.be.empty;
   }
 ).retry(2);
-*/
