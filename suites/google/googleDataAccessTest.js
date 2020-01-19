@@ -1,3 +1,4 @@
+/*eslint-disable */
 Feature('GoogleDataAccess');
 /*
 Test a full flow for a user accessing data on Google. Also test that when permissions
@@ -79,6 +80,34 @@ AfterSuite(async (fence, indexd, users) => {
   bash.runJob('usersync', args = 'FORCE true');
   console.log('Removing indexd files used to test signed urls');
   await indexd.do.deleteFileIndices(Object.values(indexed_files));
+});
+
+Before(async (fence, users) => {
+  // Cleanup before each scenario
+  console.log('deleting keys for SA associated with users 0, 1 and user2...');
+  ['user0', 'user1', 'user2'].forEach(async(user) => {
+    const getCredsRes = await fence.do.getUserGoogleCreds(users[user].accessTokenHeader);
+    console.log(`Keys from ${user}: ${JSON.stringify(getCredsRes.access_keys)}`);
+    if (getCredsRess.access_keys.length > 0) {
+      let saName = getCredsRess.access_keys[0].name.split('/')[3];
+      console.log(`delete any existing keys for service account ${saName}`);
+      const dcfSaKeys = await google.listServiceAccountKeys('dcf-integration', saName);
+      console.log(`#### ##:' ${JSON.stringify(dcfSaKeys.keys)}`);
+      if (dcfSaKeys.keys) {
+        dcfSaKeys.keys.forEach(async (key) => {
+          console.log(`the following key will be deleted: ${key.name}`);
+          await google.deleteServiceAccountKey(key.name).then((deletionResult) => {
+            console.log(`deletionResult: ${JSON.stringify(deletionResult)}`);
+            if (deletionResult instanceof Error) {
+              console.log(`WARN: Failed to delete key [${key.name}] from Google service account [${saName}].`);
+	      } else {
+                console.log(`INFO: Successfully deleted key [${key.name}] from Google service account [${saName}].`);
+	      }
+          });
+        })
+      };
+    }
+  });
 });
 
 After(async (fence, users) => {

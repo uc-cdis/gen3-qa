@@ -18,30 +18,29 @@ function calculateSAKeyAge(creationDate) {
 }
 
 BeforeSuite(async (google, fence, users) => {
-  console.log('cleaning up old keys from the service accounts in the dcf-integration GCP project');
-  const dcfSvcAccounts = await google.listServiceAccounts('dcf-integration');
-  // console.log('#### ##: ' + dcfSvcAccounts);
-  dcfSvcAccounts.forEach(async (svcAccount) => {
-    const saName = svcAccount.email;
+  console.log('cleaning up old keys from the user0 service account in the dcf-integration GCP project');
+  const getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
+  if (getCredsRes.access_keys.length > 0) {
+    let saName = getCredsRes.access_keys[0].name.split('/')[3];
+    console.log(`delete any existing keys for service account ${saName}`);
     const dcfSaKeys = await google.listServiceAccountKeys('dcf-integration', saName);
-    // console.log('#### ##:' + JSON.stringify(dcfSaKeys.keys));
+    console.log(`#### ##:' ${JSON.stringify(dcfSaKeys.keys)}`);
     if (dcfSaKeys.keys) {
       dcfSaKeys.keys.forEach(async (key) => {
-        const keyAge = calculateSAKeyAge(key.validAfterTime);
-        if (keyAge > 7) { // if the key is older than a week
-          console.log(`the following key is eligible for deletion: ${key.name}`);
-          console.log(`key age: ${key.validAfterTime}`);
-          const deletionResult = await google.deleteServiceAccountKey(key.name);
+        console.log(`the following key will be deleted: ${key.name}`);
+        await google.deleteServiceAccountKey(key.name).then((deletionResult) => {
+          console.log(`deletionResult: ${JSON.stringify(deletionResult)}`);
           if (deletionResult instanceof Error) {
-            console.log(`WARN: Failed to delete key [${key.name}_test] from Google service account [${saName}].`);
+            console.log(`WARN: Failed to delete key [${key.name}] from Google service account [${saName}].`);
+          } else {
+            console.log(`INFO: Successfully deleted key [${key.name}] from Google service account [${saName}].`);
           }
-        }
-      });
-    }
-  });
+        });
+      })
+    };
+  }
   await fence.complete.suiteCleanup(google, users);
 });
-
 
 After(async (google, fence, users) => {
   await fence.complete.suiteCleanup(google, users);
