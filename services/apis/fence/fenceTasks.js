@@ -97,6 +97,7 @@ module.exports = {
       console.log(`Fetching signed URL: ${signedUrlRes.body.url}`);
       return ax.get(signedUrlRes.body.url).then(
         (resp) => resp.data,
+        (err) => err.response || err,
       );
     }
     console.log(fenceProps.FILE_FROM_URL_ERROR, signedUrlRes);

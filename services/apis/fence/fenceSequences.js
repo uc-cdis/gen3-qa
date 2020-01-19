@@ -126,7 +126,7 @@ module.exports = {
       const response = await fenceTasks.createTempGoogleCreds(accessTokenHeaders, expires_in);
       // response from creating temporary Google credentials does not have
       // nested property data.private_key (which means we didn't get back valid Google credentials
-      if (!myBadJson.hasOwnProperty('data') || !myBadJson.data['private_key']) {
+      if (!response.hasOwnProperty('data') || !response.data['private_key']) {
         console.log(`Failed to create google temp creds on attempt ${i}:`);
         console.log(`Invalid response: ${JSON.stringify(response)}`);
         await sleepMS(1 * 1000);

@@ -49,6 +49,7 @@ const apiUtil = require('../../utils/apiUtil.js');
 const bash = new Bash();
 
 const fs = require('fs');
+const stringify = require('json-stringify-safe');
 
 const I = actor();
 
@@ -101,34 +102,66 @@ After(async (fence, users) => {
 
 Scenario('Test Google Data Access user0 (signed urls only) @reqGoogle @googleDataAccess',
   async (fence, indexd, users, google, files) => {
-    console.log('make sure google account user0 is unlinked');
-    const unlinkResult = await fence.complete.forceUnlinkGoogleAcct(users.user0);
+    const nAttempts = 20;
+    for (let i = 0; i < nAttempts; i += 1) {
+      console.log('make sure google account user0 is unlinked');
+      const unlinkResult = await fence.complete.forceUnlinkGoogleAcct(users.user0);
+      await apiUtil.sleepMS(1 * 1000);
+      console.log(`users.user0.accessTokenHeader: ${JSON.stringify(users.user0.accessTokenHeader)}`);
 
-    console.log(`users.user0.accessTokenHeader: ${JSON.stringify(users.user0.accessTokenHeader)}`);
+      const tempCreds0Res = await fence.complete.createTempGoogleCreds(
+        users.user0.accessTokenHeader,
+      );
+      console.log(`tempCreds0Res: ${JSON.stringify(tempCreds0Res)}`);
+      await apiUtil.sleepMS(1 * 1000);
 
-    const tempCreds0Res = await fence.complete.createTempGoogleCreds(
-      users.user0.accessTokenHeader,
-      7200
-    );
-    console.log(`tempCreds0Res: ${JSON.stringify(tempCreds0Res)}`);
+      console.log('linking user0 google accounts');
+      const linkResult0 = await fence.complete.linkGoogleAcctMocked(users.user0);
+      console.log(`linkResult0: ${JSON.stringify(linkResult0)}`);
 
-    console.log('linking user0 google accounts');
-    const linkResult0 = await fence.complete.linkGoogleAcctMocked(users.user0);
-    console.log(`linkResult0: ${JSON.stringify(linkResult0)}`);
+      console.log(`users.user0.accessTokenHeader again: ${JSON.stringify(users.user0.accessTokenHeader)}`);
+      await apiUtil.sleepMS(2 * 1000);
+      console.log('Use User0 to create signed URL for file in QA. Attempt #${i}');
+      const User0signedUrlQA1Res = await fence.do.createSignedUrlForUser(
+          indexed_files.newQAFile.did, users.user0.accessTokenHeader,
+      );
+//      const User0signedUrlQA1Res = await fence.do.createSignedUrl(
+//          indexed_files.newQAFile.did,['protocol=gs', 'expires_in=7200'] ,users.user0.accessTokenHeader,
+//      );
 
-    console.log(`users.user0.accessTokenHeader again: ${JSON.stringify(users.user0.accessTokenHeader)}`);
-    //await apiUtil.sleepMS(60 * 1000);
+      console.log(`User0signedUrlQA1Res: ${JSON.stringify(User0signedUrlQA1Res)}`);
+      const User0signedUrlQA1FileContents = await fence.do.getFileFromSignedUrlRes(
+        User0signedUrlQA1Res,
+      );
+      console.log(`The friggin\' contents of the QA file: ${stringify(User0signedUrlQA1FileContents)}`);
 
-    console.log('Use User0 to create signed URL for file in QA');
-    const User0signedUrlQA1Res = await fence.do.createSignedUrlForUser(
-      indexed_files.newQAFile.did, users.user0.accessTokenHeader,
-    );
-
-    console.log(`User0signedUrlQA1Res: ${JSON.stringify(User0signedUrlQA1Res)}`);
-    const User0signedUrlQA1FileContents = await fence.do.getFileFromSignedUrlRes(
-      User0signedUrlQA1Res,
-    );
-
+      if (User0signedUrlQA1FileContents == 'qa rlz\n') {
+        console.log(`Finally produced a valid presigned url after ${i} attempts.`);
+        break;
+      } else {
+        console.log(`Failed to create a valid presigned url on attempt ${i}:`);
+        if (tempCreds0Res.body.client_email) {
+          const svc_acct = tempCreds0Res.body.client_email;
+          console.log(`delete any existing keys for service account ${svc_acct}`);
+          const dcfSaKeys = await google.listServiceAccountKeys('dcf-integration', svc_acct);
+          console.log(`#### ##:' ${JSON.stringify(dcfSaKeys.keys)}`);
+          if (dcfSaKeys.keys) {
+            dcfSaKeys.keys.forEach(async (key) => {
+              console.log(`the following key will be deleted: ${key.name}`);
+              await google.deleteServiceAccountKey(key.name).then((deletionResult) => {
+	        console.log(`deletionResult: ${JSON.stringify(deletionResult)}`);
+	      });
+            })
+          };
+        } else {
+          throw new Error('Invalid temp credentials!');
+        }
+        await apiUtil.sleepMS(1 * 1000);
+        if (i === nAttempts - 1) {
+          throw new Error(`Failed to produce a valid PreSigned URL! Num of attempts: ${i}`);
+        }
+      }
+    }
 /*    console.log('Use User0 to create signed URL for file in test');
     const User0signedUrlTest1Res = await fence.do.createSignedUrlForUser(
       indexed_files.testFile.did, users.user0.accessTokenHeader,
