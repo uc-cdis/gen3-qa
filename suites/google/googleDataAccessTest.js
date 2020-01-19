@@ -61,13 +61,6 @@ const indexed_files = {
     acl: ['QA'],
     size: 9,
   },
-  newQAFile: {
-    filename: fenceProps.googleBucketInfo.NewQA.fileName,
-    link: `gs://${fenceProps.googleBucketInfo.NewQA.bucketId}/${fenceProps.googleBucketInfo.NewQA.fileName}`,
-    md5: '1e42a2c8d6626ff8870161d97da5604d',
-    acl: ['QA'],
-    size: 7,
-  },
   testFile: {
     filename: fenceProps.googleBucketInfo.test.fileName,
     link: `gs://${fenceProps.googleBucketInfo.test.bucketId}/${fenceProps.googleBucketInfo.test.fileName}`,
@@ -84,8 +77,6 @@ BeforeSuite(async (indexd) => {
 });
 
 AfterSuite(async (fence, indexd, users) => {
-  console.log('Running usersync job');
-  bash.runJob('usersync', args = 'FORCE true');
   console.log('Removing indexd files used to test signed urls');
   await indexd.do.deleteFileIndices(Object.values(indexed_files));
 });
@@ -94,7 +85,7 @@ Before(async (fence, users) => {
   // Cleanup before each scenario
   console.log('deleting SA keys for user0, user1 and user2...');
   ['user0', 'user1', 'user2'].forEach(async(user) => {
-    console.log(user);
+    console.log(`### ##: Deleting keys for user: ${user}...`);
     const getCredsRes = await fence.do.getUserGoogleCreds(users[user].accessTokenHeader);
     if (getCredsRes.length > 0) {
       let saName = getCredsRes[0].name.split('/')[3];
@@ -126,24 +117,43 @@ After(async (fence, users) => {
     });
   });
   await Promise.all(unlinkResults);
+  console.log('Running usersync job');
+  bash.runJob('usersync', args = 'FORCE true');
 });
 
-Scenario('Test Google Data Access user0 (signed urls only) @reqGoogle @googleDataAccess',
+Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle @googleDataAccess',
   async (fence, indexd, users, google, files) => {
+    console.log(`Double-check if file ${indexed_files.qaFile.did} is indexed. If it isn't fail fast.`);
+    const indexdLookupRes = await indexd.do.getFile(indexed_files.qaFile, users.user0.accessTokenHeader);
+    chai.expect(indexdLookupRes,
+      `First sync: Check if the [indexed_files.qaFile] (${indexed_files.qaFile.filename}) has been indexed. Otherwise fail fast.`).to.have.property('file_name', indexed_files.qaFile.filename);
+
     let User0signedUrlQA1FileContents = '';
+    let User0signedUrlQA1Res = '';
+    let tempCreds0Res = '';
 
-    console.log(`getCredsRes: ${JSON.stringify(getCredsRes)}`);
-
-    const nAttempts = 20;
+    // Cannot retry more tha 10 times due to SA key limit (10)
+    // FYI: All Keys are cleaned up in the Before() block
+    const nAttempts = 8;
     for (let i = 0; i < nAttempts; i += 1) {
       console.log('make sure google account user0 is unlinked');
       const unlinkResult = await fence.complete.forceUnlinkGoogleAcct(users.user0);
       await apiUtil.sleepMS(1 * 1000);
       console.log(`users.user0.accessTokenHeader: ${JSON.stringify(users.user0.accessTokenHeader)}`);
 
-      const tempCreds0Res = await fence.complete.createTempGoogleCreds(
+      console.log(`creating temporary google creds for user0 with username:  ${users.user0.username}`);
+      // call our endpoint to get temporary creds
+      // NOTE: If this fails and you don't know why, it *might* be that we've hit our limit
+      //       for SA keys on this user's Google Service Account. They *should* be cleaned
+      //       up after every test but if they aren't, you need to delete the keys from the
+      //       fence database (in table google_service_account_keys) AND delete them from
+      //       the Google Cloud Platform. Check usersUtil.js for information about these users
+      //       (specifically their username is their Google Account email, you can use that
+      //        to find their service account in the GCP)
+      tempCreds0Res= await fence.complete.createTempGoogleCreds(
         users.user0.accessTokenHeader,
       );
+
       console.log(`tempCreds0Res: ${JSON.stringify(tempCreds0Res)}`);
       await apiUtil.sleepMS(1 * 1000);
 
@@ -154,12 +164,9 @@ Scenario('Test Google Data Access user0 (signed urls only) @reqGoogle @googleDat
       console.log(`users.user0.accessTokenHeader again: ${JSON.stringify(users.user0.accessTokenHeader)}`);
       await apiUtil.sleepMS(2 * 1000);
       console.log(`Use User0 to create signed URL for file in QA. Attempt #${i}`);
-      const User0signedUrlQA1Res = await fence.do.createSignedUrlForUser(
-          indexed_files.newQAFile.did, users.user0.accessTokenHeader,
+      User0signedUrlQA1Res = await fence.do.createSignedUrlForUser(
+          indexed_files.qaFile.did, users.user0.accessTokenHeader,
       );
-//      const User0signedUrlQA1Res = await fence.do.createSignedUrl(
-//          indexed_files.newQAFile.did,['protocol=gs', 'expires_in=7200'] ,users.user0.accessTokenHeader,
-//      );
 
       console.log(`User0signedUrlQA1Res: ${JSON.stringify(User0signedUrlQA1Res)}`);
       User0signedUrlQA1FileContents = await fence.do.getFileFromSignedUrlRes(
@@ -179,54 +186,14 @@ Scenario('Test Google Data Access user0 (signed urls only) @reqGoogle @googleDat
         }
       }
     }
-/*    console.log('Use User0 to create signed URL for file in test');
+    console.log('Use User0 to create signed URL for file in test');
     const User0signedUrlTest1Res = await fence.do.createSignedUrlForUser(
       indexed_files.testFile.did, users.user0.accessTokenHeader,
     );
     console.log(`User0signedUrlTest1Res: ${JSON.stringify(User0signedUrlTest1Res)}`);
-*/
-    // FIRST RUN
-    //  - Check Signed URLs - BEGIN
-    console.log('Second: Check signed URLs');
 
-    chai.expect(User0signedUrlQA1FileContents,
-      `First sync: Check User0 can use signed URL to read file in QA. FAILED.`).to.equal(fence.props.googleBucketInfo.NewQA.fileContents);
-
-//    chai.expect(User0signedUrlTest1Res,
-//      `First sync: Check that User0 could NOT get a signed URL to read file in test.`).to.have.property('status', 401);
-    //  - Check Signed URLs - END
-  }
-);
-/*
-Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle @googleDataAccess',
-  async (fence, indexd, users, google, files) => {
-    console.log('make sure google account user0 is unlinked');
-    const unlinkResult = await fence.complete.forceUnlinkGoogleAcct(users.user0);
-
-    console.log('linking user0 google accounts');
-    const linkResult0 = await fence.complete.linkGoogleAcctMocked(users.user0);
-    console.log(`linkResult0: ${JSON.stringify(linkResult0)}`);
-
-    console.log(`creating temporary google creds for user0 with username:  ${users.user0.username}`);
-    // call our endpoint to get temporary creds
-    // NOTE: If this fails and you don't know why, it *might* be that we've hit our limit
-    //       for SA keys on this user's Google Service Account. They *should* be cleaned
-    //       up after every test but if they aren't, you need to delete the keys from the
-    //       fence database (in table google_service_account_keys) AND delete them from
-    //       the Google Cloud Platform. Check usersUtil.js for information about these users
-    //       (specifically their username is their Google Account email, you can use that
-    //        to find their service account in the GCP)
-    // UPDATE: This should be resolved by this PR:
-    //         https://github.com/uc-cdis/gen3-qa/pull/204/files
-    const tempCreds0Res = await fence.complete.createTempGoogleCreds(
-      users.user0.accessTokenHeader,
-    );
+    // Pick up temp creds created earlier in the retry loop above
     console.log(`tempCreds0Res: ${JSON.stringify(tempCreds0Res)}`);
-
-    console.log(`Double-check if file ${indexed_files.qaFile.did} is indexed. If it isn't fail fast.`);
-    const indexdLookupRes = await indexd.do.getFile(indexed_files.qaFile, users.user0.accessTokenHeader);
-    chai.expect(indexdLookupRes,
-      `First sync: Check if the [indexed_files.qaFile] (${indexed_files.qaFile.filename}) has been indexed. Otherwise fail fast.`).to.have.property('file_name', indexed_files.qaFile.filename);
 
     console.log('saving temporary google creds to file');
     const creds0Key = tempCreds0Res.data.private_key_id;
@@ -264,13 +231,22 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     chai.expect(user0AccessTest1Res,
       `First sync: Check User0 CAN NOT access bucket for project: test.`).to.have.property('status', 403);
 
+    // FIRST RUN
+    //  - Check Signed URLs - BEGIN
+    console.log('Second: Check signed URLs');
 
-    // TODO: decide what to do with this command as it doesn't seem to be specific to users 0,1 or 2
+    chai.expect(User0signedUrlQA1FileContents,
+      `First sync: Check User0 can use signed URL to read file in QA. FAILED.`).to.equal(fence.props.googleBucketInfo.QA.fileContents);
+    chai.expect(User0signedUrlTest1Res,
+      `First sync: Check that User0 could NOT get a signed URL to read file in test.`).to.have.property('status', 401);
+    //  - Check Signed URLs - END
+
+    // Applying a new user.yaml to revoke QA access from users 0 and 1 and grant it to user2
     console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
     bash.runJob('useryaml');
 
-/*    // get new access tokens b/c of changed access
+    // get new access tokens b/c of changed access
     newUser0AccessToken = apiUtil.getAccessToken(users.user0.username, 3600);
 
     console.log('using saved google creds to access google bucket!! Save responses to check later');
@@ -304,7 +280,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     console.log('Use signed URL from User0 to try and access QA data again');
     const User0AccessRemovedQA = await fence.do.getFileFromSignedUrlRes(
       User0signedUrlQA1Res,
-    ).catch((err) => err && err.response && err.response.data || err);
+    );
 
     console.log('deleting temporary google credentials');
     // call our endpoint to delete temporary creds
@@ -355,17 +331,14 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     chai.expect(deleteServiceAccount0Res,
       'Cleanup of Google service account for User 0 FAILED.').to.be.empty;
   }
-);//.retry(2);
-/*
+).retry(2);
+
 Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle @googleDataAccess',
   async (fence, users, google, files) => {
     console.log('make sure google account user1 is unlinked');
     await fence.complete.forceUnlinkGoogleAcct(users.user1);
+    await apiUtil.sleepMS(1 * 1000);
 
-    console.log('linking users google accounts');
-    const linkResult1 = await fence.complete.linkGoogleAcctMocked(users.user1);
-    console.log(`linkResult1: ${JSON.stringify(linkResult1)}`);
-      
     console.log(`creating temporary google creds for user with username:  ${users.user1.username}`);
     // call our endpoint to get temporary creds
     // NOTE: If this fails and you don't know why, it *might* be that we've hit our limit
@@ -379,7 +352,13 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
       users.user1.accessTokenHeader,
     );
     console.log(`tempCreds1Res: ${JSON.stringify(tempCreds1Res)}`);
-      
+    await apiUtil.sleepMS(1 * 1000);
+
+    console.log('linking user1 google accounts');
+    const linkResult1 = await fence.complete.linkGoogleAcctMocked(users.user1);
+    console.log(`linkResult1: ${JSON.stringify(linkResult1)}`);
+    await apiUtil.sleepMS(2 * 1000);
+
     console.log('Use User1 to create signed URL for file in QA');
     const User1signedUrlQA1Res = await fence.do.createSignedUrlForUser(
       indexed_files.qaFile.did, users.user1.accessTokenHeader,
@@ -422,7 +401,7 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
       fence.props.googleBucketInfo.test.fileName,
     );
 
-    // TODO: decide what to do with this command as it doesn't seem to be specific to users 0,1 or 2
+    // Applying a new user.yaml to revoke QA access from users 0 and 1 and grant it to user2
     console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
     bash.runJob('useryaml');
@@ -464,7 +443,7 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
     console.log('Use signed URL from User1 to try and access QA data again');
     const User1AccessRemovedQA = await fence.do.getFileFromSignedUrlRes(
       User1signedUrlQA1Res,
-    ).catch((err) => err && err.response && err.response.data || err);
+    );
 
     console.log('Use signed URL from User1 to try and access test data again');
     const User1AccessRemainsTest = await fence.do.getFileFromSignedUrlRes(
@@ -547,6 +526,7 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
   async (fence, users, google, files) => {
     console.log('make sure google account user2 is unlinked');
     await fence.complete.forceUnlinkGoogleAcct(users.user2);
+    await apiUtil.sleepMS(1 * 1000);
 
     console.log('linking user2 google account');
     const linkResult2 = await fence.complete.linkGoogleAcctMocked(users.user2);
@@ -565,6 +545,7 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
       users.user2.accessTokenHeader,
     );
     console.log(`tempCreds2Res: ${JSON.stringify(tempCreds2Res)}`);
+    await apiUtil.sleepMS(1 * 1000);
 
     console.log('Use User2 to create signed URL for file in QA');
     const User2signedUrlQA1Res = await fence.do.createSignedUrlForUser(
@@ -601,7 +582,7 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
       fence.props.googleBucketInfo.test.fileName,
     );
 
-    // TODO: decide what to do with this command as it doesn't seem to be specific to users 0,1 or 2
+    // Applying a new user.yaml to revoke QA access from users 0 and 1 and grant it to user2
     console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
     bash.runJob('useryaml');
@@ -704,4 +685,3 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
       'Cleanup of Google service account for User 2 FAILED.').to.be.empty;
   }
 ).retry(2);
-*/

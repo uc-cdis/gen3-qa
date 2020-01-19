@@ -128,8 +128,8 @@ module.exports = {
       // nested property data.private_key (which means we didn't get back valid Google credentials
       if (!response.hasOwnProperty('data') || !response.data['private_key']) {
         console.log(`Failed to create google temp creds on attempt ${i}:`);
-        console.log(`Invalid response: ${JSON.stringify(response)}`);
-        await sleepMS(1 * 1000);
+        console.log(`Invalid response: ${response.data}`);
+        await sleepMS(2 * 1000);
         if (i === nAttempts - 1) {
           throw new Error('Failed create temp google creds!');
         }

@@ -65,7 +65,12 @@ class Client {
   get client() {
     if (!this._client) {
       deleteClient(this.clientName);
-      this._client = createClient(this.clientName, this.userName, this.clientType, this.arboristPolicies);
+      this._client = createClient(
+        this.clientName,
+        this.userName,
+        this.clientType,
+        this.arboristPolicies,
+      );
     }
     return { ...this._client };
   }
@@ -122,12 +127,6 @@ module.exports = {
       bucketId: 'dcf-integration-qa',
       fileName: 'file.txt',
       fileContents: 'dcf-integration-qa',
-    },
-    NewQA: {
-      googleProjectId: 'dcf-integration',
-      bucketId: 'dcf-integration-qa',
-      fileName: 'qa-test.txt',
-      fileContents: 'qa rlz\n',
     },
     test: {
       googleProjectId: 'dcf-integration',
