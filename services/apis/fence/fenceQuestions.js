@@ -1,3 +1,4 @@
+/*eslint-disable */
 const chai = require('chai');
 
 const { gen3Res } = require('../../../utils/apiUtil');
@@ -66,16 +67,15 @@ module.exports = {
    * @param {Gen3Response} linkRes - linking response
    */
   mockedLinkSuccess(linkRes) {
+    // TODO: In some cases the resp contains the property finalURL but its value is undefined.
     expect(linkRes,
       'response after Google linking doesnt have finalURL prop').to.have.property('finalURL');
 
     console.log(`when checking mocked Google Linking success, got final URL: ${linkRes.finalURL}`);
-    let linkUrl = '';
-    try {
-      linkUrl = new URL(linkRes.finalURL);
-    } catch (err) {
-      chai.assert.fail(`Failed to parse URL: ${linkRes.finalURL}`);
-    }
+    // let the exception bubble up to facilitate retries
+    let linkUrl = new URL(linkRes.finalURL);
+    console.log(`parse URL result: ${linkRes.finalURL}`);
+
     expect(linkUrl.searchParams.get('linked_email'),
       'response after Google linking doesnt include linked_email').to.not.be.null;
 

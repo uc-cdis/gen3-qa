@@ -1,3 +1,4 @@
+/*eslint-disable */
 const chai = require('chai');
 
 const { expect } = chai;
@@ -7,7 +8,7 @@ chai.config.truncateThreshold = 0;
 const fenceQuestions = require('./fenceQuestions.js');
 const fenceTasks = require('./fenceTasks.js');
 const fenceProps = require('./fenceProps.js');
-const { Gen3Response } = require('../../../utils/apiUtil');
+const { Gen3Response, sleepMS } = require('../../../utils/apiUtil');
 const userMod = require('../../../utils/user.js');
 
 const I = actor();
@@ -35,9 +36,24 @@ module.exports = {
    * @returns {Promise<Gen3Response>}
    */
   async linkGoogleAcctMocked(userAcct, expires_in = null) {
-    const linkRes = await fenceTasks.linkGoogleAcctMocked(userAcct, expires_in);
-    fenceQuestions.mockedLinkSuccess(linkRes);
-    return linkRes;
+    const nAttempts = 3;
+    for (let i = 0; i < nAttempts; i += 1) {
+      try {
+        console.log(`linking google account ${userAcct.username} - Attempt #${i}`);
+        const linkRes = await fenceTasks.linkGoogleAcctMocked(userAcct, expires_in);
+        console.log(`### ## linkRes for [${JSON.stringify(userAcct.username)}]: ${JSON.stringify(linkRes)}`);
+        fenceQuestions.mockedLinkSuccess(linkRes);
+        return linkRes;
+      } catch (e) {
+        console.log(`Failed to link google account ${userAcct.username} on attempt ${i}:`);
+        console.log(e);
+	console.log('wait a couple of seconds and try again...');
+        await sleepMS(2 * 1000);
+        if (i === nAttempts - 1) {
+          throw e;
+        }
+      }
+    }
   },
 
   /**
