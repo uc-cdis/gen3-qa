@@ -122,11 +122,7 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
     await fence.complete.forceUnlinkGoogleAcct(users.user0);
     await fence.complete.forceUnlinkGoogleAcct(users.user1);
     await fence.complete.forceUnlinkGoogleAcct(users.user2);
-
-    console.log('linking users google accounts');
-    await fence.complete.linkGoogleAcctMocked(users.user0);
-    await fence.complete.linkGoogleAcctMocked(users.user1);
-    await fence.complete.linkGoogleAcctMocked(users.user2);
+    await apiUtil.sleepMS(1 * 1000);
 
     console.log(`creating temporary google creds for users with usernames:  ${users.user0.username}, ${users.user1.username}, ${users.user2.username}`);
     // call our endpoint to get temporary creds
@@ -146,6 +142,13 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
     const tempCreds2Res = await fence.complete.createTempGoogleCreds(
       users.user2.accessTokenHeader,
     );
+    await apiUtil.sleepMS(1 * 1000);
+
+    console.log('linking users google accounts');
+    await fence.complete.linkGoogleAcctMocked(users.user0);
+    await fence.complete.linkGoogleAcctMocked(users.user1);
+    await fence.complete.linkGoogleAcctMocked(users.user2);
+    await apiUtil.sleepMS(2 * 1000);
 
     console.log('Use User0 to create signed URL for file in QA');
     const User0signedUrlQA1Res = await fence.do.createSignedUrlForUser(
