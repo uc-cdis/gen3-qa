@@ -347,7 +347,7 @@ Scenario('dbGaP + user.yaml Sync (from prev test): ensure user without dbGap acc
       new_dbgap_records.fooBarFile,
       msg = 'should have gotten unauthorized for deleting dbgap record',
     );
-  }).retries(2);
+  }).retry(2);
 
 Scenario('dbGaP + user.yaml Sync (from prev test): ensure users with dbGap access cannot create/update/delete dbGaP indexd records @dbgapSyncing @reqGoogle',
   async (fence, indexd, users) => {
