@@ -117,6 +117,16 @@ After(async (fence, users) => {
   await Promise.all(unlinkResults);
 });
 
+//- Check Temporary Service Account Creds
+//    - Check Signed URLs
+    // SECOND RUN (new authZ)
+//  - Check Temporary Service Account Creds
+    // SECOND RUN (new authZ)
+    //  - Check Signed URLs from SECOND RUN
+    // SECOND RUN
+    //  - Check signed URLs from FIRST RUN
+
+
 Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googleDataAccess',
   async (fence, indexd, users, google, files) => {
     console.log(`Double-check if file ${indexed_files.qaFile.did} is indexed. If it isn't fail fast.`);
