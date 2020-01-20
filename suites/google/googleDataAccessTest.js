@@ -81,7 +81,7 @@ AfterSuite(async (fence, indexd, users) => {
   await indexd.do.deleteFileIndices(Object.values(indexed_files));
 });
 
-Before(async (fence, users) => {
+Before(async (google, fence, users) => {
   // Cleanup before each scenario
   console.log('deleting keys for SA associated with users 0, 1 and user2...');
   ['user0', 'user1', 'user2'].forEach(async(user) => {
