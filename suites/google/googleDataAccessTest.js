@@ -312,7 +312,7 @@ Scenario('Test Google Data Access (signed urls) @reqGoogle @googleDataAccess',
 //  - Check Temporary Service Account Creds
 // Depends on I.cache.tempCreds0Res defined in previous scenario
 Scenario('New authZ: Test Google Data Access (temp creds) @reqGoogle @googleDataAccess',
-  async (fence, indexd, users, google, files) => {
+  async (fence, indexd, users, google, files, I) => {
     console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
     bash.runJob('useryaml-job');
@@ -414,7 +414,7 @@ Scenario('New authZ: Test Google Data Access (temp creds) @reqGoogle @googleData
 // SECOND RUN (new authZ)
 //  - Check Signed URLs from SECOND RUN
 Scenario('New authZ: Test Google Data Access (signed urls) @reqGoogle @googleDataAccess',
-  async (fence, indexd, users, google, files) => {
+  async (fence, indexd, users, google, files, I) => {
     console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
     bash.runJob('useryaml-job');
