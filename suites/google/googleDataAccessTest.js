@@ -87,8 +87,8 @@ Before(async (fence, users) => {
   ['user0', 'user1', 'user2'].forEach(async(user) => {
     const getCredsRes = await fence.do.getUserGoogleCreds(users[user].accessTokenHeader);
     console.log(`Keys from ${user}: ${JSON.stringify(getCredsRes.access_keys)}`);
-    if (getCredsRess.access_keys.length > 0) {
-      let saName = getCredsRess.access_keys[0].name.split('/')[3];
+    if (getCredsRes.access_keys.length > 0) {
+      let saName = getCredsRes.access_keys[0].name.split('/')[3];
       console.log(`delete any existing keys for service account ${saName}`);
       const dcfSaKeys = await google.listServiceAccountKeys('dcf-integration', saName);
       console.log(`#### ##:' ${JSON.stringify(dcfSaKeys.keys)}`);
