@@ -117,7 +117,7 @@ After(async (fence, users) => {
 });
 
 Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googleDataAccess',
-  async (fence, users, google, files) => {
+  async (fence, indexd, users, google, files) => {
     console.log(`Double-check if file ${indexed_files.qaFile.did} is indexed. If it isn't fail fast.`);
     const indexdLookupRes = await indexd.do.getFile(indexed_files.qaFile, users.user0.accessTokenHeader);
     chai.expect(indexdLookupRes,
