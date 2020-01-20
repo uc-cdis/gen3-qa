@@ -88,8 +88,8 @@ Before(async (fence, users) => {
   ['user0', 'user1', 'user2'].forEach(async(user) => {
     const getCredsRes = await fence.do.getUserGoogleCreds(users[user].accessTokenHeader);
     console.log(`Keys from ${user}: ${JSON.stringify(getCredsRes.access_keys)}`);
-    if (getCredsRes.access_keys.length > 0) {
-      let saName = getCredsRess.access_keys[0].name.split('/')[3];
+    if (getCredsRess.access_keys.length > 0) {
+      let saName = getCredsRes.access_keys[0].name.split('/')[3];
       console.log(`delete any existing keys for service account ${saName}`);
       const dcfSaKeys = await google.listServiceAccountKeys('dcf-integration', saName);
       console.log(`#### ##:' ${JSON.stringify(dcfSaKeys.keys)}`);
@@ -122,6 +122,7 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
     await fence.complete.forceUnlinkGoogleAcct(users.user0);
     await fence.complete.forceUnlinkGoogleAcct(users.user1);
     await fence.complete.forceUnlinkGoogleAcct(users.user2);
+    await apiUtil.sleepMS(1 * 1000);
 
     console.log(`creating temporary google creds for users with usernames:  ${users.user0.username}, ${users.user1.username}, ${users.user2.username}`);
     // call our endpoint to get temporary creds
@@ -141,6 +142,13 @@ Scenario('Test Google Data Access (signed urls and temp creds) @reqGoogle @googl
     const tempCreds2Res = await fence.complete.createTempGoogleCreds(
       users.user2.accessTokenHeader,
     );
+    await apiUtil.sleepMS(1 * 1000);
+
+    console.log('linking users google accounts');
+    await fence.complete.linkGoogleAcctMocked(users.user0);
+    await fence.complete.linkGoogleAcctMocked(users.user1);
+    await fence.complete.linkGoogleAcctMocked(users.user2);
+    await apiUtil.sleepMS(2 * 1000);
 
     console.log('Use User0 to create signed URL for file in QA');
     const User0signedUrlQA1Res = await fence.do.createSignedUrlForUser(
