@@ -1,3 +1,4 @@
+/*eslint-disable */
 Feature('dbgapSyncing');
 /*
 Test running usersync job and pulling files from a fake dbgap sftp server (populated
@@ -277,7 +278,7 @@ Scenario('dbGaP + user.yaml Sync: ensure combined access @dbgapSyncing @reqGoogl
     chai.expect(QAFileContents,
       `User ${users.mainAcct.username} with access could NOT create s3 signed urls `
       + 'and read file for a record in authorized program QA').to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-  });
+  }).retry(2);
 
 Scenario('dbGaP + user.yaml Sync (from prev test): ensure user without dbGap access cannot create/update/delete dbGaP indexd records @dbgapSyncing @reqGoogle',
   async (fence, indexd, users) => {
@@ -346,7 +347,7 @@ Scenario('dbGaP + user.yaml Sync (from prev test): ensure user without dbGap acc
       new_dbgap_records.fooBarFile,
       msg = 'should have gotten unauthorized for deleting dbgap record',
     );
-  });
+  }).retries(2);
 
 Scenario('dbGaP + user.yaml Sync (from prev test): ensure users with dbGap access cannot create/update/delete dbGaP indexd records @dbgapSyncing @reqGoogle',
   async (fence, indexd, users) => {
@@ -415,4 +416,4 @@ Scenario('dbGaP + user.yaml Sync (from prev test): ensure users with dbGap acces
       new_dbgap_records.fooBarFile,
       msg = 'should have gotten unauthorized for deleting dbgap record',
     );
-  });
+  }).retry(2);
