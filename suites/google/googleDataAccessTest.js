@@ -245,6 +245,7 @@ Scenario('Test Google Data Access (signed urls) @reqGoogle @googleDataAccess',
       const User0signedUrlQA1Res = await fence.do.createSignedUrlForUser(
         indexed_files.qaFile.did, users.user0.accessTokenHeader,
       );
+      await apiUtil.sleepMS(1 * 1000);
       const User0signedUrlQA1FileContents = await fence.do.getFileFromSignedUrlRes(
         User0signedUrlQA1Res,
       );
@@ -254,6 +255,7 @@ Scenario('Test Google Data Access (signed urls) @reqGoogle @googleDataAccess',
       const User1signedUrlQA1Res = await fence.do.createSignedUrlForUser(
         indexed_files.qaFile.did, users.user1.accessTokenHeader,
       );
+      await apiUtil.sleepMS(1 * 1000);
       const User1signedUrlQA1ResFileContents = await fence.do.getFileFromSignedUrlRes(
         User1signedUrlQA1Res,
       );
@@ -263,16 +265,19 @@ Scenario('Test Google Data Access (signed urls) @reqGoogle @googleDataAccess',
       const User2signedUrlQA1Res = await fence.do.createSignedUrlForUser(
         indexed_files.qaFile.did, users.user2.accessTokenHeader,
       );
+      await apiUtil.sleepMS(1 * 1000);
 
       console.log('Use User0 to create signed URL for file in test');
       const User0signedUrlTest1Res = await fence.do.createSignedUrlForUser(
         indexed_files.testFile.did, users.user0.accessTokenHeader,
       );
+      await apiUtil.sleepMS(1 * 1000);
 
       console.log('Use User1 to create signed URL for file in test');
       const User1signedUrlTest1Res = await fence.do.createSignedUrlForUser(
         indexed_files.testFile.did, users.user1.accessTokenHeader,
       );
+      await apiUtil.sleepMS(1 * 1000);
       const User1signedUrlTest1ResFileContents = await fence.do.getFileFromSignedUrlRes(
         User1signedUrlTest1Res,
       );
@@ -281,6 +286,7 @@ Scenario('Test Google Data Access (signed urls) @reqGoogle @googleDataAccess',
       const User2signedUrlTest1Res = await fence.do.createSignedUrlForUser(
         indexed_files.testFile.did, users.user2.accessTokenHeader,
       );
+      await apiUtil.sleepMS(1 * 1000);
 
       console.log('Second: Check signed URLs');
       chai.expect(User0signedUrlQA1FileContents,
@@ -315,12 +321,7 @@ Scenario('New authZ: Test Google Data Access (temp creds) @reqGoogle @googleData
   async (fence, indexd, users, google, files, I) => {
     console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
-    bash.runJob('useryaml-job');
-
-    // get new access tokens b/c of changed access
-    newUser0AccessToken = apiUtil.getAccessToken(users.user0.username, 3600);
-    newUser1AccessToken = apiUtil.getAccessToken(users.user1.username, 3600);
-    newUser2AccessToken = apiUtil.getAccessToken(users.user2.username, 3600);
+    bash.runJob('useryaml');
 
     console.log('saving temporary google creds to file');
     const creds0Key = I.cache.tempCreds0Res.data.private_key_id;
@@ -417,22 +418,28 @@ Scenario('New authZ: Test Google Data Access (signed urls) @reqGoogle @googleDat
   async (fence, indexd, users, google, files, I) => {
     console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
-    bash.runJob('useryaml-job');
+    bash.runJob('useryaml');
+
+    // get new access tokens b/c of changed access
+    const newUser0AccessToken = apiUtil.getAccessToken(users.user0.username, 3600);
+    const newUser1AccessToken = apiUtil.getAccessToken(users.user1.username, 3600);
+    const newUser2AccessToken = apiUtil.getAccessToken(users.user2.username, 3600);
 
     console.log('Use User0 to create signed URL for file in QA');
     const User0signedUrlQA2Res = await fence.do.createSignedUrlForUser(
       indexed_files.qaFile.did, apiUtil.getAccessTokenHeader(newUser0AccessToken),
     );
-
+    await apiUtil.sleepMS(1 * 1000);
     console.log('Use User1 to create signed URL for file in QA');
     const User1signedUrlQA2Res = await fence.do.createSignedUrlForUser(
       indexed_files.qaFile.did, apiUtil.getAccessTokenHeader(newUser1AccessToken),
     );
-
+    await apiUtil.sleepMS(1 * 1000);
     console.log('Use User2 to create signed URL for file in QA');
     const User2signedUrlQA2Res = await fence.do.createSignedUrlForUser(
       indexed_files.qaFile.did, apiUtil.getAccessTokenHeader(newUser2AccessToken),
     );
+    await apiUtil.sleepMS(1 * 1000);
     const User2signedUrlQA2ResFileContents = await fence.do.getFileFromSignedUrlRes(
       User2signedUrlQA2Res,
     );
@@ -442,11 +449,12 @@ Scenario('New authZ: Test Google Data Access (signed urls) @reqGoogle @googleDat
     const User0signedUrlTest2Res = await fence.do.createSignedUrlForUser(
       indexed_files.testFile.did, apiUtil.getAccessTokenHeader(newUser0AccessToken),
     );
-
+    await apiUtil.sleepMS(1 * 1000);
     console.log('Use User1 to create signed URL for file in test');
     const User1signedUrlTest2Res = await fence.do.createSignedUrlForUser(
       indexed_files.testFile.did, apiUtil.getAccessTokenHeader(newUser1AccessToken),
     );
+    await apiUtil.sleepMS(1 * 1000);
     const User1signedUrlTest2ResFileContents = await fence.do.getFileFromSignedUrlRes(
       User1signedUrlTest2Res,
     ).catch((err) => err && err.response && err.response.data || err);
@@ -456,6 +464,7 @@ Scenario('New authZ: Test Google Data Access (signed urls) @reqGoogle @googleDat
     const User2signedUrlTest2Res = await fence.do.createSignedUrlForUser(
       indexed_files.testFile.did, apiUtil.getAccessTokenHeader(newUser2AccessToken),
     );
+    await apiUtil.sleepMS(1 * 1000);
 
     console.log('Second: Check signed URLs');
     chai.expect(User1signedUrlQA2Res,
@@ -487,7 +496,7 @@ Scenario('Test Google Data Access (signed urls) @reqGoogle @googleDataAccess',
   async (fence, indexd, users, google, files, I) => {
     console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
-    bash.runJob('useryaml-job');
+    bash.runJob('useryaml');
     
     // use old signed urls to try and access data again
     console.log('Use signed URL from User0 to try and access QA data again');
@@ -530,13 +539,13 @@ Scenario('Test Google Data Access (signed urls) @reqGoogle @googleDataAccess',
 
     console.log('deleting temporary google credentials file');
     files.deleteFile(I.cache.pathToCreds0KeyFile);
-    console.log(`${pathToCreds0KeyFile} deleted!`);
+    console.log(`${I.cache.pathToCreds0KeyFile} deleted!`);
 
     files.deleteFile(I.cache.pathToCreds1KeyFile);
-    console.log(`${pathToCreds1KeyFile} deleted!`);
+    console.log(`${I.cache.pathToCreds1KeyFile} deleted!`);
 
     files.deleteFile(I.cache.pathToCreds2KeyFile);
-      console.log(`${pathToCreds2KeyFile} deleted!`);
+      console.log(`${I.cache.pathToCreds2KeyFile} deleted!`);
 
     chai.expect(User0AccessRemovedQA,
       'Make sure signed URL from User0 CANNOT access QA data again. FAILED.').to.contain('AccessDenied');
