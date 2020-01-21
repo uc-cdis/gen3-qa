@@ -70,10 +70,7 @@ const indexed_files = {
   },
 };
 
-BeforeSuite(async (google, fence, users, indexd, I) => {
-  // making this data accessible in all scenarios through the actor's memory (the "I" object)
-  I.cache = {};
-
+function deleteSAKeys(google, fence, users) {
   console.log('deleting keys for SA associated with users 0, 1 and user2...');
   ['user0', 'user1', 'user2'].forEach(async(user) => {
     const getCredsRes = await fence.do.getUserGoogleCreds(users[user].accessTokenHeader);
@@ -98,6 +95,13 @@ BeforeSuite(async (google, fence, users, indexd, I) => {
       };
     }
   });
+}
+
+BeforeSuite(async (google, fence, users, indexd, I) => {
+  // making this data accessible in all scenarios through the actor's memory (the "I" object)
+  I.cache = {};
+
+  deleteSAKeys(google, fence, users);
 
   console.log('Adding indexd files used to test signed urls');
   const ok = await indexd.do.addFileIndices(Object.values(indexed_files));
@@ -416,6 +420,9 @@ Scenario('New authZ: Test Google Data Access (temp creds) @reqGoogle @googleData
 //  - Check Signed URLs from SECOND RUN
 Scenario('New authZ: Test Google Data Access (signed urls) @reqGoogle @googleDataAccess',
   async (fence, indexd, users, google, files, I) => {
+    // clean keys again
+    deleteSAKeys(google, fence, users);
+
     console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
     bash.runJob('useryaml');
@@ -492,7 +499,7 @@ Scenario('New authZ: Test Google Data Access (signed urls) @reqGoogle @googleDat
 // This scenario cannot be executed independently as it depends on information from the previous scenarios
 // All the info is shared through the I.cache object
 // TODO: Discuss a better approach to run this scenario independently
-Scenario('Test Google Data Access (signed urls) @reqGoogle @googleDataAccess',
+Scenario('Test Google Data Access again (signed urls) @reqGoogle @googleDataAccess',
   async (fence, indexd, users, google, files, I) => {
     console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
@@ -538,14 +545,18 @@ Scenario('Test Google Data Access (signed urls) @reqGoogle @googleDataAccess',
     );
 
     console.log('deleting temporary google credentials file');
-    files.deleteFile(I.cache.pathToCreds0KeyFile);
-    console.log(`${I.cache.pathToCreds0KeyFile} deleted!`);
-
-    files.deleteFile(I.cache.pathToCreds1KeyFile);
-    console.log(`${I.cache.pathToCreds1KeyFile} deleted!`);
-
-    files.deleteFile(I.cache.pathToCreds2KeyFile);
+    if (files.isFileCreated(I.cache.pathToCreds0KeyFile)) {
+      files.deleteFile(I.cache.pathToCreds0KeyFile);
+      console.log(`${I.cache.pathToCreds0KeyFile} deleted!`);
+    }
+    if (files.isFileCreated(I.cache.pathToCreds1KeyFile)) {
+      files.deleteFile(I.cache.pathToCreds1KeyFile);
+      console.log(`${I.cache.pathToCreds1KeyFile} deleted!`);
+    }
+    if (files.isFileCreated(I.cache.pathToCreds2KeyFile)) {
+      files.deleteFile(I.cache.pathToCreds2KeyFile);
       console.log(`${I.cache.pathToCreds2KeyFile} deleted!`);
+    }
 
     chai.expect(User0AccessRemovedQA,
       'Make sure signed URL from User0 CANNOT access QA data again. FAILED.').to.contain('AccessDenied');
