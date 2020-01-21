@@ -545,15 +545,15 @@ Scenario('Test Google Data Access again (signed urls) @reqGoogle @googleDataAcce
     );
 
     console.log('deleting temporary google credentials file');
-    if (files.isFileCreated(I.cache.pathToCreds0KeyFile)) {
+    if (files.fileExists(I.cache.pathToCreds0KeyFile)) {
       files.deleteFile(I.cache.pathToCreds0KeyFile);
       console.log(`${I.cache.pathToCreds0KeyFile} deleted!`);
     }
-    if (files.isFileCreated(I.cache.pathToCreds1KeyFile)) {
+    if (files.fileExists(I.cache.pathToCreds1KeyFile)) {
       files.deleteFile(I.cache.pathToCreds1KeyFile);
       console.log(`${I.cache.pathToCreds1KeyFile} deleted!`);
     }
-    if (files.isFileCreated(I.cache.pathToCreds2KeyFile)) {
+    if (files.fileExists(I.cache.pathToCreds2KeyFile)) {
       files.deleteFile(I.cache.pathToCreds2KeyFile);
       console.log(`${I.cache.pathToCreds2KeyFile} deleted!`);
     }
