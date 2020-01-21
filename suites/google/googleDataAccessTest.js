@@ -70,7 +70,7 @@ const indexed_files = {
   },
 };
 
-function deleteSAKeys(google, fence, users) {
+async function deleteSAKeys(google, fence, users) {
   console.log('deleting keys for SA associated with users 0, 1 and user2...');
   ['user0', 'user1', 'user2'].forEach(async(user) => {
     const getCredsRes = await fence.do.getUserGoogleCreds(users[user].accessTokenHeader);
@@ -101,7 +101,7 @@ BeforeSuite(async (google, fence, users, indexd, I) => {
   // making this data accessible in all scenarios through the actor's memory (the "I" object)
   I.cache = {};
 
-  deleteSAKeys(google, fence, users);
+  await deleteSAKeys(google, fence, users);
 
   console.log('Adding indexd files used to test signed urls');
   const ok = await indexd.do.addFileIndices(Object.values(indexed_files));
@@ -499,14 +499,7 @@ Scenario('New authZ: Test Google Data Access (signed urls) @reqGoogle @googleDat
 // TODO: Discuss a better approach to run this scenario independently
 Scenario('Test Google Data Access again (signed urls) @reqGoogle @googleDataAccess',
   async (fence, indexd, users, google, files, I) => {
-    deleteSAKeys(google, fence, users);
-    console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
-    Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
-    bash.runJob('useryaml');
-
-    // Give it some time until Fence can communicate to Google the access has changed
-    await apiUtil.sleepMS(5 * 1000);
-
+    // Assuming new AuthZ is in place
     // use old signed urls to try and access data again
     console.log('Use signed URL from User0 to try and access QA data again');
     const User0AccessRemovedQA = await fence.do.getFileFromSignedUrlRes(
@@ -561,10 +554,10 @@ Scenario('Test Google Data Access again (signed urls) @reqGoogle @googleDataAcce
     }
 
     chai.expect(User0AccessRemovedQA,
-      'Make sure signed URL from User0 CANNOT access QA data again. FAILED.').to.contain('AccessDenied');
+      'Make sure signed URL from User0 CANNOT access QA data again. FAILED.').not.equal(fence.props.googleBucketInfo.QA.fileContents);
 
     chai.expect(User1AccessRemovedQA,
-      'Make sure signed URL from User1 CANNOT access QA data again. FAILED.').to.contain('AccessDenied');
+      'Make sure signed URL from User1 CANNOT access QA data again. FAILED.').not.equal(fence.props.googleBucketInfo.QA.fileContents);
 
     chai.expect(User1AccessRemainsTest,
       'Make sure signed URL from User1 CAN access test data again. FAILED.').to.equal(fence.props.googleBucketInfo.test.fileContents);
