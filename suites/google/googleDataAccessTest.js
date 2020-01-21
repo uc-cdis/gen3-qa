@@ -227,7 +227,7 @@ Scenario('Test Google Data Access (temp creds) @reqGoogle @googleDataAccess',
 // FIRST RUN
 //  - Check Signed URLs
 Scenario('Test Google Data Access (signed urls) @reqGoogle @googleDataAccess',
-	 async (fence, indexd, users, google, files, I) => {
+  async (fence, indexd, users, google, files, I) => {
     console.log(`Double-check if file ${indexed_files.qaFile.did} is indexed. If it isn't fail fast.`);
     const indexdLookupRes = await indexd.do.getFile(indexed_files.qaFile, users.user0.accessTokenHeader);
     chai.expect(indexdLookupRes,
@@ -249,6 +249,8 @@ Scenario('Test Google Data Access (signed urls) @reqGoogle @googleDataAccess',
       const User0signedUrlQA1Res = await fence.do.createSignedUrlForUser(
         indexed_files.qaFile.did, users.user0.accessTokenHeader,
       );
+      // This info is needed in the 2nd run with the new authZ
+      I.cache.User0signedUrlQA1Res = User0signedUrlQA1Res;
       await apiUtil.sleepMS(1 * 1000);
       const User0signedUrlQA1FileContents = await fence.do.getFileFromSignedUrlRes(
         User0signedUrlQA1Res,
@@ -259,6 +261,8 @@ Scenario('Test Google Data Access (signed urls) @reqGoogle @googleDataAccess',
       const User1signedUrlQA1Res = await fence.do.createSignedUrlForUser(
         indexed_files.qaFile.did, users.user1.accessTokenHeader,
       );
+      // This info is needed in the 2nd run with the new authZ
+      I.cache.User1signedUrlQA1Res = User1signedUrlQA1Res;
       await apiUtil.sleepMS(1 * 1000);
       const User1signedUrlQA1ResFileContents = await fence.do.getFileFromSignedUrlRes(
         User1signedUrlQA1Res,
@@ -269,6 +273,8 @@ Scenario('Test Google Data Access (signed urls) @reqGoogle @googleDataAccess',
       const User2signedUrlQA1Res = await fence.do.createSignedUrlForUser(
         indexed_files.qaFile.did, users.user2.accessTokenHeader,
       );
+      // This info is needed in the 2nd run with the new authZ
+      I.cache.User2signedUrlQA1Res = User2signedUrlQA1Res;
       await apiUtil.sleepMS(1 * 1000);
 
       console.log('Use User0 to create signed URL for file in test');
@@ -310,11 +316,6 @@ Scenario('Test Google Data Access (signed urls) @reqGoogle @googleDataAccess',
    
       chai.expect(User2signedUrlTest1Res,
         'First sync: Check that User2 could NOT get a signed URL to read file in test. FAILED.').to.have.property('status', 401);
-
-    // This info is needed in the 2nd run with the new authZ
-    I.cache.User0signedUrlQA1Res = User0signedUrlQA1Res;
-    I.cache.User1signedUrlQA1Res = User1signedUrlQA1Res;
-    I.cache.User2signedUrlQA1Res = User2signedUrlQA1Res;
   }
 ).retry(2);
 
@@ -420,9 +421,6 @@ Scenario('New authZ: Test Google Data Access (temp creds) @reqGoogle @googleData
 //  - Check Signed URLs from SECOND RUN
 Scenario('New authZ: Test Google Data Access (signed urls) @reqGoogle @googleDataAccess',
   async (fence, indexd, users, google, files, I) => {
-    // clean keys again
-    deleteSAKeys(google, fence, users);
-
     console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
     bash.runJob('useryaml');
@@ -501,10 +499,14 @@ Scenario('New authZ: Test Google Data Access (signed urls) @reqGoogle @googleDat
 // TODO: Discuss a better approach to run this scenario independently
 Scenario('Test Google Data Access again (signed urls) @reqGoogle @googleDataAccess',
   async (fence, indexd, users, google, files, I) => {
+    deleteSAKeys(google, fence, users);
     console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
     bash.runJob('useryaml');
-    
+
+    // Give it some time until Fence can communicate to Google the access has changed
+    await apiUtil.sleepMS(5 * 1000);
+
     // use old signed urls to try and access data again
     console.log('Use signed URL from User0 to try and access QA data again');
     const User0AccessRemovedQA = await fence.do.getFileFromSignedUrlRes(

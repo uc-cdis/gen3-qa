@@ -1,3 +1,4 @@
+/*eslint-disable */
 const chai = require('chai');
 
 const apiUtil = require('../../utils/apiUtil.js');
@@ -7,7 +8,7 @@ const bash = new Bash();
 const { Commons } = require('../../utils/commons.js');
 
 
-Feature('GoogleServiceAccountRemoval');
+Feature('GoogleServiceAccountRemoval').retry(2);
 
 /**
  * Test that the SA removal job, fence-create google-manage-user-registrations,
