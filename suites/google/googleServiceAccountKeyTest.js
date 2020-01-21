@@ -233,7 +233,7 @@ Scenario('SA key removal job test: remove expired creds @reqGoogle', async (fenc
 
   // Run the expired SA key clean up job
   console.log('Clean up expired Service Account keys');
-  bash.runJob('google-manage-keys-job');
+  bash.runJob('google-manage-keys');
 
   // Try to access data
   const user0AccessQAResExpired = await google.getFileFromBucket(
@@ -304,7 +304,7 @@ Scenario('SA key removal job test: remove expired creds that do not exist in goo
 
   // Run the expired SA key clean up job
   console.log('Clean up expired Service Account keys');
-  bash.runJob('google-manage-keys-job');
+  bash.runJob('google-manage-keys');
 
   // Get list of current creds
   getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
