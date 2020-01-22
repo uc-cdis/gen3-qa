@@ -287,6 +287,8 @@ Scenario('Test Google Data Access (signed urls) @reqGoogle @googleDataAccess',
       const User1signedUrlTest1Res = await fence.do.createSignedUrlForUser(
         indexed_files.testFile.did, users.user1.accessTokenHeader,
       );
+      // This info is needed in the 2nd run with the new authZ
+      I.cache.User1signedUrlTest1Res = User1signedUrlTest1Res;
       await apiUtil.sleepMS(1 * 1000);
       const User1signedUrlTest1ResFileContents = await fence.do.getFileFromSignedUrlRes(
         User1signedUrlTest1Res,
