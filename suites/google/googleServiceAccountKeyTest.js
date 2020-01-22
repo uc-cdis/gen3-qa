@@ -21,7 +21,7 @@ function calculateSAKeyAge(creationDate) {
 BeforeSuite(async (google, fence, users) => {
   console.log('cleaning up old keys from the user0 service account in the dcf-integration GCP project');
   const getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
-  await google.deleteSAKeys(user, getCredsRes.access_keys);
+  await google.deleteSAKeys(users.user0.username, getCredsRes.access_keys);
 
   await fence.complete.suiteCleanup(google, users);
 });
