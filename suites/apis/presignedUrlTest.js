@@ -1,4 +1,4 @@
-Feature('PresignedUrlAPI').reply(2);
+Feature('PresignedUrlAPI').retry(2);
 
 const chai = require('chai');
 
