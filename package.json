@@ -43,6 +43,7 @@
     "request": "latest",
     "selenium-standalone": "latest",
     "ssl-root-cas": "latest",
+    "json-stringify-safe": "latest",
     "unirest": "latest",
     "uuid": "latest",
     "webdriverio": "^5.10.9"

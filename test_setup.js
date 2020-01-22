@@ -1,3 +1,4 @@
+/*eslint-disable */
 /**
  * Pre-test script for setup. Does the following:
  * 1. Fetch variables from commons required for testing
@@ -9,6 +10,7 @@ const homedir = require('os').homedir();
 
 const { Commons } = require('./utils/commons');
 const { Bash } = require('./utils/bash');
+const apiUtil = require('./utils/apiUtil.js');
 const google = require('./utils/google.js');
 const fenceProps = require('./services/apis/fence/fenceProps');
 
@@ -108,31 +110,46 @@ async function tryCreateProgramProject(nAttempts) {
  * exist, and link them to the Google buckets used in the tests
  */
 function createGoogleTestBuckets() {
-  try {
-    console.log('Ensure test buckets are linked to projects in this commons...');
+  const nAttempts = 3;
+  for (let i = 0; i < nAttempts; i += 1) {
+    try {
+      console.log(`Attempt #${i}: Ensure test buckets are linked to projects in this commons...`);
 
-    let { bucketId } = fenceProps.googleBucketInfo.QA;
-    let { googleProjectId } = fenceProps.googleBucketInfo.QA;
-    let projectAuthId = 'QA';
-    let fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
-    console.log(`Running: ${fenceCmd}`);
-    bash.runCommand(fenceCmd, 'fence');
+      let { bucketId } = fenceProps.googleBucketInfo.QA;
+      let { googleProjectId } = fenceProps.googleBucketInfo.QA;
+      let projectAuthId = 'QA';
+      let fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
+      console.log(`Running: ${fenceCmd}`);
+      const responseQABucket = bash.runCommand(fenceCmd, 'fence');
 
-    bucketId = fenceProps.googleBucketInfo.test.bucketId;
-    googleProjectId = fenceProps.googleBucketInfo.test.googleProjectId;
-    projectAuthId = 'test';
-    fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
-    console.log(`Running: ${fenceCmd}`);
-    const response = bash.runCommand(fenceCmd, 'fence');
+      bucketId = fenceProps.googleBucketInfo.test.bucketId;
+      googleProjectId = fenceProps.googleBucketInfo.test.googleProjectId;
+      projectAuthId = 'test';
+      fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
+      console.log(`Running: ${fenceCmd}`);
+      const responseTestBucket = bash.runCommand(fenceCmd, 'fence');
 
-    console.log('Clean up Google Bucket Access Groups from previous runs...');
-    console.log(`response: ${response}`);
-    bash.runJob('google-verify-bucket-access-group');
-  } catch (e) {
-    if (inJenkins) {
-      throw e;
+      console.log('Clean up Google Bucket Access Groups from previous runs...');
+      console.log(`response fence-create google-bucket-create for QA Bucket: ${responseQABucket}`);
+      console.log(`response fence-create google-bucket-create for Test Bucket: ${responseTestBucket}`);
+      bash.runJob('google-verify-bucket-access-group');
+
+      // Wait to check google-manage-keys-job pod logs
+      //console.log('waiting a few seconds before checking the results of the google-verify-bucket-access-group job');
+      //apiUtil.sleepMS(5 * 1000).then(() => {
+      //  console.log('Running gen3 job logs google-verify-bucket-access-group... ');
+      //  bash.runCommand('set -i; source ~/.bashrc; gen3 job logs google-verify-bucket-access-group');
+      //});
+
+      console.log('Proceeding with the tests.');
+      break;
+    } catch (e) {
+      console.log(`WARNING: unable to create Google test buckets in attempt #${i}. You can ignore this message if you do not want to run Google data access tests.`);
+      console.log(e);
+      if ((i === nAttempts - 1) && inJenkins) {
+        throw e;
+      }
     }
-    console.log('WARNING: unable to create Google test buckets. You can ignore this message if you do not want to run Google data access tests.');
   }
 }
 
