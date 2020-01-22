@@ -76,13 +76,22 @@ module.exports = {
    * @returns {Promise<void>}
    */
   async forceUnlinkGoogleAcct(userAcct) {
-    const unlinkRes = await fenceTasks.unlinkGoogleAcct(userAcct);
-    expect(unlinkRes,
-      'response from unlinking Google Account does not have expected status property').to.have.property('status');
-    expect(
-      unlinkRes.status,
-      'response from unlinking Google Account does not have expected status of 200 or 404',
-    ).to.be.oneOf([200, 404]);
+    const nAttempts = 3;
+    for (let i = 0; i < nAttempts; i += 1) {
+      const unlinkRes = await fenceTasks.unlinkGoogleAcct(userAcct);
+      expect(unlinkRes,
+       'response from unlinking Google Account does not have expected status property').to.have.property('status');
+      // Retry if response from unlinking Google Account does not have expected status of 200 or 404
+      if ([200,404].indexOf(unlinkRes.status) == -1) {
+        console.log(`Failed to unlink google account ${userAcct.username} on attempt ${i}:`);
+        console.log(`unlinkRes: ${JSON.stringify(unlinkRes)}`);
+        console.log('wait a second and try again...');
+        await sleepMS(1 * 1000);
+        if (i === nAttempts - 1) {
+          throw new Error('Failed to unlink google account');
+        }
+      }
+    }
   },
 
   /**
@@ -114,11 +123,22 @@ module.exports = {
    * @returns {Promise<Gen3Response>}
    */
   async createTempGoogleCreds(accessTokenHeaders, expires_in = null) {
-    const response = await fenceTasks.createTempGoogleCreds(accessTokenHeaders, expires_in);
-    expect(response,
-      'response from creating temporary Google credentials does not have nested '
-      + 'property data.private_key (which means we didn\'t get back valid Google credentials)').has.nested.property('data.private_key');
-    return response;
+    const nAttempts = 3;
+    for (let i = 0; i < nAttempts; i += 1) {
+      const response = await fenceTasks.createTempGoogleCreds(accessTokenHeaders, expires_in);
+      // response from creating temporary Google credentials does not have
+      // nested property data.private_key (which means we didn't get back valid Google credentials
+      if (!response.data['private_key']) {
+        console.log(`Failed to create google temp creds on attempt ${i}:`);
+        console.log(`Invalid response: ${JSON.stringify(response.data)}`);
+        await sleepMS(2 * 1000);
+        if (i === nAttempts - 1) {
+          throw new Error(`Failed to create temp google creds due to: ${JSON.stringify(response.data)}! Num of attempts: ${i}.`);
+        }
+      } else {
+        return response;
+      }
+    }
   },
 
   /**

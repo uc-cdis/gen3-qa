@@ -65,7 +65,12 @@ class Client {
   get client() {
     if (!this._client) {
       deleteClient(this.clientName);
-      this._client = createClient(this.clientName, this.userName, this.clientType, this.arboristPolicies);
+      this._client = createClient(
+        this.clientName,
+        this.userName,
+        this.clientType,
+        this.arboristPolicies,
+      );
     }
     return { ...this._client };
   }

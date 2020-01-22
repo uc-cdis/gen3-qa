@@ -460,4 +460,32 @@ module.exports = {
         }),
     );
   },
+
+  /**
+   * Deletes all keys from a list of service accounts
+   * @param {string} username - gen3 user whose profile is associated with GCP service accounts
+   * @param {string[]} list of access keys (GCreds) containing the name of the service accounts
+  */
+  async deleteSAKeys(user, accessKeys) {
+    console.log(`Keys from ${user}: ${JSON.stringify(accessKeys)}`);
+    if (accessKeys.length > 0) {
+      const saName = accessKeys[0].name.split('/')[3];
+      console.log(`delete any existing keys for service account ${saName}`);
+      const dcfSaKeys = await module.exports.listServiceAccountKeys('dcf-integration', saName);
+      console.log(`#### ##:' ${JSON.stringify(dcfSaKeys.keys)}`);
+      if (dcfSaKeys.keys) {
+        dcfSaKeys.keys.forEach(async (key) => {
+          console.log(`the following key will be deleted: ${key.name}`);
+          await module.exports.deleteServiceAccountKey(key.name).then((deletionResult) => {
+            console.log(`deletionResult: ${JSON.stringify(deletionResult)}`);
+            if (deletionResult instanceof Error) {
+              console.log(`WARN: Failed to delete key [${key.name}] from Google service account [${saName}].`);
+            } else {
+              console.log(`INFO: Successfully deleted key [${key.name}] from Google service account [${saName}].`);
+            }
+          });
+        });
+      }
+    }
+  },
 };
