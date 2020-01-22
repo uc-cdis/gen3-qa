@@ -30,16 +30,10 @@ User Access Files and which projects the users have access to:
     User2
       - QA
 
-
-NOTE: This is a giant test that asserts a lot of things. Why not multiple tests?
-      Because usersync and useryaml jobs take a very long time. If we had to run
-      them in b/t every test, this suite would take ten-fold or more time than
-      it currently does.
-
-      To compensate for the potential annoyance of "what actually failed?!" when this
-      fails, we've added a ton of console.logs along the way so you know where the test
-      got to. All assertions should also provide detailed information about failures.
+NOTE: This is a giant test flow split into smaller scenarios that share data through an "I.cache" object.
+      Therefore, the scenarios cannot be executed independently
 */
+
 const chai = require('chai');
 const { Commons } = require('../../utils/commons.js');
 const fenceProps = require('../../services/apis/fence/fenceProps.js');
