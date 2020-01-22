@@ -84,6 +84,10 @@ BeforeSuite(async (google, fence, users, indexd, I) => {
   chai.expect(ok).to.be.true;
 });
 
+Before(async (I) => {
+  console.log(`cache: ${stringify(I.cache)}`);
+});
+
 AfterSuite(async (fence, indexd, users) => {
   const unlinkResults = Object.values(users).map((user) => fence.do.unlinkGoogleAcct(user));
   await Promise.all(unlinkResults);
