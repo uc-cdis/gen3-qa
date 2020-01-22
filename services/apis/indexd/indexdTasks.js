@@ -1,7 +1,9 @@
+/*eslint-disable */
 const uuid = require('uuid');
 
 const indexdProps = require('./indexdProps.js');
 const user = require('../../../utils/user.js');
+const stringify = require('json-stringify-safe');
 const { Gen3Response } = require('../../../utils/apiUtil.js');
 
 const I = actor();
@@ -46,7 +48,7 @@ module.exports = {
         acl: file.acl,
         metadata: file.metadata,
       };
-
+      console.log(`### did: ${data.did}`);
       if (file.urls) {
         data.urls = file.urls;
       } else if (file.link) {
@@ -186,7 +188,10 @@ module.exports = {
    */
   async deleteFileIndices(files) {
     await Promise.all(
-      files.map((file) => this.deleteFile(file)),
+      files.map((file) => {
+        console.log(`file: ${stringify(file)}`);
+        this.deleteFile(file);
+       })
     );
   },
 
