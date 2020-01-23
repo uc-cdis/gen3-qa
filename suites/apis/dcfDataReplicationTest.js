@@ -23,7 +23,7 @@ Scenario('AWS Sync - put credentials and mapping file into directory /dcf_datase
             2. put 'aws_cred_secrets' into dcf_dataservice directory
             3. put 'GDC_project_map.json' in dcf_dataservice directory
         `);
-    expect(result.didPass, result.details).to, be.true;
+    expect(result.didPass, result.details).to.be.true;
   },
 ));
 

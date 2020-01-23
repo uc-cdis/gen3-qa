@@ -1,3 +1,4 @@
+/*eslint-disable */
 const { container } = require('codeceptjs');
 const ax = require('axios'); // eslint-disable-line import/no-extraneous-dependencies
 
@@ -99,6 +100,7 @@ module.exports = {
       console.log(`Fetching signed URL: ${signedUrlRes.body.url}`);
       return ax.get(signedUrlRes.body.url).then(
         (resp) => resp.data,
+        (err) => err.response.data || err,
       );
     }
     console.log(fenceProps.FILE_FROM_URL_ERROR, signedUrlRes);
@@ -220,17 +222,19 @@ module.exports = {
     }
 
     let res = await getNoRedirect(url, headers);
+    // console.log(`### NoRedirectURL Res: ${res.data}`);
     // if no error, follow redirect back to fence
     if (res && res.headers.location && !res.headers.location.includes('error=')) {
       const sessionCookie = getCookie('fence', res.headers['set-cookie']);
       headers.Cookie += `; fence=${sessionCookie}`;
       res = await getNoRedirect(res.headers.location, headers);
+      // console.log(`### NoRedirectURL Res header location: ${res.data}`);
       // console.log('linkGoogleAcctMocked response 2', res);
     }
 
     // return the body and the current url
     url = res.headers.location;
-    const gen3Res = new Gen3Response({ data: res.data });
+    const gen3Res = new Gen3Response(res);
     gen3Res.parsedFenceError = undefined;
     // gen3Res.body = body;
     gen3Res.status = 200;

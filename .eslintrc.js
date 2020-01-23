@@ -1,6 +1,7 @@
 module.exports = {
     "extends": [
         "airbnb",
+        "plugin:json/recommended",
         "plugin:codeceptjs/recommended",
         "plugin:chai-expect/recommended",
         "plugin:chai-friendly/recommended"
@@ -15,7 +16,7 @@ module.exports = {
     "parser": "babel-eslint",
     "parserOptions": {
         "sourceType": "module",
-        "ecmaVersion": "latest",
+        "ecmaVersion": "11",
         "ecmaFeatures": {
             "jsx": true,
             "spread": true

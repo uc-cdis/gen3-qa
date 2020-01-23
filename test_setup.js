@@ -1,3 +1,4 @@
+/*eslint-disable */
 /**
  * Pre-test script for setup. Does the following:
  * 1. Fetch variables from commons required for testing
@@ -8,14 +9,38 @@ const nconf = require('nconf');
 const homedir = require('os').homedir();
 
 const { Commons } = require('./utils/commons');
-const { Bash, takeLastLine } = require('./utils/bash');
+const { Bash } = require('./utils/bash');
+const apiUtil = require('./utils/apiUtil.js');
 const google = require('./utils/google.js');
 const fenceProps = require('./services/apis/fence/fenceProps');
 
 const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
 const bash = new Bash();
 
-'use strict';
+'use strict'; // eslint-disable-line chai-friendly/no-unused-expressions
+
+/**
+ * Returns the list of tags that were passed in as arguments, including
+ * "--invert" if it was passed in
+ * Note: this function does not handle complex grep/invert combinations
+ */
+function parseTestTags() {
+  let tags = [];
+  let args = process.argv; // process.env.npm_package_scripts_test.split(' '); // all args
+  args = args.map((item) => item.replace(/(^"|"$)/g, '')); // remove quotes
+  if (args.includes('--grep')) {
+    // get tags and whether the grep is inverted
+    args.forEach((item) => {
+      if (item.startsWith('@')) {
+        // e.g. "@reqGoogle|@Performance"
+        tags = tags.concat(item.split('|'));
+      } else if (item === '--invert') {
+        tags.push(item);
+      }
+    });
+  }
+  return tags;
+}
 
 // get the tags passed in as arguments
 const testTags = parseTestTags();
@@ -59,7 +84,7 @@ function assertEnvVars(varNames) {
  */
 async function tryCreateProgramProject(nAttempts) {
   let success = false;
-  for (let i = 0; i < nAttempts; ++i) {
+  for (let i = 0; i < nAttempts; i += 1) {
     if (success === true) {
       break;
     }
@@ -69,7 +94,10 @@ async function tryCreateProgramProject(nAttempts) {
         success = true;
       })
       .catch((err) => {
-        console.log(`Failed to create program/project on attempt ${i}:\n`, JSON.stringify(err));
+        console.log(
+          `Failed to create program/project on attempt ${i}:\n`,
+          JSON.stringify(err),
+        );
         if (i === nAttempts - 1) {
           throw err;
         }
@@ -82,45 +110,63 @@ async function tryCreateProgramProject(nAttempts) {
  * exist, and link them to the Google buckets used in the tests
  */
 function createGoogleTestBuckets() {
-  try {
-    console.log('Ensure test buckets are linked to projects in this commons...');
+  const nAttempts = 3;
+  for (let i = 0; i < nAttempts; i += 1) {
+    try {
+      console.log(`Attempt #${i}: Ensure test buckets are linked to projects in this commons...`);
 
-    let { bucketId } = fenceProps.googleBucketInfo.QA;
-    let { googleProjectId } = fenceProps.googleBucketInfo.QA;
-    let projectAuthId = 'QA';
-    let fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
-    console.log(`Running: ${fenceCmd}`);
-    bash.runCommand(fenceCmd, 'fence');
+      let { bucketId } = fenceProps.googleBucketInfo.QA;
+      let { googleProjectId } = fenceProps.googleBucketInfo.QA;
+      let projectAuthId = 'QA';
+      let fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
+      console.log(`Running: ${fenceCmd}`);
+      const responseQABucket = bash.runCommand(fenceCmd, 'fence');
 
-    bucketId = fenceProps.googleBucketInfo.test.bucketId;
-    googleProjectId = fenceProps.googleBucketInfo.test.googleProjectId;
-    projectAuthId = 'test';
-    fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
-    console.log(`Running: ${fenceCmd}`);
-    response = bash.runCommand(fenceCmd, 'fence');
+      bucketId = fenceProps.googleBucketInfo.test.bucketId;
+      googleProjectId = fenceProps.googleBucketInfo.test.googleProjectId;
+      projectAuthId = 'test';
+      fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
+      console.log(`Running: ${fenceCmd}`);
+      const responseTestBucket = bash.runCommand(fenceCmd, 'fence');
 
-    console.log('Clean up Google Bucket Access Groups from previous runs...');
-    bash.runJob('google-verify-bucket-access-group');
-  } catch (e) {
-    if (inJenkins) {
-      throw e;
+      console.log('Clean up Google Bucket Access Groups from previous runs...');
+      console.log(`response fence-create google-bucket-create for QA Bucket: ${responseQABucket}`);
+      console.log(`response fence-create google-bucket-create for Test Bucket: ${responseTestBucket}`);
+      bash.runJob('google-verify-bucket-access-group');
+
+      // Wait to check google-manage-keys-job pod logs
+      //console.log('waiting a few seconds before checking the results of the google-verify-bucket-access-group job');
+      //apiUtil.sleepMS(5 * 1000).then(() => {
+      //  console.log('Running gen3 job logs google-verify-bucket-access-group... ');
+      //  bash.runCommand('set -i; source ~/.bashrc; gen3 job logs google-verify-bucket-access-group');
+      //});
+
+      console.log('Proceeding with the tests.');
+      break;
+    } catch (e) {
+      console.log(`WARNING: unable to create Google test buckets in attempt #${i}. You can ignore this message if you do not want to run Google data access tests.`);
+      console.log(e);
+      if ((i === nAttempts - 1) && inJenkins) {
+        throw e;
+      }
     }
-    console.log('WARNING: unable to create Google test buckets. You can ignore this message if you do not want to run Google data access tests.');
   }
 }
 
 async function setupGoogleProjectDynamic() {
   // Update the id and SA email depending on the current namespace
-  if (process.env.RUNNING_LOCAL) { // local run
-    namespace = 'validationjobtest';
-  } else { // jenkins run. a google project exists for each jenkins env
-    namespace = process.env.NAMESPACE;
+  let namespace = process.env.NAMESPACE; // jenkins run
+  if (process.env.RUNNING_LOCAL) {
+    namespace = 'validationjobtest'; // local run
   }
-  fenceProps.googleProjectDynamic.id = fenceProps.googleProjectDynamic.id.replace(
+  // a google project exists for each jenkins env
+  const gProjectId = fenceProps.googleProjectDynamic.id;
+  fenceProps.googleProjectDynamic.id = gProjectId.replace(
     'NAMESPACE',
     namespace,
   );
-  fenceProps.googleProjectDynamic.serviceAccountEmail = fenceProps.googleProjectDynamic.serviceAccountEmail.replace(
+  const gProjectSvcAccountEmail = fenceProps.googleProjectDynamic.serviceAccountEmail;
+  fenceProps.googleProjectDynamic.serviceAccountEmail = gProjectSvcAccountEmail.replace(
     'NAMESPACE',
     namespace,
   );
@@ -157,32 +203,10 @@ async function setupGoogleProjectDynamic() {
     console.log(`WARNING: cannot get list of keys on service account ${saName}.`);
   } else {
     saKeys.keys.map(async (key) => {
-      res = await google.deleteServiceAccountKey(key.name);
+      const res = await google.deleteServiceAccountKey(key.name);
+      console.log(`result: ${res}`);
     });
   }
-}
-
-/**
- * Returns the list of tags that were passed in as arguments, including
- * "--invert" if it was passed in
- * Note: this function does not handle complex grep/invert combinations
- */
-function parseTestTags() {
-  let tags = [];
-  let args = process.argv; // process.env.npm_package_scripts_test.split(' '); // all args
-  args = args.map((item) => item.replace(/(^"|"$)/g, '')); // remove quotes
-  if (args.includes('--grep')) {
-    // get tags and whether the grep is inverted
-    args.map((item) => {
-      if (item.startsWith('@')) {
-        // e.g. "@reqGoogle|@Performance"
-        tags = tags.concat(item.split('|'));
-      } else if (item === '--invert') {
-        tags.push(item);
-      }
-    });
-  }
-  return tags;
 }
 
 /**
