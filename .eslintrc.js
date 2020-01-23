@@ -1,6 +1,7 @@
 module.exports = {
     "extends": [
         "airbnb",
+        "plugin:json/recommended",
         "plugin:codeceptjs/recommended",
         "plugin:chai-expect/recommended",
         "plugin:chai-friendly/recommended"
