@@ -1,3 +1,4 @@
+/*eslint-disable */
 const chai = require('chai');
 const apiUtil = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
@@ -18,27 +19,27 @@ function calculateSAKeyAge(creationDate) {
 }
 
 BeforeSuite(async (google, fence, users) => {
-  console.log('cleaning up old keys from the service accounts in the dcf-integration GCP project');
-  const dcfSvcAccounts = await google.listServiceAccounts('dcf-integration');
-  // console.log('#### ##: ' + dcfSvcAccounts);
-  dcfSvcAccounts.forEach(async (svcAccount) => {
-    const saName = svcAccount.email;
+  console.log('cleaning up old keys from the user0 service account in the dcf-integration GCP project');
+  const getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
+  if (getCredsRes.access_keys.length > 0) {
+    let saName = getCredsRes.access_keys[0].name.split('/')[3];
+    console.log(`delete any existing keys for service account ${saName}`);
     const dcfSaKeys = await google.listServiceAccountKeys('dcf-integration', saName);
-    // console.log('#### ##:' + JSON.stringify(dcfSaKeys.keys));
+    console.log(`#### ##:' ${JSON.stringify(dcfSaKeys.keys)}`);
     if (dcfSaKeys.keys) {
       dcfSaKeys.keys.forEach(async (key) => {
-        const keyAge = calculateSAKeyAge(key.validAfterTime);
-        if (keyAge > 7) { // if the key is older than a week
-          console.log(`the following key is eligible for deletion: ${key.name}`);
-          console.log(`key age: ${key.validAfterTime}`);
-          const deletionResult = await google.deleteServiceAccountKey(key.name);
+        console.log(`the following key will be deleted: ${key.name}`);
+        await google.deleteServiceAccountKey(key.name).then((deletionResult) => {
+          console.log(`deletionResult: ${JSON.stringify(deletionResult)}`);
           if (deletionResult instanceof Error) {
-            console.log(`WARN: Failed to delete key [${key.name}_test] from Google service account [${saName}].`);
+            console.log(`WARN: Failed to delete key [${key.name}] from Google service account [${saName}].`);
+          } else {
+            console.log(`INFO: Successfully deleted key [${key.name}] from Google service account [${saName}].`);
           }
-        }
-      });
-    }
-  });
+        });
+      })
+    };
+  }
   await fence.complete.suiteCleanup(google, users);
 });
 
@@ -52,8 +53,10 @@ Scenario('Get current SA creds @reqGoogle', async (fence, users) => {
 
   // Make sure there are no creds for this user
   let getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
+
   const credsList1 = getCredsRes.access_keys;
-  chai.expect(credsList1.length, 'There should not be existing SA keys at the beginning of the test').to.equal(0);
+  console.log(`credsList1 - This is supposed to return zero keys: ${JSON.stringify(credsList1)}`);
+  chai.expect(credsList1.length, `There should not be existing SA keys at the beginning of the test, but this key lingers: ${JSON.stringify(credsList1)}`).to.equal(0);
 
   // Get temporary google creds
   let tempCredsRes = await fence.complete.createTempGoogleCreds(users.user0.accessTokenHeader);
@@ -142,8 +145,16 @@ Scenario('Get current SA creds @reqGoogle', async (fence, users) => {
 
 Scenario('Test no data access anymore after SA key is deleted @reqGoogle', async (fence, users, google, files) => {
   // Get temporary Service Account creds, get object in bucket, delete creds
+
+  // But first, make sure there are no lingering keys (fail-fast)
+  let checkGetCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
+  const checkCredsList1 = checkGetCredsRes.access_keys;
+  console.log(`checkCredsList1 - This is supposed to return zero keys: ${JSON.stringify(checkCredsList1)}`);
+  chai.expect(checkCredsList1.length, `This test creates and deletes keys so it assumes zero keys at the beginning, this key was supposed to be deleted: ${JSON.stringify(checkCredsList1)}`).to.equal(0);
+
   // Get creds to access data
   const tempCreds0Res = await fence.complete.createTempGoogleCreds(users.user0.accessTokenHeader);
+  console.log(`tempCreds0Res: ${JSON.stringify(tempCreds0Res)}`);
   const creds0Key = tempCreds0Res.data.private_key_id;
   const pathToCreds0KeyFile = `${creds0Key}.json`;
   await files.createTmpFile(pathToCreds0KeyFile, JSON.stringify(tempCreds0Res.data));
@@ -214,6 +225,7 @@ Scenario('SA key removal job test: remove expired creds @reqGoogle', async (fenc
     users.user0.accessTokenHeader,
     EXPIRES_IN,
   );
+  console.log(`tempCreds0Res: ${tempCreds0Res}`);
   const creds0Key = tempCreds0Res.data.private_key_id;
   const pathToCreds0KeyFile = `${creds0Key}.json`;
   await files.createTmpFile(pathToCreds0KeyFile, JSON.stringify(tempCreds0Res.data));
@@ -233,7 +245,13 @@ Scenario('SA key removal job test: remove expired creds @reqGoogle', async (fenc
 
   // Run the expired SA key clean up job
   console.log('Clean up expired Service Account keys');
-  bash.runJob('google-manage-keys-job');
+  bash.runJob('google-manage-keys');
+
+  // Wait to check google-manage-keys-job pod logs
+  console.log('waiting a few seconds before checking the results of the keys clean-up jobs');
+  await apiUtil.sleepMS(10 * 1000).then(() => {
+    bash.runCommand('set -i; source ~/.bashrc; gen3 job logs google-manage-keys');
+  });
 
   // Try to access data
   const user0AccessQAResExpired = await google.getFileFromBucket(
@@ -251,7 +269,14 @@ Scenario('SA key removal job test: remove expired creds @reqGoogle', async (fenc
   await fence.do.deleteTempGoogleCreds(
     creds0Key,
     users.user0.accessTokenHeader,
-  );
+  ).then((deletionResult) => {
+    console.log(`deletionResult: ${JSON.stringify(deletionResult)}`);
+    console.log(`is it an error?: ${deletionResult instanceof Error}`);
+    chai.expect(
+      deletionResult instanceof Error,
+      `Error during Google service account deletion: ${deletionResult}`,
+    ).to.equal(false);
+  });
 
   files.deleteFile(pathToCreds0KeyFile);
 
@@ -279,6 +304,7 @@ Scenario('SA key removal job test: remove expired creds that do not exist in goo
     users.user0.accessTokenHeader,
     EXPIRES_IN,
   );
+  console.log(`tempCredsRes: ${tempCredsRes.data.private_key_id}`);
   const credsKey1 = tempCredsRes.data.private_key_id;
 
   // Get other creds to access data, with short expiration time
@@ -286,17 +312,21 @@ Scenario('SA key removal job test: remove expired creds that do not exist in goo
     users.user0.accessTokenHeader,
     EXPIRES_IN,
   );
+  console.log(`tempCredsRes: ${tempCredsRes.data.private_key_id}`);
   const credsKey2 = tempCredsRes.data.private_key_id;
 
   // Get the complete name of the generated key and delete it in google
   let getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
   let credsList = getCredsRes.access_keys;
   const key = credsList.filter((aKey) => aKey.name.includes(credsKey1))[0];
-  const deletionResult = await google.deleteServiceAccountKey(key.name);
-  chai.expect(
-    deletionResult instanceof Error,
-    `Error during Google service account deletion: ${deletionResult}`,
-  ).to.equal(false);
+  await google.deleteServiceAccountKey(key.name).then((deletionResult) => {
+    console.log(`deletionResult: ${JSON.stringify(deletionResult)}`);
+    console.log(`is it an error?: ${deletionResult instanceof Error}`);
+    chai.expect(
+      deletionResult instanceof Error,
+      `Error during Google service account deletion: ${deletionResult}`,
+    ).to.equal(false);
+  });
 
   // Wait for the keys to expire
   console.log('waiting for the key to expire');
@@ -304,10 +334,17 @@ Scenario('SA key removal job test: remove expired creds that do not exist in goo
 
   // Run the expired SA key clean up job
   console.log('Clean up expired Service Account keys');
-  bash.runJob('google-manage-keys-job');
+  bash.runJob('google-manage-keys');
+
+  // Wait to check google-manage-keys-job pod logs
+  console.log('waiting a few seconds before checking the results of the keys clean-up jobs');
+  await apiUtil.sleepMS(10 * 1000).then(() => {
+    bash.runCommand('set -i; source ~/.bashrc; gen3 job logs google-manage-keys');
+  });
 
   // Get list of current creds
   getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
+  console.log(`getCredRes - This is supposed to return zero keys: ${JSON.stringify(getCredsRes.access_keys)}`);
   credsList = getCredsRes.access_keys;
 
   // Clean up
@@ -318,11 +355,26 @@ Scenario('SA key removal job test: remove expired creds that do not exist in goo
   await fence.do.deleteTempGoogleCreds(
     credsKey1,
     users.user0.accessTokenHeader,
-  );
+  ).then((deletionResult) => {
+    console.log(`deletionResult: ${JSON.stringify(deletionResult)}`);
+    console.log(`is it an error?: ${deletionResult instanceof Error}`);
+    chai.expect(
+      deletionResult instanceof Error,
+      `Error during Google service account deletion: ${deletionResult}`,
+    ).to.equal(false);
+  });
+
   await fence.do.deleteTempGoogleCreds(
     credsKey2,
     users.user0.accessTokenHeader,
-  );
+  ).then((deletionResult) => {
+    console.log(`deletionResult: ${JSON.stringify(deletionResult)}`);
+    console.log(`is it an error?: ${deletionResult instanceof Error}`);
+    chai.expect(
+      deletionResult instanceof Error,
+      `Error during Google service account deletion: ${deletionResult}`,
+    ).to.equal(false);
+  });
 
   // Asserts
   chai.expect(
