@@ -98,7 +98,7 @@ module.exports = {
       console.log(`Fetching signed URL: ${signedUrlRes.body.url}`);
       return ax.get(signedUrlRes.body.url).then(
         (resp) => {
-          console.log(`getFileFromSignedUrlRes: ${stringify(getFileFromSignedUrlRes)}`);
+          console.log(`${new Date()}: VALID getFileFromSignedUrlRes!`);
           resp.data
         },
         (err) => err.response.data || err,
