@@ -3,7 +3,7 @@
 Feature('1. Linking accounts - DCF Staging testing for release sign off - PXP-3836');
 
 // To be executed with GEN3_SKIP_PROJ_SETUP=true
-// No need to set up program / retrieve access token, etc.
+// No need to set up program/retrieve access token, etc.
 const { expect } = require('chai');
 const fenceProps = require('../../../services/apis/fence/fenceProps.js');
 const { interactive, ifInteractive } = require('../../../utils/interactive.js');
