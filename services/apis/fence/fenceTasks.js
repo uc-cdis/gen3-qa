@@ -1,6 +1,7 @@
 /*eslint-disable */
 const { container } = require('codeceptjs');
 const ax = require('axios');
+const stringify = require('json-stringify-safe');
 
 const fenceProps = require('./fenceProps.js');
 const user = require('../../../utils/user.js');
@@ -96,9 +97,14 @@ module.exports = {
       //     are passed with signed url requests
       console.log(`Fetching signed URL: ${signedUrlRes.body.url}`);
       return ax.get(signedUrlRes.body.url).then(
-        (resp) => resp.data,
+        (resp) => {
+          console.log(`getFileFromSignedUrlRes: ${stringify(getFileFromSignedUrlRes)}`);
+          resp.data
+        },
         (err) => err.response.data || err,
       );
+    } else {
+	console.log(`NOT A VALID SIGNED URL: ${stringify(signedUrlRes)}`);
     }
     console.log(fenceProps.FILE_FROM_URL_ERROR, signedUrlRes);
     return fenceProps.FILE_FROM_URL_ERROR;
