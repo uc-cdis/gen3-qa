@@ -63,21 +63,21 @@ echo "Leaf node set to: $leafNode"
 # try to trick pip into working in the WORKSPACE
 #
 export HOME="${WORKSPACE:-$HOME}"
-pip install --user -r requirements.txt
+pip3 install --user -r requirements.txt
 #python setup.py develop --user
 
 # Fail script if any of following commands fail
 set -e
 
 export PYTHONPATH=.
-pyCMD="python bin/data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
+pyCMD="python3 bin/data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
 eval $pyCMD
 if [[ $? -ne 0 ]]; then
   echo "ERROR: Failed to simulate test data for $namespace"
   exit 1
 fi
 
-pyCMD2="python bin/data-simulator submission_order --url $dictURL --path $TEST_DATA_PATH --node_name $leafNode"
+pyCMD2="python3 bin/data-simulator submission_order --url $dictURL --path $TEST_DATA_PATH --node_name $leafNode"
 eval $pyCMD2
 if [[ $? -ne 0 ]]; then
   echo "ERROR: Failed to generate submission_order data for $namespace"

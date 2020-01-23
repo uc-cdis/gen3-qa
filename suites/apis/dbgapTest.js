@@ -1,4 +1,5 @@
-Feature('dbgapSyncing');
+/*eslint-disable */
+Feature('dbgapSyncing').retry(2);
 /*
 Test running usersync job and pulling files from a fake dbgap sftp server (populated
 with fake telemetry / user access files). Ensure users can download files they should
@@ -241,7 +242,7 @@ Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try crea
     fence.ask.assertStatusCode(fenceUploadRes, 401,
       `User ${users.mainAcct.username} should not be able to upload for dbgap `
       + 'project phs000178, even though they have read access.');
-  }).retry(2);
+  });
 
 Scenario('dbGaP + user.yaml Sync: ensure combined access @dbgapSyncing @reqGoogle',
   async (fence, users) => {
