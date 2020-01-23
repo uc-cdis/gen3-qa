@@ -4,9 +4,9 @@
 1. Guppy should have tiered access enabled (`tierAccessLevel: 'regular'`).
 2. The tiered access limit should be set to 1, so that we can count the number of records in unaccessible studies (`tierAccessLimit: 1`) without the counts being hidden because they
 are below the tierAccessLimit threshold.
-3. Guppy should have sensitive study exclusion enabled (`tierAccessExcludeSensitiveRecords: {filterField: 'sensitive'})`)
+3. Guppy should have sensitive study exclusion enabled (`tierAccessSensitiveRecordExclusionField: 'sensitive'})`)
 4. Guppy should be connected to an ES index `$indexName` that contains `N` records. Of those records, `N_unaccessible` records should be accessible to the test user. (Leaving `N_acessible` accessible records). Of the `N_unaccessible` records, `N_sensitive_unaccessible` records
-should be marked sensitive (the field specified in `tierAccessSensitiveStudyExclusionField` should be set to `"true"` in the ES index.)
+should be marked sensitive (the field specified in `tierAccessSensitiveRecordExclusionField` should be set to `"true"` in the ES index.)
 
 ## Tests
 1.  __Accessible records__: POST `[guppyURL]/graphql` with body:
@@ -81,7 +81,7 @@ should be marked sensitive (the field specified in `tierAccessSensitiveStudyExcl
 * Sensitive records that are in unaccessible resources should not be included in the count.
 
 ## Setup for backwards compatibility test
-1. Same as original setup, but Guppy should have sensitive study exclusion disabled. (No `tier_access_exclude_sensitive_records` in config)
+1. Same as original setup, but Guppy should have sensitive study exclusion disabled. (No `tierAccessSensitiveRecordExclusionField` in config)
 
 ## Backwards compatibility test
 1.  __Accessible records__: POST `[guppyURL]/graphql` with body:
