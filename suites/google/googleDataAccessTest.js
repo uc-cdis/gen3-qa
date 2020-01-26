@@ -29,17 +29,8 @@ User Access Files and which projects the users have access to:
       - test
     User2
       - QA
-
-
-NOTE: This is a giant test that asserts a lot of things. Why not multiple tests?
-      Because usersync and useryaml jobs take a very long time. If we had to run
-      them in b/t every test, this suite would take ten-fold or more time than
-      it currently does.
-
-      To compensate for the potential annoyance of "what actually failed?!" when this
-      fails, we've added a ton of console.logs along the way so you know where the test
-      got to. All assertions should also provide detailed information about failures.
 */
+
 const chai = require('chai');
 const { Commons } = require('../../utils/commons.js');
 const fenceProps = require('../../services/apis/fence/fenceProps.js');
@@ -86,35 +77,14 @@ Before(async (google, fence, users) => {
   console.log('deleting keys for SA associated with users 0, 1 and user2...');
   ['user0', 'user1', 'user2'].forEach(async(user) => {
     const getCredsRes = await fence.do.getUserGoogleCreds(users[user].accessTokenHeader);
-    console.log(`Keys from ${user}: ${JSON.stringify(getCredsRes.access_keys)}`);
-    if (getCredsRes.access_keys.length > 0) {
-      let saName = getCredsRes.access_keys[0].name.split('/')[3];
-      console.log(`delete any existing keys for service account ${saName}`);
-      const dcfSaKeys = await google.listServiceAccountKeys('dcf-integration', saName);
-      console.log(`#### ##:' ${JSON.stringify(dcfSaKeys.keys)}`);
-      if (dcfSaKeys.keys) {
-        dcfSaKeys.keys.forEach(async (key) => {
-          console.log(`the following key will be deleted: ${key.name}`);
-          await google.deleteServiceAccountKey(key.name).then((deletionResult) => {
-            console.log(`deletionResult: ${JSON.stringify(deletionResult)}`);
-            if (deletionResult instanceof Error) {
-              console.log(`WARN: Failed to delete key [${key.name}] from Google service account [${saName}].`);
-	      } else {
-                console.log(`INFO: Successfully deleted key [${key.name}] from Google service account [${saName}].`);
-	      }
-          });
-        })
-      };
-    }
+    await google.deleteSAKeys(user, getCredsRes.access_keys);
   });
 });
 
 After(async (fence, users) => {
   // Cleanup after each scenario
   const unlinkResults = Object.values(users).map(async(user) => {
-    await apiUtil.sleepMS(1 * 1000).then(() => {
-      fence.do.unlinkGoogleAcct(user)
-    });
+    fence.do.unlinkGoogleAcct(user);
   });
   await Promise.all(unlinkResults);
   console.log('Running usersync job');
@@ -138,7 +108,6 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     for (let i = 0; i < nAttempts; i += 1) {
       console.log('make sure google account user0 is unlinked');
       const unlinkResult = await fence.complete.forceUnlinkGoogleAcct(users.user0);
-      await apiUtil.sleepMS(1 * 1000);
       console.log(`users.user0.accessTokenHeader: ${JSON.stringify(users.user0.accessTokenHeader)}`);
 
       console.log(`creating temporary google creds for user0 with username:  ${users.user0.username}`);
@@ -155,14 +124,12 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
       );
 
       console.log(`tempCreds0Res: ${JSON.stringify(tempCreds0Res)}`);
-      await apiUtil.sleepMS(1 * 1000);
 
       console.log('linking user0 google accounts');
       const linkResult0 = await fence.complete.linkGoogleAcctMocked(users.user0);
       console.log(`linkResult0: ${JSON.stringify(linkResult0)}`);
 
       console.log(`users.user0.accessTokenHeader again: ${JSON.stringify(users.user0.accessTokenHeader)}`);
-      await apiUtil.sleepMS(2 * 1000);
       console.log(`Use User0 to create signed URL for file in QA. Attempt #${i}`);
       User0signedUrlQA1Res = await fence.do.createSignedUrlForUser(
           indexed_files.qaFile.did, users.user0.accessTokenHeader,
@@ -172,7 +139,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
       User0signedUrlQA1FileContents = await fence.do.getFileFromSignedUrlRes(
         User0signedUrlQA1Res,
       );
-      console.log(`The friggin\' contents of the QA file: ${stringify(User0signedUrlQA1FileContents).substring(User0signedUrlQA1FileContents.length-100, User0signedUrlQA1FileContents.length)}`);
+      console.log(`The contents of the QA file: ${stringify(User0signedUrlQA1FileContents).substring(User0signedUrlQA1FileContents.length-100, User0signedUrlQA1FileContents.length)}`);
 
       if (User0signedUrlQA1FileContents == fence.props.googleBucketInfo.QA.fileContents) {
         console.log(`Finally produced a valid presigned url after ${i} attempts.`);
@@ -180,7 +147,6 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
       } else {
         console.log(`Failed to create a valid presigned url on attempt ${i}.`);
         console.log(`Waiting a couple of seconds before trying again...`);
-        await apiUtil.sleepMS(2 * 1000);
         if (i === nAttempts - 1) {
           throw new Error(`Failed to produce a valid PreSigned URL! Num of attempts: ${i}`);
         }
@@ -294,8 +260,10 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     );
 
     console.log('deleting temporary google credentials file');
-    files.deleteFile(pathToCreds0KeyFile);
-    console.log(`${pathToCreds0KeyFile} deleted!`);
+    if (files.fileExists(pathToCreds0KeyFile)) {
+      files.deleteFile(pathToCreds0KeyFile);
+      console.log(`${pathToCreds0KeyFile} deleted!`);
+    }
 
     // SECOND RUN (new authZ)
     //  - Check Temporary Service Account Creds
@@ -337,7 +305,6 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
   async (fence, users, google, files) => {
     console.log('make sure google account user1 is unlinked');
     await fence.complete.forceUnlinkGoogleAcct(users.user1);
-    await apiUtil.sleepMS(1 * 1000);
 
     console.log(`creating temporary google creds for user with username:  ${users.user1.username}`);
     // call our endpoint to get temporary creds
@@ -352,12 +319,10 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
       users.user1.accessTokenHeader,
     );
     console.log(`tempCreds1Res: ${JSON.stringify(tempCreds1Res)}`);
-    await apiUtil.sleepMS(1 * 1000);
 
     console.log('linking user1 google accounts');
     const linkResult1 = await fence.complete.linkGoogleAcctMocked(users.user1);
     console.log(`linkResult1: ${JSON.stringify(linkResult1)}`);
-    await apiUtil.sleepMS(2 * 1000);
 
     console.log('Use User1 to create signed URL for file in QA');
     const User1signedUrlQA1Res = await fence.do.createSignedUrlForUser(
@@ -460,8 +425,11 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
       tempCreds1Res.data.client_email, tempCreds1Res.data.project_id,
     );
 
-    files.deleteFile(pathToCreds1KeyFile);
-    console.log(`${pathToCreds1KeyFile} deleted!`);
+    console.log('deleting temporary google credentials file');
+    if (files.fileExists(pathToCreds1KeyFile)) {
+      files.deleteFile(pathToCreds1KeyFile);
+      console.log(`${pathToCreds1KeyFile} deleted!`);
+    }
 
     // FIRST RUN
     //  - Check Temporary Service Account Creds
@@ -526,7 +494,6 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
   async (fence, users, google, files) => {
     console.log('make sure google account user2 is unlinked');
     await fence.complete.forceUnlinkGoogleAcct(users.user2);
-    await apiUtil.sleepMS(1 * 1000);
 
     console.log('linking user2 google account');
     const linkResult2 = await fence.complete.linkGoogleAcctMocked(users.user2);
@@ -545,7 +512,6 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
       users.user2.accessTokenHeader,
     );
     console.log(`tempCreds2Res: ${JSON.stringify(tempCreds2Res)}`);
-    await apiUtil.sleepMS(1 * 1000);
 
     console.log('Use User2 to create signed URL for file in QA');
     const User2signedUrlQA1Res = await fence.do.createSignedUrlForUser(
@@ -632,9 +598,10 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
     );
 
     console.log('deleting temporary google credentials file');
-    files.deleteFile(pathToCreds2KeyFile);
-    console.log(`${pathToCreds2KeyFile} deleted!`);
-
+    if (files.fileExists(pathToCreds2KeyFile)) {
+      files.deleteFile(pathToCreds2KeyFile);
+      console.log(`${pathToCreds2KeyFile} deleted!`);
+    }
     // FIRST RUN
     //  - Check Temporary Service Account Creds
     console.log('Make assertions for user access for first run');
