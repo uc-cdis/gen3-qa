@@ -94,6 +94,10 @@ exports.config = {
   bootstrap: './test_setup.js',
   hooks: [],
   tests: './suites/**/*.js',
+  gherkin: {
+    features: './suites/bdd/**/*.feature',
+    steps: './suites/bdd/**/*.js',
+  },
   plugins: {
     allure: {},
   },
