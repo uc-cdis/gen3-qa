@@ -1,9 +1,7 @@
 Feature('Homepage Chart Nodes');
 // Homepage Chart Nodes documentation: https://github.com/uc-cdis/cdis-wiki/blob/0d828c73dcec7f37eba63ac453e56f1d4ce46d47/dev/gen3/guides/ui_etl_configuration.md#portal-folder
 
-const chai = require('chai');
-
-const { expect } = chai;
+const { expect } = require('chai');
 const { interactive, ifInteractive } = require('../../utils/interactive.js');
 
 /**
