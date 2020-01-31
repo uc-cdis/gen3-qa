@@ -23,7 +23,7 @@ function assembleCustomHeaders(ACCESS_TOKEN) {
     };
 }
 
-// Decode JWT token and find the Nonce value 
+// Decode JWT token and find the Nonce value
 function findNonce(id_token) {
     data = id_token.split('.'); // [0] headers, [1] payload, [2] whatever
     payload = data[1];
