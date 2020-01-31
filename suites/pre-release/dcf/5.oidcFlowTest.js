@@ -81,7 +81,7 @@ Scenario('Verify if the "ID Token" produced in the previous scenario has the cor
 ));
 
 // Scenario #3 - Run PreSigned URL with access token obtained through the OIDC flow
-Scenario(`Perform PreSigned URL test`, ifInteractive(
+Scenario(`Perform PreSigned URL test @manual`, ifInteractive(
     async(I, fence) => {
 	if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput("Please provide the ACCESS_TOKEN obtained through the OIDC bootstrapping: ");
 	const http_resp = await I.sendGetRequest(
