@@ -65,9 +65,11 @@ exports.config = {
     etl: './services/apis/etl/etlService.js',
     manifestService: './services/apis/manifestService/manifestServiceService.js',
     guppy: './services/apis/guppy/guppyService.js',
+    pelicanAPI: './services/apis/pelican/pelicanService.js',
 
     // Pages
     home: './services/portal/home/homeService.js',
+    pelicanPortal: './services/portal/pelican/pelicanService.js',
     portalDataUpload: './services/portal/dataUpload/dataUploadService.js',
     portalExportToWorkspace: './services/portal/exportToWorkspace/exportToWorkspaceService.js',
     portalCoreMetadataPage: './services/portal/coreMetadataPage/coreMetadataPageService.js',
