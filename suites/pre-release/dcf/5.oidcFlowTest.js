@@ -1,3 +1,4 @@
+/*eslint-disable */
 // Feature # 5 in the sequence of testing
 // This test plan has a few pre-requisites: Check prereq.md for more details.
 Feature('1. OIDC Flow - DCF Staging testing for release sign off - https://ctds-planx.atlassian.net/browse/PXP-3836');
