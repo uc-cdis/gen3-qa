@@ -1,3 +1,4 @@
+/*eslint-disable */
 /**
  * A module providing util functions to handle files
  * @module fileUtil
@@ -82,6 +83,22 @@ module.exports = {
     fs.unlink(filePath, (err) => {
       if (err) throw err;
     });
+  },
+
+  /**
+   * Check if the file exists
+   * @param {string} filePath - file location
+   */
+  fileExists(filePath) {
+    try {
+      if (fs.existsSync(filePath)) {
+	return true;
+      } else {
+        return false;
+      }
+    } catch(err) {
+      console.error(err)
+    }
   },
 
   /**

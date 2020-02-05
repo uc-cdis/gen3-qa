@@ -8,7 +8,7 @@ const { expect } = chai;
 const hostname = process.env.HOSTNAME;
 const profile = process.env.NAMESPACE;
 
-Scenario('Install gen3-client', ifInteractive(
+Scenario('Install gen3-client @manual', ifInteractive(
   async (I) => {
     const result = await interactive(`
             1. Download the newest version of gen3-client from github repo - https://github.com/uc-cdis/cdis-data-client/releases/tag/{latest-tag} (the user should make sure that downloaded version of gen3-client is appropriate platform (Windows/Mac))

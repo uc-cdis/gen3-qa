@@ -22,6 +22,12 @@ module.exports = {
             "spread": true
         },
     },
+    "globals": {
+        "Given": false,
+        "When": false,
+        "Then": false,
+        "And": false
+    },
     "rules": {
         "indent": [
             "error",
