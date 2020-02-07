@@ -192,7 +192,7 @@ runTestsIfServiceVersion "@coreMetadataPage" "portal" "2.20.8"
 
 # environments that use DCF features
 # we only run Google Data Access tests for cdis-manifest PRs to these
-envsRequireGoogle="dcp.bionimbus.org preprod.gen3.biodatacatalyst.nhlbi.nih.gov internalstaging.datastage.io gen3.datastage.io nci-crdc-staging.datacommons.io nci-crdc.datacommons.io"
+envsRequireGoogle="qa-dcp.planx-pla.net dcp.bionimbus.org preprod.gen3.biodatacatalyst.nhlbi.nih.gov internalstaging.datastage.io gen3.datastage.io nci-crdc-staging.datacommons.io nci-crdc.datacommons.io"
 
 #
 # DataClientCLI tests require a fix to avoid parallel test runs
