@@ -14,7 +14,6 @@ Feature('Testing OIDC flow and pre-signed URL to check tokens - PXP-4649');
 
 // To be executed with GEN3_SKIP_PROJ_SETUP=true
 // No need to set up program / retrieve access token, etc.
-
 const { expect } = require('chai');
 const fenceProps = require('../../services/apis/fence/fenceProps.js');
 const { interactive, ifInteractive } = require('../../utils/interactive.js');
@@ -226,11 +225,10 @@ performPreSignedURLTest('AWS S3', 'positive', 'Google');
 /* Scenarios with NIH account   */
 /* ############################### */
 
-console.log('Click on the logout button so you can log back in with your NIH account.');
-
 // Scenario #7 - Starting the OIDC flow again with NIH credentials
 Scenario('Initiate the OIDC Client flow with NIH credentials to obtain the OAuth authorization code @manual', ifInteractive(
   async (I) => {
+    console.log('Click on the logout button so you can log back in with your NIH account.');
     // reset access token
     delete I.cache.ACCESS_TOKEN;
     const result = await interactive(printOIDCFlowInstructions(I, 'NIH'));
