@@ -181,6 +181,7 @@ Running with:
   namespace=$namespaceName
   service=$service
   testedEnv=$testedEnv
+  isGen3Release=$isGen3Release
 EOM
 
 echo 'INFO: installing dependencies'
