@@ -2,7 +2,7 @@
 #
 # Jenkins launch script.
 # Use:
-#   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence] [--testedEnv=testedEnv]
+#   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release]
 #
 
 help() {
@@ -11,10 +11,11 @@ Jenkins test launch script.  Assumes the  GEN3_HOME environment variable
 references a current [cloud-automation](https://github.com/uc-cdis/cloud-automation) folder.
 
 Use:
-  bash run-tests.sh [[--namespace=]KUBECTL_NAMESPACE] [--service=service] [--testedEnv=testedEnv] [--dryrun]
+  bash run-tests.sh [[--namespace=]KUBECTL_NAMESPACE] [--service=service] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--dryrun]
     --namespace default is KUBECTL_NAMESPACE:-default
     --service default is service:-none
     --testedEnv default is testedEnv:-none (for cdis-manifest PRs, specifies which environment is being tested, to know which tests are relevant)
+    --isGen3Release default is "false"
 EOM
 }
 
@@ -119,6 +120,7 @@ gen3_load "gen3/gen3setup"
 namespaceName="${KUBECTL_NAMESPACE}"
 service="${service:-""}"
 testedEnv="${testedEnv:-""}"
+isGen3Release="${isGen3Release:false}"
 
 while [[ $# -gt 0 ]]; do
   key="$(echo "$1" | sed -e 's/^-*//' | sed -e 's/=.*$//')"
@@ -136,6 +138,9 @@ while [[ $# -gt 0 ]]; do
       ;;
     testedEnv)
       testedEnv="$value"
+      ;;
+    isGen3Release)
+      isGen3Release="$value"
       ;;
     dryrun)
       isDryRun=true
@@ -176,6 +181,7 @@ Running with:
   namespace=$namespaceName
   service=$service
   testedEnv=$testedEnv
+  isGen3Release=$isGen3Release
 EOM
 
 echo 'INFO: installing dependencies'
@@ -209,7 +215,7 @@ donot '@manual'
 #
 # Google Data Access tests are only required for some envs
 #
-if [[ "$service" != "gen3-qa" && "$service" != "fence" && !("$service" == "cdis-manifest" && $envsRequireGoogle =~ (^| )$testedEnv($| )) ]]; then
+if [[ "$isGen3Release" != "true" && "$service" != "gen3-qa" && "$service" != "fence" && !("$service" == "cdis-manifest" && $envsRequireGoogle =~ (^| )$testedEnv($| )) ]]; then
   # run all tests except for those that require google configuration
   echo "INFO: disabling Google Data Access tests for $service"
   donot '@reqGoogle'
