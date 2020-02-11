@@ -6,7 +6,7 @@ console.log(`Checking first few chars of the AChecker ID: ${process.env.CTDS_QA_
 var options = {
   id: `${process.env.CTDS_QA_ACHECKER}`,
   uri: `https://${process.env.TARGET_GEN3_ENVIRONMENT}`,
-  guide: '508'
+  guide: process.env.GUIDE
 };
 
 wcag(options, function (error, data) {
