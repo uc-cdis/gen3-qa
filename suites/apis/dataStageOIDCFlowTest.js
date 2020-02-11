@@ -114,7 +114,7 @@ function fetchDIDLists(I) {
       console.log(`http 200 files: ${JSON.stringify(ok200files)}`);
       console.log(`http 401 files: ${JSON.stringify(unauthorized401files)}`);
 
-      // cache
+      // the cache
       I.didList = {};
       I.didList.ok200files = ok200files;
       I.didList.unauthorized401files = unauthorized401files;
