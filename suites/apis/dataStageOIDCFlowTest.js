@@ -40,16 +40,21 @@ function printOIDCFlowInstructions(I, accountType) {
 
 // Decode JWT token and find the Nonce value
 function findNonce(idToken) {
-  const data = idToken.split('.'); // [0] headers, [1] payload, [2] whatever
-  const payload = data[1];
-  const padding = '='.repeat((4 - payload.length) % 4);
-  const decodedData = Buffer.from((payload + padding), 'base64').toString();
-  // If the decoded data doesn't contain a nonce, that means the refresh token has expired
-  const nonceStr = JSON.parse(decodedData).nonce; // output: test-nounce-<number>
-  if (nonceStr === undefined) {
-    return 'Could not find nonce. Make sure your id_token is not expired.';
+  try {
+    const data = idToken.split('.'); // [0] headers, [1] payload, [2] whatever
+    const payload = data[1];
+    const padding = '='.repeat(4 - (payload.length % 4));
+    const decodedData = Buffer.from((payload + padding), 'base64').toString();
+    // If the decoded data doesn't contain a nonce, that means the refresh token has expired
+    const nonceStr = JSON.parse(decodedData).nonce; // output: test-nounce-<number>
+    if (nonceStr === undefined) {
+      return 'Could not find nonce. Make sure your id_token is not expired.';
+    }
+    return parseInt(nonceStr.split('-')[2], 10);
+  } catch (e) {
+    console.error(e);
+    return null;
   }
-  return parseInt(nonceStr.split('-')[2], 10);
 }
 
 function runVerifyNonceScenario() {
@@ -80,13 +85,12 @@ function assembleCustomHeaders(ACCESS_TOKEN) {
 function fetchDIDLists(I) {
   // Only assemble the didList if the list hasn't been initialized
   return new Promise((resolve) => {
-    if (!I.didList) {
-      const httpResp = I.sendGetRequest(
-        `https://${TARGET_ENVIRONMENT}/user/user`,
-        { Authorization: `bearer ${I.cache.ACCESS_TOKEN}` },
-      ).then((res) => new Gen3Response(res));
-
-      const projectAccessList = httpResp.body.project_access;
+    I.sendGetRequest(
+      `https://${TARGET_ENVIRONMENT}/user/user`,
+      { Authorization: `bearer ${I.cache.ACCESS_TOKEN}` },
+    ).then((res) => {
+      const httpResp = new Gen3Response(res);
+      const projectAccessList = httpResp.data.project_access;
 
       // initialize dict of accessible DIDs
       let ok200files = {}; // eslint-disable-line prefer-const
@@ -110,13 +114,12 @@ function fetchDIDLists(I) {
       console.log(`http 200 files: ${JSON.stringify(ok200files)}`);
       console.log(`http 401 files: ${JSON.stringify(unauthorized401files)}`);
 
+      // the cache
       I.didList = {};
-      I.didList.accessGrantedFiles = ok200files;
-      I.didList.accessDeniedFiles = unauthorized401files;
-    }
-    resolve({
-      ok200files: I.didList.accessGrantedFiles,
-      unauthorized401files: I.didList.accessDeniedFiles,
+      I.didList.ok200files = ok200files;
+      I.didList.unauthorized401files = unauthorized401files;
+
+      resolve(I.didList);
     });
   });
 }
@@ -127,8 +130,8 @@ function performPreSignedURLTest(cloudProvider, typeOfTest, typeOfCreds) {
       if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
       // Obtain project access list to determine which files(DIDs) the user can access
       // two lists: http 200 files and http 401 files
-      const { ok200files, unauthorized401files } = await fetchDIDLists(I);
 
+      const { ok200files, unauthorized401files } = I.didList ? I.didList : await fetchDIDLists(I);
       // positive: _200files | negative: _401files
       const listOfDIDs = typeOfTest === 'positive' ? ok200files : unauthorized401files;
       // AWS: s3:// | Google: gs://
