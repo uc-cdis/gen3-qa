@@ -1,6 +1,6 @@
 # k6 Load Testing
 
-QA team is moving towards making efforts to execute load testing suite for the microservices such as Fence and IndexD (for start). The team is using a stack of k6 + Grafana + Influxdb to execute and report the load test script execution. 
+The QA team is moving towards making efforts to execute load testing suite for the microservices such as Fence and IndexD (for start). The team is using a stack of k6 + Grafana + Influxdb to execute and report the load test script execution. 
 
 ## Installation
 
