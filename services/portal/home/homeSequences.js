@@ -14,6 +14,12 @@ module.exports = {
     homeQuestions.seeUserLoggedIn(userAcct.username);
   },
 
+  topBarLogin(userAcct = user.mainAcct) {
+    homeTasks.topBarLogin(userAcct.username);
+    homeQuestions.haveAccessToken();
+    homeQuestions.seeUserLoggedIn(userAcct.username);
+  },
+
   logout(userAcct = user.mainAcct) {
     homeTasks.logout();
     homeQuestions.isLoggedOut(userAcct.username);

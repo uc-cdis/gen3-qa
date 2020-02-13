@@ -272,6 +272,12 @@ if [[ "$portalVersion" == *"data-ecosystem-portal"* ]]; then
   donot '@portal'
 fi
 
+# do not run top bar login test if version of portal is old
+# update the version once this change is released
+if ! [[ "$portalVersion" == *"master" ]]; then
+  donot '@topBarPortal'
+fi
+
 if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1 ||
 ! (g3kubectl get pods --no-headers -l app=wts | grep wts) > /dev/null 2>&1; then
   donot '@exportToWorkspaceAPI'
