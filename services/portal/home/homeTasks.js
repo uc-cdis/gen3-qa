@@ -20,6 +20,7 @@ module.exports = {
   login(username) {
     this.goToHomepage();
     I.setCookie({ name: 'dev_login', value: username });
+    portal.clickProp(homeProps.loginButton);
     portal.clickProp(homeProps.googleLoginButton);
   },
 

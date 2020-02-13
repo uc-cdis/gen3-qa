@@ -30,6 +30,12 @@ module.exports = {
     },
   },
 
+  loginButton: {
+    locator: {
+      xpath: '//div[text()="Login"]',
+    },
+  },
+
   logoutButton: {
     locator: {
       xpath: '//div[contains(text(), \'Logout\')]',
