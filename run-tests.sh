@@ -275,7 +275,7 @@ fi
 # do not run top bar login test if version of portal is old
 # update the version once this change is released
 if ! [[ "$portalVersion" == *"master" ]]; then
-  donot '@topBarPortal'
+  donot '@topBarLogin'
 fi
 
 if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1 ||
