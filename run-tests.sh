@@ -80,8 +80,7 @@ runTestsIfServiceVersion() {
     versionAsNumber=$currentVersion
   fi
 
-
-  min=$(echo "$3" "$versionAsNumber" | awk '{if ($1 < $2) print $1; else print $2}')
+  min=$(printf "$3\n$versionAsNumber\n" | sort -V | head -n1)
   if [ "$min" = "$3" ]; then
     echo "RUNNING $1 tests b/c $2 version ($currentVersion) is greater than $3"
   else
