@@ -1,18 +1,19 @@
 const { Commons } = require('../../utils/commons.js');
+const { Gen3Response } = require('../../utils/apiUtil');
 
-Feature('SubmitAndQueryNodesTest');
+Feature('SubmitAndQueryNodesTest').retry(2);
 
 Scenario('submit node unauthenticated @reqData', async (sheepdog, nodes, users) => {
   const authHeader = await users.mainAcct.getExpiredAccessTokenHeader();
   await sheepdog.do.addNode(nodes.getFirstNode(), authHeader);
   sheepdog.ask.hasExpiredAuthError(nodes.getFirstNode().addRes);
   await sheepdog.do.deleteNode(nodes.getFirstNode());
-}).retry(2);
+});
 
 Scenario('submit and delete node @reqData', async (I, sheepdog, nodes) => {
   await sheepdog.complete.addNode(nodes.getFirstNode());
   await sheepdog.complete.deleteNode(nodes.getFirstNode());
-}).retry(2);
+});
 
 //
 // REUBEN -
@@ -23,7 +24,7 @@ Scenario('submit and delete node @reqData', async (I, sheepdog, nodes) => {
 Scenario('submit and delete node path @reqData', async (sheepdog, nodes) => {
   await sheepdog.complete.addNodes(nodes.getPathToFile());
   await sheepdog.complete.deleteNodes(nodes.getPathToFile());
-}).retry(2);
+});
 
 Scenario('make simple query @reqData', async (sheepdog, peregrine, nodes) => {
   await sheepdog.complete.addNode(nodes.getFirstNode());
@@ -33,7 +34,7 @@ Scenario('make simple query @reqData', async (sheepdog, peregrine, nodes) => {
   peregrine.ask.hasFieldCount(res, 'alias1', 1);
 
   await sheepdog.complete.deleteNode(nodes.getFirstNode());
-}).retry(2);
+});
 
 
 Scenario('query all node fields @reqData', async (sheepdog, peregrine, nodes) => {
@@ -52,7 +53,7 @@ Scenario('query all node fields @reqData', async (sheepdog, peregrine, nodes) =>
 
   // remove nodes
   await sheepdog.complete.deleteNodes(nodes.getPathToFile());
-}).retry(2);
+});
 
 
 Scenario('submit node without parent @reqData', async (sheepdog, peregrine, nodes) => {
@@ -63,7 +64,7 @@ Scenario('submit node without parent @reqData', async (sheepdog, peregrine, node
   // try adding the second node
   await sheepdog.do.addNode(nodes.getSecondNode());
   sheepdog.ask.hasStatusCode(nodes.getSecondNode().addRes, 400);
-}).retry(2);
+});
 
 Scenario('query on invalid field @reqData', async (peregrine, nodes) => {
   const invalidField = 'abcdefg';
@@ -79,7 +80,7 @@ Scenario('query on invalid field @reqData', async (peregrine, nodes) => {
     res,
     `Cannot query field "${invalidField}" on type "${nodeType}".`,
   );
-}).retry(2);
+});
 
 
 Scenario('filter query by string attribute @reqData', async (sheepdog, peregrine, nodes) => {
@@ -95,7 +96,7 @@ Scenario('filter query by string attribute @reqData', async (sheepdog, peregrine
   peregrine.ask.hasFieldCount(res, nodes.getFirstNode().name, 1);
 
   await sheepdog.complete.deleteNodes(nodes.getPathToFile());
-}).retry(2);
+});
 
 Scenario('test _[field]_count filter @reqData', async (peregrine, sheepdog, nodes) => {
   // Count number of each node type
@@ -117,7 +118,7 @@ Scenario('test _[field]_count filter @reqData', async (peregrine, sheepdog, node
   peregrine.ask.allCountsIncrease(previousCounts, newCounts);
 
   await sheepdog.complete.deleteNodes(nodes.getPathToFile());
-}).retry(2);
+});
 
 Scenario('filter by project_id @reqData', async (peregrine, sheepdog, nodes) => {
   // add the nodes
@@ -134,7 +135,7 @@ Scenario('filter by project_id @reqData', async (peregrine, sheepdog, nodes) => 
 
   // remove nodes
   await sheepdog.complete.deleteNodes(nodes.getPathToFile());
-}).retry(2);
+});
 
 Scenario('filter by invalid project_id @reqData', async (peregrine, sheepdog, nodes) => {
   await sheepdog.complete.addNode(nodes.getFirstNode());
@@ -147,7 +148,7 @@ Scenario('filter by invalid project_id @reqData', async (peregrine, sheepdog, no
   peregrine.ask.hasFieldCount(res, nodes.getFirstNode().name, 0);
 
   await sheepdog.do.deleteNode(nodes.getFirstNode());
-}).retry(2);
+});
 
 // FIXME: This is a known bug that needs to be fixed. See PXP-1569
 Scenario('test with_path_to - first to last node @reqData', async (peregrine, sheepdog, nodes) => {
@@ -169,7 +170,7 @@ Scenario('test with_path_to - first to last node @reqData', async (peregrine, sh
   }
 
   await sheepdog.complete.deleteNodes(nodes.getPathToFile());
-}).retry(2);
+});
 
 // FIXME: This is a known bug that needs to be fixed. See PXP-1569
 Scenario('test with_path_to - last to first node @reqData', async (peregrine, sheepdog, nodes) => {
@@ -191,20 +192,30 @@ Scenario('test with_path_to - last to first node @reqData', async (peregrine, sh
   }
 
   await sheepdog.complete.deleteNodes(nodes.getPathToFile());
-}).retry(2);
+});
 
 
 /**
  * Test non-data-upload flow with consent codes in metadata:
  * - Submit metadata with consent codes to sheepdog
  * - Check that the consent codes end up in the new indexd record
- * (In this flow there is no actual data file being uploaded, so the record is created "from scratch".
+ * (In this flow there is no actual data file being uploaded,
+ * so the record is created "from scratch".
  * Compare with cc test in dataUpload suite)
  */
-Scenario('submit data node with consent codes @indexRecordConsentCodes', async (sheepdog, indexd, nodes) => {
+Scenario('submit data node with consent codes @indexRecordConsentCodes', async (sheepdog, indexd, nodes, users, I) => {
+  const listOfIndexdRecords = await I.sendGetRequest(
+    `${indexd.props.endpoints.get}`,
+  ).then((res) => new Gen3Response(res));
+
+  listOfIndexdRecords.data.records.forEach(async (record) => {
+    console.log(record.did);
+    await indexd.do.deleteFile({ did: record.did });
+  });
+
   // submit metadata for this file, including consent codes
-  sheepdogRes = await nodes.submitGraphAndFileMetadata(
-	  sheepdog, null, null, null, null, consent_codes = ['CC1', 'CC2'],
+  const sheepdogRes = await nodes.submitGraphAndFileMetadata(
+    sheepdog, null, null, null, null, ['CC1', 'CC2'],
   );
   sheepdog.ask.addNodeSuccess(sheepdogRes);
 
@@ -221,7 +232,7 @@ Scenario('submit data node with consent codes @indexRecordConsentCodes', async (
     },
   };
   await indexd.complete.checkFile(fileNodeWithCCs);
-}).retry(2);
+});
 
 
 BeforeSuite(async (sheepdog) => {
