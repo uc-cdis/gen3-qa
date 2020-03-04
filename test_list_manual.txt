@@ -1,0 +1,204 @@
+Tests from /Users/haraprasadjuvvala/workspace/gen3/gen3-qa:
+  ☐ do something @manual
+CentralizedAuth -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/apis/centralizedAuth.js
+Testing OIDC flow and pre-signed URL to check tokens - PXP-4649 -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/apis/dataStageOIDCFlowTest.js
+  ☐ Initiate the OIDC Client flow with Google credentials to obtain the OAuth authorization code @manual
+  ☐ Verify if the "ID Token" produced in the previous scenario has the correct nonce value @manual
+  ☐ Perform Google Storage PreSigned URL negative test against DID with Google credentials @manual
+  ☐ Perform Google Storage PreSigned URL positive test against DID with Google credentials @manual
+  ☐ Perform AWS S3 PreSigned URL negative test against DID with Google credentials @manual
+  ☐ Perform AWS S3 PreSigned URL positive test against DID with Google credentials @manual
+  ☐ Initiate the OIDC Client flow with NIH credentials to obtain the OAuth authorization code @manual
+  ☐ Verify if the "ID Token" produced in the previous scenario has the correct nonce value @manual
+  ☐ Perform Google Storage PreSigned URL negative test against DID with NIH credentials @manual
+  ☐ Perform Google Storage PreSigned URL positive test against DID with NIH credentials @manual
+  ☐ Perform AWS S3 PreSigned URL negative test against DID with NIH credentials @manual
+  ☐ Perform AWS S3 PreSigned URL positive test against DID with NIH credentials @manual
+  ☐ Try to get Google Credentials as a regular user @manual
+  ☐ Try to get Google Credentials as a client @manual
+  ☐ Test a GraphQL query from the Web GUI @manual
+  ☐ Initiate the Implicit OIDC Client flow with Google credentials to obtain the OAuth authorization code @manual
+  ☐ Test Fence's public keys endpoint @manual
+  ☐ Test the exploration page @manual
+  ☐ Test the "Export to PFB" button from the Exploration page @manual
+Data file upload flow -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/apis/dataUploadTest.js
+dbgapSyncing -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/apis/dbgapTest.js
+DCF dataservice Data Replication - https://ctds-planx.atlassian.net/browse/PXP-3483 -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/apis/dcfDataReplicationTest.js
+  ☐ AWS Sync - create a directory in $vpc_name/apis_configs called dcf_dataservice @manual
+  ☐ AWS Sync - put credentials and mapping file into directory /dcf_dataservice @manual
+  ☐ AWS Sync - upload the manifest @manual
+  ☐ AWS Sync - run the job @manual
+  ☐ GC Sync - put credentials and mapping file into directory /dcf_dataservice @manual
+  ☐ GC Sync - upload manifest to GS bucket @manual
+  ☐ AWS Sync - run the job @manual
+  ☐ Check Indexd for updated data @manual
+ETL -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/apis/etlTest.js
+ExportToWorkspaceAPITest -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/apis/exportToWorkspaceTest.js
+LinkGoogleAccount -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/apis/linkGoogleAccountTest.js
+OAuth2 flow -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/apis/OAuth2Test.js
+PresignedUrlAPI -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/apis/presignedUrlTest.js
+UserTokenAPI -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/apis/userTokenTest.js
+Dream Challenge gen3-client Test -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/dream-challenge/DCgen3clientTest.js
+  ☐ Install gen3-client @manual
+  ☐ Installing the wrong binary file gen3-client @manual
+  ☐ Version Checker error @manual
+  ☐ Configuring gen3-client @manual
+  ☐ Wrong API key correct apiendpoint @manual
+  ☐ correct API key wrong apiendpoint @manual
+  ☐ Download multiple files using smaller manifest @manual
+  ☐ Download multiple files using larger manifest @manual
+  ☐ Download a single file with GUID @manual
+  ☐ Download a single file with file format @manual
+  ☐ Upload a single file @manual
+Synapse Login -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/dream-challenge/synapaseLoginTest.js
+  ☐ Login with Google / Microsoft @manual
+  ☐ Login with Synapse first time @manual
+  ☐ Login with Synapse @manual
+  ☐ Landing Page @manual
+  ☐ Exploration Page @manual
+  ☐ Profile Page @manual
+  ☐ Synapse Digital ID is shown as the username in brain commons @manual
+Gen3-dataclient -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/gen3-client/gen3clientTest.js
+  ☐ Install gen3-client @manual
+  ☐ Configure gen3-client @manual
+  ☐ Wrong API key correct apiendpoint @manual
+  ☐ correct API key wrong apiendpoint @manual
+  ☐ Version Checker error @manual
+  ☐ Create a folder and generate a test file @manual
+  ☐ Run the gen3-client CLI utility and upload the test file to ${profile} @manual
+  ☐ Download the same test file and verify integrity @manual
+  ☐ Delete file from the commons system and also from local disk @manual
+GoogleDataAccess -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/google/googleDataAccessTest.js
+GoogleServiceAccountKey -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/google/googleServiceAccountKeyTest.js
+GoogleServiceAccountRemoval -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/google/googleServiceAccountRemovalTest.js
+RegisterGoogleServiceAccount -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/google/googleServiceAccountTest.js
+Guppy -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/guppy/guppyTest.js
+Support query for nested data - https://ctds-planx.atlassian.net/browse/PXP-3758, https://github.com/uc-cdis/guppy/pull/52 -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/guppy/nestedQueryTest.js
+  ☐ Check guppy is up, and query page is ready @manual
+  ☐ could query nested data @manual
+  ☐ could query data with a filter that contains nested data @manual
+  ☐ get query with a complicated filters that contains two or more nested props @manual
+  ☐ get data with a complicated filters that combines nested props and normal props @manual
+PelicanExportPfb -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/pelican/exportPfbTest.js
+  ☐ Download whole of the database @manual
+  ☐ Download some of the database @manual
+  ☐ No permission @manual
+GetCoreMetadata -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/pidgin/getCoremetadataTest.js
+CoreMetadataPageTest -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/portal/coremetadatapageTest.js
+DashboardReports - https://ctds-planx.atlassian.net/browse/PXP-4252 -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/portal/dashboardReportsTest.js
+  ☐ The dashboard reports should break down data by service @manual
+  ☐ The dashboard reports bucket response times in a useful way @manual
+  ☐ The dashboard reports bucket response codes in a useful way @manual
+  ☐ The dashboard reports require login to access @manual
+  ☐ The dashboard reports gracefully handle no data @manual
+Data Explorer -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/portal/dataExplorerTest.js
+DataUploadTest -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/portal/dataUploadTest.js
+  ☐ Upload clinical data file through portal large enough to trigger chunking @manual @regression
+ExportToWorkspaceTest -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/portal/exportToWorkspaceTest.js
+  ☐ Click Workspace tab when logged out and logged in @exportToWorkspacePortalGeneral @portal @manual
+  ☐ Check export to workspace success message toaster @exportToWorkspacePortalGeneral @portal @manual
+  ☐ Export default manifest, mount it and check manifest name @exportToWorkspacePortalJupyterHub @portal @manual
+  ☐ Export default manifest, mount it and check manifest name @exportToWorkspacePortalHatchery @portal @manual
+File Explorer - https://ctds-planx.atlassian.net/browse/PXP-4777 -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/portal/fileExplorerTest.js
+  ☐ Get Access button is not displayed when portal configuration "hideGetAccessButton" is set to true @manual
+  ☐ Get Access button is enabled when commons has url configured, hideGetAccessButton is set to false and user does not have full access @manual
+  ☐ Get Access button is not displayed when commons has url configured, hideGetAccessButton is set to false and user has full access @manual
+  ☐ Get Access button is disabled when commons does not have url configured, hideGetAccessButton is set to false and user has no access @manual
+  ☐ Get Access button is not displayed when commons does not have url configured, hideGetAccessButton is set to false and user has full access @manual
+  ☐ Verify labels on the charts in File Explorer page @manual
+Homepage Chart Nodes -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/portal/homepageChartNodesExecutableTestPlan.js
+  ☐ When Homepage Charts is enabled, logged-out users should see summary charts of all data on the landing page @manual
+  ☐ When Homepage Charts is enabled, logged-in users should see summary charts of all data on the landing page @manual
+  ☐ When Homepage Charts is enabled, logged-in users should only see projects they have access to listed on the /submission page @manual
+  ☐ When Homepage Charts is disabled, the landing page should redirect logged-out users to the login page @manual
+  ☐ When Homepage Charts is disabled, logged-in users should see summary charts of ONLY the projects they have access to on the landing page @manual
+Login -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/portal/homepageTest.js
+Windmill configurable profile page -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/portal/profilePageTest.js
+  ☐ When configuration has showFenceAuthzOnProfile: true, profile page shows projects table from Fence @manual
+  ☐ When configuration has showFenceAuthzOnProfile: false, profile page does not show projects table from Fence @manual
+  ☐ When configuration has showArboristAuthzOnProfile: true, profile page shows resources table from Arborist @manual
+  ☐ When configuration has showArboristAuthzOnProfile: false, profile page does not show resources table from Arborist @manual
+RoleBasedUI - https://ctds-planx.atlassian.net/browse/PXP-4252 -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/portal/roleBasedUITest.js
+  ☐ The following tests require Windmill to have some particular configs set @manual
+  ☐ The query button and data card work for the user with query access @manual
+  ☐ The query button and data card are not visible for the user without query access @manual
+  ☐ On the projects page, the submit button is only present for projects the user may submit to - otherwise only browse is present @manual
+  ☐ On the all-projects page, the recent submissions table is present if the user has create or update permission on some project @manual
+  ☐ On the all-projects page, the recent submissions table is not present if the user has no create or update permission @manual
+  ☐ On a project page - the submission tools are present if the user has submit permission @manual
+  ☐ On a project page - the submission tools are not present if the user does not have submit permission @manual
+  ☐ On the node browser - delete buttons are present if the user has delete permission on the project @manual
+  ☐ On the node browser - delete buttons are not present if the user does not have delete permission on the project @manual
+  ☐ The workspace button is present if the user has access @manual
+  ☐ The workspace button is not present if the user does not have access @manual
+  ☐ The file page download button is present if the user has read-storage permission on the file @manual
+  ☐ The file page download button is not present if the user does not have read-storage permission on the file @manual
+Terra Export Warning Test Plan -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/portal/terraExportWarningTestPlan.js
+  ☐ When Terra Export Warning is enabled, user should be warned when exporting more than N subjects @manual
+  ☐ When Terra Export Warning is enabled, user should NOT be warned when exporting FEWER than N subjects @manual
+  ☐ When Terra Export Warning is DISABLED, user should NOT be warned when exporting N or more subjects @manual
+Tiered Access -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/portal/tieredAccessTest.js
+  ☐ Verify summary charts are displayed for authorized users @manual
+  ☐ Verify summary charts are displayed only when all values are above TIER_ACCESS_LIMIT for unauthorized users @manual
+  ☐ Verify summary charts displayed correctly for partially authorized users @manual @regression @bugfix
+1. Linking accounts - DCF Staging testing for release sign off - PXP-3836 -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/pre-release/dcf/1.linkAccountsTest.js
+  ☐ Login to https://nci-crdc-staging.datacommons.io and check the Project Access list under the Profile page @manual
+  ☐ Link Google identity to the NIH user @manual
+  ☐ Adjust the expiration date of the Google account that has been linked @manual
+  ☐ Unlink Google identity from the NIH user @manual
+  ☐ Adjust the expiration date of the Google account that has been linked @manual
+  ☐ Link Google identity to the NIH user @manual
+2. Service accounts registration - DCF Staging testing for release sign off - PXP-3836 -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/pre-release/dcf/2.serviceAccountsRegistrationTest.js
+  ☐ Register Google IAM Service Account: validSvcAccount @manual
+  ☐ Register Google IAM Service Account: invalidSvcAccount @manual
+  ☐ Register Google IAM Service Account: invalidPrjAccess @manual
+  ☐ Register Google IAM Service Account: existingSvcAccount @manual
+  ☐ Register Google IAM Service Account: dryRunRegistration @manual
+  ☐ Get details from registered service account @manual
+  ☐ Get the ID of the GCP monitor ("fence-service" account) @manual
+  ☐ Update existing service account @manual
+  ☐ Update existing service account @manual
+  ☐ Update existing service account @manual
+  ☐ Get billing GCP projects @manual
+  ☐ Delete existing service account @manual
+  ☐ Register Google IAM Service Account: validSvcAccount @manual
+3. Google Credentials - DCF Staging testing for release sign off - PXP-3836 -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/pre-release/dcf/3.googleCredentialsTest.js
+  ☐ Obtain temporary access keys (Google Credentials) @manual
+  ☐ List the available temporary access keys (Google Credentials) @manual
+  ☐ Delete access keys (Google Credentials) @manual
+  ☐ Obtain temporary access keys with specific expiration time (Google Credentials) @manual
+  ☐ Negative test - Delete a non-existing access keys (Google Credentials) @manual
+4. PreSigned URLs - DCF Staging testing for release sign off - PXP-3836 -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/pre-release/dcf/4.preSignedURLTest.js
+  ☐ Perform Google Storage PreSigned URL negative test against DID with Google credentials @manual
+  ☐ Perform Google Storage PreSigned URL positive test against DID with Google credentials @manual
+  ☐ Perform AWS S3 PreSigned URL negative test against DID with Google credentials @manual
+  ☐ Perform AWS S3 PreSigned URL positive test against DID with Google credentials @manual
+1. OIDC Flow - DCF Staging testing for release sign off - PXP-3836 -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/pre-release/dcf/5.oidcFlowTest.js
+  ☐ Initiate the OIDC Client flow with NIH credentials to obtain the OAuth authorization code @manual
+  ☐ Verify if the "ID Token" produced in the previous scenario has the correct nonce value @manual
+  ☐ Perform PreSigned URL test @manual
+1. IndexD - DCF Staging testing for release sign off - PXP-3836 -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/pre-release/dcf/6.indexdTest.js
+  ☐ Get public data record @manual
+  ☐ Get controlled data record @manual
+Export Performance Tests @ExportPerformanceTests @Performance -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/regressions/exportPerformanceTest.js
+Generate Test Data @GenerateTestData @Performance -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/regressions/generateTestData.js
+Query Performance Tests @QueryPerformanceTests @Performance -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/regressions/queryPerformanceTest.js
+Submission Performance Tests @SubmissionPerformanceTests @Performance -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/regressions/submissionPerformanceTest.js
+SubmitAndQueryNodesTest -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/sheepdogAndPeregrine/submitAndQueryNodesTest.js
+SubmitFileTest -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/sheepdogAndPeregrine/submitFileTest.js
+Brain Promotion Smoke Test Suite -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/smokeTests/brainTests.js
+  ☐ Login with Synapse first time @manual @dream
+  ☐ Login with Synapse @manual @dream
+  ☐ Exploration Page @manual @smoke @brain
+  ☐ Profile Page @manual @smoke @brain
+  ☐ Install gen3-client @manual @smoke @brain
+  ☐ Installing the wrong binary file gen3-client @manual @smoke @brain
+  ☐ Version Checker error @manual @smoke @brain
+  ☐ Configuring gen3-client @manual @smoke @brain
+  ☐ Wrong API key correct apiendpoint @manual @smoke @brain
+  ☐ correct API key wrong apiendpoint @manual @smoke @brain
+  ☐ Download multiple files using smaller manifest @manual @smoke @brain
+  ☐ Download multiple files using larger manifest @manual @smoke @brain
+  ☐ Download a single file with GUID @manual @smoke @brain
+  ☐ Download a single file with file format @manual @smoke @brain
+  ☐ Upload a single file @manual @smoke @brain
