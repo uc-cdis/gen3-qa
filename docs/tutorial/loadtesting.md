@@ -67,7 +67,7 @@ This file is comprised of the following parameters:
   * _indexd_record_url_: The url that is associated with one or more records from a given environment (Useful when the environment has been previously configured with some test data, e.g., by tailoring a manifest and creating new clinical metadata instaces using `indexd_utils`).
   * _virtual_users_: This array containing "duration" and "target" parameters are used to set the number of Virtual Users (VUs) that will execute the load test scenarios. The "duration" represents the time that it will take for the test to reach the "target" amount of VUs or maintain the same number if the target did not change between stages, this is used to increase or decrease the number of VUs in specific time-frames (and also to increase the number of requests that are produced by the test).
 
-Once users tailor their own descriptors, we should encourage them to store them into Gists (https://gist.github.com) as we should not accummulate descriptors inside the gen3-qa repo. They can share their public gists with other users of the load testing framework.
+Once users tailor their own descriptors, we should encourage them to store the `.json` files into Gist (https://gist.github.com) as we should not accummulate descriptors inside the gen3-qa repo. They can share their public gists with other users of the load testing framework.
 
 * on terminal you would see some k6 execution results such as vus, status and checks
 
