@@ -25,14 +25,19 @@ async function runLoadTestScenario() {
   const apiKey = jwtData[Object.keys(jwtData)[0]];
   const targetEnvironment = jwtData[Object.keys(jwtData)[1]];
 
-  const token = await getAccessTokenFromApiKey(apiKey, targetEnvironment)
-    .then((ACCESS_TOKEN) => {
-      console.log(ACCESS_TOKEN);
-      return ACCESS_TOKEN;
-    }).catch((reason) => {
-      console.log(`Failed: ${reason.status} - ${reason.statusText}`);
-      process.exit(1);
-    });
+  let token = '';
+  if (Object.prototype.hasOwnProperty.call(testDescriptorData, 'override_access_token')) {
+    token = testDescriptorData.override_access_token;
+  } else {
+    token = await getAccessTokenFromApiKey(apiKey, targetEnvironment)
+      .then((ACCESS_TOKEN) => {
+        console.log(ACCESS_TOKEN);
+        return ACCESS_TOKEN;
+      }).catch((reason) => {
+        console.log(`Failed: ${reason.status} - ${reason.statusText}`);
+        process.exit(1);
+      });
+  }
 
   // Set fixed list of args for the load test run
   const loadTestArgs = ['-e', `GEN3_HOST=${targetEnvironment}`, '-e', `ACCESS_TOKEN=${token}`, '-e', `VIRTUAL_USERS="${JSON.stringify(testDescriptorData.virtual_users)}"`, '--out', 'influxdb=http://localhost:8086/db0', `load-testing/${targetService}/${loadTestScenario}.js`];
@@ -58,6 +63,12 @@ async function runLoadTestScenario() {
   console.log(listOfDIDs);
   loadTestArgs.unshift(`GUIDS_LIST=${listOfDIDs.join()}`);
   loadTestArgs.unshift('-e');
+
+  // TODO: Move this to a separate utils function
+  if (loadTestScenario === 'service-account-patch') {
+    loadTestArgs.unshift(`GOOGLE_SVC_ACCOUNT=${testDescriptorData.google_svc_account}`);
+    loadTestArgs.unshift('-e');
+  }
 
   // The first arg should always be 'run'
   loadTestArgs.unshift('run');

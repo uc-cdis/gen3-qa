@@ -1,0 +1,56 @@
+const { check, group, sleep } = require('k6'); // eslint-disable-line import/no-unresolved
+const http = require('k6/http'); // eslint-disable-line import/no-unresolved
+const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresolved
+
+const {
+  GOOGLE_SVC_ACCOUNT,
+  //  GOOGLE_PROJECT_ID, // only required when the account is being registered, not patched
+  GEN3_HOST,
+  ACCESS_TOKEN,
+  VIRTUAL_USERS,
+} = __ENV; // eslint-disable-line no-undef
+
+const myFailRate = new Rate('failed requests');
+
+export const options = {
+  stages: JSON.parse(VIRTUAL_USERS.slice(1, -1)),
+  thresholds: {
+    http_req_duration: ['avg<3000', 'p(95)<15000'],
+    'failed requests': ['rate<0.1'],
+  },
+  noConnectionReuse: true,
+};
+
+export default function () {
+  const url = `https://${GEN3_HOST}/user/google/service_accounts/${GOOGLE_SVC_ACCOUNT}`;
+  const params = {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${ACCESS_TOKEN}`,
+    },
+  };
+  const body = {
+    project_access: [
+      'phs000178',
+    ],
+  };
+
+  group('Sending PATCH google svc account request', () => {
+    group('http get', () => {
+      // console.log(`Shooting requests against: ${url}`);
+      const res = http.patch(url, body, params, { tags: { name: 'PreSignedURL' } });
+      // console.log(`Request performed: ${new Date()}`);
+      myFailRate.add(res.status !== 204);
+      if (res.status !== 204) {
+        console.log(`Request response: ${res.status}`);
+        console.log(`Request response: ${res.body}`);
+      }
+      check(res, {
+        'is status 204': (r) => r.status === 204,
+      });
+    });
+    group('wait 0.3s between requests', () => {
+      sleep(0.3);
+    });
+  });
+}
