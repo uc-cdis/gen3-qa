@@ -4,11 +4,14 @@ const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresol
 
 const {
   GOOGLE_SVC_ACCOUNT,
+  GOOGLE_PROJECTS_LIST,
   //  GOOGLE_PROJECT_ID, // only required when the account is being registered, not patched
   GEN3_HOST,
   ACCESS_TOKEN,
   VIRTUAL_USERS,
 } = __ENV; // eslint-disable-line no-undef
+
+const googleProjects = GOOGLE_PROJECTS_LIST.split(',');
 
 const myFailRate = new Rate('failed requests');
 
@@ -23,6 +26,7 @@ export const options = {
 
 export default function () {
   const url = `https://${GEN3_HOST}/user/google/service_accounts/${GOOGLE_SVC_ACCOUNT}`;
+  console.log(`sending req to: ${url}`);
   const params = {
     headers: {
       'Content-Type': 'application/json',
@@ -30,10 +34,12 @@ export default function () {
     },
   };
   const body = {
-    project_access: [
-      'phs000178',
-    ],
+    project_access: googleProjects.splice(
+      Math.floor(Math.random() * googleProjects.length),
+      Math.floor(Math.random() * googleProjects.length),
+    ),
   };
+  console.log(`patching with project_access: ${JSON.stringify(body)}`);
 
   group('Sending PATCH google svc account request', () => {
     group('http get', () => {

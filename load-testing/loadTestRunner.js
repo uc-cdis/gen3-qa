@@ -68,6 +68,8 @@ async function runLoadTestScenario() {
   if (loadTestScenario === 'service-account-patch') {
     loadTestArgs.unshift(`GOOGLE_SVC_ACCOUNT=${testDescriptorData.google_svc_account}`);
     loadTestArgs.unshift('-e');
+    loadTestArgs.unshift(`GOOGLE_PROJECTS_LIST=${testDescriptorData.google_projects_to_patch.join()}`);
+    loadTestArgs.unshift('-e');
   }
 
   // The first arg should always be 'run'
