@@ -42,9 +42,9 @@ export default function () {
   console.log(`patching with project_access: ${JSON.stringify(body)}`);
 
   group('Sending PATCH google svc account request', () => {
-    group('http get', () => {
+    group('http patch', () => {
       // console.log(`Shooting requests against: ${url}`);
-      const res = http.patch(url, body, params, { tags: { name: 'PreSignedURL' } });
+      const res = http.patch(url, body, params, { tags: { name: 'GoogleSvcAccountPatch' } });
       // console.log(`Request performed: ${new Date()}`);
       myFailRate.add(res.status !== 204);
       if (res.status !== 204) {
