@@ -1,3 +1,4 @@
+/*eslint-disable */
 const chai = require('chai');
 
 const apiUtil = require('../../utils/apiUtil.js');
@@ -25,7 +26,7 @@ Feature('GoogleServiceAccountRemoval');
 // IAM access needed by the monitor service account
 const monitorRoles = [
   'roles/resourcemanager.projectIamAdmin',
-  'roles/iam.serviceAccountAdmin',
+  'roles/iam.serviceAccountUser',
   'roles/editor',
 ];
 
