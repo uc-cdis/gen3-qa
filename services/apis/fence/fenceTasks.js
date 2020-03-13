@@ -58,6 +58,8 @@ module.exports = {
    * @returns {Promise<Gen3Response>}
    */
   async createSignedUrl(id, args = [], userHeader = user.mainAcct.accessTokenHeader) {
+    console.log("lalalalalalal");
+    console.log(id);
     return I.sendGetRequest(
       `${fenceProps.endpoints.getFile}/${id}?${args.join('&')}`.replace(
         /[?]$/g,
