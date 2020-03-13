@@ -26,7 +26,7 @@ Feature('GoogleServiceAccountRemoval');
 // IAM access needed by the monitor service account
 const monitorRoles = [
   'roles/resourcemanager.projectIamAdmin',
-  'roles/iam.serviceAccountUser',
+  'roles/iam.serviceAccountAdmin',
   'roles/editor',
 ];
 
