@@ -43,6 +43,10 @@ const files = {
   },
 };
 
+BeforeSuite(async (indexd) => {
+  const ok = await indexd.do.addFileIndices(Object.values(files));
+  expect(ok).to.be.true;
+});
 
 Scenario('get drs object', async (drs) => {
     const drsObject = await drs.do.getDrsObject(files.allowed);
@@ -72,11 +76,6 @@ Scenario('get drs presigned-url no auth header', async (drs, fence) => {
   fence.ask.responsesEqual(signedUrlRes, drs.props.noAccessToken);
 });
 
-BeforeSuite(async (indexd) => {
-    const ok = await indexd.do.addFileIndices(Object.values(files));
-    expect(ok).to.be.true;
-});
-  
 AfterSuite(async (indexd) => {
 await indexd.do.deleteFileIndices(Object.values(files));
 });

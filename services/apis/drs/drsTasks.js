@@ -1,5 +1,3 @@
-const uuid = require('uuid');
-
 const drsProps = require('./drsProps.js');
 const user = require('../../../utils/user.js');
 const { Gen3Response } = require('../../../utils/apiUtil.js');
@@ -20,11 +18,11 @@ const getRevFromResponse = function (res) {
 
 
 /**
- * indexd Tasks
+ * drs Tasks
  */
 module.exports = {
   /**
-   * Fetches indexd res data for file and assigns 'rev', given an indexd file object with a did
+   * Fetches drs object for file and assigns 'rev', given an indexd file object with a did
    * @param {Object} file - Assumed to have a did property
    * @param {Object} authHeaders - headers in include in request. defaults to main
    *                 user account (mainAcct)'s access token
@@ -43,14 +41,14 @@ module.exports = {
   },
 
   /**
-   * Fetches indexd res data for file and assigns 'rev', given an indexd file object with a did
+   * Fetches signed url for file, given an indexd file object with a did
    * @param {Object} file - Assumed to have a did property
    * @param {Object} authHeaders - headers in include in request. defaults to main
    *                 user account (mainAcct)'s access token
    * @returns {Promise<Gen3Response>}
    */
   async getDrsSignedUrl(file, authHeaders = user.mainAcct.accessTokenHeader) {
-    // get data from indexd
+    // get signed url from fence
     id = file.did || file.id;
     access_id = file.link.substr(0,2);
     return I.sendGetRequest(
@@ -63,13 +61,11 @@ module.exports = {
   },
 
   /**
-   * Fetches indexd res data for file and assigns 'rev', given an indexd file object with a did
+   * Fetches signed url for file without sending header information, 
    * @param {Object} file - Assumed to have a did property
-   * @param {Object} authHeaders - headers in include in request. defaults to main
-   *                 user account (mainAcct)'s access token
    * @returns {Promise<Gen3Response>}
    */
-  async getDrsSignedUrlWithoutHeader(file, authHeaders = user.mainAcct.accessTokenHeader) {
+  async getDrsSignedUrlWithoutHeader(file) {
     // get data from indexd
     id = file.did || file.id;
     access_id = file.link.substr(0,2);
@@ -98,109 +94,5 @@ module.exports = {
         ),
       userHeader,
     ).then((res) => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
-  },
-  
-  /**
-   * Updates indexd data for file
-   * @param {Object} file - Assumed to have a did property
-   * @param {Object} authHeaders - headers in include in request. defaults to main
-   *                 user account (mainAcct)'s access token
-   * @returns {Promise<Gen3Response>}
-   */
-  async updateFile(file, data, authHeaders = user.mainAcct.indexdAuthHeader) {
-    authHeaders['Content-Type'] = 'application/json; charset=UTF-8';
-    return I.sendGetRequest(
-      `${indexdProps.endpoints.get}/${file.did}`,
-      authHeaders,
-    ).then((res) => {
-      // get last revision
-      file.rev = getRevFromResponse(res);
-
-      return I.sendPutRequest(
-        `${indexdProps.endpoints.put}/${file.did}?rev=${file.rev}`,
-        data,
-        authHeaders,
-      ).then((res) => res.data);
-    });
-  },
-
-  /**
-   * Deletes the file from indexd, given an indexd file object with did and rev
-   * Response is added to the file object
-   * @param {Object} file - Assumed to have a did property
-   * @param {Object} authHeaders - headers in include in request. defaults to main
-   *                 user account (mainAcct)'s access token
-   * @returns {Promise<Promise|*|PromiseLike<T>|Promise<T>>}
-   */
-  async deleteFile(file, authHeaders = user.mainAcct.indexdAuthHeader) {
-    authHeaders['Content-Type'] = 'application/json; charset=UTF-8';
-    // always update revision
-    return I.sendGetRequest(
-      `${indexdProps.endpoints.get}/${file.did}`,
-      authHeaders,
-    ).then((res) => {
-      console.log(`deleting file: ${file.did}`);
-      // get last revision
-      file.rev = getRevFromResponse(res);
-      console.log(`deleting file with rev: ${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`);
-      return I.sendDeleteRequest(
-        `${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`,
-        authHeaders,
-      ).then((res) => {
-        // Note that we use the entire response, not just the response body
-        file.indexd_delete_res = res;
-        return new Gen3Response(res);
-      });
-    });
-  },
-
-  /**
-   * Deletes multiple files from indexd
-   * @param {Object[]} files
-   * @returns {Promise<void>}
-   */
-  async deleteFileIndices(files) {
-    await Promise.all(
-      files.map((file) => this.deleteFile(file)),
-    );
-  },
-
-  /**
-   * Remove the records created in indexd by the test suite
-   * @param {array} guidList - list of GUIDs of the files to delete
-   */
-  async deleteFiles(guidList) {
-    const fileList = [];
-    for (guid of guidList) {
-      const file = {
-        did: guid,
-      };
-      const fileRes = await this.getFile(file); // adds 'rev' to the file
-      if (!fileRes.error) {
-        const res = await this.deleteFile(file);
-        fileList.push(file);
-      } else {
-        console.log(`Could not delete file, since attempting to get it resulted in error: ${fileRes.error}`);
-      }
-    }
-    return fileList;
-  },
-
-  /**
-   * Remove all records that userAccount submit in indexd
-   * @param {User} userAccount - submitter of files to delete
-   */
-  async clearPreviousUploadFiles(userAccount) {
-    I.sendGetRequest(
-      `${indexdProps.endpoints.get}/?acl=null&authz=null&uploader=${userAccount.username}`,
-      userAccount.accessTokenHeader,
-    ).then((res) => {
-      if (!res.data && !res.data.records) return;
-      const guidList = res.data.records.reduce((acc, cur) => {
-        acc.push(cur.did);
-        return acc;
-      }, []);
-      this.deleteFiles(guidList);
-    });
   },
 };

@@ -19,35 +19,12 @@ module.exports = {
     /**
    * Create Access Token Responses
    */
-  resExpiredAccessToken: new Gen3Response({
-    request: {},
-    status: 401,
-  }),
 
-  resInvalidAPIKey: new Gen3Response({
-    request: {},
-    status: 401,
-  }),
-
-  resMissingAPIKey: new Gen3Response({
-    request: {},
-    status: 400,
-  }),
 
   /**
    * Presigned URL responses
    */
-  resMissingFilePermission: new Gen3Response({
-    request: {},
-    status: 401,
-  }),
-
   resInvalidFileProtocol: new Gen3Response({
-    request: {},
-    status: 404,
-  }),
-
-  resNoFileProtocol: new Gen3Response({
     request: {},
     status: 404,
   }),
