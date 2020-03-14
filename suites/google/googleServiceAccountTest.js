@@ -1,3 +1,4 @@
+/*eslint-disable */
 const chai = require('chai');
 
 const { expect } = chai;
@@ -282,7 +283,7 @@ Scenario('Register SA of invalid type @reqGoogle', async (fence, users) => {
     googleProject,
     ['test'],
   );
-  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidServiceAcct);
+  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidServiceAcctGAPIAcct);
 });
 
 Scenario('Register SA that has a key generated @reqGoogle', async (fence, users) => {
@@ -305,7 +306,7 @@ Scenario('Register SA that has a key generated @reqGoogle', async (fence, users)
     googleProject,
     ['test'],
   );
-  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidServiceAcct);
+  fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidServiceAcctWithKey);
 });
 
 
