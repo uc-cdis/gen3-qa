@@ -1,5 +1,5 @@
 /*eslint-disable */
-Feature('GoogleDataAccess');
+Feature('GoogleDataAccess').retry(2);
 /*
 Test a full flow for a user accessing data on Google. Also test that when permissions
 change on the User Access file, the user's access to data on Google changes correctly.

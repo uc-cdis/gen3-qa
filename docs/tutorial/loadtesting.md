@@ -51,13 +51,15 @@ docker-compose up -d
 	`node load-testing/loadTestRunner.js <path to the credentials.json file> <path to load-test-descriptor.json>`
 	
     e.g., `node load-testing/loadTestRunner.js /Users/$USER/.gen3/credentials.json load-testing/load-test-descriptor.json`
-          `node load-testing/loadTestRunner.js /Users/$USER/.gen3/internalstaging.datastage.io_credentials.json load-testing/load-test-stress.json`
 	
 	_optional argument:_ random-guids -> If an indexd record url is provided in `load-test-descriptor`, a set of GUIDs will be dynamically retrieved from the target environment and the requests will target random records (Note: For `fence/presigned-url` scenario only).
 	
 	e.g., `node load-testing/loadTestRunner.js /Users/$USER/.gen3/credentials.json load-testing/load-test-descriptor.json random-guids`
 
+### load testing descriptors
+
 * The **Load Testing Descriptor** is a `.json` file that contains parameters to be used in a specific load testing scenario. This is a declarative way of running load tests and improve their reproducibility by sharing the descriptors among different users.
+
 This file is comprised of the following parameters:
   * _objective_: Basic statement of what the load test is trying to achieve.
   * _details_: Environment configuration that is expected to be set before the load test is initiated (no functional usage, purely informational).
@@ -67,6 +69,7 @@ This file is comprised of the following parameters:
   * _indexd_record_url_: The url that is associated with one or more records from a given environment (Useful when the environment has been previously configured with some test data, e.g., by tailoring a manifest and creating new clinical metadata instaces using `indexd_utils`).
   * _virtual_users_: This array containing "duration" and "target" parameters are used to set the number of Virtual Users (VUs) that will execute the load test scenarios. The "duration" represents the time that it will take for the test to reach the "target" amount of VUs or maintain the same number if the target did not change between stages, this is used to increase or decrease the number of VUs in specific time-frames (and also to increase the number of requests that are produced by the test).
 
+Once users tailor their own descriptors, we should encourage them to store the `.json` files into Gist (https://gist.github.com) as we should not accummulate descriptors inside the gen3-qa repo. They can share their public gists with other users of the load testing framework.
 
 * on terminal you would see some k6 execution results such as vus, status and checks
 

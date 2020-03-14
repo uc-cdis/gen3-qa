@@ -355,7 +355,20 @@ module.exports = {
     },
   }),
 
-  resRegisterServiceAccountInvalidServiceAcct: new Gen3Response({
+  resRegisterServiceAccountInvalidServiceAcctGAPIAcct: new Gen3Response({
+    request: {},
+    status: 400,
+    body: {
+      errors: {
+        service_account_email: {
+          status: 404,
+        },
+      },
+      success: false,
+    },
+  }),
+
+  resRegisterServiceAccountInvalidServiceAcctWithKey: new Gen3Response({
     request: {},
     status: 400,
     body: {
