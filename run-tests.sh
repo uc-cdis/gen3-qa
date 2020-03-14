@@ -80,8 +80,7 @@ runTestsIfServiceVersion() {
     versionAsNumber=$currentVersion
   fi
 
-
-  min=$(echo "$3" "$versionAsNumber" | awk '{if ($1 < $2) print $1; else print $2}')
+  min=$(printf "$3\n$versionAsNumber\n" | sort -V | head -n1)
   if [ "$min" = "$3" ]; then
     echo "RUNNING $1 tests b/c $2 version ($currentVersion) is greater than $3"
   else
@@ -270,6 +269,12 @@ portalVersion="$(g3kubectl get configmaps manifest-all -o json | jq -r '.data.js
 # do not run portal related tests for NDE portal
 if [[ "$portalVersion" == *"data-ecosystem-portal"* ]]; then
   donot '@portal'
+fi
+
+# do not run top bar login test if version of portal is old
+# update the version once this change is released
+if ! [[ "$portalVersion" == *"master" ]]; then
+  donot '@topBarLogin'
 fi
 
 if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1 ||
