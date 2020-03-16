@@ -9,6 +9,8 @@ const {
   VIRTUAL_USERS,
 } = __ENV; // eslint-disable-line no-undef
 
+const MDS_TEST_DATA_JSON = JSON.parse(MDS_TEST_DATA.trim());
+
 const myFailRate = new Rate('failed requests');
 
 export const options = {
@@ -22,8 +24,8 @@ export const options = {
 
 export default function () {
   const baseUrl = `https://${GEN3_HOST}/mds/metadata/`;
-  const url1 = `${baseUrl}/${MDS_TEST_DATA.fictitiousRecord1.guid}`;
-  const url2 = `${baseUrl}/${MDS_TEST_DATA.fictitiousRecord2.guid}`;
+  const url1 = `${baseUrl}/${MDS_TEST_DATA_JSON.fictitiousRecord1.guid}`;
+  const url2 = `${baseUrl}/${MDS_TEST_DATA_JSON.fictitiousRecord2.guid}`;
 
   const params = {
     headers: {
@@ -31,8 +33,8 @@ export default function () {
       Authorization: `Basic ${BASIC_AUTH}`,
     },
   };
-  const body1 = MDS_TEST_DATA.fictitiousRecord1;
-  const body2 = MDS_TEST_DATA.fictitiousRecord2;
+  const body1 = MDS_TEST_DATA_JSON.fictitiousRecord1;
+  const body2 = MDS_TEST_DATA_JSON.fictitiousRecord2;
 
   group('Creating and querying records', () => {
     group('create fictitiousRecord1', () => {
@@ -68,8 +70,8 @@ export default function () {
       sleep(0.3);
     });
     group('query fictitiousRecord1', () => {
-      console.log(`sending GET req to: ${baseUrl}/${MDS_TEST_DATA.filter1}`);
-      const res = http.get(`${baseUrl}/${MDS_TEST_DATA.filter1}`, params, { tags: { name: 'queryRecord1' } });
+      console.log(`sending GET req to: ${baseUrl}/${MDS_TEST_DATA_JSON.filter1}`);
+      const res = http.get(`${baseUrl}/${MDS_TEST_DATA_JSON.filter1}`, params, { tags: { name: 'queryRecord1' } });
       // console.log(`Request performed: ${new Date()}`);
       myFailRate.add(res.status !== 200);
       if (res.status !== 200) {
@@ -84,8 +86,8 @@ export default function () {
       sleep(0.3);
     });
     group('query fictitiousRecord2', () => {
-      console.log(`sending GET req to: ${baseUrl}/${MDS_TEST_DATA.filter2}`);
-      const res = http.patch(`${baseUrl}/${MDS_TEST_DATA.filter2}`, params, { tags: { name: 'queryRecord2' } });
+      console.log(`sending GET req to: ${baseUrl}/${MDS_TEST_DATA_JSON.filter2}`);
+      const res = http.patch(`${baseUrl}/${MDS_TEST_DATA_JSON.filter2}`, params, { tags: { name: 'queryRecord2' } });
       // console.log(`Request performed: ${new Date()}`);
       myFailRate.add(res.status !== 200);
       if (res.status !== 200) {

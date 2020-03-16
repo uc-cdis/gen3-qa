@@ -72,6 +72,15 @@ async function runLoadTestScenario() {
     loadTestArgs.unshift('-e');
   }
 
+  // TODO: Move this to a separate utils function
+  if (loadTestScenario === 'create-and-query') {
+    const b64EncodedUserAndPassword = btoa(`${testDescriptorData.basic_auth.username}:${testDescriptorData.basic_auth.password}`);
+    loadTestArgs.unshift(`MDS_TEST_DATA="${JSON.stringify(testDescriptorData.mds_test_data)}"`);
+    loadTestArgs.unshift('-e');
+    loadTestArgs.unshift(`BASIC_AUTH="${b64EncodedUserAndPassword}"`);
+    loadTestArgs.unshift('-e');
+  }
+
   // The first arg should always be 'run'
   loadTestArgs.unshift('run');
   console.log(`running: k6 ${loadTestArgs}`);
