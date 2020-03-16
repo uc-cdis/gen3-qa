@@ -2,6 +2,7 @@
 const chai = require('chai');
 
 const { expect } = chai;
+const stringify = require('json-stringify-safe');
 
 const apiUtil = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
@@ -149,8 +150,9 @@ Scenario('Register SA from Google Project that doesn’t have fence’s monitori
     googleProject,
     ['test'],
   );
+  console.log(`registerRes: ${stringify(registerRes)}`);
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountFenceNoAccess);
-});
+}).retry(2);
 
 Scenario('Register SA from Google Project with invalid members @reqGoogle', async (fence, users, google) => {
   // Register a google project service account that has a member that's an invalid type
