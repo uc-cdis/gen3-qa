@@ -36,6 +36,6 @@ The service is currently being load tested with the following criteria:
 *   failed_requests: rate<0.05
 *   virtual_users: <ramping up from 0 to 50 users in ~10 mins and keep the surge of requests for a couple of min>
 ### Auto-scaling config
-TBD
+min: 2, max: 5
 ### Soak test
 This test involves a continuous 4hs run, constantly creating random entries and running queries with 100 virtual users.
