@@ -6,10 +6,9 @@
   },
   "service": "fence",
   "load_test_scenario": "service-account-patch",
-  "presigned_url_guids": [],
-    "google_svc_account": "dcf-test-svc-acct-meh@dcf-testing-staging.iam.gserviceaccount.com",
-    "google_projects_to_patch": ["DEV", "QA", "jenkins", "jenkins2", "jnkns", "test"],
-    "override_access_token": "<place_access_token_here>",
+  "google_svc_account": "dcf-test-svc-acct-meh@dcf-testing-staging.iam.gserviceaccount.com",
+  "google_projects_to_patch": ["DEV", "QA", "jenkins", "jenkins2", "jnkns", "test"],
+  "override_access_token": "<place_access_token_here>",
   "virtual_users": [
     { "duration": "5s", "target": 1 },
     { "duration": "10s", "target": 20 },

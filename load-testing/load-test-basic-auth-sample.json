@@ -9,19 +9,17 @@
     "filter1": "a=1",
     "filter2": "nestedData.b=2",
     "fictitiousRecord1": {
-      "guid": "ac68360e-f06b-47dc-9daa-78b373c06843",
       "a": 1
     },
     "fictitiousRecord2": {
-      "guid": "26dd1ad6-6001-4579-b1ee-22c6339f71ec",
       "nestedData": {
         "b": 2
       }
     }
   },
   "basic_auth": {
-    "username": "",
-    "password": ""
+    "username": "<insert_username_here>",
+    "password": "<insert_password_here>"
   },
   "virtual_users": [
     { "duration": "1s", "target": 1 },

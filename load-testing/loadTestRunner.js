@@ -1,4 +1,4 @@
-const { spawn } = require('child_process');
+const { spawnSync } = require('child_process');
 const fs = require('fs');
 const { getJWTData, getAccessTokenFromApiKey } = require('../utils/apiUtil.js');
 const { fetchDIDList } = require('./indexd/indexdLTUtils.js');
@@ -44,7 +44,7 @@ async function runLoadTestScenario() {
 
   // Expand load test args based on special flags
   // TODO: Move the custom args parsing to a separate utils script
-  let listOfDIDs = [];
+  let listOfDIDs = null;
   if (customArgs === 'random-guids') {
     listOfDIDs = await fetchDIDList(targetEnvironment, testDescriptorData.indexd_record_url)
       .then(async (records) => {
@@ -58,7 +58,7 @@ async function runLoadTestScenario() {
         process.exit(1);
       });
   } else {
-    listOfDIDs = testDescriptorData.presigned_url_guids;
+    listOfDIDs = testDescriptorData.presigned_url_guids ? testDescriptorData.presigned_url_guids : [''];
   }
   console.log(listOfDIDs);
   loadTestArgs.unshift(`GUIDS_LIST=${listOfDIDs.join()}`);
@@ -74,17 +74,35 @@ async function runLoadTestScenario() {
 
   // TODO: Move this to a separate utils function
   if (loadTestScenario === 'create-and-query') {
-    const b64EncodedUserAndPassword = btoa(`${testDescriptorData.basic_auth.username}:${testDescriptorData.basic_auth.password}`);
     loadTestArgs.unshift(`MDS_TEST_DATA="${JSON.stringify(testDescriptorData.mds_test_data)}"`);
     loadTestArgs.unshift('-e');
-    loadTestArgs.unshift(`BASIC_AUTH="${b64EncodedUserAndPassword}"`);
+
+    const basicAuth = testDescriptorData.basic_auth.username
+      ? Buffer.from(`${testDescriptorData.basic_auth.username}:${testDescriptorData.basic_auth.password}`).toString('base64') : '';
+    loadTestArgs.unshift(`BASIC_AUTH="${basicAuth}"`);
     loadTestArgs.unshift('-e');
   }
+
+  // generate libs
+  spawnSync('which', ['browserify'], { stdio: 'inherit' });
+
+  const browserifyArgs = ['node_modules/uuid/index.js', '-s', 'uuid'];
+  console.log('generating js files for node libs...');
+  const browserifyCmd = spawnSync('browserify', browserifyArgs, { stdio: 'pipe' });
+  fs.writeFileSync(
+    'load-testing/libs/uuid.js',
+    browserifyCmd.output.toString().slice(1, -1),
+    { encoding: 'utf8', flag: 'w' },
+    (err) => {
+      if (err) console.log(err);
+      console.log(`browserify ${browserifyArgs}`);
+    },
+  );
 
   // The first arg should always be 'run'
   loadTestArgs.unshift('run');
   console.log(`running: k6 ${loadTestArgs}`);
-  spawn('k6', loadTestArgs, { stdio: 'inherit' });
+  spawnSync('k6', loadTestArgs, { stdio: 'inherit' });
 }
 
 runLoadTestScenario();
