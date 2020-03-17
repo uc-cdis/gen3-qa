@@ -31,8 +31,8 @@ module.exports = {
 
   noAccessToken: new Gen3Response({
     request: {},
-    body: { 'msg': 'Not Authorized. Please Log In.'},
-    data: { 'msg': 'Not Authorized. Please Log In.'},
+    body: { 'msg': 'Not Authorized. Access Token Required.'},
+    data: { 'msg': 'Not Authorized. Access Token Required.'},
     status: 403,
   }),
 
