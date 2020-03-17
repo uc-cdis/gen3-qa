@@ -16,7 +16,7 @@ module.exports = {
     delete: apiRoot,
   },
 
-    /**
+  /**
    * Create Access Token Responses
    */
 
@@ -31,8 +31,8 @@ module.exports = {
 
   noAccessToken: new Gen3Response({
     request: {},
-    body: { 'msg': 'Not Authorized. Access Token Required.'},
-    data: { 'msg': 'Not Authorized. Access Token Required.'},
+    body: { msg: 'Not Authorized. Access Token Required.' },
+    data: { msg: 'Not Authorized. Access Token Required.' },
     status: 403,
   }),
 

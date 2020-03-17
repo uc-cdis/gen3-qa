@@ -4,8 +4,6 @@ const chai = require('chai');
 
 const { expect } = chai;
 
-const { Gen3Response } = require('../../utils/apiUtil');
-
 const files = {
   allowed: {
     filename: 'test_valid',
@@ -49,8 +47,8 @@ BeforeSuite(async (indexd) => {
 });
 
 Scenario('get drs object', async (drs) => {
-    const drsObject = await drs.do.getDrsObject(files.allowed);
-    await drs.complete.checkFile(drsObject);
+  const drsObject = await drs.do.getDrsObject(files.allowed);
+  await drs.complete.checkFile(drsObject);
 });
 
 Scenario('get drs no record found', async (drs) => {
@@ -77,8 +75,5 @@ Scenario('get drs presigned-url no auth header', async (drs, fence) => {
 });
 
 AfterSuite(async (indexd) => {
-await indexd.do.deleteFileIndices(Object.values(files));
+  await indexd.do.deleteFileIndices(Object.values(files));
 });
-
-
-

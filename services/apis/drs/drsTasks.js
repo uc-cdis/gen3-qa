@@ -30,7 +30,7 @@ module.exports = {
    */
   async getDrsObject(file, authHeaders = user.mainAcct.accessTokenHeader) {
     // get data from indexd
-    id = file.did || file.id
+    const id = file.did || file.id;
     return I.sendGetRequest(
       `${drsProps.endpoints.get}/${id}`,
       authHeaders,
@@ -49,10 +49,10 @@ module.exports = {
    */
   async getDrsSignedUrl(file, authHeaders = user.mainAcct.accessTokenHeader) {
     // get signed url from fence
-    id = file.did || file.id;
-    access_id = file.link.substr(0,2);
+    const id = file.did || file.id;
+    const accessID = file.link.substr(0, 2);
     return I.sendGetRequest(
-      `${drsProps.endpoints.get}/${id}/access/${access_id}`,
+      `${drsProps.endpoints.get}/${id}/access/${accessID}`,
       authHeaders,
     ).then((res) => {
       file.rev = getRevFromResponse(res);
@@ -61,16 +61,16 @@ module.exports = {
   },
 
   /**
-   * Fetches signed url for file without sending header information, 
+   * Fetches signed url for file without sending header information,
    * @param {Object} file - Assumed to have a did property
    * @returns {Promise<Gen3Response>}
    */
   async getDrsSignedUrlWithoutHeader(file) {
     // get data from indexd
-    id = file.did || file.id;
-    access_id = file.link.substr(0,2);
+    const id = file.did || file.id;
+    const accessID = file.link.substr(0, 2);
     return I.sendGetRequest(
-      `${drsProps.endpoints.get}/${id}/access/${access_id}`,
+      `${drsProps.endpoints.get}/${id}/access/${accessID}`,
     ).then((res) => {
       file.rev = getRevFromResponse(res);
       return new Gen3Response(res);
@@ -83,15 +83,15 @@ module.exports = {
    * @param {string[]} args - additional args for endpoint
    * @returns {Promise<Gen3Response>}
    */
-  async createSignedUrl(file, args = [], userHeader = user.mainAcct.accessTokenHeader) {
-    access_id = file.link;
-    access_id = access_id.substr(0,2);
-    id = file.did || file.id;
+  async createSignedUrl(file, userHeader = user.mainAcct.accessTokenHeader) {
+    let accessID = file.link;
+    accessID = accessID.substr(0, 2);
+    const id = file.did || file.id;
     return I.sendGetRequest(
-        `${drsProps.endpoints.getFile}/${id}/accdss/${access_id}`.replace(
-          /[?]$/g,
-          '',
-        ),
+      `${drsProps.endpoints.getFile}/${id}/accdss/${accessID}`.replace(
+        /[?]$/g,
+        '',
+      ),
       userHeader,
     ).then((res) => new Gen3Response(res)); // ({ body: res.body, statusCode: res.statusCode }));
   },

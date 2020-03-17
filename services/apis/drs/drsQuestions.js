@@ -22,8 +22,10 @@ module.exports = {
    * @param fileNode
    */
   fileEquals(res, fileNode) {
-    object = res.data
-    expect(object.checksums[0]).to.nested.include({'checksum': fileNode.data.checksums[0].checksum});
+    const object = res.data;
+    expect(object.checksums[0]).to.nested.include(
+      { checksum: fileNode.data.checksums[0].checksum },
+    );
     expect(object).to.have.property('size', fileNode.data.size);
     expect(object.access_methods[0]).to.have.property('access_url');
     if (fileNode.data.urls !== undefined) {

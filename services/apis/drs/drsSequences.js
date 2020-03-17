@@ -16,17 +16,6 @@ module.exports = {
   },
 
   /**
-   * Checks if a record exists in indexd
-   * @param {Object} drsRecord
-   * @returns {Promise<Gen3Response>}
-   */
-  async checkRecordExists(drsRecord) {
-    const res = await drsTasks.getDrsObject(drsRecord);
-    drsQuestions.recordExists(res, drsRecord);
-    return res;
-  },
-
-    /**
    * Checks if a record doesn't exist in indexd
    * @param {Object} drsRecord
    * @returns {Promise<Gen3Response>}
