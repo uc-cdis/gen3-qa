@@ -89,6 +89,19 @@ runTestsIfServiceVersion() {
   fi
 }
 
+check_restful_endpoint() {
+  the_url=$1
+  result=$(curl -L -s -o /dev/null -w "%{http_code}" "$the_url")
+  if [ $result != 200 ]; then
+    echo "Skip tests for $2"
+    donot "$2"
+  else
+    echo "Run $2 tests"
+  fi
+}
+
+check_restful_endpoint "https://${HOSTNAME}/index/ga4gh/drs/v1/objects" "@drs"
+
 # little helper to maintain doNotRunRegex
 donot() {
   local or
@@ -266,6 +279,19 @@ hostname="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.host
 portalApp="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.portal_app')"
 portalConfigURL="https://${hostname}/data/config/${portalApp}.json"
 portalVersion="$(g3kubectl get configmaps manifest-all -o json | jq -r '.data.json | fromjson.versions.portal')"
+
+check_restful_endpoint() {
+  the_url=$1
+  result=$(curl -L -s -o /dev/null -w "%{http_code}" "$the_url")
+  if [ $result != 200 ]; then
+    echo "Skip tests for $2"
+    donot "$2"
+  else
+    echo "Run $2 tests"
+  fi
+}
+
+check_restful_endpoint "https://${hostname}/index/ga4gh/drs/v1/objects" "@drs"
 
 # do not run portal related tests for NDE portal
 if [[ "$portalVersion" == *"data-ecosystem-portal"* ]]; then
