@@ -62,6 +62,10 @@ runTestsIfServiceVersion() {
   local currentVersion
   currentVersion=$(getServiceVersion $2)
 
+  if [ "$currentVersion" == "2020.03" ]; then
+    currentVersion="0.2020.03"
+  fi
+
   # check if currentVersion is actually a number
   # NOTE: this assumes that all releases are tagged with actual numbers like:
   #       2.8.0, 3.0.0, 3.0, 0.2, 0.2.1.5, etc
