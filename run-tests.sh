@@ -89,19 +89,6 @@ runTestsIfServiceVersion() {
   fi
 }
 
-check_restful_endpoint() {
-  the_url=$1
-  result=$(curl -L -s -o /dev/null -w "%{http_code}" "$the_url")
-  if [ $result != 200 ]; then
-    echo "Skip tests for $2"
-    donot "$2"
-  else
-    echo "Run $2 tests"
-  fi
-}
-
-check_restful_endpoint "https://${HOSTNAME}/index/ga4gh/drs/v1/objects" "@drs"
-
 # little helper to maintain doNotRunRegex
 donot() {
   local or
