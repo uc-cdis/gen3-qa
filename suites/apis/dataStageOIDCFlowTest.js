@@ -371,7 +371,63 @@ Scenario('Test Fence\'s public keys endpoint @manual', ifInteractive(
   },
 ));
 
-// Scenario #18 - Exploration page
+// Scenario #18 - Make sure custom hyperlinks are found on the portal page
+Scenario('Check contact and footer links @bdcat @manual', ifInteractive(
+  async (I) => {
+    I.amOnPage(` https://${TARGET_ENVIRONMENT}/login`);
+    const contactLink = await I.grabTextFrom({ xpath: '//a[contains(@href,"https://biodatacatalyst.nhlbi.nih.gov/contact")]' });
+    const foiaLink = await I.grabTextFrom({ xpath: '//a[contains(@href,"https://www.nhlbi.nih.gov/about/foia-fee-for-service-office")]' });
+    const accessibilityLink = await I.grabTextFrom({ xpath: '//a[contains(@href,"https://biodatacatalyst.nhlbi.nih.gov/accessibility")]' });
+    const hhsLink = await I.grabTextFrom({ xpath: '//a[contains(@href,"https://www.hhs.gov")]' });
+    const nihLink = await I.grabTextFrom({ xpath: '//a[contains(@href,"https://www.nih.gov")]' });
+    const nhlbiLink = await I.grabTextFrom({ xpath: '//a[contains(@href,"https://www.nhlbi.nih.gov")]' });
+    const usaLink = await I.grabTextFrom({ xpath: '//a[contains(@href,"https://www.usa.gov")]' });
+    const result = await interactive(`
+            1. Go to /login
+            2. Expect to see the following links:
+            Contact form: https://biodatacatalyst.nhlbi.nih.gov/contact
+            Freedom of Information Act (FOIA): https://www.nhlbi.nih.gov/about/foia-fee-for-service-office
+            Accessibility: https://biodatacatalyst.nhlbi.nih.gov/accessibility/
+            U.S. Department of Health & Human Services: https://www.hhs.gov/
+            National Institutes of Health: https://www.nih.gov/
+            National Heart, Lung, and Blood Institute: https://www.nhlbi.nih.gov/
+            USA.gov: https://www.usa.gov/
+
+            // Automated test:
+            Found contact link: ${contactLink.length > 0}
+            Found FOIA link: ${foiaLink.length > 0}
+            Found Accessibility link: ${accessibilityLink.length > 0}
+            Found HHS link: ${hhsLink.length > 0}
+            Found NIH link: ${nihLink.length > 0}
+            Found NHLBI link: ${nhlbiLink.length > 0}
+            Found USA.gov link: ${usaLink.length > 0}
+          `);
+    expect(result.didPass, result.details).to.be.true;
+  },
+));
+
+
+// Scenario #19 - Check privacy policy link
+xScenario('Make sure the privacy policy link is configured @bdcat @manual', ifInteractive( // eslint-disable-line codeceptjs/no-skipped-tests
+  async (I) => {
+    const privacyPolicyPageStatus = await I.sendGetRequest(
+      `https://${TARGET_ENVIRONMENT}/user/privacy-policy`,
+    ).then((res) => res.status);
+    const result = await interactive(`
+          1. Go to https://platform.sb.biodatacatalyst.nhlbi.nih.gov/
+          2. Enter your Credentials to login
+          3. When prompted to click "Yes, Authorize." click on "Gen3 Privacy Policy" link
+          4. Expected Privacy Policy to be displayed - https://biodatacatalyst.nhlbi.nih.gov/privacy/
+
+          // Semi-automated test:
+          // Expect http status to be 200
+          privacyPolicyPageStatus: ${privacyPolicyPageStatus}
+        `);
+    expect(result.didPass, result.details).to.be.true;
+  },
+));
+
+// Scenario #20 - Exploration page
 Scenario('Test the exploration page @manual', ifInteractive(
   async () => {
     const result = await interactive(`
@@ -384,7 +440,7 @@ Scenario('Test the exploration page @manual', ifInteractive(
   },
 ));
 
-// Scenario #19 - Export to PFB
+// Scenario #21 - Export to PFB
 Scenario('Test the "Export to PFB" button from the Exploration page @manual', ifInteractive(
   async () => {
     // TODO: Parse PFB and validate it
