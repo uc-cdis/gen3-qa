@@ -408,7 +408,7 @@ Scenario('Check contact and footer links @bdcat @manual', ifInteractive(
 
 
 // Scenario #19 - Check privacy policy link
-xScenario('Make sure the privacy policy link is configured @bdcat @manual', ifInteractive( // eslint-disable-line codeceptjs/no-skipped-tests
+Scenario('Make sure the privacy policy link is configured @bdcat @manual', ifInteractive( // eslint-disable-line codeceptjs/no-skipped-tests
   async (I) => {
     const privacyPolicyPageStatus = await I.sendGetRequest(
       `https://${TARGET_ENVIRONMENT}/user/privacy-policy`,
