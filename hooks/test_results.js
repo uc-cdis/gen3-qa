@@ -18,9 +18,11 @@ module.exports = function () {
         if (err) { console.log(err); }
         if (res.statusCode !== 200) {
           console.log('Skipping DRS tests since its endpoints are not enabled on this environment...');
-          suite.tests.map((test) => {
-            test.run = () => console.log(`Ignoring test - ${test.title}`);
-            return test;
+          suite.tests.forEach((test) => {
+            test.run = function skip() {
+              console.log(`Ignoring test - ${test.title}`);
+              this.skip()
+            };
           });
         }
       });
