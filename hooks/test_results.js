@@ -19,9 +19,9 @@ module.exports = function () {
         if (res.statusCode !== 200) {
           console.log('Skipping DRS tests since its endpoints are not enabled on this environment...');
           suite.tests.forEach((test) => {
-            test.run = function skip() {
+            test.run = function skip() { // eslint-disable-line func-names
               console.log(`Ignoring test - ${test.title}`);
-              this.skip()
+              this.skip();
             };
           });
         }
