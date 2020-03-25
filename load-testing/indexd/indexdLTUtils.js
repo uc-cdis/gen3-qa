@@ -11,13 +11,13 @@ module.exports = {
    * @param {string} targetEnvironment
    * @returns {string[]}} list of indexd records / DIDs
    */
-  fetchDIDList(targetEnvironment, indexdRecordURL = null) {
+  fetchDIDList(targetEnvironment, indexdRecordACL = null) {
     return new Promise(((resolve, reject) => {
       // TODO: dynamically identify the records accessible by the owner of the access token
       // allowing user to provide the url for the indexd query for now
       let url = '/index/index';
-      if (indexdRecordURL) {
-        url += `?url=${indexdRecordURL}`;
+      if (indexdRecordACL) {
+        url += `?acl=${indexdRecordACL}`;
       }
       ax.request({
         // e.g., url: '/index/index?url=s3://cdis-presigned-url-test/dcp-s3-test-1.txt',
@@ -35,7 +35,10 @@ module.exports = {
           console.log(resp.data);
           resolve(resp.data.records);
         },
-        (err) => reject(err.response || err),
+        (err) => {
+          console.log(`err: ${JSON.stringify(err)}`);
+          reject(err.response || err);
+        },
       );
     }));
   },

@@ -35,7 +35,7 @@ export default function () {
   };
   group('Sending PreSigned URL request', () => {
     group('http get', () => {
-      // console.log(`Shooting requests against: ${url}`);
+      console.log(`Shooting requests against: ${url}`);
       const res = http.get(url, params, { tags: { name: 'PreSignedURL' } });
       // console.log(`Request performed: ${new Date()}`);
       myFailRate.add(res.status !== 200);
