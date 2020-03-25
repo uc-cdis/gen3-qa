@@ -63,7 +63,8 @@ echo "Leaf node set to: $leafNode"
 # try to trick pip into working in the WORKSPACE
 #
 export HOME="${WORKSPACE:-$HOME}"
-pip3 install --user -r requirements.txt
+/usr/bin/pip3 install cdislogging
+/usr/bin/pip3 install --user -r requirements.txt
 #python setup.py develop --user
 
 # Fail script if any of following commands fail
