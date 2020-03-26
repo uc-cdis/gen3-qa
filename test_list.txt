@@ -100,6 +100,12 @@ PresignedUrlAPI -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/apis/p
   ☐ get presigned-url with protocol not exist for file
   ☐ get presigned-url no data
   ☐ get presigned-url no requested protocol, no data
+DrsAPI -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/apis/drsEndpointsTest.js
+  ☐ get drs object
+  ☐ get drs no record find
+  ☐ get drs presigned-url
+  ☐ get drs invalid access id 
+  ☐ get drs presigned-url no auth header
 UserTokenAPI -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/apis/userTokenTest.js
   ☐ test create APIKey success
   ☐ create APIKey with expired access token

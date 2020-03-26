@@ -14,6 +14,7 @@
     "url": "https://github.com/uc-cdis/auto-qa/issues"
   },
   "devDependencies": {
+    "@elastic/elasticsearch": "^7.6.1",
     "@google-cloud/storage": "^4.3.0",
     "atob": "^2.1.2",
     "babel-eslint": "^10.0.3",

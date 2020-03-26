@@ -46,7 +46,7 @@ async function runLoadTestScenario() {
   // TODO: Move the custom args parsing to a separate utils script
   let listOfDIDs = null;
   if (customArgs === 'random-guids') {
-    listOfDIDs = await fetchDIDList(targetEnvironment, testDescriptorData.indexd_record_url)
+    listOfDIDs = await fetchDIDList(targetEnvironment, testDescriptorData.indexd_record_acl)
       .then(async (records) => {
         const dids = [];
         await records.forEach((record) => {
@@ -54,7 +54,7 @@ async function runLoadTestScenario() {
         });
         return dids;
       }).catch((reason) => {
-        console.log(`Failed: ${reason.status} - ${reason.statusText}`);
+        console.log(`Failed: ${JSON.stringify(reason)}`);
         process.exit(1);
       });
   } else {

@@ -80,6 +80,12 @@ UserTokenAPI -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/apis/user
   ☐ refresh access token with apiKey
   ☐ refresh access token with invalid apiKey
   ☐ refresh access token without apiKey
+DrsAPI -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/apis/drsEndpointsTest.js
+  ☐ get drs object
+  ☐ get drs no record find
+  ☐ get drs presigned-url
+  ☐ get drs invalid access id 
+  ☐ get drs presigned-url no auth header
 Dream Challenge gen3-client Test -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/dream-challenge/DCgen3clientTest.js
 Synapse Login -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/dream-challenge/synapaseLoginTest.js
 Gen3-dataclient -- /Users/haraprasadjuvvala/workspace/gen3/gen3-qa/suites/gen3-client/gen3clientTest.js
