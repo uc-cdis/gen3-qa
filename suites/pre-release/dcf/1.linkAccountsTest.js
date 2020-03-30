@@ -106,6 +106,7 @@ Scenario('Unlink Google identity from the NIH user @manual', ifInteractive(
 
 performAdjustExpDateTest('negative');
 
+// Google login is not enabled for DCF
 // Scenario #5 - Link Google account with the NIH user again
 // to support the next features in the sequence
-linkGoogleAccount();
+// linkGoogleAccount();

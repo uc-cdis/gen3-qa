@@ -251,15 +251,20 @@ module.exports = {
    * @param {string} question_text - Text describing what piece of information the user should provide
    * @returns {string}
    */
-  requestUserInput(question_text) {
+  requestUserInput(question_text, defaultValue = null) {
     return new Promise((resolve) => {
       const rl = readline.createInterface({
-	    input: process.stdin,
-	    output: process.stdout,
+        input: process.stdin,
+        output: process.stdout,
       });
-      rl.question(question_text, (user_input) => {
-	    rl.close();
-	    resolve(user_input);
+      theQuestion = defaultValue ? `${question_text} (${defaultValue})` : question_text;
+      rl.question(theQuestion, (user_input) => {
+        rl.close();
+        if (user_input.length > 0) {
+          resolve(user_input);
+        } else {
+          resolve(defaultValue)
+        }
       });
     });
   },

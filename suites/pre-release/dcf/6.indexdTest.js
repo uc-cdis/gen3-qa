@@ -1,18 +1,16 @@
 // Feature # 6 in the sequence of testing
 // This test plan has a few pre-requisites: Check prereq.md for more details.
-Feature('1. IndexD - DCF Staging testing for release sign off - PXP-3836');
+Feature('6. IndexD - DCF Staging testing for release sign off - PXP-3836');
 
 // To be executed with GEN3_SKIP_PROJ_SETUP=true
 // No need to set up program / retrieve access token, etc.
 
-const chai = require('chai');
+const { expect } = require('chai');
 const indexdProps = require('../../../services/apis/indexd/indexdProps.js');
 const { interactive, ifInteractive } = require('../../../utils/interactive.js');
 const {
   Gen3Response, getAccessTokenHeader, requestUserInput,
 } = require('../../../utils/apiUtil');
-
-const { expect } = chai.expect; // eslint-disable-line no-redeclare
 
 // Test elaborated for nci-crdc but it can be reused in other projects
 const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'nci-crdc-staging.datacommons.io';
@@ -61,7 +59,7 @@ Scenario('Get controlled data record @manual', ifInteractive(
       { Authorization: `bearer ${I.cache.ACCESS_TOKEN}` },
     ).then((res) => new Gen3Response(res));
 
-    const projectAccessList = userHttpResp.body.projectAccess;
+    const projectAccessList = userHttpResp.body.project_access;
     const projectAccess = Object.keys(projectAccessList)[0];
 
     // Fetching list of DIDs matching one of the ACLs from the user
@@ -82,7 +80,6 @@ Scenario('Get controlled data record @manual', ifInteractive(
               HTTP GET request to: https://${TARGET_ENVIRONMENT}${indexdProps.endpoints.get}/${guid}
 
               Manual verification:
-                Response status: ${httpResp.status} // Expect a HTTP 200
                 Response data: ${JSON.stringify(httpResp)}
               // Expect response containing the index record details
             `);

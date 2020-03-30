@@ -1,18 +1,16 @@
 /*eslint-disable */
 // Feature # 5 in the sequence of testing
 // This test plan has a few pre-requisites: Check prereq.md for more details.
-Feature('1. OIDC Flow - DCF Staging testing for release sign off - PXP-3836');
+Feature('5. OIDC Flow - DCF Staging testing for release sign off - PXP-3836');
 
 // To be executed with GEN3_SKIP_PROJ_SETUP=true
 // No need to set up program / retrieve access token, etc.
 
-const chai = require('chai');
+const { expect } = require('chai');
 const { interactive, ifInteractive } = require('../../../utils/interactive.js');
 const {
   Gen3Response, requestUserInput,
 } = require('../../../utils/apiUtil');
-
-const { expect } = chai.expect; // eslint-disable-line no-redeclare
 
 // Test elaborated for nci-crdc but it can be reused in other projects
 const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'nci-crdc-staging.datacommons.io';

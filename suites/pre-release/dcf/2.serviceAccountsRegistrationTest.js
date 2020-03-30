@@ -5,45 +5,40 @@ Feature('2. Service accounts registration - DCF Staging testing for release sign
 // To be executed with GEN3_SKIP_PROJ_SETUP=true
 // No need to set up program / retrieve access token, etc.
 
-const chai = require('chai');
+const { expect } = require('chai');
 const fenceProps = require('../../../services/apis/fence/fenceProps.js');
 const { interactive, ifInteractive } = require('../../../utils/interactive.js');
 const {
   getAccessTokenHeader, requestUserInput,
 } = require('../../../utils/apiUtil');
 
-const { expect } = chai.expect; // eslint-disable-line no-redeclare
-
 // Test elaborated for nci-crdc but it can be reused in other projects
 const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'nci-crdc-staging.datacommons.io';
 
-function collectUserInput(I) {
-  return new Promise((resolve) => {
-    // Collect all the user input just once and reuse this data in the next scenarios
-    if (!I.cache) {
-      const ACCESS_TOKEN = requestUserInput('Please provide your ACCESS_TOKEN: ');
-      // getAccessTokenFromExecutableTest(I); // Something wrong with the audience here...
-      I.cache = {
-        // set a userAcct obj with an "accessTokenHeader" property
-        // to use Gen3-qa's Fence testing API
-        userAcct: { accessTokenHeader: getAccessTokenHeader(ACCESS_TOKEN) },
-        // set a googleProject obj with "serviceAccountEmail" and "id"
-        // to use Gen3-qa's Fence testing API
-        googleProject: {
-          // e.g., dcf-testing-sa@dcf-testing-staging.iam.gserviceaccount.com
-          serviceAccountEmail: requestUserInput('Please provide the service account email address:'),
-          // e.g., dcf-testing-staging
-          id: requestUserInput('Please provide the id of the Google project:'),
-        },
-      };
-      // TODO: Should we allow the user to input
-      // multiple project_access names (ACLs/DbGap prj names) ?
-      // e.g., phs000123
-      const prj = requestUserInput('Please provide at least one project name to grant project access:');
-      I.cache.projectAccessList = [prj];
-    }
-    resolve(I.cache);
-  });
+async function collectUserInput(I) {
+  // Collect all the user input just once and reuse this data in the next scenarios
+  if (!I.cache) {
+    const ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
+    // getAccessTokenFromExecutableTest(I); // Something wrong with the audience here...
+    I.cache = {
+      // set a userAcct obj with an "accessTokenHeader" property
+      // to use Gen3-qa's Fence testing API
+      userAcct: { accessTokenHeader: getAccessTokenHeader(ACCESS_TOKEN) },
+      // set a googleProject obj with "serviceAccountEmail" and "id"
+      // to use Gen3-qa's Fence testing API
+      googleProject: {
+        // e.g., dcf-test-auto-qa@dcf-testing-staging.iam.gserviceaccount.com
+        serviceAccountEmail: await requestUserInput('Please provide the service account email address:', 'dcf-test-auto-qa@dcf-testing-staging.iam.gserviceaccount.com'),
+        // e.g., dcf-testing-staging
+        id: await requestUserInput('Please provide the id of the Google project:', 'dcf-testing-staging'),
+      },
+    };
+    // TODO: Should we allow the user to input
+    // multiple project_access names (ACLs/DbGap prj names) ?
+    // e.g., phs000123
+    const prj = await requestUserInput('Please provide at least one project name to grant project access:', 'phs000178');
+    I.cache.projectAccessList = [prj];
+  }
 }
 
 function performSvcAcctRegistrationTest(typeOfTest, testInstructions) {
@@ -62,9 +57,9 @@ function performSvcAcctRegistrationTest(typeOfTest, testInstructions) {
               1. [Automated] Send a HTTP POST request with the NIH user's ACCESS TOKEN to register a service account:
               HTTP POST request to: https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.registerGoogleServiceAccount}${typeOfTest !== 'dry_run_registration' ? '' : '/_dry_run'}
               Manual verification:
-                Response status: ${httpResp.status} // Expect a HTTP ${testInstructions.expected_status}
-                Response data: ${JSON.stringify(httpResp.body) || httpResp.parsedFenceError} 
-                // Expect ${testInstructions.expected_response}
+                Response status: ${httpResp.status} // Expect a HTTP ${testInstructions.expectedStatus}
+                Response data: ${JSON.stringify(httpResp.body) || httpResp.parsedFenceError}
+                // Expect ${testInstructions.expectedResponse}
       `);
       expect(result.didPass, result.details).to.be.true;
     },
@@ -86,9 +81,9 @@ function performSvcAcctUpdateTest(typeOfTest, testInstructions) {
               1. [Automated] Send a HTTP PATCH request with the NIH user's ACCESS TOKEN to update the project access for svc acct: ${I.cache.googleProject.serviceAccountEmail}.
               HTTP PATCH request to: https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.updateGoogleServiceAccount}${typeOfTest !== 'dry_run' ? '' : '/_dry_run'}/${typeOfTest !== 'patch_unregistered_acc' ? I.cache.googleProject.serviceAccountEmail : 'whatever@invalid.iam.gserviceaccount.com'}
               Manual verification:
-                Response status: ${httpResp.status} // Expect a HTTP ${testInstructions.expected_status}
+                Response status: ${httpResp.status} // Expect a HTTP ${testInstructions.expectedStatus}
                 Response data: ${JSON.stringify(httpResp.body) || httpResp.parsedFenceError}
-                // Expect ${testInstructions.expected_response}
+                // Expect ${testInstructions.expectedResponse}
             `);
       expect(result.didPass, result.details).to.be.true;
     },
@@ -233,6 +228,6 @@ Scenario('Delete existing service account @manual', ifInteractive(
 
 // Scenario #13 - Register account again to support next steps
 performSvcAcctRegistrationTest('validSvcAccount', {
-  expected_status: 200,
-  expected_response: 'service account registration details (service_account_email, google_project_id and project_access)',
+  expectedStatus: 200,
+  expectedResponse: 'service account registration details (service_account_email, google_project_id and project_access)',
 });
