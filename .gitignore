@@ -10,3 +10,4 @@ local_vars.txt
 google_creds.sh
 tmp_creds.json
 
+load-testing/libs
