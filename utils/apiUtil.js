@@ -343,7 +343,7 @@ module.exports = {
 
   getHomePageDetails(detail) {
     const detailsMap = {
-      'default': {
+      '': {
         'summary': {
           css: '.introduction',
         },
@@ -351,7 +351,7 @@ module.exports = {
           css: '.index-button-bar__thumbnail-button',
         },
       },
-      'covid19.datacommons.io': {
+      'covid19': {
         'summary': {
           css: '.covid19-dashboard',
         },
@@ -361,7 +361,8 @@ module.exports = {
       }
     }
     console.log(`#### hostname:${process.env.testedEnv}`);
-    return detailsMap[process.env.testedEnv] ? detailsMap[process.env.testedEnv][detail] : detailsMap['default'][detail]
+    detailKey = Object.keys(detailsMap).filter(k => process.env.testedEnv.includes(k)).join('')
+    return detailsMap[detailKey]
   },
 
   /**
