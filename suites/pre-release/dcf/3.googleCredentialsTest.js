@@ -5,14 +5,12 @@ Feature('3. Google Credentials - DCF Staging testing for release sign off - PXP-
 // To be executed with GEN3_SKIP_PROJ_SETUP=true
 // No need to set up program / retrieve access token, etc.
 
-const chai = require('chai');
+const { expect } = require('chai');
 const fenceProps = require('../../../services/apis/fence/fenceProps.js');
 const { interactive, ifInteractive } = require('../../../utils/interactive.js');
 const {
   getAccessTokenHeader, requestUserInput,
 } = require('../../../utils/apiUtil');
-
-const { expect } = chai;
 
 // Test elaborated for nci-crdc but it can be reused in other projects
 const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'nci-crdc-staging.datacommons.io';

@@ -5,13 +5,11 @@ Feature('4. PreSigned URLs - DCF Staging testing for release sign off - PXP-3836
 // To be executed with GEN3_SKIP_PROJ_SETUP=true
 // No need to set up program / retrieve access token, etc.
 
-const chai = require('chai');
+const { expect } = require('chai');
 const { interactive, ifInteractive } = require('../../../utils/interactive.js');
 const {
   Gen3Response, requestUserInput,
 } = require('../../../utils/apiUtil');
-
-const { expect } = chai.expect; // eslint-disable-line no-redeclare
 
 // Test elaborated for nci-crdc but it can be reused in other projects
 const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'nci-crdc-staging.datacommons.io';
@@ -30,48 +28,45 @@ function assembleCustomHeaders(ACCESS_TOKEN) {
 // TODO: Verify better approach to find DIDs for positive and negative tests based
 // on the "/index?acl=<acl>" API call
 
-function fetchDIDLists(I) {
+async function fetchDIDLists(I) {
   // Only assemble the didList if the list hasn't been initialized
-  return new Promise((resolve) => {
-    if (!I.didList) {
-      const httpResp = I.sendGetRequest(
-        `https://${TARGET_ENVIRONMENT}/user/user`,
-        { Authorization: `bearer ${I.cache.ACCESS_TOKEN}` },
-      ).then((res) => new Gen3Response(res));
+  if (!I.didList) {
+    const httpResp = await I.sendGetRequest(
+      `https://${TARGET_ENVIRONMENT}/user/user`,
+      { Authorization: `bearer ${I.cache.ACCESS_TOKEN}` },
+    ).then((res) => new Gen3Response(res));
 
-      const projectAccessList = httpResp.body.project_access;
+    const projectAccessList = httpResp.body.project_access;
 
-      // initialize dict of accessible DIDs
-      let ok200files = {}; // eslint-disable-line prefer-const
-      // initialize dict of blocked DIDs
-      let unauthorized401files = {}; // eslint-disable-line prefer-const
+    // initialize dict of accessible DIDs
+    let ok200files = {}; // eslint-disable-line prefer-const
+    // initialize dict of blocked DIDs
+    let unauthorized401files = {}; // eslint-disable-line prefer-const
 
-      // adding record DIDs to their corresponding ACL key
-      // ( I.cache.records is created in BeforeSuite() )
-      I.cache.records.forEach((record) => {
-        // console.log('ACLs for ' + record['did'] + ' - ' + record['acl']);
-        // Filtering accessible DIDs by checking if the record acl is in the project access list
-        const accessibleDid = record.acl.filter(
-          (acl) => projectAccessList.hasOwnProperty(acl) || record.acl === '*', // eslint-disable-line no-prototype-builtins
-        );
+    // adding record DIDs to their corresponding ACL key
+    // ( I.cache.records is created in BeforeSuite() )
+    I.cache.records.forEach((record) => {
+      // console.log('ACLs for ' + record['did'] + ' - ' + record['acl']);
+      // Filtering accessible DIDs by checking if the record acl is in the project access list
+      const accessibleDid = record.acl.filter(
+        (acl) => projectAccessList.hasOwnProperty(acl) || record.acl === '*', // eslint-disable-line no-prototype-builtins
+      );
 
-        // Put DIDs urls and md5 hash into their respective lists (200 or 401)
-        const theFiles = accessibleDid.length > 0 ? ok200files : unauthorized401files;
-        theFiles[record.did] = { urls: record.urls, md5: record.md5 };
-      });
-
-      console.log(`http 200 files: ${JSON.stringify(ok200files)}`);
-      console.log(`http 401 files: ${JSON.stringify(unauthorized401files)}`);
-
-      I.didList = {};
-      I.didList.accessGrantedFiles = ok200files;
-      I.didList.accessDeniedFiles = unauthorized401files;
-    }
-    resolve({
-      ok200files: I.didList.accessGrantedFiles,
-      unauthorized401files: I.didList.accessDeniedFiles,
+      // Put DIDs urls and md5 hash into their respective lists (200 or 401)
+      const theFiles = accessibleDid.length > 0 ? ok200files : unauthorized401files;
+      theFiles[record.did] = { urls: record.urls, md5: record.md5 };
     });
-  });
+
+    console.log(`http 200 files: ${JSON.stringify(ok200files)}`);
+    console.log(`http 401 files: ${JSON.stringify(unauthorized401files)}`);
+
+    I.didList = {};
+    I.didList.ok200files = ok200files;
+    I.didList.unauthorized401files = unauthorized401files;
+
+    return I.didList;
+  }
+  return I.didList;
 }
 
 function performPreSignedURLTest(cloudProvider, typeOfTest, typeOfCreds) {
