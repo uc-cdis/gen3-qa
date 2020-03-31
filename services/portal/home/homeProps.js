@@ -1,3 +1,5 @@
+const { getHomePageDetails } = require('../../../utils/apiUtil');
+
 /**
  * home Properties
  */
@@ -13,15 +15,11 @@ module.exports = {
   // Page elements
 
   summary: {
-    locator: {
-      css: '.introduction',
-    },
+    locator: getHomePageDetails('summary'),
   },
 
   cards: {
-    locator: {
-      css: '.index-button-bar__thumbnail-button',
-    },
+    locator: getHomePageDetails('cards'),
   },
 
   googleLoginButton: {

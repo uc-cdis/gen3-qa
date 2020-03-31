@@ -341,6 +341,29 @@ module.exports = {
     return JSON.parse(atob(base64));
   },
 
+  getHomePageDetails(detail) {
+    const detailsMap = {
+      'default': {
+        'summary': {
+          css: '.introduction',
+        },
+        'cards': {
+          css: '.index-button-bar__thumbnail-button',
+        },
+      },
+      'covid19.datacommons.io': {
+        'summary': {
+          css: '.covid19-dashboard',
+        },
+        'cards': {
+          css: '.map-chart',
+        },
+      }
+    }
+    console.log(`#### hostname:${process.env.testedEnv}`);
+    return detailsMap[process.env.testedEnv] ? detailsMap[process.env.testedEnv][detail] : detailsMap['default'][detail]
+  },
+
   /**
    * Wrapper for API responses
    */
