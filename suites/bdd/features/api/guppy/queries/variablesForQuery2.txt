@@ -1,0 +1,7 @@
+{
+  nestedAggFields: {
+    missingFields: [
+      PatientMeansTest.Income
+    ]
+  }
+}
