@@ -1,0 +1,18 @@
+{
+  "aggs": {
+    "Patients": {
+      "terms": {
+        "field": "Chicago_ID",
+        "size": 10
+      },
+      "aggs": {
+        "Means": {
+          "terms": {
+            "field": "PatientMeansTest.Income",
+            "size": 10
+          }
+        }
+      }
+    }
+  }
+}

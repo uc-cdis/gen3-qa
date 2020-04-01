@@ -1,0 +1,18 @@
+query ($nestedAggFields: JSON) {
+    _aggregation {
+    patients (nestedAggFields: $nestedAggFields) {
+      ChicagoID {
+        histogram {
+          key
+          count
+          termsFields {
+            field
+            terms {
+              key
+              count
+            }
+          }
+        }
+      }
+    }
+  }

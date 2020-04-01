@@ -1,0 +1,17 @@
+{
+  "aggs": {
+    "Projects": {
+      "terms": {
+        "field": "project_id",
+        "size": 35
+      },
+      "aggs": {
+        "Missing": {
+          "missing": {
+            "field": "nonExistingField"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  nestedAggFields: {
+    termsFields: [
+      PatientMeansTest.Income,
+      invalidField
+    ],
+    missingFields: [
+      PatientMeansTest.DaysFromAnchorDateToMeansTestDate,
+      anotherInvalidField
+    ]
+  }
+}
