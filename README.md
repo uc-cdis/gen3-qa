@@ -134,7 +134,7 @@ In setup, these values will be read and exported to environment variables before
 ## Local
 After cloning this repo, get the required packages by running `npm install`.
 ### Selenium
-To automate web browser actions, CodeceptJS requires a Selenium webserver. You have two options here: Docker or npm. Note that for both methods, you can visit `localhost:4444/wd/hub/sessions` to see current Selenium session/check that the server is running.
+To automate web browser actions, CodeceptJS requires a Selenium webserver. You have two options here: Docker or npm. Note that for both methods, you can visit `localhost:4444/session` to see current Selenium session/check that the server is running.
 #### Docker ([link](https://github.com/SeleniumHQ/docker-selenium))
 If you have docker, you can just run the preconfigured container
 ```
