@@ -6,13 +6,13 @@
     "dbgap_sample_id": "{{int 10000 50000 '00000'}}",
     "sra_sample_id": "SR{{int 10000 50000 '00000'}}",
     "submitted_subject_id": "{{int 0 99999 '00000'}}",
-    "study_subject_id": "phs{{int 0 999999 '000000'}}.v{{int 0 99999 '0_0000'}}"
+    "study_subject_id": "phs{{int 0 999999 '000000'}}.v{{int 0 99999 '0_0000'}}",
     "dbgap_subject_id": "{{int 0 9999999 '0000000'}}",
     "consent_code": "{{int 1 4 '0'}}",
     "consent_short_name": "GRU",
     "sex": "{{ gender }}",
-    "body_site": "Blood",               // unsure if this is always available 
-    "analyte_type": "DNA",              // unsure if this is always available 
+    "body_site": "Blood",
+    "analyte_type": "DNA",
     "sample_use": ["Seq_DNA_SNP_CNV", "WGS"],
     "repository": "NCI_CRC_Susceptibility",
     "dbgap_status": "Loaded",
@@ -26,12 +26,12 @@
       "platform": "ILLUMINA",
       "center": "NCI-phs001554"
     },
-    "study": "phs001554",                                 // additional field
-    "study_with_consent": "phs001554.c1",                 // additional field
-    "study_accession": "phs001554.v1.p1",                 // additional field
-    "study_accession_with_consent": "phs001554.v1.p1.c1", // additional field
+    "study": "phs001554",
+    "study_with_consent": "phs001554.c1",
+    "study_accession": "phs001554.v1.p1",
+    "study_accession_with_consent": "phs001554.v1.p1.c1"
   },
-  "\{\{non dbgap data source\}\}": {
-    "key": "value",
+  "<non dbgap data source>": {
+    "key": "value"
   }
 }
