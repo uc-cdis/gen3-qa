@@ -12,7 +12,7 @@ sheepdog="${commons_url}/api/_status"
 peregrine="${commons_url}/peregrine/_status"
 portal="${commons_url}/"
 fence="${commons_url}/user/jwt/keys"
-selenium="localhost:4444/wd/hub/sessions"
+selenium="localhost:4444/status"
 health_endpoints=( $sheepdog $peregrine $portal $fence $selenium )
 
 exit_code=0

@@ -8,6 +8,7 @@ exports.config = {
   output: './output',
   helpers: {
     WebDriver: {
+      path: '',
       url: `https://${process.env.HOSTNAME}`,
       smartWait: 5000,
       browser: 'chrome',
