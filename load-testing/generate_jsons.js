@@ -1,7 +1,7 @@
+const dummyjson = require('./libs/dummy-json.js');
 var fs = require('fs');
-var dummyjson = require('dummy-json');
 
-var template = fs.readFileSync('metadata-service/dummy-jsons/template-simple.hbs', {encoding: 'utf8'});
+var template = fs.readFileSync('load-testing/metadata-service/templates/template-simple.hbs', {encoding: 'utf8'});
 
 guid_types = ['indexed_file_object', 'metadata_object']
 genders = ['Male', 'Female']

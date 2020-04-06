@@ -11,3 +11,4 @@ google_creds.sh
 tmp_creds.json
 
 load-testing/libs
+load-testing/tmp
