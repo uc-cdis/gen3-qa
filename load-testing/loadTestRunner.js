@@ -61,6 +61,9 @@ async function runLoadTestScenario() {
   // Set fixed list of args for the load test run
   const loadTestArgs = ['-e', `GEN3_HOST=${targetEnvironment}`, '-e', `ACCESS_TOKEN=${token}`, '-e', `VIRTUAL_USERS="${JSON.stringify(testDescriptorData.virtual_users)}"`, '--out', 'influxdb=http://localhost:8086/db0', `load-testing/${targetService}/${loadTestScenario}.js`];
 
+  // for additional debugging include the arg below
+  // '--http-debug="full"'];
+
   // Expand load test args based on special flags
   // TODO: Move the custom args parsing to a separate utils script
   let listOfDIDs = null;

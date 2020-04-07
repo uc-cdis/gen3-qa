@@ -4,8 +4,10 @@ const { check, group, sleep } = require('k6'); // eslint-disable-line import/no-
 const http = require('k6/http'); // eslint-disable-line import/no-unresolved
 const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresolved
 
+// declare mutable ACCESS_TOKEN
+let { ACCESS_TOKEN } = __ENV; // eslint-disable-line no-undef
+
 const {
-  ACCESS_TOKEN,
   NUM_OF_JSONS,
   API_KEY,
   GEN3_HOST,
@@ -34,41 +36,67 @@ export const options = {
 export default function () {
   console.log(`num of jsons in the list: ${jsons.length}`);
   const apiKey = API_KEY.slice(1, -1);
-  console.log(`apiKey: ${apiKey}`);
+  const accessToken = ACCESS_TOKEN;
+
+  console.log(`accessToken: ${accessToken}`);
 
   const jsonIndex = __ITER; // eslint-disable-line no-undef
   console.log(`jsonIndex: ${jsonIndex}`);
 
-  const baseUrl = `https://${GEN3_HOST}/mds/metadata`;
+  const baseUrl = `https://${GEN3_HOST}/mds-admin/metadata`;
 
   // obtain random guid
   const aGuid = uuid.v4();
 
-  const url1 = `${baseUrl}/${guid1}`;
+  const url = `${baseUrl}/${aGuid}`;
 
   const params = {
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${ACCESS_TOKEN}`,
+      Authorization: `Bearer ${accessToken}`,
     },
   };
 
-  
+  const jsonData = jsons[jsonIndex];
+  // console.log(`data: ${jsonData}`);
 
   group('Populating the MDS database', () => {
     group('create record in MDS', () => {
-      console.log(`sending POST req to: https://${GEN3_HOST}/mds/metadata`);
-      const res = http.post(url1, body1, params, { tags: { name: 'createRecord1' } });
-      const res = http.get(`https://${GEN3_HOST}/mds/metadata`, params, { tags: { name: 'createRecord1' } });
-      // console.log(`Request performed: ${new Date()}`);
-      myFailRate.add(res.status !== 200);
-      if (res.status !== 200) {
+      console.log(`sending POST req to: ${url}`);
+      const res = http.post(url, jsonData, params, { tags: { name: 'createRecord1' } });
+
+      // If the ACCESS_TOKEN expires, renew it with the apiKey
+      if (res.status === 401) {
+        console.log('renewing access token!!!');
         console.log(`Request response: ${res.status}`);
         console.log(`Request response: ${res.body}`);
+
+        const tokenRenewalUrl = `https://${GEN3_HOST}/user/credentials/cdis/access_token`;
+
+        const tokenRenewalParams = {
+          headers: {
+            'Content-Type': 'application/json',
+            accept: 'application/json',
+          },
+        };
+        const tokenRenewalData = JSON.stringify({
+          api_key: apiKey,
+        });
+        const renewalRes = http.post(tokenRenewalUrl, tokenRenewalData, tokenRenewalParams, { tags: { name: 'renewingToken1' } });
+        ACCESS_TOKEN = JSON.parse(renewalRes.body).access_token;
+
+        console.log(`NEW ACCESS TOKEN!: ${ACCESS_TOKEN}`);
+      } else {
+        // console.log(`Request performed: ${new Date()}`);
+        myFailRate.add(res.status !== 201);
+        if (res.status !== 201) {
+          console.log(`Request response: ${res.status}`);
+          console.log(`Request response: ${res.body}`);
+        }
+        check(res, {
+          'is status 201': (r) => r.status === 201,
+        });
       }
-      check(res, {
-        'is status 200': (r) => r.status === 200,
-      });
     });
     group('wait 0.3s between requests', () => {
       sleep(0.3);
