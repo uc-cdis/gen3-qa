@@ -53,17 +53,17 @@ BeforeSuite(async (indexd) => {
   expect(ok).to.be.true;
 });
 
-Scenario('get drs object', async (drs) => {
+Scenario('get drs object @drs', async (drs) => {
   const drsObject = await drs.do.getDrsObject(files.allowed);
   await drs.complete.checkFile(drsObject);
 });
 
-Scenario('get drs no record found', async (drs) => {
+Scenario('get drs no record found @drs', async (drs) => {
   const drsObject = await drs.do.getDrsObject(files.not_allowed);
   await drs.complete.checkRecordExists(drsObject);
 });
 
-Scenario('get drs presigned-url-s3', async (drs, fence) => {
+Scenario('get drs presigned-url-s3 @drs', async (drs, fence) => {
   const signedUrlRes = await drs.do.getDrsSignedUrl(files.allowed);
   await fence.complete.checkFileEquals(
     signedUrlRes,
@@ -71,7 +71,7 @@ Scenario('get drs presigned-url-s3', async (drs, fence) => {
   );
 });
 
-Scenario('get drs presigned-url-gs', async (drs, fence) => {
+Scenario('get drs presigned-url-gs @drs', async (drs, fence) => {
   const signedUrlRes = await drs.do.getDrsSignedUrl(files.googleAllowed);
   await fence.complete.checkFileEquals(
     signedUrlRes,
@@ -79,12 +79,12 @@ Scenario('get drs presigned-url-gs', async (drs, fence) => {
   );
 });
 
-Scenario('get drs invalid access id', async (drs, fence) => {
+Scenario('get drs invalid access id @drs', async (drs, fence) => {
   const signedUrlRes = await drs.do.createSignedUrl(files.invalid_protocol);
   await fence.ask.responsesEqual(signedUrlRes, drs.props.resInvalidFileProtocol);
 });
 
-Scenario('get drs presigned-url no auth header', async (drs, fence) => {
+Scenario('get drs presigned-url no auth header @drs', async (drs, fence) => {
   const signedUrlRes = await drs.do.getDrsSignedUrlWithoutHeader(files.allowed);
   fence.ask.responsesEqual(signedUrlRes, drs.props.noAccessToken);
 });
