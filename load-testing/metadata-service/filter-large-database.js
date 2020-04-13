@@ -40,7 +40,7 @@ export default function () {
 
   console.log(`accessToken: ${accessToken}`);
 
-  const jsonIndex = __ITER; // eslint-disable-line no-undef
+  const jsonIndex = __ITER % numOfJsons; // eslint-disable-line no-undef
   console.log(`jsonIndex: ${jsonIndex}`);
 
   const baseUrl = `https://${GEN3_HOST}/mds-admin/metadata`;
@@ -88,6 +88,7 @@ export default function () {
         console.log(`NEW ACCESS TOKEN!: ${ACCESS_TOKEN}`);
       } else {
         // console.log(`Request performed: ${new Date()}`);
+        console.log(`Request response: ${res.status}`);
         myFailRate.add(res.status !== 201);
         if (res.status !== 201) {
           console.log(`Request response: ${res.status}`);
