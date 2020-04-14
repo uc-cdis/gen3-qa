@@ -1,5 +1,5 @@
 /*eslint-disable */
-Feature('GoogleDataAccess').retry(2);
+Feature('GoogleDataAccess');
 /*
 Test a full flow for a user accessing data on Google. Also test that when permissions
 change on the User Access file, the user's access to data on Google changes correctly.
@@ -299,7 +299,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     chai.expect(deleteServiceAccount0Res,
       'Cleanup of Google service account for User 0 FAILED.').to.be.empty;
   }
-).retry(2);
+).retry(1);
 
 Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle @googleDataAccess',
   async (fence, users, google, files) => {
@@ -488,7 +488,7 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
     chai.expect(deleteServiceAccount1Res,
       'Cleanup of Google service account for User 1 FAILED.').to.be.empty;
   }
-).retry(2);
+).retry(1);
 
 Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle @googleDataAccess',
   async (fence, users, google, files) => {
@@ -651,4 +651,4 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
     chai.expect(deleteServiceAccount2Res,
       'Cleanup of Google service account for User 2 FAILED.').to.be.empty;
   }
-).retry(2);
+).retry(1);
