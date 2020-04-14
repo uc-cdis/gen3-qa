@@ -1,5 +1,5 @@
 {
-  "type": "case",
+  "type": "subject",
   "fields": [ 
     "project_id",
     "gender",
@@ -19,20 +19,21 @@
     "submitter_id"
   ],
   "sort": [
-    { "bmi": "asc" }
+    { "primary_site": "asc" }
   ],
   "filter": {
     "AND": [
       {
         "<": {
-          "age_at_index": 30
+          "_mRNA_microarrays_count": 30
         } 
       }, 
       {
         "=": {
-          "stroke": "Yes"
+          "project_id": "Canine-NHGRI"
         }
       }
     ]
   }
+
 }

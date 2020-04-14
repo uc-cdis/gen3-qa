@@ -1,9 +1,9 @@
 {
     "query": "query {
         _aggregation {
-            case {
-                age_at_index {
-                    histogram(rangeStart: 0, rangeEnd: 100, rangeStep: 29) {
+            subject {
+              _aliquots_count {
+                    histogram(rangeStart: 0, rangeEnd: 100, rangeStep: 5) {
                         key
                         min
                         max

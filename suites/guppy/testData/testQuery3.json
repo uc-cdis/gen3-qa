@@ -1,8 +1,8 @@
 {
   "query": "query {
     _aggregation {
-      case {
-        stroke {
+      subject {
+        disease_type {
           histogram {
             key
             count
