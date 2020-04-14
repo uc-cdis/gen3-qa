@@ -7,6 +7,7 @@ module.exports = function () {
     console.log(`TEST: ${test.title}`);
     console.log(`RESULT: ${test.state}`);
     console.log(`RETRIES: ${test.retryNum}`);
+    console.log(`TIMESTAMP: ${new Date()}`);
     console.log('********');
   });
 
