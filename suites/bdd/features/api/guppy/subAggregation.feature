@@ -1,13 +1,10 @@
-Feature: Nested Aggregation in Guppy
+Feature: Sub Aggregation (Terms and Missing Aggregation) in Guppy
 
-    JIRA: https://ctds-planx.atlassian.net/browse/PXP-4737
-    Github Docs: https://github.com/uc-cdis/guppy/blob/master/doc/queries.md#4-nested-aggregation
-    Google Docs: https://docs.google.com/document/d/1T622ny7U960_pUWDguyfx4EQ-gEdboaR5-RgeD3OwAQ/
-
-    The queries have been designed against index etl_mickey_1 which contains nested data
+    JIRA: https://ctds-planx.atlassian.net/browse/PXP-3485
+    Github Docs: https://github.com/uc-cdis/guppy/blob/master/doc/queries.md#aggs-sub
 
     @manual
-    Scenario Outline: Nested aggregation tests
+    Scenario Outline: Sub aggregations (terms and missing aggregations) tests
         Given guppy is configured in the commons @manual
         # ensure manifest.json and gitops.json are configured correctly
         And the user navigates to the query page @manual
