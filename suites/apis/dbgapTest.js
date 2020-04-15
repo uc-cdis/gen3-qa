@@ -100,9 +100,15 @@ const new_dbgap_records = {
 };
 
 BeforeSuite(async (fence, users, indexd) => {
-  console.log('Removing test indexd records if they exist');
-  await indexd.do.deleteFileIndices(Object.values(indexed_files));
-  await indexd.do.deleteFileIndices(Object.values(new_dbgap_records));
+  console.log('Removing indexd records if they exist');
+  const listOfIndexdRecords = await I.sendGetRequest(
+    `${indexd.props.endpoints.get}`,
+  ).then((res) => new Gen3Response(res));
+
+  listOfIndexdRecords.data.records.forEach(async (record) => {
+    console.log(record.did);
+    await indexd.do.deleteFile({ did: record.did });
+  });
 
   console.log('Adding indexd files used to test signed urls');
   const ok = await indexd.do.addFileIndices(Object.values(indexed_files));
@@ -114,6 +120,8 @@ BeforeSuite(async (fence, users, indexd) => {
   console.log(`start time: ${Math.floor(Date.now() / 1000)}`);
   bash.runJob('usersync', args = 'FORCE true ONLY_DBGAP true');
   console.log(`end time: ${Math.floor(Date.now() / 1000)}`);
+
+  await apiUtil.sleepMS(10 * 1000);
 
   // Google signed urls are testing for dbgap syncing as well, link phs ids to
   // existing buckets
@@ -139,6 +147,8 @@ AfterSuite(async (fence, indexd, users) => {
   console.log(`start time: ${Math.floor(Date.now() / 1000)}`);
   bash.runJob('usersync', args = 'FORCE true');
   console.log(`end time: ${Math.floor(Date.now() / 1000)}`);
+
+  await apiUtil.sleepMS(10 * 1000);
 });
 
 Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try creating urls to upload @dbgapSyncing @reqGoogle',
@@ -155,6 +165,8 @@ Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try crea
       indexed_files.phs000178File.did, ['protocol=gs'],
       users.mainAcct.accessTokenHeader,
     );
+
+    await apiUtil.sleepMS(5 * 1000);
 
     let phs000178s3FileContents = null;
     let phs000178gsFileContents = null;
@@ -206,7 +218,7 @@ Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try crea
       indexed_files.anotherPhs000179File.did, ['protocol=gs'],
       users.mainAcct.accessTokenHeader,
     );
-
+    await apiUtil.sleepMS(5 * 1000);
     const phs000179s3FileContents = await fence.do.getFileFromSignedUrlRes(
       signedUrls3phs000179Res,
     );
@@ -251,6 +263,8 @@ Scenario('dbGaP + user.yaml Sync: ensure combined access @dbgapSyncing @reqGoogl
     bash.runJob('usersync', args = 'ADD_DBGAP true FORCE true');
     console.log(`end time: ${Math.floor(Date.now() / 1000)}`);
 
+    await apiUtil.sleepMS(10 * 1000);
+
     // users.mainAcct has access to phs000178 through dbgap
     console.log('Use mainAcct to create s3 signed URL for file phs000178');
     const signedUrls3phs000178Res = await fence.do.createSignedUrl(
@@ -264,7 +278,7 @@ Scenario('dbGaP + user.yaml Sync: ensure combined access @dbgapSyncing @reqGoogl
       indexed_files.QAFile.did, ['protocol=s3'],
       users.mainAcct.accessTokenHeader,
     );
-
+    await apiUtil.sleepMS(5 * 1000);
     const phs000178s3FileContents = await fence.do.getFileFromSignedUrlRes(
       signedUrls3phs000178Res,
     );

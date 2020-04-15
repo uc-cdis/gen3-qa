@@ -89,6 +89,8 @@ After(async (fence, users) => {
   await Promise.all(unlinkResults);
   console.log('Running usersync job');
   bash.runJob('usersync', args = 'FORCE true');
+
+  await apiUtil.sleepMS(60 * 1000);
 });
 
 Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle @googleDataAccess',
