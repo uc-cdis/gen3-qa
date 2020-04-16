@@ -1,9 +1,1 @@
-{
-  "data": {
-    "_aggregation": {
-      "case": {
-        "_totalCount": 115
-      }
-    }
-  }
-}
+{"data":{"_aggregation":{"subject":{"_totalCount":75}}}}

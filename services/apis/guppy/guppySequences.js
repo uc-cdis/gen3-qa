@@ -24,9 +24,9 @@ function matchAggregation(actualResponse, expectedResponse) {
   expectedResponse = JSON.parse(expectedResponse).data;
   actualResponse = actualResponse.data;
   expect(actualResponse).to.have.own.property('_aggregation');
-  expect(actualResponse._aggregation).to.have.own.property('case');
-  for (const key in expectedResponse._aggregation.case) {
-    expect(actualResponse._aggregation.case[key]).to.equal(expectedResponse._aggregation.case[key]);
+  expect(actualResponse._aggregation).to.have.own.property('subject');
+  for (const key in expectedResponse._aggregation.subject) {
+    expect(actualResponse._aggregation.subject[key]).to.equal(expectedResponse._aggregation.subject[key]);
   }
 }
 
@@ -35,12 +35,12 @@ function matchHistogram(actualResponse, expectedResponse) {
   actualResponse = actualResponse.data;
 
   expect(actualResponse).to.have.own.property('_aggregation');
-  expect(actualResponse._aggregation).to.have.own.property('case');
-  for (const key in expectedResponse._aggregation.case) {
-    const expectedHistogramList = expectedResponse._aggregation.case[key].histogram;
+  expect(actualResponse._aggregation).to.have.own.property('subject');
+  for (const key in expectedResponse._aggregation.subject) {
+    const expectedHistogramList = expectedResponse._aggregation.subject[key].histogram;
     expectedHistogramList.sort((a, b) => ((a.key.toString() > b.key.toString()) ? 1 : -1));
 
-    const actualHistogramList = actualResponse._aggregation.case[key].histogram;
+    const actualHistogramList = actualResponse._aggregation.subject[key].histogram;
     actualHistogramList.sort((a, b) => ((a.key.toString() > b.key.toString()) ? 1 : -1));
 
     expect(expectedHistogramList.length).to.equal(actualHistogramList.length);
@@ -54,9 +54,9 @@ function matchMapping(actualResponse, expectedResponse) {
   expectedResponse = JSON.parse(expectedResponse).data;
   actualResponse = actualResponse.data;
   expect(actualResponse).to.have.own.property('_mapping');
-  expect(actualResponse._mapping).to.have.own.property('case');
-  for (const key in expectedResponse._mapping.case) {
-    expect(actualResponse._mapping.case[key]).to.equal(expectedResponse._mapping.case[key]);
+  expect(actualResponse._mapping).to.have.own.property('subject');
+  for (const key in expectedResponse._mapping.subject) {
+    expect(actualResponse._mapping.subject[key]).to.equal(expectedResponse._mapping.subject[key]);
   }
 }
 
@@ -65,7 +65,7 @@ function matchDataQuery(actualResponse, expectedResponse) {
   for (let i = 0; i < expectedResponse.length; i++) {
     const expectedCaseObj = expectedResponse[i];
     const actualCaseObj = recordWithSubmitterID(expectedResponse[i].submitter_id, actualResponse);
-    expect(typeof (expectedCaseObj), 'A matching case was not found for that submitter ID.').to.not.equal('undefined');
+    expect(typeof (expectedCaseObj), 'A matching subject was not found for that submitter ID.').to.not.equal('undefined');
     for (const key in expectedCaseObj) {
       expect(actualCaseObj[key]).to.equal(expectedCaseObj[key]);
     }
@@ -82,6 +82,11 @@ module.exports = {
     expect(queryResponse.status).to.equal(200);
 
     let actualResponseJSON = await queryResponse.json();
+
+    // set GUPPY_FRICKJACK to autogen missing response files
+    if (process.env["GUPPY_FRICKJACK"] === "true" && ! fs.existsSync(expectedResponseFilename)) {
+      fs.writeFileSync(expectedResponseFilename, JSON.stringify(actualResponseJSON));
+    }
     let expectedResponse = fs.readFileSync(expectedResponseFilename).toString();
 
     switch (queryType) {
@@ -99,8 +104,8 @@ module.exports = {
       return matchDataQuery(actualResponseJSON, expectedResponse);
       break;
     default:
-      expectedResponse = JSON.parse(expectedResponse).data.case;
-      actualResponseJSON = actualResponseJSON.data.case;
+      expectedResponse = JSON.parse(expectedResponse).data.subject;
+      actualResponseJSON = actualResponseJSON.data.subject;
       return matchDataQuery(actualResponseJSON, expectedResponse);
     }
   },
