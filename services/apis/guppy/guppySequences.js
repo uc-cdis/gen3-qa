@@ -84,7 +84,7 @@ module.exports = {
     let actualResponseJSON = await queryResponse.json();
 
     // set GUPPY_FRICKJACK to autogen missing response files
-    if (process.env["GUPPY_FRICKJACK"] === "true" && ! fs.existsSync(expectedResponseFilename)) {
+    if (process.env.GUPPY_FRICKJACK === 'true' && !fs.existsSync(expectedResponseFilename)) {
       fs.writeFileSync(expectedResponseFilename, JSON.stringify(actualResponseJSON));
     }
     let expectedResponse = fs.readFileSync(expectedResponseFilename).toString();

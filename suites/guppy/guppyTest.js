@@ -5,7 +5,7 @@ const chai = require('chai');
 const { expect } = chai;
 
 
-var token;
+let token;
 
 Before(async (users, fence) => {
   const scope = ['data', 'user'];
