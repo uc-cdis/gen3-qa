@@ -4,39 +4,43 @@ const { expect } = chai;
 chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 
-const util = require('util');
 const fs = require('fs');
 const guppyTasks = require('./guppyTasks.js');
-const guppyProps = require('./guppyProps.js');
-const { Gen3Response } = require('../../../utils/apiUtil');
-const user = require('../../../utils/user.js');
 const generalUtils = require('../../../utils/generalUtils.js');
 
 function recordWithSubmitterID(id, arr) {
-  for (let i = 0; i < arr.length; i++) {
-    if (arr[i].submitter_id == id) {
+  for (let i = 0; i < arr.length; i += 1) {
+    if (arr[i].submitter_id === id) {
       return arr[i];
     }
   }
+  return null;
 }
 
-function matchAggregation(actualResponse, expectedResponse) {
-  expectedResponse = JSON.parse(expectedResponse).data;
-  actualResponse = actualResponse.data;
+function matchAggregation(actualResponseFull, expectedResponseStr) {
+  const expectedResponse = JSON.parse(expectedResponseStr).data;
+  const actualResponse = actualResponseFull.data;
   expect(actualResponse).to.have.own.property('_aggregation');
   expect(actualResponse._aggregation).to.have.own.property('subject');
-  for (const key in expectedResponse._aggregation.subject) {
-    expect(actualResponse._aggregation.subject[key]).to.equal(expectedResponse._aggregation.subject[key]);
+
+  const keyList = Object.keys(expectedResponse._aggregation.subject);
+  for (let i = 0; i < keyList.length; i += 1) {
+    const key = keyList[i];
+    expect(actualResponse._aggregation.subject[key]).to.equal(
+      expectedResponse._aggregation.subject[key],
+    );
   }
 }
 
-function matchHistogram(actualResponse, expectedResponse) {
-  expectedResponse = JSON.parse(expectedResponse).data;
-  actualResponse = actualResponse.data;
+function matchHistogram(actualResponseFull, expectedResponseStr) {
+  const expectedResponse = JSON.parse(expectedResponseStr).data;
+  const actualResponse = actualResponseFull.data;
 
   expect(actualResponse).to.have.own.property('_aggregation');
   expect(actualResponse._aggregation).to.have.own.property('subject');
-  for (const key in expectedResponse._aggregation.subject) {
+  const keyList = Object.keys(expectedResponse._aggregation.subject);
+  for (let i = 0; i < keyList.length; i += 1) {
+    const key = keyList[i];
     const expectedHistogramList = expectedResponse._aggregation.subject[key].histogram;
     expectedHistogramList.sort((a, b) => ((a.key.toString() > b.key.toString()) ? 1 : -1));
 
@@ -44,29 +48,36 @@ function matchHistogram(actualResponse, expectedResponse) {
     actualHistogramList.sort((a, b) => ((a.key.toString() > b.key.toString()) ? 1 : -1));
 
     expect(expectedHistogramList.length).to.equal(actualHistogramList.length);
-    for (let k = 0; k < expectedHistogramList.length; k++) {
-      expect(generalUtils.objectsAreEquivalent(expectedHistogramList[k], actualHistogramList[k])).to.be.true;
+    for (let k = 0; k < expectedHistogramList.length; k += 1) {
+      expect(
+        generalUtils.objectsAreEquivalent(expectedHistogramList[k], actualHistogramList[k]),
+      ).to.be.true;
     }
   }
 }
 
-function matchMapping(actualResponse, expectedResponse) {
-  expectedResponse = JSON.parse(expectedResponse).data;
-  actualResponse = actualResponse.data;
+function matchMapping(actualResponseFull, expectedResponseStr) {
+  const expectedResponse = JSON.parse(expectedResponseStr).data;
+  const actualResponse = actualResponseFull.data;
   expect(actualResponse).to.have.own.property('_mapping');
   expect(actualResponse._mapping).to.have.own.property('subject');
-  for (const key in expectedResponse._mapping.subject) {
+  const keyList = Object.keys(expectedResponse._mapping.subject);
+  for (let i = 0; i < keyList.length; i += 1) {
+    const key = keyList[i];
     expect(actualResponse._mapping.subject[key]).to.equal(expectedResponse._mapping.subject[key]);
   }
 }
 
 function matchDataQuery(actualResponse, expectedResponse) {
   expect(actualResponse.length).to.equal(expectedResponse.length);
-  for (let i = 0; i < expectedResponse.length; i++) {
+  for (let i = 0; i < expectedResponse.length; i += 1) {
     const expectedCaseObj = expectedResponse[i];
     const actualCaseObj = recordWithSubmitterID(expectedResponse[i].submitter_id, actualResponse);
     expect(typeof (expectedCaseObj), 'A matching subject was not found for that submitter ID.').to.not.equal('undefined');
-    for (const key in expectedCaseObj) {
+
+    const keyList = Object.keys(expectedCaseObj);
+    for (let j = 0; j < keyList.length; j += 1) {
+      const key = keyList[j];
       expect(actualCaseObj[key]).to.equal(expectedCaseObj[key]);
     }
   }
@@ -76,8 +87,12 @@ function matchDataQuery(actualResponse, expectedResponse) {
  * guppy sequences
  */
 module.exports = {
-  async checkQueryResponseEquals(endpoint, queryToSubmitFilename, expectedResponseFilename, accessToken, queryType) {
-    const queryResponse = await guppyTasks.submitQueryFileToGuppy(endpoint, queryToSubmitFilename, accessToken);
+  async checkQueryResponseEquals(
+    endpoint, queryToSubmitFilename, expectedResponseFilename, accessToken, queryType,
+  ) {
+    const queryResponse = await guppyTasks.submitQueryFileToGuppy(
+      endpoint, queryToSubmitFilename, accessToken,
+    );
 
     expect(queryResponse.status).to.equal(200);
 
@@ -87,26 +102,26 @@ module.exports = {
     if (process.env.GUPPY_FRICKJACK === 'true' && !fs.existsSync(expectedResponseFilename)) {
       fs.writeFileSync(expectedResponseFilename, JSON.stringify(actualResponseJSON));
     }
-    let expectedResponse = fs.readFileSync(expectedResponseFilename).toString();
+    const expectedResponseStr = fs.readFileSync(expectedResponseFilename).toString();
 
     switch (queryType) {
     case 'aggregation':
-      return matchAggregation(actualResponseJSON, expectedResponse);
-      break;
+      return matchAggregation(actualResponseJSON, expectedResponseStr);
     case 'histogram':
-      return matchHistogram(actualResponseJSON, expectedResponse);
-      break;
+      return matchHistogram(actualResponseJSON, expectedResponseStr);
     case 'mapping':
-      return matchMapping(actualResponseJSON, expectedResponse);
-      break;
+      return matchMapping(actualResponseJSON, expectedResponseStr);
     case 'download':
-      expectedResponse = JSON.parse(expectedResponse);
+    {
+      const expectedResponse = JSON.parse(expectedResponseStr);
       return matchDataQuery(actualResponseJSON, expectedResponse);
-      break;
+    }
     default:
-      expectedResponse = JSON.parse(expectedResponse).data.subject;
+    {
+      const expectedResponse = JSON.parse(expectedResponseStr).data.subject;
       actualResponseJSON = actualResponseJSON.data.subject;
       return matchDataQuery(actualResponseJSON, expectedResponse);
+    }
     }
   },
 };

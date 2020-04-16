@@ -58,6 +58,7 @@
     "selenium-kill": "pkill -f selenium-standalone",
     "eslint": "eslint --ignore-path .gitignore .",
     "eslintdiff": "lint-diff $TRAVIS_COMMIT_RANGE",
+    "flint": "eslint --ignore-path .gitignore",
     "test": "codeceptjs run --plugins allure",
     "grep-test": ". local_run.sh && codeceptjs run --verbose --grep",
     "create-service": "node scripts/create_service.js"
