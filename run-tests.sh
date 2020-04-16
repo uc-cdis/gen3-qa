@@ -330,7 +330,7 @@ EOM
     #    dryrun npm 'test' -- --reporter mocha-multi --verbose --grep '@FRICKJACK'
   ) || exitCode=1
 else
-  npm 'test' -- --reporter mocha-multi --verbose ${selectedTest}
+  npm 'test' -- --reporter mocha-multi --verbose --grep '@reqGoogle' ${selectedTest}
 fi
 
 exit $exitCode
