@@ -2,7 +2,7 @@
 #
 # Jenkins launch script.
 # Use:
-#   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release]
+#   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--selectedTest=selectedTest]
 #
 
 help() {
@@ -11,11 +11,12 @@ Jenkins test launch script.  Assumes the  GEN3_HOME environment variable
 references a current [cloud-automation](https://github.com/uc-cdis/cloud-automation) folder.
 
 Use:
-  bash run-tests.sh [[--namespace=]KUBECTL_NAMESPACE] [--service=service] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--dryrun]
+  bash run-tests.sh [[--namespace=]KUBECTL_NAMESPACE] [--service=service] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--selectedTest=selectedTest] [--dryrun]
     --namespace default is KUBECTL_NAMESPACE:-default
     --service default is service:-none
     --testedEnv default is testedEnv:-none (for cdis-manifest PRs, specifies which environment is being tested, to know which tests are relevant)
     --isGen3Release default is "false"
+    --selectedTest default is selectedTest:-none
 EOM
 }
 
@@ -120,6 +121,7 @@ namespaceName="${KUBECTL_NAMESPACE}"
 service="${service:-""}"
 testedEnv="${testedEnv:-""}"
 isGen3Release="${isGen3Release:false}"
+selectedTest="${selectedTest:-"all"}"
 
 while [[ $# -gt 0 ]]; do
   key="$(echo "$1" | sed -e 's/^-*//' | sed -e 's/=.*$//')"
@@ -140,6 +142,9 @@ while [[ $# -gt 0 ]]; do
       ;;
     isGen3Release)
       isGen3Release="$value"
+      ;;
+    selectedTest)
+      selectedTest="$value"
       ;;
     dryrun)
       isDryRun=true
@@ -181,6 +186,7 @@ Running with:
   service=$service
   testedEnv=$testedEnv
   isGen3Release=$isGen3Release
+  selectedTest=$selectedTest
 EOM
 
 echo 'INFO: installing dependencies'
@@ -306,21 +312,25 @@ fi
 
 exitCode=0
 
-(
-  export NAMESPACE="$namespaceName"
-  export testedEnv="$testedEnv"
-  # no interactive tests
-  export GEN3_INTERACTIVE=false  
-  cat - <<EOM
+if [ "$selectedTest" == "all" ]; then
+  (
+    export NAMESPACE="$namespaceName"
+    export testedEnv="$testedEnv"
+    # no interactive tests
+    export GEN3_INTERACTIVE=false
+    cat - <<EOM
 
 ---------------------------
 Launching test in $NAMESPACE
 EOM
-  dryrun npm 'test' -- $testArgs
-  # 
-  # Do this kind of thing (uncomment the following line, change the grep) 
-  # to limit your test run in jenkins:
-  #    dryrun npm 'test' -- --reporter mocha-multi --verbose --grep '@FRICKJACK'
-) || exitCode=1
+    dryrun npm 'test' -- $testArgs
+    #
+    # Do this kind of thing (uncomment the following line, change the grep)
+    # to limit your test run in jenkins:
+    #    dryrun npm 'test' -- --reporter mocha-multi --verbose --grep '@FRICKJACK'
+  ) || exitCode=1
+else
+  npm 'test' -- --reporter mocha-multi --verbose --grep '@reqGoogle' ${selectedTest}
+fi
 
 exit $exitCode
