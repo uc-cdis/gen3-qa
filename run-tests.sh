@@ -121,7 +121,7 @@ namespaceName="${KUBECTL_NAMESPACE}"
 service="${service:-""}"
 testedEnv="${testedEnv:-""}"
 isGen3Release="${isGen3Release:false}"
-selectedTest="${selectedTest:-""}"
+selectedTest="${selectedTest:-"all"}"
 
 while [[ $# -gt 0 ]]; do
   key="$(echo "$1" | sed -e 's/^-*//' | sed -e 's/=.*$//')"
@@ -312,7 +312,7 @@ fi
 
 exitCode=0
 
-if [ "$selectedTest" == "" ]; then
+if [ "$selectedTest" == "all" ]; then
   (
     export NAMESPACE="$namespaceName"
     export testedEnv="$testedEnv"
