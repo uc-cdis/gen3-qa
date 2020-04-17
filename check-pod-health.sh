@@ -8,12 +8,17 @@ if [[ "$KUBECTL_NAMESPACE" == "default" ]]; then
   commons_name="qa"
 fi
 commons_url="https://${commons_name}.planx-pla.net"
+indexd="${commons_url}/index/_status"
 sheepdog="${commons_url}/api/_status"
 peregrine="${commons_url}/peregrine/_status"
 portal="${commons_url}/"
 fence="${commons_url}/user/jwt/keys"
 selenium="localhost:4444/wd/hub/sessions"
-health_endpoints=( $sheepdog $peregrine $portal $fence $selenium )
+if [ "$testedEnv" == "dataguids.org" ]; then
+  health_endpoints=( $indexd $portal $selenium )
+else
+  health_endpoints=( $sheepdog $peregrine $portal $fence $selenium )
+fi
 
 exit_code=0
 
