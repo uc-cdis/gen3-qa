@@ -1,38 +1,14 @@
 {
   "query": "query {
     _aggregation {
-      case {
+      subject {
         project_id {
           histogram {
             key
             count
           }
         },
-        consent_codes {
-          histogram {
-            key
-            count
-          }
-        },
-        data_type {
-          histogram {
-            key
-            count
-          }
-        },
-        data_format {
-          histogram {
-            key
-            count
-          }
-        },
-        race {
-          histogram {
-            key
-            count
-          }
-        },
-        ethnicity {
+        breed {
           histogram {
             key
             count
@@ -44,103 +20,7 @@
             count
           }
         },
-        bmi {
-          histogram {
-            key
-            count
-          }
-        },
-        age_at_index {
-          histogram {
-            key
-            count
-          }
-        },
-        diabetes {
-          histogram {
-            key
-            count
-          }
-        },
-        hypertension {
-          histogram {
-            key
-            count
-          }
-        },
-        cerebrovascular_disease {
-          histogram {
-            key
-            count
-          }
-        },
-        chronic_respiratory_disease {
-          histogram {
-            key
-            count
-          }
-        },
-        coronary_artery_disease {
-          histogram {
-            key
-            count
-          }
-        },
-        asthma {
-          histogram {
-            key
-            count
-          }
-        },
-        cabg_presence {
-          histogram {
-            key
-            count
-          }
-        },
-        copd {
-          histogram {
-            key
-            count
-          }
-        },
-        emphysema {
-          histogram {
-            key
-            count
-          }
-        },
-        heart_failure {
-          histogram {
-            key
-            count
-          }
-        },
-        myocardial_infarction {
-          histogram {
-            key
-            count
-          }
-        },
-        stroke {
-          histogram {
-            key
-            count
-          }
-        },
-        hypertension_meds {
-          histogram {
-            key
-            count
-          }
-        },
-        diastolic_blood_pressure {
-          histogram {
-            key
-            count
-          }
-        },
-        systolic_blood_pressure {
+        disease_type {
           histogram {
             key
             count

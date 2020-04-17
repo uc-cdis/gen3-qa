@@ -5,7 +5,7 @@ const chai = require('chai');
 const { expect } = chai;
 
 
-var token;
+let token;
 
 Before(async (users, fence) => {
   const scope = ['data', 'user'];
@@ -22,7 +22,7 @@ Before(async (users, fence) => {
   expect(queryResponse.status).to.equal(401);
 }); */
 
-Scenario('I want a list of patients (cases) strictly younger than 30 with a past stroke in ascending order of BMI. @guppyAPI', async (I, guppy) => {
+Scenario('I want a list of patients (subjects) strictly younger than 30 with a past stroke in ascending order of BMI. @guppyAPI', async (I, guppy) => {
   const queryFile = 'suites/guppy/testData/testQuery1.json';
   const expectedResponseFile = 'suites/guppy/testData/testResponse1.json';
   const queryType = 'data';
@@ -65,7 +65,7 @@ Scenario('I want a high-level overview of the data in the database as it pertain
   await guppy.complete.checkQueryResponseEquals(guppy.props.endpoints.graphqlEndpoint, queryFile, expectedResponseFile, token, queryType);
 }); */
 
-Scenario('I would like to list the fields on the case document. @guppyAPI', async (I, guppy) => {
+Scenario('I would like to list the fields on the subject document. @guppyAPI', async (I, guppy) => {
   const queryFile = 'suites/guppy/testData/testQuery5.json';
   const expectedResponseFile = 'suites/guppy/testData/testResponse5.json';
   const queryType = 'mapping';

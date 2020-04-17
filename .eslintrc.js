@@ -52,5 +52,13 @@ module.exports = {
         "no-await-in-loop": ["off"],
         "no-param-reassign": ["error", {"props": false}],
         "no-console": ["off"]
-    }
+    },
+    "overrides": [
+      {
+        "files": ["guppySequences.js"],
+        "rules": {
+          "no-underscore-dangle": "off"
+        }
+      }
+    ]
 };

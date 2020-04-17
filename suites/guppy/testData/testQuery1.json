@@ -1,21 +1,12 @@
 {
   "query": "query ($filter: JSON) {
-    case (offset: 0, first: 10000, sort: [ { bmi: \"asc\" } ], filter: $filter) { 
+    subject (offset: 0, first: 10000, sort: [ { breed: \"asc\" } ], filter: $filter) { 
       project_id
+      breed
+      auth_resource_path
+      primary_site
       gender
-      bmi
-      age_at_index
-      diastolic_blood_pressure
-      systolic_blood_pressure
-      diabetes
-      hypertension
-      cerebrovascular_disease
-      chronic_respiratory_disease
-      coronary_artery_disease
-      heart_failure
-      myocardial_infarction
-      stroke
-      hypertension_meds
+      _mRNA_microarrays_count
       submitter_id
     }
   }",
@@ -24,12 +15,12 @@
       "AND": [
         {
           "<": {
-            "age_at_index": 30
+            "_mRNA_microarrays_count": 30
           } 
         }, 
         {
           "=": {
-            "stroke": "Yes"
+            "project_id": "Canine-NHGRI"
           }
         }
       ]

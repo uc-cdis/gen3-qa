@@ -1,7 +1,7 @@
 {
   "query": "query ($filter: JSON) {
     _aggregation {
-      case (filter: $filter) { 
+      subject (filter: $filter) { 
         _totalCount 
       } 
     } 
@@ -11,12 +11,12 @@
       "AND": [
         {
           "<": {
-            "age_at_index": 30
+            "_mRNA_microarrays_count": 30
           } 
         }, 
         {
           "=": {
-            "stroke": "Yes"
+            "project_id": "Canine-NHGRI"
           }
         }
       ]
