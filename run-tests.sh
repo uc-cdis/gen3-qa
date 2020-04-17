@@ -312,10 +312,12 @@ fi
 
 exitCode=0
 
+# set required vars
+export NAMESPACE="$namespaceName"
+export testedEnv="$testedEnv"
+
 if [ "$selectedTest" == "all" ]; then
   (
-    export NAMESPACE="$namespaceName"
-    export testedEnv="$testedEnv"
     # no interactive tests
     export GEN3_INTERACTIVE=false
     cat - <<EOM
