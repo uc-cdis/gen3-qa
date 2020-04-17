@@ -14,7 +14,7 @@ peregrine="${commons_url}/peregrine/_status"
 portal="${commons_url}/"
 fence="${commons_url}/user/jwt/keys"
 selenium="localhost:4444/wd/hub/sessions"
-if [ "$testedEnv" == "dataguids.org" ]; then
+if [ -n $1 ] && [ "$1" == "dataguids.org" ]; then
   health_endpoints=( $indexd $portal $selenium )
 else
   health_endpoints=( $sheepdog $peregrine $portal $fence $selenium )
