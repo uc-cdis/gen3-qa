@@ -333,7 +333,7 @@ else
   additionalArgs=""
   foundReqGoogle=$(grep "@reqGoogle" ${selectedTest})
   if [ -n "$foundReqGoogle" ]; then
-    additionalArgs="--grep '@reqGoogle'"
+    additionalArgs="--grep @reqGoogle"
   fi
   npm 'test' -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
 fi
