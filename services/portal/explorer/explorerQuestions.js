@@ -1,14 +1,15 @@
-// let chai = require('chai');
-// let expect = chai.expect;
-// chai.config.includeStack = true;
-// chai.config.truncateThreshold = 0;
+const explorerProps = require('./explorerProps.js');
 
-// const explorerProps = require('./explorerProps.js');
-
+const I = actor();
 /**
  * explorer Questions
  */
 module.exports = {
+  isPageLoaded(){
+    //I.waitForElement(explorerProps.ready_cue.locator, 10);
+    I.waitUrlEquals('/explorer', 10);
+  }
+
   // FROM ORIGINAL EXPLORER QUESTIONS
   // module.exports.seeVisualizations = function () {
   //   this.seeElement('.data-explorer__visualizations');
