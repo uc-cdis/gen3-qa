@@ -1,17 +1,16 @@
 const explorerProps = require('./explorerProps.js');
-const loginProps = require('../login/loginProps.js')
-const portal = require('../../../utils/portal.js');
-const user = require('../../../utils/user.js')
+// const loginProps = require('../login/loginProps.js');
+// const portal = require('../../../utils/portal.js');
+// const user = require('../../../utils/user.js');
 
-let I = actor();
+const I = actor();
 
 /**
  * explorer Tasks
  */
 module.exports = {
 
-  //User is redirected to 
-  goToExplorerPage(){
+  goToExplorerPage() {
     I.amOnPage(explorerProps.path);
   },
 

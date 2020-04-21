@@ -1,4 +1,4 @@
-loginProps = require('./loginProps.js')
+const loginProps = require('./loginProps.js');
 
 const I = actor();
 
@@ -21,5 +21,5 @@ module.exports = {
 
   isPageLoaded() {
     I.waitForElement(loginProps.ready_cue.locator, 10);
-  }
+  },
 };
