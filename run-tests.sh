@@ -281,6 +281,7 @@ fi
 # update the version once this change is released
 if ! [[ "$portalVersion" == *"master" ]]; then
   donot '@topBarLogin'
+  donot '@loginRedirect'
 fi
 
 if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1 ||

@@ -7,4 +7,4 @@ Scenario('Login redirects to requested page', (login) => {
   login.ask.isPageLoaded();
   login.complete.login();
   explorer.ask.isPageLoaded(); // User is redirected to explorer after logging in
-});
+}).tag('@loginRedirect');
