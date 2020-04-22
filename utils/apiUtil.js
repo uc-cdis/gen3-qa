@@ -356,7 +356,7 @@ module.exports = {
           css: '.index-button-bar__thumbnail-button',
         },
       },
-      'covid19': {
+      'pandemicresponsecommons': {
         'summary': {
           css: '.covid19-dashboard',
         },
