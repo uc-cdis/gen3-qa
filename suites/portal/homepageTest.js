@@ -1,4 +1,4 @@
-Feature('Login');
+Feature('Homepage');
 
 Scenario('login @portal', (home) => {
   home.do.goToHomepage();

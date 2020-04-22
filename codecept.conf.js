@@ -69,6 +69,8 @@ exports.config = {
 
     // Pages
     home: './services/portal/home/homeService.js',
+    login: './services/portal/login/loginService.js',
+    explorer: './services/portal/explorer/explorerService.js',
     portalDataUpload: './services/portal/dataUpload/dataUploadService.js',
     portalExportToWorkspace: './services/portal/exportToWorkspace/exportToWorkspaceService.js',
     portalCoreMetadataPage: './services/portal/coreMetadataPage/coreMetadataPageService.js',
