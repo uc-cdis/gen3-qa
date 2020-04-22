@@ -4,7 +4,7 @@ Feature('Login');
 
 Scenario('Login redirects to requested page', (login) => {
   explorer.do.goToExplorerPage(); // Navigating to /explorer without loggin in redirects to /login
-  login.ask.isPageLoaded();
+  login.ask.isCurrentPage();
   login.complete.login();
-  explorer.ask.isPageLoaded(); // User is redirected to explorer after logging in
+  explorer.ask.isCurrentPage(); // User is redirected to explorer after logging in
 }).tag('@loginRedirect');

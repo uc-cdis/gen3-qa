@@ -18,7 +18,11 @@ module.exports = {
    * /!\ remember to logout after logging in or following tests will fail!
    */
   login(username) {
-    this.goToLoginPage();
+    if (I.seeCurrentUrlEquals(loginProps.path)) {
+      console.log('Already on Login Page');
+    } else {
+      this.goToLoginPage();
+    }
     I.setCookie({ name: 'dev_login', value: username });
     portal.clickProp(loginProps.googleLoginButton);
   },

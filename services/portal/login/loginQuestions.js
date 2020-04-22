@@ -19,7 +19,7 @@ module.exports = {
     I.dontSee(username);
   },
 
-  isPageLoaded() {
-    I.waitForElement(loginProps.ready_cue.locator, 10);
+  isCurrentPage() {
+    I.waitUrlEquals(loginProps.path, 10);
   },
 };

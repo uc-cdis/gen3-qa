@@ -1,13 +1,12 @@
-// const explorerProps = require('./explorerProps.js');
+const explorerProps = require('./explorerProps.js');
 
 const I = actor();
 /**
  * explorer Questions
  */
 module.exports = {
-  isPageLoaded() {
-    // I.waitForElement(explorerProps.ready_cue.locator, 10);
-    I.waitUrlEquals('/explorer', 10);
+  isCurrentPage() {
+    I.waitUrlEquals(explorerProps.path, 10);
   },
 
   // FROM ORIGINAL EXPLORER QUESTIONS
