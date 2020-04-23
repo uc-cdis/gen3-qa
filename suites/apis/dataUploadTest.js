@@ -1,9 +1,8 @@
-const chai = require('chai');
+const { expect } = require('chai');
 const fs = require('fs');
 const homedir = require('os').homedir();
 
-const { expect } = chai;
-
+const { inJenkins } = require('../../utils/commons.js');
 
 Feature('Data file upload flow');
 
@@ -91,7 +90,10 @@ Scenario('File upload and download via API calls @dataUpload', async (fence, use
   );
 
   // a user who is not the uploader CANNOT download the file
-  signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid, userToken = users.auxAcct1.accessTokenHeader);
+  signedUrlRes = await fence.do.createSignedUrlForUser(
+    fileGuid,
+    users.auxAcct1.accessTokenHeader,
+  );
   fence.ask.assertStatusCode(signedUrlRes, 401, 'User who is not the uploader should not successfully download file before metadata linking');
 
   // submit metadata for this file
@@ -99,7 +101,10 @@ Scenario('File upload and download via API calls @dataUpload', async (fence, use
   sheepdog.ask.addNodeSuccess(sheepdogRes);
 
   // a user who is not the uploader can now download the file
-  signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid, userToken = users.auxAcct1.accessTokenHeader);
+  signedUrlRes = await fence.do.createSignedUrlForUser(
+    fileGuid,
+    users.auxAcct1.accessTokenHeader,
+  );
   await fence.complete.checkFileEquals(
     signedUrlRes,
     fileContents,
@@ -107,9 +112,15 @@ Scenario('File upload and download via API calls @dataUpload', async (fence, use
 
   // check that we cannot link metadata to a file that already has metadata:
   // try to submit metadata for this file again
-  sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, fileGuid, fileSize, fileMd5, submitter_id = 'submitter_id_new_value');
+  sheepdogRes = await nodes.submitGraphAndFileMetadata(
+    sheepdog,
+    fileGuid,
+    fileSize,
+    fileMd5,
+    'submitter_id_new_value',
+  );
   sheepdog.ask.addNodeSuccess(sheepdogRes);
-}).retry(2);
+}).retry(1);
 
 /**
  * A user who does not have upload access should not be able to upload
@@ -125,7 +136,7 @@ Scenario('User without role cannot upload @dataUpload', async (fence, users) => 
   // fence should not let this user upload
   fence.ask.hasNoUrl(fenceUploadRes);
   fence.ask.assertStatusCode(fenceUploadRes, 403, 'This user should not be able to download');
-}).retry(2);
+}).retry(1);
 
 /**
  * This time, use the gen3 data client to upload and download the file
@@ -157,7 +168,7 @@ Scenario('File upload and download via client @dataClientCLI @dataUpload', async
   await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 
   // download the file via the data client
-  downloadPath = './tmpFileDestination.txt';
+  const downloadPath = './tmpFileDestination.txt';
   await dataClient.complete.downloadFile(files, fileGuid, downloadPath, fileContents);
 });
 
@@ -186,7 +197,10 @@ Scenario('Data file deletion @dataUpload', async (fence, users, indexd, sheepdog
   await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 
   // check that a user who is not the uploader cannot delete the file
-  const fenceRes = await fence.do.deleteFile(fileGuid, userHeader = users.auxAcct1.accessTokenHeader);
+  const fenceRes = await fence.do.deleteFile(
+    fileGuid,
+    users.auxAcct1.accessTokenHeader,
+  );
   fence.ask.assertStatusCode(fenceRes, 403, 'File deletion from user who is not file uploader should not be possible');
 
   // delete the file
@@ -203,7 +217,7 @@ Scenario('Data file deletion @dataUpload', async (fence, users, indexd, sheepdog
   // no download after delete
   const signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid);
   fence.ask.assertStatusCode(signedUrlRes, 404, 'File download should not be possible after file deletion');
-}).retry(2);
+}).retry(1);
 
 /**
  * Upload 2 files with the same contents (so same hash and size) and
@@ -263,7 +277,13 @@ Scenario('Upload the same file twice @dataUpload', async (sheepdog, indexd, node
   await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 
   // submit metadata for this file
-  sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, fileGuid, fileSize, fileMd5, submitter_id = 'submitter_id_new_value');
+  sheepdogRes = await nodes.submitGraphAndFileMetadata(
+    sheepdog,
+    fileGuid,
+    fileSize,
+    fileMd5,
+    'submitter_id_new_value',
+  );
   sheepdog.ask.addNodeSuccess(sheepdogRes, 'second upload');
 
   // check that the file can be downloaded
@@ -272,7 +292,7 @@ Scenario('Upload the same file twice @dataUpload', async (sheepdog, indexd, node
     signedUrlRes,
     fileContents,
   );
-}).retry(2);
+}).retry(1);
 
 /**
  * Use fence's multipart upload endpoints to upload a large data file (>5MB)
@@ -288,11 +308,16 @@ Scenario('Successful multipart upload @dataUpload @multipartUpload', async (user
 
   // upload each file part to the S3 bucket
   const partsSummary = [];
-  for (let partNumber = 1; partNumber <= Object.keys(bigFileParts).length; partNumber++) {
+  for (let partNumber = 1; partNumber <= Object.keys(bigFileParts).length; partNumber += 1) {
     console.log(`Uploading file part ${partNumber}`);
 
     // get a presigned URL from fence
-    const getUrlRes = await fence.complete.getUrlForMultipartUpload(key, initRes.uploadId, partNumber, accessHeader);
+    const getUrlRes = await fence.complete.getUrlForMultipartUpload(
+      key,
+      initRes.uploadId,
+      partNumber,
+      accessHeader,
+    );
 
     // upload the file part using the presigned URL
     const uploadPartRes = await dataUpload.uploadFilePartToS3(
@@ -325,7 +350,7 @@ Scenario('Successful multipart upload @dataUpload @multipartUpload', async (user
   const signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid);
   fence.ask.assertStatusCode(signedUrlRes, 200, 'Could not get signed URL for file download after completing multipart upload');
   fence.complete.checkFileEquals(signedUrlRes, bigFileContents.toString());
-}).retry(2);
+}).retry(1);
 
 /**
  * Use fence's multipart upload endpoints to upload a large data file (>5MB).
@@ -342,11 +367,16 @@ Scenario('Failed multipart upload: wrong ETag for completion @dataUpload @multip
 
   // upload each file part to the S3 bucket
   const partsSummary = [];
-  for (let partNumber = 1; partNumber <= Object.keys(bigFileParts).length; partNumber++) {
+  for (let partNumber = 1; partNumber <= Object.keys(bigFileParts).length; partNumber += 1) {
     console.log(`Uploading file part ${partNumber}`);
 
     // get a presigned URL from fence
-    const getUrlRes = await fence.complete.getUrlForMultipartUpload(key, initRes.uploadId, partNumber, accessHeader);
+    const getUrlRes = await fence.complete.getUrlForMultipartUpload(
+      key,
+      initRes.uploadId,
+      partNumber,
+      accessHeader,
+    );
 
     // upload the file part using the presigned URL
     const uploadPartRes = await dataUpload.uploadFilePartToS3(
@@ -362,14 +392,19 @@ Scenario('Failed multipart upload: wrong ETag for completion @dataUpload @multip
 
   // complete the multipart upload
   console.log('Trying to complete multipart upload');
-  const completeRes = await fence.do.completeMultipartUpload(key, initRes.uploadId, partsSummary, accessHeader);
+  const completeRes = await fence.do.completeMultipartUpload(
+    key,
+    initRes.uploadId,
+    partsSummary,
+    accessHeader,
+  );
   expect(completeRes, 'Should not have been able to complete multipart upload with wrong ETags').to.not.have.property('status', 200);
 
   // try to download the file
   console.log('Try to download the file');
   const signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid);
   fence.ask.assertStatusCode(signedUrlRes, 404, 'Should not be able to get signed URL for file download when multipart upload completion failed');
-}).retry(2);
+}).retry(1);
 
 
 /**
@@ -403,8 +438,8 @@ Scenario('File upload with consent codes @dataUpload @indexRecordConsentCodes', 
   await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 
   // submit metadata for this file, including consent codes
-  sheepdogRes = await nodes.submitGraphAndFileMetadata(
-	  sheepdog, fileGuid, fileSize, fileMd5, submitter_id = null, consent_codes = ['cc1', 'cc_2'],
+  const sheepdogRes = await nodes.submitGraphAndFileMetadata(
+    sheepdog, fileGuid, fileSize, fileMd5, null, ['cc1', 'cc_2'],
   );
   sheepdog.ask.addNodeSuccess(sheepdogRes);
 
@@ -421,7 +456,7 @@ Scenario('File upload with consent codes @dataUpload @indexRecordConsentCodes', 
     },
   };
   await indexd.complete.checkFile(fileNodeWithCCs);
-}).retry(2);
+}).retry(1);
 
 
 /**
@@ -432,9 +467,9 @@ Scenario('File upload with consent codes @dataUpload @indexRecordConsentCodes', 
 function assertGen3Client() {
   // check if the client is set up in the workspace
   console.log('Looking for data client executable...');
-  const client_dir = process.env.DATA_CLIENT_PATH || homedir;
-  if (!fs.existsSync(`${client_dir}/gen3-client`)) {
-    const msg = `Did not find a gen3-client executable in ${client_dir}`;
+  const clientDir = process.env.DATA_CLIENT_PATH || homedir;
+  if (!fs.existsSync(`${clientDir}/gen3-client`)) {
+    const msg = `Did not find a gen3-client executable in ${clientDir}`;
     if (inJenkins) {
       throw Error(msg);
     }
@@ -465,7 +500,7 @@ BeforeSuite(async (sheepdog, files) => {
 
   // each part of the large file must be >=5MB (except the last part)
   bigFileContents = fs.readFileSync(bigFileName);
-  const fiveMbLength = Math.floor(bigFileContents.length * 5 / 7);
+  const fiveMbLength = Math.floor((bigFileContents.length * 5) / 7);
   bigFileParts = {
     1: bigFileContents.slice(0, fiveMbLength),
     2: bigFileContents.slice(fiveMbLength),
