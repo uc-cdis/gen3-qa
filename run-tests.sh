@@ -344,7 +344,7 @@ else
   npm 'test' -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
 fi
 
-someOutput=$(ls output)
+someOutput=$(ls output | grep testsuite)
 if [ -z "$someOutput" ]; then
   npm test -- --verbose suites/fail.js
 fi
