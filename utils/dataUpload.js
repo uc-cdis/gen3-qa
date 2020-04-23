@@ -4,6 +4,7 @@
  */
 
 const fs = require('fs');
+const request = require('request');
 const homedir = require('os').homedir();
 
 const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
@@ -18,7 +19,7 @@ module.exports = {
    * upload a file to an S3 bucket using a presigned URL
    */
   async uploadFileToS3(presignedUrl, filePath, fileSize) {
-    fs.createReadStream(filePath).pipe(require('request')({
+    fs.createReadStream(filePath).pipe(request({
       method: 'PUT',
       url: presignedUrl,
       headers: {
@@ -28,6 +29,8 @@ module.exports = {
       if (err) {
         throw new Error(err);
       }
+      console.log(`uploadFileToS3 res: ${res.statusCode}`);
+      console.log(`uploadFileToS3 body: ${body.slice(0, 20)}`);
     }));
   },
 
@@ -82,7 +85,7 @@ module.exports = {
     /**
      * return true if the record has been updated in indexd, false otherwise
      */
-    const isRecordUpdated = async function (indexd, fileNode) {
+    const isRecordUpdated = async function () {
       try {
         // check if indexd was updated with the correct hash and size
         await indexd.complete.checkFile(fileNode);
@@ -92,7 +95,7 @@ module.exports = {
       }
     };
 
-    const timeout = 300; // max number of seconds to wait
+    const timeout = 120; // max number of seconds to wait
     const errorMessage = `The indexd listener did not complete the record after ${timeout} seconds`;
 
     await smartWait(isRecordUpdated, [indexd, fileNode], timeout, errorMessage);
