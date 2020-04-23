@@ -339,7 +339,7 @@ else
   if [ -n "$foundReqGoogle" ]; then
     additionalArgs="--grep @reqGoogle"
   elif [ -n "$foundDataClientCLI" ]; then
-    additionalArgs="--grep @dataClientCLI --invert"
+    additionalArgs="--grep '@indexRecordConsentCodes|@dataClientCLI' --invert"
   fi
   npm 'test' -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
 fi
