@@ -346,7 +346,7 @@ fi
 
 someOutput=$(ls output)
 if [ -z "$someOutput" ]; then
-  exitCode=1
+  npm test -- --verbose suites/fail.js
 fi
 
 exit $exitCode
