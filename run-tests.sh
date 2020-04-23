@@ -344,4 +344,9 @@ else
   npm 'test' -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
 fi
 
+someOutput=$(ls output)
+if [ -z "$someOutput" ]; then
+  exitCode=1
+fi
+
 exit $exitCode
