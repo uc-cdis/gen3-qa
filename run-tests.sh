@@ -335,8 +335,11 @@ EOM
 else
   additionalArgs=""
   foundReqGoogle=$(grep "@reqGoogle" ${selectedTest})
+  foundDataClientCLI=$(grep "@dataClientCLI" ${selectedTest})
   if [ -n "$foundReqGoogle" ]; then
     additionalArgs="--grep @reqGoogle"
+  elif [ -n "$foundDataClientCLI" ]; then
+    additionalArgs="--grep @indexRecordConsentCodes|@dataClientCLI --invert"
   fi
   npm 'test' -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
 fi
