@@ -344,6 +344,9 @@ else
   npm 'test' -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
 fi
 
+# When zero tests are executed, a results*.xml file is produced containing a tests="0" counter
+# e.g., output/result57f4d8778c4987bda6a1790eaa703782.xml
+# <testsuites name="Mocha Tests" time="0.0000" tests="0" failures="0">
 zeroTests=$(grep -o "\w*tests\=.*\s" output/result*.xml | grep 0)
 if [ -n "$zeroTests" ]; then
   echo "No tests have been executed, aborting PR check..."
