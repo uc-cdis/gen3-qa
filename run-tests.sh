@@ -344,11 +344,9 @@ else
   npm 'test' -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
 fi
 
-ls -ilha output
-cat output/*.xml
-someOutput=$(ls output | grep testsuite)
-if [ -z "$someOutput" ]; then
-  echo "could not find any *testsuite.xml file, aborting PR check..."
+zeroTests=$(grep -o "\w*tests\=.*\s" output/result*.xml | grep 0)
+if [ -n "$zeroTests" ]; then
+  echo "No tests have been executed, aborting PR check..."
   npm test -- --verbose suites/fail.js
   exitCode=1
 fi
