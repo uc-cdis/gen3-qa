@@ -346,6 +346,7 @@ fi
 
 someOutput=$(ls output | grep testsuite)
 if [ -z "$someOutput" ]; then
+  echo "could not find any *testsuite.xml file, aborting PR check..."
   npm test -- --verbose suites/fail.js
   exitCode=1
 fi
