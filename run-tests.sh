@@ -217,6 +217,9 @@ donot '@Performance'
 # Do not run manual tests
 donot '@manual'
 
+# Do not run force-fail tests
+donot '@fail'
+
 #
 # Google Data Access tests are only required for some envs
 #
