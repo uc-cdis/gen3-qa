@@ -1,4 +1,3 @@
-const request = require('request');
 const { Env } = require('./utils/env');
 
 Env.setupEnvVariables();
@@ -69,6 +68,7 @@ exports.config = {
 
     // Pages
     home: './services/portal/home/homeService.js',
+    indexing: './services/portal/indexing/indexingService.js',
     login: './services/portal/login/loginService.js',
     explorer: './services/portal/explorer/explorerService.js',
     portalDataUpload: './services/portal/dataUpload/dataUploadService.js',

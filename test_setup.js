@@ -250,6 +250,12 @@ module.exports = async function (done) {
     assertEnvVars(basicVars.concat(googleVars, submitDataVars));
     console.log('TEST_DATA_PATH: ', process.env.TEST_DATA_PATH);
 
+    // If testedEnv is not defined, infer FQDN based on the NAMESPACE
+    if (process.env['testedEnv'] === '' || process.env['testedEnv'] === undefined) {
+      process.env.testedEnv = `${process.env.NAMESPACE}.planx-pla.net`;
+      console.log(`INFO: Setting testedEnv var to ${process.env.testedEnv}`);
+    }
+
     if (isIncluded('@reqGoogle')) {
       createGoogleTestBuckets();
       await setupGoogleProjectDynamic();

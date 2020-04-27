@@ -1,0 +1,8 @@
+const explorerProps = require('./explorerProps.js');
+
+/**
+ * indexing service
+ */
+module.exports = {
+  props: indexingProps,
+};
