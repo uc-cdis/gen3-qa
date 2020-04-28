@@ -8,6 +8,8 @@
 Feature('Indexing page - PXP-5786');
 
 // const stringify = require('json-stringify-safe');
+const path = require("path")
+const fs = require("fs")
 const { expect } = require('chai');
 const { sleepMS, Gen3Response } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
@@ -89,6 +91,7 @@ Scenario('Navigate to the indexing page and upload a test manifest @indexing', a
 
     if (indexdRecordRes.data.hashes) {
       expect(indexdRecordRes.data.hashes.md5).to.equal(testHash);
+      break
     } else {
       console.log(`WARN: The indexd record has not been created yet... - attempt ${i}`);
       await sleepMS(5000);
@@ -111,16 +114,26 @@ Scenario('Navigate to the indexing page and download a full indexd manifest @ind
 
   await checkPod('indexd-manifest');
 
-  const waitingThreshold = 30;
+  const waitingThreshold = 60;
   console.log('Waiting for Green status DONE to show up on the page...');
-  I.waitForElement({ css: '.index-files-green-label' }, waitingThreshold);
+  await I.waitForElement({ css: '.index-files-green-label' }, waitingThreshold);
 
-  I.handleDownloads();
-  I.click({ xpath: 'xpath: //button[contains(text(), \'Download Manifest\')]' });
-  I.amInPath('output/downloads');
-  const downloadedFileNames = I.grabFileNames();
+  await I.click({ xpath: 'xpath: //button[contains(text(), \'Download Manifest\')]' });
+  // TODO: Inject the react -> state: { downloadManifestLink } url into an anchor tag
+  const directoryPath = path.join(__dirname, '../../output');
 
-  console(`downloaded file: ${downloadedFileNames[0]}`);
+  const nAttempts = 5;
+  for (let i = 0; i < nAttempts; i += 1) {
+    console.log(`checking downloaded files... - attempt ${i}`);
+    const files = fs.readdirSync(directoryPath);
+    files.forEach(function(file) {
+      console.log(file);
+    });
+    await sleepMS(5000);
+  }
 
+/*  let contentsOfTheDownloadedManifest = fs.readFileSync(testDescriptorFile, 'utf8');
+  console(`downloaded file: ${contentsOfTheDownloadedManifest}`);
+*/
   expect(testHash).to.equal('73d643ec3f4beb9020eef0beed440ad4');
 });
