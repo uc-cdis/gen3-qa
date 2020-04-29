@@ -287,6 +287,14 @@ if ! [[ "$portalVersion" == *"master" ]]; then
   donot '@loginRedirect'
 fi
 
+# check if manifest indexing jobs are set in sower block
+# this is a temporary measure while PXP-4796 is not implemented
+checkForPresenceOfManifestIndexingSowerJob=$(kc get cm manifest-sower -o yaml | grep manifest-indexing)
+if [ -z "$checkForPresenceOfManifestIndexingSowerJob" ]; then
+  echo "the manifest-indexing sower job was not found, skip @indexing tests"; 
+  donot '@indexing'
+fi
+
 if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1 ||
 ! (g3kubectl get pods --no-headers -l app=wts | grep wts) > /dev/null 2>&1; then
   donot '@exportToWorkspaceAPI'
