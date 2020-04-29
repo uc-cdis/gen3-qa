@@ -7,9 +7,6 @@
 */
 Feature('Indexing page - PXP-5786');
 
-// const stringify = require('json-stringify-safe');
-const path = require("path")
-const fs = require("fs")
 const { expect } = require('chai');
 const { sleepMS, Gen3Response } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
@@ -20,8 +17,8 @@ const testGUID = 'dg123/c2da639f-aa25-4c4d-8e89-02a143788268';
 const testHash = '73d643ec3f4beb9020eef0beed440ad4';
 
 /* eslint-disable no-tabs */
-const contentsOfTestManifest = `GUID	md5	size	acl	url
-${testGUID}	${testHash}	13	[jenkins2]	s3://cdis-presigned-url-test/testdata`;
+const contentsOfTestManifest = `GUID	url	authz	acl	md5	size	file_name
+${testGUID}	s3://cdis-presigned-url-test/testdata		jenkins2	${testHash}	13	`;
 
 BeforeSuite(async (I, files, indexd) => {
   console.log('Setting up dependencies...');
@@ -91,7 +88,7 @@ Scenario('Navigate to the indexing page and upload a test manifest @indexing', a
 
     if (indexdRecordRes.data.hashes) {
       expect(indexdRecordRes.data.hashes.md5).to.equal(testHash);
-      break
+      break;
     } else {
       console.log(`WARN: The indexd record has not been created yet... - attempt ${i}`);
       await sleepMS(5000);
@@ -102,7 +99,7 @@ Scenario('Navigate to the indexing page and upload a test manifest @indexing', a
       }
     }
   }
-});
+}).retry(2);
 
 // Scenario #2 - Login and navigate to the indexing page and download a full indexd manifest
 Scenario('Navigate to the indexing page and download a full indexd manifest @indexing', async (I, indexing, home) => {
@@ -120,20 +117,19 @@ Scenario('Navigate to the indexing page and download a full indexd manifest @ind
 
   await I.click({ xpath: 'xpath: //button[contains(text(), \'Download Manifest\')]' });
   // TODO: Inject the react -> state: { downloadManifestLink } url into an anchor tag
-  const directoryPath = path.join(__dirname, '../../output');
+  const manifestDownloadUrl = await I.grabValueFrom({ xpath: 'xpath: //button[contains(text(), \'Download Manifest\')]' });
+  console.log(`### Manifest download url: ${manifestDownloadUrl}`);
+  const getManifestRes = await I.sendGetRequest(
+    manifestDownloadUrl.toString(),
+  ).then((res) => new Gen3Response(res));
+  console.log(`### downloadOuput: ${JSON.stringify(getManifestRes)}`);
 
-  const nAttempts = 5;
-  for (let i = 0; i < nAttempts; i += 1) {
-    console.log(`checking downloaded files... - attempt ${i}`);
-    const files = fs.readdirSync(directoryPath);
-    files.forEach(function(file) {
-      console.log(file);
-    });
-    await sleepMS(5000);
-  }
+  const testManifestData = contentsOfTestManifest.split('\n')[1];
+  const downloadedManifestData = getManifestRes.body;
 
-/*  let contentsOfTheDownloadedManifest = fs.readFileSync(testDescriptorFile, 'utf8');
-  console(`downloaded file: ${contentsOfTheDownloadedManifest}`);
-*/
-  expect(testHash).to.equal('73d643ec3f4beb9020eef0beed440ad4');
+  expect(
+    downloadedManifestData,
+  ).to.include(
+    testManifestData.replace(/\t/g, ','),
+  );
 });
