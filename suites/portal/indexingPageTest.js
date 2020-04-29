@@ -133,4 +133,4 @@ Scenario('Navigate to the indexing page and download a full indexd manifest @ind
   ).to.include(
     testManifestData.replace(/\t/g, ','),
   );
-});
+}).retry(2);
