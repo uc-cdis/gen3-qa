@@ -96,7 +96,7 @@ Scenario('Navigate to the indexing page and upload a test manifest @indexing', a
       if (i === nAttempts - 1) {
         const manifestIndexingLogs = bash.runCommand('gen3 job logs manifest-indexing');
         console.log(`manifest-indexing logs: ${manifestIndexingLogs}`);
-        throw new Error(`ERROR: The manifest indexing operation failed. Response: ${indexdRecordRes.data}`);
+        throw new Error(`ERROR: The manifest indexing operation failed. Response: ${JSON.stringify(indexdRecordRes.data)}`);
       }
     }
   }
