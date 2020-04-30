@@ -363,6 +363,14 @@ module.exports = {
         'cards': {
           css: '.map-chart',
         },
+      },
+      'qa-covid19': {
+        'summary': {
+          css: '.covid19-dashboard',
+      },
+        'cards': {
+          css: '.map-chart',
+        },
       }
     }
     console.log(`#### hostname:${process.env.testedEnv}`);
