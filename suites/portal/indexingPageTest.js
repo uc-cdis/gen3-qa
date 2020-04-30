@@ -46,7 +46,7 @@ AfterSuite(async (I, files) => {
   files.deleteFile(`manifest_${I.cache.UNIQUE_NUM}.tsv`);
 });
 
-async function checkPod(podName, nAttempts = 3) {
+async function checkPod(podName, nAttempts = 6) {
   for (let i = 0; i < nAttempts; i += 1) {
     try {
       console.log(`waiting for the ${podName} sower job/pod to show up... - attempt ${i}`);
@@ -80,7 +80,7 @@ Scenario('Navigate to the indexing page and upload a test manifest @indexing', a
 
   await checkPod('manifest-indexing');
 
-  const nAttempts = 5;
+  const nAttempts = 12;
   for (let i = 0; i < nAttempts; i += 1) {
     console.log(`Looking up the indexd record... - attempt ${i}`);
     const indexdRecordRes = await I.sendGetRequest(
