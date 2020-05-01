@@ -11,6 +11,14 @@ gen3 integration tests - run by https://jenkins.planx-pla.net/ via a `Jenkinsfil
 docker run -d -p 4444:4444 --name=selenium --rm -v /dev/shm:/dev/shm selenium/standalone-chrome
 ```
 
+Edit your `/etc/hosts` file to point the `selenium-hub` host to your Docker container running on `localhost`.
+_/etc/hosts_
+```
+127.0.0.1 selenium-hub
+```
+
+More information about Selenium Hub in [`cloud-automation's documentation`](https://github.com/uc-cdis/cloud-automation/blob/master/kube/selenium/jenkins/README.md)
+
 ### Test with dev environment (ssh backend access)
 
 Run a test locally against a dev environment that you can ssh to and run gen3 commands like this:
