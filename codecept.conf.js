@@ -8,6 +8,7 @@ exports.config = {
   output: './output',
   helpers: {
     WebDriver: {
+      host: 'selenium-hub',
       url: `https://${process.env.HOSTNAME}`,
       smartWait: 5000,
       browser: 'chrome',
@@ -18,6 +19,7 @@ exports.config = {
             '--headless', // for dev, you can comment this line to open actual chrome for easier test
             '--disable-gpu',
             '--window-size=1920,1080',
+            '--whitelisted-ips=*',
           ],
         },
       },
