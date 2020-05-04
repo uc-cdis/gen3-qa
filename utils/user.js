@@ -194,4 +194,16 @@ module.exports = {
       ...gCreds,
     },
   ),
+
+  /**
+   * Indexing User account
+   * Note that this user has the "indexd_admin" policy
+   */
+  indexingAcct: new User(
+    {
+      username: 'ctds.indexing.test@gmail.com',
+      accessToken: process.env.GEN3_TOKEN_MAIN,
+      ...gCreds,
+    },
+  ),
 };

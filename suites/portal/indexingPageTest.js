@@ -103,9 +103,9 @@ Scenario('Navigate to the indexing page and upload a test manifest @indexing', a
 }).retry(2);
 
 // Scenario #2 - Login and navigate to the indexing page and download a full indexd manifest
-Scenario('Navigate to the indexing page and download a full indexd manifest @indexing', async (I, indexing, home) => {
+Scenario('Navigate to the indexing page and download a full indexd manifest @indexing', async (I, indexing, home, users) => {
   home.do.goToHomepage();
-  home.complete.login();
+  home.complete.login(users.indexingAcct);
   indexing.do.goToIndexingPage();
   I.waitForElement({ css: '.indexing-page' }, 10);
   I.click({ xpath: 'xpath: //button[contains(text(), \'Download\')]' });
