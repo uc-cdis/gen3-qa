@@ -299,7 +299,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     chai.expect(deleteServiceAccount0Res,
       'Cleanup of Google service account for User 0 FAILED.').to.be.empty;
   }
-).retry(1);
+).retry(2);
 
 Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle @googleDataAccess',
   async (fence, users, google, files) => {
@@ -488,7 +488,7 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
     chai.expect(deleteServiceAccount1Res,
       'Cleanup of Google service account for User 1 FAILED.').to.be.empty;
   }
-).retry(1);
+).retry(2);
 
 Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle @googleDataAccess',
   async (fence, users, google, files) => {
@@ -651,4 +651,4 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
     chai.expect(deleteServiceAccount2Res,
       'Cleanup of Google service account for User 2 FAILED.').to.be.empty;
   }
-).retry(1);
+).retry(2);
