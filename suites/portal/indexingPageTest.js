@@ -69,9 +69,9 @@ async function checkPod(podName, nAttempts = 6) {
 }
 
 // Scenario #1 - Login and navigate to the indexing page and upload dummy manifest
-Scenario('Navigate to the indexing page and upload a test manifest @indexing', async (I, indexing, home) => {
+Scenario('Navigate to the indexing page and upload a test manifest @indexing', async (I, indexing, home, users) => {
   home.do.goToHomepage();
-  home.complete.login();
+  home.complete.login(users.indexingAcct);
   indexing.do.goToIndexingPage();
   I.waitForElement({ css: '.indexing-page' }, 10);
   I.click('.index-flow-form'); // after clicking open window file upload dialog
