@@ -364,7 +364,7 @@ module.exports = {
           css: '.map-chart',
         },
       },
-      'qa-covid19': {
+      'covid19': {
         'summary': {
           css: '.covid19-dashboard',
         },
