@@ -33,7 +33,7 @@ exports.config = {
     },
     REST: {
       endpoint: `https://${process.env.HOSTNAME}`,
-      timeout: 60000,
+      timeout: 300000,
       defaultHeaders: {
         common: {
           Accept: 'application/json',
