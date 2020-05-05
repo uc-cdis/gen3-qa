@@ -356,6 +356,14 @@ module.exports = {
           css: '.index-button-bar__thumbnail-button',
         },
       },
+      'pandemicresponsecommons': {
+        'summary': {
+          css: '.covid19-dashboard',
+        },
+        'cards': {
+          css: '.map-chart',
+        },
+      },
       'covid19': {
         'summary': {
           css: '.covid19-dashboard',
