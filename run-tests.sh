@@ -352,7 +352,7 @@ fi
 # <testsuites name="Mocha Tests" time="0.0000" tests="0" failures="0">
 ls -ilha output/result*.xml
 cat output/result*.xml  | head -n2 | sed -n -e 's/^<testsuites.*\(tests\=.*\) failures.*/\1/p'
-zeroTests=$(cat output/result*.xml  | head -n2 | sed -n -e 's/^<testsuites.*\(tests\=.*\) failures.*/\1/p' | grep 0)
+zeroTests=$(cat output/result*.xml  | head -n2 | sed -n -e 's/^<testsuites.*\(tests\=.*\) failures.*/\1/p' | grep "tests=\"0\"")
 if [ -n "$zeroTests" ]; then
   echo "No tests have been executed, aborting PR check..."
   npm test -- --verbose suites/fail.js
