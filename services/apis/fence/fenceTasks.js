@@ -437,7 +437,7 @@ module.exports = {
    */
   async getConsentCode(clientId, responseType, scope, consent = 'ok', expectCode = true) {
     const fullURL = `${fenceProps.endpoints.authorizeOAuth2Client}?response_type=${responseType}&client_id=${clientId}&redirect_uri=https://${process.env.HOSTNAME}&scope=${scope}`;
-    await I.amOnPage(fullURL);
+    I.amOnPage(fullURL);
     const consentPageLoaded = await onConsentPage();
     if (consentPageLoaded) {
       if (consent === 'cancel') {
@@ -447,9 +447,9 @@ module.exports = {
       }
     }
     if (expectCode) {
-      await I.waitInUrl('code=', 10);
+      I.waitInUrl('code=', 10);
     } else {
-      await I.wait(5);
+      I.wait(5);
     }
     I.saveScreenshot('consent_auth_code_flow.png');
     const urlStr = await I.grabCurrentUrl();
@@ -508,7 +508,7 @@ module.exports = {
    */
   async getTokensImplicitFlow(clientId, responseType, scope, consent = 'yes', expectToken = true) {
     const fullURL = `https://${process.env.HOSTNAME}${fenceProps.endpoints.authorizeOAuth2Client}?response_type=${responseType}&client_id=${clientId}&redirect_uri=https://${process.env.HOSTNAME}&scope=${scope}&nonce=n-0S6_WzA2Mj`;
-    await I.amOnPage(fullURL);
+    I.amOnPage(fullURL);
     const consentPageLoaded = await onConsentPage();
     if (consentPageLoaded) {
       if (consent === 'cancel') {
@@ -519,9 +519,9 @@ module.exports = {
       I.saveScreenshot('consent_implicit_flow.png');
     }
     if (expectToken) {
-      await I.waitInUrl('token=', 3);
+      I.waitInUrl('token=', 3);
     } else {
-      await I.wait(5);
+      I.wait(5);
     }
 
     const urlStr = await I.grabCurrentUrl();
