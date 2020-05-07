@@ -2,8 +2,6 @@ Feature('DataUploadTest');
 
 const { interactive, ifInteractive } = require('../../utils/interactive');
 
-const { inJenkins } = require('../../utils/commons.js');
-
 // const I = actor();
 const createdGuids = [];
 const createdFileNames = [];
@@ -126,15 +124,12 @@ AfterSuite(async (sheepdog, indexd, files, dataUpload) => {
 
 Order of upload - study, case
 */
-
-if (!inJenkins) {
-  Scenario('Upload clinical data file through portal large enough to trigger chunking @manual @regression', ifInteractive(
-    async () => {
-      const result = await interactive(`
-        1. Submit a clinical data file with enough lines to trigger chunking (>30 rows in the default setting)
-        2. Data is submitted successfully and the state is shown as Succeeded in the 'Recent Submissions' pane
-      `);
-      expect(result.didPass, result.details).to.be.true;
-    },
-  ));
-}
+Scenario('Upload clinical data file through portal large enough to trigger chunking @manual @regression', ifInteractive(
+  async () => {
+    const result = await interactive(`
+      1. Submit a clinical data file with enough lines to trigger chunking (>30 rows in the default setting)
+      2. Data is submitted successfully and the state is shown as Succeeded in the 'Recent Submissions' pane
+    `);
+    expect(result.didPass, result.details).to.be.true;
+  },
+));
