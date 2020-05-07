@@ -2,6 +2,8 @@ Feature('DataUploadTest');
 
 const { interactive, ifInteractive } = require('../../utils/interactive');
 
+const { inJenkins } = require('../../utils/commons.js');
+
 // const I = actor();
 const createdGuids = [];
 const createdFileNames = [];
@@ -66,7 +68,11 @@ Before((home) => {
 
 Scenario('Map uploaded files in windmill submission page @dataUpload @portal', async (sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUpload) => {
   // generate file and register in fence, get url
-  const { fileObj, presignedUrl } = await generateFileAndGetUrlFromFence(files, fence, users.mainAcct.accessTokenHeader);
+  const { fileObj, presignedUrl } = await generateFileAndGetUrlFromFence(
+    files,
+    fence,
+    users.mainAcct.accessTokenHeader,
+  );
 
   // user1 should see 1 file, but not ready yet
   portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage([fileObj], false);
@@ -86,7 +92,11 @@ Scenario('Map uploaded files in windmill submission page @dataUpload @portal', a
 
 Scenario('Cannot see files uploaded by other users @dataUpload @portal', async (sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUpload) => {
   // user2 upload file2
-  const { fileObj, presignedUrl } = await generateFileAndGetUrlFromFence(files, fence, users.auxAcct2.accessTokenHeader);
+  const { fileObj, presignedUrl } = await generateFileAndGetUrlFromFence(
+    files,
+    fence,
+    users.auxAcct2.accessTokenHeader,
+  );
   await uploadFile(dataUpload, indexd, sheepdog, nodes, fileObj, presignedUrl);
 
   // user1 cannot see file2
@@ -115,13 +125,16 @@ AfterSuite(async (sheepdog, indexd, files, dataUpload) => {
 2. case.csv at gen3-qa/docs/sample-data/data-upload/case.csv
 
 Order of upload - study, case
- */
-Scenario('Upload clinical data file through portal large enough to trigger chunking @manual @regression', ifInteractive(
-  async () => {
-    const result = await interactive(`
+*/
+
+if (!inJenkins) {
+  Scenario('Upload clinical data file through portal large enough to trigger chunking @manual @regression', ifInteractive(
+    async () => {
+      const result = await interactive(`
         1. Submit a clinical data file with enough lines to trigger chunking (>30 rows in the default setting)
         2. Data is submitted successfully and the state is shown as Succeeded in the 'Recent Submissions' pane
       `);
-    expect(result.didPass, result.details).to.be.true;
-  },
-));
+      expect(result.didPass, result.details).to.be.true;
+    },
+  ));
+}
