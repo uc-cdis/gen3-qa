@@ -9,7 +9,7 @@ exports.config = {
     WebDriver: {
       // host: 'selenium-hub',
       url: `https://${process.env.HOSTNAME}`,
-      smartWait: 5000,
+      smartWait: 30000,
       browser: 'chrome',
       fullPageScreenshots: true,
       desiredCapabilities: {
