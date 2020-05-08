@@ -430,9 +430,9 @@ module.exports = {
           portal.clickProp(fenceProps.consentPage.cancelBtn);
         } else {
           portal.clickProp(fenceProps.consentPage.consentBtn);
+          I.waitInUrl('code=', 30);
         }
       }
-      I.waitInUrl('code=', 30);
     } else {
       I.seeTextEquals('Unauthorized', 'h2');
     }
@@ -500,10 +500,10 @@ module.exports = {
           portal.clickProp(fenceProps.consentPage.cancelBtn);
         } else {
           portal.clickProp(fenceProps.consentPage.consentBtn);
+          I.waitInUrl('token=', 3);
         }
         I.saveScreenshot('consent_implicit_flow.png');
       }
-      I.waitInUrl('token=', 3);
     } else {
       I.seeTextEquals('Unauthorized', 'h2');
     }

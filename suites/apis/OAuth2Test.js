@@ -11,7 +11,7 @@ Feature('OAuth2 flow');
 
 Scenario('Authorization code flow: Test that fails to generate code due to no user consent @reqGoogle', async (fence) => {
   const resULR = await fence.do.getConsentCode(
-    fence.props.clients.client.id, 'code', 'openid+user', 'cancel', false,
+    fence.props.clients.client.id, 'code', 'openid+user', 'cancel', true,
   );
   fence.ask.assertNotContainSubStr(resULR, ['code=']);
 });
@@ -185,7 +185,7 @@ Scenario('Authorization code flow: Test project access in id token same as proje
 
 Scenario('Implicit flow: Test that fails to generate tokens due to no user consent @reqGoogle', async (fence) => {
   const resULR = await fence.do.getTokensImplicitFlow(
-    fence.props.clients.clientImplicit.id, 'id_token+token', 'openid+user', 'cancel', false,
+    fence.props.clients.clientImplicit.id, 'id_token+token', 'openid+user', 'cancel', true,
   );
   fence.ask.assertNotContainSubStr(resULR, ['token_type=Bearer', 'id_token=', 'access_token=']);
 }).retry(2);
