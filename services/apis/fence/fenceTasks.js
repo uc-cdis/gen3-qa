@@ -424,17 +424,17 @@ module.exports = {
   async getConsentCode(clientId, responseType, scope, consent = 'ok', expectCode = true) {
     const fullURL = `${fenceProps.endpoints.authorizeOAuth2Client}?response_type=${responseType}&client_id=${clientId}&redirect_uri=https://${process.env.HOSTNAME}&scope=${scope}`;
     I.amOnPage(fullURL);
-    if (I.seeElement(fenceProps.consentPage.consentBtn.locator)) {
-      if (consent === 'cancel') {
-        portal.clickProp(fenceProps.consentPage.cancelBtn);
-      } else {
-        portal.clickProp(fenceProps.consentPage.consentBtn);
-      }
-    }
     if (expectCode) {
-      I.waitInUrl('code=', 30);
+      if (I.seeElement(fenceProps.consentPage.consentBtn.locator)) {
+        if (consent === 'cancel') {
+          portal.clickProp(fenceProps.consentPage.cancelBtn);
+        } else {
+          portal.clickProp(fenceProps.consentPage.consentBtn);
+          I.waitInUrl('code=', 30);
+        }
+      }
     } else {
-      I.wait(5);
+      I.seeTextEquals('Unauthorized', 'h2');
     }
     I.saveScreenshot('consent_auth_code_flow.png');
     const urlStr = await I.grabCurrentUrl();
@@ -494,18 +494,18 @@ module.exports = {
   async getTokensImplicitFlow(clientId, responseType, scope, consent = 'yes', expectToken = true) {
     const fullURL = `https://${process.env.HOSTNAME}${fenceProps.endpoints.authorizeOAuth2Client}?response_type=${responseType}&client_id=${clientId}&redirect_uri=https://${process.env.HOSTNAME}&scope=${scope}&nonce=n-0S6_WzA2Mj`;
     I.amOnPage(fullURL);
-    if (I.seeElement(fenceProps.consentPage.consentBtn.locator)) {
-      if (consent === 'cancel') {
-        portal.clickProp(fenceProps.consentPage.cancelBtn);
-      } else {
-        portal.clickProp(fenceProps.consentPage.consentBtn);
-      }
-      I.saveScreenshot('consent_implicit_flow.png');
-    }
     if (expectToken) {
-      I.waitInUrl('token=', 3);
+      if (I.seeElement(fenceProps.consentPage.consentBtn.locator)) {
+        if (consent === 'cancel') {
+          portal.clickProp(fenceProps.consentPage.cancelBtn);
+        } else {
+          portal.clickProp(fenceProps.consentPage.consentBtn);
+          I.waitInUrl('token=', 3);
+        }
+        I.saveScreenshot('consent_implicit_flow.png');
+      }
     } else {
-      I.wait(5);
+      I.seeTextEquals('Unauthorized', 'h2');
     }
 
     const urlStr = await I.grabCurrentUrl();
