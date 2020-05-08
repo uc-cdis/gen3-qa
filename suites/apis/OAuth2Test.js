@@ -9,7 +9,7 @@ const apiUtil = require('../../utils/apiUtil.js');
 Feature('OAuth2 flow');
 
 
-Scenario('Authorization code flow: Test that fails to generate code due to no user consent', async (fence) => {
+Scenario('Authorization code flow: Test that fails to generate code due to no user consent @reqGoogle', async (fence) => {
   const resULR = await fence.do.getConsentCode(
     fence.props.clients.client.id, 'code', 'openid+user', 'cancel', false,
   );
@@ -20,28 +20,28 @@ Scenario('Authorization code flow: Test that fails to generate code due to no us
  * DISABLED!!!
  * OAUTH with Google
  */
-Scenario('Authorization code flow: Test that successfully generates code', async (fence) => {
+Scenario('Authorization code flow: Test that successfully generates code @reqGoogle', async (fence) => {
   const resULR = await fence.do.getConsentCode(
     fence.props.clients.client.id, 'code', 'openid+user',
   );
   fence.ask.assertContainSubStr(resULR, ['code=']);
 }).retry(2);
 
-Scenario('Authorization code flow: Test that fail to generate code due to not provided openid scope', async (fence) => {
+Scenario('Authorization code flow: Test that fail to generate code due to not provided openid scope @reqGoogle', async (fence) => {
   const resULR = await fence.do.getConsentCode(
     fence.props.clients.client.id, 'code', 'user', 'ok', false,
   );
   fence.ask.assertNotContainSubStr(resULR, ['code=']);
 }).retry(2);
 
-Scenario('Authorization code flow: Test that fail to generate code due to wrong response type', async (fence) => {
+Scenario('Authorization code flow: Test that fail to generate code due to wrong response type @reqGoogle', async (fence) => {
   const resULR = await fence.do.getConsentCode(
     fence.props.clients.client.id, 'wrong_code', 'user', 'yes', false,
   );
   fence.ask.assertNotContainSubStr(resULR, ['code=']);
 }).retry(2);
 
-Scenario('Authorization code flow: Test that successfully generate tokens', async (fence) => {
+Scenario('Authorization code flow: Test that successfully generate tokens @reqGoogle', async (fence) => {
   const urlStr = await fence.do.getConsentCode(fence.props.clients.client.id, 'code', 'openid+user');
   fence.ask.assertContainSubStr(urlStr, ['code=']);
   const match = urlStr.match(RegExp('/?code=(.*)'));
@@ -57,7 +57,7 @@ Scenario('Authorization code flow: Test that successfully generate tokens', asyn
   fence.ask.assertTokensSuccess(res);
 }).retry(2);
 
-Scenario('Authorization code flow: Test that fails to generate tokens due to invalid code', async (fence) => {
+Scenario('Authorization code flow: Test that fails to generate tokens due to invalid code @reqGoogle', async (fence) => {
   const res = await fence.do.getTokensWithAuthCode(
     fence.props.clients.client.id,
     fence.props.clients.client.secret,
@@ -66,7 +66,7 @@ Scenario('Authorization code flow: Test that fails to generate tokens due to inv
   fence.ask.assertStatusCode(res, 400);
 }).retry(2);
 
-Scenario('Authorization code flow: Test that fails to generate tokens due to invalid grant type', async (fence) => {
+Scenario('Authorization code flow: Test that fails to generate tokens due to invalid grant type @reqGoogle', async (fence) => {
   const urlStr = await fence.do.getConsentCode(
     fence.props.clients.client.id, 'code', 'openid+user',
   );
@@ -83,7 +83,7 @@ Scenario('Authorization code flow: Test that fails to generate tokens due to inv
   fence.ask.assertStatusCode(res, 400);
 }).retry(2);
 
-Scenario('Authorization code flow: Test that can create an access token which can be used in fence', async (fence) => {
+Scenario('Authorization code flow: Test that can create an access token which can be used in fence @reqGoogle', async (fence) => {
   const urlStr = await fence.do.getConsentCode(
     fence.props.clients.client.id, 'code', 'openid+user',
   );
@@ -183,14 +183,14 @@ Scenario('Authorization code flow: Test project access in id token same as proje
 //   fence.ask.assertUserInfo(res);
 // });
 
-Scenario('Implicit flow: Test that fails to generate tokens due to no user consent', async (fence) => {
+Scenario('Implicit flow: Test that fails to generate tokens due to no user consent @reqGoogle', async (fence) => {
   const resULR = await fence.do.getTokensImplicitFlow(
     fence.props.clients.clientImplicit.id, 'id_token+token', 'openid+user', 'cancel', false,
   );
   fence.ask.assertNotContainSubStr(resULR, ['token_type=Bearer', 'id_token=', 'access_token=']);
 }).retry(2);
 
-Scenario('Implicit flow: Test that successfully generates id and access tokens', async (fence) => {
+Scenario('Implicit flow: Test that successfully generates id and access tokens @reqGoogle', async (fence) => {
   const resULR = await fence.do.getTokensImplicitFlow(
     fence.props.clients.clientImplicit.id, 'id_token+token', 'openid+user',
   );
@@ -200,14 +200,14 @@ Scenario('Implicit flow: Test that successfully generates id and access tokens',
   );
 }).retry(2);
 
-Scenario('Implicit flow: Test that fails to generate tokens due to wrong grant types', async (fence) => {
+Scenario('Implicit flow: Test that fails to generate tokens due to wrong grant types @reqGoogle', async (fence) => {
   const resULR = await fence.do.getTokensImplicitFlow(
     fence.props.clients.clientImplicit.id, 'not_supported_grant', 'openid+user', 'ok', false,
   );
   fence.ask.assertNotContainSubStr(resULR, ['token_type=Bearer', 'id_token=', 'access_token=']);
 }).retry(2);
 
-Scenario('Implicit flow: Test that successfully generates only id token', async (fence) => {
+Scenario('Implicit flow: Test that successfully generates only id token @reqGoogle', async (fence) => {
   const resULR = await fence.do.getTokensImplicitFlow(
     fence.props.clients.clientImplicit.id, 'id_token', 'openid+user',
   );
@@ -215,7 +215,7 @@ Scenario('Implicit flow: Test that successfully generates only id token', async 
   fence.ask.assertNotContainSubStr(resULR, ['access_token=']);
 }).retry(2);
 
-Scenario('Implicit flow: Test that fails to generate tokens due to openid scope not provided', async (fence) => {
+Scenario('Implicit flow: Test that fails to generate tokens due to openid scope not provided @reqGoogle', async (fence) => {
   const resULR = await fence.do.getTokensImplicitFlow(
     fence.props.clients.clientImplicit.id, 'id_token', 'user', 'ok', false,
   );
@@ -223,7 +223,7 @@ Scenario('Implicit flow: Test that fails to generate tokens due to openid scope 
 }).retry(2);
 
 
-Scenario('Implicit flow: Test that can create an access token which can be used in fence', async (fence) => {
+Scenario('Implicit flow: Test that can create an access token which can be used in fence @reqGoogle', async (fence) => {
   const resULR = await fence.do.getTokensImplicitFlow(
     fence.props.clients.clientImplicit.id, 'id_token+token', 'openid+user',
   );
