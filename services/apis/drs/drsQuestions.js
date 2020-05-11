@@ -23,6 +23,16 @@ module.exports = {
    */
   fileEquals(res, fileNode) {
     const object = res.data;
+
+    console.log("---------------------drs----------------------")
+    console.log(res)
+    console.log("---------------------fileNode----------------------")
+    console.log(fileNode)
+    console.log("---------------------drs.checksum----------------------")
+    console.log(object.checksums)
+    console.log("---------------------fileNode.checksum----------------------")
+    console.log(fileNode.data.checksums)
+
     expect(object.checksums[0]).to.nested.include(
       { checksum: fileNode.data.checksums[0].checksum },
     );
