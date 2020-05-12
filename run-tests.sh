@@ -48,12 +48,14 @@ getServiceVersion() {
 }
 
 
-# Takes 3 arguments:
+# Takes 3 required and 1 optional arguments:
 #   $1 test tag to avoid until service version is greater than last arg
 #   $2 service name
 #   $3 version of service where tests apply >=
+#   $4 version of service where tests apply >=, in monthly release (2020.xx) format
 #
 # ex: runTestsIfServiceVersion "@multipartupload" "fence" "3.0.0"
+# or: runTestsIfServiceVersion "@multipartupload" "fence" "3.0.0" "2020.01"
 runTestsIfServiceVersion() {
   # make sure args provided
   if [[ -z "$1" || -z "$2" || -z "$3" ]]; then
@@ -81,14 +83,31 @@ runTestsIfServiceVersion() {
     versionAsNumber=$currentVersion
   fi
 
-  min=$(printf "$3\n$versionAsNumber\n" | sort -V | head -n1)
-  if [ "$min" = "$3" ]; then
-    echo "RUNNING $1 tests b/c $2 version ($currentVersion) is greater than $3"
+  min=$(printf "2020\n$versionAsNumber\n" | sort -V | head -n1)
+  if [[ "$min" = "2020" && -n "$4" ]]; then
+    # 1. versionAsNumber >=2020, so assume it is a monthly release (or it was a branch
+    #    and is now 9000, in which case it will still pass the check as expected)
+    # 2. monthly release version arg was provided
+    # So, do the version comparison based on monthly release version arg
+    min=$(printf "$4\n$versionAsNumber\n" | sort -V | head -n1)
+    if [ "$min" = "$4" ]; then
+      echo "RUNNING $1 tests b/c $2 version ($currentVersion) is greater than $4"
+    else
+      echo "SKIPPING $1 tests b/c $2 version ($currentVersion) is less than $4"
+      donot $1
+    fi
   else
-    echo "SKIPPING $1 tests b/c $2 version ($currentVersion) is less than $3"
-    donot $1
+    # versionAsNumber is normal semver tag
+    min=$(printf "$3\n$versionAsNumber\n" | sort -V | head -n1)
+    if [ "$min" = "$3" ]; then
+      echo "RUNNING $1 tests b/c $2 version ($currentVersion) is greater than $3"
+    else
+      echo "SKIPPING $1 tests b/c $2 version ($currentVersion) is less than $3"
+      donot $1
+    fi
   fi
 }
+
 
 # little helper to maintain doNotRunRegex
 donot() {
@@ -200,7 +219,7 @@ runTestsIfServiceVersion "@centralizedAuth" "fence" "3.0.0"
 runTestsIfServiceVersion "@dbgapSyncing" "fence" "3.0.0"
 runTestsIfServiceVersion "@indexRecordConsentCodes" "sheepdog" "1.1.13"
 runTestsIfServiceVersion "@coreMetadataPage" "portal" "2.20.8"
-runTestsIfServiceVersion "@indexing" "portal" "2.26.0"
+runTestsIfServiceVersion "@indexing" "portal" "2.26.0" "2020.05"
 
 # environments that use DCF features
 # we only run Google Data Access tests for cdis-manifest PRs to these
