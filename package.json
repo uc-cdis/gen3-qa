@@ -33,6 +33,7 @@
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.18.0",
     "googleapis": "^47.0.0",
+    "influx": "^5.5.1",
     "isomorphic-fetch": "^2.2.1",
     "jsdom": "^16.2.1",
     "json-stringify-safe": "^5.0.1",
