@@ -12,13 +12,18 @@ docker run -d -p 4444:4444 --name=selenium --rm -v /dev/shm:/dev/shm selenium/st
 ```
 
 ### Start influxdb and grafana
-- ***test run metrics can then be viewed on grafana (http://localhost:3000)***
-- ***a preconfigured dashboard can be added by importing*** `grafana_test_observability.json`
 ```
 # start influxdb and grafana
 cd load-testing/grafana
 docker-compose up -d
 ```
+
+### Initial setup of influxdb (only needed on a new influxdb container)
+```
+# create database
+curl -i -XPOST http://localhost:8086/query --data-urlencode "q=CREATE DATABASE ci_metrics"
+```
+Configure the grafana dashboard by importing `grafana_test_observability.json`. This is a pre-configured dashboard, though the data source needs to be selected while importing.
 
 Edit your `/etc/hosts` file to point the `selenium-hub` and `influxdb` host to your Docker container running on `localhost`.
 _/etc/hosts_
