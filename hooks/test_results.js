@@ -24,7 +24,7 @@ module.exports = function () {
     const prName = process.env.BRANCH_NAME.split('-')[1];
     const repoName = process.env.JOB_NAME.split('/')[1];
     // const duration = test.parent.tests[0].duration / 1000;
-    const error = test.parent.tests[0].err.message.substring(0, 50);
+    // const error = test.parent.tests[0].err.message.substring(0, 50);
     let testFailCount = 0;
     if (test.state === 'failed') {
       testFailCount = 1;
@@ -39,7 +39,7 @@ module.exports = function () {
           suite_name: suiteName,
           test_name: testName,
           // run_time: duration,
-          err_msg: error,
+          // err_msg: error,
         },
         fields: { fail_count: testFailCount },
       },
@@ -58,7 +58,7 @@ module.exports = function () {
           suite_name: suiteName,
           test_name: testName,
           // run_time: duration,
-          err_msg: error,
+          // err_msg: error,
         },
         fields: { retry_count: test.retryNum },
       },
