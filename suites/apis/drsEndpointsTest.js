@@ -46,7 +46,11 @@ BeforeSuite(async (indexd) => {
   expect(ok).to.be.true;
 });
 
-Scenario('get drs object @drs', async (drs) => {
+Scenario('get drs object @drs', async (drs, indexd) => {
+  const indexdRecord = await indexd.do.getFile(files.allowed);
+  console.log("-------------------indexd record---------------------");
+  console.log(indexdRecord);
+  console.log(Date());
   const drsObject = await drs.do.getDrsObject(files.allowed);
   await drs.complete.checkFile(drsObject);
 });
