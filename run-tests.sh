@@ -5,6 +5,8 @@
 #   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--selectedTest=selectedTest]
 #
 
+set -xe
+
 help() {
   cat - <<EOM
 Jenkins test launch script.  Assumes the  GEN3_HOME environment variable
