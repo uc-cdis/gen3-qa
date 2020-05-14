@@ -48,7 +48,7 @@ BeforeSuite(async (indexd) => {
 
 Scenario('get drs object @drs', async (drs, indexd) => {
   const indexdRecord = await indexd.do.getFile(files.allowed);
-  console.log("-------------------indexd record---------------------");
+  console.log('-------------------indexd record---------------------');
   console.log(indexdRecord);
   console.log(Date());
   const drsObject = await drs.do.getDrsObject(files.allowed);
