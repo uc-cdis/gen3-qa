@@ -11,10 +11,11 @@ gen3 integration tests - run by https://jenkins.planx-pla.net/ via a `Jenkinsfil
 docker run -d -p 4444:4444 --name=selenium --rm -v /dev/shm:/dev/shm selenium/standalone-chrome
 ```
 
+### Start influxdb and grafana
+- ***test run metrics can then be viewed on grafana (http://localhost:3000)***
+- ***a preconfigured dashboard can be added by importing*** `grafana_test_observability.json`
 ```
 # start influxdb and grafana
-# test run metrics can then be viewed on grafana (localhost:3000)
-# a preconfigured dashboard can be added by importing `grafana_test_observability.json`
 cd load-testing/grafana
 docker-compose up -d
 ```
