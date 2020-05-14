@@ -12,7 +12,9 @@ docker run -d -p 4444:4444 --name=selenium --rm -v /dev/shm:/dev/shm selenium/st
 ```
 
 ```
-# start influxdb (test run metrics are captured here, optional but you will see some errors)
+# start influxdb and grafana
+# you can see the test run metrics by going to grafana (localhost:3000)
+# you can import `grafana_test_observability.json` to have a ready to use dashboard
 cd load-testing/grafana
 docker-compose up -d
 ```
