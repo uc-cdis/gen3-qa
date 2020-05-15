@@ -366,6 +366,7 @@ EOM
     #    dryrun npm 'test' -- --reporter mocha-multi --verbose --grep '@FRICKJACK'
   ) || exitCode=1
 else
+  set +e
   additionalArgs=""
   foundReqGoogle=$(grep "@reqGoogle" ${selectedTest})
   foundDataClientCLI=$(grep "@dataClientCLI" ${selectedTest})
@@ -376,6 +377,7 @@ else
   else
     additionalArgs="--grep @manual --invert"
   fi
+  set -e
   npm 'test' -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
 fi
 
@@ -384,7 +386,9 @@ fi
 # <testsuites name="Mocha Tests" time="0.0000" tests="0" failures="0">
 ls -ilha output/result*.xml
 cat output/result*.xml  | head -n2 | sed -n -e 's/^<testsuites.*\(tests\=.*\) failures.*/\1/p'
+set +e
 zeroTests=$(cat output/result*.xml  | head -n2 | sed -n -e 's/^<testsuites.*\(tests\=.*\) failures.*/\1/p' | grep "tests=\"0\"")
+set -e
 if [ -n "$zeroTests" ]; then
   echo "No tests have been executed, aborting PR check..."
   npm test -- --verbose suites/fail.js
