@@ -21,6 +21,8 @@ const testHash = '73d643ec3f4beb9020eef0beed440ad4';
 const contentsOfTestManifest = `GUID	md5	file_size	acl	authz	urls
 ${testGUID}	${testHash}	13	jenkins2		s3://cdis-presigned-url-test/testdata`;
 
+const expectedResult = `${testGUID},s3://cdis-presigned-url-test/testdata,,jenkins2,${testHash},13,`;
+
 BeforeSuite(async (I, files, indexd) => {
   console.log('Setting up dependencies...');
   I.cache = {};
@@ -125,12 +127,11 @@ Scenario('Navigate to the indexing page and download a full indexd manifest @ind
   ).then((res) => new Gen3Response(res));
   console.log(`### downloadOuput: ${JSON.stringify(getManifestRes)}`);
 
-  const testManifestData = contentsOfTestManifest.split('\n')[1];
   const downloadedManifestData = getManifestRes.body;
 
   expect(
     downloadedManifestData,
   ).to.include(
-    testManifestData.replace(/\t/g, ','),
+    expectedResult,
   );
 }).retry(2);
