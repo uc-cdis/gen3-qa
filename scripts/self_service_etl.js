@@ -4,4 +4,5 @@ const bash = new Bash();
 
 async runFrigginETL() {
   const result = await bash.runCommand('gen3 job run etl');
+  console.log(`result: ${result}`);
 }
