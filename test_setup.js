@@ -118,14 +118,14 @@ function createGoogleTestBuckets() {
       let { bucketId } = fenceProps.googleBucketInfo.QA;
       let { googleProjectId } = fenceProps.googleBucketInfo.QA;
       let projectAuthId = 'QA';
-      let fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
+      let fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId}`;
       console.log(`Running: ${fenceCmd}`);
       const responseQABucket = bash.runCommand(fenceCmd, 'fence');
 
       bucketId = fenceProps.googleBucketInfo.test.bucketId;
       googleProjectId = fenceProps.googleBucketInfo.test.googleProjectId;
       projectAuthId = 'test';
-      fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
+      fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId}`;
       console.log(`Running: ${fenceCmd}`);
       const responseTestBucket = bash.runCommand(fenceCmd, 'fence');
 
