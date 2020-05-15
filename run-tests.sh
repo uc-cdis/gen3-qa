@@ -311,7 +311,9 @@ fi
 
 # check if manifest indexing jobs are set in sower block
 # this is a temporary measure while PXP-4796 is not implemented
+set +e
 checkForPresenceOfManifestIndexingSowerJob=$(g3kubectl get cm manifest-sower -o yaml | grep manifest-indexing)
+set -e
 if [ -z "$checkForPresenceOfManifestIndexingSowerJob" ]; then
   echo "the manifest-indexing sower job was not found, skip @indexing tests"; 
   donot '@indexing'
