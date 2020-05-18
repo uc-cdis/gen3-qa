@@ -32,7 +32,7 @@ _/etc/hosts_
 127.0.0.1 influxdb
 ```
 
-More information about Selenium Hub in [`cloud-automation's documentation`](https://github.com/uc-cdis/cloud-automation/blob/master/kube/selenium/jenkins/README.md)
+More information about Selenium Hub in [`cloud-automation's documentation`](https://github.com/uc-cdis/cloud-automation/blob/master/kube/services/selenium/README.md)
 
 ### Test with dev environment (ssh backend access)
 
