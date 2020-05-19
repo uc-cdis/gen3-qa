@@ -21,14 +21,14 @@ module.exports = function () {
 
     const suiteName = test.parent.title.split(' ').join('_');
     const testName = test.title.split(' ').join('_');
-    let prName = "";
-    let repoName = "";
-    if (process.env.RUNNING_LOCAL === "true") {
-      prName = "PR-1";
-      repoName = "local";
+    let prName = '';
+    let repoName = '';
+    if (process.env.RUNNING_LOCAL === 'true') {
+      prName = 'PR-1';
+      repoName = 'local';
     } else {
-      prName = process.env.BRANCH_NAME.split('-')[1];
-      repoName = process.env.JOB_NAME.split('/')[1];
+      prName = process.env.BRANCH_NAME.split('-')[1]; // eslint-disable-line prefer-destructuring
+      repoName = process.env.JOB_NAME.split('/')[1]; // eslint-disable-line prefer-destructuring
     }
     // const duration = test.parent.tests[0].duration / 1000;
     // const error = test.parent.tests[0].err.message.substring(0, 50);
