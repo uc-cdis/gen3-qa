@@ -358,7 +358,7 @@ module.exports = {
       },
       'pandemicresponsecommons': {
         'summary': {
-          css: '.covid19-dashboard',
+          css: '.covid19-dashboard_panel',
         },
         'cards': {
           css: '.map-chart',
@@ -366,7 +366,7 @@ module.exports = {
       },
       'covid19': {
         'summary': {
-          css: '.covid19-dashboard',
+          css: '.covid19-dashboard_panel',
         },
         'cards': {
           css: '.map-chart',
