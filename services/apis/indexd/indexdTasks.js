@@ -62,18 +62,19 @@ module.exports = {
     }).map((data) => I.sendPostRequest(indexdProps.endpoints.add, data, authHeaders).then(
       (res) => {
         if (res.status === 200 && res.data && res.data.rev) {
-          file.rev = res.data.rev;
-          return Promise.resolve(file);
+          console.log('### ## Do we ever enter this block?');
+          file.rev = res.data.rev; // eslint-disable-line  no-undef
+          return Promise.resolve(file); // eslint-disable-line  no-undef
         }
-        console.error(`Failed indexd submission got status ${res.status} for ${strData}`, res.data);
-        return Promise.reject('Failed to register file with indexd');
+        console.error(`Failed indexd submission got status ${res.status}`, res.data);
+        return Promise.reject(new Error('Failed to register file with indexd'));
       },
       (err) => {
-        console.err('Error on indexd submission', err);
-        return Promise.reject(`indexd submission error on ${data.file_name}`);
+        console.err(`Error on indexd submission ${data.file_name}`, err);
+        return Promise.reject(err);
       },
     ));
-    // console.log("indexd addFileIndices waiting on promiseList of length: " + promiseList.length, promiseList);
+    // console.log("waiting on promiseList of length: " + promiseList.length, promiseList);
     // This Promise.all trick does not work for some reason - ugh!
     // Have to figure it out later - always return true for now (below)
     const success = await (
@@ -145,7 +146,7 @@ module.exports = {
         `${indexdProps.endpoints.put}/${file.did}?rev=${file.rev}`,
         data,
         authHeaders,
-      ).then((res) => res.data);
+      ).then((res2) => res2.data);
     });
   },
 
@@ -164,17 +165,21 @@ module.exports = {
       `${indexdProps.endpoints.get}/${file.did}`,
       authHeaders,
     ).then((res) => {
-      console.log(`deleting file: ${file.did}`);
+      console.log(`checking if file [${file.did}] can be deleted...`);
+      if (res.status === 404) {
+        // there is no need to delete an indexd record that does not exist
+        return new Gen3Response(res);
+      }
       // get last revision
       file.rev = getRevFromResponse(res);
       console.log(`deleting file with rev: ${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`);
       return I.sendDeleteRequest(
         `${indexdProps.endpoints.delete}/${file.did}?rev=${file.rev}`,
         authHeaders,
-      ).then((res) => {
+      ).then((res2) => {
         // Note that we use the entire response, not just the response body
-        file.indexd_delete_res = res;
-        return new Gen3Response(res);
+        file.indexd_delete_res = res2;
+        return new Gen3Response(res2);
       });
     });
   },
@@ -196,13 +201,14 @@ module.exports = {
    */
   async deleteFiles(guidList) {
     const fileList = [];
-    for (guid of guidList) {
+    for (const guid of guidList) {
       const file = {
         did: guid,
       };
       const fileRes = await this.getFile(file); // adds 'rev' to the file
       if (!fileRes.error) {
         const res = await this.deleteFile(file);
+        console.log(`deleteFile result: ${res.status}`);
         fileList.push(file);
       } else {
         console.log(`Could not delete file, since attempting to get it resulted in error: ${fileRes.error}`);
