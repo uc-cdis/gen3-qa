@@ -18,7 +18,7 @@ const testGUID = 'dg123/c2da639f-aa25-4c4d-8e89-02a143788268';
 const testHash = '73d643ec3f4beb9020eef0beed440ad4';
 
 /* eslint-disable no-tabs */
-const contentsOfTestManifest = `GUID	md5	file_size	acl	authz	urls
+const contentsOfTestManifest = `GUID	md5	size	acl	authz	urls
 ${testGUID}	${testHash}	13	jenkins2		s3://cdis-presigned-url-test/testdata`;
 
 const expectedResult = `${testGUID},s3://cdis-presigned-url-test/testdata,,jenkins2,${testHash},13,`;
