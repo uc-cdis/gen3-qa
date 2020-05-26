@@ -55,7 +55,7 @@ function performSvcAcctRegistrationTest(typeOfTest, testInstructions) {
       );
       const result = await interactive(`
               1. [Automated] Send a HTTP POST request with the NIH user's ACCESS TOKEN to register a service account:
-              HTTP POST request to: https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.registerGoogleServiceAccount}${typeOfTest !== 'dry_run_registration' ? '' : '/_dry_run'}
+              HTTP POST request to: https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.registerGoogleServiceAccount}${typeOfTest !== 'dryRunRegistration' ? '' : '/_dry_run'}
               Manual verification:
                 Response status: ${httpResp.status} // Expect a HTTP ${testInstructions.expectedStatus}
                 Response data: ${JSON.stringify(httpResp.body) || httpResp.parsedFenceError}
@@ -73,13 +73,13 @@ function performSvcAcctUpdateTest(typeOfTest, testInstructions) {
       // patch existing svc acct to remove project access
       const httpResp = await fence.do.updateGoogleServiceAccount(
         I.cache.userAcct,
-        typeOfTest !== 'patch_unregistered_acc' ? I.cache.googleProject.serviceAccountEmail : 'whatever@invalid.iam.gserviceaccount.com',
+        typeOfTest !== 'patchUnregisteredAcc' ? I.cache.googleProject.serviceAccountEmail : 'whatever@invalid.iam.gserviceaccount.com',
         [],
-        typeOfTest === 'dry_run',
+        typeOfTest === 'dryRun',
       );
       const result = await interactive(`
               1. [Automated] Send a HTTP PATCH request with the NIH user's ACCESS TOKEN to update the project access for svc acct: ${I.cache.googleProject.serviceAccountEmail}.
-              HTTP PATCH request to: https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.updateGoogleServiceAccount}${typeOfTest !== 'dry_run' ? '' : '/_dry_run'}/${typeOfTest !== 'patch_unregistered_acc' ? I.cache.googleProject.serviceAccountEmail : 'whatever@invalid.iam.gserviceaccount.com'}
+              HTTP PATCH request to: https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.updateGoogleServiceAccount}${typeOfTest !== 'dryRun' ? '' : '/_dry_run'}/${typeOfTest !== 'patchUnregisteredAcc' ? I.cache.googleProject.serviceAccountEmail : 'whatever@invalid.iam.gserviceaccount.com'}
               Manual verification:
                 Response status: ${httpResp.status} // Expect a HTTP ${testInstructions.expectedStatus}
                 Response data: ${JSON.stringify(httpResp.body) || httpResp.parsedFenceError}
