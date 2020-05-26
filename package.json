@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "description": "Bionimbus Data Portal",
   "main": "index.js",
-  "dependencies": {},
+  "dependencies": {
+    "jsonexport": "^2.5.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/uc-cdis/auto-qa.git"
@@ -32,6 +34,8 @@
     "eslint-plugin-json": "^2.0.1",
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.18.0",
+    "exceljs": "^3.9.0",
+    "figures": "^3.2.0",
     "googleapis": "^47.0.0",
     "influx": "^5.5.1",
     "isomorphic-fetch": "^2.2.1",
