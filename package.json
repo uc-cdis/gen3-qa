@@ -3,9 +3,7 @@
   "version": "0.1.0",
   "description": "Bionimbus Data Portal",
   "main": "index.js",
-  "dependencies": {
-    "jsonexport": "^2.5.0"
-  },
+  "dependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/uc-cdis/auto-qa.git"
