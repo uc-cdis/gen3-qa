@@ -23,12 +23,21 @@ module.exports = function () {
     const testName = test.title.split(' ').join('_');
     let prName = '';
     let repoName = '';
-    if (process.env.RUNNING_LOCAL === 'true') {
-      prName = 'PR-1';
-      repoName = 'local';
-    } else {
+    try {
       prName = process.env.BRANCH_NAME.split('-')[1]; // eslint-disable-line prefer-destructuring
       repoName = process.env.JOB_NAME.split('/')[1]; // eslint-disable-line prefer-destructuring
+    } catch {
+      prName = 'UNDEFINED';
+      repoName = 'UNDEFINED';
+    }
+    const resp = await fetch('http://selenium-hub:4444/grid/api/sessions');
+    const respJson = await resp.json();
+    let sessionCount = 0;
+    const { proxies } = respJson;
+    if (proxies.length > 0) {
+      proxies.array.forEach((proxy) => {
+        sessionCount += proxy.sessions.length;
+      });
     }
     // const duration = test.parent.tests[0].duration / 1000;
     // const error = test.parent.tests[0].err.message.substring(0, 50);
@@ -45,6 +54,7 @@ module.exports = function () {
           pr_num: prName,
           suite_name: suiteName,
           test_name: testName,
+          selenium_grid_sessions: sessionCount,
           // run_time: duration,
           // err_msg: error,
         },
