@@ -11,15 +11,7 @@ const influx = new Influx.InfluxDB({
 
 module.exports = function () {
   event.dispatcher.on(event.test.finished, async (test) => {
-    console.log('********');
-    console.log(`TEST: ${test.title}`);
-    console.log(`RESULT: ${test.state}`);
-    console.log(`RETRIES: ${test.retryNum}`);
-    console.log(`TIMESTAMP: ${new Date()}`);
-    console.log('********');
-
     // console.log(stringify(test));
-
     const suiteName = test.parent.title.split(' ').join('_');
     const testName = test.title.split(' ').join('_');
     let prName = '';
@@ -36,10 +28,17 @@ module.exports = function () {
     let sessionCount = 0;
     const { proxies } = respJson;
     if (proxies.length > 0) {
-      proxies.array.forEach((proxy) => {
-        sessionCount += proxy.sessions.length;
+      proxies.forEach((proxy) => {
+        sessionCount += proxy.sessions.value.length;
       });
     }
+    console.log('********');
+    console.log(`TEST: ${test.title}`);
+    console.log(`RESULT: ${test.state}`);
+    console.log(`RETRIES: ${test.retryNum}`);
+    console.log(`TIMESTAMP: ${new Date()}`);
+    console.log(`GRID_SESSION_COUNT: ${sessionCount}`);
+    console.log('********');
     // const duration = test.parent.tests[0].duration / 1000;
     // const error = test.parent.tests[0].err.message.substring(0, 50);
     let testFailCount = 0;
