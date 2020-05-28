@@ -46,44 +46,48 @@ module.exports = function () {
       testFailCount = 1;
     }
 
-    await influx.writePoints([
-      {
-        measurement: 'fail_count',
-        tags: {
-          repo_name: repoName,
-          pr_num: prName,
-          suite_name: suiteName,
-          test_name: testName,
-          selenium_grid_sessions: sessionCount,
-          // run_time: duration,
-          // err_msg: error,
+    if (testFailCount > 0) {
+      await influx.writePoints([
+        {
+          measurement: 'fail_count',
+          tags: {
+            repo_name: repoName,
+            pr_num: prName,
+            suite_name: suiteName,
+            test_name: testName,
+            selenium_grid_sessions: sessionCount,
+            // run_time: duration,
+            // err_msg: error,
+          },
+          fields: { fail_count: testFailCount },
         },
-        fields: { fail_count: testFailCount },
-      },
-    ], {
-      precision: 's',
-    }).catch((err) => {
-      console.error(`Error saving data to InfluxDB! ${err.stack}`);
-    });
+      ], {
+        precision: 's',
+      }).catch((err) => {
+        console.error(`Error saving data to InfluxDB! ${err.stack}`);
+      });
+    }
 
-    await influx.writePoints([
-      {
-        measurement: 'retry_count',
-        tags: {
-          repo_name: repoName,
-          pr_num: prName,
-          suite_name: suiteName,
-          test_name: testName,
-          // run_time: duration,
-          // err_msg: error,
+    if (test.retryNum > 0) {
+      await influx.writePoints([
+        {
+          measurement: 'retry_count',
+          tags: {
+            repo_name: repoName,
+            pr_num: prName,
+            suite_name: suiteName,
+            test_name: testName,
+            // run_time: duration,
+            // err_msg: error,
+          },
+          fields: { retry_count: test.retryNum },
         },
-        fields: { retry_count: test.retryNum },
-      },
-    ], {
-      precision: 's',
-    }).catch((err) => {
-      console.error(`Error saving data to InfluxDB! ${err.stack}`);
-    });
+      ], {
+        precision: 's',
+      }).catch((err) => {
+        console.error(`Error saving data to InfluxDB! ${err.stack}`);
+      });
+    }
   });
 
   event.dispatcher.on(event.suite.before, (suite) => {
