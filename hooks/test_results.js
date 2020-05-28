@@ -1,6 +1,7 @@
 const { event } = require('codeceptjs');
 const request = require('request');
 const Influx = require('influx');
+const fetch = require('node-fetch');
 // const stringify = require('json-stringify-safe');
 
 const influx = new Influx.InfluxDB({
