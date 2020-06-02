@@ -73,7 +73,7 @@ Scenario('Faceted search - Display names can be set for the filters @manual', if
                     "nodeCountTitle": "Patients",
                     "fieldMapping": [
                         {
-                            "id": "Oncology_Primary.Multiplicitycounter",
+                            "field": "Oncology_Primary.Multiplicitycounter",
                             "name": "OP_Multiplicity"
                         }
                     ]
