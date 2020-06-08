@@ -29,3 +29,13 @@ The test scenarios should iterate through the list of accounts, impersonate each
 | Account Exists / Invalid Visas     | User Account exists but contains Visas that are not signed by RAS                             | - User can login through RAS but has no access to controlled access data.                                    |
 
 The test plan assumes the presence of all these accounts (as opposed to mutating access during the tests' execution and making the process too time-consuming).
+
+## Load Tests
+### Performance benchmarking
+- Include a new K6 script to perform ad-hoc load testing and verify how the RAS endpoints / transactions scale with a surge of requests. Criteria:
+*   http_req_duration: avg<1000, p(95)<2000
+*   failed_requests: rate<0.05
+*   virtual_users: <ramping up from 0 to 50 users in ~10 mins and keep the surge of requests for a couple of min>
+### Auto-scaling config
+min: 2, max: 5
+
