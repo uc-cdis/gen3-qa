@@ -17,7 +17,8 @@ The initial coverage comprises the following scenarios described in the testing 
 
 ### Testing matrix
 
-Each Account Type should be a separate User / Login. 
+Each Account Type should be a separate User / Login.
+The test scenarios should iterate through the list of accounts, impersonate each of them and try to instrument a given open access or controlled data record to verify results against the test assertions.
 
 | Account Type                       | Access (RAS Visas)                                                                            | Expected Behavior                                                                                            |
 | ---------------------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
