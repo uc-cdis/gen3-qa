@@ -16,6 +16,12 @@ The `metadata-manifest-ingestion` sower-job ([https://github.com/uc-cdis/sower-j
 REQUEST_URL = os.environ.get('DBGAP_STUDY_ENDPOINT', 'https://www.ncbi.nlm.nih.gov/projects/gap/cgi-bin/GetSampleStatus.cgi?study_id={}&rettype=xml')
 ```
 
-### Negative test
+### Negative tests
 
-Set an invalid `study_accession` and make sure the job does not retrieve any data.
+1. Set an invalid `study_accession` and make sure the job does not retrieve any data.
+
+2. Deliberately pull a malformed XML file to see if the dbgap-extract script handles it properly.
+
+### TODOs (improve coverage later)
+
+- Check issues with authZ and/or authN
