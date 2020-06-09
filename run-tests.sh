@@ -86,7 +86,7 @@ runTestsIfServiceVersion() {
   fi
 
   min=$(printf "2020\n$versionAsNumber\n" | sort -V | head -n1)
-  if [[ "$min" = "2020" & -n "$4" ]]; then
+  if [[ "$min" = "2020" && -n "$4" ]]; then
     # 1. versionAsNumber >=2020, so assume it is a monthly release (or it was a branch
     #    and is now 9000, in which case it will still pass the check as expected)
     # 2. monthly release version arg was provided
