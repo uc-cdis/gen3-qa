@@ -86,7 +86,7 @@ runTestsIfServiceVersion() {
   fi
 
   min=$(printf "2020\n$versionAsNumber\n" | sort -V | head -n1)
-  if [[ "$min" = "2020" && -n "$4" ]]; then
+  if [[ "$min" = "2020" & -n "$4" ]]; then
     # 1. versionAsNumber >=2020, so assume it is a monthly release (or it was a branch
     #    and is now 9000, in which case it will still pass the check as expected)
     # 2. monthly release version arg was provided
@@ -284,8 +284,9 @@ if [[ -z "$TEST_DATA_PATH" ]]; then
   echo "ERROR: TEST_DATA_PATH env var is not set--cannot find schema in run-tests.sh."
   exit 1
 fi
-if ! jq -re '.|values|map(select(.data_file_properties.consent_codes!=null))|.[]' < "$TEST_DATA_PATH/schema.json" > /dev/null; then
+if [[ ! jq -re '.|values|map(select(.data_file_properties.consent_codes!=null))|.[]' < "$TEST_DATA_PATH/schema.json" > /dev/null; || $testedEnv == "portal.occ-data.org" ]]; then
   # do not run tests for consent codes in indexd records if the dictionary's data_file_properties doesn't have consent_codes
+  # do not run tests for consent codes for portal.occ-data.org as the env. is not compatible
   donot '@indexRecordConsentCodes'
 fi
 
