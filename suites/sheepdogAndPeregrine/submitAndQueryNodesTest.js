@@ -204,34 +204,37 @@ Scenario('test with_path_to - last to first node @reqData', async (peregrine, sh
  * Compare with cc test in dataUpload suite)
  */
 Scenario('submit data node with consent codes @indexRecordConsentCodes', async (sheepdog, indexd, nodes, users, I) => {
-  const listOfIndexdRecords = await I.sendGetRequest(
-    `${indexd.props.endpoints.get}`,
-  ).then((res) => new Gen3Response(res));
+    console.log(`### ## testedEnv:${process.env.testedEnv}`);
+    if (!process.env.testedEnv.includes('portal.occ-data.org')) {
+      const listOfIndexdRecords = await I.sendGetRequest(
+        `${indexd.props.endpoints.get}`,
+      ).then((res) => new Gen3Response(res));
 
-  listOfIndexdRecords.data.records.forEach(async (record) => {
-    console.log(record.did);
-    await indexd.do.deleteFile({ did: record.did });
-  });
+      listOfIndexdRecords.data.records.forEach(async (record) => {
+        console.log(record.did);
+        await indexd.do.deleteFile({ did: record.did });
+      });
 
-  // submit metadata for this file, including consent codes
-  const sheepdogRes = await nodes.submitGraphAndFileMetadata(
-    sheepdog, null, null, null, null, ['CC1', 'CC2'],
-  );
-  sheepdog.ask.addNodeSuccess(sheepdogRes);
+      // submit metadata for this file, including consent codes
+      const sheepdogRes = await nodes.submitGraphAndFileMetadata(
+        sheepdog, null, null, null, null, ['CC1', 'CC2'],
+      );
+      sheepdog.ask.addNodeSuccess(sheepdogRes);
 
-  // check that the indexd record was created with the correct consent codes
-  const fileNodeWithCCs = {
-    did: sheepdogRes.did,
-    authz: [
-      '/consents/CC1',
-      '/consents/CC2',
-    ],
-    data: {
-      md5sum: sheepdogRes.data.md5sum,
-      file_size: sheepdogRes.data.file_size,
-    },
-  };
-  await indexd.complete.checkFile(fileNodeWithCCs);
+      // check that the indexd record was created with the correct consent codes
+      const fileNodeWithCCs = {
+        did: sheepdogRes.did,
+        authz: [
+          '/consents/CC1',
+          '/consents/CC2',
+        ],
+        data: {
+          md5sum: sheepdogRes.data.md5sum,
+          file_size: sheepdogRes.data.file_size,
+        },
+      };
+      await indexd.complete.checkFile(fileNodeWithCCs);
+    }
 });
 
 
