@@ -102,56 +102,47 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     let User0signedUrlQA1Res = '';
     let tempCreds0Res = '';
 
-    // Cannot retry more tha 10 times due to SA key limit (10)
-    // FYI: All Keys are cleaned up in the Before() block
-    const nAttempts = 8;
-    for (let i = 0; i < nAttempts; i += 1) {
-      console.log('make sure google account user0 is unlinked');
-      const unlinkResult = await fence.complete.forceUnlinkGoogleAcct(users.user0);
-      console.log(`users.user0.accessTokenHeader: ${JSON.stringify(users.user0.accessTokenHeader)}`);
+    console.log('make sure google account user0 is unlinked');
+    const unlinkResult = await fence.complete.forceUnlinkGoogleAcct(users.user0);
+    console.log(`users.user0.accessTokenHeader: ${JSON.stringify(users.user0.accessTokenHeader)}`);
 
-      console.log(`creating temporary google creds for user0 with username:  ${users.user0.username}`);
-      // call our endpoint to get temporary creds
-      // NOTE: If this fails and you don't know why, it *might* be that we've hit our limit
-      //       for SA keys on this user's Google Service Account. They *should* be cleaned
-      //       up after every test but if they aren't, you need to delete the keys from the
-      //       fence database (in table google_service_account_keys) AND delete them from
-      //       the Google Cloud Platform. Check usersUtil.js for information about these users
-      //       (specifically their username is their Google Account email, you can use that
-      //        to find their service account in the GCP)
-      tempCreds0Res= await fence.complete.createTempGoogleCreds(
-        users.user0.accessTokenHeader,
-      );
+    console.log(`creating temporary google creds for user0 with username:  ${users.user0.username}`);
+    // call our endpoint to get temporary creds
+    // NOTE: If this fails and you don't know why, it *might* be that we've hit our limit
+    //       for SA keys on this user's Google Service Account. They *should* be cleaned
+    //       up after every test but if they aren't, you need to delete the keys from the
+    //       fence database (in table google_service_account_keys) AND delete them from
+    //       the Google Cloud Platform. Check usersUtil.js for information about these users
+    //       (specifically their username is their Google Account email, you can use that
+    //        to find their service account in the GCP)
+    tempCreds0Res= await fence.complete.createTempGoogleCreds(
+      users.user0.accessTokenHeader,
+    );
 
-      console.log(`tempCreds0Res: ${JSON.stringify(tempCreds0Res)}`);
+    console.log(`tempCreds0Res: ${JSON.stringify(tempCreds0Res)}`);
 
-      console.log('linking user0 google accounts');
-      const linkResult0 = await fence.complete.linkGoogleAcctMocked(users.user0);
-      console.log(`linkResult0: ${JSON.stringify(linkResult0)}`);
+    console.log('linking user0 google accounts');
+    const linkResult0 = await fence.complete.linkGoogleAcctMocked(users.user0);
+    console.log(`linkResult0: ${JSON.stringify(linkResult0)}`);
 
-      console.log(`users.user0.accessTokenHeader again: ${JSON.stringify(users.user0.accessTokenHeader)}`);
-      console.log(`Use User0 to create signed URL for file in QA. Attempt #${i}`);
-      User0signedUrlQA1Res = await fence.do.createSignedUrlForUser(
-          indexed_files.qaFile.did, users.user0.accessTokenHeader,
-      );
+    console.log(`users.user0.accessTokenHeader again: ${JSON.stringify(users.user0.accessTokenHeader)}`);
+    console.log(`Use User0 to create signed URL for file in QA. Attempt #${i}`);
+    User0signedUrlQA1Res = await fence.do.createSignedUrlForUser(
+        indexed_files.qaFile.did, users.user0.accessTokenHeader,
+    );
 
-      console.log(`User0signedUrlQA1Res: ${JSON.stringify(User0signedUrlQA1Res)}`);
-      User0signedUrlQA1FileContents = await fence.do.getFileFromSignedUrlRes(
-        User0signedUrlQA1Res,
-      );
-      console.log(`The contents of the QA file: ${stringify(User0signedUrlQA1FileContents).substring(User0signedUrlQA1FileContents.length-100, User0signedUrlQA1FileContents.length)}`);
+    console.log(`User0signedUrlQA1Res: ${JSON.stringify(User0signedUrlQA1Res)}`);
+    User0signedUrlQA1FileContents = await fence.do.getFileFromSignedUrlRes(
+      User0signedUrlQA1Res,
+    );
+    console.log(`The contents of the QA file: ${stringify(User0signedUrlQA1FileContents).substring(User0signedUrlQA1FileContents.length-100, User0signedUrlQA1FileContents.length)}`);
 
-      if (User0signedUrlQA1FileContents == fence.props.googleBucketInfo.QA.fileContents) {
-        console.log(`Finally produced a valid presigned url after ${i} attempts.`);
-        break;
-      } else {
-        console.log(`Failed to create a valid presigned url on attempt ${i}.`);
-        console.log(`Waiting a couple of seconds before trying again...`);
-        if (i === nAttempts - 1) {
-          throw new Error(`Failed to produce a valid PreSigned URL! Num of attempts: ${i}`);
-        }
-      }
+    if (User0signedUrlQA1FileContents == fence.props.googleBucketInfo.QA.fileContents) {
+      console.log(`a valid presigned url has been found.`);
+    } else {
+      console.log(`Failed to create a valid presigned url.`);
     }
+
     console.log('Use User0 to create signed URL for file in test');
     const User0signedUrlTest1Res = await fence.do.createSignedUrlForUser(
       indexed_files.testFile.did, users.user0.accessTokenHeader,
