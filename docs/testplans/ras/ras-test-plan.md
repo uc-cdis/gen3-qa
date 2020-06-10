@@ -1,7 +1,7 @@
 # Test plan for Gen3's implementation of Researcher Auth Services (RAS)
 
 ## One-liner overview of the service
-The Resercher Auth Services (RAS) is an implementation of the Global Alliance for Genomics & Health (GA4GH) Passport Specifications ([https://github.com/ga4gh-duri/ga4gh-duri.github.io/blob/master/researcher_ids/ga4gh_passport_v1.md](https://github.com/ga4gh-duri/ga4gh-duri.github.io/blob/master/researcher_ids/ga4gh_passport_v1.md)). It defines a common process for Authentication, Authorization and Logging around NIH's open and controlled data assets and repositories. This test plan focuses on the Gen3 implementation of such spec.
+The Researcher Auth Services (RAS) is an implementation of the Global Alliance for Genomics & Health (GA4GH) Passport Specifications ([https://github.com/ga4gh-duri/ga4gh-duri.github.io/blob/master/researcher_ids/ga4gh_passport_v1.md](https://github.com/ga4gh-duri/ga4gh-duri.github.io/blob/master/researcher_ids/ga4gh_passport_v1.md)). It defines a common process for Authentication, Authorization and Logging around NIH's open and controlled data assets and repositories. This test plan focuses on the Gen3 implementation of such spec.
 More info:  ([https://auth.nih.gov/docs/RAS/serviceofferings.html](https://auth.nih.gov/docs/RAS/serviceofferings.html))
 
 ## Environmental dependencies
