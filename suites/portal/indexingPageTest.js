@@ -170,6 +170,6 @@ Scenario('Navigate to the indexing page and upload an invalid manifest @indexing
   expect(
     manifestIndexingFailureMsg,
   ).to.include(
-    'The indexing job was dispatched, but failed to process the input file.',
+    'failed',
   );
 }).retry(2);
