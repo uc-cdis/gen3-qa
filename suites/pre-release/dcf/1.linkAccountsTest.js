@@ -32,7 +32,7 @@ function performAdjustExpDateTest(typeOfTest) {
       console.log(`access token: ${ACCESS_TOKEN}`);
 
       // Arbitrarily setting linked Google account to expire in 2 hours
-      const expirationDateInSecs = 7200;
+      const expirationDateInSecs = 10800;
 
       // set a userAcct obj {} with an "accessTokenHeader" property
       // to use Gen3-qa's Fence testing API

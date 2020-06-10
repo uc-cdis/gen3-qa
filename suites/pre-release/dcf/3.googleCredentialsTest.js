@@ -92,7 +92,7 @@ Scenario('Delete access keys (Google Credentials) @manual', ifInteractive(
 // Scenario #4 - Obtain temporary access keys with expiration time
 Scenario('Obtain temporary access keys with specific expiration time (Google Credentials) @manual', ifInteractive(
   async (I, fence) => {
-    const expirationDateInSecs = 7200;
+    const expirationDateInSecs = 10800;
 
     if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
     const httpResp = await fence.do.createTempGoogleCreds(
