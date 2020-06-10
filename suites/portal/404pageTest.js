@@ -9,7 +9,7 @@ Scenario('Valid urls are not redirected to 404 page @manual', ifInteractive(
               1. Navigate to a valid url like https://qa-brain.planx-pla.net/profile
               2. User is not redirected to the 404 page
               3. Navigate to a valid url like https://qa-brain.planx-pla.net/DEV-test
-              4. User is redirected to the 404 page
+              4. User is not redirected to the 404 page
           `);
     expect(result.didPass, result.details).to.be.true;
   },
