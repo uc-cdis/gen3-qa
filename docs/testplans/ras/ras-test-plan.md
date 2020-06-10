@@ -27,7 +27,7 @@ The test scenarios should iterate through the list of accounts, impersonate each
 | Account Exists / Some Visas        | User Account has access to at least one mock controlled access data set                       | - This user can access open access data.<br>- This user can access allowed controlled access to some PHS IDs |
 | Account Exists / All Visas         | User Account has visas to all set of mock PHS IDs we have available for testing               | - This user can access open access data.<br>- This user can access all controlled access data to PHS IDs     |
 | Account Exists / Invalid Visas     | User Account exists but contains Visas that are not signed by RAS                             | - User can login through RAS but has no access to controlled access data.                                    |
-| Account Exists / Valid Visa with consent code reference     | User Account has access to controlled access data with a consent code                             | - User can login through RAS and access specific controlled access data based on the consent code.                                    |
+| Account Exists / Visa with consent code c999 | User Account has access to controlled access data with consent code c999 | - User can login through RAS and access specific controlled access data based on the consent code c999.                                    |
 
 The test plan assumes the presence of all these accounts (as opposed to mutating access during the tests' execution and making the process too time-consuming).
 
