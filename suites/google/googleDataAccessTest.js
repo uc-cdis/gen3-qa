@@ -126,7 +126,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     console.log(`linkResult0: ${JSON.stringify(linkResult0)}`);
 
     console.log(`users.user0.accessTokenHeader again: ${JSON.stringify(users.user0.accessTokenHeader)}`);
-    console.log(`Use User0 to create signed URL for file in QA. Attempt #${i}`);
+    console.log(`Use User0 to create signed URL for file in QA.`);
     User0signedUrlQA1Res = await fence.do.createSignedUrlForUser(
         indexed_files.qaFile.did, users.user0.accessTokenHeader,
     );
