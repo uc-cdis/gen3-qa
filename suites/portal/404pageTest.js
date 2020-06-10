@@ -1,5 +1,4 @@
-import { ifInteractive, interactive } from '../../utils/interactive';
-
+const { interactive, ifInteractive } = require('../../utils/interactive.js');
 const { expect } = require('chai');
 
 Feature('Redirect invalid urls to 404 page');
