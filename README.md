@@ -12,13 +12,18 @@ docker run -d -p 4444:4444 --name=selenium --rm -v /dev/shm:/dev/shm selenium/st
 ```
 
 ### Start influxdb and grafana
-- ***test run metrics can then be viewed on grafana (http://localhost:3000)***
-- ***a preconfigured dashboard can be added by importing*** `grafana_test_observability.json`
 ```
 # start influxdb and grafana
 cd load-testing/grafana
 docker-compose up -d
 ```
+
+### Initial setup of influxdb (only needed on a new influxdb container)
+```
+# create database
+curl -i -XPOST http://localhost:8086/query --data-urlencode "q=CREATE DATABASE ci_metrics"
+```
+Configure the grafana dashboard by importing `grafana_test_observability.json`. This is a pre-configured dashboard, though the data source needs to be selected while importing.
 
 Edit your `/etc/hosts` file to point the `selenium-hub` and `influxdb` host to your Docker container running on `localhost`.
 _/etc/hosts_
@@ -27,7 +32,7 @@ _/etc/hosts_
 127.0.0.1 influxdb
 ```
 
-More information about Selenium Hub in [`cloud-automation's documentation`](https://github.com/uc-cdis/cloud-automation/blob/master/kube/selenium/jenkins/README.md)
+More information about Selenium Hub in [`cloud-automation's documentation`](https://github.com/uc-cdis/cloud-automation/blob/master/kube/services/selenium/README.md)
 
 ### Test with dev environment (ssh backend access)
 
@@ -103,7 +108,7 @@ databases in your dev environment, so that old data does not interfere with new 
 
 ```
 # change linux to osx on mac
-ssh -t reuben@cdistest.csoc bash -c 'set -i; source ~/.bashrc; source cloud-automation/gen3/gen3setup.sh; gen3 aws s3 cp s3://cdis-dc-builds/master/dataclient_linux.zip dataclient.zip'
+ssh -t reuben@cdistest.csoc bash -c 'source ~/.bashrc; source cloud-automation/gen3/gen3setup.sh; gen3 aws s3 cp s3://cdis-dc-builds/master/dataclient_linux.zip dataclient.zip'
 scp you@dev.csoc:dataclient.zip ~/dataclient.zip
 (cd ~/ && unzip ~/dataclient.zip)
 chmod a+rx ~/gen3-client
