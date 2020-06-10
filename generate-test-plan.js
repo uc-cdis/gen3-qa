@@ -12,10 +12,13 @@ const generateTestPlan = () => {
   exec('npx codeceptjs dry-run', async (error, stdout, stderr) => {
     const book = new Excel.Workbook();
     const sheet = book.addWorksheet('IntegrationTests');
+    const sheetMetrics = book.addWorksheet('Metrics');
     sheet.font = { name: 'Courier New' };
     let currentRow = 1;
     let suiteCount = 1;
     let testCount = 1;
+    let automated = 0;
+    let manual = 0;
     sheet.getCell(`A${currentRow}`).value = 'S.NO.';
     sheet.getCell(`B${currentRow}`).value = 'TEST';
     sheet.getCell(`C${currentRow}`).value = 'TYPE';
@@ -44,14 +47,26 @@ const generateTestPlan = () => {
         sheet.getRow(currentRow).font = { size: 12 };
         if (row.includes('@manual')) {
           sheet.getCell(`C${currentRow}`).value = 'MANUAL';
+          manual += 1;
         } else {
           sheet.getCell(`C${currentRow}`).value = 'AUTOMATED';
           sheet.getCell(`E${currentRow}`).value = 'jenkins';
           sheet.getCell(`F${currentRow}`).value = 'Jenkins';
+          automated += 1;
         }
         currentRow += 1;
       }
     });
+    // write metrics
+    sheetMetrics.getCell('A1').value = 'SUITES';
+    sheetMetrics.getCell('C1').value = suiteCount - 2;
+    sheetMetrics.getCell('A2').value = 'TESTS';
+    sheetMetrics.getCell('B2').value = 'AUTOMATED';
+    sheetMetrics.getCell('B3').value = 'MANUAL';
+    sheetMetrics.getCell('B3').value = 'TOTAL';
+    sheetMetrics.getCell('C2').value = automated;
+    sheetMetrics.getCell('C3').value = manual;
+    sheetMetrics.getCell('C4').value = testCount - 1;
     await book.xlsx.writeFile('test-plan.xlsx');
   });
 };
