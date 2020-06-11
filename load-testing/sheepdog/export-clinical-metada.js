@@ -20,7 +20,7 @@ export const options = {
 };
 
 export default function () {
-  if (__ITER < 2) {
+  if (__ITER < 2) { // eslint-disable-line no-undef
     const exportUrl = `https://${GEN3_HOST}/api/v0/submission/DEV/test/export?node_label=subject`;
     console.log(`sending req to: ${exportUrl}`);
     const params = {
