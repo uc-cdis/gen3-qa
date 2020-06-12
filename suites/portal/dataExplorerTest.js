@@ -141,7 +141,7 @@ Scenario('Table - Data displayed in the table is correct @manual', ifInteractive
 Scenario('Table - Nested data displayed in the table is correct @manual', ifInteractive(
   async () => {
     const result = await interactive(`
-      1. Configure nested fields in the table in portal configuration (gitops.json) like:
+      1. Configure nested fields where the parent is an array in the table in portal configuration (gitops.json) like:
         "table": {
           "enabled": true,
           "fields": [
