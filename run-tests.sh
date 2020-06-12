@@ -225,7 +225,7 @@ runTestsIfServiceVersion "@indexing" "portal" "2.26.0" "2020.05"
 
 # environments that use DCF features
 # we only run Google Data Access tests for cdis-manifest PRs to these
-envsRequireGoogle="dcp.bionimbus.org internalstaging.theanvil.io staging.theanvil.io gen3.theanvil.io preprod.gen3.biodatacatalyst.nhlbi.nih.gov internalstaging.datastage.io gen3.biodatacatalyst.nhlbi.nih.gov nci-crdc-staging.datacommons.io nci-crdc.datacommons.io"
+envsRequireGoogle="dcp.bionimbus.org internalstaging.theanvil.io staging.theanvil.io gen3.theanvil.io preprod.gen3.biodatacatalyst.nhlbi.nih.gov staging.gen3.biodatacatalyst.nhlbi.nih.gov  gen3.biodatacatalyst.nhlbi.nih.gov nci-crdc-staging.datacommons.io nci-crdc.datacommons.io"
 
 #
 # DataClientCLI tests require a fix to avoid parallel test runs
