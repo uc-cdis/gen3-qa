@@ -233,7 +233,7 @@ Scenario('SA key removal job test: remove expired creds @reqGoogle', async (fenc
   // Wait to check google-manage-keys-job pod logs
   console.log('waiting a few seconds before checking the results of the keys clean-up jobs');
   await apiUtil.sleepMS(10 * 1000).then(() => {
-    bash.runCommand('set -i; source ~/.bashrc; gen3 job logs google-manage-keys');
+    bash.runCommand('source ~/.bashrc; gen3 job logs google-manage-keys');
   });
 
   // Try to access data
@@ -320,7 +320,7 @@ Scenario('SA key removal job test: remove expired creds that do not exist in goo
   // Wait to check google-manage-keys-job pod logs
   console.log('waiting a few seconds before checking the results of the keys clean-up jobs');
   await apiUtil.sleepMS(10 * 1000).then(() => {
-    bash.runCommand('set -i; source ~/.bashrc; gen3 job logs google-manage-keys');
+    bash.runCommand('source ~/.bashrc; gen3 job logs google-manage-keys');
   });
 
   // Get list of current creds
