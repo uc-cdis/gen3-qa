@@ -47,7 +47,6 @@ class Env {
    * Setup fundamental environment variables such as HOSTNAME
    */
   static setupEnvVariables() {
-    debugger;
     console.error('Start setup');
     if (envVal === ENV_TYPE.LOCAL_AGAINST_REMOTE) {
       process.env.HOSTNAME = process.env.GEN3_COMMONS_HOSTNAME;

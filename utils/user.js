@@ -8,7 +8,7 @@ const { Bash } = require('./bash');
 
 const bash = new Bash();
 
-const DEFAULT_TOKEN_EXP = 7200;
+const DEFAULT_TOKEN_EXP = 10800;
 let indexdCache = null;
 
 

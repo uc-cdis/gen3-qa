@@ -18,8 +18,11 @@ const testGUID = 'dg123/c2da639f-aa25-4c4d-8e89-02a143788268';
 const testHash = '73d643ec3f4beb9020eef0beed440ad4';
 
 /* eslint-disable no-tabs */
-const contentsOfTestManifest = `GUID	md5	file_size	acl	authz	urls
+const contentsOfTestManifest = `GUID	md5	size	acl	authz	urls
 ${testGUID}	${testHash}	13	jenkins2		s3://cdis-presigned-url-test/testdata`;
+
+const contentsOfInvalidManifest1 = `\ufeffGUID	md5	size	acl	authz	urls
+${testGUID}\n	${testHash}	13,	jenkins2		s3://cdis-presigned-url-test/testdata`;
 
 const expectedResult = `${testGUID},s3://cdis-presigned-url-test/testdata,,jenkins2,${testHash},13,`;
 
@@ -29,8 +32,9 @@ BeforeSuite(async (I, files, indexd) => {
 
   I.cache.UNIQUE_NUM = Date.now();
 
-  // create a local small file to upload. store its size and hash
+  // create local small files to upload. store their size and hash
   await files.createTmpFile(`./manifest_${I.cache.UNIQUE_NUM}.tsv`, contentsOfTestManifest);
+  await files.createTmpFile(`./invalid_manifest_${I.cache.UNIQUE_NUM}.tsv`, contentsOfInvalidManifest1);
 
   console.log('deleting existing test records...');
   const listOfIndexdRecords = await I.sendGetRequest(
@@ -46,6 +50,7 @@ BeforeSuite(async (I, files, indexd) => {
 AfterSuite(async (I, files) => {
   // clean up test files
   files.deleteFile(`manifest_${I.cache.UNIQUE_NUM}.tsv`);
+  files.deleteFile(`invalid_manifest_${I.cache.UNIQUE_NUM}.tsv`);
 });
 
 async function checkPod(podName, nAttempts = 6) {
@@ -133,5 +138,38 @@ Scenario('Navigate to the indexing page and download a full indexd manifest @ind
     downloadedManifestData,
   ).to.include(
     expectedResult,
+  );
+}).retry(2);
+
+// Scenario #3 - Negative test: navigate to the indexing page and upload imvalid  manifest
+Scenario('Navigate to the indexing page and upload an invalid manifest @indexing', async (I, indexing, home, users) => {
+  home.do.goToHomepage();
+  home.complete.login(users.indexingAcct);
+  indexing.do.goToIndexingPage();
+  I.waitForElement({ css: '.indexing-page' }, 10);
+  I.click('.index-flow-form'); // after clicking open window file upload dialog
+  await I.attachFile('input[type=\'file\']', `invalid_manifest_${I.cache.UNIQUE_NUM}.tsv`);
+  I.click({ xpath: 'xpath: //button[contains(text(), \'Index Files\')]' });
+
+  await checkPod('manifest-indexing');
+
+  const nAttempts = 12;
+  for (let i = 0; i < nAttempts; i += 1) {
+    console.log(`Wait for GUI error message... - attempt ${i}`);
+    const statusMsg = await I.grabTextFrom({ xpath: '//div[@class="index-files-popup-text"]/p[1]' }, 10);
+    console.log(`Status: ${statusMsg}`);
+    await sleepMS(5000);
+    if (!statusMsg.includes('Status')) {
+      break;
+    }
+  }
+
+  const manifestIndexingFailureMsg = await I.grabTextFrom({ xpath: '//div[@class="index-files-popup-text"]/descendant::p[2]' });
+  console.log(`html stuff: ${manifestIndexingFailureMsg}`);
+
+  expect(
+    manifestIndexingFailureMsg,
+  ).to.include(
+    'failed',
   );
 }).retry(2);

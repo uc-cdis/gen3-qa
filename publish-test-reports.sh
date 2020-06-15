@@ -54,7 +54,7 @@ fi
 report_url_path="QA/$(date +%Y)/$(date +%-m)/${gen3_qa_report_folder}"
 
 # ssh to the Dev VM and run the gen3 dashboard publish secure command to upload the contents of the folder and publish the report
-ssh qaplanetv1@cdistest.csoc "set -i;  source ~/.bashrc; gen3 dashboard publish secure ./reports/$gen3_qa_report_folder $report_url_path"
+ssh qaplanetv1@cdistest.csoc "export GEN3_HOME=\$HOME/cloud-automation && source \$GEN3_HOME/gen3/gen3setup.sh; gen3 dashboard publish secure ./reports/$gen3_qa_report_folder $report_url_path"
 if [ $RC -ne 0 ]; then
     echo "Something wrong happened while trying to run 'gen3 dashboard publish secure ...'"
     echo "Please check if the Dev VM and the QA k8s namespace are ok (https://qa.planx-pla.net/dashboard)"

@@ -108,7 +108,7 @@ databases in your dev environment, so that old data does not interfere with new 
 
 ```
 # change linux to osx on mac
-ssh -t reuben@cdistest.csoc bash -c 'set -i; source ~/.bashrc; source cloud-automation/gen3/gen3setup.sh; gen3 aws s3 cp s3://cdis-dc-builds/master/dataclient_linux.zip dataclient.zip'
+ssh -t reuben@cdistest.csoc bash -c 'source ~/.bashrc; source cloud-automation/gen3/gen3setup.sh; gen3 aws s3 cp s3://cdis-dc-builds/master/dataclient_linux.zip dataclient.zip'
 scp you@dev.csoc:dataclient.zip ~/dataclient.zip
 (cd ~/ && unzip ~/dataclient.zip)
 chmod a+rx ~/gen3-client
