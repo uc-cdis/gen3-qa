@@ -1,3 +1,4 @@
+/*eslint-disable */
 Feature('CentralizedAuth');
 /*
 Test sponsor use cases for Gen3 Centralized Authorization with new authorization system:
@@ -250,13 +251,6 @@ Before(async (fence, users, indexd) => {
   new_abc_records.deleteMe.did = abcDeleteMe;
 });
 
-After(async (fence, users, indexd) => {
-  // Cleanup after each scenario
-  console.log('Removing test indexd records if they exist');
-  await indexd.do.deleteFileIndices(Object.values(new_gen3_records));
-  await indexd.do.deleteFileIndices(Object.values(new_abc_records));
-});
-
 /*
    - Test that user without policies can't CRUD records in /gen3 or /abc
 */
@@ -360,6 +354,10 @@ Scenario('User without policies cannot CRUD indexd records in /gen3 or /abc @ind
       new_abc_records.deleteMe,
       msg = 'should have gotten unauthorized for deleting record under `/abc`',
     );
+    // Cleanup after each scenario
+    console.log('Removing test indexd records if they exist');
+    await indexd.do.deleteFileIndices(Object.values(new_gen3_records));
+    await indexd.do.deleteFileIndices(Object.values(new_abc_records));
   }).retry(2);
 
 /*
@@ -478,6 +476,10 @@ Scenario('User with access can CRUD indexd records in namespace, not outside nam
     );
     const getRes = await indexd.do.getFileFullRes(new_abc_records.deleteMe);
     indexd.ask.recordDoesNotExist(getRes);
+    // Cleanup after each scenario
+    console.log('Removing test indexd records if they exist');
+    await indexd.do.deleteFileIndices(Object.values(new_gen3_records));
+    await indexd.do.deleteFileIndices(Object.values(new_abc_records));
   }).retry(2);
 
 /*
@@ -600,6 +602,10 @@ Scenario('Client (with access) with user token (with access) can CRUD indexd rec
     );
     const getRes = await indexd.do.getFileFullRes(new_abc_records.deleteMe);
     indexd.ask.recordDoesNotExist(getRes);
+    // Cleanup after each scenario
+    console.log('Removing test indexd records if they exist');
+    await indexd.do.deleteFileIndices(Object.values(new_gen3_records));
+    await indexd.do.deleteFileIndices(Object.values(new_abc_records));
   }).retry(2);
 
 /*
@@ -639,7 +645,11 @@ Scenario('Client (with access) with user token (with access) can create signed u
       + 'in authorized namespace').to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
     chai.expect(fileGen3Contents,
       'User token WITHOUT access COULD create signed urls and read file for records '
-      + 'in unauthorized namespace').to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+    + 'in unauthorized namespace').to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+    // Cleanup after each scenario
+    console.log('Removing test indexd records if they exist');
+    await indexd.do.deleteFileIndices(Object.values(new_gen3_records));
+    await indexd.do.deleteFileIndices(Object.values(new_abc_records));
   }).retry(2);
 
 /*
@@ -665,7 +675,11 @@ Scenario('Client (with access) with user token (WITHOUT access) in namespace @ce
 
     chai.expect(fileGen3Contents,
       'Client using user token WITHOUT access COULD create signed urls and read file '
-      + 'for records in namespace').to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+     + 'for records in namespace').to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+    // Cleanup after each scenario
+    console.log('Removing test indexd records if they exist');
+    await indexd.do.deleteFileIndices(Object.values(new_gen3_records));
+    await indexd.do.deleteFileIndices(Object.values(new_abc_records));
   }).retry(2);
 
 /*
@@ -691,7 +705,11 @@ Scenario('Client (WITHOUT access) with user token (with access) in namespace @ce
 
     chai.expect(fileGen3Contents,
       'Client WITHOUT access using user token WITH access COULD create signed urls '
-      + 'and read file for records in namespace').to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+    + 'and read file for records in namespace').to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+    // Cleanup after each scenario
+    console.log('Removing test indexd records if they exist');
+    await indexd.do.deleteFileIndices(Object.values(new_gen3_records));
+    await indexd.do.deleteFileIndices(Object.values(new_abc_records));
   }).retry(2);
 
 /*
@@ -722,7 +740,11 @@ Scenario('User with access can create signed urls for records in namespace, not 
       + 'authorized namespace').to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
     chai.expect(fileGen3Contents,
       'User WITHOUT access COULD create signed urls and read file for records in '
-      + 'unauthorized namespace').to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+    + 'unauthorized namespace').to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+    // Cleanup after each scenario
+    console.log('Removing test indexd records if they exist');
+    await indexd.do.deleteFileIndices(Object.values(new_gen3_records));
+    await indexd.do.deleteFileIndices(Object.values(new_abc_records));
   }).retry(2);
 
 /*
@@ -752,6 +774,10 @@ Scenario('Test that userinfo endpoint contains authorization information (resour
       resourcesOfUser.length,
       'Number of resources is not identical in id token and user info',
     ).to.not.equal(0);
+    // Cleanup after each scenario
+    console.log('Removing test indexd records if they exist');
+    await indexd.do.deleteFileIndices(Object.values(new_gen3_records));
+    await indexd.do.deleteFileIndices(Object.values(new_abc_records));
   }).retry(2);
 
 /*
@@ -778,7 +804,11 @@ Scenario('Client with user token WITHOUT permission CANNOT create signed URL for
 
     chai.expect(fileContents,
       'Client using user token WITHOUT access COULD create signed urls and read file '
-      + 'for record with authz AND logic in indexd').to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+    + 'for record with authz AND logic in indexd').to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+    // Cleanup after each scenario
+    console.log('Removing test indexd records if they exist');
+    await indexd.do.deleteFileIndices(Object.values(new_gen3_records));
+    await indexd.do.deleteFileIndices(Object.values(new_abc_records));
   }).retry(2);
 
 /*
@@ -823,7 +853,11 @@ Scenario('Test open access data with authenticated user @centralizedAuth',
 
     chai.expect(fileContents,
       'User with access could NOT create signed urls and read file for records in '
-      + 'authorized namespace with authorized consent code').to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+    + 'authorized namespace with authorized consent code').to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+    // Cleanup after each scenario
+    console.log('Removing test indexd records if they exist');
+    await indexd.do.deleteFileIndices(Object.values(new_gen3_records));
+    await indexd.do.deleteFileIndices(Object.values(new_abc_records));
   }).retry(2);
 
 Scenario('Test open access data with anonymous user @centralizedAuth',
@@ -838,7 +872,11 @@ Scenario('Test open access data with anonymous user @centralizedAuth',
 
     chai.expect(fileContents,
       'User with access could NOT create signed urls and read file for records in '
-      + 'authorized namespace with authorized consent code').to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+    + 'authorized namespace with authorized consent code').to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+    // Cleanup after each scenario
+    console.log('Removing test indexd records if they exist');
+    await indexd.do.deleteFileIndices(Object.values(new_gen3_records));
+    await indexd.do.deleteFileIndices(Object.values(new_abc_records));
   });
 
 /** ******************************** CONSENT CODES ************************************ */
@@ -865,7 +903,11 @@ Scenario('Test create signed URL for file in authorized namespace with authorize
 
     chai.expect(fileContents,
       'User with access could NOT create signed urls and read file for records in '
-      + 'authorized namespace with authorized consent code').to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+    + 'authorized namespace with authorized consent code').to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+    // Cleanup after each scenario
+    console.log('Removing test indexd records if they exist');
+    await indexd.do.deleteFileIndices(Object.values(new_gen3_records));
+    await indexd.do.deleteFileIndices(Object.values(new_abc_records));
   }).retry(2);
 
 /*
@@ -888,7 +930,11 @@ Scenario('Test create signed URL for file in authorized namespace with authorize
 
     chai.expect(fileContents,
       'User with access could NOT create signed urls and read file for records in '
-      + 'authorized namespace with authorized consent code').to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+    + 'authorized namespace with authorized consent code').to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+    // Cleanup after each scenario
+    console.log('Removing test indexd records if they exist');
+    await indexd.do.deleteFileIndices(Object.values(new_gen3_records));
+    await indexd.do.deleteFileIndices(Object.values(new_abc_records));
   }).retry(2);
 
 
@@ -913,7 +959,11 @@ Scenario('Test cannot create signed URL for file in authorized namespace with UN
 
     chai.expect(fileContents,
       'User WITHOUT access COULD create signed urls and read file for records in '
-      + 'authorized namespace with UNauthorized consent code').to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+    + 'authorized namespace with UNauthorized consent code').to.not.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+    // Cleanup after each scenario
+    console.log('Removing test indexd records if they exist');
+    await indexd.do.deleteFileIndices(Object.values(new_gen3_records));
+    await indexd.do.deleteFileIndices(Object.values(new_abc_records));
   }).retry(2);
 
 
@@ -939,5 +989,9 @@ Scenario('Test create signed URL for file in authorized namespace with IMPLIED a
 
     chai.expect(fileContents,
       'User with access could NOT create signed urls and read file for records in '
-      + 'authorized namespace with authorized consent code').to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+    + 'authorized namespace with authorized consent code').to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+    // Cleanup after each scenario
+    console.log('Removing test indexd records if they exist');
+    await indexd.do.deleteFileIndices(Object.values(new_gen3_records));
+    await indexd.do.deleteFileIndices(Object.values(new_abc_records));
   }).retry(2);
