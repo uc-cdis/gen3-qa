@@ -7,8 +7,11 @@ gen3 integration tests - run by https://jenkins.planx-pla.net/ via a `Jenkinsfil
 ### Start selenium
 
 ```
-# start selenium
-docker run -d -p 4444:4444 --name=selenium --rm -v /dev/shm:/dev/shm selenium/standalone-chrome
+# start selenium-hub
+docker run --rm -d -p 4444:4444 -e NODE_MAX_INSTANCES=5 --name=selenium-hub --rm -v /dev/shm:/dev/shm selenium/hub:3.141.59
+
+# start at least one selenium-node
+docker run --rm -d selenium/node-chrome:3.141.59
 ```
 
 ### Start influxdb and grafana
