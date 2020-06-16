@@ -98,9 +98,6 @@ exports.config = {
     },
   },
   bootstrap: './test_setup.js',
-  hooks: [
-    'hooks/test_results.js',
-  ],
   tests: './suites/**/*.js',
   gherkin: {
     features: './suites/bdd/**/*.feature',
