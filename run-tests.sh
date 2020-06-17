@@ -284,7 +284,12 @@ if [[ -z "$TEST_DATA_PATH" ]]; then
   echo "ERROR: TEST_DATA_PATH env var is not set--cannot find schema in run-tests.sh."
   exit 1
 fi
-if ! jq -re '.|values|map(select(.data_file_properties.consent_codes!=null))|.[]' < "$TEST_DATA_PATH/schema.json" > /dev/null; then
+
+set +e
+ddHasConsentCodes=$(jq -re '.|values|map(select(.data_file_properties.consent_codes!=null))|.[]' < "$TEST_DATA_PATH/schema.json")
+set -e
+
+if [ -z "$ddHasConsentCodes" ]; then
   # do not run tests for consent codes in indexd records if the dictionary's data_file_properties doesn't have consent_codes
   donot '@indexRecordConsentCodes'
 fi
@@ -376,6 +381,8 @@ else
     additionalArgs="--grep @reqGoogle"
   elif [ -n "$foundDataClientCLI" ]; then
     additionalArgs="--grep @indexRecordConsentCodes|@dataClientCLI --invert"
+  elif [[ "$selectedTest" == "suites/sheepdogAndPeregrine/submitAndQueryNodesTest.js" && -z "$ddHasConsentCodes" ]]; then
+    additionalArgs="--grep @indexRecordConsentCodes --invert"
   else
     additionalArgs="--grep @manual --invert"
   fi
