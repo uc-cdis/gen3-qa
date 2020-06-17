@@ -7,6 +7,7 @@ exports.config = {
   output: './output',
   helpers: {
     WebDriver: {
+      path: '',
       host: 'selenium-hub',
       url: `https://${process.env.HOSTNAME}`,
       smartWait: 30000,
