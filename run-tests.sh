@@ -285,7 +285,7 @@ if [[ -z "$TEST_DATA_PATH" ]]; then
   exit 1
 fi
 
-ddHasConsentCodes=$(jq -re '.|values|map(select(.data_file_properties.consent_codes!=null))|.[]' < "testData/schema.json")
+ddHasConsentCodes=$(jq -re '.|values|map(select(.data_file_properties.consent_codes!=null))|.[]' < "$TEST_DATA_PATH/schema.json")
 
 if [ -z "$ddHasConsentCodes" ]; then
   # do not run tests for consent codes in indexd records if the dictionary's data_file_properties doesn't have consent_codes
