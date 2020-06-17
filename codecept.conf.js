@@ -21,6 +21,7 @@ exports.config = {
             '--window-size=1920,1080',
             '--whitelisted-ips=*',
             '--disable-features=VizDisplayCompositor',
+            '--no-sandbox'
           ],
         },
       },
