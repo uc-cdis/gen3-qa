@@ -436,7 +436,7 @@ module.exports = {
     } else {
       I.seeTextEquals('Unauthorized', 'h2');
     }
-    I.saveScreenshot('consent_auth_code_flow.png');
+    // I.saveScreenshot('consent_auth_code_flow.png');
     const urlStr = await I.grabCurrentUrl();
     return urlStr;
   },
@@ -502,7 +502,7 @@ module.exports = {
           portal.clickProp(fenceProps.consentPage.consentBtn);
           I.waitInUrl('token=', 3);
         }
-        I.saveScreenshot('consent_implicit_flow.png');
+        // I.saveScreenshot('consent_implicit_flow.png');
       }
     } else {
       I.seeTextEquals('Unauthorized', 'h2');
