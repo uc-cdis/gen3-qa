@@ -358,7 +358,6 @@ export NAMESPACE="$namespaceName"
 export testedEnv="$testedEnv"
 
 if [ "$selectedTest" == "all" ]; then
-  (
     # no interactive tests
     export GEN3_INTERACTIVE=false
     cat - <<EOM
@@ -366,12 +365,15 @@ if [ "$selectedTest" == "all" ]; then
 ---------------------------
 Launching test in $NAMESPACE
 EOM
+    set +e
     dryrun npm 'test' -- $testArgs
+    RC=$?
     #
     # Do this kind of thing (uncomment the following line, change the grep)
     # to limit your test run in jenkins:
     #    dryrun npm 'test' -- --reporter mocha-multi --verbose --grep '@FRICKJACK'
-  ) || exitCode=1
+    exitCode=$RC
+    set -e
 else
   set +e
   additionalArgs=""
