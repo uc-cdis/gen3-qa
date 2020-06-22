@@ -108,9 +108,6 @@ exports.config = {
     features: './suites/bdd/**/*.feature',
     steps: './suites/bdd/**/*.js',
   },
-  plugins: {
-    allure: {},
-  },
   timeout: 60000,
   name: 'selenium',
 };
