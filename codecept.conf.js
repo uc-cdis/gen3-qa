@@ -18,9 +18,11 @@ exports.config = {
           args: [
             '--headless', // for dev, you can comment this line to open actual chrome for easier test
             '--disable-gpu',
-            '--window-size=1920,1080',
             '--whitelisted-ips=*',
             '--disable-features=VizDisplayCompositor',
+            // '--window-size=1280,720',
+            // '--no-sandbox',
+            // '--enable-features=NetworkService,NetworkServiceInProcess',
           ],
         },
       },
