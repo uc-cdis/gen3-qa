@@ -12,6 +12,7 @@ exports.config = {
       smartWait: 30000,
       browser: 'chrome',
       // fullPageScreenshots: true,
+      disableScreenshots: true,
       desiredCapabilities: {
         chromeOptions: {
           args: [
