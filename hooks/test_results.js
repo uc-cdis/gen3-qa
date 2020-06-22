@@ -10,7 +10,7 @@ const influx = new Influx.InfluxDB({
 });
 
 module.exports = function () {
-  event.dispatcher.on(event.test.finished, async (test) => {
+  event.dispatcher.on(event.test.after, async (test) => {
     // console.log(stringify(test));
     const suiteName = test.parent.title.split(' ').join('_');
     const testName = test.title.split(' ').join('_');
