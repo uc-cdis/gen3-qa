@@ -73,6 +73,12 @@ async function runLoadTestScenario() {
   }
 
   // TODO: Move this to a separate utils function
+  if (loadTestScenario === 'import-export-clinical-metada') {
+    loadTestArgs.unshift(`NUM_OF_RECORDS=${testDescriptorData.num_of_records}`);
+    loadTestArgs.unshift('-e');
+  }
+
+  // TODO: Move this to a separate utils function
   if (loadTestScenario === 'create-and-query') {
     loadTestArgs.unshift(`MDS_TEST_DATA="${JSON.stringify(testDescriptorData.mds_test_data)}"`);
     loadTestArgs.unshift('-e');
