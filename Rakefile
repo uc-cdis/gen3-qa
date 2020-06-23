@@ -5,9 +5,15 @@ task :default => :selenium
 desc "start selenium"
 task :selenium do
   sh('docker stop selenium-hub || true')
-  sh('set +e && docker stop selenium-node || true')
+  sh('docker stop selenium-node || true')
   sh('docker run --rm -d -p 4444:4444 --name=selenium-hub --rm -v /dev/shm:/dev/shm selenium/hub:3.141.59')
   sh('docker run --rm -d --link selenium-hub --name=selenium-node selenium/node-chrome:3.141.59')
+end
+
+desc "stop selenium containers"
+task :stop-selenium do
+  sh('docker stop selenium-hub || true')
+  sh('docker stop selenium-node || true')
 end
 
 desc "start grafana and influxdb"
