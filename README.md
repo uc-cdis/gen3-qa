@@ -4,21 +4,14 @@ gen3 integration tests - run by https://jenkins.planx-pla.net/ via a `Jenkinsfil
 
 ## Basic test run
 
-### Start selenium
+### Start test infra (influxdb, grafana, selenium)
 
 ```
-# start selenium
-docker run -d -p 4444:4444 --name=selenium --rm -v /dev/shm:/dev/shm selenium/standalone-chrome
+# start test infra
+docker-compose -f docker-compose-test-infra.yaml up -d
 ```
 
-### Start influxdb and grafana
-```
-# start influxdb and grafana
-cd load-testing/grafana
-docker-compose up -d
-```
-
-### Initial setup of influxdb (only needed on a new influxdb container)
+### Initial setup of influxdb and grafana (only needed on a new containers)
 ```
 # create database
 curl -i -XPOST http://localhost:8086/query --data-urlencode "q=CREATE DATABASE ci_metrics"
