@@ -9,7 +9,7 @@
 Feature('Indexing GUI');
 
 const { expect } = require('chai');
-const { sleepMS, Gen3Response } = require('../../utils/apiUtil.js');
+const { checkPod, sleepMS, Gen3Response } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
 
 const bash = new Bash();
@@ -52,28 +52,6 @@ AfterSuite(async (I, files) => {
   files.deleteFile(`manifest_${I.cache.UNIQUE_NUM}.tsv`);
   files.deleteFile(`invalid_manifest_${I.cache.UNIQUE_NUM}.tsv`);
 });
-
-async function checkPod(podName, nAttempts = 6) {
-  for (let i = 0; i < nAttempts; i += 1) {
-    try {
-      console.log(`waiting for the ${podName} sower job/pod to show up... - attempt ${i}`);
-      await sleepMS(10000);
-      const greppingPod = bash.runCommand(`g3kubectl get pods | grep ${podName}`);
-      console.log(`grep result: ${greppingPod}`);
-      if (greppingPod.includes(podName)) {
-        console.log('the pod was found! Proceed with the assertion checks..');
-        await sleepMS(10000);
-        break;
-      }
-    } catch (e) {
-      console.log(`Failed to find the ${podName} pod on attempt ${i}:`);
-      console.log(e);
-      if (i === nAttempts - 1) {
-        throw e;
-      }
-    }
-  }
-}
 
 // Scenario #1 - Login and navigate to the indexing page and upload dummy manifest
 Scenario('Navigate to the indexing page and upload a test manifest @indexing', async (I, indexing, home, users) => {

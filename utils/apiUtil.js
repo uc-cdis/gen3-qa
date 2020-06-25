@@ -346,6 +346,34 @@ module.exports = {
     return JSON.parse(atob(base64));
   },
 
+  /**
+   * Start polling to check if a given k8s pod comes up
+   * Utilized to make sure ephemeral pods triggered by k8s/sower jobs are actually configured properly
+   * @param {string} podName - name of the pod that must be found
+   * @param {int} nAttempts - number of times the function should try to find the expected pod
+   */
+  async checkPod(podName, nAttempts = 6) {
+    for (let i = 0; i < nAttempts; i += 1) {
+      try {
+        console.log(`waiting for the ${podName} sower job/pod to show up... - attempt ${i}`);
+        await module.exports.sleepMS(10000);
+        const greppingPod = bash.runCommand(`g3kubectl get pods | grep ${podName}`);
+        console.log(`grep result: ${greppingPod}`);
+        if (greppingPod.includes(podName)) {
+          console.log('the pod was found! Proceed with the assertion checks..');
+          await module.exports.sleepMS(10000);
+          break;
+        }
+      } catch (e) {
+        console.log(`Failed to find the ${podName} pod on attempt ${i}:`);
+        console.log(e);
+        if (i === nAttempts - 1) {
+          throw e;
+        }
+      }
+    }
+  },
+
   getHomePageDetails(detail) {
     const detailsMap = {
       '': {
