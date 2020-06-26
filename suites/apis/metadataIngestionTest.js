@@ -16,7 +16,7 @@ const bash = new Bash();
 
 const testGUID = '95a41871-222c-48ae-8004-63f4ed1f0691';
 const testTSVURL = 'https://cdis-presigned-url-test.s3.amazonaws.com/test-study-subject-id.tsv';
-const testDbGaPURL = 'https://cdis-presigned-url-test.s3.amazonaws.com/test-dbgap-mock-study.xml';
+const testDbGaPURL = 'https://cdis-presigned-url-test.s3.amazonaws.com/test-dbgap-mock-study.xml'; // this is a copy of phs000200.v12.p3 with only 7 samples
 const testCSVToMergeWithStudyXML = 'https://cdis-presigned-url-test.s3.amazonaws.com/test-dbgap-mock-study.csv';
 
 const expectedResults = {
@@ -125,7 +125,7 @@ Scenario('Dispatch get-dbgap-metadata job with mock dbgap xml and verify metadat
     {
       action: sowerJobName,
       input: {
-        phsid_list: 'phs000200.v12.p3', // This will be ignored based on the DBGAP_STUDY_ENDPOINT override
+        phsid_list: 'phs123', // This will be ignored based on the DBGAP_STUDY_ENDPOINT override
         indexing_manifest_url: testCSVToMergeWithStudyXML,
         manifests_mapping_config: {
           guid_column_name: 'guid',
