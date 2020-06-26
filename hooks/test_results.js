@@ -15,7 +15,7 @@ module.exports = function () {
     const suiteName = test.parent.title.split(' ').join('_');
     const testName = test.title.split(' ').join('_');
     const testResult = test.state;
-    const testRetries = parseInt(test.retryNum, 10);
+    const testRetries = test.retryNum;
     let prName = '';
     let repoName = '';
     try {
