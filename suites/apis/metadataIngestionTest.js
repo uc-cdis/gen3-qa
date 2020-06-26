@@ -14,7 +14,6 @@ const { Bash } = require('../../utils/bash.js');
 
 const bash = new Bash();
 
-const testGUID = '95a41871-222c-48ae-8004-63f4ed1f0691';
 const testTSVURL = 'https://cdis-presigned-url-test.s3.amazonaws.com/test-study-subject-id.tsv';
 const testDbGaPURL = 'https://cdis-presigned-url-test.s3.amazonaws.com/test-dbgap-mock-study.xml'; // this is a copy of phs000200.v12.p3 with only 7 samples
 const testCSVToMergeWithStudyXML = 'https://cdis-presigned-url-test.s3.amazonaws.com/test-dbgap-mock-study.csv';
@@ -22,9 +21,12 @@ const testCSVToMergeWithStudyXML = 'https://cdis-presigned-url-test.s3.amazonaws
 const expectedResults = {
   ingest_metadata_manifest: {
     sra_sample_id: 'SRS1361261',
+    testGUID: '95a41871-222c-48ae-8004-63f4ed1f0691',
   },
   get_dbgap_metadata: {
     tsv: 'ad3bf4ad-1063-4e1b-97b0-4a31b777bea7',
+    testGUID: 'ad3bf4ad-1063-4e1b-97b0-4a31b777bea7',
+    testGUIDForPartialMatch: '5f5682f8-be38-45bb-9390-294e2678336e', // csv entry with aws_uri = s3://cdis-presigned-url-test/test_824703_data
   },
 };
 
@@ -50,6 +52,76 @@ async function doPolling(I, url, authHeader, expectedData, nAttempts, operationD
   return httpReq.data;
 }
 
+async function checkMetadataServiceEntry(I, expectedResult, authHeader) {
+  let mdsQuery = '';
+  try {
+    console.log('Step #5 - Check if metadata service entries are created');
+    mdsQuery = await doPolling(
+      I,
+      `/mds/metadata/${expectedResult}`,
+      authHeader,
+      '_guid_type',
+      6,
+      'metadata ingestion',
+    );
+  } catch (e) {
+    const jobLogs = bash.runCommand('g3kubectl logs -l app=sowerjob');
+    console.log(`sower job logs: ${jobLogs}`);
+    throw e;
+  }
+  expect(mdsQuery).to.not.be.null;
+  return mdsQuery;
+}
+
+async function feedTSVIntoMetadataIngestion(I, fence, uid, authHeader, expectedResult) {
+  await checkPod('get-dbgap-metadata');
+  await sleepMS(8000);
+
+  let jobOutput = ''; let jobLogsURL = ''; let preSignedURL = '';
+  try {
+    console.log('Step #2 - Obtain output of the job containing pre signed url with TSV (merged XML+CSV)');
+    jobOutput = await doPolling(
+      I,
+      `/job/output?UID=${uid}`,
+      authHeader,
+      'output',
+      6,
+      'dbgap metadata merge',
+    );
+    [jobLogsURL, preSignedURL] = jobOutput.output.split(' ');
+  } catch (e) {
+    const jobLogs = await I.sendGetRequest(jobLogsURL, authHeader)
+      .then((res) => new Gen3Response(res));
+    console.log(`'get-dbgap-metadata logs: ${JSON.stringify(jobLogs)}`);
+    throw e;
+  }
+
+  console.log('Step #3 - Fetch contents of the TSV');
+  const preSignedURLOutput = await fence.do.getFileFromSignedUrlRes(preSignedURL);
+  console.log(`debug: ${preSignedURLOutput}`);
+  // TODO: Investigate why we are getting an invalid response for a valid PreSigned URL
+  // preSignedURLOutput: "Could not get file contents from signed url response"
+  // expect(preSignedURLOutput).to.include(expectedResults.get_dbgap_metadata.tsv);
+
+  console.log('Step #4 - Dispatch an ingest-metadata-manifest job to convert the TSV into a metadata service entry');
+  const sowerJobName = 'ingest-metadata-manifest';
+  const dispatchJob = await I.sendPostRequest(
+    '/job/dispatch',
+    {
+      action: sowerJobName,
+      input: {
+        URL: preSignedURL,
+        metadata_source: 'dbgap',
+        host: `https://${process.env.HOSTNAME}`,
+      },
+    },
+    authHeader,
+  ).then((res) => res);
+  expect(dispatchJob, `Should have triggered the ${sowerJobName} sower job`).to.have.property('status', 200);
+
+  await checkMetadataServiceEntry(I, expectedResult, authHeader);
+}
+
 BeforeSuite(async (I, users) => {
   console.log('Setting up dependencies...');
   I.cache = {};
@@ -62,9 +134,25 @@ BeforeSuite(async (I, users) => {
   `);
   console.log(`setupTestingArtifacts: ${setupTestingArtifacts}`);
 
+  // TODO: Improve the dbgap script to consume a new DBGAP_STUDY_ENDPOINT url
+  // from the job dispatch input parameter to simplify this override
+  bash.runCommand(`g3kubectl get cm manifest-sower -o json | jq -r .data.json | jq -r --argjson dbgap_study_endpoint \'\\'\'[{ "name": "DBGAP_STUDY_ENDPOINT", "value": "${testDbGaPURL}" }]\'\\'\' \'\\'\'(.[] | select(.name == "get-dbgap-metadata") | .container.env) += $dbgap_study_endpoint\'\\'\' > metadata-ingestion-${I.cache.UNIQUE_NUM}/json`); // eslint-disable-line no-useless-escape
+  const recreateSowerConfigMap = bash.runCommand(`g3kubectl delete cm manifest-sower; g3kubectl create configmap manifest-sower --from-file=metadata-ingestion-${I.cache.UNIQUE_NUM}/json; gen3 roll sower`);
+  console.log(`recreateSowerConfigMap: ${recreateSowerConfigMap}`);
+
+  await sleepMS(5000);
+
   console.log('deleting existing metadata entries...');
   await I.sendDeleteRequest(
-    `/mds-admin/metadata/${testGUID}`,
+    `/mds-admin/metadata/${expectedResults.ingest_metadata_manifest.testGUID}`,
+    users.indexingAcct.accessTokenHeader,
+  ).then((res) => new Gen3Response(res));
+  await I.sendDeleteRequest(
+    `/mds-admin/metadata/${expectedResults.get_dbgap_metadata.testGUID}`,
+    users.indexingAcct.accessTokenHeader,
+  ).then((res) => new Gen3Response(res));
+  await I.sendDeleteRequest(
+    `/mds-admin/metadata/${expectedResults.get_dbgap_metadata.testGUIDForPartialMatch}`,
     users.indexingAcct.accessTokenHeader,
   ).then((res) => new Gen3Response(res));
 });
@@ -74,7 +162,7 @@ AfterSuite(async (I) => {
   const recreateSowerConfigMap = bash.runCommand(`g3kubectl delete cm manifest-sower; g3kubectl create configmap manifest-sower --from-file=metadata-ingestion-backup-${I.cache.UNIQUE_NUM}/json; rm -Rf metadata-ingestion-backup-${I.cache.UNIQUE_NUM}; rm -Rf metadata-ingestion-${I.cache.UNIQUE_NUM}`);
   console.log(`recreateSowerConfigMap: ${recreateSowerConfigMap}`);
 });
-/*
+
 // Scenario #1 - Instrument sower HTTP API endpoint to trigger the ingest-metadata-manifest job
 // and check if the expected mds entry is created successfully
 Scenario('Dispatch ingest-metadata-manifest sower job with simple json and verify metadata ingestion @metadataIngestion', async (I, users) => {
@@ -94,32 +182,19 @@ Scenario('Dispatch ingest-metadata-manifest sower job with simple json and verif
   expect(dispatchJob1, `Should have triggered the ${sowerJobName} sower job`).to.have.property('status', 200);
 
   await checkPod(sowerJobName);
-
-  let jobOutput = '';
-  try {
-    jobOutput = await doPolling(I, `/mds/metadata/${testGUID}`, users.indexingAcct.accessTokenHeader, '_guid_type', 6, 'metadata ingestion');
-  } catch (e) {
-    const jobLogs = bash.runCommand('g3kubectl logs -l app=sowerjob');
-    console.log(`${sowerJobName} logs: ${jobLogs}`);
-    throw e;
-  }
-  expect(jobOutput.dbgap.sra_sample_id).to.equal(`${expectedResults.ingest_metadata_manifest.sra_sample_id}`);
-}).retry(1);*/
+  const metadataServiceEntry = await checkMetadataServiceEntry(
+    I,
+    expectedResults.ingest_metadata_manifest.testGUID,
+  );
+  expect(metadataServiceEntry.dbgap.sra_sample_id).to.equal(`${expectedResults.ingest_metadata_manifest.sra_sample_id}`);
+}).retry(1);
 
 
 // Scenario #2 - Instrument sower HTTP API endpoint to trigger the get-dbgap-metadata job
 // pointing to a mock dbgap study file and check if the expected mds entry is created successfully
-Scenario('Dispatch get-dbgap-metadata job with mock dbgap xml and verify metadata ingestion @metadataIngestion', async (I, users, fence) => {
-  let sowerJobName = 'get-dbgap-metadata';
-  // TODO: Improve the dbgap script to consume a new DBGAP_STUDY_ENDPOINT url
-  // from the job dispatch input parameter to simplify this override
-  bash.runCommand(`g3kubectl get cm manifest-sower -o json | jq -r .data.json | jq -r --argjson dbgap_study_endpoint \'\\'\'[{ "name": "DBGAP_STUDY_ENDPOINT", "value": "${testDbGaPURL}" }]\'\\'\' \'\\'\'(.[] | select(.name == "${sowerJobName}") | .container.env) += $dbgap_study_endpoint\'\\'\' > metadata-ingestion-${I.cache.UNIQUE_NUM}/json`); // eslint-disable-line no-useless-escape
-  const recreateSowerConfigMap = bash.runCommand(`g3kubectl delete cm manifest-sower; g3kubectl create configmap manifest-sower --from-file=metadata-ingestion-${I.cache.UNIQUE_NUM}/json; gen3 roll sower`);
-  console.log(`recreateSowerConfigMap: ${recreateSowerConfigMap}`);
-
-  await sleepMS(5000);
-
-  console.log('Step #1 - Dispatch get-dbgap-metadata job');
+Scenario('Dispatch exact match get-dbgap-metadata job with mock dbgap xml and verify metadata ingestion @metadataIngestion', async (I, users, fence) => {
+  const sowerJobName = 'get-dbgap-metadata';
+  console.log(`Step #1 - Dispatch ${sowerJobName} job`);
   const dispatchJob2 = await I.sendPostRequest(
     '/job/dispatch',
     {
@@ -138,54 +213,48 @@ Scenario('Dispatch get-dbgap-metadata job with mock dbgap xml and verify metadat
     users.indexingAcct.accessTokenHeader,
   ).then((res) => res);
   expect(dispatchJob2, `Should have triggered the ${sowerJobName} sower job`).to.have.property('status', 200);
-
   const { uid } = dispatchJob2.data;
 
-  await checkPod(sowerJobName);
+  await feedTSVIntoMetadataIngestion(
+    I,
+    fence,
+    uid,
+    users.indexingAcct.accessTokenHeader,
+    expectedResults.get_dbgap_metadata.testGUID,
+  );
+}).retry(1);
 
-  await sleepMS(8000);
-
-  let jobOutput = ''; let jobLogsURL = ''; let preSignedURL = '';
-  try {
-    console.log('Step #2 - Obtain output of the job containing pre signed url with TSV (merged XML+CSV)');
-    jobOutput = await doPolling(I, `/job/output?UID=${uid}`, users.indexingAcct.accessTokenHeader, 'output', 6, 'dbgap metadata merge');
-    [jobLogsURL, preSignedURL] = jobOutput.output.split(' ');
-  } catch (e) {
-    const jobLogs = await I.sendGetRequest(jobLogsURL, users.indexingAcct.accessTokenHeader)
-      .then((res) => new Gen3Response(res));
-    console.log(`${sowerJobName} logs: ${JSON.stringify(jobLogs)}`);
-    throw e;
-  }
-
-  console.log('Step #3 - Fetch contents of the TSV');
-  const preSignedURLOutput = await fence.do.getFileFromSignedUrlRes(preSignedURL);
-  console.log(`debug: ${preSignedURLOutput}`);
-  //expect(preSignedURLOutput).to.include(expectedResults.get_dbgap_metadata.tsv);
-
-  console.log('Step #4 - Dispatch an ingest-metadata-manifest job to convert the TSV into a metadata service entry');
-  sowerJobName = 'ingest-metadata-manifest';
-  const dispatchJob3 = await I.sendPostRequest(
+// Scenario #3 - Instrument sower HTTP API endpoint to trigger the get-dbgap-metadata job again
+// Try a partial match between the Study XML (submitted_sample_id) and the CSV (aws_uri)
+// and check if the expected mds entry is created successfully
+Scenario('Dispatch partial match get-dbgap-metadata job with mock dbgap xml and verify metadata ingestion @metadataIngestion', async (I, users, fence) => {
+  const sowerJobName = 'get-dbgap-metadata';
+  console.log(`Step #1 - Dispatch ${sowerJobName} job`);
+  const dispatchJob2 = await I.sendPostRequest(
     '/job/dispatch',
     {
       action: sowerJobName,
       input: {
-        URL: preSignedURL,
-        metadata_source: 'dbgap',
-        host: `https://${process.env.HOSTNAME}`,
+        phsid_list: 'phs123', // This will be ignored based on the DBGAP_STUDY_ENDPOINT override
+        indexing_manifest_url: testCSVToMergeWithStudyXML,
+        manifests_mapping_config: {
+          guid_column_name: 'guid',
+          row_column_name: 'submitted_sample_id', // XML property to match (from the Study's samples)
+          indexing_manifest_column_name: 'aws_uri', // CSV header to look for partial match
+        },
+        partial_match_or_exact_match: 'partial_match',
       },
     },
     users.indexingAcct.accessTokenHeader,
   ).then((res) => res);
-  expect(dispatchJob3, `Should have triggered the ${sowerJobName} sower job`).to.have.property('status', 200);
+  expect(dispatchJob2, `Should have triggered the ${sowerJobName} sower job`).to.have.property('status', 200);
+  const { uid } = dispatchJob2.data;
 
-  let jobOutput2 = '';
-  try {
-    console.log('Step #5 - Check if metadata service entries are created');
-    jobOutput2 = await doPolling(I, `/mds/metadata/${expectedResults.get_dbgap_metadata.tsv}`, users.indexingAcct.accessTokenHeader, '_guid_type', 6, 'metadata ingestion');
-  } catch (e) {
-    const jobLogs = bash.runCommand('g3kubectl logs -l app=sowerjob');
-    console.log(`${sowerJobName} logs: ${jobLogs}`);
-    throw e;
-  }
-  expect(jobOutput2).to.not.be.null;
-});
+  await feedTSVIntoMetadataIngestion(
+    I,
+    fence,
+    uid,
+    users.indexingAcct.accessTokenHeader,
+    expectedResults.get_dbgap_metadata.testGUIDForPartialMatch,
+  );
+}).retry(1);
