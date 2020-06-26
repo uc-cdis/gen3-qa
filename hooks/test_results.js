@@ -14,6 +14,8 @@ module.exports = function () {
     // console.log(stringify(test));
     const suiteName = test.parent.title.split(' ').join('_');
     const testName = test.title.split(' ').join('_');
+    const testResult = test.state;
+    const testRetries = test.retryNum;
     let prName = '';
     let repoName = '';
     try {
@@ -33,16 +35,16 @@ module.exports = function () {
       });
     }
     console.log('********');
-    console.log(`TEST: ${test.title}`);
-    console.log(`RESULT: ${test.state}`);
-    console.log(`RETRIES: ${test.retryNum}`);
+    console.log(`TEST: ${testName}`);
+    console.log(`RESULT: ${testResult}`);
+    console.log(`RETRIES: ${testRetries}`);
     console.log(`TIMESTAMP: ${new Date()}`);
     console.log(`GRID_SESSION_COUNT: ${sessionCount}`);
     console.log('********');
     // const duration = test.parent.tests[0].duration / 1000;
     // const error = test.parent.tests[0].err.message.substring(0, 50);
     let testFailCount = 0;
-    if (test.state === 'failed') {
+    if (testResult === 'failed') {
       testFailCount = 1;
     }
 
@@ -68,7 +70,7 @@ module.exports = function () {
       });
     }
 
-    if (test.retryNum > 0) {
+    if (testRetries > 0) {
       await influx.writePoints([
         {
           measurement: 'retry_count',
@@ -80,7 +82,7 @@ module.exports = function () {
             // run_time: duration,
             // err_msg: error,
           },
-          fields: { retry_count: test.retryNum },
+          fields: { retry_count: testRetries },
         },
       ], {
         precision: 's',
