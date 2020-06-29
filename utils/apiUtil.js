@@ -374,14 +374,10 @@ module.exports = {
 	  }
 	}
         if (i === nAttempts - 1) {
-          throw new Error(`Max number of attempts reached: ${i}:`);
+          throw new Error(`Max number of attempts reached: ${i}`);
         }
       } catch (e) {
-        console.log(`Failed to obtain a successful phase check from the ${sowerJobName} job on attempt ${i}: ${e.message}`);
-        console.log(e);
-        if (i === nAttempts - 1) {
-          throw e;
-        }
+        new Error(`Failed to obtain a successful phase check from the ${sowerJobName} job on attempt ${i}: ${e.message}`);
       }
     }
   },
