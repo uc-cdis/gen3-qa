@@ -11,6 +11,35 @@ In order to execute this test, the environment must have the following items ful
 - Metadata service
 - A test user with the required permissions (arborist policies: sower, mds_admin, indexd_admin) -- A user has already been created for this purpose: `ctds.indexing.test@gmail.com`.
 
+## How to dispatch and retrieve the output from Sower jobs
+These Sower jobs can be dispatched with requests to the Sower endpoint (`/job/dispatch`), such as:
+```bash
+% curl -X POST "https://${GEN3_HOSTNAME}/job/dispatch" --header "Content-Type: application/json" \
+--header "Authorization: Bearer ${ACCESS_TOKEN}" \
+--data-raw '{ "action": "get-dbgap-metadata", "input": {
+        "phsid_list": "phs123",
+        "indexing_manifest_url": "https://cdis-presigned-url-test.s3.amazonaws.com/test-dbgap-mock-study.csv",
+        "manifests_mapping_config": {
+          "guid_column_name": "guid",
+          "row_column_name": "submitted_sample_id",
+          "indexing_manifest_column_name": "submitted_sample_id"
+        },
+        "partial_match_or_exact_match": "exact_match"
+      }}'
+```
+*_The fictitious study `phs123` will be ignored if the REQUEST URL override is in place_
+`STUDY_ENDPOINT="https://cdis-presigned-url-test.s3.amazonaws.com/test-dbgap-mock-study.xml"`
+
+This request should produce a response containing an `uid`, e.g.:
+```bash
+› [Response] {"uid":"592f7076-ba54-11ea-9918-0ecfa8696edf","name":"get-dbgap-metadata-hjlbw","status":"Unknown"}
+```
+
+To obtain the output of the dispatched job, issue a `HTTP GET` request against the sower endpoint:
+```bash
+% curl -s -X GET 'https://${GEN3_HOSTNAME}/job/output?UID=592f7076-ba54-11ea-9918-0ecfa8696edf' --header 'Content-Type: application/json' --header "Authorization: Bearer ${ACCESS_TOKEN}"
+```
+
 ## Test Plan
 
 The initial coverage comprises the following scenarios:
