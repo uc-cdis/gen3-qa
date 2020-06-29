@@ -1,11 +1,13 @@
 # Metadata Ingestion test plan
 
 ## One-liner overview of the service
-The Metadata Ingestion is a backgrouNd batch process, powered by a Python script that runs as a Sower Job (ephemeral k8s pod), to fetch data from dbGaP and create clinical metadata records within the Metadata Service blobstore.
+The Metadata Ingestion is a background batch process, powered by a Python script that runs as a Sower Job (ephemeral k8s pod), to fetch data from dbGaP and create clinical metadata records within the Metadata Service blobstore. There are two separate sower jobs:
+- `ingest-metadata-manifest`
+- `get-dbgap-metadata`
 
 ## Environmental dependencies
 In order to execute this test, the environment must have the following items fully configured:
-- Sower jobs (including the metadata ingestion job)
+- Sower jobs (including the metadata ingestion jobs)
 - Metadata service
 - A test user with the required permissions (arborist policies: sower, mds_admin, indexd_admin) -- A user has already been created for this purpose: `ctds.indexing.test@gmail.com`.
 
@@ -25,6 +27,12 @@ REQUEST_URL = os.environ.get('DBGAP_STUDY_ENDPOINT', 'https://www.ncbi.nlm.nih.g
 ```
 
 Once the mock data is obtained, the ingestion process will create metadata-service JSON docs and the test assertion should verify the existence of the JSON doc with the correct data.
+
+- Scenario #1: Dispatch ingest-metadata-manifest sower job with simple TSV and verify metadata ingestion
+
+- Scenario #2: Dispatch exact match get-dbgap-metadata job with mock dbgap xml, utilize resulting TSV to dispatch the ingest-metadata-manifest sower job and verify metadata ingestion
+
+- Scenario #3: Dispatch partial match get-dbgap-metadata job with mock dbgap xml, utilize resulting TSV to dispatch the ingest-metadata-manifest sower job and verify metadata ingestion
 
 ### Negative tests
 
