@@ -324,6 +324,14 @@ if [ -z "$checkForPresenceOfManifestIndexingSowerJob" ]; then
   donot '@indexing'
 fi
 
+set +e
+checkForPresenceOfMetadataIngestionSowerJob=$(g3kubectl get cm manifest-sower -o yaml | grep get-dbgap-metadata)
+set -e
+if [ -z "$checkForPresenceOfMetadataIngestionSowerJob" ]; then
+  echo "the get-dbgap-metadata sower job was not found, skip @metadataIngestion tests";
+  donot '@metadataIngestion'
+fi
+
 if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1 ||
 ! (g3kubectl get pods --no-headers -l app=wts | grep wts) > /dev/null 2>&1; then
   donot '@exportToWorkspaceAPI'
