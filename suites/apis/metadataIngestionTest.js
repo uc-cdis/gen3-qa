@@ -167,7 +167,7 @@ AfterSuite(async (I) => {
 
 // Scenario #1 - Instrument sower HTTP API endpoint to trigger the ingest-metadata-manifest job
 // and check if the expected mds entry is created successfully
-Scenario('Dispatch ingest-metadata-manifest sower job with simple json and verify metadata ingestion @metadataIngestion', async (I, users) => {
+Scenario('Dispatch ingest-metadata-manifest sower job with simple tsv and verify metadata ingestion @metadataIngestion', async (I, users) => {
   const sowerJobName = 'ingest-metadata-manifest';
   const dispatchJob1 = await I.sendPostRequest(
     '/job/dispatch',
