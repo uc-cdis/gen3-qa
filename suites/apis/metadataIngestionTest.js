@@ -45,7 +45,7 @@ async function doPolling(I, url, authHeader, expectedData, nAttempts, operationD
       console.log(`WARN: The operation ${operationDescription} has not return the ${expectedData} yet... - attempt ${i}`);
       await sleepMS(10000);
       if (i === nAttempts - 1) {
-        throw new Error(`ERROR: The operation ${operationDescription} failed. Response: ${httpReq.data}`);
+        throw new Error(`ERROR: The operation ${operationDescription} failed. Response: ${JSON.stringify(httpReq.data)}`);
       }
     }
   }
@@ -187,7 +187,7 @@ Scenario('Dispatch ingest-metadata-manifest sower job with simple json and verif
     expectedResults.ingest_metadata_manifest.testGUID,
   );
   expect(metadataServiceEntry.dbgap.sra_sample_id).to.equal(`${expectedResults.ingest_metadata_manifest.sra_sample_id}`);
-}).retry(1);
+});
 
 
 // Scenario #2 - Instrument sower HTTP API endpoint to trigger the get-dbgap-metadata job
@@ -222,7 +222,7 @@ Scenario('Dispatch exact match get-dbgap-metadata job with mock dbgap xml and ve
     users.indexingAcct.accessTokenHeader,
     expectedResults.get_dbgap_metadata.testGUID,
   );
-}).retry(1);
+});
 
 // Scenario #3 - Instrument sower HTTP API endpoint to trigger the get-dbgap-metadata job again
 // Try a partial match between the Study XML (submitted_sample_id) and the CSV (aws_uri)
@@ -257,4 +257,4 @@ Scenario('Dispatch partial match get-dbgap-metadata job with mock dbgap xml and 
     users.indexingAcct.accessTokenHeader,
     expectedResults.get_dbgap_metadata.testGUIDForPartialMatch,
   );
-}).retry(1);
+});
