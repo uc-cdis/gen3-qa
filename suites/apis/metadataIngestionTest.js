@@ -129,13 +129,15 @@ BeforeSuite(async (I, users) => {
   const setupTestingArtifacts = bash.runCommand(`
     mkdir metadata-ingestion-${I.cache.UNIQUE_NUM};
     mkdir metadata-ingestion-backup-${I.cache.UNIQUE_NUM};
-    g3kubectl get cm manifest-sower -o json | jq -r .data.json > metadata-ingestion-backup-${I.cache.UNIQUE_NUM}/json
+    g3kubectl get cm manifest-sower -o json | jq -r .data.json > metadata-ingestion-backup-${I.cache.UNIQUE_NUM}/json;
+    echo "result: $?"
   `);
   console.log(`setupTestingArtifacts: ${setupTestingArtifacts}`);
 
   // TODO: Improve the dbgap script to consume a new DBGAP_STUDY_ENDPOINT url
   // from the job dispatch input parameter to simplify this override
-  const injectEnvVarToSowerConfigMap = await bash.runCommand(`g3kubectl get cm manifest-sower -o json | jq -r .data.json | jq -r --argjson dbgap_study_endpoint \'\\'\'[{ "name": "DBGAP_STUDY_ENDPOINT", "value": "${testDbGaPURL}" }]\'\\'\' \'\\'\'(.[] | select(.name == "get-dbgap-metadata") | .container.env) += $dbgap_study_endpoint\'\\'\' > metadata-ingestion-${I.cache.UNIQUE_NUM}/json`); // eslint-disable-line no-useless-escape
+  const singleQuote = process.env.RUNNING_LOCAL === 'true' ? "\'\\'\'" : "'"; // eslint-disable-line quotes,no-useless-escape
+  const injectEnvVarToSowerConfigMap = await bash.runCommand(`g3kubectl get cm manifest-sower -o json | jq -r .data.json | jq -r --argjson dbgap_study_endpoint ${singleQuote}[{ "name": "DBGAP_STUDY_ENDPOINT", "value": "${testDbGaPURL}" }]${singleQuote} ${singleQuote}(.[] | select(.name == "get-dbgap-metadata") | .container.env) += $dbgap_study_endpoint${singleQuote} > metadata-ingestion-${I.cache.UNIQUE_NUM}/json`); // eslint-disable-line no-useless-escape
   console.log(`injectEnvVarToSowerConfigMap: ${injectEnvVarToSowerConfigMap}`);
   const recreateSowerConfigMap = await bash.runCommand(`g3kubectl delete cm manifest-sower; g3kubectl create configmap manifest-sower --from-file=metadata-ingestion-${I.cache.UNIQUE_NUM}/json; gen3 roll sower`);
   console.log(`recreateSowerConfigMap: ${recreateSowerConfigMap}`);
