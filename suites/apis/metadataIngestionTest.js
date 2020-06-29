@@ -75,7 +75,6 @@ async function checkMetadataServiceEntry(I, expectedResult, authHeader) {
 
 async function feedTSVIntoMetadataIngestion(I, fence, uid, authHeader, expectedResult) {
   await checkPod('get-dbgap-metadata');
-  await sleepMS(8000);
 
   let jobOutput = ''; let jobLogsURL = ''; let preSignedURL = '';
   try {
@@ -136,8 +135,9 @@ BeforeSuite(async (I, users) => {
 
   // TODO: Improve the dbgap script to consume a new DBGAP_STUDY_ENDPOINT url
   // from the job dispatch input parameter to simplify this override
-  bash.runCommand(`g3kubectl get cm manifest-sower -o json | jq -r .data.json | jq -r --argjson dbgap_study_endpoint \'\\'\'[{ "name": "DBGAP_STUDY_ENDPOINT", "value": "${testDbGaPURL}" }]\'\\'\' \'\\'\'(.[] | select(.name == "get-dbgap-metadata") | .container.env) += $dbgap_study_endpoint\'\\'\' > metadata-ingestion-${I.cache.UNIQUE_NUM}/json`); // eslint-disable-line no-useless-escape
-  const recreateSowerConfigMap = bash.runCommand(`g3kubectl delete cm manifest-sower; g3kubectl create configmap manifest-sower --from-file=metadata-ingestion-${I.cache.UNIQUE_NUM}/json; gen3 roll sower`);
+  const injectEnvVarToSowerConfigMap = await bash.runCommand(`g3kubectl get cm manifest-sower -o json | jq -r .data.json | jq -r --argjson dbgap_study_endpoint \'\\'\'[{ "name": "DBGAP_STUDY_ENDPOINT", "value": "${testDbGaPURL}" }]\'\\'\' \'\\'\'(.[] | select(.name == "get-dbgap-metadata") | .container.env) += $dbgap_study_endpoint\'\\'\' > metadata-ingestion-${I.cache.UNIQUE_NUM}/json`); // eslint-disable-line no-useless-escape
+  console.log(`injectEnvVarToSowerConfigMap: ${injectEnvVarToSowerConfigMap}`);
+  const recreateSowerConfigMap = await bash.runCommand(`g3kubectl delete cm manifest-sower; g3kubectl create configmap manifest-sower --from-file=metadata-ingestion-${I.cache.UNIQUE_NUM}/json; gen3 roll sower`);
   console.log(`recreateSowerConfigMap: ${recreateSowerConfigMap}`);
 
   await sleepMS(5000);
@@ -187,7 +187,7 @@ Scenario('Dispatch ingest-metadata-manifest sower job with simple json and verif
     expectedResults.ingest_metadata_manifest.testGUID,
   );
   expect(metadataServiceEntry.dbgap.sra_sample_id).to.equal(`${expectedResults.ingest_metadata_manifest.sra_sample_id}`);
-});
+}).retry(1);
 
 
 // Scenario #2 - Instrument sower HTTP API endpoint to trigger the get-dbgap-metadata job
@@ -222,7 +222,7 @@ Scenario('Dispatch exact match get-dbgap-metadata job with mock dbgap xml and ve
     users.indexingAcct.accessTokenHeader,
     expectedResults.get_dbgap_metadata.testGUID,
   );
-});
+}).retry(1);
 
 // Scenario #3 - Instrument sower HTTP API endpoint to trigger the get-dbgap-metadata job again
 // Try a partial match between the Study XML (submitted_sample_id) and the CSV (aws_uri)
@@ -257,4 +257,4 @@ Scenario('Dispatch partial match get-dbgap-metadata job with mock dbgap xml and 
     users.indexingAcct.accessTokenHeader,
     expectedResults.get_dbgap_metadata.testGUIDForPartialMatch,
   );
-});
+}).retry(1);

@@ -352,20 +352,32 @@ module.exports = {
    * @param {string} podName - name of the pod that must be found
    * @param {int} nAttempts - number of times the function should try to find the expected pod
    */
-  async checkPod(podName, nAttempts = 6) {
+  async checkPod(sowerJobName, nAttempts = 6) {
+    let podFound = false;
     for (let i = 0; i < nAttempts; i += 1) {
       try {
-        console.log(`waiting for the ${podName} sower job/pod to show up... - attempt ${i}`);
+        console.log(`waiting for ${sowerJobName} sower job/pod... - attempt ${i}`);
         await module.exports.sleepMS(10000);
-        const greppingPod = bash.runCommand(`g3kubectl get pods | grep ${podName}`);
-        console.log(`grep result: ${greppingPod}`);
-        if (greppingPod.includes(podName)) {
-          console.log('the pod was found! Proceed with the assertion checks..');
-          await module.exports.sleepMS(10000);
-          break;
+        const podName = bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=sowerjob -o jsonpath="{.items[0].metadata.name}"`);
+        if (!podFound) {
+	  console.log(`grep result: ${podName}`);
+          if (podName.includes(sowerJobName)) {
+            console.log(`the pod ${podName} was found! Proceed with the container check...`);
+            podFound = true;
+          }
+	} else {
+          const checkIfContainerSucceeded = bash.runCommand(`g3kubectl get pod ${podName} -o jsonpath='{.status.phase}'`);
+          console.log(`check container status: ${checkIfContainerSucceeded}`);
+          if (checkIfContainerSucceeded == 'Succeeded') {
+              console.log(`The container from pod ${podName} is ready! Proceed with the assertion checks..`);
+              break;
+	  }
+	}
+        if (i === nAttempts - 1) {
+          throw new Error(`Max number of attempts reached: ${i}:`);
         }
       } catch (e) {
-        console.log(`Failed to find the ${podName} pod on attempt ${i}:`);
+        console.log(`Failed to obtain a successful phase check from the ${sowerJobName} job on attempt ${i}: ${e.message}`);
         console.log(e);
         if (i === nAttempts - 1) {
           throw e;
