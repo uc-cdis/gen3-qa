@@ -348,17 +348,17 @@ module.exports = {
 
   /**
    * Start polling to check if a given k8s pod comes up
-   * Utilized to make sure ephemeral pods triggered by k8s/sower jobs are actually configured properly
-   * @param {string} podName - name of the pod that must be found
+   * Utilized to make sure ephemeral pods triggered by k8s jobs are actually configured properly
+   * @param {string} jobName - name of the pod that must be found
    * @param {int} nAttempts - number of times the function should try to find the expected pod
    */
-  async checkPod(sowerJobName, nAttempts = 6) {
+  async checkPod(jobName, nAttempts = 6) {
     let podFound = false;
     for (let i = 0; i < nAttempts; i += 1) {
       try {
-        console.log(`waiting for ${sowerJobName} sower job/pod... - attempt ${i}`);
+        console.log(`waiting for ${jobName} job/pod... - attempt ${i}`);
         await module.exports.sleepMS(10000);
-        const podName = bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=sowerjob -o jsonpath="{.items[0].metadata.name}"`);
+        const podName = bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -o jsonpath="{.items[0].metadata.name}"`);
         if (!podFound) {
 	  console.log(`grep result: ${podName}`);
           if (podName.includes(sowerJobName)) {
@@ -377,7 +377,7 @@ module.exports = {
           throw new Error(`Max number of attempts reached: ${i}`);
         }
       } catch (e) {
-        new Error(`Failed to obtain a successful phase check from the ${sowerJobName} job on attempt ${i}: ${e.message}`);
+        new Error(`Failed to obtain a successful phase check from the ${jobName} job on attempt ${i}: ${e.message}`);
       }
     }
   },
