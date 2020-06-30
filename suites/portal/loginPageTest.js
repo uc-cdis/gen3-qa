@@ -1,10 +1,10 @@
-const explorer = require('../../services/portal/explorer/explorerService.js');
+const profile = require('../../services/portal/profile/service.js');
 
 Feature('Login');
 
 Scenario('Login redirects to requested page', (login) => {
-  explorer.do.goToExplorerPage(); // Navigating to /explorer without loggin in redirects to /login
+  profile.do.goToPage(); // Navigating to /explorer without loggin in redirects to /login
   login.ask.isCurrentPage();
   login.complete.login();
-  explorer.ask.isCurrentPage(); // User is redirected to explorer after logging in
+  profile.ask.isCurrentPage(); // User is redirected to explorer after logging in
 }).tag('@loginRedirect');
