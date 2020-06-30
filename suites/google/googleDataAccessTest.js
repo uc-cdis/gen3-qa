@@ -35,7 +35,7 @@ const chai = require('chai');
 const { Commons } = require('../../utils/commons.js');
 const fenceProps = require('../../services/apis/fence/fenceProps.js');
 const { Bash } = require('../../utils/bash.js');
-const { checkPod, getAccessToken, getAccessTokenHeader, sleepMS, Gen3Response } = require('../../utils/apiUtil.js');
+const { checkPod, getAccessToken, getAccessTokenHeader, Gen3Response } = require('../../utils/apiUtil.js');
 
 const bash = new Bash();
 
