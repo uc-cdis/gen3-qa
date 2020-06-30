@@ -98,7 +98,6 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     chai.expect(indexdLookupRes,
       `First sync: Check if the [indexed_files.qaFile] (${indexed_files.qaFile.filename}) has been indexed. Otherwise fail fast.`).to.have.property('file_name', indexed_files.qaFile.filename);
 
-    let User0signedUrlQA1FileContents = '';
     let User0signedUrlQA1Res = '';
     let tempCreds0Res = '';
 
@@ -139,7 +138,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     ).catch((err) => err && err.response && err.response.data || err);
 
     console.log(`User0signedUrlQA1ResFileContents: ${User0signedUrlQA1ResFileContents.data}`);
-    console.log(`The contents of the QA file: ${stringify(User0signedUrlQA1FileContents.data).substring(User0signedUrlQA1FileContents.length-100, User0signedUrlQA1FileContents.length)}`);
+    console.log(`The contents of the QA file: ${stringify(User0signedUrlQA1ResFileContents.data).substring(User0signedUrlQA1ResFileContents.length-100, User0signedUrlQA1ResFileContents.length)}`);
 
     if (User0signedUrlQA1ResFileContents.data == fence.props.googleBucketInfo.QA.fileContents) {
       console.log(`a valid presigned url has been found.`);
@@ -196,7 +195,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     //  - Check Signed URLs - BEGIN
     console.log('Second: Check signed URLs');
 
-    chai.expect(User0signedUrlQA1ResFileContent.data,
+    chai.expect(User0signedUrlQA1ResFileContents.data,
       `First sync: Check User0 can use signed URL to read file in QA. FAILED.`).to.equal(fence.props.googleBucketInfo.QA.fileContents);
     chai.expect(User0signedUrlTest1Res,
       `First sync: Check that User0 could NOT get a signed URL to read file in test.`).to.have.property('status', 401);
