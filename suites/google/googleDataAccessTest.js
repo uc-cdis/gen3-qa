@@ -132,9 +132,13 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     );
 
     console.log(`User0signedUrlQA1Res: ${JSON.stringify(User0signedUrlQA1Res)}`);
-    User0signedUrlQA1FileContents = await fence.do.getFileFromSignedUrlRes(
-      User0signedUrlQA1Res,
-    );
+    const User0signedUrlQA1ResFileContents = await I.sendGetRequest(
+      User0signedUrlQA1Res.data.url,
+    ).then(
+      (res) => new Gen3Response(res)
+    ).catch((err) => err && err.response && err.response.data || err);
+
+    console.log(`User0signedUrlQA1ResFileContents: ${User0signedUrlQA1ResFileContents}`);
     console.log(`The contents of the QA file: ${stringify(User0signedUrlQA1FileContents).substring(User0signedUrlQA1FileContents.length-100, User0signedUrlQA1FileContents.length)}`);
 
     if (User0signedUrlQA1FileContents == fence.props.googleBucketInfo.QA.fileContents) {
@@ -203,6 +207,8 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
     bash.runJob('useryaml');
 
+    await apiUtil.checkPod('useryaml');
+
     // get new access tokens b/c of changed access
     newUser0AccessToken = apiUtil.getAccessToken(users.user0.username, 3600);
 
@@ -235,9 +241,11 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
 
     // use old signed urls to try and access data again
     console.log('Use signed URL from User0 to try and access QA data again');
-    const User0AccessRemovedQA = await fence.do.getFileFromSignedUrlRes(
-      User0signedUrlQA1Res,
-    );
+    const User0AccessRemovedQA = await I.sendGetRequest(
+      User0signedUrlQA1Res.data.url,
+    ).then(
+      (res) => new Gen3Response(res)
+    ).catch((err) => err && err.response && err.response.data || err);
 
     console.log('deleting temporary google credentials');
     // call our endpoint to delete temporary creds
@@ -320,18 +328,23 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
       indexed_files.qaFile.did, users.user1.accessTokenHeader,
     );
     console.log(`User1signedUrlQA1Res: ${JSON.stringify(User1signedUrlQA1Res)}`);
-    const User1signedUrlQA1ResFileContents = await fence.do.getFileFromSignedUrlRes(
-      User1signedUrlQA1Res,
-    );
+    const User1signedUrlQA1ResFileContents = await I.sendGetRequest(
+      User1signedUrlQA1Res.data.url,
+    ).then(
+      (res) => new Gen3Response(res)
+    ).catch((err) => err && err.response && err.response.data || err);
+
     console.log(`User1signedUrlQA1ResFileContents: ${User1signedUrlQA1ResFileContents}`);
 
     console.log('Use User1 to create signed URL for file in test');
     const User1signedUrlTest1Res = await fence.do.createSignedUrlForUser(
       indexed_files.testFile.did, users.user1.accessTokenHeader,
     );
-    const User1signedUrlTest1ResFileContents = await fence.do.getFileFromSignedUrlRes(
-      User1signedUrlTest1Res,
-    );
+    const User1signedUrlTest1ResFileContents = await I.sendGetRequest(
+      User1signedUrlTest1Res.data.url,
+    ).then(
+      (res) => new Gen3Response(res)
+    ).catch((err) => err && err.response && err.response.data || err);
 
     console.log('saving temporary google creds to file');
     const creds1Key = tempCreds1Res.data.private_key_id;
@@ -362,6 +375,8 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
     bash.runJob('useryaml');
 
+    await apiUtil.checkPod('useryaml');
+
     // get new access tokens b/c of changed access
     newUser1AccessToken = apiUtil.getAccessToken(users.user1.username, 3600);
 
@@ -391,19 +406,25 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
     const User1signedUrlTest2Res = await fence.do.createSignedUrlForUser(
       indexed_files.testFile.did, apiUtil.getAccessTokenHeader(newUser1AccessToken),
     );
-    const User1signedUrlTest2ResFileContents = await fence.do.getFileFromSignedUrlRes(
-      User1signedUrlTest2Res,
+    const User1signedUrlTest2ResFileContents = await I.sendGetRequest(
+      User1signedUrlTest2Res.data.url,
+    ).then(
+      (res) => new Gen3Response(res)
     ).catch((err) => err && err.response && err.response.data || err);
 
     // use old signed urls to try and access data again
     console.log('Use signed URL from User1 to try and access QA data again');
-    const User1AccessRemovedQA = await fence.do.getFileFromSignedUrlRes(
-      User1signedUrlQA1Res,
-    );
+    const User1AccessRemovedQA = await I.sendGetRequest(
+      User1signedUrlQA1Res.data.url,
+    ).then(
+      (res) => new Gen3Response(res)
+    ).catch((err) => err && err.response && err.response.data || err);
 
     console.log('Use signed URL from User1 to try and access test data again');
-    const User1AccessRemainsTest = await fence.do.getFileFromSignedUrlRes(
-      User1signedUrlTest1Res,
+    const User1AccessRemainsTest = await I.sendGetRequest(
+      User1signedUrlTest1Res.data.url,
+    ).then(
+      (res) => new Gen3Response(res)
     ).catch((err) => err && err.response && err.response.data || err);
 
     console.log('deleting temporary google credentials');
@@ -543,6 +564,8 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
     console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
     bash.runJob('useryaml');
+
+    await apiUtil.checkPod('useryaml');
 
     // get new access tokens b/c of changed access
     newUser2AccessToken = apiUtil.getAccessToken(users.user2.username, 3600);
