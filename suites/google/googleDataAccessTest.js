@@ -138,10 +138,10 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
       (res) => new Gen3Response(res)
     ).catch((err) => err && err.response && err.response.data || err);
 
-    console.log(`User0signedUrlQA1ResFileContents: ${User0signedUrlQA1ResFileContents}`);
-    console.log(`The contents of the QA file: ${stringify(User0signedUrlQA1FileContents).substring(User0signedUrlQA1FileContents.length-100, User0signedUrlQA1FileContents.length)}`);
+    console.log(`User0signedUrlQA1ResFileContents: ${User0signedUrlQA1ResFileContents.data}`);
+    console.log(`The contents of the QA file: ${stringify(User0signedUrlQA1FileContents.data).substring(User0signedUrlQA1FileContents.length-100, User0signedUrlQA1FileContents.length)}`);
 
-    if (User0signedUrlQA1FileContents == fence.props.googleBucketInfo.QA.fileContents) {
+    if (User0signedUrlQA1ResFileContents.data == fence.props.googleBucketInfo.QA.fileContents) {
       console.log(`a valid presigned url has been found.`);
     } else {
       console.log(`Failed to create a valid presigned url.`);
@@ -196,7 +196,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     //  - Check Signed URLs - BEGIN
     console.log('Second: Check signed URLs');
 
-    chai.expect(User0signedUrlQA1FileContents,
+    chai.expect(User0signedUrlQA1ResFileContent.data,
       `First sync: Check User0 can use signed URL to read file in QA. FAILED.`).to.equal(fence.props.googleBucketInfo.QA.fileContents);
     chai.expect(User0signedUrlTest1Res,
       `First sync: Check that User0 could NOT get a signed URL to read file in test.`).to.have.property('status', 401);
@@ -334,7 +334,7 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
       (res) => new Gen3Response(res)
     ).catch((err) => err && err.response && err.response.data || err);
 
-    console.log(`User1signedUrlQA1ResFileContents: ${User1signedUrlQA1ResFileContents}`);
+    console.log(`User1signedUrlQA1ResFileContents: ${User1signedUrlQA1ResFileContents.data}`);
 
     console.log('Use User1 to create signed URL for file in test');
     const User1signedUrlTest1Res = await fence.do.createSignedUrlForUser(
@@ -457,10 +457,10 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
     //  - Check Signed URLs
     console.log('Second: Check signed URLs');
 
-    chai.expect(User1signedUrlQA1ResFileContents,
+    chai.expect(User1signedUrlQA1ResFileContents.data,
       'First sync: Check User1 can use signed URL to read file in QA. FAILED.').to.equal(fence.props.googleBucketInfo.QA.fileContents);
 
-    chai.expect(User1signedUrlTest1ResFileContents,
+    chai.expect(User1signedUrlTest1ResFileContents.data,
       'First sync: Check User1 can use signed URL to read file in test. FAILED.').to.equal(fence.props.googleBucketInfo.test.fileContents);
 
     // SECOND RUN (new authZ)
@@ -480,7 +480,7 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
     chai.expect(User1signedUrlQA2Res,
       '2nd sync: Check that User1 could NOT get a signed URL to read file in QA. FAILED.').to.have.property('status', 401);
 
-    chai.expect(User1signedUrlTest2ResFileContents,
+    chai.expect(User1signedUrlTest2ResFileContents.data,
       '2nd sync: Check User1 can use signed URL to read file in test. FAILED.').to.equal(fence.props.googleBucketInfo.test.fileContents);
 
     // SECOND RUN
@@ -488,7 +488,7 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
     chai.expect(User1AccessRemovedQA,
       'Make sure signed URL from User1 CANNOT access QA data again. FAILED.').to.contain('AccessDenied');
 
-    chai.expect(User1AccessRemainsTest,
+    chai.expect(User1AccessRemainsTest.data,
       'Make sure signed URL from User1 CAN access test data again. FAILED.').to.equal(fence.props.googleBucketInfo.test.fileContents);
 
     // CLEANUP
@@ -650,7 +650,7 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
     //  - Check Signed URLs from SECOND RUN
     console.log('Second: Check signed URLs');
 
-    chai.expect(User2signedUrlQA2ResFileContents,
+    chai.expect(User2signedUrlQA2ResFileContents.data,
       '2nd sync: Check User2 can use signed URL to read file in QA. FAILED.').to.equal(fence.props.googleBucketInfo.QA.fileContents);
 
     chai.expect(User2signedUrlTest2Res,
