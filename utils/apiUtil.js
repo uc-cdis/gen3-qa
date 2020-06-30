@@ -352,13 +352,13 @@ module.exports = {
    * @param {string} jobName - name of the pod that must be found
    * @param {int} nAttempts - number of times the function should try to find the expected pod
    */
-  async checkPod(jobName, nAttempts = 6) {
+  async checkPod(jobName, labelName, nAttempts = 6) {
     let podFound = false;
     for (let i = 0; i < nAttempts; i += 1) {
       try {
         console.log(`waiting for ${jobName} job/pod... - attempt ${i}`);
         await module.exports.sleepMS(10000);
-        const podName = bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -o jsonpath="{.items[0].metadata.name}"`);
+        const podName = bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=${labelName} -o jsonpath="{.items[0].metadata.name}"`);
         if (!podFound) {
 	  console.log(`grep result: ${podName}`);
           if (podName.includes(sowerJobName)) {

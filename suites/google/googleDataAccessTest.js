@@ -35,7 +35,7 @@ const chai = require('chai');
 const { Commons } = require('../../utils/commons.js');
 const fenceProps = require('../../services/apis/fence/fenceProps.js');
 const { Bash } = require('../../utils/bash.js');
-const { checkPod, getAccessToken, sleepMS, Gen3Response } = require('../../utils/apiUtil.js');
+const { checkPod, getAccessToken, getAccessTokenHeader, sleepMS, Gen3Response } = require('../../utils/apiUtil.js');
 
 const bash = new Bash();
 
@@ -207,7 +207,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
     bash.runJob('useryaml');
 
-    await checkPod('useryaml');
+    await checkPod('useryaml', 'gen3job');
 
     // get new access tokens b/c of changed access
     newUser0AccessToken = getAccessToken(users.user0.username, 3600);
@@ -375,7 +375,7 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
     bash.runJob('useryaml');
 
-    await checkPod('useryaml');
+    await checkPod('useryaml', 'gen3job');
 
     // get new access tokens b/c of changed access
     newUser1AccessToken = getAccessToken(users.user1.username, 3600);
@@ -565,7 +565,7 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
     bash.runJob('useryaml');
 
-    await checkPod('useryaml');
+    await checkPod('useryaml', 'gen3job');
 
     // get new access tokens b/c of changed access
     newUser2AccessToken = getAccessToken(users.user2.username, 3600);
