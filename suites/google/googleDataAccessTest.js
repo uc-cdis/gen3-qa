@@ -91,6 +91,8 @@ After(async (fence, users) => {
   await Promise.all(unlinkResults);
   console.log('Running usersync job');
   bash.runJob('usersync', 'FORCE true');
+
+  await checkPod('usersync', 'gen3job,job-name=usersync');
 });
 
 Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle @googleDataAccess',
