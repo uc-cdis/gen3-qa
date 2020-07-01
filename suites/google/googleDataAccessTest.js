@@ -193,7 +193,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     console.log('First: Check temporary service account credentials');
 
     console.log(`user0AccessQA1Res - Should work: ${JSON.stringify(user0AccessQA1Res)}`);
-    expect(user0AccessQA1Res,
+    expect(user0AccessQA1Res.metadata,
       'First sync: Check User0 access bucket for project: QA. FAILED.').to.have.property('id');
     console.log(`user0AccessTest1Res - Should fail: ${JSON.stringify(user0AccessTest1Res)}`);
     expect(user0AccessTest1Res,
@@ -454,9 +454,9 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
     console.log('Make assertions for user access for first run');
     console.log('First: Check temporary service account credentials');
 
-    expect(user1AccessQA1Res,
+    expect(user1AccessQA1Res.metadata,
       'First sync: Check User1 access bucket for project: QA. FAILED.').to.have.property('id');
-    expect(user1AccessTest1Res,
+    expect(user1AccessTest1Res.metadata,
       'First sync: Check User1 access bucket for project: test. FAILED.').to.have.property('id');
 
     // FIRST RUN
@@ -476,7 +476,7 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
 
     expect(user1AccessQA2Res,
       '2nd sync: Check User1 CAN NOT access bucket for project: QA. FAILED.').to.have.property('status', 403);
-    expect(user1AccessTest2Res,
+    expect(user1AccessTest2Res.metadata,
       '2nd sync: Check User1 access bucket for project: test. FAILED.').to.have.property('id');
 
     // SECOND RUN (new authZ)
@@ -646,7 +646,7 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
     console.log('Make assertions for user access for second run (after new usersync)');
     console.log('First: Check temporary service account credentials');
 
-    expect(user2AccessQA2Res,
+    expect(user2AccessQA2Res.metadata,
       '2nd sync: Check User2 access bucket for project: QA. FAILED.').to.have.property('id');
     expect(user2AccessTest2Res,
       '2nd sync: Check User2 access CAN NOT bucket for project: test. FAILED.').to.have.property('status', 403);
