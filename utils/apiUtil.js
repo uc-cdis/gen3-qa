@@ -358,7 +358,7 @@ module.exports = {
    * @param {string} podName - name of the pod that must be found
    * @param {int} nAttempts - number of times the function should try to find the expected pod
    */
-  async checkPod(sowerJobName, nAttempts = 6) {
+  async checkPod(sowerJobName, nAttempts = 12) {
     let podFound = false;
     for (let i = 0; i < nAttempts; i += 1) {
       try {
