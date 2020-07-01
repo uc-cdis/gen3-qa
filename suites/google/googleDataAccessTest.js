@@ -35,7 +35,12 @@ const chai = require('chai');
 const { Commons } = require('../../utils/commons.js');
 const fenceProps = require('../../services/apis/fence/fenceProps.js');
 const { Bash } = require('../../utils/bash.js');
-const apiUtil = require('../../utils/apiUtil.js');
+const {
+  checkPod,
+  getAccessToken,
+  getAccessTokenHeader,
+  Gen3Response,
+} = require('../../utils/apiUtil.js');
 
 const bash = new Bash();
 
@@ -205,7 +210,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     bash.runJob('useryaml');
 
     // get new access tokens b/c of changed access
-    newUser0AccessToken = apiUtil.getAccessToken(users.user0.username, 3600);
+    newUser0AccessToken = getAccessToken(users.user0.username, 3600);
 
     console.log('using saved google creds to access google bucket!! Save responses to check later');
     // use Google's client libraries to attempt to read a controlled access file with the
@@ -226,12 +231,12 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
 
     console.log('Use User0 to create signed URL for file in QA');
     const User0signedUrlQA2Res = await fence.do.createSignedUrlForUser(
-      indexed_files.qaFile.did, apiUtil.getAccessTokenHeader(newUser0AccessToken),
+      indexed_files.qaFile.did, getAccessTokenHeader(newUser0AccessToken),
     );
 
     console.log('Use User0 to create signed URL for file in test');
     const User0signedUrlTest2Res = await fence.do.createSignedUrlForUser(
-      indexed_files.testFile.did, apiUtil.getAccessTokenHeader(newUser0AccessToken),
+      indexed_files.testFile.did, getAccessTokenHeader(newUser0AccessToken),
     );
 
     // use old signed urls to try and access data again
@@ -365,7 +370,7 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
     bash.runJob('useryaml');
 
     // get new access tokens b/c of changed access
-    newUser1AccessToken = apiUtil.getAccessToken(users.user1.username, 3600);
+    newUser1AccessToken = getAccessToken(users.user1.username, 3600);
 
     console.log('using saved google creds to access google bucket!! Save responses to check later');
     // use Google's client libraries to attempt to read a controlled access file with the
@@ -386,12 +391,12 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
 
     console.log('Use User1 to create signed URL for file in QA');
     const User1signedUrlQA2Res = await fence.do.createSignedUrlForUser(
-      indexed_files.qaFile.did, apiUtil.getAccessTokenHeader(newUser1AccessToken),
+      indexed_files.qaFile.did, getAccessTokenHeader(newUser1AccessToken),
     );
 
     console.log('Use User1 to create signed URL for file in test');
     const User1signedUrlTest2Res = await fence.do.createSignedUrlForUser(
-      indexed_files.testFile.did, apiUtil.getAccessTokenHeader(newUser1AccessToken),
+      indexed_files.testFile.did, getAccessTokenHeader(newUser1AccessToken),
     );
     const User1signedUrlTest2ResFileContents = await I.sendGetRequest(
       User1signedUrlTest2Res.data.url,
@@ -547,7 +552,7 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
     bash.runJob('useryaml');
 
     // get new access tokens b/c of changed access
-    newUser2AccessToken = apiUtil.getAccessToken(users.user2.username, 3600);
+    newUser2AccessToken = getAccessToken(users.user2.username, 3600);
 
     console.log('using saved google creds to access google bucket!! Save responses to check later');
     // use Google's client libraries to attempt to read a controlled access file with the
@@ -568,7 +573,7 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
 
     console.log('Use User2 to create signed URL for file in QA');
     const User2signedUrlQA2Res = await fence.do.createSignedUrlForUser(
-      indexed_files.qaFile.did, apiUtil.getAccessTokenHeader(newUser2AccessToken),
+      indexed_files.qaFile.did, getAccessTokenHeader(newUser2AccessToken),
     );
     const User2signedUrlQA2ResFileContents = await I.sendGetRequest(
       User2signedUrlQA2Res.data.url,
@@ -576,7 +581,7 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
 
     console.log('Use User2 to create signed URL for file in test');
     const User2signedUrlTest2Res = await fence.do.createSignedUrlForUser(
-      indexed_files.testFile.did, apiUtil.getAccessTokenHeader(newUser2AccessToken),
+      indexed_files.testFile.did, getAccessTokenHeader(newUser2AccessToken),
     );
 
     console.log('deleting temporary google credentials');
