@@ -1,4 +1,3 @@
-/*eslint-disable */
 /**
  * A module providing API utility functions
  * @module apiUtil
@@ -69,7 +68,8 @@ class Gen3Response {
   }) {
     this.fenceError = fenceError;
     this.parsedFenceError = (isErrorPage(data) ? parseFenceError(data) : undefined);
-    this.body = this.parsedFenceError ? undefined : (data || body); // include body if not error page
+    // include body if not error page
+    this.body = this.parsedFenceError ? undefined : (data || body);
     this.data = data || body;
     this.status = status;
     if (request) {
@@ -95,7 +95,7 @@ class Gen3Response {
  * example: expect(res).to.be.a.gen3Res(expectedRes)
  * @param _chai
  */
-const gen3Res = function (_chai, _) {
+const gen3Res = function (_chai, _) { // eslint-disable-line no-unused-vars
   _chai.use(chaiSubset);
   const { Assertion } = _chai;
 
@@ -149,18 +149,18 @@ module.exports = {
    * @param {file_path} path_to_credentials_json - path to the credential.json
    * @returns {string, string}
    */
-  getJWTData(path_to_credentials_json) {
-    const credentials = fs.readFileSync(path_to_credentials_json, 'utf8');
-    const { api_key } = JSON.parse(credentials);
-    data = api_key.split('.'); // [0] headers, [1] payload, [2] signature
-    payload = data[1];
-    padding = '='.repeat(4 - payload.length % 4);
-    decoded_data = Buffer.from((payload + padding), 'base64').toString();
+  getJWTData(pathToCredentialsJson) {
+    const credentials = fs.readFileSync(pathToCredentialsJson, 'utf8');
+    const { apiKey } = JSON.parse(credentials);
+    const data = apiKey.split('.'); // [0] headers, [1] payload, [2] signature
+    const payload = data[1];
+    const padding = '='.repeat(4 - (payload.length % 4));
+    const decodedData = Buffer.from((payload + padding), 'base64').toString();
     // If the decoded data doesn't contain a nonce, that means the refresh token has expired
-    const target_environment = JSON.parse(decoded_data).iss.split('/')[2];
+    const targetEnvironment = JSON.parse(decodedData).iss.split('/')[2];
     return {
-      api_key,
-      target_environment,
+      apiKey,
+      targetEnvironment,
     };
   },
 
@@ -179,9 +179,9 @@ module.exports = {
       const fenceCmd = `fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account,google_credentials --type access_token --exp ${expiration} --username ${username}`;
       const accessToken = bash.runCommand(fenceCmd, 'fence', takeLastLine);
       try {
-        decodedToken = module.exports.parseJwt(accessToken);
+        const decodedToken = module.exports.parseJwt(accessToken);
         // console.log(`decodedToken: ${JSON.stringify(decodedToken)}`);
-        nameFromToken = decodedToken.context.user.name;
+        const nameFromToken = decodedToken.context.user.name;
         if (username === nameFromToken) {
           console.log(`Successfully created an access token for ${username} on attempt ${i}`);
           return accessToken.trim();
@@ -202,11 +202,11 @@ module.exports = {
    * @param {string} api_key - api key from credentials.json (downloaded by an authenticated user)
    * @returns {string}
    */
-  getAccessTokenFromApiKey(the_api_key, target_environment) {
+  getAccessTokenFromApiKey(theApiKey, targetEnvironment) {
     return new Promise(((resolve, reject) => {
       ax.request({
         url: '/user/credentials/cdis/access_token',
-        baseURL: `https://${target_environment}`,
+        baseURL: `https://${targetEnvironment}`,
         method: 'post',
         maxRedirects: 0,
         header: {
@@ -214,33 +214,37 @@ module.exports = {
           accept: 'application/json',
         },
         data: {
-          api_key: the_api_key,
+          api_key: theApiKey,
         },
       }).then(
-	  (resp) => resolve(resp.data.access_token),
-	  (err) => reject(err.response || err),
+        (resp) => resolve(resp.data.access_token),
+        (err) => reject(err.response || err),
       );
     }));
   },
 
   /**
-   * Calls getAccessTokenFromApiKey with an API Key provided by the user and returns the corresponding access token
-   * @param {object} I - CodeceptJS "I" actor accessible by all Scenarios - Used to share variables across tests
+   * Calls getAccessTokenFromApiKey with an API Key provided by the user and
+   * returns the corresponding access token
+   * @param {object} I - CodeceptJS "I" actor accessible by all Scenarios.
+   * Used to share variables across tests
    * @returns {string}
    */
   getAccessTokenFromExecutableTest(I) {
-  // Note: Cannot leverage the ${user.mainAcct.accessToken} while working on "closed" environments (Staging/PROD)
-  // (i.e., no access to the underlying admin vm, hence, using API Key + Fence HTTP API to retrieve the Access Token)
-    return new Promise(async (resolve) => {
+    // Note: Cannot leverage the ${user.mainAcct.accessToken} while
+    // working on "closed" environments (Staging/PROD)
+    // (i.e., no access to the underlying admin vm, hence
+    // using API Key + Fence HTTP API to retrieve the Access Token)
+    return new Promise((resolve) => {
       // Only prompt the user for the API Key if it hasn't already been loaded from credentials.json
       // Store API Key into the main actor object (I) so it can be accessed in all scenarios
       if (!I.apiKey) {
-	    const apiKey = await module.exports.requestUserInput(`
-              == Instructions to obtain the API Key ==
-              a. Navigate to the "Profile" page on https://${I.TARGET_ENVIRONMENT} and click on "Create API key".
-              b. Download the "credentials.json" file, copy the value of the "api_key" parameter and paste it here:
-            `);
-	    I.apiKey = apiKey;
+        const apiKey = module.exports.requestUserInput(`
+          == Instructions to obtain the API Key ==
+          a. Navigate to the "Profile" page on https://${I.TARGET_ENVIRONMENT} and click on "Create API key".
+          b. Download the "credentials.json" file, copy the value of the "api_key" parameter and paste it here:
+        `);
+        I.apiKey = apiKey;
       }
       resolve(module.exports.getAccessTokenFromApiKey(I.apiKey, I.TARGET_ENVIRONMENT));
     });
@@ -248,22 +252,23 @@ module.exports = {
 
   /**
    * Prompts the user for some manual input (to support executable tests)
-   * @param {string} question_text - Text describing what piece of information the user should provide
+   * @param {string} question_text - Text describing what piece of
+   * information the user should provide
    * @returns {string}
    */
-  requestUserInput(question_text, defaultValue = null) {
+  requestUserInput(questionText, defaultValue = null) {
     return new Promise((resolve) => {
       const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout,
       });
-      theQuestion = defaultValue ? `${question_text} (${defaultValue})` : question_text;
-      rl.question(theQuestion, (user_input) => {
+      const theQuestion = defaultValue ? `${questionText} (${defaultValue})` : questionText;
+      rl.question(theQuestion, (userInput) => {
         rl.close();
-        if (user_input.length > 0) {
-          resolve(user_input);
+        if (userInput.length > 0) {
+          resolve(userInput);
         } else {
-          resolve(defaultValue)
+          resolve(defaultValue);
         }
       });
     });
@@ -311,8 +316,8 @@ module.exports = {
    * @param {int} startWait - initial number of seconds to wait
    */
   async smartWait(checkFunc, checkArgs, timeout, errorMessage, startWait = null) {
-    waitTime = (startWait * 1000) || 50; // start by waiting 50 ms
-    waited = 0; // keep track of how many ms have passed
+    let waitTime = (startWait * 1000) || 50; // start by waiting 50 ms
+    let waited = 0; // keep track of how many ms have passed
     while (waited < timeout * 1000) {
       // check if the task is done
       const done = await checkFunc(...checkArgs);
@@ -347,37 +352,43 @@ module.exports = {
   },
 
   /**
-   * Start polling to check if a given k8s pod comes up
-   * Utilized to make sure ephemeral pods triggered by k8s jobs are actually configured properly
-   * @param {string} jobName - name of the pod that must be found
+   * Start polling to check if a given k8s pod comes up.
+   * Utilized to make sure ephemeral pods triggered as k8s jobs
+   * are actually configured properly and reach the "Succeed" phase
+   * @param {string} podName - name of the pod that must be found
    * @param {int} nAttempts - number of times the function should try to find the expected pod
    */
-  async checkPod(jobName, labelName, nAttempts = 6) {
+  async checkPod(jobName, labelName, params = { nAttempts: 10, ignoreFailure: false }) {
     let podFound = false;
-    for (let i = 0; i < nAttempts; i += 1) {
+    for (let i = 0; i < params.nAttempts; i += 1) {
       try {
         console.log(`waiting for ${jobName} job/pod... - attempt ${i}`);
         await module.exports.sleepMS(10000);
-        const podName = bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=${labelName} -o jsonpath="{.items[0].metadata.name}"`);
+        const singleQuote = process.env.RUNNING_LOCAL === 'true' ? "\'\\'\'" : "'"; // eslint-disable-line quotes,no-useless-escape
+        const podName = await bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=${labelName} -o jsonpath="{.items[*].metadata.name}" | awk ${singleQuote}{print $NF}${singleQuote}`);
+        console.log(`latest pod found: ${podName}`);
         if (!podFound) {
-	  console.log(`grep result: ${podName}`);
           if (podName.includes(jobName)) {
             console.log(`the pod ${podName} was found! Proceed with the container check...`);
             podFound = true;
           }
-	} else {
+        } else {
           const checkIfContainerSucceeded = bash.runCommand(`g3kubectl get pod ${podName} -o jsonpath='{.status.phase}'`);
           console.log(`check container status: ${checkIfContainerSucceeded}`);
-          if (checkIfContainerSucceeded == 'Succeeded') {
-              console.log(`The container from pod ${podName} is ready! Proceed with the assertion checks..`);
-              break;
-	  }
-	}
-        if (i === nAttempts - 1) {
-          throw new Error(`Max number of attempts reached: ${i}`);
+          if (checkIfContainerSucceeded === 'Succeeded') {
+            console.log(`The container from pod ${podName} is ready! Proceed with the assertion checks..`);
+            break;
+          }
+        }
+        if (i === params.nAttempts - 1) {
+          if (params.ignoreFailure === true) {
+            break;
+          } else {
+            throw new Error(`Max number of attempts reached: ${i}`);
+          }
         }
       } catch (e) {
-        new Error(`Failed to obtain a successful phase check from the ${jobName} job on attempt ${i}: ${e.message}`);
+        throw new Error(`Failed to obtain a successful phase check from the ${jobName} job on attempt ${i}: ${e.message}`);
       }
     }
   },
@@ -385,33 +396,33 @@ module.exports = {
   getHomePageDetails(detail) {
     const detailsMap = {
       '': {
-        'summary': {
+        summary: {
           css: '.introduction',
         },
-        'cards': {
+        cards: {
           css: '.index-button-bar__thumbnail-button',
         },
       },
-      'pandemicresponsecommons': {
-        'summary': {
+      pandemicresponsecommons: {
+        summary: {
           css: '.covid19-dashboard_panel',
         },
-        'cards': {
+        cards: {
           css: '.map-chart',
         },
       },
-      'covid19': {
-        'summary': {
+      covid19: {
+        summary: {
           css: '.covid19-dashboard_panel',
         },
-        'cards': {
+        cards: {
           css: '.map-chart',
         },
-      }
-    }
+      },
+    };
     console.log(`#### hostname:${process.env.testedEnv}`);
-    detailKey = Object.keys(detailsMap).filter(k => process.env.testedEnv.includes(k)).join('')
-    return detailsMap[detailKey]
+    const detailKey = Object.keys(detailsMap).filter((k) => process.env.testedEnv.includes(k)).join('');
+    return detailsMap[detailKey][detail];
   },
 
   /**

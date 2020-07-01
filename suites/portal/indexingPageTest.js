@@ -60,7 +60,7 @@ Scenario('Navigate to the indexing page and upload a test manifest @indexing', a
   indexing.do.goToIndexingPage();
   I.waitForElement({ css: '.indexing-page' }, 10);
   I.click('.index-flow-form'); // after clicking open window file upload dialog
-  await I.attachFile('input[type=\'file\']', `manifest_${I.cache.UNIQUE_NUM}.tsv`);
+  I.attachFile('input[type=\'file\']', `manifest_${I.cache.UNIQUE_NUM}.tsv`);
   I.click({ xpath: 'xpath: //button[contains(text(), \'Index Files\')]' });
 
   await checkPod('manifest-indexing', 'sowerjob');
@@ -126,10 +126,10 @@ Scenario('Navigate to the indexing page and upload an invalid manifest @indexing
   indexing.do.goToIndexingPage();
   I.waitForElement({ css: '.indexing-page' }, 10);
   I.click('.index-flow-form'); // after clicking open window file upload dialog
-  await I.attachFile('input[type=\'file\']', `invalid_manifest_${I.cache.UNIQUE_NUM}.tsv`);
+  I.attachFile('input[type=\'file\']', `invalid_manifest_${I.cache.UNIQUE_NUM}.tsv`);
   I.click({ xpath: 'xpath: //button[contains(text(), \'Index Files\')]' });
 
-  await checkPod('manifest-indexing', 'sowerjob');
+  await checkPod('manifest-indexing', 'sowerjob', { nAttempts: 5, ignoreFailure: true });
 
   const nAttempts = 12;
   for (let i = 0; i < nAttempts; i += 1) {
