@@ -358,9 +358,9 @@ module.exports = {
    * @param {string} podName - name of the pod that must be found
    * @param {int} nAttempts - number of times the function should try to find the expected pod
    */
-  async checkPod(sowerJobName, nAttempts = 12) {
+  async checkPod(sowerJobName, params = { nAttempts: 10, ignoreFailure: false }) {
     let podFound = false;
-    for (let i = 0; i < nAttempts; i += 1) {
+    for (let i = 0; i < params.nAttempts; i += 1) {
       try {
         console.log(`waiting for ${sowerJobName} sower job/pod... - attempt ${i}`);
         await module.exports.sleepMS(10000);
@@ -380,8 +380,12 @@ module.exports = {
             break;
           }
         }
-        if (i === nAttempts - 1) {
-          throw new Error(`Max number of attempts reached: ${i}`);
+        if (i === params.nAttempts - 1) {
+          if (params.ignoreFailure === true) {
+            break;
+          } else {
+            throw new Error(`Max number of attempts reached: ${i}`);
+          }
         }
       } catch (e) {
         throw new Error(`Failed to obtain a successful phase check from the ${sowerJobName} job on attempt ${i}: ${e.message}`);

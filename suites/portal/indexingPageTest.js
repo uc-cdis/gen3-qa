@@ -129,7 +129,7 @@ Scenario('Navigate to the indexing page and upload an invalid manifest @indexing
   await I.attachFile('input[type=\'file\']', `invalid_manifest_${I.cache.UNIQUE_NUM}.tsv`);
   await I.click({ xpath: 'xpath: //button[contains(text(), \'Index Files\')]' });
 
-  await checkPod('manifest-indexing');
+  await checkPod('manifest-indexing', { ignoreFailure: true });
 
   const nAttempts = 12;
   for (let i = 0; i < nAttempts; i += 1) {
