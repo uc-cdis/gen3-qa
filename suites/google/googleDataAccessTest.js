@@ -207,12 +207,12 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
       'First sync: Check User0 can use signed URL to read file in QA. FAILED.').to.equal(fence.props.googleBucketInfo.QA.fileContents);
     expect(User0signedUrlTest1Res,
       'First sync: Check that User0 could NOT get a signed URL to read file in test.').to.have.property('status', 401);
-    //  - Check Signed URLs - END
+    // End of assertions for the 1st run
 
     // Applying a new user.yaml to revoke QA access from users 0 and 1 and grant it to user2
     console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
-    bash.runJob('useryaml');
+    await bash.runJob('useryaml');
 
     await checkPod('useryaml', 'gen3job,job-name=useryaml');
 
@@ -376,10 +376,32 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
       fence.props.googleBucketInfo.test.fileName,
     );
 
+    // FIRST RUN
+    //  - Check Temporary Service Account Creds
+    console.log('Make assertions for user access for first run');
+    console.log('First: Check temporary service account credentials');
+
+    expect(user1AccessQA1Res.metadata,
+      'First sync: Check User1 access bucket for project: QA. FAILED.').to.have.property('id');
+    expect(user1AccessTest1Res.metadata,
+      'First sync: Check User1 access bucket for project: test. FAILED.').to.have.property('id');
+
+    // FIRST RUN
+    //  - Check Signed URLs
+    console.log('Second: Check signed URLs');
+
+    expect(User1signedUrlQA1ResFileContents.data,
+      'First sync: Check User1 can use signed URL to read file in QA. FAILED.').to.equal(fence.props.googleBucketInfo.QA.fileContents);
+
+    expect(User1signedUrlTest1ResFileContents.data,
+      'First sync: Check User1 can use signed URL to read file in test. FAILED.').to.equal(fence.props.googleBucketInfo.test.fileContents);
+
+    // End of assertions for the 1st run
+
     // Applying a new user.yaml to revoke QA access from users 0 and 1 and grant it to user2
     console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
-    bash.runJob('useryaml');
+    await bash.runJob('useryaml');
 
     await checkPod('useryaml', 'gen3job,job-name=useryaml');
 
@@ -448,26 +470,6 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
       files.deleteFile(pathToCreds1KeyFile);
       console.log(`${pathToCreds1KeyFile} deleted!`);
     }
-
-    // FIRST RUN
-    //  - Check Temporary Service Account Creds
-    console.log('Make assertions for user access for first run');
-    console.log('First: Check temporary service account credentials');
-
-    expect(user1AccessQA1Res.metadata,
-      'First sync: Check User1 access bucket for project: QA. FAILED.').to.have.property('id');
-    expect(user1AccessTest1Res.metadata,
-      'First sync: Check User1 access bucket for project: test. FAILED.').to.have.property('id');
-
-    // FIRST RUN
-    //  - Check Signed URLs
-    console.log('Second: Check signed URLs');
-
-    expect(User1signedUrlQA1ResFileContents.data,
-      'First sync: Check User1 can use signed URL to read file in QA. FAILED.').to.equal(fence.props.googleBucketInfo.QA.fileContents);
-
-    expect(User1signedUrlTest1ResFileContents.data,
-      'First sync: Check User1 can use signed URL to read file in test. FAILED.').to.equal(fence.props.googleBucketInfo.test.fileContents);
 
     // SECOND RUN (new authZ)
     //  - Check Temporary Service Account Creds
@@ -565,10 +567,31 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
       fence.props.googleBucketInfo.test.fileName,
     );
 
+    // FIRST RUN
+    //  - Check Temporary Service Account Creds
+    console.log('Make assertions for user access for first run');
+    console.log('First: Check temporary service account credentials');
+
+    expect(user2AccessQA1Res,
+      'First sync: Check User2 access CAN NOT bucket for project: QA. FAILED.').to.have.property('status', 403);
+    expect(user2AccessTest1Res,
+      'First sync: Check User2 access CAN NOT bucket for project: test. FAILED.').to.have.property('status', 403);
+
+    // FIRST RUN
+    //  - Check Signed URLs
+    console.log('Second: Check signed URLs');
+
+    expect(User2signedUrlQA1Res,
+      'First sync: Check that User2 could NOT get a signed URL to read file in QA. FAILED.').to.have.property('status', 401);
+
+    expect(User2signedUrlTest1Res,
+      'First sync: Check that User2 could NOT get a signed URL to read file in test. FAILED.').to.have.property('status', 401);
+    // End of assertions for the 1st run
+
     // Applying a new user.yaml to revoke QA access from users 0 and 1 and grant it to user2
     console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
-    bash.runJob('useryaml');
+    await bash.runJob('useryaml');
 
     await checkPod('useryaml', 'gen3job,job-name=useryaml');
 
@@ -624,25 +647,6 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
       files.deleteFile(pathToCreds2KeyFile);
       console.log(`${pathToCreds2KeyFile} deleted!`);
     }
-    // FIRST RUN
-    //  - Check Temporary Service Account Creds
-    console.log('Make assertions for user access for first run');
-    console.log('First: Check temporary service account credentials');
-
-    expect(user2AccessQA1Res,
-      'First sync: Check User2 access CAN NOT bucket for project: QA. FAILED.').to.have.property('status', 403);
-    expect(user2AccessTest1Res,
-      'First sync: Check User2 access CAN NOT bucket for project: test. FAILED.').to.have.property('status', 403);
-
-    // FIRST RUN
-    //  - Check Signed URLs
-    console.log('Second: Check signed URLs');
-
-    expect(User2signedUrlQA1Res,
-      'First sync: Check that User2 could NOT get a signed URL to read file in QA. FAILED.').to.have.property('status', 401);
-
-    expect(User2signedUrlTest1Res,
-      'First sync: Check that User2 could NOT get a signed URL to read file in test. FAILED.').to.have.property('status', 401);
 
     // SECOND RUN (new authZ)
     //  - Check Temporary Service Account Creds
