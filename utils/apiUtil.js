@@ -364,9 +364,10 @@ module.exports = {
       try {
         console.log(`waiting for ${sowerJobName} sower job/pod... - attempt ${i}`);
         await module.exports.sleepMS(10000);
-        const podName = bash.runCommand('g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=sowerjob -o jsonpath="{.items[0].metadata.name}"');
+        const singleQuote = process.env.RUNNING_LOCAL === 'true' ? "\'\\'\'" : "'"; // eslint-disable-line quotes,no-useless-escape
+        const podName = await bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=sowerjob -o jsonpath="{.items[*].metadata.name}" | awk ${singleQuote}{print $NF}${singleQuote}`);
+        console.log(`latest pod found: ${podName}`);
         if (!podFound) {
-          console.log(`grep result: ${podName}`);
           if (podName.includes(sowerJobName)) {
             console.log(`the pod ${podName} was found! Proceed with the container check...`);
             podFound = true;

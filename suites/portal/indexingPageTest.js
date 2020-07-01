@@ -61,7 +61,7 @@ Scenario('Navigate to the indexing page and upload a test manifest @indexing', a
   I.waitForElement({ css: '.indexing-page' }, 10);
   I.click('.index-flow-form'); // after clicking open window file upload dialog
   await I.attachFile('input[type=\'file\']', `manifest_${I.cache.UNIQUE_NUM}.tsv`);
-  I.click({ xpath: 'xpath: //button[contains(text(), \'Index Files\')]' });
+  await I.click({ xpath: 'xpath: //button[contains(text(), \'Index Files\')]' });
 
   await checkPod('manifest-indexing');
 
@@ -127,7 +127,7 @@ Scenario('Navigate to the indexing page and upload an invalid manifest @indexing
   I.waitForElement({ css: '.indexing-page' }, 10);
   I.click('.index-flow-form'); // after clicking open window file upload dialog
   await I.attachFile('input[type=\'file\']', `invalid_manifest_${I.cache.UNIQUE_NUM}.tsv`);
-  I.click({ xpath: 'xpath: //button[contains(text(), \'Index Files\')]' });
+  await I.click({ xpath: 'xpath: //button[contains(text(), \'Index Files\')]' });
 
   await checkPod('manifest-indexing');
 
