@@ -596,9 +596,12 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
     const User2signedUrlQA2Res = await fence.do.createSignedUrlForUser(
       indexedFiles.qaFile.did, getAccessTokenHeader(newUser2AccessToken),
     );
-    const User2signedUrlQA2ResFileContents = await fence.do.getFileFromSignedUrlRes(
-      User2signedUrlQA2Res,
-    );
+    const User2signedUrlQA2ResFileContents = await I.sendGetRequest(
+      User2signedUrlQA2Res.data.url,
+    ).then(
+      (res) => new Gen3Response(res),
+    ).catch((err) => err && err.response && err.response.data || err); // eslint-disable-line no-mixed-operators, max-len
+    console.log(`User2signedUrlQA2ResFileContents: ${User2signedUrlQA2ResFileContents.data}`);
 
     console.log('Use User2 to create signed URL for file in test');
     const User2signedUrlTest2Res = await fence.do.createSignedUrlForUser(
