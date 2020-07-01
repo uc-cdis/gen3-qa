@@ -361,7 +361,7 @@ module.exports = {
         const podName = bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=${labelName} -o jsonpath="{.items[0].metadata.name}"`);
         if (!podFound) {
 	  console.log(`grep result: ${podName}`);
-          if (podName.includes(sowerJobName)) {
+          if (podName.includes(jobName)) {
             console.log(`the pod ${podName} was found! Proceed with the container check...`);
             podFound = true;
           }
