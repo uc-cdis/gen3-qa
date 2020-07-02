@@ -38,9 +38,15 @@ async function runLoadTestScenario() {
         process.exit(1);
       });
   }
-
+ 
+  let influxDBHost = '';
+  if (process.env.RUNNING_LOCAL === 'false') {
+    influxDBHost = 'http://influxdb:8086/loadtests_metrics';
+  } else {
+    influxDBHost = 'http://localhost:8086/db0';
+  }
   // Set fixed list of args for the load test run
-  const loadTestArgs = ['-e', `GEN3_HOST=${targetEnvironment}`, '-e', `ACCESS_TOKEN=${token}`, '-e', `VIRTUAL_USERS="${JSON.stringify(testDescriptorData.virtual_users)}"`, '--out', 'influxdb=http://localhost:8086/db0', `load-testing/${targetService}/${loadTestScenario}.js`];
+  const loadTestArgs = ['-e', `GEN3_HOST=${targetEnvironment}`, '-e', `ACCESS_TOKEN=${token}`, '-e', `VIRTUAL_USERS="${JSON.stringify(testDescriptorData.virtual_users)}"`, '--out', `influxdb=${influxDBHost}`, `load-testing/${targetService}/${loadTestScenario}.js`];
 
   // Expand load test args based on special flags
   // TODO: Move the custom args parsing to a separate utils script
