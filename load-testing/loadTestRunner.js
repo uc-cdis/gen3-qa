@@ -100,7 +100,7 @@ async function runLoadTestScenario() {
 
   const browserifyArgs = ['node_modules/uuid/index.js', '-s', 'uuid'];
   console.log('generating js files for node libs...');
-  const browserifyCmd = spawnSync('browserify', browserifyArgs, { stdio: 'pipe' });
+  const browserifyCmd = spawnSync('node_modules/browserify/bin/cmd.js', browserifyArgs, { stdio: 'pipe' });
   fs.writeFileSync(
     'load-testing/libs/uuid.js',
     browserifyCmd.stdout.toString().slice(1, -1),
