@@ -141,10 +141,14 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
       User0signedUrlQA1Res.data.url,
     ).then((res) => new Gen3Response(res));
 
-    console.log(`The contents of the QA file: ${stringify(User0signedUrlQA1FileContents.data).substring(User0signedUrlQA1FileContents.data.length-100, User0signedUrlQA1FileContents.data.length)}`);
+    if (User0signedUrlQA1FileContents.data.length > 20) {
+      console.log(`The contents of the QA file: ${stringify(User0signedUrlQA1FileContents.data).substring(User0signedUrlQA1FileContents.data.length-100, User0signedUrlQA1FileContents.data.length)}`);
+    } else {
+      console.log(`The contents of the QA file: ${User0signedUrlQA1FileContents.data}`);
+    }
 
     if (User0signedUrlQA1FileContents.data == fence.props.googleBucketInfo.QA.fileContents) {
-      console.log(`a valid presigned url has been found.`);
+      console.log(`a valid presigned url has been created.`);
     } else {
       console.log(`Failed to create a valid presigned url.`);
     }
