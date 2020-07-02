@@ -38,7 +38,7 @@ async function runLoadTestScenario() {
         process.exit(1);
       });
   }
- 
+
   let influxDBHost = '';
   if (process.env.RUNNING_LOCAL === 'false') {
     influxDBHost = 'http://influxdb:8086/loadtests_metrics';
