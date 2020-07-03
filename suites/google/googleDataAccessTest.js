@@ -103,7 +103,6 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     chai.expect(indexdLookupRes,
       `First sync: Check if the [indexed_files.qaFile] (${indexed_files.qaFile.filename}) has been indexed. Otherwise fail fast.`).to.have.property('file_name', indexed_files.qaFile.filename);
 
-    let User0signedUrlQA1FileContents = '';
     let User0signedUrlQA1Res = '';
     let tempCreds0Res = '';
 
@@ -137,7 +136,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     );
 
     console.log(`User0signedUrlQA1Res: ${JSON.stringify(User0signedUrlQA1Res)}`);
-    User0signedUrlQA1FileContents = await I.sendGetRequest(
+    const User0signedUrlQA1FileContents = await I.sendGetRequest(
       User0signedUrlQA1Res.data.url,
     ).then((res) => new Gen3Response(res));
 
@@ -289,7 +288,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
 
     // SECOND RUN
     //  - Check signed URLs from FIRST RUN
-    chai.expect(User0AccessRemovedQA,
+    chai.expect(User0AccessRemovedQA.data,
       'Make sure signed URL from User0 CANNOT access QA data again. FAILED.').to.contain('AccessDenied');
 
     // CLEANUP
