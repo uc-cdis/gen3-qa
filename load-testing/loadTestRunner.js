@@ -39,8 +39,14 @@ async function runLoadTestScenario() {
       });
   }
 
+  let influxDBHost = '';
+  if (process.env.RUNNING_LOCAL === 'false') {
+    influxDBHost = 'http://influxdb:8086/loadtests_metrics';
+  } else {
+    influxDBHost = 'http://localhost:8086/db0';
+  }
   // Set fixed list of args for the load test run
-  const loadTestArgs = ['-e', `GEN3_HOST=${targetEnvironment}`, '-e', `ACCESS_TOKEN=${token}`, '-e', `VIRTUAL_USERS="${JSON.stringify(testDescriptorData.virtual_users)}"`, '--out', 'influxdb=http://localhost:8086/db0', `load-testing/${targetService}/${loadTestScenario}.js`];
+  const loadTestArgs = ['-e', `GEN3_HOST=${targetEnvironment}`, '-e', `ACCESS_TOKEN=${token}`, '-e', `VIRTUAL_USERS="${JSON.stringify(testDescriptorData.virtual_users)}"`, '--out', `influxdb=${influxDBHost}`, `load-testing/${targetService}/${loadTestScenario}.js`];
 
   // Expand load test args based on special flags
   // TODO: Move the custom args parsing to a separate utils script
@@ -94,10 +100,10 @@ async function runLoadTestScenario() {
 
   const browserifyArgs = ['node_modules/uuid/index.js', '-s', 'uuid'];
   console.log('generating js files for node libs...');
-  const browserifyCmd = spawnSync('browserify', browserifyArgs, { stdio: 'pipe' });
+  const browserifyCmd = spawnSync('node_modules/browserify/bin/cmd.js', browserifyArgs, { stdio: 'pipe' });
   fs.writeFileSync(
     'load-testing/libs/uuid.js',
-    browserifyCmd.output.toString().slice(1, -1),
+    browserifyCmd.stdout.toString().slice(1, -1),
     { encoding: 'utf8', flag: 'w' },
     (err) => {
       if (err) console.log(err);
