@@ -370,12 +370,6 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
 
     console.log(`user1AccessQA1Res: ${JSON.stringify(user1AccessQA1Res)}`);
 
-    if (user1AccessQA1Res.has('id')) {
-      console.log(`successfully got file from bucket ${fence.props.googleBucketInfo.QA.bucketId}/${ fence.props.googleBucketInfo.QA.fileName}!`);
-    } else {
-      console.log(`Failed to get file from bucket :( waaat?`);
-    }
-
     // Applying a new user.yaml to revoke QA access from users 0 and 1 and grant it to user2
     console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
@@ -446,9 +440,9 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
     console.log('Make assertions for user access for first run');
     console.log('First: Check temporary service account credentials');
 
-    chai.expect(user1AccessQA1Res,
+    chai.expect(user1AccessQA1Res.metadata,
       'First sync: Check User1 access bucket for project: QA. FAILED.').to.have.property('id');
-    chai.expect(user1AccessTest1Res,
+    chai.expect(user1AccessTest1Res.metadata,
       'First sync: Check User1 access bucket for project: test. FAILED.').to.have.property('id');
 
     // FIRST RUN
