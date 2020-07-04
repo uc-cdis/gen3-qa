@@ -615,7 +615,7 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
     console.log('Make assertions for user access for first run');
     console.log('First: Check temporary service account credentials');
 
-    chai.expect(user2AccessQA1r44444ekies,
+    chai.expect(user2AccessQA1Res,
       'First sync: Check User2 access CAN NOT bucket for project: QA. FAILED.').to.have.property('status', 403);
     chai.expect(user2AccessTest1Res,
       'First sync: Check User2 access CAN NOT bucket for project: test. FAILED.').to.have.property('status', 403);
