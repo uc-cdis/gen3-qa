@@ -94,6 +94,7 @@ After(async (fence, users) => {
   await Promise.all(unlinkResults);
   console.log('Running usersync job');
   bash.runJob('usersync', args = 'FORCE true');
+  await checkPod('usersync', 'gen3job,job-name=usersync');
 });
 
 Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle @googleDataAccess',
@@ -212,6 +213,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
     bash.runJob('useryaml');
+    await checkPod('useryaml', 'gen3job,job-name=useryaml');
 
     // get new access tokens b/c of changed access
     newUser0AccessToken = getAccessToken(users.user0.username, 3600);
@@ -374,6 +376,7 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
     console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
     bash.runJob('useryaml');
+    await checkPod('useryaml', 'gen3job,job-name=useryaml');
 
     // get new access tokens b/c of changed access
     newUser1AccessToken = getAccessToken(users.user1.username, 3600);
@@ -556,6 +559,7 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
     console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
     bash.runJob('useryaml');
+    await checkPod('useryaml', 'gen3job,job-name=useryaml');
 
     // get new access tokens b/c of changed access
     newUser2AccessToken = getAccessToken(users.user2.username, 3600);
@@ -611,7 +615,7 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
     console.log('Make assertions for user access for first run');
     console.log('First: Check temporary service account credentials');
 
-    chai.expect(user2AccessQA1Res,
+    chai.expect(user2AccessQA1r44444ekies,
       'First sync: Check User2 access CAN NOT bucket for project: QA. FAILED.').to.have.property('status', 403);
     chai.expect(user2AccessTest1Res,
       'First sync: Check User2 access CAN NOT bucket for project: test. FAILED.').to.have.property('status', 403);
