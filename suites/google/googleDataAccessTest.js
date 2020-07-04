@@ -157,11 +157,11 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     const User0signedUrlTest1Res = await fence.do.createSignedUrlForUser(
       indexed_files.testFile.did, users.user0.accessTokenHeader,
     );
-    console.log(`User0signedUrlTest1Res: ${JSON.stringify(User0signedUrlTest1Res)}`);
+
     console.log(`${new Date()}: The contents of the QA file: ${User0signedUrlQA1FileContents.data}`);
     // Pick up temp creds created earlier in the retry loop above
     console.log(`tempCreds0Res: ${JSON.stringify(tempCreds0Res)}`);
-     console.log(`${new Date()}: The contents of the QA file: ${User0signedUrlQA1FileContents.data}`);
+
     console.log('saving temporary google creds to file');
     const creds0Key = tempCreds0Res.data.private_key_id;
     const pathToCreds0KeyFile = `${creds0Key}.json`;
@@ -185,7 +185,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
       fence.props.googleBucketInfo.test.bucketId,
       fence.props.googleBucketInfo.test.fileName,
     );
-    console.log(`${new Date()}: The contents of the QA file: ${User0signedUrlQA1FileContents.data}`);
+
     // FIRST RUN
     //  - Check Temporary Service Account Creds
     console.log('Make assertions for user access for first run');
@@ -197,7 +197,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     console.log(`user0AccessTest1Res - Should fail: ${JSON.stringify(user0AccessTest1Res)}`);
     chai.expect(user0AccessTest1Res,
       `First sync: Check User0 CAN NOT access bucket for project: test.`).to.have.property('status', 403);
-    console.log(`${new Date()}: The contents of the QA file: ${User0signedUrlQA1FileContents.data}`);
+
     // FIRST RUN
     //  - Check Signed URLs - BEGIN
     console.log('Second: Check signed URLs');
@@ -367,6 +367,14 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
       fence.props.googleBucketInfo.test.bucketId,
       fence.props.googleBucketInfo.test.fileName,
     );
+
+    console.log(`user1AccessQA1Res: ${JSON.stringify(user1AccessQA1Res)}`);
+
+    if (user1AccessQA1Res.has('id')) {
+      console.log(`successfully got file from bucket ${fence.props.googleBucketInfo.QA.bucketId}/${ fence.props.googleBucketInfo.QA.fileName}!`);
+    } else {
+      console.log(`Failed to get file from bucket :( waaat?`);
+    }
 
     // Applying a new user.yaml to revoke QA access from users 0 and 1 and grant it to user2
     console.log(`Running useryaml job with ${Commons.userAccessFiles.newUserAccessFile2}`);
