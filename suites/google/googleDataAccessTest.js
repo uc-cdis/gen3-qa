@@ -216,6 +216,10 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     bash.runJob('useryaml');
     await checkPod('useryaml', 'gen3job,job-name=useryaml');
 
+    // Maybe we need to wait a bit for Fence to talk to Google
+    // and make sure the user's access has been revoked
+    await sleepMS(10000)
+
     // get new access tokens b/c of changed access
     newUser0AccessToken = getAccessToken(users.user0.username, 3600);
 
