@@ -62,7 +62,7 @@ module.exports = {
   async createSignedUrlForUser(id, userHeader = user.mainAcct.accessTokenHeader, nAttempts = 3) {
     let preSignedURL = '';
     for (let i = 0; i < nAttempts; i += 1) {
-      preSignedURL = I.sendGetRequest(
+      preSignedURL = await I.sendGetRequest(
         `${fenceProps.endpoints.getFile}/${id}`,
         userHeader,
       ).then((res) => new Gen3Response(res));
@@ -72,7 +72,7 @@ module.exports = {
           throw new Error(`Max number of PreSignedURL attempts reached: ${i}`);
         }
         console.log(`PreSigned URL request failed (503 response) on attempt ${i}. Trying again...`);
-        sleepMS(3000);
+        await sleepMS(3000);
       } else {
         break;
       }
