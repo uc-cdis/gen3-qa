@@ -48,8 +48,6 @@ const bash = new Bash();
 const fs = require('fs');
 const stringify = require('json-stringify-safe');
 
-const I = actor();
-
 const indexed_files = {
   qaFile: {
     filename: fenceProps.googleBucketInfo.QA.fileName,
