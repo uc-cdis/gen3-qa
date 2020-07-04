@@ -272,9 +272,9 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     console.log('First: Check temporary service account credentials');
 
     chai.expect(user0AccessQA2Res,
-      '2nd sync: Check User0 CAN NOT access bucket for project: QA. FAILED.').to.have.property('statusCode', 403);
+      '2nd sync: Check User0 CAN NOT access bucket for project: QA. FAILED.').to.have.property('status', 403);
     chai.expect(user0AccessTest2Res,
-      '2nd sync: Check User0 CAN NOT access bucket for project: test. FAILED.').to.have.property('statusCode', 403);
+      '2nd sync: Check User0 CAN NOT access bucket for project: test. FAILED.').to.have.property('status', 403);
 
     // SECOND RUN (new authZ)
     //  - Check Signed URLs from SECOND RUN
@@ -477,7 +477,7 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
 
     // SECOND RUN
     //  - Check signed URLs from FIRST RUN
-    chai.expect(User1AccessRemovedQA,
+    chai.expect(User1AccessRemovedQA.data,
       'Make sure signed URL from User1 CANNOT access QA data again. FAILED.').to.contain('AccessDenied');
 
     chai.expect(User1AccessRemainsTest.data,
