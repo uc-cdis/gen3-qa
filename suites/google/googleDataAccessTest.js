@@ -40,6 +40,7 @@ const {
   getAccessToken,
   getAccessTokenHeader,
   Gen3Response,
+  sleepMS,
 } = require('../../utils/apiUtil.js');
 
 const bash = new Bash();
@@ -377,6 +378,10 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
     bash.runJob('useryaml');
     await checkPod('useryaml', 'gen3job,job-name=useryaml');
+
+    // Maybe we need to wait a bit for Fence to talk to Google
+    // and make sure the user's access has been revoked
+    await sleepMS(10000)
 
     // get new access tokens b/c of changed access
     newUser1AccessToken = getAccessToken(users.user1.username, 3600);
