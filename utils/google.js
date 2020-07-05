@@ -101,7 +101,7 @@ const googleApp = {
 module.exports = {
   async getFileFromBucket(googleProject, pathToCredsKeyFile, bucketName, fileName, params = { nAttempts: 3, expectAccessDenied: false }) {
     let fileGetResult = '';
-    for (let i = 0; i < nAttempts; i += 1) {
+    for (let i = 0; i < params.nAttempts; i += 1) {
       // returns a https://cloud.google.com/nodejs/docs/reference/storage/2.0.x/File
       // see https://cloud.google.com/docs/authentication/production for info about
       // passing creds
@@ -132,7 +132,7 @@ module.exports = {
 	  console.log(`Google Storage API file.get() call returned an access denied http code [${preSignedURL.status}] on attempt ${i}.`);
           break;
         } else {
-          if (i === nAttempts - 1) {
+          if (i === params.nAttempts - 1) {
             throw new Error(`Max number of gstorage api file.get() attempts reached: ${i}`);
           }
           console.log(`Google Storage API file.get() call did not return expected AccessDenied (403) response on attempt ${i}. Trying again...`);
