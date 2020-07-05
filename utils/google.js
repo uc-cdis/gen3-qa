@@ -136,7 +136,7 @@ module.exports = {
             throw new Error(`Max number of gstorage api file.get() attempts reached: ${i}`);
           }
           console.log(`Google Storage API file.get() call did not return expected AccessDenied (403) response on attempt ${i}. Trying again...`);
-          sleepMS(10000);
+          await apiUtil.sleepMS(10000);
         }
       } else {
         console.log('Not expecting any access denied for this gstorage api file.get() request. Proceed.');
