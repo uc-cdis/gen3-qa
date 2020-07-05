@@ -111,7 +111,7 @@ module.exports = {
         bucketName,
       });
       const file = storage.bucket(bucketName).file(fileName);
-      fileGetResult = file.get()
+      fileGetResult = await file.get()
         .then(
           (data) => {
             // Note: data[0] is the file; data[1] is the API response
@@ -128,7 +128,7 @@ module.exports = {
         );
       if (params.expectAccessDenied) {
         console.log(`Google Storage API file.get() response: ${JSON.stringify(fileGetResult)} on attempt ${i}.`);
-        if(fileGetResult.hasOwnProperty('status') && fileGetResult.status === 403){
+        if(fileGetResult.hasOwnProperty('statusCode') && fileGetResult.statusCode === 403){
 	  console.log(`Google Storage API file.get() call returned an access denied http code [${fileGetResult.status}] on attempt ${i}.`);
           break;
         } else {
