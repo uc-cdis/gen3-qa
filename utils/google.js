@@ -129,7 +129,7 @@ module.exports = {
       if (params.expectAccessDenied) {
         console.log(`Google Storage API file.get() response: ${JSON.stringify(fileGetResult)} on attempt ${i}.`);
         if(fileGetResult.hasOwnProperty('statusCode') && fileGetResult.statusCode === 403){
-	  console.log(`Google Storage API file.get() call returned an access denied http code [${fileGetResult.status}] on attempt ${i}.`);
+	  console.log(`Google Storage API file.get() call returned an access denied http code [${fileGetResult.statusCode}] on attempt ${i}.`);
           break;
         } else {
           if (i === params.nAttempts - 1) {
