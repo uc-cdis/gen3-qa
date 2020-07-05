@@ -184,7 +184,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
       pathToCreds0KeyFile,
       fence.props.googleBucketInfo.test.bucketId,
       fence.props.googleBucketInfo.test.fileName,
-      { nAttempts: 3, expectAccessDenied: true },
+      { nAttempts: 5, expectAccessDenied: true },
     );
 
     // FIRST RUN
@@ -231,14 +231,14 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
       pathToCreds0KeyFile,
       fence.props.googleBucketInfo.QA.bucketId,
       fence.props.googleBucketInfo.QA.fileName,
-      { nAttempts: 3, expectAccessDenied: true },
+      { nAttempts: 5, expectAccessDenied: true },
     );
     user0AccessTest2Res = await google.getFileFromBucket(
       fence.props.googleBucketInfo.test.googleProjectId,
       pathToCreds0KeyFile,
       fence.props.googleBucketInfo.test.bucketId,
       fence.props.googleBucketInfo.test.fileName,
-      { nAttempts: 3, expectAccessDenied: true },
+      { nAttempts: 5, expectAccessDenied: true },
     );
 
     console.log(`${new Date()}: user0AccessQA2Res: ${JSON.stringify(user0AccessQA2Res)}`);
@@ -562,14 +562,14 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
       pathToCreds2KeyFile,
       fence.props.googleBucketInfo.QA.bucketId,
       fence.props.googleBucketInfo.QA.fileName,
-      { nAttempts: 3, expectAccessDenied: true },
+      { nAttempts: 5, expectAccessDenied: true },
     );
     user2AccessTest1Res = await google.getFileFromBucket(
       fence.props.googleBucketInfo.test.googleProjectId,
       pathToCreds2KeyFile,
       fence.props.googleBucketInfo.test.bucketId,
       fence.props.googleBucketInfo.test.fileName,
-      { nAttempts: 3, expectAccessDenied: true },
+      { nAttempts: 5, expectAccessDenied: true },
     );
 
     // Applying a new user.yaml to revoke QA access from users 0 and 1 and grant it to user2
@@ -600,7 +600,7 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
       pathToCreds2KeyFile,
       fence.props.googleBucketInfo.test.bucketId,
       fence.props.googleBucketInfo.test.fileName,
-      { nAttempts: 3, expectAccessDenied: true },
+      { nAttempts: 5, expectAccessDenied: true },
     );
 
     console.log(`${new Date()}: user2AccessQA2Res: ${JSON.stringify(user2AccessQA2Res)}`);
