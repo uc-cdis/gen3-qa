@@ -1,3 +1,4 @@
+/*eslint-disable */
 /**
  * A module providing util functions using Google's Admin API
  * @module googleUtil
@@ -98,31 +99,51 @@ const googleApp = {
  * Exported google util functions
  */
 module.exports = {
-  async getFileFromBucket(googleProject, pathToCredsKeyFile, bucketName, fileName) {
-    // returns a https://cloud.google.com/nodejs/docs/reference/storage/2.0.x/File
-    // see https://cloud.google.com/docs/authentication/production for info about
-    // passing creds
-    const storage = new Storage({
-      projectId: googleProject,
-      keyFilename: pathToCredsKeyFile,
-      bucketName,
-    });
-    const file = storage.bucket(bucketName).file(fileName);
-    return file.get()
-      .then(
-        (data) => {
-          // Note: data[0] is the file; data[1] is the API response
-          console.log(`Got file ${fileName} from bucket ${bucketName}`);
-          return data[0];
-        },
-        (err) => {
-          console.log(`Cannot get file ${fileName} from bucket ${bucketName}`, err);
-          return {
-            status: err.code || 403,
-            message: err.message,
-          };
-        },
-      );
+  async getFileFromBucket(googleProject, pathToCredsKeyFile, bucketName, fileName, params = { nAttempts: 3, expectAccessDenied: false }) {
+    let fileGetResult = '';
+    for (let i = 0; i < nAttempts; i += 1) {
+      // returns a https://cloud.google.com/nodejs/docs/reference/storage/2.0.x/File
+      // see https://cloud.google.com/docs/authentication/production for info about
+      // passing creds
+      const storage = new Storage({
+        projectId: googleProject,
+        keyFilename: pathToCredsKeyFile,
+        bucketName,
+      });
+      const file = storage.bucket(bucketName).file(fileName);
+      fileGetResult = file.get()
+        .then(
+          (data) => {
+            // Note: data[0] is the file; data[1] is the API response
+            console.log(`Got file ${fileName} from bucket ${bucketName}`);
+            return data[0];
+          },
+          (err) => {
+            console.log(`Cannot get file ${fileName} from bucket ${bucketName}`, err);
+            return {
+              status: err.code || 403,
+              message: err.message,
+            };
+          },
+        );
+      if (params.expectAccessDenied) {
+        console.log(`Google Storage API file.get() response: ${JSON.stringify(preSignedURL)} on attempt ${i}.`);
+        if(fileGetResult.hasOwnProperty('status') && fileGetResult.status === 403){
+	  console.log(`Google Storage API file.get() call returned an access denied http code [${preSignedURL.status}] on attempt ${i}.`);
+          break;
+        } else {
+          if (i === nAttempts - 1) {
+            throw new Error(`Max number of gstorage api file.get() attempts reached: ${i}`);
+          }
+          console.log(`Google Storage API file.get() call did not return expected AccessDenied (403) response on attempt ${i}. Trying again...`);
+          sleepMS(10000);
+        }
+      } else {
+        console.log('Not expecting any access denied for this gstorage api file.get() request. Proceed.');
+        break;
+      }
+    }
+    return fileGetResult;
   },
 
   /**
