@@ -97,7 +97,7 @@ After(async (fence, users) => {
 });
 
 Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle @googleDataAccess',
-  async (fence, indexd, users, google, files) => {
+  async (I, fence, indexd, users, google, files) => {
     console.log(`Double-check if file ${indexed_files.qaFile.did} is indexed. If it isn't fail fast.`);
     const indexdLookupRes = await indexd.do.getFile(indexed_files.qaFile, users.user0.accessTokenHeader);
     chai.expect(indexdLookupRes,
@@ -308,7 +308,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
 );
 
 Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle @googleDataAccess',
-  async (fence, users, google, files) => {
+  async (I, fence, users, google, files) => {
     console.log('make sure google account user1 is unlinked');
     await fence.complete.forceUnlinkGoogleAcct(users.user1);
 
@@ -505,7 +505,7 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
 );
 
 Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle @googleDataAccess',
-  async (fence, users, google, files) => {
+  async (I, fence, users, google, files) => {
     console.log('make sure google account user2 is unlinked');
     await fence.complete.forceUnlinkGoogleAcct(users.user2);
 
