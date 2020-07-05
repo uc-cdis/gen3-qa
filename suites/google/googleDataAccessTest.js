@@ -238,6 +238,8 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
       fence.props.googleBucketInfo.test.fileName,
     );
 
+    console.log(`${new Date()}: user0AccessQA2Res: ${user0AccessQA2Res}`);
+
     console.log('Use User0 to create signed URL for file in QA');
     const User0signedUrlQA2Res = await fence.do.createSignedUrlForUser(
       indexed_files.qaFile.did, getAccessTokenHeader(newUser0AccessToken),
@@ -404,6 +406,8 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
       fence.props.googleBucketInfo.test.bucketId,
       fence.props.googleBucketInfo.test.fileName,
     );
+
+    console.log(`${new Date()}: user1AccessQA2Res: ${user1AccessQA2Res}`);
 
     console.log('Use User1 to create signed URL for file in QA');
     const User1signedUrlQA2Res = await fence.do.createSignedUrlForUser(
@@ -587,6 +591,8 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
       fence.props.googleBucketInfo.test.bucketId,
       fence.props.googleBucketInfo.test.fileName,
     );
+
+    console.log(`${new Date()}: user2AccessQA2Res: ${user2AccessQA2Res}`);
 
     console.log('Use User2 to create signed URL for file in QA');
     const User2signedUrlQA2Res = await fence.do.createSignedUrlForUser(
