@@ -360,7 +360,7 @@ module.exports = {
    */
   async checkPod(sowerJobName, labelName, params = { nAttempts: 10, ignoreFailure: false }) {
     let podFound = false;
-    for (let i = 0; i < params.nAttempts; i += 1) {
+    for (let i = 1; i < params.nAttempts; i += 1) {
       try {
         console.log(`waiting for ${sowerJobName} sower job/pod... - attempt ${i}`);
         await module.exports.sleepMS(10000);

@@ -5,7 +5,6 @@ const I = actor();
 
 const util = require('util');
 const dataUploadProps = require('./dataUploadProps.js');
-const portal = require('../../../utils/portal.js');
 
 /**
  * dataUpload Questions
@@ -13,12 +12,12 @@ const portal = require('../../../utils/portal.js');
 module.exports = {
   isNumberAndSizeOfUnmappedFilesCorrect(count, size) {
     const expectString = util.format(dataUploadProps.unmappedFilesStringFormat, count, size);
-    I.waitForText(expectString, 5);
+    I.waitForText(expectString, 10);
   },
 
   canSeeAllUnmappedFilesOnPage(unmappedFiles) {
-    for (let i = 0; i < unmappedFiles.length; i++) {
-      I.waitForText(unmappedFiles[i], 5);
+    for (let i = 0; i < unmappedFiles.length; i += 1) {
+      I.waitForText(unmappedFiles[i], 10);
     }
   },
 
@@ -31,7 +30,7 @@ module.exports = {
   async cannotSeeUnmappedFilesOnPage(unexpectedFileNames) {
     const numberRows = await I.grabNumberOfVisibleElements(dataUploadProps.unmappedFileRowClass);
     if (numberRows === 0) return;
-    for (let i = 0; i < unexpectedFileNames.length; i++) {
+    for (let i = 0; i < unexpectedFileNames.length; i += 1) {
       I.dontSee(unexpectedFileNames[i], dataUploadProps.unmappedFileRowClass);
     }
   },
