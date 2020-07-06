@@ -63,7 +63,7 @@ Scenario('Navigate to the indexing page and upload a test manifest @indexing', a
   I.attachFile('input[type=\'file\']', `manifest_${I.cache.UNIQUE_NUM}.tsv`);
   I.click({ xpath: 'xpath: //button[contains(text(), \'Index Files\')]' });
 
-  await checkPod('manifest-indexing');
+  await checkPod('manifest-indexing', 'sowerjob');
 
   const nAttempts = 12;
   for (let i = 0; i < nAttempts; i += 1) {
@@ -95,7 +95,7 @@ Scenario('Navigate to the indexing page and download a full indexd manifest @ind
   I.waitForElement({ css: '.indexing-page' }, 10);
   I.click({ xpath: 'xpath: //button[contains(text(), \'Download\')]' });
 
-  await checkPod('indexd-manifest');
+  await checkPod('indexd-manifest', 'sowerjob');
 
   const waitingThreshold = 60;
   console.log('Waiting for Green status DONE to show up on the page...');
@@ -129,7 +129,7 @@ Scenario('Navigate to the indexing page and upload an invalid manifest @indexing
   I.attachFile('input[type=\'file\']', `invalid_manifest_${I.cache.UNIQUE_NUM}.tsv`);
   I.click({ xpath: 'xpath: //button[contains(text(), \'Index Files\')]' });
 
-  await checkPod('manifest-indexing', { nAttempts: 5, ignoreFailure: true });
+  await checkPod('manifest-indexing', 'sowerjob', { nAttempts: 5, ignoreFailure: true });
 
   const nAttempts = 12;
   for (let i = 0; i < nAttempts; i += 1) {

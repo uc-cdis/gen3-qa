@@ -59,11 +59,26 @@ module.exports = {
    * @param {string[]} userHeader - a user's access token header
    * @returns {Promise<Gen3Response>}
    */
-  async createSignedUrlForUser(id, userHeader = user.mainAcct.accessTokenHeader) {
-    return I.sendGetRequest(
-      `${fenceProps.endpoints.getFile}/${id}`,
-      userHeader,
-    ).then((res) => new Gen3Response(res));
+  async createSignedUrlForUser(id, userHeader = user.mainAcct.accessTokenHeader, nAttempts = 3) {
+    let preSignedURL = '';
+    for (let i = 0; i < nAttempts; i += 1) {
+      preSignedURL = await I.sendGetRequest(
+        `${fenceProps.endpoints.getFile}/${id}`,
+        userHeader,
+      ).then((res) => new Gen3Response(res));
+
+      if (preSignedURL.status === 503) {
+        if (i === nAttempts - 1) {
+          throw new Error(`Max number of PreSignedURL attempts reached: ${i}`);
+        }
+        console.log(`PreSigned URL request failed (503 response) on attempt ${i}. Trying again...`);
+        sleepMS(3000);
+      } else {
+	console.log(`PreSigned URL request returned http code [${preSignedURL.status}] on attempt ${i}.`);
+        break;
+      }
+    }
+    return preSignedURL;
   },
 
   /**

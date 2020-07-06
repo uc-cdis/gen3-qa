@@ -358,14 +358,14 @@ module.exports = {
    * @param {string} podName - name of the pod that must be found
    * @param {int} nAttempts - number of times the function should try to find the expected pod
    */
-  async checkPod(sowerJobName, params = { nAttempts: 10, ignoreFailure: false }) {
+  async checkPod(sowerJobName, labelName, params = { nAttempts: 10, ignoreFailure: false }) {
     let podFound = false;
     for (let i = 0; i < params.nAttempts; i += 1) {
       try {
         console.log(`waiting for ${sowerJobName} sower job/pod... - attempt ${i}`);
         await module.exports.sleepMS(10000);
         const singleQuote = process.env.RUNNING_LOCAL === 'true' ? "\'\\'\'" : "'"; // eslint-disable-line quotes,no-useless-escape
-        const podName = await bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=sowerjob -o jsonpath="{.items[*].metadata.name}" | awk ${singleQuote}{print $NF}${singleQuote}`);
+        const podName = await bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=${labelName} -o jsonpath="{.items[*].metadata.name}" | awk ${singleQuote}{print $NF}${singleQuote}`);
         console.log(`latest pod found: ${podName}`);
         if (!podFound) {
           if (podName.includes(sowerJobName)) {
