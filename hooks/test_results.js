@@ -68,7 +68,7 @@ module.exports = function () {
       });
     }
 
-    if (testResult === 'passed' || retries === currentRetry) {
+    if (currentRetry > 0 && (testResult === 'passed' || retries === currentRetry)) {
       await influx.writePoints([
         {
           measurement: 'retry_count',
