@@ -14,6 +14,7 @@ module.exports = function () {
     // console.log(stringify(test));
     const suiteName = test.parent.title.split(' ').join('_');
     const testName = test.title.split(' ').join('_');
+    const ciEnvironment = process.env.KUBECTL_NAMESPACE;
     const testResult = test.state;
     // eslint-disable-next-line no-underscore-dangle
     const retries = test._retries;
@@ -55,6 +56,7 @@ module.exports = function () {
             pr_num: prName,
             suite_name: suiteName,
             test_name: testName,
+            ci_environment: ciEnvironment,
             selenium_grid_sessions: sessionCount,
             // run_time: duration,
             // err_msg: error,
@@ -77,6 +79,7 @@ module.exports = function () {
             pr_num: prName,
             suite_name: suiteName,
             test_name: testName,
+            ci_environment: ciEnvironment,
             // run_time: duration,
             // err_msg: error,
           },
