@@ -408,7 +408,7 @@ module.exports = {
           css: '.covid19-dashboard_panel',
         },
         cards: {
-          css: '.map-chart',
+          css: '.covid19-dashboard_counts',
         },
       },
       covid19: {
@@ -416,7 +416,7 @@ module.exports = {
           css: '.covid19-dashboard_panel',
         },
         cards: {
-          css: '.map-chart',
+          css: '.covid19-dashboard_counts',
         },
       },
     };
