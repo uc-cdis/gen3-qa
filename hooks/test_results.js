@@ -46,7 +46,7 @@ module.exports = function () {
     console.log('********');
     // const duration = test.parent.tests[0].duration / 1000;
     // const error = test.parent.tests[0].err.message.substring(0, 50);
-    if (testResult === 'failed' && retries === currentRetry) {
+    if (testResult === 'failed' && retries <= currentRetry) {
       await influx.writePoints([
         {
           measurement: 'fail_count',
