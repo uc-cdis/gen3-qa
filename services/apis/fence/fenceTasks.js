@@ -5,7 +5,7 @@ const ax = require('axios'); // eslint-disable-line import/no-extraneous-depende
 const fenceProps = require('./fenceProps.js');
 const user = require('../../../utils/user.js');
 const portal = require('../../../utils/portal.js');
-const { Gen3Response, getCookie, sleepMS, getAccessTokenHeader } = require('../../../utils/apiUtil');
+const { Gen3Response, getCookie, getAccessTokenHeader } = require('../../../utils/apiUtil');
 const { Bash, takeLastLine } = require('../../../utils/bash');
 
 const bash = new Bash();
