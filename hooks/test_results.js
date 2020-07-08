@@ -70,6 +70,29 @@ module.exports = function () {
       });
     }
 
+    if (testResult === 'passed') {
+      await influx.writePoints([
+        {
+          measurement: 'pass_count',
+          tags: {
+            repo_name: repoName,
+            pr_num: prName,
+            suite_name: suiteName,
+            test_name: testName,
+            ci_environment: ciEnvironment,
+            selenium_grid_sessions: sessionCount,
+            // run_time: duration,
+            // err_msg: error,
+          },
+          fields: { pass_count: 1 },
+        },
+      ], {
+        precision: 's',
+      }).catch((err) => {
+        console.error(`Error saving data to InfluxDB! ${err.stack}`);
+      });
+    }
+
     if (currentRetry > 0 && (testResult === 'passed' || retries === currentRetry)) {
       await influx.writePoints([
         {
