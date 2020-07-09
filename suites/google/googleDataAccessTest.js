@@ -173,7 +173,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     // use Google's client libraries to attempt to read a controlled access file with the
     // creds we just saved (based on the user's permissions)
     // attempt to access a file in the bucket
-    const timestampCreds0KeyFile = bash.runCommand(`stat ${pathToCreds0KeyFile}`);
+    let timestampCreds0KeyFile = bash.runCommand(`stat ${pathToCreds0KeyFile}`);
     console.log(`timestampCreds0KeyFile: ${timestampCreds0KeyFile}`);
     user0AccessQA1Res = await google.getFileFromBucket(
       fence.props.googleBucketInfo.QA.googleProjectId,
@@ -228,7 +228,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     // use Google's client libraries to attempt to read a controlled access file with the
     // creds we just saved (based on the user's permissions)
     // attempt to access a file in the bucket
-    const timestampCreds0KeyFile = bash.runCommand(`stat ${pathToCreds0KeyFile}`);
+    timestampCreds0KeyFile = bash.runCommand(`stat ${pathToCreds0KeyFile}`);
     console.log(`timestampCreds0KeyFile: ${timestampCreds0KeyFile}`);
     user0AccessQA2Res = await google.getFileFromBucket(
       fence.props.googleBucketInfo.QA.googleProjectId,
@@ -369,7 +369,7 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
     // use Google's client libraries to attempt to read a controlled access file with the
     // creds we just saved (based on the user's permissions)
     // attempt to access a file in the bucket
-    const timestampCreds1KeyFile = bash.runCommand(`stat ${pathToCreds1KeyFile}`);
+    let timestampCreds1KeyFile = bash.runCommand(`stat ${pathToCreds1KeyFile}`);
     console.log(`timestampCreds1KeyFile: ${timestampCreds1KeyFile}`);
     user1AccessQA1Res = await google.getFileFromBucket(
       fence.props.googleBucketInfo.QA.googleProjectId,
@@ -403,7 +403,7 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
     // use Google's client libraries to attempt to read a controlled access file with the
     // creds we just saved (based on the user's permissions)
     // attempt to access a file in the bucket
-    const timestampCreds1KeyFile = bash.runCommand(`stat ${pathToCreds1KeyFile}`);
+    timestampCreds1KeyFile = bash.runCommand(`stat ${pathToCreds1KeyFile}`);
     console.log(`timestampCreds1KeyFile: ${timestampCreds1KeyFile}`);
     user1AccessQA2Res = await google.getFileFromBucket(
       fence.props.googleBucketInfo.QA.googleProjectId,
@@ -565,7 +565,7 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
     // use Google's client libraries to attempt to read a controlled access file with the
     // creds we just saved (based on the user's permissions)
     // attempt to access a file in the bucket
-    const timestampCreds2KeyFile = bash.runCommand(`stat ${pathToCreds2KeyFile}`);
+    let timestampCreds2KeyFile = bash.runCommand(`stat ${pathToCreds2KeyFile}`);
     console.log(`timestampCreds2KeyFile: ${timestampCreds2KeyFile}`);
     user2AccessQA1Res = await google.getFileFromBucket(
       fence.props.googleBucketInfo.QA.googleProjectId,
@@ -599,7 +599,7 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
     // use Google's client libraries to attempt to read a controlled access file with the
     // creds we just saved (based on the user's permissions)
     // attempt to access a file in the bucket
-    const timestampCreds2KeyFile = bash.runCommand(`stat ${pathToCreds2KeyFile}`);
+    timestampCreds2KeyFile = bash.runCommand(`stat ${pathToCreds2KeyFile}`);
     console.log(`timestampCreds2KeyFile: ${timestampCreds2KeyFile}`);
     user2AccessQA2Res = await google.getFileFromBucket(
       fence.props.googleBucketInfo.QA.googleProjectId,
