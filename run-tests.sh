@@ -353,7 +353,7 @@ fi
 
 ########################################################################################
 
-testArgs="--reporter mocha-multi"
+testArgs=""
 
 if [[ -n "$doNotRunRegex" ]]; then
   testArgs="${testArgs} --grep '${doNotRunRegex}' --invert"
@@ -397,7 +397,7 @@ else
     additionalArgs="--grep @manual --invert"
   fi
   set -e
-  npm 'test' -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
+  npm 'test' -- --verbose ${additionalArgs} ${selectedTest}
 fi
 
 # When zero tests are executed, a results*.xml file is produced containing a tests="0" counter
