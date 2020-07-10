@@ -201,8 +201,8 @@ module.exports = {
     scopes = 'openid+user+data+google_credentials+google_service_account+google_link',
   ) {
     // set user with cookie
-    await I.amOnPage('/');
-    await I.setCookie({ name: 'dev_login', value: user.username });
+    I.amOnPage('/');
+    I.setCookie({ name: 'dev_login', value: user.username });
 
     const urlStr = await fenceTasks.getConsentCode(client.id, 'code', scopes);
     fenceQuestions.assertContainSubStr(urlStr, ['code=']);

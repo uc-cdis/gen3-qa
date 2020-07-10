@@ -14,6 +14,7 @@ module.exports = function () {
     // console.log(stringify(test));
     const suiteName = test.parent.title.split(' ').join('_');
     const testName = test.title.split(' ').join('_');
+    const ciEnvironment = process.env.KUBECTL_NAMESPACE;
     const testResult = test.state;
     // eslint-disable-next-line no-underscore-dangle
     const retries = test._retries;
@@ -46,7 +47,7 @@ module.exports = function () {
     console.log('********');
     // const duration = test.parent.tests[0].duration / 1000;
     // const error = test.parent.tests[0].err.message.substring(0, 50);
-    if (testResult === 'failed' && retries === currentRetry) {
+    if (testResult === 'failed' && retries <= currentRetry) {
       await influx.writePoints([
         {
           measurement: 'fail_count',
@@ -55,6 +56,7 @@ module.exports = function () {
             pr_num: prName,
             suite_name: suiteName,
             test_name: testName,
+            ci_environment: ciEnvironment,
             selenium_grid_sessions: sessionCount,
             // run_time: duration,
             // err_msg: error,
@@ -68,7 +70,30 @@ module.exports = function () {
       });
     }
 
-    if (testResult === 'passed' || retries === currentRetry) {
+    if (testResult === 'passed') {
+      await influx.writePoints([
+        {
+          measurement: 'pass_count',
+          tags: {
+            repo_name: repoName,
+            pr_num: prName,
+            suite_name: suiteName,
+            test_name: testName,
+            ci_environment: ciEnvironment,
+            selenium_grid_sessions: sessionCount,
+            // run_time: duration,
+            // err_msg: error,
+          },
+          fields: { pass_count: 1 },
+        },
+      ], {
+        precision: 's',
+      }).catch((err) => {
+        console.error(`Error saving data to InfluxDB! ${err.stack}`);
+      });
+    }
+
+    if (currentRetry > 0 && (testResult === 'passed' || retries === currentRetry)) {
       await influx.writePoints([
         {
           measurement: 'retry_count',
@@ -77,6 +102,7 @@ module.exports = function () {
             pr_num: prName,
             suite_name: suiteName,
             test_name: testName,
+            ci_environment: ciEnvironment,
             // run_time: duration,
             // err_msg: error,
           },

@@ -440,14 +440,14 @@ module.exports = {
     const fullURL = `${fenceProps.endpoints.authorizeOAuth2Client}?response_type=${responseType}&client_id=${clientId}&redirect_uri=https://${process.env.HOSTNAME}&scope=${scope}`;
     I.amOnPage(fullURL);
     if (expectCode) {
-      if (I.seeElement(fenceProps.consentPage.consentBtn.locator)) {
+      // if (I.seeElement(fenceProps.consentPage.consentBtn.locator)) {
         if (consent === 'cancel') {
           portal.clickProp(fenceProps.consentPage.cancelBtn);
         } else {
           portal.clickProp(fenceProps.consentPage.consentBtn);
           I.waitInUrl('code=', 30);
         }
-      }
+      // }
     } else {
       I.seeTextEquals('Unauthorized', 'h2');
     }
