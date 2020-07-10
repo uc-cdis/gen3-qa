@@ -74,6 +74,10 @@ BeforeSuite(async (indexd) => {
 AfterSuite(async (fence, indexd, users) => {
   console.log('Removing indexd files used to test signed urls');
   await indexd.do.deleteFileIndices(Object.values(indexed_files));
+
+  console.log('Running usersync job');
+  bash.runJob('usersync', args = 'FORCE true');
+  await checkPod('usersync', 'gen3job,job-name=usersync');
 });
 
 Before(async (google, fence, users) => {
