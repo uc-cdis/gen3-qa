@@ -5,7 +5,7 @@ const ax = require('axios'); // eslint-disable-line import/no-extraneous-depende
 const fenceProps = require('./fenceProps.js');
 const user = require('../../../utils/user.js');
 const portal = require('../../../utils/portal.js');
-const { Gen3Response, getCookie, getAccessTokenHeader } = require('../../../utils/apiUtil');
+const { Gen3Response, sleepMS, getCookie, getAccessTokenHeader } = require('../../../utils/apiUtil');
 const { Bash, takeLastLine } = require('../../../utils/bash');
 
 const bash = new Bash();
@@ -72,7 +72,7 @@ module.exports = {
           throw new Error(`Max number of PreSignedURL attempts reached: ${i}`);
         }
         console.log(`PreSigned URL request failed (503 response) on attempt ${i}. Trying again...`);
-        sleepMS(3000);
+        await sleepMS(3000);
       } else {
 	console.log(`PreSigned URL request returned http code [${preSignedURL.status}] on attempt ${i}.`);
         break;
