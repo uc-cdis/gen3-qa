@@ -1,7 +1,8 @@
 # Object Management API (aka: Shepherd) test plan
 
-## One-liner overview of the service
-The Object Management API is an augmentation of the metadata service (mds) that allows the user to interact with multiple services through a single HTTP API interface. It has the ability to upload a large file, create an Indexd record and map it against a metadata service entry (which facilitates the discovery of any instance of clinical file or study metadata due to the nature of the JSON Blobstore). It also allows the user to submit requests for PreSigned URLs based on the GUID of the metadata entry.
+## Overview of the service
+The Object Management API is an augmentation of the metadata service (mds) that allows the user to manage objects in a data lake through an HTTP API interface. Its features comprise data uploading, indexing, retrieving and bookkeeping.
+The main input flow is performed through the Gen3 CLI utility, which communicates with the Object Management API endpoint to upload a large file, create an Indexd record and map the file against a metadata service entry (which facilitates the discovery of any instance of clinical file or study metadata due to the nature of the JSON Blobstore). It also allows the user to submit requests for PreSigned URLs based on the GUID of the metadata entry.
 ## RESTful API
 Here's one of its swagger pages:
 [https://TBD](https://nci-crdc-staging.datacommons.io/mds/docs)
