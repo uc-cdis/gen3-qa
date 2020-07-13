@@ -66,21 +66,21 @@ export HOME="${WORKSPACE:-$HOME}"
 /usr/bin/pip3 install poetry==1.0.0
 /usr/bin/pip3 install --upgrade keyrings.alt
 which poetry
-poetry config virtualenvs.create false
-poetry install -vv
+$HOME/.local/bin/poetry config virtualenvs.create false
+$HOME/.local/bin/poetry install -vv
 
 # Fail script if any of following commands fail
 set -e
 
 export PYTHONPATH=.
-pyCMD="poetry run data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
+pyCMD="$HOME/.local/bin/poetry run data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
 eval $pyCMD
 if [[ $? -ne 0 ]]; then
   echo "ERROR: Failed to simulate test data for $namespace"
   exit 1
 fi
 
-pyCMD2="poetry run data-simulator submission_order --url $dictURL --path $TEST_DATA_PATH --node_name $leafNode"
+pyCMD2="$HOME/.local/bin/poetry run data-simulator submission_order --url $dictURL --path $TEST_DATA_PATH --node_name $leafNode"
 eval $pyCMD2
 if [[ $? -ne 0 ]]; then
   echo "ERROR: Failed to generate submission_order data for $namespace"
