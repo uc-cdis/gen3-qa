@@ -63,24 +63,24 @@ echo "Leaf node set to: $leafNode"
 # try to trick pip into working in the WORKSPACE
 #
 export HOME="${WORKSPACE:-$HOME}"
-/usr/bin/pip3 install poetry==1.0.0
-/usr/bin/pip3 install --upgrade keyrings.alt
-which poetry
-$HOME/.local/bin/poetry config virtualenvs.create false
-$HOME/.local/bin/poetry install -vv
+/usr/bin/curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | POETRY_VERSION=1.0.0 python3
+$HOME/.poetry/bin/poetry env use python3.6
+$HOME/.poetry/bin/poetry config virtualenvs.create false
+$HOME/.poetry/bin/poetry install -vv
+#python setup.py develop --user
 
 # Fail script if any of following commands fail
 set -e
 
 export PYTHONPATH=.
-pyCMD="$HOME/.local/bin/poetry run data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
+pyCMD="$HOME/.poetry/bin/poetry run data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
 eval $pyCMD
 if [[ $? -ne 0 ]]; then
   echo "ERROR: Failed to simulate test data for $namespace"
   exit 1
 fi
 
-pyCMD2="$HOME/.local/bin/poetry run data-simulator submission_order --url $dictURL --path $TEST_DATA_PATH --node_name $leafNode"
+pyCMD2="$HOME/.poetry/bin/poetry run data-simulator submission_order --url $dictURL --path $TEST_DATA_PATH --node_name $leafNode"
 eval $pyCMD2
 if [[ $? -ne 0 ]]; then
   echo "ERROR: Failed to generate submission_order data for $namespace"
