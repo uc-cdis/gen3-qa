@@ -65,6 +65,7 @@ echo "Leaf node set to: $leafNode"
 export HOME="${WORKSPACE:-$HOME}"
 /usr/bin/curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
 $HOME/.poetry/bin/poetry env use python3.6
+$HOME/.poetry/bin/poetry config virtualenvs.create false
 $HOME/.poetry/bin/poetry install -vv
 #python setup.py develop --user
 
