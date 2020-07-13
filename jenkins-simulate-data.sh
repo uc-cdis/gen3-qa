@@ -63,8 +63,8 @@ echo "Leaf node set to: $leafNode"
 # try to trick pip into working in the WORKSPACE
 #
 export HOME="${WORKSPACE:-$HOME}"
+which python3
 /usr/bin/curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | POETRY_VERSION=1.0.0 python3
-$HOME/.poetry/bin/poetry env use python3.6
 $HOME/.poetry/bin/poetry config virtualenvs.create false
 $HOME/.poetry/bin/poetry install -vv
 #python setup.py develop --user
