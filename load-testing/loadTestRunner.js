@@ -170,7 +170,7 @@ async function runLoadTestScenario() {
   const browserifyCmd = spawnSync('node_modules/browserify/bin/cmd.js', browserifyArgs, { stdio: 'pipe' });
   fs.writeFileSync(
     'load-testing/libs/uuid.js',
-    browserifyCmd.stdout.toString().slice(1, -1),
+    browserifyCmd.output.toString().slice(1, -1),
     { encoding: 'utf8', flag: 'w' },
     (err) => {
       if (err) console.log(err);
