@@ -151,7 +151,7 @@ module.exports = {
    */
   getJWTData(pathToCredentialsJson) {
     const credentials = fs.readFileSync(pathToCredentialsJson, 'utf8');
-    const { apiKey } = JSON.parse(credentials);
+    const apiKey = JSON.parse(credentials).api_key;
     const data = apiKey.split('.'); // [0] headers, [1] payload, [2] signature
     const payload = data[1];
     const padding = '='.repeat(4 - (payload.length % 4));
@@ -358,17 +358,17 @@ module.exports = {
    * @param {string} podName - name of the pod that must be found
    * @param {int} nAttempts - number of times the function should try to find the expected pod
    */
-  async checkPod(sowerJobName, params = { nAttempts: 10, ignoreFailure: false }) {
+  async checkPod(jobName, labelName, params = { nAttempts: 10, ignoreFailure: false }) {
     let podFound = false;
-    for (let i = 0; i < params.nAttempts; i += 1) {
+    for (let i = 1; i < params.nAttempts; i += 1) {
       try {
-        console.log(`waiting for ${sowerJobName} sower job/pod... - attempt ${i}`);
+        console.log(`waiting for ${jobName} job pod... - attempt ${i}`);
         await module.exports.sleepMS(10000);
         const singleQuote = process.env.RUNNING_LOCAL === 'true' ? "\'\\'\'" : "'"; // eslint-disable-line quotes,no-useless-escape
-        const podName = await bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=sowerjob -o jsonpath="{.items[*].metadata.name}" | awk ${singleQuote}{print $NF}${singleQuote}`);
+        const podName = await bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=${labelName} -o jsonpath="{.items[*].metadata.name}" | awk ${singleQuote}{print $NF}${singleQuote}`);
         console.log(`latest pod found: ${podName}`);
         if (!podFound) {
-          if (podName.includes(sowerJobName)) {
+          if (podName.includes(jobName)) {
             console.log(`the pod ${podName} was found! Proceed with the container check...`);
             podFound = true;
           }
@@ -388,7 +388,7 @@ module.exports = {
           }
         }
       } catch (e) {
-        throw new Error(`Failed to obtain a successful phase check from the ${sowerJobName} job on attempt ${i}: ${e.message}`);
+        throw new Error(`Failed to obtain a successful phase check from the ${jobName} job on attempt ${i}: ${e.message}`);
       }
     }
   },
@@ -408,7 +408,7 @@ module.exports = {
           css: '.covid19-dashboard_panel',
         },
         cards: {
-          css: '.map-chart',
+          css: '.covid19-dashboard_counts',
         },
       },
       covid19: {
@@ -416,7 +416,7 @@ module.exports = {
           css: '.covid19-dashboard_panel',
         },
         cards: {
-          css: '.map-chart',
+          css: '.covid19-dashboard_counts',
         },
       },
     };

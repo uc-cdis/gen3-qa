@@ -14,8 +14,12 @@ module.exports = function () {
     // console.log(stringify(test));
     const suiteName = test.parent.title.split(' ').join('_');
     const testName = test.title.split(' ').join('_');
+    const ciEnvironment = process.env.KUBECTL_NAMESPACE;
     const testResult = test.state;
-    const testRetries = test.retryNum;
+    // eslint-disable-next-line no-underscore-dangle
+    const retries = test._retries;
+    // eslint-disable-next-line no-underscore-dangle
+    const currentRetry = test._currentRetry;
     let prName = '';
     let repoName = '';
     try {
@@ -37,18 +41,13 @@ module.exports = function () {
     console.log('********');
     console.log(`TEST: ${testName}`);
     console.log(`RESULT: ${testResult}`);
-    console.log(`RETRIES: ${testRetries}`);
+    console.log(`CURRENT RETRY - ${currentRetry}`);
     console.log(`TIMESTAMP: ${new Date()}`);
     console.log(`GRID_SESSION_COUNT: ${sessionCount}`);
     console.log('********');
     // const duration = test.parent.tests[0].duration / 1000;
     // const error = test.parent.tests[0].err.message.substring(0, 50);
-    let testFailCount = 0;
-    if (testResult === 'failed') {
-      testFailCount = 1;
-    }
-
-    if (testFailCount > 0) {
+    if (testResult === 'failed' && retries <= currentRetry) {
       await influx.writePoints([
         {
           measurement: 'fail_count',
@@ -57,11 +56,12 @@ module.exports = function () {
             pr_num: prName,
             suite_name: suiteName,
             test_name: testName,
+            ci_environment: ciEnvironment,
             selenium_grid_sessions: sessionCount,
             // run_time: duration,
             // err_msg: error,
           },
-          fields: { fail_count: testFailCount },
+          fields: { fail_count: 1 },
         },
       ], {
         precision: 's',
@@ -70,7 +70,30 @@ module.exports = function () {
       });
     }
 
-    if (testRetries > 0) {
+    if (testResult === 'passed') {
+      await influx.writePoints([
+        {
+          measurement: 'pass_count',
+          tags: {
+            repo_name: repoName,
+            pr_num: prName,
+            suite_name: suiteName,
+            test_name: testName,
+            ci_environment: ciEnvironment,
+            selenium_grid_sessions: sessionCount,
+            // run_time: duration,
+            // err_msg: error,
+          },
+          fields: { pass_count: 1 },
+        },
+      ], {
+        precision: 's',
+      }).catch((err) => {
+        console.error(`Error saving data to InfluxDB! ${err.stack}`);
+      });
+    }
+
+    if (currentRetry > 0 && (testResult === 'passed' || retries === currentRetry)) {
       await influx.writePoints([
         {
           measurement: 'retry_count',
@@ -79,10 +102,11 @@ module.exports = function () {
             pr_num: prName,
             suite_name: suiteName,
             test_name: testName,
+            ci_environment: ciEnvironment,
             // run_time: duration,
             // err_msg: error,
           },
-          fields: { retry_count: testRetries },
+          fields: { retry_count: currentRetry },
         },
       ], {
         precision: 's',
