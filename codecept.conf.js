@@ -1,4 +1,3 @@
-const request = require('request');
 const { Env } = require('./utils/env');
 
 Env.setupEnvVariables();
@@ -8,16 +7,22 @@ exports.config = {
   output: './output',
   helpers: {
     WebDriver: {
+      host: 'selenium-hub',
       url: `https://${process.env.HOSTNAME}`,
-      smartWait: 5000,
+      smartWait: 30000,
       browser: 'chrome',
-      fullPageScreenshots: true,
+      // fullPageScreenshots: true,
+      disableScreenshots: true,
       desiredCapabilities: {
         chromeOptions: {
           args: [
             '--headless', // for dev, you can comment this line to open actual chrome for easier test
             '--disable-gpu',
-            '--window-size=1920,1080',
+            '--whitelisted-ips=*',
+            '--disable-features=VizDisplayCompositor',
+            // '--window-size=1280,720',
+            // '--no-sandbox',
+            // '--enable-features=NetworkService,NetworkServiceInProcess',
           ],
         },
       },
@@ -30,7 +35,7 @@ exports.config = {
     },
     REST: {
       endpoint: `https://${process.env.HOSTNAME}`,
-      timeout: 60000,
+      timeout: 300000,
       defaultHeaders: {
         common: {
           Accept: 'application/json',
@@ -69,6 +74,9 @@ exports.config = {
 
     // Pages
     home: './services/portal/home/homeService.js',
+    indexing: './services/portal/indexing/indexingService.js',
+    login: './services/portal/login/loginService.js',
+    explorer: './services/portal/explorer/explorerService.js',
     portalDataUpload: './services/portal/dataUpload/dataUploadService.js',
     portalExportToWorkspace: './services/portal/exportToWorkspace/exportToWorkspaceService.js',
     portalCoreMetadataPage: './services/portal/coreMetadataPage/coreMetadataPageService.js',

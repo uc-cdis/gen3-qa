@@ -2,8 +2,10 @@
 #
 # Jenkins launch script.
 # Use:
-#   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release]
+#   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--selectedTest=selectedTest]
 #
+
+set -xe
 
 help() {
   cat - <<EOM
@@ -11,11 +13,12 @@ Jenkins test launch script.  Assumes the  GEN3_HOME environment variable
 references a current [cloud-automation](https://github.com/uc-cdis/cloud-automation) folder.
 
 Use:
-  bash run-tests.sh [[--namespace=]KUBECTL_NAMESPACE] [--service=service] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--dryrun]
+  bash run-tests.sh [[--namespace=]KUBECTL_NAMESPACE] [--service=service] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--selectedTest=selectedTest] [--dryrun]
     --namespace default is KUBECTL_NAMESPACE:-default
     --service default is service:-none
     --testedEnv default is testedEnv:-none (for cdis-manifest PRs, specifies which environment is being tested, to know which tests are relevant)
     --isGen3Release default is "false"
+    --selectedTest default is selectedTest:-none
 EOM
 }
 
@@ -47,12 +50,14 @@ getServiceVersion() {
 }
 
 
-# Takes 3 arguments:
+# Takes 3 required and 1 optional arguments:
 #   $1 test tag to avoid until service version is greater than last arg
 #   $2 service name
 #   $3 version of service where tests apply >=
+#   $4 version of service where tests apply >=, in monthly release (2020.xx) format
 #
 # ex: runTestsIfServiceVersion "@multipartupload" "fence" "3.0.0"
+# or: runTestsIfServiceVersion "@multipartupload" "fence" "3.0.0" "2020.01"
 runTestsIfServiceVersion() {
   # make sure args provided
   if [[ -z "$1" || -z "$2" || -z "$3" ]]; then
@@ -80,14 +85,31 @@ runTestsIfServiceVersion() {
     versionAsNumber=$currentVersion
   fi
 
-  min=$(printf "$3\n$versionAsNumber\n" | sort -V | head -n1)
-  if [ "$min" = "$3" ]; then
-    echo "RUNNING $1 tests b/c $2 version ($currentVersion) is greater than $3"
+  min=$(printf "2020\n$versionAsNumber\n" | sort -V | head -n1)
+  if [[ "$min" = "2020" && -n "$4" ]]; then
+    # 1. versionAsNumber >=2020, so assume it is a monthly release (or it was a branch
+    #    and is now 9000, in which case it will still pass the check as expected)
+    # 2. monthly release version arg was provided
+    # So, do the version comparison based on monthly release version arg
+    min=$(printf "$4\n$versionAsNumber\n" | sort -V | head -n1)
+    if [ "$min" = "$4" ]; then
+      echo "RUNNING $1 tests b/c $2 version ($currentVersion) is greater than $4"
+    else
+      echo "SKIPPING $1 tests b/c $2 version ($currentVersion) is less than $4"
+      donot $1
+    fi
   else
-    echo "SKIPPING $1 tests b/c $2 version ($currentVersion) is less than $3"
-    donot $1
+    # versionAsNumber is normal semver tag
+    min=$(printf "$3\n$versionAsNumber\n" | sort -V | head -n1)
+    if [ "$min" = "$3" ]; then
+      echo "RUNNING $1 tests b/c $2 version ($currentVersion) is greater than $3"
+    else
+      echo "SKIPPING $1 tests b/c $2 version ($currentVersion) is less than $3"
+      donot $1
+    fi
   fi
 }
+
 
 # little helper to maintain doNotRunRegex
 donot() {
@@ -120,6 +142,7 @@ namespaceName="${KUBECTL_NAMESPACE}"
 service="${service:-""}"
 testedEnv="${testedEnv:-""}"
 isGen3Release="${isGen3Release:false}"
+selectedTest="${selectedTest:-"all"}"
 
 while [[ $# -gt 0 ]]; do
   key="$(echo "$1" | sed -e 's/^-*//' | sed -e 's/=.*$//')"
@@ -140,6 +163,9 @@ while [[ $# -gt 0 ]]; do
       ;;
     isGen3Release)
       isGen3Release="$value"
+      ;;
+    selectedTest)
+      selectedTest="$value"
       ;;
     dryrun)
       isDryRun=true
@@ -181,6 +207,7 @@ Running with:
   service=$service
   testedEnv=$testedEnv
   isGen3Release=$isGen3Release
+  selectedTest=$selectedTest
 EOM
 
 echo 'INFO: installing dependencies'
@@ -194,6 +221,7 @@ runTestsIfServiceVersion "@centralizedAuth" "fence" "3.0.0"
 runTestsIfServiceVersion "@dbgapSyncing" "fence" "3.0.0"
 runTestsIfServiceVersion "@indexRecordConsentCodes" "sheepdog" "1.1.13"
 runTestsIfServiceVersion "@coreMetadataPage" "portal" "2.20.8"
+runTestsIfServiceVersion "@indexing" "portal" "2.26.0" "2020.05"
 
 # environments that use DCF features
 # we only run Google Data Access tests for cdis-manifest PRs to these
@@ -210,6 +238,9 @@ donot '@Performance'
 
 # Do not run manual tests
 donot '@manual'
+
+# Do not run force-fail tests
+donot '@fail'
 
 #
 # Google Data Access tests are only required for some envs
@@ -253,7 +284,12 @@ if [[ -z "$TEST_DATA_PATH" ]]; then
   echo "ERROR: TEST_DATA_PATH env var is not set--cannot find schema in run-tests.sh."
   exit 1
 fi
-if ! jq -re '.|values|map(select(.data_file_properties.consent_codes!=null))|.[]' < "$TEST_DATA_PATH/schema.json" > /dev/null; then
+
+set +e
+ddHasConsentCodes=$(jq -re '.|values|map(select(.data_file_properties.consent_codes!=null))|.[]' < "$TEST_DATA_PATH/schema.json")
+set -e
+
+if [ -z "$ddHasConsentCodes" ]; then
   # do not run tests for consent codes in indexd records if the dictionary's data_file_properties doesn't have consent_codes
   donot '@indexRecordConsentCodes'
 fi
@@ -275,6 +311,25 @@ fi
 # update the version once this change is released
 if ! [[ "$portalVersion" == *"master" ]]; then
   donot '@topBarLogin'
+  donot '@loginRedirect'
+fi
+
+# check if manifest indexing jobs are set in sower block
+# this is a temporary measure while PXP-4796 is not implemented
+set +e
+checkForPresenceOfManifestIndexingSowerJob=$(g3kubectl get cm manifest-sower -o yaml | grep manifest-indexing)
+set -e
+if [ -z "$checkForPresenceOfManifestIndexingSowerJob" ]; then
+  echo "the manifest-indexing sower job was not found, skip @indexing tests"; 
+  donot '@indexing'
+fi
+
+set +e
+checkForPresenceOfMetadataIngestionSowerJob=$(g3kubectl get cm manifest-sower -o yaml | grep get-dbgap-metadata)
+set -e
+if [ -z "$checkForPresenceOfMetadataIngestionSowerJob" ]; then
+  echo "the get-dbgap-metadata sower job was not found, skip @metadataIngestion tests";
+  donot '@metadataIngestion'
 fi
 
 if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1 ||
@@ -306,21 +361,57 @@ fi
 
 exitCode=0
 
-(
-  export NAMESPACE="$namespaceName"
-  export testedEnv="$testedEnv"
-  # no interactive tests
-  export GEN3_INTERACTIVE=false  
-  cat - <<EOM
+# set required vars
+export NAMESPACE="$namespaceName"
+export testedEnv="$testedEnv"
+
+if [ "$selectedTest" == "all" ]; then
+    # no interactive tests
+    export GEN3_INTERACTIVE=false
+    cat - <<EOM
 
 ---------------------------
 Launching test in $NAMESPACE
 EOM
-  dryrun npm 'test' -- $testArgs
-  # 
-  # Do this kind of thing (uncomment the following line, change the grep) 
-  # to limit your test run in jenkins:
-  #    dryrun npm 'test' -- --reporter mocha-multi --verbose --grep '@FRICKJACK'
-) || exitCode=1
+    set +e
+    dryrun npm 'test' -- $testArgs
+    RC=$?
+    #
+    # Do this kind of thing (uncomment the following line, change the grep)
+    # to limit your test run in jenkins:
+    #    dryrun npm 'test' -- --reporter mocha-multi --verbose --grep '@FRICKJACK'
+    exitCode=$RC
+    set -e
+else
+  set +e
+  additionalArgs=""
+  foundReqGoogle=$(grep "@reqGoogle" ${selectedTest})
+  foundDataClientCLI=$(grep "@dataClientCLI" ${selectedTest})
+  if [ -n "$foundReqGoogle" ]; then
+    additionalArgs="--grep @reqGoogle"
+  elif [ -n "$foundDataClientCLI" ]; then
+    additionalArgs="--grep @indexRecordConsentCodes|@dataClientCLI --invert"
+  elif [[ "$selectedTest" == "suites/sheepdogAndPeregrine/submitAndQueryNodesTest.js" && -z "$ddHasConsentCodes" ]]; then
+    additionalArgs="--grep @indexRecordConsentCodes --invert"
+  else
+    additionalArgs="--grep @manual --invert"
+  fi
+  set -e
+  npm 'test' -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
+fi
+
+# When zero tests are executed, a results*.xml file is produced containing a tests="0" counter
+# e.g., output/result57f4d8778c4987bda6a1790eaa703782.xml
+# <testsuites name="Mocha Tests" time="0.0000" tests="0" failures="0">
+ls -ilha output/result*.xml
+cat output/result*.xml  | head -n2 | sed -n -e 's/^<testsuites.*\(tests\=.*\) failures.*/\1/p'
+set +e
+zeroTests=$(cat output/result*.xml  | head -n2 | sed -n -e 's/^<testsuites.*\(tests\=.*\) failures.*/\1/p' | grep "tests=\"0\"")
+set -e
+if [ -n "$zeroTests" ]; then
+  echo "No tests have been executed, aborting PR check..."
+  npm test -- --verbose suites/fail.js
+  exitCode=1
+fi
 
 exit $exitCode

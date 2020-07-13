@@ -1,10 +1,19 @@
-// const explorerProps = require('./explorerProps.js');
-// let I = actor();
+const explorerProps = require('./explorerProps.js');
+// const loginProps = require('../login/loginProps.js');
+// const portal = require('../../../utils/portal.js');
+// const user = require('../../../utils/user.js');
+
+const I = actor();
 
 /**
  * explorer Tasks
  */
 module.exports = {
+
+  goToExplorerPage() {
+    I.amOnPage(explorerProps.path);
+  },
+
   // API Example:
   // getFiles() {
   //   I.sendGetRequest(sheepdog.endpoints.getFile, accessTokenHeaders)

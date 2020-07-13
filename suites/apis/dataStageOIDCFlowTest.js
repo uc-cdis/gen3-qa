@@ -82,15 +82,28 @@ function assembleCustomHeaders(ACCESS_TOKEN) {
   };
 }
 
-function fetchDIDLists(I) {
+function fetchDIDLists(I, params = { hardcodedAuthz: null }) {
   // Only assemble the didList if the list hasn't been initialized
   return new Promise((resolve) => {
+    let projectAccessList = [];
+    let authParam = 'acl';
     I.sendGetRequest(
       `https://${TARGET_ENVIRONMENT}/user/user`,
       { Authorization: `bearer ${I.cache.ACCESS_TOKEN}` },
     ).then((res) => {
       const httpResp = new Gen3Response(res);
-      const projectAccessList = httpResp.data.project_access;
+      // if hardcodedAuthz is set
+      // check if the program/project path is in the /user/user authz output
+      const foundHardcodedAuthzInResponse = Object.keys(httpResp.data.authz).filter((a) => params.hardcodedAuthz === a).join('');
+      console.log(`foundHardcodedAuthzInResponse: ${foundHardcodedAuthzInResponse}`);
+      if (foundHardcodedAuthzInResponse !== '') {
+        console.log('switching the lookup auth param from [acl] to [authz]');
+        authParam = 'authz';
+        projectAccessList = httpResp.data.authz;
+      } else {
+        projectAccessList = httpResp.data.project_access;
+      }
+      // console.log(`projectAccessList: ${projectAccessList}`);
 
       // initialize dict of accessible DIDs
       let ok200files = {}; // eslint-disable-line prefer-const
@@ -102,8 +115,8 @@ function fetchDIDLists(I) {
       I.cache.records.forEach((record) => {
         // console.log('ACLs for ' + record['did'] + ' - ' + record['acl']);
         // Filtering accessible DIDs by checking if the record acl is in the project access list
-        const accessibleDid = record.acl.filter(
-          (acl) => projectAccessList.hasOwnProperty(acl) || record.acl === '*', // eslint-disable-line no-prototype-builtins
+        const accessibleDid = record[authParam].filter(
+          (acl) => projectAccessList.hasOwnProperty(acl) || record[authParam] === '*', // eslint-disable-line no-prototype-builtins
         );
 
         // Put DIDs urls and md5 hash into their respective lists (200 or 401)
@@ -131,7 +144,11 @@ function performPreSignedURLTest(cloudProvider, typeOfTest, typeOfCreds) {
       // Obtain project access list to determine which files(DIDs) the user can access
       // two lists: http 200 files and http 401 files
 
-      const { ok200files, unauthorized401files } = I.didList ? I.didList : await fetchDIDLists(I);
+      const params = TARGET_ENVIRONMENT.includes('theanvil') ? { hardcodedAuthz: '/programs/CF/projects/GTEx' } : {};
+      const { ok200files, unauthorized401files } = I.didList
+        ? I.didList
+        : await fetchDIDLists(I, params);
+
       // positive: _200files | negative: _401files
       const listOfDIDs = typeOfTest === 'positive' ? ok200files : unauthorized401files;
       // AWS: s3:// | Google: gs://

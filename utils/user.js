@@ -8,7 +8,7 @@ const { Bash } = require('./bash');
 
 const bash = new Bash();
 
-const DEFAULT_TOKEN_EXP = 3600;
+const DEFAULT_TOKEN_EXP = 10800;
 let indexdCache = null;
 
 
@@ -191,6 +191,18 @@ module.exports = {
     {
       username: 'dcf-integration-test-2@planx-pla.net',
       accessToken: process.env.GEN3_TOKEN_USER2,
+      ...gCreds,
+    },
+  ),
+
+  /**
+   * Indexing User account
+   * Note that this user has the "indexd_admin" policy
+   */
+  indexingAcct: new User(
+    {
+      username: 'ctds.indexing.test@gmail.com',
+      accessToken: process.env.GEN3_TOKEN_MAIN,
       ...gCreds,
     },
   ),

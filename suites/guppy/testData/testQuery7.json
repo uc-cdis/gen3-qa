@@ -1,37 +1,16 @@
 { 
   "query": "query {
       _aggregation {
-        case {
-          bmiBy10: bmi {
-            histogram(rangeStart: 0, rangeEnd: 100, rangeStep: 10) {
+        subject {
+          bmiBy1: _genotyping_arrays_count {
+            histogram(rangeStart: 0, rangeEnd: 10, rangeStep: 1) {
               key
               count
               avg
             }
           }
-          bmiBy20: bmi {
-            histogram(rangeStart: 0, rangeEnd: 100, rangeStep: 20) {
-              key
-              count
-              avg
-            }
-          }
-          bmiBy50: bmi {
-            histogram(rangeStart: 0, rangeEnd: 100, rangeStep: 50) {
-              key
-              count
-              avg
-            }
-          }
-          bmiIn6Buckets: bmi {
-            histogram(binCount:6) {
-              key
-              count
-              avg
-            }
-          }
-          bmiIn10Buckets: bmi {
-            histogram(binCount:10) {
+          bmiBy2: _genotyping_arrays_count {
+            histogram(rangeStart: 0, rangeEnd: 10, rangeStep: 2) {
               key
               count
               avg

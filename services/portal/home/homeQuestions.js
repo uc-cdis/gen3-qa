@@ -17,7 +17,7 @@ module.exports = {
   },
 
   seeUserLoggedIn(username) {
-    I.waitForText(username, 5);
+    I.waitForText(username, 15);
   },
 
   isLoggedOut(username) {

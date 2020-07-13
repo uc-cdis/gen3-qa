@@ -58,8 +58,14 @@ async function runLoadTestScenario() {
       });
   }
 
+  let influxDBHost = '';
+  if (process.env.RUNNING_LOCAL === 'false') {
+    influxDBHost = 'http://influxdb:8086/loadtests_metrics';
+  } else {
+    influxDBHost = 'http://localhost:8086/db0';
+  }
   // Set fixed list of args for the load test run
-  const loadTestArgs = ['-e', `GEN3_HOST=${targetEnvironment}`, '-e', `ACCESS_TOKEN=${token}`, '-e', `VIRTUAL_USERS="${JSON.stringify(testDescriptorData.virtual_users)}"`, '--out', 'influxdb=http://localhost:8086/db0', `load-testing/${targetService}/${loadTestScenario}.js`];
+  const loadTestArgs = ['-e', `GEN3_HOST=${targetEnvironment}`, '-e', `ACCESS_TOKEN=${token}`, '-e', `VIRTUAL_USERS="${JSON.stringify(testDescriptorData.virtual_users)}"`, '--out', `influxdb=${influxDBHost}`, `load-testing/${targetService}/${loadTestScenario}.js`];
 
   // for additional debugging include the arg below
   // '--http-debug="full"'];
@@ -91,6 +97,12 @@ async function runLoadTestScenario() {
     loadTestArgs.unshift(`GOOGLE_SVC_ACCOUNT=${testDescriptorData.google_svc_account}`);
     loadTestArgs.unshift('-e');
     loadTestArgs.unshift(`GOOGLE_PROJECTS_LIST=${testDescriptorData.google_projects_to_patch.join()}`);
+    loadTestArgs.unshift('-e');
+  }
+
+  // TODO: Move this to a separate utils function
+  if (loadTestScenario === 'import-export-clinical-metada') {
+    loadTestArgs.unshift(`NUM_OF_RECORDS=${testDescriptorData.num_of_records}`);
     loadTestArgs.unshift('-e');
   }
 
@@ -152,6 +164,19 @@ async function runLoadTestScenario() {
 
     generateLib('uuid');
   }
+
+  const browserifyArgs = ['node_modules/uuid/index.js', '-s', 'uuid'];
+  console.log('generating js files for node libs...');
+  const browserifyCmd = spawnSync('node_modules/browserify/bin/cmd.js', browserifyArgs, { stdio: 'pipe' });
+  fs.writeFileSync(
+    'load-testing/libs/uuid.js',
+    browserifyCmd.stdout.toString().slice(1, -1),
+    { encoding: 'utf8', flag: 'w' },
+    (err) => {
+      if (err) console.log(err);
+      console.log(`browserify ${browserifyArgs}`);
+    },
+  );
 
   // The first arg should always be 'run'
   loadTestArgs.unshift('run');

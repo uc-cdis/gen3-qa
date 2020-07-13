@@ -1,38 +1,34 @@
 {
-  "type": "case",
-  "fields": [ 
+  "type": "subject",
+  "fields": [
     "project_id",
     "gender",
-    "bmi",
-    "age_at_index",
-    "diastolic_blood_pressure",
-    "systolic_blood_pressure",
-    "diabetes",
-    "hypertension",
-    "cerebrovascular_disease",
-    "chronic_respiratory_disease",
-    "coronary_artery_disease",
-    "heart_failure",
-    "myocardial_infarction",
-    "stroke",
-    "hypertension_meds",
+    "auth_resource_path",
+    "_aggregated_genotyping_arrays_count",
+    "subject_id",
+    "breed",
+    "_copy_numer_segments_count",
+    "_submitted_unaligned_reads_count",
+    "disease_type",
+    "primary_site",
     "submitter_id"
   ],
   "sort": [
-    { "bmi": "asc" }
+    { "primary_site": "asc" }
   ],
   "filter": {
     "AND": [
       {
         "<": {
-          "age_at_index": 30
+          "_mRNA_microarrays_count": 30
         } 
       }, 
       {
         "=": {
-          "stroke": "Yes"
+          "project_id": "Canine-NHGRI"
         }
       }
     ]
   }
+
 }
