@@ -1,5 +1,6 @@
 const { spawnSync } = require('child_process');
 const fs = require('fs');
+const dummyjson = require('dummy-json');
 const { getJWTData, getAccessTokenFromApiKey } = require('../utils/apiUtil.js');
 const { fetchDIDList } = require('./indexd/indexdLTUtils.js');
 
@@ -13,6 +14,24 @@ if (args.length < 2) {
 const pathToCredentialsJson = args[0];
 const testDescriptorFile = args[1];
 const customArgs = args[2];
+
+async function generateLib(libName) {
+  // generate libs
+  spawnSync('which', ['browserify'], { stdio: 'inherit' });
+
+  const browserifyArgs = [`node_modules/${libName}/index.js`, '-s', libName];
+  console.log('generating js files for node libs...');
+  const browserifyCmd = spawnSync('browserify', browserifyArgs, { stdio: 'pipe' });
+  fs.writeFileSync(
+    `load-testing/libs/${libName}.js`,
+    browserifyCmd.output.toString().slice(1, -1),
+    { encoding: 'utf8', flag: 'w' },
+    (err) => {
+      if (err) console.log(err);
+      console.log(`browserify ${browserifyArgs}`);
+    },
+  );
+}
 
 async function runLoadTestScenario() {
   let testDescriptorData = fs.readFileSync(testDescriptorFile, 'utf8');
@@ -47,6 +66,9 @@ async function runLoadTestScenario() {
   }
   // Set fixed list of args for the load test run
   const loadTestArgs = ['-e', `GEN3_HOST=${targetEnvironment}`, '-e', `ACCESS_TOKEN=${token}`, '-e', `VIRTUAL_USERS="${JSON.stringify(testDescriptorData.virtual_users)}"`, '--out', `influxdb=${influxDBHost}`, `load-testing/${targetService}/${loadTestScenario}.js`];
+
+  // for additional debugging include the arg below
+  // '--http-debug="full"'];
 
   // Expand load test args based on special flags
   // TODO: Move the custom args parsing to a separate utils script
@@ -93,17 +115,62 @@ async function runLoadTestScenario() {
       ? Buffer.from(`${testDescriptorData.basic_auth.username}:${testDescriptorData.basic_auth.password}`).toString('base64') : '';
     loadTestArgs.unshift(`BASIC_AUTH="${basicAuth}"`);
     loadTestArgs.unshift('-e');
+
+    generateLib('uuid');
   }
 
-  // generate libs
-  spawnSync('which', ['browserify'], { stdio: 'inherit' });
+  // TODO: Move this to a separate utils function
+  if (loadTestScenario === 'filter-large-database') {
+    if (!testDescriptorData.skip_json_creation) {
+      const hbsTemplates = testDescriptorData.hbs_templates;
+
+      // load json templates
+      const templates = [];
+      hbsTemplates.forEach((t) => {
+        const templateJson = fs.readFileSync(t, { encoding: 'utf8' });
+        templates.push(templateJson);
+      });
+
+      // Prepare specific values for randomicity
+      const guidTypes = ['indexed_file_object', 'metadata_object'];
+      const genders = ['Male', 'Female'];
+
+      // crete tmp folder to store all the ransom jsons
+      if (!fs.existsSync('load-testing/tmp')) {
+        fs.mkdirSync('load-testing/tmp');
+      }
+
+      for (let i = 1; i <= testDescriptorData.num_of_jsons; i += 1) {
+        const myMockdata = {
+          guid_type: guidTypes[Math.floor(Math.random() * guidTypes.length)],
+          gender: genders[Math.floor(Math.random() * genders.length)],
+        };
+        const randomJSON = dummyjson.parse(
+          templates[Math.floor(Math.random() * templates.length)],
+          { mockdata: myMockdata },
+        );
+        fs.writeFileSync(`load-testing/tmp/${i}.json`, randomJSON, (err) => {
+          if (err) return console.log(err);
+          console.log(`json ${i}.json has been created in the /tmp folder.`);
+          return 'ok';
+        });
+      }
+    }
+    loadTestArgs.unshift(`NUM_OF_JSONS="${testDescriptorData.num_of_jsons}"`);
+    loadTestArgs.unshift('-e');
+
+    loadTestArgs.unshift(`API_KEY="${apiKey}"`);
+    loadTestArgs.unshift('-e');
+
+    generateLib('uuid');
+  }
 
   const browserifyArgs = ['node_modules/uuid/index.js', '-s', 'uuid'];
   console.log('generating js files for node libs...');
   const browserifyCmd = spawnSync('node_modules/browserify/bin/cmd.js', browserifyArgs, { stdio: 'pipe' });
   fs.writeFileSync(
     'load-testing/libs/uuid.js',
-    browserifyCmd.stdout.toString().slice(1, -1),
+    browserifyCmd.output.toString().slice(1, -1),
     { encoding: 'utf8', flag: 'w' },
     (err) => {
       if (err) console.log(err);
