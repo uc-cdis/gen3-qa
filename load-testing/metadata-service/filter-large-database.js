@@ -23,6 +23,7 @@ for (let i = 1; i <= numOfJsons; i += 1) {
   const j = open(`../tmp/${i}.json`); // eslint-disable-line no-restricted-globals
   jsons.push(j);
 }
+console.log(`num of jsons in the list: ${jsons.length}`);
 
 export const options = {
   stages: JSON.parse(VIRTUAL_USERS.slice(1, -1)),
@@ -34,11 +35,8 @@ export const options = {
 };
 
 export default function () {
-  console.log(`num of jsons in the list: ${jsons.length}`);
   const apiKey = API_KEY.slice(1, -1);
   const accessToken = ACCESS_TOKEN;
-
-  console.log(`accessToken: ${accessToken}`);
 
   const jsonIndex = __ITER % numOfJsons; // eslint-disable-line no-undef
   console.log(`jsonIndex: ${jsonIndex}`);

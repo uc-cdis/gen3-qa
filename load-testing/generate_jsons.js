@@ -1,16 +1,16 @@
-const dummyjson = require('./libs/dummy-json.js');
-var fs = require('fs');
+const fs = require('fs');
+const dummyjson = require('dummy-json'); //
 
-var template = fs.readFileSync('load-testing/metadata-service/templates/template-simple.hbs', {encoding: 'utf8'});
+const template = fs.readFileSync('load-testing/metadata-service/templates/template-simple.hbs', { encoding: 'utf8' });
 
-guid_types = ['indexed_file_object', 'metadata_object']
-genders = ['Male', 'Female']
+const guidTypes = ['indexed_file_object', 'metadata_object'];
+const genders = ['Male', 'Female'];
 
-var myMockdata = {
-  guid_type: guid_types[Math.floor(Math.random() * guid_types.length)],
-  gender: genders[Math.floor(Math.random() * genders.length)]
-}
+const myMockdata = {
+  guid_type: guidTypes[Math.floor(Math.random() * guidTypes.length)],
+  gender: genders[Math.floor(Math.random() * genders.length)],
+};
 
-var result = dummyjson.parse(template, {mockdata: myMockdata});
+const result = dummyjson.parse(template, { mockdata: myMockdata });
 
 console.log(`result: ${result}`);
