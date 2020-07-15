@@ -31,7 +31,7 @@ const expectedMetadataForAssertions = {
 
 AfterSuite(async (I) => {
   console.log('deleting temporary bucket...');
-  const deletingTempBucket = bash.runCommand(`gen3 bucket-manifest cleanup`);
+  const deletingTempBucket = bash.runCommand(`echo yes | gen3 bucket-manifest cleanup <job id>`);
   console.log(`deletingTempBucket: ${deletingTempBucket}`);
 });
 
