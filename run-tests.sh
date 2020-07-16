@@ -363,6 +363,9 @@ exitCode=0
 
 # set required vars
 export NAMESPACE="$namespaceName"
+if [[ "$testedEnv" == "ci-env-1.planx-pla.net" ]]; then
+  export GCLOUD_DYNAMIC_PROJECT="gen3qa-ci-env-1-279903"
+fi
 export testedEnv="$testedEnv"
 
 if [ "$selectedTest" == "all" ]; then
