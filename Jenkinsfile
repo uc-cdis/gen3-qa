@@ -1,6 +1,6 @@
 #!groovy
 
-@Library('cdis-jenkins-lib@chore/faster_gen3_reset_to_replay_PRs') _
+@Library('cdis-jenkins-lib@chore/support_multiple_test_labels') _
 
 testPipeline {
   // tell the pipeline to not checkout `gen3-qa:master`
