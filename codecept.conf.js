@@ -96,6 +96,8 @@ exports.config = {
           mochaFile: 'output/result[hash].xml',
           verbose: true,
           steps: true,
+          testCaseSwitchClassnameAndName: true,
+          jenkinsMode: true,
         },
       },
     },

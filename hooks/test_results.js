@@ -134,4 +134,13 @@ module.exports = function () {
       });
     }
   });
+
+  event.dispatcher.on(event.suite.after, (suite) => {
+    console.log('***AFTER SUITE****');
+    console.log(`SUITE FILE: ${suite.file}`);
+    const j = suite.file.split('/');
+    const testSelectionLabel = `test-${j[j.length-2]}-${j[j.length-1]}`; // eslint-disable-line space-infix-ops
+    suite.title = `${suite.title}: ${testSelectionLabel}`;
+    console.log(`SUITE: ${suite.title}`);
+  });
 };
