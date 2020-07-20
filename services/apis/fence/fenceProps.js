@@ -476,9 +476,9 @@ module.exports = {
     // -has a parent organization:            false
     // -has service acct with invalid type:   false
     // -has a service acct with key:          false
-    id: 'gen3qa-NAMESPACE',
+    id: process.env.GCLOUD_DYNAMIC_PROJECT !== undefined ? process.env.GCLOUD_DYNAMIC_PROJECT : 'gen3qa-NAMESPACE',
     // id: 'gen3qa-validationjobtest',
-    serviceAccountEmail: 'service-account@gen3qa-NAMESPACE.iam.gserviceaccount.com',
+    serviceAccountEmail: process.env.GCLOUD_DYNAMIC_PROJECT !== undefined ? `service-account@${process.env.GCLOUD_DYNAMIC_PROJECT}.iam.gserviceaccount.com` : 'service-account@gen3qa-NAMESPACE.iam.gserviceaccount.com',
     defaultIsValidGCP: true,
     owner: 'gen3.autotest@gmail.com',
   },
