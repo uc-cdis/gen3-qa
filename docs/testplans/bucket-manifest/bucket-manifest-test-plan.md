@@ -7,7 +7,7 @@ This facilitates the indexing of a given bucket that already contains clinical f
 ## How to use
 From the Admin VM, an environment administrator can trigger the utility through the Gen3 CLI:
 ```bash
-gen3 bucket-manifest create my-test-bucket
+gen3 bucket-manifest --create --bucket my-test-bucket
 ```
 ## Tests
 The initial coverage comprises the following scenarios:
