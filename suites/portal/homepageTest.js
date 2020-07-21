@@ -9,7 +9,7 @@ Scenario('login @portal', (home) => {
 
 // To be merged with the above once all Commons move to portal version
 // with top bar login button
-Scenario('login @portal @topBarLogin', (home) => {
+Scenario('login @portal @topBarLogin', () => {
   home.do.goToHomepage();
   home.complete.topBarLogin();
   home.ask.seeDetails();
