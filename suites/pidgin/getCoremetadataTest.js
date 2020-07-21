@@ -8,7 +8,7 @@ Feature('GetCoreMetadata');
 let valid_file;
 let invalid_id_file;
 
-Scenario('test core metadata @coreMetadata', async (pidgin, users) => {
+Scenario('test core metadata @coreMetadata', async (users) => {
   let metadata = await pidgin.do.getCoremetadata(valid_file, 'application/json', users.mainAcct.accessTokenHeader);
   pidgin.ask.seeJsonCoremetadata(valid_file, metadata);
 
