@@ -9,7 +9,6 @@
 Feature('Bucket Manifest Generation');
 
 const { expect } = require('chai');
-const fs = require('fs');
 const tsv = require('tsv');
 const { checkPod, sleepMS } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
@@ -18,8 +17,7 @@ const bash = new Bash();
 
 const testBucket = 'bucket-manifest-ci-test';
 /* eslint-disable no-tabs */
-const contentsOfAuthzMapping = `url	authz
-s3://bucket-manifest-ci-test/test-file.txt	/programs/DEV/project/test`;
+const contentsOfAuthzMapping = 'url\tauthz\ns3://bucket-manifest-ci-test/test-file.txt\t/programs/DEV/project/test';
 
 const expectedMetadataForAssertions = {
   test_file: {
@@ -36,19 +34,19 @@ const expectedMetadataForAssertions = {
   },
 };
 
-function deleteLingeringInfra() {
+async function deleteLingeringInfra() {
   console.log('deleting manifest_bucket-manifest-ci-test*.tsv files...');
   /* eslint-disable no-useless-escape */
-  bash.runCommand(`
+  await bash.runCommand(`
     find . -name "manifest_bucket-manifest-ci-test*.tsv" -exec rm {} \\\; -exec echo "deleted {}" \\\;
   `);
   console.log('deleting authz_mapping_*.tsv files...');
-  bash.runCommand(`
+  await bash.runCommand(`
     find . -name "authz_mapping_*.tsv" -exec rm {} \\\; -exec echo "deleted {}" \\\;
   `);
 
-  console.log('deleting infra from previous runs that might\'ve been interrupted...');
-  const lingeringInfra = bash.runCommand(`
+  console.log('looking for lingering bucket-manifest jobs...');
+  const lingeringInfra = await bash.runCommand(`
     gen3 bucket-manifest --list | xargs -i echo "{} "
   `);
 
@@ -56,43 +54,47 @@ function deleteLingeringInfra() {
     console.log(`Found jobs in this namespace:\n  ${lingeringInfra}`);
     const jobIdsFromPreviousRuns = lingeringInfra.trim().split(' ');
 
-    jobIdsFromPreviousRuns.forEach((jobId) => {
+    jobIdsFromPreviousRuns.forEach(async (jobId) => {
       console.log(`Tearing down infrastructure from job ${jobId}`);
-      bash.runCommand(`
+      await bash.runCommand(`
         echo yes | gen3 bucket-manifest --cleanup --job-id ${jobId}
       `);
     });
   }
 }
 
-BeforeSuite(async (I, files) => {
-  deleteLingeringInfra();
+BeforeSuite(async (I) => {
+  console.log('deleting infra from previous runs that might\'ve been interrupted...');
+  await deleteLingeringInfra();
 
   console.log('Setting up dependencies...');
   I.cache = {};
   I.cache.UNIQUE_NUM = Date.now();
 
-  // create authz mapping file
-  await files.createTmpFile(`authz_mapping_${I.cache.UNIQUE_NUM}.tsv`, contentsOfAuthzMapping);
+  console.log('creating authz mapping file...');
+  const authzMappingFile = await bash.runCommand(`
+    echo -e \"${contentsOfAuthzMapping}\" | tee -a authz_mapping_${I.cache.UNIQUE_NUM}.tsv
+  `);
+  console.log(`authzMappingFile: ${authzMappingFile}`);
 });
 
 AfterSuite(async (I) => {
   console.log(`I.cache: ${JSON.stringify(I.cache)}`);
-  deleteLingeringInfra();
+  // await deleteLingeringInfra();
 });
 
 // Scenario #1 - Generate indexd manifest out of an s3 bucket
 // and check if the expected url, size, md5 and authz entries are in place
 Scenario('Generate bucket manifest from s3 bucket @bucketManifest', async (I) => {
-  const theCmd = `gen3 bucket-manifest --create-jenkins --bucket ${testBucket} --authz ${__dirname}/authz_mapping_${I.cache.UNIQUE_NUM}.tsv`;
+  const theCmd = `gen3 bucket-manifest --create-jenkins --bucket ${testBucket} --authz $PWD/authz_mapping_${I.cache.UNIQUE_NUM}.tsv`;
   console.log(`Running command: ${theCmd}`);
-  bash.runCommand(theCmd);
+  await bash.runCommand(theCmd);
   console.log('gen3 bucket-manifest process initiated. Waiting for infrastructure provisioning...');
 
   await sleepMS(20000);
-  await checkPod('aws-bucket-manifest', 'gen3job', params = { nAttempts: 40, ignoreFailure: false }); // eslint-disable-line no-undef
+  await checkPod('aws-bucket-manifest', 'gen3job', params = { nAttempts: 50, ignoreFailure: false }); // eslint-disable-line no-undef
 
-  const bucketManifestList = bash.runCommand(`
+  const bucketManifestList = await bash.runCommand(`
     gen3 bucket-manifest --list | xargs -i echo "{} "
   `);
   console.log(`bucketManifestList: ${bucketManifestList}`);
@@ -101,27 +103,21 @@ Scenario('Generate bucket manifest from s3 bucket @bucketManifest', async (I) =>
     throw new Error(`ERROR: Found more than one jobId on namespace ${process.env.KUBECTL_NAMESPACE}.`);
   }
 
-  const bucketManifestJobStatus = bash.runCommand(`
-    gen3 bucket-manifest --status --job-id ${bucketManifestList.trim()} | tail -n10
+  // read contents of the paramFile.json containing the bucket name
+  const bucketManifestJobDataRaw = await bash.runCommand(`
+    cat paramFile.json
   `);
-  console.log(`bucketManifestJobStatus: ${bucketManifestJobStatus}`);
-
-  const contentsOfTheFolder = bash.runCommand(`
-    ls -ilha
-  `);
-  console.log(`contentsOfTheFolder: ${contentsOfTheFolder}`);
-
-  const bucketManifestJobDataRaw = fs.readFileSync('paramFile.json', 'utf8');
+  console.log(`bucketManifestJobDataRaw: ${bucketManifestJobDataRaw}`);
   const bucketManifestJobData = JSON.parse(bucketManifestJobDataRaw);
 
   // Assertion - Job ID found in paramFile.json matches the output of gen3 bucket-manifest --list
   expect(bucketManifestJobData.job_id, 'The JobID found in paramFile.json does not match the id from [gen3 bucket-manifest --list]').to.be.equal(bucketManifestList.trim());
-  // Store jobId to cleanup later
-  I.cache.jobId = bucketManifestJobData.job_id;
 
-  const listContentsOfTempBucketRaw = bash.runCommand(`
+  const listContentsOfTempBucketRaw = await bash.runCommand(`
     aws s3 ls s3://${bucketManifestJobData.bucket_name} | grep manifest_
   `);
+  console.log(`listContentsOfTempBucketRaw: ${listContentsOfTempBucketRaw}`);
+
   const listContentsOfTempBucket = listContentsOfTempBucketRaw.split(/\s+/);
   console.log(`listContentsOfTempBucket: ${listContentsOfTempBucket}`);
 
@@ -131,13 +127,16 @@ Scenario('Generate bucket manifest from s3 bucket @bucketManifest', async (I) =>
 
   const bucketManifestFile = listContentsOfTempBucket[listContentsOfTempBucket.length - 1];
 
-  const downloadManifestFromTempBucket = bash.runCommand(`
+  const downloadManifestFromTempBucket = await bash.runCommand(`
     aws s3 cp s3://${bucketManifestJobData.bucket_name}/${bucketManifestFile} .
   `);
   console.log(`downloadManifestFromTempBucket: ${downloadManifestFromTempBucket}`);
 
   // read contents of the manifest
-  const bucketManifestContentsRaw = fs.readFileSync(bucketManifestFile, { encoding: 'utf8' });
+  const bucketManifestContentsRaw = await bash.runCommand(`
+    cat bucketManifestFile
+  `);
+  console.log(`bucketManifestContentsRaw: ${bucketManifestContentsRaw}`);
   const bucketManifestTSV = tsv.parse(bucketManifestContentsRaw);
 
   // Final assertions
