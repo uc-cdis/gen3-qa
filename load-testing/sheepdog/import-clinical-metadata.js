@@ -44,7 +44,7 @@ export default function () {
       submitter_id: 'study_f2246d2c4d',
     },
     '*consent_codes': [],
-    project_id: 'DEV-test',
+    project_id: 'jnkns-jenkins',
     '*submitter_id': `subject_6769d601552${__ITER}`, // eslint-disable-line no-undef
     transplanted_organ: '1671409e2e',
     unit_geographic_site: 'a0761970f8',
