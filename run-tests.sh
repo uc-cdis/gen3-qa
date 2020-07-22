@@ -266,6 +266,13 @@ else
   echo "INFO: enabling Centralized Auth tests for $service"
 fi
 
+# Focus on GUI tests for data-portal
+if [[ "$service" == "data-portal" ]]; then
+  echo "INFO: disabling tests involving RESTful APIs & Gen3 CLI / Batch operations for $service"
+  donot '@metadataIngestion'
+  donot '@batch'
+fi
+
 echo "Checking kubernetes for optional services to test"
 if ! (g3kubectl get pods --no-headers -l app=spark | grep spark) > /dev/null 2>&1; then
   donot '@etl'
