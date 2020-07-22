@@ -26,7 +26,7 @@ export const options = {
 };
 
 export default function () {
-  const url = `https://${GEN3_HOST}/api/v0/submission/DEV/test/`;
+  const url = `https://${GEN3_HOST}/api/v0/submission/jnkns/jenkins/`;
   console.log(`sending req to: ${url}`);
   const params = {
     headers: {
