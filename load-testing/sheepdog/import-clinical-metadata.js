@@ -29,7 +29,7 @@ export default function () {
   const program = 'DEV';
   const project = 'test';
   const url = `https://${GEN3_HOST}/api/v0/submission/${program}/${project}/`;
-  console.log(`sending req to: ${url}`);
+  // console.log(`sending req to: ${url}`);
   const params = {
     headers: {
       'Content-Type': 'application/json',
@@ -55,9 +55,9 @@ export default function () {
     geographic_site: 'c75bf740d9',
   };
   const strBody = JSON.stringify(body);
-  console.log(`debugging: ${JSON.stringify(body)}`);
+  // console.log(`debugging: ${JSON.stringify(body)}`);
 
-  console.log(`submitting subject data: subject_6769d601552${__ITER}`); // eslint-disable-line no-undef
+  // console.log(`submitting: subject_6769d601552${__ITER}`); // eslint-disable-line no-undef
 
   group('Importing and exporting clinical metadata', () => {
     // TODO: Come up with a way to interrupt the load test
@@ -66,10 +66,10 @@ export default function () {
     // if (__ITER < NUM_OF_RECORDS) { // eslint-disable-line no-undef
     group('http put', () => {
       const res = http.put(url, strBody, params, { tags: { name: 'Sheepdog-data-submission' } });
-      console.log(`Request performed: ${new Date()}`);
+      // console.log(`Request performed: ${new Date()}`);
       myFailRate.add(res.status !== 200);
       if (res.status !== 200) {
-        console.log(`Request response: ${res.status}`);
+        // console.log(`Request response: ${res.status}`);
         console.log(`Request response: ${res.body}`);
       }
       check(res, {
