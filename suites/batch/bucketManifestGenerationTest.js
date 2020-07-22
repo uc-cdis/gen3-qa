@@ -123,7 +123,7 @@ Scenario('Generate bucket manifest from s3 bucket @bucketManifest', async (I) =>
 
   // Assertion - The temp bucket has been populated properly
   // e.g., 2020-07-21 02:24:26        184 manifest_bucket-manifest-ci-test_07_21_20_02:24:25.tsv
-  expect(listContentsOfTempBucket).to.have.lengthOf(3);
+  expect(listContentsOfTempBucket).to.have.lengthOf(4);
 
   const bucketManifestFile = listContentsOfTempBucket[listContentsOfTempBucket.length - 1];
 
@@ -134,7 +134,7 @@ Scenario('Generate bucket manifest from s3 bucket @bucketManifest', async (I) =>
 
   // read contents of the manifest
   const bucketManifestContentsRaw = await bash.runCommand(`
-    cat bucketManifestFile
+    cat ${bucketManifestFile}
   `);
   console.log(`bucketManifestContentsRaw: ${bucketManifestContentsRaw}`);
   const bucketManifestTSV = tsv.parse(bucketManifestContentsRaw);
