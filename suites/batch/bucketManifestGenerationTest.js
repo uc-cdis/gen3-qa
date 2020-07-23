@@ -80,7 +80,7 @@ BeforeSuite(async (I) => {
 
 AfterSuite(async (I) => {
   console.log(`I.cache: ${JSON.stringify(I.cache)}`);
-  // await deleteLingeringInfra();
+  await deleteLingeringInfra();
 });
 
 // Scenario #1 - Generate indexd manifest out of an s3 bucket
