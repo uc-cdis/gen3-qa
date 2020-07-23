@@ -110,9 +110,6 @@ Scenario('Generate bucket manifest from s3 bucket @bucketManifest', async (I) =>
   console.log(`bucketManifestJobDataRaw: ${bucketManifestJobDataRaw}`);
   const bucketManifestJobData = JSON.parse(bucketManifestJobDataRaw);
 
-  // Assertion - Job ID found in paramFile.json matches the output of gen3 bucket-manifest --list
-  expect(bucketManifestJobData.job_id, 'The JobID found in paramFile.json does not match the id from [gen3 bucket-manifest --list]').to.be.equal(bucketManifestList.trim());
-
   const listContentsOfTempBucketRaw = await bash.runCommand(`
     aws s3 ls s3://${bucketManifestJobData.bucket_name} | grep manifest_
   `);
