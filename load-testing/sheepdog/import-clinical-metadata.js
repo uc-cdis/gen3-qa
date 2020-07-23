@@ -1,4 +1,6 @@
-import uuid from "./uuid.js"; // add `browserify node_modules/uuid/index.js -s uuid > uuid.js` to the job after `npm install`
+/* eslint-disable space-infix-ops */
+/* eslint-disable no-mixed-operators */
+/* eslint-disable no-bitwise */
 
 const {
   check,
@@ -29,6 +31,10 @@ export const options = {
 };
 
 export default function () {
+  function uuidv4() {
+    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, (c) => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
+  }
+
   const program = 'DEV';
   const project = 'test';
   const url = `https://${GEN3_HOST}/api/v0/submission/${program}/${project}/`;
@@ -50,7 +56,7 @@ export default function () {
     },
     '*consent_codes': [],
     project_id: `${program}-${project}`,
-    '*submitter_id': uuid.v4(),
+    '*submitter_id': uuidv4(),
     transplanted_organ: '1671409e2e',
     unit_geographic_site: 'a0761970f8',
     '*type': 'subject',
