@@ -137,8 +137,8 @@ Scenario('Generate bucket manifest from s3 bucket @bucketManifest', async (I) =>
   const bucketManifestTSV = tsv.parse(bucketManifestContentsRaw);
 
   // Final assertions
-  ['humongous_file', 'test_file'].forEach((typeOfFile, idx) => {
-    Object.keys(expectedMetadataForAssertions).forEach((assertionKey) => {
+  ['test_file', 'humongous_file'].forEach((typeOfFile, idx) => {
+    Object.keys(expectedMetadataForAssertions[typeOfFile]).forEach((assertionKey) => {
       console.log(`Running assertion for ${typeOfFile} (index: ${idx}) - TSV header: ${assertionKey}...`);
       const assertionFailureMsg = `The ${assertionKey} in the bucket manifest doesn't match the expected value for the ${typeOfFile}.`;
       expect(
