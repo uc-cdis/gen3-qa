@@ -242,6 +242,9 @@ donot '@manual'
 # Do not run force-fail tests
 donot '@fail'
 
+# Do not run batch processing tests
+donot '@batch'
+
 #
 # Google Data Access tests are only required for some envs
 #
@@ -270,7 +273,6 @@ fi
 if [[ "$service" == "data-portal" ]]; then
   echo "INFO: disabling tests involving RESTful APIs & Gen3 CLI / Batch operations for $service"
   donot '@metadataIngestion'
-  donot '@batch'
 fi
 
 echo "Checking kubernetes for optional services to test"
