@@ -135,6 +135,7 @@ Scenario('Generate bucket manifest from s3 bucket @bucketManifest', async (I) =>
   `);
   console.log(`bucketManifestContentsRaw: ${bucketManifestContentsRaw}`);
   const bucketManifestTSV = tsv.parse(bucketManifestContentsRaw);
+  console.log(`bucketManifestTSV: ${JSON.stringify(bucketManifestTSV)}`);
 
   // Final assertions
   ['test_file', 'humongous_file'].forEach((typeOfFile, idx) => {
