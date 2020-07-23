@@ -6,6 +6,7 @@ const {
 } = require('k6'); // eslint-disable-line import/no-unresolved
 const http = require('k6/http'); // eslint-disable-line import/no-unresolved
 const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresolved
+const { v4: uuidv4 } = require('uuid');
 
 const {
 //  NUM_OF_RECORDS,
@@ -47,7 +48,7 @@ export default function () {
     },
     '*consent_codes': [],
     project_id: `${program}-${project}`,
-    '*submitter_id': `subject_99769d6015${__ITER}`, // eslint-disable-line no-undef
+    '*submitter_id': uuidv4(), // eslint-disable-line no-undef
     transplanted_organ: '1671409e2e',
     unit_geographic_site: 'a0761970f8',
     '*type': 'subject',
