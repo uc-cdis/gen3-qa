@@ -18,6 +18,6 @@
   "virtual_users": [
     { "duration": "1s", "target": 1 },
     { "duration": "5s", "target": 1 },
-    { "duration": "14400s", "target": 1 }
+    { "duration": "35000s", "target": 1 }
   ]
 }
