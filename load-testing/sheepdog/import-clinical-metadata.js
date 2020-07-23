@@ -47,7 +47,7 @@ export default function () {
     },
     '*consent_codes': [],
     project_id: `${program}-${project}`,
-    '*submitter_id': `subject_6769d601552${__ITER}`, // eslint-disable-line no-undef
+    '*submitter_id': `subject_96769d6015${__ITER}`, // eslint-disable-line no-undef
     transplanted_organ: '1671409e2e',
     unit_geographic_site: 'a0761970f8',
     '*type': 'subject',
@@ -76,8 +76,8 @@ export default function () {
         'is status 200': (r) => r.status === 200,
       });
     });
-    group('wait 0.5s between requests', () => {
-      sleep(0.5);
+    group('wait 0.1s between requests', () => {
+      sleep(0.1);
     });
     // } else {
     //   fail(`${__ITER} records created on ${GEN3_HOST}`); // eslint-disable-line no-undef
