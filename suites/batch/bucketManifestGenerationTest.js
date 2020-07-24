@@ -20,23 +20,21 @@ const testBucket = 'bucket-manifest-ci-test';
 const contentsOfAuthzMapping = 'url\tauthz\ns3://bucket-manifest-ci-test/test-file.txt\t/programs/DEV/project/test';
 
 const expectedMetadataForAssertions = {
-  humongous_file: {
-    url: 's3://bucket-manifest-ci-test/humongous-file.bam',
-    size: 5242880,
-    md5: '5f363e0e58a95f06cbe9bbc662c5dfb6',
-    authz: '',
-  },
   test_file: {
     url: 's3://bucket-manifest-ci-test/test-file.txt',
     size: 21,
     md5: 'b36827811d9f452c42caa9043cf0dbf6',
     authz: '/programs/DEV/project/test',
   },
+  humongous_file: {
+    url: 's3://bucket-manifest-ci-test/humongous-file.bam',
+    size: 5242880,
+    md5: '5f363e0e58a95f06cbe9bbc662c5dfb6',
+    authz: '',
+  },
 };
 
 async function deleteLingeringInfra() {
-  // THIS FUNCTION ONLY WORKS WHEN RUNNING THE TEST LOCALLY
-  // SOME ADDITIONAL LOGIC IS NEEDED TO RUN THIS IN JENKINS
   console.log('deleting manifest_bucket-manifest-ci-test*.tsv files...');
   /* eslint-disable no-useless-escape */
   await bash.runCommand(`
@@ -138,11 +136,14 @@ Scenario('Generate bucket manifest from s3 bucket @bucketManifest', async (I) =>
   `);
   bucketManifestContentsRaw = bucketManifestContentsRaw.replace(/\[EOL\]/g, '\n');
   console.log(`bucketManifestContentsRaw: ${bucketManifestContentsRaw}`);
-  const bucketManifestTSV = tsv.parse(bucketManifestContentsRaw);
+  let bucketManifestTSV = tsv.parse(bucketManifestContentsRaw);
   console.log(`bucketManifestTSV: ${JSON.stringify(bucketManifestTSV)}`);
 
+  bucketManifestTSV = bucketManifestTSV.sort((a, b) => a.size - b.size);
+  console.log(`sorted bucketManifestTSV: ${JSON.stringify(bucketManifestTSV)}`);
+
   // Final assertions
-  const files = ['humongous_file', 'test_file'];
+  const files = ['test_file', 'humongous_file'];
   for (let i = 0; i < files.length; i++) { // eslint-disable-line no-plusplus
     Object.keys(expectedMetadataForAssertions[files[i]]).forEach((assertionKey) => {
       console.log(`Running assertion for ${files[i]} (index: ${i}) - TSV header: ${assertionKey}...`);
