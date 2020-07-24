@@ -86,7 +86,7 @@ AfterSuite(async (I) => {
 // Scenario #1 - Generate indexd manifest out of an s3 bucket
 // and check if the expected url, size, md5 and authz entries are in place
 Scenario('Generate bucket manifest from s3 bucket @bucketManifest', async (I) => {
-  const theCmd = `gen3 bucket-manifest --create-jenkins --bucket ${testBucket} --authz $PWD/authz_mapping_${I.cache.UNIQUE_NUM}.tsv`;
+  const theCmd = `gen3 bucket-manifest --create --bucket ${testBucket} --authz $PWD/authz_mapping_${I.cache.UNIQUE_NUM}.tsv --output-variables`;
   console.log(`Running command: ${theCmd}`);
   await bash.runCommand(theCmd);
   console.log('gen3 bucket-manifest process initiated. Waiting for infrastructure provisioning...');
