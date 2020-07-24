@@ -20,17 +20,17 @@ const testBucket = 'bucket-manifest-ci-test';
 const contentsOfAuthzMapping = 'url\tauthz\ns3://bucket-manifest-ci-test/test-file.txt\t/programs/DEV/project/test';
 
 const expectedMetadataForAssertions = {
-  test_file: {
-    url: 's3://bucket-manifest-ci-test/test-file.txt',
-    size: 21,
-    md5: 'b36827811d9f452c42caa9043cf0dbf6',
-    authz: '/programs/DEV/project/test',
-  },
   humongous_file: {
     url: 's3://bucket-manifest-ci-test/humongous-file.bam',
     size: 5242880,
     md5: '5f363e0e58a95f06cbe9bbc662c5dfb6',
     authz: '',
+  },
+  test_file: {
+    url: 's3://bucket-manifest-ci-test/test-file.txt',
+    size: 21,
+    md5: 'b36827811d9f452c42caa9043cf0dbf6',
+    authz: '/programs/DEV/project/test',
   },
 };
 
@@ -142,14 +142,15 @@ Scenario('Generate bucket manifest from s3 bucket @bucketManifest', async (I) =>
   console.log(`bucketManifestTSV: ${JSON.stringify(bucketManifestTSV)}`);
 
   // Final assertions
-  ['test_file', 'humongous_file'].forEach((typeOfFile, idx) => {
-    Object.keys(expectedMetadataForAssertions[typeOfFile]).forEach((assertionKey) => {
-      console.log(`Running assertion for ${typeOfFile} (index: ${idx}) - TSV header: ${assertionKey}...`);
-      const assertionFailureMsg = `The ${assertionKey} in the bucket manifest doesn't match the expected value for the ${typeOfFile}.`;
+  const files = ['humongous_file', 'test_file'];
+  for (let i = 0; i < files.length; i++) { // eslint-disable-line no-plusplus
+    Object.keys(expectedMetadataForAssertions[files[i]]).forEach((assertionKey) => {
+      console.log(`Running assertion for ${files[i]} (index: ${i}) - TSV header: ${assertionKey}...`);
+      const assertionFailureMsg = `The ${assertionKey} in the bucket manifest doesn't match the expected value for the ${files[i]}.`;
       expect(
-        bucketManifestTSV[idx][assertionKey],
+        bucketManifestTSV[i][assertionKey],
         assertionFailureMsg,
-      ).to.be.equal(expectedMetadataForAssertions[typeOfFile][assertionKey]);
+      ).to.be.equal(expectedMetadataForAssertions[files[i]][assertionKey]);
     });
-  });
+  }
 });
