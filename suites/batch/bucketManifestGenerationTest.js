@@ -35,6 +35,8 @@ const expectedMetadataForAssertions = {
 };
 
 async function deleteLingeringInfra() {
+  // THIS FUNCTION ONLY WORKS WHEN RUNNING THE TEST LOCALLY
+  // SOME ADDITIONAL LOGIC IS NEEDED TO RUN THIS IN JENKINS
   console.log('deleting manifest_bucket-manifest-ci-test*.tsv files...');
   /* eslint-disable no-useless-escape */
   await bash.runCommand(`
@@ -130,9 +132,11 @@ Scenario('Generate bucket manifest from s3 bucket @bucketManifest', async (I) =>
   console.log(`downloadManifestFromTempBucket: ${downloadManifestFromTempBucket}`);
 
   // read contents of the manifest
-  const bucketManifestContentsRaw = await bash.runCommand(`
-    cat ${bucketManifestFile}
+  // replacing EOL (End Of Line) after receiving the one-line string from bash
+  let bucketManifestContentsRaw = await bash.runCommand(`
+    cat ${bucketManifestFile} | xargs -i echo "{}[EOL]"
   `);
+  bucketManifestContentsRaw = bucketManifestContentsRaw.replace(/\[EOL\]/g, '\n');
   console.log(`bucketManifestContentsRaw: ${bucketManifestContentsRaw}`);
   const bucketManifestTSV = tsv.parse(bucketManifestContentsRaw);
   console.log(`bucketManifestTSV: ${JSON.stringify(bucketManifestTSV)}`);
