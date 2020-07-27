@@ -71,9 +71,12 @@ which python3.6
 python3.6 --version
 /usr/bin/curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | POETRY_PREVIEW=1 python3.6
 sed -i '1 s/\<python\>/python3.6/' $HOME/.poetry/bin/poetry
+source $HOME/.poetry/env
 $HOME/.poetry/bin/poetry env use python3.6
 $HOME/.poetry/bin/poetry env use python3.6
 $HOME/.poetry/bin/poetry install -vv
+
+sleep 30000
 #python setup.py develop --user
 
 # Fail script if any of following commands fail
