@@ -70,7 +70,7 @@ python --version
 which python3.6
 python3.6 --version
 /usr/bin/curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | POETRY_VERSION=1.0.9 python3.6
-sed -i '1 s/\<python\>/python3/' $HOME/.poetry/bin/poetry
+# sed -i '1 s/\<python\>/python3/' $HOME/.poetry/bin/poetry
 more $HOME/.poetry/bin/poetry
 source $HOME/.poetry/env
 $HOME/.poetry/bin/poetry install -vv
