@@ -66,7 +66,7 @@ export HOME="${WORKSPACE:-$HOME}"
 # only poetry 1.1+ works (still a prevview version now)
 # stable version poetry fails to work because it  depends on pythen3-venv
 # from poetry 1.1 they build virtual envs with virtualenv, see https://github.com/python-poetry/poetry/releases/tag/1.1.0b1
-/usr/bin/curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | POETRY_PREVIEW=1 python3.6
+/usr/bin/curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | POETRY_VERSION=1.1.0b2 python3.6
 # make sure poetry is using python 3.6
 sed -i '1 s/\<python\>/python3.6/' $HOME/.poetry/bin/poetry
 # these steps are needed to ensure virtualenv creates and activates successfully
