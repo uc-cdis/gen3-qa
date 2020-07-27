@@ -68,11 +68,10 @@ python3 --version
 which python
 python --version
 which python3.6
-python3 --version
-/usr/bin/curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | POETRY_VERSION=1.0.9 python3
-sed -i '1 s/\<python\>/python3/' $HOME/.poetry/bin/poetry
-# more $HOME/.poetry/bin/poetry
-# source $HOME/.poetry/env
+python3.6 --version
+/usr/bin/curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | POETRY_PREVIEW=1 python3.6
+sed -i '1 s/\<python\>/python3.6/' $HOME/.poetry/bin/poetry
+$HOME/.poetry/bin/poetry env use python3.6
 $HOME/.poetry/bin/poetry install -vv
 #python setup.py develop --user
 
