@@ -63,22 +63,19 @@ echo "Leaf node set to: $leafNode"
 # try to trick pip into working in the WORKSPACE
 #
 export HOME="${WORKSPACE:-$HOME}"
-which python3
-python3 --version
-which python
-python --version
-which python3.6
-python3.6 --version
+# only poetry 1.1+ works (still a prevview version now)
+# stable version poetry fails to work because it  depends on pythen3-venv
+# from poetry 1.1 they build virtual envs with virtualenv, see https://github.com/python-poetry/poetry/releases/tag/1.1.0b1
 /usr/bin/curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | POETRY_PREVIEW=1 python3.6
+# make sure poetry is using python 3.6
 sed -i '1 s/\<python\>/python3.6/' $HOME/.poetry/bin/poetry
+# these steps are needed to ensure virtualenv creates and activates successfully
 source $HOME/.poetry/env
 mkdir -p $HOME/.cache/pypoetry/virtualenvs
 touch $HOME/.cache/pypoetry/virtualenvs/envs.toml
 $HOME/.poetry/bin/poetry env use python3.6
+# install data-simulator
 $HOME/.poetry/bin/poetry install -vv
-
-sleep 30000
-#python setup.py develop --user
 
 # Fail script if any of following commands fail
 set -e
