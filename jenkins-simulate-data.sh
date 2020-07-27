@@ -63,34 +63,60 @@ echo "Leaf node set to: $leafNode"
 # try to trick pip into working in the WORKSPACE
 #
 export HOME="${WORKSPACE:-$HOME}"
-# only poetry 1.1+ works (still a prevview version now)
-# stable version poetry fails to work because it  depends on pythen3-venv
-# from poetry 1.1 they build virtual envs with virtualenv, see https://github.com/python-poetry/poetry/releases/tag/1.1.0b1
-/usr/bin/curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | POETRY_VERSION=1.1.0b2 python3.6
-# make sure poetry is using python 3.6
-sed -i '1 s/\<python\>/python3.6/' $HOME/.poetry/bin/poetry
-# these steps are needed to ensure virtualenv creates and activates successfully
-source $HOME/.poetry/env
-mkdir -p $HOME/.cache/pypoetry/virtualenvs
-touch $HOME/.cache/pypoetry/virtualenvs/envs.toml
-$HOME/.poetry/bin/poetry env use python3.6
-# install data-simulator
-$HOME/.poetry/bin/poetry install -vv
+if [ -f ./pyproject.toml ]; then
+  echo "Found pyproject.toml, using poetry to install data simulator"
+  # only poetry 1.1+ works (still a preview version now)
+  # stable version poetry fails to work because it  depends on pythen3-venv
+  # from poetry 1.1 they build virtual envs with virtualenv, see https://github.com/python-poetry/poetry/releases/tag/1.1.0b1
+  /usr/bin/curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | POETRY_VERSION=1.1.0b2 python3.6
+  # make sure poetry is using python 3.6
+  sed -i '1 s/\<python\>/python3.6/' $HOME/.poetry/bin/poetry
+  # these steps are needed to ensure virtualenv creates and activates successfully
+  source $HOME/.poetry/env
+  mkdir -p $HOME/.cache/pypoetry/virtualenvs
+  touch $HOME/.cache/pypoetry/virtualenvs/envs.toml
+  $HOME/.poetry/bin/poetry env use python3.6
+  # install data-simulator
+  $HOME/.poetry/bin/poetry install -vv
 
-# Fail script if any of following commands fail
-set -e
+  # Fail script if any of following commands fail
+  set -e
 
-export PYTHONPATH=.
-pyCMD="$HOME/.poetry/bin/poetry run data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
-eval $pyCMD
-if [[ $? -ne 0 ]]; then
-  echo "ERROR: Failed to simulate test data for $namespace"
-  exit 1
-fi
+  export PYTHONPATH=.
+  pyCMD="$HOME/.poetry/bin/poetry run data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
+  eval $pyCMD
+  if [[ $? -ne 0 ]]; then
+    echo "ERROR: Failed to simulate test data for $namespace"
+    exit 1
+  fi
 
-pyCMD2="$HOME/.poetry/bin/poetry run data-simulator submission_order --url $dictURL --path $TEST_DATA_PATH --node_name $leafNode"
-eval $pyCMD2
-if [[ $? -ne 0 ]]; then
-  echo "ERROR: Failed to generate submission_order data for $namespace"
-  exit 1
+  pyCMD2="$HOME/.poetry/bin/poetry run data-simulator submission_order --url $dictURL --path $TEST_DATA_PATH --node_name $leafNode"
+  eval $pyCMD2
+  if [[ $? -ne 0 ]]; then
+    echo "ERROR: Failed to generate submission_order data for $namespace"
+    exit 1
+  fi
+else
+  echo "Not found pyproject.toml, using pip to install data simulator (old way)"
+  /usr/bin/pip3 install cdislogging
+  /usr/bin/pip3 install --user -r requirements.txt
+  #python setup.py develop --user
+
+  # Fail script if any of following commands fail
+  set -e
+
+  export PYTHONPATH=.
+  pyCMD="python3 bin/data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
+  eval $pyCMD
+  if [[ $? -ne 0 ]]; then
+    echo "ERROR: Failed to simulate test data for $namespace"
+    exit 1
+  fi
+
+  pyCMD2="python3 bin/data-simulator submission_order --url $dictURL --path $TEST_DATA_PATH --node_name $leafNode"
+  eval $pyCMD2
+  if [[ $? -ne 0 ]]; then
+    echo "ERROR: Failed to generate submission_order data for $namespace"
+    exit 1
+  fi
 fi
