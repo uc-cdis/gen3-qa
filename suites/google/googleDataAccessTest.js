@@ -87,9 +87,9 @@ Before(async (google, fence, users) => {
     const getCredsRes = await fence.do.getUserGoogleCreds(users[user].accessTokenHeader);
     await google.deleteSAKeys(user, getCredsRes.access_keys);
   });
-  console.log('Running usersync job');
-  bash.runJob('usersync', args = 'FORCE true');
-  await checkPod('usersync', 'gen3job,job-name=usersync');
+  // console.log('Running usersync job');
+  // bash.runJob('usersync', args = 'FORCE true');
+  // await checkPod('usersync', 'gen3job,job-name=usersync');
 });
 
 After(async (fence, users) => {
