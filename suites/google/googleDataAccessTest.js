@@ -220,7 +220,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
     bash.runJob('useryaml');
     await checkPod('useryaml', 'gen3job,job-name=useryaml');
-
+    bash.runCommand('gen3 job logs useryaml | grep "dcf\-integration\-test\-0"');
     // Maybe we need to wait a bit for Fence to talk to Google
     // and make sure the user's access has been revoked
     await sleepMS(20000)
