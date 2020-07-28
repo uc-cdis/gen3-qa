@@ -77,7 +77,7 @@ if [ -f ./pyproject.toml ]; then
   touch $HOME/.cache/pypoetry/virtualenvs/envs.toml
   $HOME/.poetry/bin/poetry env use python3.6
   # install data-simulator
-  $HOME/.poetry/bin/poetry install -vv
+  $HOME/.poetry/bin/poetry install -vv --no-dev
 
   # Fail script if any of following commands fail
   set -e
