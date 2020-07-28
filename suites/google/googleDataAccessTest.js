@@ -324,6 +324,11 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
 
 Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle @googleDataAccess',
   async (I, fence, users, google, files) => {
+
+    console.log('Running usersync job');
+    bash.runJob('usersync', args = 'FORCE true');
+    await checkPod('usersync', 'gen3job,job-name=usersync');
+
     console.log('make sure google account user1 is unlinked');
     await fence.complete.forceUnlinkGoogleAcct(users.user1);
 
@@ -528,6 +533,11 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
 
 Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle @googleDataAccess',
   async (I, fence, users, google, files) => {
+
+    console.log('Running usersync job');
+    bash.runJob('usersync', args = 'FORCE true');
+    await checkPod('usersync', 'gen3job,job-name=usersync');
+    
     console.log('make sure google account user2 is unlinked');
     await fence.complete.forceUnlinkGoogleAcct(users.user2);
 
