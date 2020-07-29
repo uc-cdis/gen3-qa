@@ -230,10 +230,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     console.log(res);
     // Maybe we need to wait a bit for Fence to talk to Google
     // and make sure the user's access has been revoked
-    await sleepMS(20000)
-
-    // get new access tokens b/c of changed access
-    newUser0AccessToken = getAccessToken(users.user0.username, 3600);
+    await sleepMS(20000);
 
     console.log('using saved google creds to access google bucket!! Save responses to check later');
     // use Google's client libraries to attempt to read a controlled access file with the
@@ -257,6 +254,9 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     );
 
     console.log(`${new Date()}: user0AccessQA2Res: ${JSON.stringify(user0AccessQA2Res)}`);
+
+    // get new access tokens b/c of changed access
+    newUser0AccessToken = getAccessToken(users.user0.username, 3600);
 
     console.log('Use User0 to create signed URL for file in QA');
     const User0signedUrlQA2Res = await fence.do.createSignedUrlForUser(
@@ -413,10 +413,7 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
 
     // Maybe we need to wait a bit for Fence to talk to Google
     // and make sure the user's access has been revoked
-    await sleepMS(20000)
-
-    // get new access tokens b/c of changed access
-    newUser1AccessToken = getAccessToken(users.user1.username, 3600);
+    await sleepMS(20000);
 
     console.log('using saved google creds to access google bucket!! Save responses to check later');
     // use Google's client libraries to attempt to read a controlled access file with the
@@ -439,6 +436,9 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
     );
 
     console.log(`${new Date()}: user1AccessQA2Res: ${JSON.stringify(user1AccessQA2Res)}`);
+
+    // get new access tokens b/c of changed access
+    newUser1AccessToken = getAccessToken(users.user1.username, 3600);
 
     console.log('Use User1 to create signed URL for file in QA');
     const User1signedUrlQA2Res = await fence.do.createSignedUrlForUser(
@@ -617,10 +617,7 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
 
     // Maybe we need to wait a bit for Fence to talk to Google
     // and make sure the user's access has been revoked
-    await sleepMS(20000)
-
-    // get new access tokens b/c of changed access
-    newUser2AccessToken = getAccessToken(users.user2.username, 3600);
+    await sleepMS(20000);
 
     console.log('using saved google creds to access google bucket!! Save responses to check later');
     // use Google's client libraries to attempt to read a controlled access file with the
@@ -643,6 +640,9 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
     );
 
     console.log(`${new Date()}: user2AccessQA2Res: ${JSON.stringify(user2AccessQA2Res)}`);
+
+    // get new access tokens b/c of changed access
+    newUser2AccessToken = getAccessToken(users.user2.username, 3600);
 
     console.log('Use User2 to create signed URL for file in QA');
     const User2signedUrlQA2Res = await fence.do.createSignedUrlForUser(
