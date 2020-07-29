@@ -102,6 +102,11 @@ After(async (fence, users) => {
 
 Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle @googleDataAccess',
   async (I, fence, indexd, users, google, files) => {
+
+    console.log('Running usersync job');
+    bash.runJob('usersync', args = 'FORCE true');
+    await checkPod('usersync', 'gen3job,job-name=usersync');
+    
     console.log(`Double-check if file ${indexed_files.qaFile.did} is indexed. If it isn't fail fast.`);
     const indexdLookupRes = await indexd.do.getFile(indexed_files.qaFile, users.user0.accessTokenHeader);
     chai.expect(indexdLookupRes,
