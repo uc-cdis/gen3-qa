@@ -129,14 +129,14 @@ module.exports = {
       if (params.expectAccessDenied) {
         console.log(`Google Storage API file.get() response: ${JSON.stringify(fileGetResult)} on attempt ${i}.`);
         if(fileGetResult.hasOwnProperty('status') && fileGetResult.status === 403){
-	  console.log(`Google Storage API file.get() call returned an access denied http code [${fileGetResult.statusCode}] on attempt ${i}.`);
+	        console.log(`Google Storage API file.get() call returned an access denied http code [${fileGetResult.statusCode}] on attempt ${i}.`);
           break;
         } else {
           if (i === params.nAttempts - 1) {
             throw new Error(`Max number of gstorage api file.get() attempts reached: ${i} while trying to get file ${fileName} from bucket ${bucketName}. Expected AccessDenied(403) was never returned.`);
           }
           console.log(`Google Storage API file.get() call did not return expected AccessDenied (403) response on attempt ${i}. Trying again...`);
-          await apiUtil.sleepMS(10000);
+          await apiUtil.sleepMS(30000);
         }
       } else {
         console.log('Not expecting any access denied for this gstorage api file.get() request. Proceed.');

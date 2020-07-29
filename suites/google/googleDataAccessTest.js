@@ -80,17 +80,17 @@ AfterSuite(async (fence, indexd, users) => {
   await checkPod('usersync', 'gen3job,job-name=usersync');
 });
 
-Before(async (google, fence, users) => {
+/* Before(async (google, fence, users) => {
   // Cleanup before each scenario
   console.log('deleting keys for SA associated with users 0, 1 and user2...');
   ['user0', 'user1', 'user2'].forEach(async(user) => {
     const getCredsRes = await fence.do.getUserGoogleCreds(users[user].accessTokenHeader);
     await google.deleteSAKeys(user, getCredsRes.access_keys);
   });
-  console.log('Running usersync job');
-  bash.runJob('usersync', args = 'FORCE true');
-  await checkPod('usersync', 'gen3job,job-name=usersync');
-});
+  // console.log('Running usersync job');
+  // bash.runJob('usersync', args = 'FORCE true');
+  // await checkPod('usersync', 'gen3job,job-name=usersync');
+}); */
 
 After(async (fence, users) => {
   // Cleanup after each scenario
@@ -102,6 +102,11 @@ After(async (fence, users) => {
 
 Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle @googleDataAccess',
   async (I, fence, indexd, users, google, files) => {
+
+    console.log('Running usersync job');
+    bash.runJob('usersync', args = 'FORCE true');
+    await checkPod('usersync', 'gen3job,job-name=usersync');
+    
     console.log(`Double-check if file ${indexed_files.qaFile.did} is indexed. If it isn't fail fast.`);
     const indexdLookupRes = await indexd.do.getFile(indexed_files.qaFile, users.user0.accessTokenHeader);
     chai.expect(indexdLookupRes,
@@ -220,13 +225,12 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
     bash.runJob('useryaml');
     await checkPod('useryaml', 'gen3job,job-name=useryaml');
-
+    const res = bash.runCommand('gen3 job logs useryaml | grep "dcf\-integration\-test\-0"');
+    console.log("***** USERYAML LOGS *****");
+    console.log(res);
     // Maybe we need to wait a bit for Fence to talk to Google
     // and make sure the user's access has been revoked
-    await sleepMS(20000)
-
-    // get new access tokens b/c of changed access
-    newUser0AccessToken = getAccessToken(users.user0.username, 3600);
+    await sleepMS(20000);
 
     console.log('using saved google creds to access google bucket!! Save responses to check later');
     // use Google's client libraries to attempt to read a controlled access file with the
@@ -250,6 +254,9 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     );
 
     console.log(`${new Date()}: user0AccessQA2Res: ${JSON.stringify(user0AccessQA2Res)}`);
+
+    // get new access tokens b/c of changed access
+    newUser0AccessToken = getAccessToken(users.user0.username, 3600);
 
     console.log('Use User0 to create signed URL for file in QA');
     const User0signedUrlQA2Res = await fence.do.createSignedUrlForUser(
@@ -322,6 +329,11 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
 
 Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle @googleDataAccess',
   async (I, fence, users, google, files) => {
+
+    console.log('Running usersync job');
+    bash.runJob('usersync', args = 'FORCE true');
+    await checkPod('usersync', 'gen3job,job-name=usersync');
+
     console.log('make sure google account user1 is unlinked');
     await fence.complete.forceUnlinkGoogleAcct(users.user1);
 
@@ -395,13 +407,13 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
     bash.runJob('useryaml');
     await checkPod('useryaml', 'gen3job,job-name=useryaml');
+    const res = bash.runCommand('gen3 job logs useryaml | grep "dcf\-integration\-test\-1"');
+    console.log("***** USERYAML LOGS *****");
+    console.log(res);
 
     // Maybe we need to wait a bit for Fence to talk to Google
     // and make sure the user's access has been revoked
-    await sleepMS(20000)
-
-    // get new access tokens b/c of changed access
-    newUser1AccessToken = getAccessToken(users.user1.username, 3600);
+    await sleepMS(20000);
 
     console.log('using saved google creds to access google bucket!! Save responses to check later');
     // use Google's client libraries to attempt to read a controlled access file with the
@@ -424,6 +436,9 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
     );
 
     console.log(`${new Date()}: user1AccessQA2Res: ${JSON.stringify(user1AccessQA2Res)}`);
+
+    // get new access tokens b/c of changed access
+    newUser1AccessToken = getAccessToken(users.user1.username, 3600);
 
     console.log('Use User1 to create signed URL for file in QA');
     const User1signedUrlQA2Res = await fence.do.createSignedUrlForUser(
@@ -526,6 +541,11 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
 
 Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle @googleDataAccess',
   async (I, fence, users, google, files) => {
+
+    console.log('Running usersync job');
+    bash.runJob('usersync', args = 'FORCE true');
+    await checkPod('usersync', 'gen3job,job-name=usersync');
+
     console.log('make sure google account user2 is unlinked');
     await fence.complete.forceUnlinkGoogleAcct(users.user2);
 
@@ -591,13 +611,13 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
     bash.runJob('useryaml');
     await checkPod('useryaml', 'gen3job,job-name=useryaml');
+    const res = bash.runCommand('gen3 job logs useryaml | grep "dcf\-integration\-test\-2"');
+    console.log("***** USERYAML LOGS *****");
+    console.log(res);
 
     // Maybe we need to wait a bit for Fence to talk to Google
     // and make sure the user's access has been revoked
-    await sleepMS(20000)
-
-    // get new access tokens b/c of changed access
-    newUser2AccessToken = getAccessToken(users.user2.username, 3600);
+    await sleepMS(20000);
 
     console.log('using saved google creds to access google bucket!! Save responses to check later');
     // use Google's client libraries to attempt to read a controlled access file with the
@@ -620,6 +640,9 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
     );
 
     console.log(`${new Date()}: user2AccessQA2Res: ${JSON.stringify(user2AccessQA2Res)}`);
+
+    // get new access tokens b/c of changed access
+    newUser2AccessToken = getAccessToken(users.user2.username, 3600);
 
     console.log('Use User2 to create signed URL for file in QA');
     const User2signedUrlQA2Res = await fence.do.createSignedUrlForUser(

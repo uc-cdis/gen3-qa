@@ -19,7 +19,7 @@
                 "run",
                 "--verbose",
                 "--grep",
-                "Client \\(with access\\) with user token \\(with access\\) can create signed urls for records in namespace, not outside namespace @centralizedAuth"
+                "Test Google Data Access user0"
             ],
             "env": {
                 "RUNNING_LOCAL": "true",
