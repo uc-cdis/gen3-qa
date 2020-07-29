@@ -80,7 +80,7 @@ AfterSuite(async (fence, indexd, users) => {
   await checkPod('usersync', 'gen3job,job-name=usersync');
 });
 
-Before(async (google, fence, users) => {
+/* Before(async (google, fence, users) => {
   // Cleanup before each scenario
   console.log('deleting keys for SA associated with users 0, 1 and user2...');
   ['user0', 'user1', 'user2'].forEach(async(user) => {
@@ -90,7 +90,7 @@ Before(async (google, fence, users) => {
   // console.log('Running usersync job');
   // bash.runJob('usersync', args = 'FORCE true');
   // await checkPod('usersync', 'gen3job,job-name=usersync');
-});
+}); */
 
 After(async (fence, users) => {
   // Cleanup after each scenario
