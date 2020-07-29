@@ -220,7 +220,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
     bash.runJob('useryaml');
     await checkPod('useryaml', 'gen3job,job-name=useryaml');
-    res = bash.runCommand('gen3 job logs useryaml | grep "dcf\-integration\-test\-0"');
+    const res = bash.runCommand('gen3 job logs useryaml | grep "dcf\-integration\-test\-0"');
     console.log("***** USERYAML LOGS *****");
     console.log(res);
     // Maybe we need to wait a bit for Fence to talk to Google
@@ -402,7 +402,7 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
     bash.runJob('useryaml');
     await checkPod('useryaml', 'gen3job,job-name=useryaml');
-    res = bash.runCommand('gen3 job logs useryaml | grep "dcf\-integration\-test\-0"');
+    const res = bash.runCommand('gen3 job logs useryaml | grep "dcf\-integration\-test\-1"');
     console.log("***** USERYAML LOGS *****");
     console.log(res);
 
@@ -606,7 +606,7 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
     Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
     bash.runJob('useryaml');
     await checkPod('useryaml', 'gen3job,job-name=useryaml');
-    res = bash.runCommand('gen3 job logs useryaml | grep "dcf\-integration\-test\-0"');
+    const res = bash.runCommand('gen3 job logs useryaml | grep "dcf\-integration\-test\-2"');
     console.log("***** USERYAML LOGS *****");
     console.log(res);
 
