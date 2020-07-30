@@ -150,7 +150,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     ).then((res) => new Gen3Response(res));
 
     if (User0signedUrlQA1FileContents.data.length > 20) {
-      console.log(`The contents of the QA file: ${stringify(User0signedUrlQA1FileContents.data).substring(User0signedUrlQA1FileContents.data.length-100, User0signedUrlQA1FileContents.data.length)}`);
+      console.log(`The contents of the QA file: ${stringify(User0signedUrlQA1FileContents.data).slice(0, 100)}`);
     } else {
       console.log(`The contents of the QA file: ${User0signedUrlQA1FileContents.data}`);
     }
@@ -167,6 +167,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
       indexed_files.testFile.did, users.user0.accessTokenHeader,
     );
 
+    console.log(`The contents of the test file: ${stringify(User0signedUrlTest1FileContents.data).slice(0, 100)}`);
     console.log(`${new Date()}: The contents of the test file: ${User0signedUrlTest1FileContents.data}`);
     // Pick up temp creds created earlier in the retry loop above
     console.log(`tempCreds0Res: ${JSON.stringify(tempCreds0Res)}`);
