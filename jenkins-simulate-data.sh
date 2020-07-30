@@ -93,9 +93,11 @@ if [ -f ./pyproject.toml ]; then
   $HOME/.poetry/bin/poetry env use python3.6
   # install data-simulator
   $HOME/.poetry/bin/poetry install -vv --no-dev
-
-  # Fail script if any of following commands fail
-  set -e
+  if [[ $? -ne 0 ]]; then
+    echo "ERROR: Failed to install poetry / dependencies"
+    writeMetricWithResult "FAIL"
+    exit 1
+  fi
 
   export PYTHONPATH=.
   pyCMD="$HOME/.poetry/bin/poetry run data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
