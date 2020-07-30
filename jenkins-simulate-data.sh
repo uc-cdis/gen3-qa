@@ -21,7 +21,7 @@ function writeMetricWithResult() {
     measure="fail_count"
   fi
   
-  curl -i -XPOST "http://influxdb:8086/write?db=ci_metrics" --data-binary "$measure,test_name=data_simulator,repo_name=$(echo $JOB_NAME | cut -d/ -f 2),pr_num=$(echo $BRANCH_NAME | cut -d- -f 2) result=1"
+  curl -i -XPOST "http://influxdb:8086/write?db=ci_metrics" --data-binary "${measure},test_name=data_simulator,repo_name=$(echo $JOB_NAME | cut -d/ -f 2),pr_num=$(echo $BRANCH_NAME | cut -d- -f 2) ${measure}=1"
 }
 
 namespace="${1:-${KUBECTL_NAMESPACE:-default}}"
