@@ -20,8 +20,8 @@ function writeMetricWithResult() {
   else
     measure="fail_count"
   fi
-
-  curl -i -XPOST "http://influxdb:8086/write?db=ci_metrics" --data-binary "$measure,testName=data_simulator,repo_name=$(echo $JOB_NAME | cut -d/ -f 2) pr_num=$(echo $BRANCH_NAME | cut -d- -f 2) result=$1"
+  
+  curl -i -XPOST "http://influxdb:8086/write?db=ci_metrics" --data-binary "$measure,testName=data_simulator,repo_name=$(echo $JOB_NAME | cut -d/ -f 2),pr_num=$(echo $BRANCH_NAME | cut -d- -f 2) result=1"
 }
 
 namespace="${1:-${KUBECTL_NAMESPACE:-default}}"
