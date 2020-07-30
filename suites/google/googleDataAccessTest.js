@@ -167,7 +167,7 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
       indexed_files.testFile.did, users.user0.accessTokenHeader,
     );
 
-    console.log(`${new Date()}: The contents of the QA file: ${User0signedUrlQA1FileContents.data}`);
+    console.log(`${new Date()}: The contents of the test file: ${User0signedUrlTest1FileContents.data}`);
     // Pick up temp creds created earlier in the retry loop above
     console.log(`tempCreds0Res: ${JSON.stringify(tempCreds0Res)}`);
 
