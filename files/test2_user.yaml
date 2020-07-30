@@ -15,7 +15,6 @@
               - name: projects
                 subresources:
                   - name: test
-          - name: DEV
           - name: jnkns
             subresources:
               - name: projects
@@ -46,9 +45,6 @@
           resource: /programs/QA
         - auth_id: test
           privilege: [create, read, update, delete, upload, read-storage]
-        - auth_id: DEV
-          privilege: [create, read, update, delete, upload, read-storage]
-          resource: /programs/DEV
         - auth_id: jenkins
           privilege: [create, read, update, delete, upload, read-storage]
           resource: /programs/jnkns/projects/jenkins
