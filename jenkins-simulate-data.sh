@@ -13,6 +13,17 @@ if [[ ! -d "$WORKSPACE/data-simulator" ]]; then
   exit 1
 fi
 
+function writeMetricWithResult() {
+  measure=""
+  if [ "$1" == "PASS" ]; then
+    measure="pass_count"
+  else
+    measure="fail_count"
+  fi
+  
+  curl -i -XPOST "http://influxdb:8086/write?db=ci_metrics" --data-binary "${measure},test_name=data_simulator,repo_name=$(echo $JOB_NAME | cut -d/ -f 2),pr_num=$(echo $BRANCH_NAME | cut -d- -f 2) ${measure}=1"
+}
+
 namespace="${1:-${KUBECTL_NAMESPACE:-default}}"
 echo $namespace
 export GEN3_HOME="${GEN3_HOME:-${WORKSPACE}/cloud-automation}"
@@ -23,6 +34,7 @@ if [[ -n "$GEN3_HOME" && -d "$GEN3_HOME" ]]; then  # load gen3 tools from cloud-
   gen3_load "gen3/gen3setup"
 else
   echo "Env var GEN3_HOME is required for simulating data"
+  writeMetricWithResult "FAIL"
   exit 1
 fi
 
@@ -33,6 +45,7 @@ nData=1
 dictURL="${dictURL:-$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.dictionary_url')}"
 if [[ $? -ne 0 || -z "dictURL" ]]; then
     echo "ERROR: failed to retrieve dictionary_url for namespace $namespace"
+    writeMetricWithResult "FAIL"
     exit 1
 fi
 
@@ -40,6 +53,7 @@ mkdir -p $TEST_DATA_PATH
 curl -s -o"$TEST_DATA_PATH/schema.json" "$dictURL"
 if [[ ! -f "$TEST_DATA_PATH/schema.json" ]]; then
   echo "ERROR: failed to download $dictURL"
+  writeMetricWithResult "FAIL"
   exit 1
 fi
 
@@ -54,6 +68,7 @@ fi
 
 if [[ -z "$leafNode" ]]; then
   echo "ERROR: unable to identify data_file node for data simulation from schema at $dictURL"
+  writeMetricWithResult "FAIL"
   exit 1
 fi
 echo "Leaf node set to: $leafNode"
@@ -78,15 +93,18 @@ if [ -f ./pyproject.toml ]; then
   $HOME/.poetry/bin/poetry env use python3.6
   # install data-simulator
   $HOME/.poetry/bin/poetry install -vv --no-dev
-
-  # Fail script if any of following commands fail
-  set -e
+  if [[ $? -ne 0 ]]; then
+    echo "ERROR: Failed to install poetry / dependencies"
+    writeMetricWithResult "FAIL"
+    exit 1
+  fi
 
   export PYTHONPATH=.
   pyCMD="$HOME/.poetry/bin/poetry run data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
   eval $pyCMD
   if [[ $? -ne 0 ]]; then
     echo "ERROR: Failed to simulate test data for $namespace"
+    writeMetricWithResult "FAIL"
     exit 1
   fi
 
@@ -94,6 +112,7 @@ if [ -f ./pyproject.toml ]; then
   eval $pyCMD2
   if [[ $? -ne 0 ]]; then
     echo "ERROR: Failed to generate submission_order data for $namespace"
+    writeMetricWithResult "FAIL"
     exit 1
   fi
 else
@@ -110,6 +129,7 @@ else
   eval $pyCMD
   if [[ $? -ne 0 ]]; then
     echo "ERROR: Failed to simulate test data for $namespace"
+    writeMetricWithResult "FAIL"
     exit 1
   fi
 
@@ -117,6 +137,9 @@ else
   eval $pyCMD2
   if [[ $? -ne 0 ]]; then
     echo "ERROR: Failed to generate submission_order data for $namespace"
+    writeMetricWithResult "FAIL"
     exit 1
   fi
 fi
+
+writeMetricWithResult "PASS"
