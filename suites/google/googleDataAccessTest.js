@@ -232,6 +232,10 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     // and make sure the user's access has been revoked
     await sleepMS(20000);
 
+    console.log('Running usersync job');
+    bash.runJob('usersync', args = 'FORCE true');
+    await checkPod('usersync', 'gen3job,job-name=usersync');
+
     console.log('using saved google creds to access google bucket!! Save responses to check later');
     // use Google's client libraries to attempt to read a controlled access file with the
     // creds we just saved (based on the user's permissions)
@@ -414,6 +418,10 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
     // Maybe we need to wait a bit for Fence to talk to Google
     // and make sure the user's access has been revoked
     await sleepMS(20000);
+
+    console.log('Running usersync job');
+    bash.runJob('usersync', args = 'FORCE true');
+    await checkPod('usersync', 'gen3job,job-name=usersync');
 
     console.log('using saved google creds to access google bucket!! Save responses to check later');
     // use Google's client libraries to attempt to read a controlled access file with the
@@ -618,6 +626,10 @@ Scenario('Test Google Data Access user2 (signed urls and temp creds) @reqGoogle 
     // Maybe we need to wait a bit for Fence to talk to Google
     // and make sure the user's access has been revoked
     await sleepMS(20000);
+
+    console.log('Running usersync job');
+    bash.runJob('usersync', args = 'FORCE true');
+    await checkPod('usersync', 'gen3job,job-name=usersync');
 
     console.log('using saved google creds to access google bucket!! Save responses to check later');
     // use Google's client libraries to attempt to read a controlled access file with the
