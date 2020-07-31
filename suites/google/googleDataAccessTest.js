@@ -167,11 +167,6 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
       indexed_files.testFile.did, users.user0.accessTokenHeader,
     );
 
-    console.log(`The contents of the test file: ${stringify(User0signedUrlTest1FileContents.data).slice(0, 100)}`);
-    console.log(`${new Date()}: The contents of the test file: ${User0signedUrlTest1FileContents.data}`);
-    // Pick up temp creds created earlier in the retry loop above
-    console.log(`tempCreds0Res: ${JSON.stringify(tempCreds0Res)}`);
-
     console.log('saving temporary google creds to file');
     const creds0Key = tempCreds0Res.data.private_key_id;
     const pathToCreds0KeyFile = `${creds0Key}.json`;
