@@ -170,7 +170,8 @@ async function setupGoogleProjectDynamic() {
     'NAMESPACE',
     namespace,
   );
-  console.log(`googleProjectDynamic: ${fenceProps.googleProjectDynamic.id}`);
+  console.log(`googleProjectDynamic.id: ${fenceProps.googleProjectDynamic.id}`);
+  console.log(`googleProjectDynamic.serviceAccountEmail: ${fenceProps.googleProjectDynamic.serviceAccountEmail}`);
 
   // Add the IAM access needed by the monitor service account
   const monitorRoles = [
