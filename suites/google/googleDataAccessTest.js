@@ -380,7 +380,7 @@ Scenario('Test Again: Google Data Access user0 (signed urls and temp creds) @req
       fence.props.googleBucketInfo.QA.fileName,
       { nAttempts: 5, expectAccessDenied: true },
     );
-    user2AccessTest2Res = await google.getFileFromBucket(
+    user0AccessTest2Res = await google.getFileFromBucket(
       fence.props.googleBucketInfo.test.googleProjectId,
       pathToCreds0KeyFile,
       fence.props.googleBucketInfo.test.bucketId,
