@@ -138,10 +138,6 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
 
     console.log(`tempCreds0Res: ${JSON.stringify(tempCreds0Res)}`);
 
-    console.log('linking user0 google accounts');
-    const linkResult0 = await fence.complete.linkGoogleAcctMocked(users.user0);
-    console.log(`linkResult0: ${JSON.stringify(linkResult0)}`);
-
     console.log(`users.user0.accessTokenHeader again: ${JSON.stringify(users.user0.accessTokenHeader)}`);
     console.log(`Use User0 to create signed URL for file in QA.`);
     User0signedUrlQA1Res = await fence.do.createSignedUrlForUser(
@@ -358,10 +354,6 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
       users.user1.accessTokenHeader,
     );
     console.log(`tempCreds1Res: ${JSON.stringify(tempCreds1Res)}`);
-
-    console.log('linking user1 google accounts');
-    const linkResult1 = await fence.complete.linkGoogleAcctMocked(users.user1);
-    console.log(`linkResult1: ${JSON.stringify(linkResult1)}`);
 
     console.log('Use User1 to create signed URL for file in QA');
     const User1signedUrlQA1Res = await fence.do.createSignedUrlForUser(
