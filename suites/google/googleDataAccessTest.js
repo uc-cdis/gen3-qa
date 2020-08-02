@@ -409,7 +409,7 @@ Scenario('Test Again: Google Data Access user0 (signed urls and temp creds) @req
 
     console.log('test cleanup: deleting google service accounts from google');
     const deleteServiceAccount0Res = await google.deleteServiceAccount(
-      tempCreds0Res.data.client_email, tempCreds2Res.data.project_id,
+      tempCreds0Res.data.client_email, tempCreds0Res.data.project_id,
     );
 
     console.log('deleting temporary google credentials file');
@@ -479,7 +479,7 @@ Scenario('Test Again: Google Data Access user1 (signed urls and temp creds) @req
     await fence.complete.forceUnlinkGoogleAcct(users.user1);
 
     console.log('linking user1 google account');
-    const linkResult0 = await fence.complete.linkGoogleAcctMocked(users.user1);
+    const linkResult1 = await fence.complete.linkGoogleAcctMocked(users.user1);
     console.log(`linkResult1: ${JSON.stringify(linkResult1)}`);
       
     console.log(`creating temporary google creds for user1 with username:  ${users.user1.username}`);
