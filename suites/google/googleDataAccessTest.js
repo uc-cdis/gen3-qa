@@ -181,20 +181,20 @@ Scenario('Test Google Data Access User2 @reqGoogle @googleDataAccess',
     )
     console.log('*** VALIDATE RESULT ***');
     // Signed URL for QA - First Run
-    chai.expect(result[0]).to.have('status', 401);
+    chai.expect(result[0]).to.have.property('status', 401);
     // Signed URL for test - First Run
-    chai.expect(result[1]).to.have('status', 401);
+    chai.expect(result[1]).to.have.property('status', 401);
     // Bucket Access for QA - First Run
-    chai.expect(result[2]).to.have('status', 403);
+    chai.expect(result[2]).to.have.property('status', 403);
     // Bucket Access for test - First Run
-    chai.expect(result[3]).to.have('status', 403);
+    chai.expect(result[3]).to.have.property('status', 403);
     // Signed URL for QA - Second Run
-    chai.expect(result[0]).to.have('url');
+    chai.expect(result[0]).to.have.property('url');
     // Signed URL for test - Second Run
-    chai.expect(result[1]).to.have('status', 401);
+    chai.expect(result[1]).to.have.property('status', 401);
     // Bucket Access for QA - Second Run
-    chai.expect(result[2]).to.have('id');
+    chai.expect(result[2]).to.have.property('id');
     // Bucket Access for test - Second Run
-    chai.expect(result[3]).to.have('status', 403);
+    chai.expect(result[3]).to.have.property('status', 403);
   }
 );
