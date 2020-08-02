@@ -119,6 +119,10 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
     const unlinkResult = await fence.complete.forceUnlinkGoogleAcct(users.user0);
     console.log(`users.user0.accessTokenHeader: ${JSON.stringify(users.user0.accessTokenHeader)}`);
 
+    console.log('linking user0 google account');
+    const linkResult0 = await fence.complete.linkGoogleAcctMocked(users.user0);
+    console.log(`linkResult0: ${JSON.stringify(linkResult0)}`);
+
     console.log(`creating temporary google creds for user0 with username:  ${users.user0.username}`);
     // call our endpoint to get temporary creds
     // NOTE: If this fails and you don't know why, it *might* be that we've hit our limit
@@ -336,6 +340,10 @@ Scenario('Test Google Data Access user1 (signed urls and temp creds) @reqGoogle 
 
     console.log('make sure google account user1 is unlinked');
     await fence.complete.forceUnlinkGoogleAcct(users.user1);
+
+    console.log('linking user1 google account');
+    const linkResult1 = await fence.complete.linkGoogleAcctMocked(users.user1);
+    console.log(`linkResult1: ${JSON.stringify(linkResult1)}`);
 
     console.log(`creating temporary google creds for user with username:  ${users.user1.username}`);
     // call our endpoint to get temporary creds
