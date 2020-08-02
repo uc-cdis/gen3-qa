@@ -189,7 +189,8 @@ Scenario('Test Google Data Access User2 @reqGoogle @googleDataAccess',
     // Bucket Access for test - First Run
     chai.expect(result[3]).to.have.property('status', 403);
     // Signed URL for QA - Second Run
-    chai.expect(result[4]).to.have.property('url');
+    console.log(result[4]);
+    chai.expect(result[4]).to.have.property('status', 200);
     // Signed URL for test - Second Run
     chai.expect(result[5]).to.have.property('status', 401);
     // Bucket Access for QA - Second Run
