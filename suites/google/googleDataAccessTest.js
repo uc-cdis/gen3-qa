@@ -65,32 +65,6 @@ const indexed_files = {
   },
 };
 
-BeforeSuite(async (indexd, fence, google) => {
-  console.log('Adding indexd files used to test signed urls');
-  await indexd.do.addFileIndices(Object.values(indexed_files));
-  console.log('deleting keys for SA associated with users 0, 1 and user2...');
-  ['user0', 'user1', 'user2'].forEach(async(user) => {
-    const getCredsRes = await fence.do.getUserGoogleCreds(users[user].accessTokenHeader);
-    await google.deleteSAKeys(user, getCredsRes.access_keys);
-  });
-});
-
-AfterSuite(async (indexd) => {
-  console.log('Removing indexd files used to test signed urls');
-  await indexd.do.deleteFileIndices(Object.values(indexed_files));
-
-  console.log('Running usersync job');
-  bash.runJob('usersync', args = 'FORCE true');
-  await checkPod('usersync', 'gen3job,job-name=usersync');
-});
-
-After(async (fence, users) => {
-  const unlinkResults = Object.values(users).map(async (user) => {
-    fence.do.unlinkGoogleAcct(user);
-  });
-  await Promise.all(unlinkResults);
-});
-
 const googleDataAccessTestSteps = async (I, fence, user, google, files, paramsQA1, paramsTest1, paramsQA2, paramsTest2) => {
   console.log('*** RUN USERSYNC JOB ***');
   bash.runJob('usersync', args = 'FORCE true');
@@ -170,14 +144,99 @@ const googleDataAccessTestSteps = async (I, fence, user, google, files, paramsQA
   ]
 }
 
+BeforeSuite(async (indexd, fence, google) => {
+  console.log('Adding indexd files used to test signed urls');
+  await indexd.do.addFileIndices(Object.values(indexed_files));
+  console.log('deleting keys for SA associated with users 0, 1 and user2...');
+  ['user0', 'user1', 'user2'].forEach(async(user) => {
+    const getCredsRes = await fence.do.getUserGoogleCreds(users[user].accessTokenHeader);
+    await google.deleteSAKeys(user, getCredsRes.access_keys);
+  });
+});
+
+AfterSuite(async (indexd) => {
+  console.log('Removing indexd files used to test signed urls');
+  await indexd.do.deleteFileIndices(Object.values(indexed_files));
+
+  console.log('Running usersync job');
+  bash.runJob('usersync', args = 'FORCE true');
+  await checkPod('usersync', 'gen3job,job-name=usersync');
+});
+
+After(async (fence, users) => {
+  const unlinkResults = Object.values(users).map(async (user) => {
+    fence.do.unlinkGoogleAcct(user);
+  });
+  await Promise.all(unlinkResults);
+});
+
+Scenario('Test Google Data Access User0 @reqGoogle @googleDataAccess',
+  async (I, fence, users, google, files) => {
+    const result = await googleDataAccessTestSteps(
+      I, fence, users.user0, google, files,
+      { nAttempts: 1, expectAccessDenied: false }, // paramsQA1
+      { nAttempts: 1, expectAccessDenied: true }, // paramsTest1
+      { nAttempts: 1, expectAccessDenied: true }, // paramsQA2
+      { nAttempts: 1, expectAccessDenied: true } // paramsTest2
+    )
+    console.log('*** VALIDATE RESULT ***');
+    // Signed URL for QA - First Run
+    chai.expect(result[0]).to.have.property('status', 200);
+    // Signed URL for test - First Run
+    chai.expect(result[1]).to.have.property('status', 401);
+    // Bucket Access for QA - First Run
+    chai.expect(result[2]).to.have.property('id');
+    // Bucket Access for test - First Run
+    chai.expect(result[3]).to.have.property('status', 403);
+    // Signed URL for QA - Second Run
+    console.log(result[4]);
+    chai.expect(result[4]).to.have.property('status', 401);
+    // Signed URL for test - Second Run
+    chai.expect(result[5]).to.have.property('status', 401);
+    // Bucket Access for QA - Second Run
+    chai.expect(result[6]).to.have.property('status', 403);
+    // Bucket Access for test - Second Run
+    chai.expect(result[7]).to.have.property('status', 403);
+  }
+);
+
+Scenario('Test Google Data Access User1 @reqGoogle @googleDataAccess',
+  async (I, fence, users, google, files) => {
+    const result = await googleDataAccessTestSteps(
+      I, fence, users.user1, google, files,
+      { nAttempts: 1, expectAccessDenied: false }, // paramsQA1
+      { nAttempts: 1, expectAccessDenied: false }, // paramsTest1
+      { nAttempts: 1, expectAccessDenied: true }, // paramsQA2
+      { nAttempts: 1, expectAccessDenied: false } // paramsTest2
+    )
+    console.log('*** VALIDATE RESULT ***');
+    // Signed URL for QA - First Run
+    chai.expect(result[0]).to.have.property('status', 200);
+    // Signed URL for test - First Run
+    chai.expect(result[1]).to.have.property('status', 200);
+    // Bucket Access for QA - First Run
+    chai.expect(result[2]).to.have.property('id');
+    // Bucket Access for test - First Run
+    chai.expect(result[3]).to.have.property('id');
+    // Signed URL for QA - Second Run
+    chai.expect(result[4]).to.have.property('status', 401);
+    // Signed URL for test - Second Run
+    chai.expect(result[5]).to.have.property('status', 200);
+    // Bucket Access for QA - Second Run
+    chai.expect(result[6]).to.have.property('status', 403);
+    // Bucket Access for test - Second Run
+    chai.expect(result[7]).to.have.property('id');
+  }
+);
+
 Scenario('Test Google Data Access User2 @reqGoogle @googleDataAccess',
   async (I, fence, users, google, files) => {
     const result = await googleDataAccessTestSteps(
       I, fence, users.user2, google, files,
-      { nAttempts: 1, expectAccessDenied: true },
-      { nAttempts: 1, expectAccessDenied: true },
-      { nAttempts: 1, expectAccessDenied: false },
-      { nAttempts: 1, expectAccessDenied: false }
+      { nAttempts: 1, expectAccessDenied: true }, // paramsQA1
+      { nAttempts: 1, expectAccessDenied: true }, // paramsTest1
+      { nAttempts: 1, expectAccessDenied: false }, // paramsQA2
+      { nAttempts: 1, expectAccessDenied: false } // paramsTest2
     )
     console.log('*** VALIDATE RESULT ***');
     // Signed URL for QA - First Run
