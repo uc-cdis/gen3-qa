@@ -175,9 +175,9 @@ Scenario('Test Google Data Access User0 @reqGoogle @googleDataAccess',
     const result = await googleDataAccessTestSteps(
       I, fence, users.user0, google, files,
       { nAttempts: 1, expectAccessDenied: false }, // paramsQA1
-      { nAttempts: 1, expectAccessDenied: true }, // paramsTest1
-      { nAttempts: 1, expectAccessDenied: true }, // paramsQA2
-      { nAttempts: 1, expectAccessDenied: true } // paramsTest2
+      { nAttempts: 3, expectAccessDenied: true }, // paramsTest1
+      { nAttempts: 3, expectAccessDenied: true }, // paramsQA2
+      { nAttempts: 3, expectAccessDenied: true } // paramsTest2
     )
     console.log('*** VALIDATE RESULT ***');
     // Signed URL for QA - First Run
@@ -205,7 +205,7 @@ Scenario('Test Google Data Access User1 @reqGoogle @googleDataAccess',
       I, fence, users.user1, google, files,
       { nAttempts: 1, expectAccessDenied: false }, // paramsQA1
       { nAttempts: 1, expectAccessDenied: false }, // paramsTest1
-      { nAttempts: 1, expectAccessDenied: true }, // paramsQA2
+      { nAttempts: 3, expectAccessDenied: true }, // paramsQA2
       { nAttempts: 1, expectAccessDenied: false } // paramsTest2
     )
     console.log('*** VALIDATE RESULT ***');
@@ -232,8 +232,8 @@ Scenario('Test Google Data Access User2 @reqGoogle @googleDataAccess',
   async (I, fence, users, google, files) => {
     const result = await googleDataAccessTestSteps(
       I, fence, users.user2, google, files,
-      { nAttempts: 1, expectAccessDenied: true }, // paramsQA1
-      { nAttempts: 1, expectAccessDenied: true }, // paramsTest1
+      { nAttempts: 3, expectAccessDenied: true }, // paramsQA1
+      { nAttempts: 3, expectAccessDenied: true }, // paramsTest1
       { nAttempts: 1, expectAccessDenied: false }, // paramsQA2
       { nAttempts: 1, expectAccessDenied: false } // paramsTest2
     )
