@@ -37,8 +37,6 @@ const fenceProps = require('../../services/apis/fence/fenceProps.js');
 const { Bash } = require('../../utils/bash.js');
 const {
   checkPod,
-  getAccessToken,
-  getAccessTokenHeader,
   Gen3Response,
   sleepMS,
 } = require('../../utils/apiUtil.js');
@@ -169,7 +167,7 @@ AfterSuite(async (indexd) => {
   await checkPod('usersync', 'gen3job,job-name=usersync');
 });
 
-Scenario('Test Google Data Access User0 @reqGoogle @googleDataAccess @manual',
+Scenario('Test Google Data Access User0 @reqGoogle @googleDataAccess',
   async (fence, users, google, files) => {
     const result = await googleDataAccessTestSteps(
       fence, users.user0, google, files,
@@ -198,7 +196,7 @@ Scenario('Test Google Data Access User0 @reqGoogle @googleDataAccess @manual',
   }
 );
 
-Scenario('Test Google Data Access User1 @reqGoogle @googleDataAccess @manual',
+Scenario('Test Google Data Access User1 @reqGoogle @googleDataAccess',
   async (fence, users, google, files) => {
     const result = await googleDataAccessTestSteps(
       fence, users.user1, google, files,
