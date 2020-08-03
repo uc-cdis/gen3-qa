@@ -65,7 +65,7 @@ const indexed_files = {
   },
 };
 
-const googleDataAccessTestSteps = async (I, fence, user, google, files, paramsQA1, paramsTest1, paramsQA2, paramsTest2) => {
+const googleDataAccessTestSteps = async (fence, user, google, files, paramsQA1, paramsTest1, paramsQA2, paramsTest2) => {
   console.log('*** RUN USERSYNC JOB ***');
   bash.runJob('usersync', args = 'FORCE true');
   await checkPod('usersync', 'gen3job,job-name=usersync');
@@ -169,7 +169,7 @@ AfterSuite(async (indexd) => {
   await checkPod('usersync', 'gen3job,job-name=usersync');
 });
 
-Scenario('Test Google Data Access User0 @reqGoogle @googleDataAccess',
+Scenario('Test Google Data Access User0 @reqGoogle @googleDataAccess @manual',
   async (I, fence, users, google, files) => {
     const result = await googleDataAccessTestSteps(
       I, fence, users.user0, google, files,
@@ -198,7 +198,7 @@ Scenario('Test Google Data Access User0 @reqGoogle @googleDataAccess',
   }
 );
 
-Scenario('Test Google Data Access User1 @reqGoogle @googleDataAccess',
+Scenario('Test Google Data Access User1 @reqGoogle @googleDataAccess @manual',
   async (I, fence, users, google, files) => {
     const result = await googleDataAccessTestSteps(
       I, fence, users.user1, google, files,
