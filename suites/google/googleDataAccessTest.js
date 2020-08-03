@@ -116,7 +116,7 @@ const googleDataAccessTestSteps = async (I, fence, user, google, files, paramsQA
   const tempCredsRes2 = await fence.complete.createTempGoogleCreds(
     user.accessTokenHeader,
   );
-  const credsKey2 = tempCredsRes.data.private_key_id;
+  const credsKey2 = tempCredsRes2.data.private_key_id;
   const pathToCredsKeyFile2 = `${credsKey2}.json`;
   await files.createTmpFile(pathToCredsKeyFile2, JSON.stringify(tempCredsRes2.data));
 
