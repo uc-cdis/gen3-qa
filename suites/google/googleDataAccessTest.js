@@ -65,7 +65,7 @@ const indexed_files = {
   },
 };
 
-const googleDataAccessTestSteps = async (fence, user, google, files, paramsQA1, paramsTest1, paramsQA2, paramsTest2) => {
+const googleDataAccessTestSteps = async (I, fence, user, google, files, paramsQA1, paramsTest1, paramsQA2, paramsTest2) => {
   console.log('*** RUN USERSYNC JOB ***');
   bash.runJob('usersync', args = 'FORCE true');
   await checkPod('usersync', 'gen3job,job-name=usersync');
