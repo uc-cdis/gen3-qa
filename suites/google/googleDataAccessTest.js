@@ -110,6 +110,7 @@ const googleDataAccessTestSteps = async (I, fence, user, google, files, paramsQA
   Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
   bash.runJob('useryaml');
   await checkPod('useryaml', 'gen3job,job-name=useryaml');
+  await sleepMS(30000);
 
   console.log('*** GENERATE NEW ACCESS TOKEN FOR CHANGED ACCESS ***')
   newUserAccessToken = getAccessToken(user.username, 3600);
