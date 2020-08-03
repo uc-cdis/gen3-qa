@@ -65,7 +65,7 @@ const indexed_files = {
   },
 };
 
-const googleDataAccessTestSteps = async (I, fence, user, google, files, paramsQA1, paramsTest1, paramsQA2, paramsTest2) => {
+const googleDataAccessTestSteps = async (fence, user, google, files, paramsQA1, paramsTest1, paramsQA2, paramsTest2) => {
   console.log('*** RUN USERSYNC JOB ***');
   bash.runJob('usersync', args = 'FORCE true');
   await checkPod('usersync', 'gen3job,job-name=usersync');
@@ -170,9 +170,9 @@ AfterSuite(async (indexd) => {
 });
 
 Scenario('Test Google Data Access User0 @reqGoogle @googleDataAccess @manual',
-  async (I, fence, users, google, files) => {
+  async (fence, users, google, files) => {
     const result = await googleDataAccessTestSteps(
-      I, fence, users.user0, google, files,
+      fence, users.user0, google, files,
       { nAttempts: 1, expectAccessDenied: false }, // paramsQA1
       { nAttempts: 3, expectAccessDenied: true }, // paramsTest1
       { nAttempts: 3, expectAccessDenied: true }, // paramsQA2
@@ -199,9 +199,9 @@ Scenario('Test Google Data Access User0 @reqGoogle @googleDataAccess @manual',
 );
 
 Scenario('Test Google Data Access User1 @reqGoogle @googleDataAccess @manual',
-  async (I, fence, users, google, files) => {
+  async (fence, users, google, files) => {
     const result = await googleDataAccessTestSteps(
-      I, fence, users.user1, google, files,
+      fence, users.user1, google, files,
       { nAttempts: 1, expectAccessDenied: false }, // paramsQA1
       { nAttempts: 1, expectAccessDenied: false }, // paramsTest1
       { nAttempts: 3, expectAccessDenied: true }, // paramsQA2
@@ -228,9 +228,9 @@ Scenario('Test Google Data Access User1 @reqGoogle @googleDataAccess @manual',
 );
 
 Scenario('Test Google Data Access User2 @reqGoogle @googleDataAccess',
-  async (I, fence, users, google, files) => {
+  async (fence, users, google, files) => {
     const result = await googleDataAccessTestSteps(
-      I, fence, users.user2, google, files,
+      fence, users.user2, google, files,
       { nAttempts: 3, expectAccessDenied: true }, // paramsQA1
       { nAttempts: 3, expectAccessDenied: true }, // paramsTest1
       { nAttempts: 1, expectAccessDenied: false }, // paramsQA2
