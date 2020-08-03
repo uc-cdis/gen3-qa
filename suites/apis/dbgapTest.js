@@ -10,7 +10,6 @@ User Access from user.yaml:
     cdis.autotest@gmail.com (mainAcct)
         - programs.QA-admin
         - programs.test-admin
-        - programs.DEV-admin
         - programs.jnkns-admin
         - abc-admin
 

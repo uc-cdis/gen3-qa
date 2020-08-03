@@ -106,7 +106,7 @@ Scenario('Authorization code flow: Test project access in id token same as proje
   /**
    * Example list of projects the user has access to:
    * projects = {
-   *  DEV: [ 'read', 'create', 'upload', 'update', 'delete' ],
+   *  test: [ 'read', 'create', 'upload', 'update', 'delete' ],
    *  QA: [ 'read' ]
    * }
    */

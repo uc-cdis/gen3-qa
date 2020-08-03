@@ -357,7 +357,7 @@ Scenario('Register SA for data access when requesting user does not have privile
   const registerRes = await fence.do.registerGoogleServiceAccount(
     users.auxAcct1,
     googleProject,
-    ['DEV'],
+    ['QA'],
   );
   fence.ask.responsesEqual(
     registerRes,
@@ -371,7 +371,7 @@ Scenario('Register SA for data access where one Project member does not have pri
   const userWithoutPrivilege = users.auxAcct1;
 
   // does NOT have privilege for requested commons proj
-  const commonsProjectAccessList = ['DEV'];
+  const commonsProjectAccessList = ['QA'];
 
   // Setup
   await fence.complete.forceLinkGoogleAcct(
