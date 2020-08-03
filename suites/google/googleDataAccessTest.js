@@ -112,28 +112,33 @@ const googleDataAccessTestSteps = async (I, fence, user, google, files, paramsQA
   await checkPod('useryaml', 'gen3job,job-name=useryaml');
   await sleepMS(30000);
 
-  console.log('*** GENERATE NEW ACCESS TOKEN FOR CHANGED ACCESS ***')
-  newUserAccessToken = getAccessToken(user.username, 3600);
+  console.log(`*** RE-CREATE TEMP GOOGLE CREDS FOR USER ${user.username} AND SAVE TO TEMP FILE ***`);
+  const tempCredsRes2 = await fence.complete.createTempGoogleCreds(
+    user.accessTokenHeader,
+  );
+  const credsKey2 = tempCredsRes.data.private_key_id;
+  const pathToCredsKeyFile2 = `${credsKey2}.json`;
+  await files.createTmpFile(pathToCredsKeyFile2, JSON.stringify(tempCredsRes2.data));
 
   console.log('*** CREATE SIGNED URLS AGAIN IN QA AND TEST ***');
   const signedUrlQA2Res = await fence.do.createSignedUrlForUser(
-    indexed_files.qaFile.did, getAccessTokenHeader(newUserAccessToken),
+    indexed_files.qaFile.did, user.accessTokenHeader,
   );
   const signedUrlTest2Res = await fence.do.createSignedUrlForUser(
-    indexed_files.testFile.did, getAccessTokenHeader(newUserAccessToken),
+    indexed_files.testFile.did, user.accessTokenHeader,
   );
 
   console.log('*** ACCESS GOOGLE BUCKET AGAIN TO QA AND TEST ***');
   const userAccessQA2Res = await google.getFileFromBucket(
     fence.props.googleBucketInfo.QA.googleProjectId,
-    pathToCredsKeyFile,
+    pathToCredsKeyFile2,
     fence.props.googleBucketInfo.QA.bucketId,
     fence.props.googleBucketInfo.QA.fileName,
     paramsQA2
   );
   const userAccessTest2Res = await google.getFileFromBucket(
     fence.props.googleBucketInfo.test.googleProjectId,
-    pathToCredsKeyFile,
+    pathToCredsKeyFile2,
     fence.props.googleBucketInfo.test.bucketId,
     fence.props.googleBucketInfo.test.fileName,
     paramsTest2
