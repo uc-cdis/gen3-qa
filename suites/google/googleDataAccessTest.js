@@ -164,13 +164,6 @@ AfterSuite(async (indexd) => {
   await checkPod('usersync', 'gen3job,job-name=usersync');
 });
 
-After(async (fence, users) => {
-  const unlinkResults = Object.values(users).map(async (user) => {
-    fence.do.unlinkGoogleAcct(user);
-  });
-  await Promise.all(unlinkResults);
-});
-
 Scenario('Test Google Data Access User0 @reqGoogle @googleDataAccess',
   async (I, fence, users, google, files) => {
     const result = await googleDataAccessTestSteps(
