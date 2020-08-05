@@ -69,6 +69,9 @@ Scenario('Register a fence client for RAS Test User 1 with the ga4gh_passport_v1
 
 Scenario('Visit Auth URL as RAS Test User 1 and click on I Accept button @rasAuthz', async (I) => {
   I.amOnPage(`/user/oauth2/authorize?response_type=code&client_id=${I.cache.rasUser1ClientId}&redirect_uri=https://${process.env.HOSTNAME}/user&scope=openid+user+data+google_credentials+ga4gh_passport_v1&idp=ras`);
+  await sleepMS(5000);
+  I.saveScreenshot('NIH_Login_Page_user2.png');
+
   I.fillField('USER', process.env.RAS_TEST_USER_1_USERNAME);
   I.fillField('PASSWORD', process.env.RAS_TEST_USER_1_PASSWORD);
   await I.click({ xpath: 'xpath: //button[contains(text(), \'Sign in\')]' });
@@ -132,6 +135,9 @@ Scenario('Register a fence client for RAS Test User 2 without the ga4gh_passport
 
 Scenario('Visit Auth URL as RAS Test User 2 and click on I Accept button @rasAuthz', async (I) => {
   I.amOnPage(`/user/oauth2/authorize?response_type=code&client_id=${I.cache.rasUser2ClientId}&redirect_uri=https://${process.env.HOSTNAME}/user&scope=openid+user+data+google_credentials&idp=ras`);
+  await sleepMS(5000);
+  I.saveScreenshot('NIH_Login_Page_user2.png');
+
   I.fillField('USER', process.env.RAS_TEST_USER_2_USERNAME);
   I.fillField('PASSWORD', process.env.RAS_TEST_USER_2_PASSWORD);
   await I.click({ xpath: 'xpath: //button[contains(text(), \'Sign in\')]' });
