@@ -20,7 +20,7 @@ exports.config = {
             '--disable-gpu',
             '--whitelisted-ips=*',
             '--disable-features=VizDisplayCompositor',
-            // '--window-size=1280,720',
+            '--window-size=1280,720',
             // '--no-sandbox',
             // '--enable-features=NetworkService,NetworkServiceInProcess',
           ],
