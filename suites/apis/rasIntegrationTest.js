@@ -15,6 +15,8 @@
     to complete the OIDC flow.
     - RAS_TEST_USER_1_USERNAME
     - RAS_TEST_USER_1_PASSWORD
+    - RAS_TEST_USER_2_USERNAME
+    - RAS_TEST_USER_2_PASSWORD
 */
 Feature('RASAuthZ');
 
@@ -34,20 +36,27 @@ BeforeSuite(async (I) => {
     throw new Error('ERROR: There is no password defined for RAS Test User 1. Please declare the "RAS_TEST_USER_1_PASSWORD" environment variable and try again. Aborting test...');
   }
   // If running this locally, uncomment the lines below
-  const deleteClientCmd = 'fence-create --arborist http://arborist-service/ client-delete --client ras-user1-test-client';
-  const deleteClientForRASUser1 = bash.runCommand(deleteClientCmd, 'fence', takeLastLine);
+  const deleteClientCmd1 = 'fence-create --arborist http://arborist-service/ client-delete --client ras-user1-test-client';
+  const deleteClientForRASUser1 = bash.runCommand(deleteClientCmd1, 'fence', takeLastLine);
   console.log(`deleteClientForRASUser1: ${deleteClientForRASUser1}`);
+
+  const deleteClientCmd2 = 'fence-create --arborist http://arborist-service/ client-delete --client ras-user2-test-client';
+  const deleteClientForRASUser2 = bash.runCommand(deleteClientCmd2, 'fence', takeLastLine);
+  console.log(`deleteClientForRASUser2: ${deleteClientForRASUser2}`);
 });
 
 Scenario('Register a fence client for RAS Test User 1 with the ga4gh_passport_v1 scope @ras @authz', async (I) => {
   const registerClientCmd = `fence-create --arborist http://arborist-service/ client-create --client ras-user1-test-client --user ${process.env.RAS_TEST_USER_1_USERNAME} --urls https://${process.env.HOSTNAME}/user --policies programs.QA-admin programs.test-admin programs.DEV-admin programs.jnkns-admin --allowed-scopes openid user data google_credentials ga4gh_passport_v1`;
+
   const registerClientForRASUser1 = bash.runCommand(registerClientCmd, 'fence', takeLastLine);
   console.log(`registerClientForRASUser1: ${registerClientForRASUser1}`);
-  const re = /\('(.*)','(.*)'\)/;
+
+  const re = /\('(.*)',\s'(.*)'\)/;
   const clientID = registerClientForRASUser1.match(re)[1];
   const secretID = registerClientForRASUser1.match(re)[2];
   expect(clientID).to.not.to.be.empty;
   expect(secretID).to.not.to.be.empty;
+
   I.cache.rasUser1ClientId = clientID;
   I.cache.rasUser1SecretId = secretID;
 });
@@ -58,8 +67,9 @@ Scenario('Visit Auth URL as RAS Test User 1 and click on I Accept button @ras @a
   I.fillField('PASSWORD', process.env.RAS_TEST_USER_1_PASSWORD);
   await I.click({ xpath: 'xpath: //button[contains(text(), \'Sign in\')]' });
 
+  await sleepMS(5000);
+  I.saveScreenshot('I_authorize_page_user1.png');
   I.waitForElement({ css: '.auth-list' }, 10);
-  I.saveScreenshot('I_authorize_page.png');
 
   await I.click({ xpath: 'xpath: //button[contains(text(), \'Yes, I authorize.\')]' });
 
@@ -72,8 +82,8 @@ Scenario('Visit Auth URL as RAS Test User 1 and click on I Accept button @ras @a
   I.cache.rasUser1AuthCode = theCode;
 });
 
-Scenario('Use client creds and auth code to obtain access token and check if scope includes ga4gh_passport_v1 @ras @authz', async (I) => {
-  const obtainTokensCmd = `curl --user "${I.cache.rasUser1ClientId}:${I.cache.rasUser1SecretId}" -X POST "https://${process.env.HOSTNAME}/user/oauth2/token?grant_type=authorization_code&code=${I.cache.rasUser1AuthCode}&redirect_uri=https://${process.env.HOSTNAME}/user`;
+Scenario('Use client creds from RAS Test User 1 and auth code to obtain access token and check if scope includes ga4gh_passport_v1 @ras @authz', async (I) => {
+  const obtainTokensCmd = `curl --user "${I.cache.rasUser1ClientId}:${I.cache.rasUser1SecretId}" -X POST "https://${process.env.HOSTNAME}/user/oauth2/token?grant_type=authorization_code&code=${I.cache.rasUser1AuthCode}&redirect_uri=https://${process.env.HOSTNAME}/user"`;
   const obtainTokensForRASUser1 = bash.runCommand(obtainTokensCmd);
   console.log(`obtainTokensForRASUser1: ${JSON.stringify(obtainTokensForRASUser1)}`);
 
@@ -83,4 +93,56 @@ Scenario('Use client creds and auth code to obtain access token and check if sco
   const accessTokenJson = parseJwt(tokens.access_token);
 
   console.log(`access token scopes: ${accessTokenJson.aud}`);
+  expect(accessTokenJson.aud).to.include('ga4gh_passport_v1');
+});
+
+Scenario('Register a fence client for RAS Test User 2 without the ga4gh_passport_v1 scope @ras @authz', async (I) => {
+  const registerClientCmd = `fence-create --arborist http://arborist-service/ client-create --client ras-user2-test-client --user ${process.env.RAS_TEST_USER_2_USERNAME} --urls https://${process.env.HOSTNAME}/user --policies programs.QA-admin programs.test-admin programs.DEV-admin programs.jnkns-admin --allowed-scopes openid user data google_credentials`;
+
+  const registerClientForRASUser2 = bash.runCommand(registerClientCmd, 'fence', takeLastLine);
+  console.log(`registerClientForRASUser2: ${registerClientForRASUser2}`);
+
+  const re = /\('(.*)',\s'(.*)'\)/;
+  const clientID = registerClientForRASUser2.match(re)[1];
+  const secretID = registerClientForRASUser2.match(re)[2];
+  expect(clientID).to.not.to.be.empty;
+  expect(secretID).to.not.to.be.empty;
+
+  I.cache.rasUser2ClientId = clientID;
+  I.cache.rasUser2SecretId = secretID;
+});
+
+Scenario('Visit Auth URL as RAS Test User 2 and click on I Accept button @ras @authz', async (I) => {
+  I.amOnPage(`/user/oauth2/authorize?response_type=code&client_id=${I.cache.rasUser2ClientId}&redirect_uri=https://${process.env.HOSTNAME}/user&scope=openid+user+data+google_credentials&idp=ras`);
+  I.fillField('USER', process.env.RAS_TEST_USER_2_USERNAME);
+  I.fillField('PASSWORD', process.env.RAS_TEST_USER_2_PASSWORD);
+  await I.click({ xpath: 'xpath: //button[contains(text(), \'Sign in\')]' });
+
+  await sleepMS(5000);
+  I.saveScreenshot('I_authorize_page_user2.png');
+  I.waitForElement({ css: '.auth-list' }, 10);
+
+  await I.click({ xpath: 'xpath: //button[contains(text(), \'Yes, I authorize.\')]' });
+
+  await sleepMS(5000);
+  const urlWithCode = await I.grabCurrentUrl();
+  console.log(`the code: ${urlWithCode}`);
+
+  const theCode = urlWithCode.split('=')[1];
+  expect(theCode).to.not.to.be.empty;
+  I.cache.rasUser2AuthCode = theCode;
+});
+
+Scenario('Use client creds for RAS Test User 2 and auth code to obtain access token and check if scope does not include ga4gh_passport_v1 @ras @authz', async (I) => {
+  const obtainTokensCmd = `curl --user "${I.cache.rasUser2ClientId}:${I.cache.rasUser2SecretId}" -X POST "https://${process.env.HOSTNAME}/user/oauth2/token?grant_type=authorization_code&code=${I.cache.rasUser2AuthCode}&redirect_uri=https://${process.env.HOSTNAME}/user"`;
+  const obtainTokensForRASUser2 = bash.runCommand(obtainTokensCmd);
+  console.log(`obtainTokensForRASUser2: ${JSON.stringify(obtainTokensForRASUser2)}`);
+
+  const tokens = JSON.parse(obtainTokensForRASUser2);
+
+  // decode JWT / Access Token
+  const accessTokenJson = parseJwt(tokens.access_token);
+
+  console.log(`access token scopes: ${accessTokenJson.aud}`);
+  expect(accessTokenJson.aud).to.not.include('ga4gh_passport_v1');
 });
