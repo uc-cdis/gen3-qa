@@ -86,6 +86,18 @@ Scenario('Visit Auth URL as RAS Test User 1 and click on I Accept button @rasAut
   const theCode = urlWithCode.split('=')[1];
   expect(theCode).to.not.to.be.empty;
   I.cache.rasUser1AuthCode = theCode;
+
+  // Check ras test user 1 info
+  I.amOnPage('/user/user');
+  I.grabTextFrom('body').then((userInfo) => {
+    const ga4ghPassportToken = JSON.parse(userInfo).ga4gh_passport_v1;
+    console.log(`ga4gh_passport_v1 jwt from /user/user output: ${ga4ghPassportToken}`);
+
+    // decode JWT / ga4gh_passport_v1
+    const ga4ghPassportTokenJson = parseJwt(ga4ghPassportToken);
+    console.log(`ga4gh_visa_v1 decoded info: ${ga4ghPassportTokenJson.ga4gh_visa_v1}`);
+    expect(ga4ghPassportTokenJson.ga4gh_visa_v1).to.have.property('type', 'https://ras.nih.gov/visas/v1');
+  });
 });
 
 Scenario('Use client creds from RAS Test User 1 and auth code to obtain access token and check if scope includes ga4gh_passport_v1 @rasAuthz', async (I) => {
@@ -137,6 +149,20 @@ Scenario('Visit Auth URL as RAS Test User 2 and click on I Accept button @rasAut
   const theCode = urlWithCode.split('=')[1];
   expect(theCode).to.not.to.be.empty;
   I.cache.rasUser2AuthCode = theCode;
+
+  // Check ras test user 2 info
+  I.amOnPage('/user/user');
+  I.grabTextFrom('body').then((userInfo) => {
+    const ga4ghPassportToken = JSON.parse(userInfo).ga4gh_passport_v1;
+    console.log(`ga4gh_passport_v1 jwt from /user/user output: ${ga4ghPassportToken}`);
+
+    // decode JWT / ga4gh_passport_v1
+    const ga4ghPassportTokenJson = parseJwt(ga4ghPassportToken);
+    console.log(`ga4gh_visa_v1 decoded info: ${ga4ghPassportTokenJson.ga4gh_visa_v1}`);
+
+    // TODO: Clarify this issue here
+    // expect(ga4ghPassportTokenJson.ga4gh_visa_v1).to.not.have.property('type', 'https://ras.nih.gov/visas/v1');
+  });
 });
 
 Scenario('Use client creds for RAS Test User 2 and auth code to obtain access token and check if scope does not include ga4gh_passport_v1 @rasAuthz', async (I) => {
