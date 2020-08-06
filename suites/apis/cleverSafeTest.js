@@ -9,15 +9,15 @@ Feature('CleverSafe');
 const { expect } = require('chai');
 const apiUtil = require('../../utils/apiUtil.js');
 
-const expectedResult = 'meh';
+const expectedResult = 'test';
 
 const indexedFiles = {
   cleverSafeTestFile1: {
     filename: 'test',
     link: 's3://fence-cleversafe-test/test',
-    md5: '73d643ec3f4beb9020eef0beed440ad0',
+    md5: 'd8e8fca2dc0f896fd7cb4cb0031ba249',
     acl: ['QA'],
-    size: 9,
+    size: 5,
   },
 };
 
