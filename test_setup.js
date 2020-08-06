@@ -197,8 +197,8 @@ async function setupGoogleProjectDynamic() {
   }
 
   // If there are existing keys on the "user service account", delete them
-  const theNamespace = process.env.GCLOUD_DYNAMIC_PROJECT !== undefined ? process.env.GCLOUD_DYNAMIC_PROJECT : namespace;
-  const saName = `service-account@gen3qa-${theNamespace}.iam.gserviceaccount.com`;
+  const theNamespace = process.env.GCLOUD_DYNAMIC_PROJECT !== undefined ? process.env.GCLOUD_DYNAMIC_PROJECT : `gen3qa-${namespace}`;
+  const saName = `service-account@${theNamespace}.iam.gserviceaccount.com`;
   const saKeys = await google.listServiceAccountKeys(fenceProps.googleProjectDynamic.id, saName);
   if (!saKeys.keys) {
     console.error(saKeys);
