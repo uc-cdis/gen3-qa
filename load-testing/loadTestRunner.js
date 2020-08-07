@@ -101,7 +101,7 @@ async function runLoadTestScenario() {
   }
 
   // TODO: Move this to a separate utils function
-  if (loadTestScenario === 'import-clinical-metada') {
+  if (loadTestScenario === 'import-clinical-metadata') {
     loadTestArgs.unshift(`NUM_OF_RECORDS=${testDescriptorData.num_of_records}`);
     loadTestArgs.unshift('-e');
   }

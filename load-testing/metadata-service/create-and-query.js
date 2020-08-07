@@ -41,6 +41,7 @@ export default function () {
 
   console.log(`sending requests to: ${baseUrl}`);
 
+  console.log(`MDS_BASIC_AUTH.length: ${MDS_BASIC_AUTH.length}`);
   const auth = MDS_BASIC_AUTH.length > 0 ? `Basic ${MDS_BASIC_AUTH}` : `Bearer ${ACCESS_TOKEN}`;
 
   const params = {
