@@ -7,9 +7,8 @@
 Feature('CleverSafe');
 
 const { expect } = require('chai');
-const apiUtil = require('../../utils/apiUtil.js');
 
-const expectedResult = 'test';
+const expectedResult = 'test\n';
 
 const indexedFiles = {
   cleverSafeTestFile1: {
@@ -34,11 +33,9 @@ BeforeSuite(async (indexd) => {
 
 Scenario('Client (with access) with user token (with access) can create signed urls for records in namespace, not outside namespace @centralizedAuth',
   async (fence, indexd, users) => {
-    const accessToken = users.mainAcct.accessTokenHeader;
-
     console.log('Use mainAcct to create signed URL for a test file in the Clever Safe bucket');
     const signedUrlCleverSafe = await fence.do.createSignedUrlForUser(
-      indexedFiles.cleverSafeTestFile1.did, apiUtil.getAccessTokenHeader(accessToken),
+      indexedFiles.cleverSafeTestFile1.did, users.mainAcct.accessTokenHeader,
     );
     const cleverSafeTestFile1Contents = await fence.do.getFileFromSignedUrlRes(
       signedUrlCleverSafe,
