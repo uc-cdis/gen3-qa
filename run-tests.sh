@@ -222,6 +222,8 @@ runTestsIfServiceVersion "@dbgapSyncing" "fence" "3.0.0"
 runTestsIfServiceVersion "@indexRecordConsentCodes" "sheepdog" "1.1.13"
 runTestsIfServiceVersion "@coreMetadataPage" "portal" "2.20.8"
 runTestsIfServiceVersion "@indexing" "portal" "2.26.0" "2020.05"
+runTestsIfServiceVersion "@rasAuthN" "fence" "4.22.1" "2020.09"
+runTestsIfServiceVersion "@cleverSafe" "fence" "4.22.4" "2020.09"
 
 # environments that use DCF features
 # we only run Google Data Access tests for cdis-manifest PRs to these
@@ -241,6 +243,9 @@ donot '@manual'
 
 # Do not run force-fail tests
 donot '@fail'
+
+# Do not run batch processing tests
+donot '@batch'
 
 #
 # Google Data Access tests are only required for some envs
@@ -264,6 +269,12 @@ if [[ "$service" == "cdis-manifest" ]]; then
   donot '@indexdJWT'
 else
   echo "INFO: enabling Centralized Auth tests for $service"
+fi
+
+# Focus on GUI tests for data-portal
+if [[ "$service" == "data-portal" ]]; then
+  echo "INFO: disabling tests involving RESTful APIs & Gen3 CLI / Batch operations for $service"
+  donot '@metadataIngestion'
 fi
 
 echo "Checking kubernetes for optional services to test"
@@ -363,6 +374,9 @@ exitCode=0
 
 # set required vars
 export NAMESPACE="$namespaceName"
+if [[ "$testedEnv" == "ci-env-1.planx-pla.net" ]]; then
+  export GCLOUD_DYNAMIC_PROJECT="gen3qa-ci-env-1-279903"
+fi
 export testedEnv="$testedEnv"
 
 if [ "$selectedTest" == "all" ]; then
