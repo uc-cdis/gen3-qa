@@ -222,7 +222,7 @@ runTestsIfServiceVersion "@dbgapSyncing" "fence" "3.0.0"
 runTestsIfServiceVersion "@indexRecordConsentCodes" "sheepdog" "1.1.13"
 runTestsIfServiceVersion "@coreMetadataPage" "portal" "2.20.8"
 runTestsIfServiceVersion "@indexing" "portal" "2.26.0" "2020.05"
-runTestsIfServiceVersion "@rasAuthz" "fence" "4.22.1"
+runTestsIfServiceVersion "@rasAuthN" "fence" "4.22.1" "2020.09"
 runTestsIfServiceVersion "@cleverSafe" "fence" "4.22.4" "2020.09"
 
 # environments that use DCF features
