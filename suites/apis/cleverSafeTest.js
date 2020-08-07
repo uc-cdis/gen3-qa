@@ -31,7 +31,7 @@ BeforeSuite(async (indexd) => {
   ).to.be.true;
 });
 
-Scenario('Client (with access) with user token (with access) can create signed urls for records in namespace, not outside namespace @centralizedAuth',
+Scenario('Simple CleverSafe PreSigned URL test @cleverSafe',
   async (fence, indexd, users) => {
     console.log('Use mainAcct to create signed URL for a test file in the Clever Safe bucket');
     const signedUrlCleverSafe = await fence.do.createSignedUrlForUser(
