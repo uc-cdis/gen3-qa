@@ -1,3 +1,4 @@
+const { execSync } = require('child_process');
 const { clean } = require('../string');
 
 class Base {
@@ -20,7 +21,11 @@ class Base {
    * @param cmd
    * @returns {*}
    */
-  runCommand(cmd, service = undefined, cleanResult = clean) {
+  runCommand( // eslint-disable-line class-methods-use-this
+    cmd,
+    service = undefined,
+    cleanResult = clean,
+  ) {
     if (process.env.GEN3_HOME) {
       // eslint-disable-line no-template-curly-in-string
       const sourceCmd = `source "${process.env.GEN3_HOME}/gen3/lib/utils.sh"`;

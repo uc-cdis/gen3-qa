@@ -19,18 +19,31 @@ class SshK8s extends Base {
    * @param cleanResult lambda(string) => string cleans result string
    * @returns {*}
    */
-  runCommand(cmd, service = undefined, cleanResult = null) {
-    cleanResult = cleanResult || clean;
+  runCommand( // eslint-disable-line class-methods-use-this
+    cmd,
+    service = undefined,
+    cleanResult = null,
+  ) {
+    cleanResult = cleanResult || clean; // eslint-disable-line no-param-reassign
     const namespace = process.env.NAMESPACE;
     const commonsUser = userFromNamespace(namespace);
     if (service === undefined) {
       return cleanResult(execSync(`ssh ${commonsUser}@cdistest_dev.csoc 'export GEN3_HOME=$HOME/cloud-automation && source "$GEN3_HOME/gen3/gen3setup.sh"; source ~/.bashrc; ${cmd}'`,
         { shell: '/bin/bash' }).toString('utf8'));
     }
-    return cleanResult(execSync(
-      `ssh ${commonsUser}@cdistest_dev.csoc 'export GEN3_HOME=$HOME/cloud-automation && source "$GEN3_HOME/gen3/gen3setup.sh"; g3kubectl exec $(gen3 pod ${service} ${namespace}) -- ${cmd}'`,
-      { shell: '/bin/sh' },
-    ).toString('utf8'));
+    let result = '';
+    if (process.env.RUNNING_LOCAL === 'true') {
+      result = cleanResult(execSync(
+        `ssh ${commonsUser}@cdistest_dev.csoc 'export GEN3_HOME=$HOME/cloud-automation && source "$GEN3_HOME/gen3/gen3setup.sh"; export KUBECONFIG=/home/${process.env.NAMESPACE}/${process.env.vpc_name}/kubeconfig; g3kubectl exec $(gen3 pod ${service} ${namespace}) -- ${cmd}'`,
+        { shell: '/bin/sh' },
+      ).toString('utf8'));
+    } else {
+      result = cleanResult(execSync(
+        `ssh ${commonsUser}@cdistest_dev.csoc 'export GEN3_HOME=$HOME/cloud-automation && source "$GEN3_HOME/gen3/gen3setup.sh"; g3kubectl exec $(gen3 pod ${service} ${namespace}) -- ${cmd}'`,
+        { shell: '/bin/sh' },
+      ).toString('utf8'));
+    }
+    return result;
   }
 }
 
