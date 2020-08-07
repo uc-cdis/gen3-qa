@@ -23,7 +23,6 @@ for (let i = 1; i <= numOfJsons; i += 1) {
   const j = open(`../tmp/${i}.json`); // eslint-disable-line no-restricted-globals
   jsons.push(j);
 }
-console.log(`num of jsons in the list: ${jsons.length}`);
 
 export const options = {
   stages: JSON.parse(VIRTUAL_USERS.slice(1, -1)),
