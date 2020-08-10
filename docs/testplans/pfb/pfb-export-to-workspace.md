@@ -27,12 +27,14 @@ The areas of testing in scope are:
 
 ## Tests
 ### Functional testing
-1. Create tests in affected services to cover the new changes
+1. Test the changes in the updated services
+1. Test the cron job
 1. Create different cohorts in explorer and check the PFB data
 1. Create different cohorts in explorer and run the export operation and verify the data available in the notebook
 
 ### Load testing
-1. Create cohorts of different sizes and benchmark the time taken to complete the export operation
+1. Test different sizes and benchmark the time taken to complete the export operation
+1. Test and benchmark the cron job
 
 ### Stress testing
 1. Identify the largest possible cohort that can be exported in reasonable time, given the resources available in the test environment
