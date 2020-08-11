@@ -74,9 +74,14 @@ Scenario('Visit Auth URL as RAS Test User 1 and click on I Accept button @rasAut
 
   I.fillField('USER', process.env.RAS_TEST_USER_1_USERNAME);
   I.fillField('PASSWORD', process.env.RAS_TEST_USER_1_PASSWORD);
-  await I.click({ xpath: 'xpath: //button[contains(text(), \'Sign in\')]' });
+  I.click({ xpath: 'xpath: //button[contains(text(), \'Sign in\')]' });
 
-  await sleepMS(5000);
+  await sleepMS(3000);
+  const postNIHLoginURL = await I.grabCurrentUrl();
+  if (postNIHLoginURL === 'https://stsstg.nih.gov/auth/oauth/v2/authorize/consent') {
+    I.click({ xpath: 'xpath: //input[@value=\'Grant\']' });
+  }
+
   I.saveScreenshot('I_authorize_page_user1.png');
   I.waitForElement({ css: '.auth-list' }, 10);
 
@@ -142,7 +147,11 @@ Scenario('Visit Auth URL as RAS Test User 2 and click on I Accept button @rasAut
   I.fillField('PASSWORD', process.env.RAS_TEST_USER_2_PASSWORD);
   await I.click({ xpath: 'xpath: //button[contains(text(), \'Sign in\')]' });
 
-  await sleepMS(5000);
+  await sleepMS(3000);
+  const postNIHLoginURL = await I.grabCurrentUrl();
+  if (postNIHLoginURL === 'https://stsstg.nih.gov/auth/oauth/v2/authorize/consent') {
+    I.click({ xpath: 'xpath: //input[@value=\'Grant\']' });
+  }
   I.saveScreenshot('I_authorize_page_user2.png');
   I.waitForElement({ css: '.auth-list' }, 10);
 
