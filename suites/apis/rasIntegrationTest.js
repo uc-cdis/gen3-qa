@@ -115,11 +115,43 @@ Scenario('Use client creds from RAS Test User 1 and auth code to obtain access t
 
   const tokens = JSON.parse(obtainTokensForRASUser1);
 
+  // store refresh token to be used in the next test scenario
+  I.cache.rasUser1RefreshToken = tokens.refresh_token;
+
   // decode JWT / Access Token
   const accessTokenJson = parseJwt(tokens.access_token);
 
-  console.log(`access token scopes: ${accessTokenJson.aud}`);
+  // run curl with access token and assert the claim is in place
+  const userInfoOutputCmd = `curl -H "Authorization: bearer ${tokens.access_token}" https://${process.env.HOSTNAME}/user/user`;
+  const userInfoOutput = bash.runCommand(userInfoOutputCmd);
+  console.log(`userInfoOutput: ${JSON.stringify(userInfoOutput.ga4gh_passport_v1)}`);
+  const userInfoOutputJson = JSON.parse(userInfoOutput);
+
+  expect(userInfoOutputJson).to.have.property('ga4gh_passport_v1');
+  expect(userInfoOutputJson.ga4gh_passport_v1).to.not.to.be.empty;
+
+  console.log(`access token audience: ${accessTokenJson.aud}`);
+  console.log(`access token scope: ${accessTokenJson.scope}`);
   expect(accessTokenJson.aud).to.include('ga4gh_passport_v1');
+  expect(accessTokenJson.scope).to.include('ga4gh_passport_v1');
+});
+
+Scenario('Refresh the access token with the refresh_token obtained through the OIDC bootstrapping for RAS Test User 1 @rasAuthN', async (I) => {
+  const refreshAccessTokenCmd = `curl --user "${I.cache.rasUser1ClientId}:${I.cache.rasUser1SecretId}" -X POST "https://${process.env.HOSTNAME}/user/oauth2/token?grant_type=refresh_token&refresh_token=${I.cache.rasUser1RefreshToken}&client_id=${I.cache.rasUser1ClientId}&client_secret=${I.cache.rasUser1SecretId}"`;
+
+  const refreshAccessTokenOutput = bash.runCommand(refreshAccessTokenCmd);
+  console.log(`refreshAccessTokenOutput: ${refreshAccessTokenOutput}`);
+
+  const refreshAccessTokenOutputJson = JSON.parse(refreshAccessTokenOutput);
+
+  expect(refreshAccessTokenOutputJson).to.have.property('access_token');
+  expect(refreshAccessTokenOutputJson).to.have.property('id_token');
+  expect(refreshAccessTokenOutputJson).to.have.property('refresh_token');
+
+  // decode JWT / Access Token
+  const accessTokenJson = parseJwt(refreshAccessTokenOutputJson.access_token);
+  expect(accessTokenJson.aud).to.include('ga4gh_passport_v1');
+  expect(accessTokenJson.scope).to.include('ga4gh_passport_v1');
 });
 
 Scenario('Register a fence client for RAS Test User 2 without the ga4gh_passport_v1 scope @rasAuthN', async (I) => {
@@ -168,15 +200,8 @@ Scenario('Visit Auth URL as RAS Test User 2 and click on I Accept button @rasAut
   // Check ras test user 2 info
   I.amOnPage('/user/user');
   I.grabTextFrom('body').then((userInfo) => {
-    const ga4ghPassportToken = JSON.parse(userInfo).ga4gh_passport_v1;
-    console.log(`ga4gh_passport_v1 jwt from /user/user output: ${ga4ghPassportToken}`);
-
-    // decode JWT / ga4gh_passport_v1
-    const ga4ghPassportTokenJson = parseJwt(ga4ghPassportToken);
-    console.log(`ga4gh_visa_v1 decoded info: ${ga4ghPassportTokenJson.ga4gh_visa_v1}`);
-
-    // TODO: Clarify this issue here
-    // expect(ga4ghPassportTokenJson.ga4gh_visa_v1).to.not.have.property('type', 'https://ras.nih.gov/visas/v1');
+    const userInfoFromBrowser = JSON.parse(userInfo);
+    expect(userInfoFromBrowser).to.have.property('ga4gh_passport_v1');
   });
 });
 
@@ -189,7 +214,16 @@ Scenario('Use client creds for RAS Test User 2 and auth code to obtain access to
 
   // decode JWT / Access Token
   const accessTokenJson = parseJwt(tokens.access_token);
+  // run curl with access token and assert the claim is NOT in place
+  const userInfoOutputCmd = `curl -H "Authorization: bearer ${tokens.access_token}" https://${process.env.HOSTNAME}/user/user`;
+  const userInfoOutput = bash.runCommand(userInfoOutputCmd);
+  console.log(`userInfoOutput: ${JSON.stringify(userInfoOutput.ga4gh_passport_v1)}`);
+  const userInfoOutputJson = JSON.parse(userInfoOutput);
 
-  console.log(`access token scopes: ${accessTokenJson.aud}`);
+  expect(userInfoOutputJson).to.not.have.property('ga4gh_passport_v1');
+
+  console.log(`access token audience: ${accessTokenJson.aud}`);
+  console.log(`access token scope: ${accessTokenJson.scope}`);
   expect(accessTokenJson.aud).to.not.include('ga4gh_passport_v1');
+  expect(accessTokenJson.scope).to.not.include('ga4gh_passport_v1');
 });
