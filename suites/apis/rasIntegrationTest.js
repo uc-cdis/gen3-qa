@@ -121,6 +121,11 @@ Scenario('Use client creds from RAS Test User 1 and auth code to obtain access t
   // decode JWT / Access Token
   const accessTokenJson = parseJwt(tokens.access_token);
 
+  // PXP-6552 - Also decode the id_token and check if the client id is in place
+  const idTokenJson = parseJwt(tokens.id_token);
+  expect(idTokenJson).to.have.property('aud');
+  expect(idTokenJson.aud).to.include(I.cache.rasUser1ClientId);
+
   // run curl with access token and assert the claim is in place
   const userInfoOutputCmd = `curl -H "Authorization: bearer ${tokens.access_token}" https://${process.env.HOSTNAME}/user/user`;
   const userInfoOutput = bash.runCommand(userInfoOutputCmd);
