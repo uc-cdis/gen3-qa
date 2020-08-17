@@ -137,8 +137,8 @@ Scenario('Use client creds from RAS Test User 1 and auth code to obtain access t
 
   console.log(`access token audience: ${accessTokenJson.aud}`);
   console.log(`access token scope: ${accessTokenJson.scope}`);
-  expect(accessTokenJson.aud).to.include('ga4gh_passport_v1');
   expect(accessTokenJson.scope).to.include('ga4gh_passport_v1');
+  expect(accessTokenJson.scope).to.include('openid');
 });
 
 Scenario('Refresh the access token with the refresh_token obtained through the OIDC bootstrapping for RAS Test User 1 @rasAuthN', async (I) => {
@@ -230,5 +230,4 @@ Scenario('Use client creds for RAS Test User 2 and auth code to obtain access to
   console.log(`access token audience: ${accessTokenJson.aud}`);
   console.log(`access token scope: ${accessTokenJson.scope}`);
   expect(accessTokenJson.aud).to.not.include('ga4gh_passport_v1');
-  expect(accessTokenJson.scope).to.not.include('ga4gh_passport_v1');
 });
