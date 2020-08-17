@@ -155,7 +155,6 @@ Scenario('Refresh the access token with the refresh_token obtained through the O
 
   // decode JWT / Access Token
   const accessTokenJson = parseJwt(refreshAccessTokenOutputJson.access_token);
-  expect(accessTokenJson.aud).to.include('ga4gh_passport_v1');
   expect(accessTokenJson.scope).to.include('ga4gh_passport_v1');
 });
 
