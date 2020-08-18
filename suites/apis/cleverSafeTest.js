@@ -7,7 +7,6 @@
 Feature('CleverSafe');
 
 const { expect } = require('chai');
-const ax = require('axios');
 
 const expectedResult = 'test\n';
 
@@ -33,19 +32,15 @@ BeforeSuite(async (indexd) => {
 });
 
 Scenario('Simple CleverSafe PreSigned URL test @cleverSafe',
-  async (fence, indexd, users) => {
+  async (I, fence, indexd, users) => {
     console.log('Use mainAcct to create signed URL for a test file in the Clever Safe bucket');
     const signedUrlCleverSafe = await fence.do.createSignedUrlForUser(
       indexedFiles.cleverSafeTestFile1.did, users.mainAcct.accessTokenHeader,
     );
 
-    ax.request({
-      method: 'get',
-      url: `${signedUrlCleverSafe.url}`,
-    }).then((cleverSafeTestFile1Resp) => {
-      expect(
-        cleverSafeTestFile1Resp.data,
-        'User token with access could create signed urls and read file from Clever Safe bucket',
-      ).to.equal(expectedResult);
-    }, (err) => err.response || err);
+    const cleverSafeTestFile1Resp = await I.sendGetRequest(signedUrlCleverSafe.data.url);
+    expect(
+      cleverSafeTestFile1Resp.data,
+      'User token with access could not create signed urls and read file from Clever Safe bucket',
+    ).to.equal(expectedResult);
   });
