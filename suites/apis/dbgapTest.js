@@ -175,10 +175,10 @@ Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try crea
       chai.assert.fail(`Failed to fetch signed url ${url}`);
     }
 
-    chai.expect(phs000178s3FileContents,
+    chai.expect(phs000178s3FileContents.data,
       `User ${users.mainAcct.username} with access could NOT create s3 signed urls `
       + 'and read file for a record in authorized dbGaP project phs000178').to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-    chai.expect(phs000178gsFileContents,
+    chai.expect(phs000178gsFileContents.data,
       `User ${users.mainAcct.username} with access could NOT create gs signed urls `
       + 'and read file for a record in authorized dbGaP project phs000178').to.equal(fence.props.googleBucketInfo.test.fileContents);
 
