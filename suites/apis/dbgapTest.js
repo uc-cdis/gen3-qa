@@ -160,18 +160,15 @@ Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try crea
     let phs000178gsFileContents = null;
 
     try {
-      phs000178s3FileContents = await fence.do.getFileFromSignedUrlRes(
-        signedUrls3phs000178Res,
-      );
+      phs000178s3FileContents =  await I.sendGetRequest(signedUrls3phs000178Res.data.url);
+      console.log(`phs000178s3FileContents.status: ${phs000178s3FileContents.status}`);
     } catch (err) {
       const url = signedUrls3phs000178Res && signedUrls3phs000178Res.data && signedUrls3phs000178Res.data.url;
       console.log(`Failed to fetch signed url ${url}`, err);
       chai.assert.fail(`Failed to fetch signed url ${url}`);
     }
     try {
-      phs000178gsFileContents = await fence.do.getFileFromSignedUrlRes(
-        signedUrlgsPhs000178Res,
-      );
+      phs000178gsFileContents = await I.sendGetRequest(signedUrlgsPhs000178Res.data.url);
     } catch (err) {
       const url = signedUrlgsPhs000178Res && signedUrlgsPhs000178Res.data && signedUrlgsPhs000178Res.data.url;
       console.log(`Failed to fetch signed url ${url}`, err);
@@ -207,29 +204,29 @@ Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try crea
       users.mainAcct.accessTokenHeader,
     );
 
-    const phs000179s3FileContents = await fence.do.getFileFromSignedUrlRes(
-      signedUrls3phs000179Res,
+    const phs000179s3FileContents = await I.sendGetRequest(
+      signedUrls3phs000179Res.data.url,
     );
-    const anotherPhs000179s3FileContents = await fence.do.getFileFromSignedUrlRes(
-      signedUrls3anotherPhs000179FileRes,
+    const anotherPhs000179s3FileContents = await I.sendGetRequest(
+      signedUrls3anotherPhs000179FileRes.data.url,
     );
-    const phs000179gsFileContents = await fence.do.getFileFromSignedUrlRes(
-      signedUrlgsPhs000179Res,
+    const phs000179gsFileContents = await I.sendGetRequest(
+      signedUrlgsPhs000179Res.data.url,
     );
-    const anotherPhs000179gsFileContents = await fence.do.getFileFromSignedUrlRes(
-      signedUrlgsAnotherPhs000179FileRes,
+    const anotherPhs000179gsFileContents = await I.sendGetRequest(
+      signedUrlgsAnotherPhs000179FileRes.data.url,
     );
 
-    chai.expect(phs000179s3FileContents,
+    chai.expect(phs000179s3FileContents.data,
       `User ${users.mainAcct.username} WITHOUT access COULD create s3 signed urls `
       + 'and read file for a record in unauthorized dbGaP project phs000179 in namespace orgA').to.equal(fence.props.FILE_FROM_URL_ERROR);
-    chai.expect(anotherPhs000179s3FileContents,
+    chai.expect(anotherPhs000179s3FileContents.data,
       `User ${users.mainAcct.username} WITHOUT access COULD create s3 signed urls `
       + 'and read file for a record in unauthorized dbGaP project phs000179 in namespace orgB').to.equal(fence.props.FILE_FROM_URL_ERROR);
-    chai.expect(phs000179gsFileContents,
+    chai.expect(phs000179gsFileContents.data,
       `User ${users.mainAcct.username} WITHOUT access COULD create gs signed urls `
       + 'and read file for a record in unauthorized dbGaP project phs000179 in namespace orgA').to.equal(fence.props.FILE_FROM_URL_ERROR);
-    chai.expect(anotherPhs000179gsFileContents,
+    chai.expect(anotherPhs000179gsFileContents.data,
       `User ${users.mainAcct.username} WITHOUT access COULD create gs signed urls `
       + 'and read file for a record in unauthorized dbGaP project phs000179 in namespace orgB').to.equal(fence.props.FILE_FROM_URL_ERROR);
 
@@ -265,17 +262,17 @@ Scenario('dbGaP + user.yaml Sync: ensure combined access @dbgapSyncing @reqGoogl
       users.mainAcct.accessTokenHeader,
     );
 
-    const phs000178s3FileContents = await fence.do.getFileFromSignedUrlRes(
-      signedUrls3phs000178Res,
+    const phs000178s3FileContents = await I.sendGetRequest(
+      signedUrls3phs000178Res.data.url,
     );
-    const QAFileContents = await fence.do.getFileFromSignedUrlRes(
-      signedUrlsQARes,
+    const QAFileContents = await I.sendGetRequest(
+      signedUrlsQARes.data.url,
     );
 
-    chai.expect(phs000178s3FileContents,
+    chai.expect(phs000178s3FileContents.data,
       `User ${users.mainAcct.username} with access could NOT create s3 signed urls `
       + 'and read file for a record in authorized dbGaP project phs000178').to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-    chai.expect(QAFileContents,
+    chai.expect(QAFileContents.data,
       `User ${users.mainAcct.username} with access could NOT create s3 signed urls `
       + 'and read file for a record in authorized program QA').to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
   });
