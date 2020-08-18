@@ -21,6 +21,7 @@ exports.config = {
             '--whitelisted-ips=*',
             '--disable-features=VizDisplayCompositor',
             '--window-size=1280,720',
+            '--ignore-certificate-errors',
             // '--no-sandbox',
             // '--enable-features=NetworkService,NetworkServiceInProcess',
           ],
