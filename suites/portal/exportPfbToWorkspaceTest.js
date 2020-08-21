@@ -1,4 +1,5 @@
 /*
+Pre-requisites for executing the tests:
  1. Latest code of data-portal, pelican, manifestservice, gen3-fuse
  2. Clinical metadata and object data (at least 1 file linked)
  3. ETL executed and data present in ES
@@ -76,7 +77,7 @@ Scenario('The exported pfb is available in the jupyter notebook', ifInteractive(
             6. Click on 'Go to Workspace' button
             7. The '/workspace' page is loaded
             8. Launch a workspace
-            9. The exported pfb file is available in the file system  
+            9. Navigate to pd/data/ and verify that a new PFB and mount are present, labeled cohort-.avro and manifest-  
        `);
     expect(result.didPass, result.details).to.be.true;
   },
