@@ -26,7 +26,7 @@ Scenario('User1 can assemble a cohort and export pfb to workspace', ifInteractiv
        `);
     expect(result.didPass, result.details).to.be.true;
   },
-));
+)).tag('@manual');
 
 Scenario('User2 can assemble a cohort but cannot export pfb to workspace', ifInteractive(
   async () => {
@@ -38,7 +38,7 @@ Scenario('User2 can assemble a cohort but cannot export pfb to workspace', ifInt
        `);
     expect(result.didPass, result.details).to.be.true;
   },
-));
+)).tag('@manual');
 
 Scenario('On initiating export pfb to workspace, a pelican-export job is initiated', ifInteractive(
   async () => {
@@ -51,7 +51,7 @@ Scenario('On initiating export pfb to workspace, a pelican-export job is initiat
        `);
     expect(result.didPass, result.details).to.be.true;
   },
-));
+)).tag('@manual');
 
 Scenario('On initiating export pfb to workspace, a hatchery pod is created', ifInteractive(
   async () => {
@@ -64,7 +64,7 @@ Scenario('On initiating export pfb to workspace, a hatchery pod is created', ifI
        `);
     expect(result.didPass, result.details).to.be.true;
   },
-));
+)).tag('@manual');
 
 Scenario('The exported pfb is available in the jupyter notebook', ifInteractive(
   async () => {
@@ -77,11 +77,11 @@ Scenario('The exported pfb is available in the jupyter notebook', ifInteractive(
             6. Click on 'Go to Workspace' button
             7. The '/workspace' page is loaded
             8. Launch a workspace
-            9. Navigate to pd/data/ and verify that a new PFB and mount are present, labeled cohort-.avro and manifest-  
+            9. Navigate to pd/data/ and verify that a new PFB and mount are present, labeled cohort-<GUID>.avro and manifest-<GUID>  
        `);
     expect(result.didPass, result.details).to.be.true;
   },
-));
+)).tag('@manual');
 
 Scenario('The exported pfb can be decoded with pypfb inside the jupyter notebook', ifInteractive(
   async () => {
@@ -99,4 +99,4 @@ Scenario('The exported pfb can be decoded with pypfb inside the jupyter notebook
        `);
     expect(result.didPass, result.details).to.be.true;
   },
-));
+)).tag('@manual');
