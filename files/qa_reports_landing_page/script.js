@@ -39,7 +39,7 @@ $(() => {
                 "nameOfTheFolder": nameOfTheFolder,
                 "month": month,
                 "timestamp": timestamp,
-                "url": `/dashboard/Secure/QA/${year}/${month}/${nameOfTheFolder}/index.html`
+                "url": `/dashboard/Secure/QA/${year}/${quarter}/${month}/${nameOfTheFolder}/index.html`
               };
             }
           }
