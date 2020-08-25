@@ -4,6 +4,7 @@ import requests
 import base64
 import jwt
 from pprint import pprint
+import re
 
 # parse api_key from credentials.json
 # obtain iss to take note of the environment's hostname
@@ -40,15 +41,12 @@ def main():
       "api_key": credentials_data['api_key'],
       "Content-Type": "application/json",
     }
-  )
+  ).json()['access_token']
 
-  print('the access_token: {}'.format(access_token.text))
+  print('the access_token: {}'.format(access_token))
 
   dd_schema = requests.get(
     '{}/data/schema.json'.format(hostname),
-    headers = {
-      "Authorization": "Bearer {}".format(access_token)
-    }
   )
 
   print('the dd_schema: ')
@@ -56,13 +54,12 @@ def main():
 
   types = dd_schema.json()['data']['__schema']['types']
 
-  ba_graphql_query = '''
-    { "query": "{
-  '''
+  ba_graphql_query = "{"
   
   for type in types:
     #pprint(type)
-    
+    if type == "Root" or type.startswith("Transaction"):
+      continue
     ba_graphql_query += '{} (project_id:\"DEV-test\"),'.format(type['name'])
   ba_graphql_query += "}\" }"
   
@@ -70,6 +67,9 @@ def main():
 
   graphql_links = requests.post(
     '{}/api/v0/submission/graphql'.format(hostname),
+    data = {
+      "query": ba_graphql_query
+    },
     headers = {
       "Authorization": "Bearer {}".format(access_token)
     }
