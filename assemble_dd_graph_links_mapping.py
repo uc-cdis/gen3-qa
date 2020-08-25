@@ -50,7 +50,7 @@ def main():
   )
 
   print('the dd_schema: ')
-  # pprint(dd_schema.json()['data']['__schema']['types'])
+  pprint(dd_schema.json()['data']['__schema']['types'])
 
   types = dd_schema.json()['data']['__schema']['types']
 
@@ -58,7 +58,7 @@ def main():
   
   for type in types:
     #pprint(type)
-    if type == "Root" or type.startswith("Transaction"):
+    if type['name'] == "Root" or type['name'].startswith("Transaction"):
       continue
     ba_graphql_query += '{} (project_id:\"DEV-test\"),'.format(type['name'])
   ba_graphql_query += "}\" }"
