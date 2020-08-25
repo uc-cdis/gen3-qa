@@ -2,12 +2,14 @@ import json
 import sys
 import requests
 import base64
+import jwt
+from pprint import pprint
 
 # parse api_key from credentials.json
 # obtain iss to take note of the environment's hostname
 # send POST request to fence with the api_key to obtain an access_token
 # use access token to shoot a request against https://<environment>.planx-pla.net/data/schema.json
-# use schema.json to list all node types and store them into
+# use schema.json to list all node types and store them
 # pass node types and dictionary (schema.json) to a function
 # the function must assemble the complex query and send it to https://qa-dcp.planx-pla.net/api/v0/submission/graphql
 # parse the response and convert it to a new-data-simulator generator_configuration.json file
@@ -25,24 +27,56 @@ def main():
     credentials_data = json.load(f)
 
   print('credentials_data: {}'.format(credentials_data))
-    
-  split_jwt = credentials_data['api_key'].split('.')[1]
-  base64_data = split_jwt.replace('-', '+').replace('_', '/')
 
-  print('split_jwt: {}'.format(split_jwt))
-
-  print('base64_data: {}'.format(base64.decodestring(split_jwt)))
-  
-  decoded_api_key = json.loads(base64_data)
+  decoded_api_key = jwt.decode(credentials_data['api_key'], verify=False)
 
   print('the api_key: {}'.format(decoded_api_key))
-    
-  #access_token = requests.get(,
-  #    data = {
-  #      "api_key": api_key,
-  #      "Content-Type": "application/json",
-  #    },
 
+  hostname = decoded_api_key['iss'].replace('/user', '')
+  
+  access_token = requests.post(
+    '{}/user/credentials/api/access_token'.format(hostname),
+    data = {
+      "api_key": credentials_data['api_key'],
+      "Content-Type": "application/json",
+    }
+  )
+
+  print('the access_token: {}'.format(access_token.text))
+
+  dd_schema = requests.get(
+    '{}/data/schema.json'.format(hostname),
+    headers = {
+      "Authorization": "Bearer {}".format(access_token)
+    }
+  )
+
+  print('the dd_schema: ')
+  # pprint(dd_schema.json()['data']['__schema']['types'])
+
+  types = dd_schema.json()['data']['__schema']['types']
+
+  ba_graphql_query = '''
+    { "query": "{
+  '''
+  
+  for type in types:
+    #pprint(type)
+    
+    ba_graphql_query += '{} (project_id:\"DEV-test\"),'.format(type['name'])
+  ba_graphql_query += "}\" }"
+  
+  print('the ba_graphql_query: {}'.format(ba_graphql_query))
+
+  graphql_links = requests.post(
+    '{}/api/v0/submission/graphql'.format(hostname),
+    headers = {
+      "Authorization": "Bearer {}".format(access_token)
+    }
+  )
+
+  print('the graphql_links: {}'.format(graphql_links)) # Response 401 Unauthorized. HALP!!
+  
 if __name__ == '__main__':
     main()
 
