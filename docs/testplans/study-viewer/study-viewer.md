@@ -1,7 +1,7 @@
 # Study Viewer
 
 ## Overview
-Dataset Browser allows the user visiting the commons to discover if the dataset they need is available on the commons. The user doesn't need to have full access to look for the dataset they are interested in.
+Dataset Browser allows the user visiting the commons to discover if the dataset they need is available on the commons. The user doesn't need to have full access to look for the dataset they are interested in. Users can request access to data they don't have access to.
 
 It enables to the user to check :
 1. if Gen3 has the data they need
