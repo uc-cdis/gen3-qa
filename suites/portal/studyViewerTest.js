@@ -1,4 +1,4 @@
-Feature('Dataset Browser / Study Viewer');
+Feature('Study Viewer / Requestor');
 
 const chai = require('chai');
 const { interactive, ifInteractive } = require('../../utils/interactive.js');
