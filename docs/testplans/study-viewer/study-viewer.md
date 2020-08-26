@@ -16,7 +16,7 @@ It enables to the user to check :
 
 1. The users visits the commons 
 2. Navigate to the Dataset Browser/ Study Viewer Tab on the navigation bar
-3. The users searches for the dataset that they need and anc clicks 'Show Details'
+3. The user searches for the dataset that they need and clicks 'Show Details'
 4. if they have access, 'Download' button is displayed
 5. if they do not have access, 'Request Access' button is displayed
 6. Click on download button, if file -> file is downloaded, if program/project/study -> JSON manifest is downloaded
