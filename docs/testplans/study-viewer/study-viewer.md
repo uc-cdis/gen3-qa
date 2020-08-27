@@ -28,5 +28,5 @@ a. go to page, click on `Request Access` button to request access, recives `requ
 b. makes a manual call to validate the `request_id` with the Requestor <br>
 c. go back to the back, click on `Download' button to download the dataset <br>
 
-2. User with access - go to pafe, click on `Download` button and download the file from indexd
+2. User with access - go to page, click on `Download` button and download the file from indexd
  
