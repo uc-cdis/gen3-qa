@@ -18,10 +18,14 @@ AfterSuite(async (I, files) => {
   // clean up test files
 });
 
-// Scenario #1 - Submit some dummy clinical metadata
+// Scenario #1 - Submit some dummy clinical metadata, upload a file and map to a DD node
 Scenario('Run batch process to generate and submit clinical metadata @pfbButton', async (I) => {
   bash.runJob('gentestdata');
   await checkPod('gentestdata', 'gen3job,job-name=gentestdata');
+});
+
+Scenario('Upload a file and map it to a DD node @pfbButton', async (I) => {
+  // TODO
 });
 
 // Scenario #2 - Run ETL
@@ -32,10 +36,16 @@ Scenario('Run batch process to ETL the clinical metadata @pfbButton', async (I) 
 
 // Scenario #3 - Click on Export to PFB button
 Scenario('Navigate to Explorer page, assemble cohort and click on Export to PFB Button @pfbButton', async (I, home, users) => {
-  home.do.goToHomepage();
-  home.complete.login(users.mainAcct);
+  await home.do.goToHomepage();
+  await home.complete.login(users.mainAcct);
+  I.saveScreenshot('I_navigate_to_the_homepage.png');  
   I.amOnPage('/explorer');
-  I.click({ xpath: 'xpath: //p[contains(text(), \'Subject\') and @class=\'g3-filter-group__tab-title\']' });
+
+  console.log('waiting 5 seconds...');
+  await sleepMS(5000);
+  I.saveScreenshot('I_navigate_to_the_explorer_page.png');
+
+  I.click({ xpath: 'xpath: //p[contains(text(), \'Subject\')] and @class=\'g3-filter-group__tab-title\'' });
   I.saveScreenshot('I_open_the_subject_tab_on_explorer_page.png');
   I.click({ xpath: 'xpath: //span[contains(text(), \'Other\') and @class=\'g3-single-select-filter__label\']' });
 
