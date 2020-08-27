@@ -39,9 +39,6 @@ Scenario('Navigate to Explorer page, assemble cohort and click on Export to PFB 
   I.saveScreenshot('I_open_the_subject_tab_on_explorer_page.png');
   I.click({ xpath: 'xpath: //span[contains(text(), \'Other\') and @class=\'g3-single-select-filter__label\']' });
 
-  const waitingThreshold = 60;
-  console.log('Waiting for the Export to PFB button to light up on the Explorer page...');
-  await I.grabCSSFromElement({ css: '.g3-button--primary' }, waitingThreshold);
   I.click({ xpath: 'xpath: //span[contains(text(), \'Export to PFB\') and @class=\'explorer-button-group__download-button g3-button g3-button--primary\']' });
   I.saveScreenshot('I_click_on_export_to_pfb_button.png');
 
