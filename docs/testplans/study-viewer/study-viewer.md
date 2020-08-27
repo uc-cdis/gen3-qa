@@ -19,12 +19,14 @@ It enables to the user to check :
 3. The users searches for the dataset that they need and anc clicks 'Show Details'
 4. if they have access, 'Download' button is displayed
 5. if they do not have access, 'Request Access' button is displayed
-6. Click on download button, if file -> file is downloaded, if program/project/study -> JSON manifest is downloaded
+6. Click on download button, if file -> file is downloaded (first iteration)
 
-## Tests
- 
-1. Navigate to the Study Viewer Tab, if user has access, User should see 'Download' button
-2. User should be able to download file as file or program/project/study as JSON manifest
-3. If user doesn't have access, the user should see 'Request Access' button though which the user can request access
-4. After receiving access to download, the user should see 'Download' button on the dataset
+## Tests Scenarios
+
+1. User with no access - <br>
+a. go to page, click on `Request Access` button to request access, recives `request_id` from the Request Access Queue <br>
+b. makes a manual call to validate the `request_id` with the Requestor <br>
+c. go back to the back, click on `Download' button to download the dataset <br>
+
+2. User with access - go to pafe, click on `Download` button and download the file from indexd
  
