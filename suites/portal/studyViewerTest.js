@@ -33,14 +33,14 @@ Scenario('User2 has access to download @manual', ifInteractive(
 ));
 
 Scenario('Navigation to the detailed dataset page @manual', ifInteractive(
-    async () => {
-        const result = interactive(`
+  async () => {
+    const result = interactive(`
               1. Go to the Study Viewer Page
               2. Select the dataset that is needed for research
               3. Click on 'Learn More' button
               4. Navigates the user to the detailed page of the dataset that is selected
               5. User should be able to see 'Download' or 'Request Access' button depending on the access user has
           `);
-        expect(result.didPass, result.details).to.be.true;
-    },
+    expect(result.didPass, result.details).to.be.true;
+  },
 ));
