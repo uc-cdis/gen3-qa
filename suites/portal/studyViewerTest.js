@@ -13,7 +13,7 @@ Scenario('User1 has no access to download @manual', ifInteractive(
               2. Select the dataset that is needed for research
               3. Click on 'Request Access' button to acquire access to download
               4. User will receive request_id from 'Request Access Queue'
-              5. User makes a manual call to Requestor to validate the 'request_id' received
+              5. User3 (who has Requestor access) makes a manual call to Requestor to validate the 'request_id' received
               6. Go back to the page and user will have access to 'Download' button 
               7. Click in 'Download' button to download the file from indexd
           `);
