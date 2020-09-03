@@ -427,8 +427,8 @@ module.exports = {
           css: '.g3-button',
         },
       },
-      niaid:{
-        summary:{
+      niaid: {
+        summary: {
           css: '.index-page_introduction',
         },
         cards: {
