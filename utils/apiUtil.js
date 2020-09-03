@@ -427,7 +427,7 @@ module.exports = {
           css: '.g3-button',
         },
       },
-      niaid: {
+      'qa-niaid': {
         summary: {
           css: '.index-page_introduction',
         },
