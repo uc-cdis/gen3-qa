@@ -429,7 +429,7 @@ module.exports = {
       },
       niaid:{
         summary:{
-          css: '.index_page',
+          css: '.index-page_introduction',
         },
         cards: {
           css: '.g3-button',
