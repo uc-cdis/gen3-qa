@@ -31,3 +31,5 @@ c. go back to the back, click on `Download` button to download the dataset <br>
 2. User with access - go to page, click on `Download` button and download the file from indexd
  
 3. `Learn More` button navigates the user to `one row` page which displays the requested dataset
+
+4. Test functionality in a Data Commons with multiple configured Study Viewers
