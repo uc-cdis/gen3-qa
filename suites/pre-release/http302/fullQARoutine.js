@@ -14,7 +14,7 @@ Feature('Testing OIDC flow and pre-signed URL to check tokens - PXP-4649');
 
 // To be executed with GEN3_SKIP_PROJ_SETUP=true
 // No need to set up program / retrieve access token, etc.
-const { spawnSync } = require('child_process');
+const { execSync } = require('child_process');
 const { expect } = require('chai');
 const fenceProps = require('../../../services/apis/fence/fenceProps.js');
 const { interactive, ifInteractive } = require('../../../utils/interactive.js');
@@ -43,12 +43,11 @@ async function printOIDCFlowInstructionsAndObtainTokens(I, accountType) {
             % curl --user "${process.env.TEST_CLIENT_ID}:${process.env.TEST_SECRET_ID}" -X POST "https://${TARGET_ENVIRONMENT}/user/oauth2/token?grant_type=authorization_code&code=<CODE>&redirect_uri=https://${TARGET_ENVIRONMENT}/user"
             `);
   const theCode = await requestUserInput('Please paste in the code obtained in step #4 stated above: ');
-  const obtainTokensCmd = `curl --user "${process.env.TEST_CLIENT_ID}:${process.env.TEST_SECRET_ID}" -X POST "https://${TARGET_ENVIRONMENT}/user/oauth2/token?grant_type=authorization_code&code=${theCode}&redirect_uri=https://${TARGET_ENVIRONMENT}/user"`;
+  const obtainTokensCmd = `curl -s --user "${process.env.TEST_CLIENT_ID}:${process.env.TEST_SECRET_ID}" -X POST "https://${TARGET_ENVIRONMENT}/user/oauth2/token?grant_type=authorization_code&code=${theCode}&redirect_uri=https://${TARGET_ENVIRONMENT}/user"`;
   console.log(`running command: ${obtainTokensCmd}`);
-  const obtainTokensForTestUser = await spawnSync(obtainTokensCmd);
-  console.log(`obtainTokensForTestUser: ${JSON.stringify(obtainTokensForTestUser)}`);
-
-  const tokens = JSON.parse(obtainTokensForTestUser);
+  const obtainTokensCmdOut = await execSync(obtainTokensCmd, { shell: '/bin/sh' }).toString('utf8');
+  console.log(`obtainTokensCmdOut: ${JSON.stringify(obtainTokensCmdOut)}`);
+  const tokens = JSON.parse(obtainTokensCmdOut);
   const idTokenJson = parseJwt(tokens.id_token);
   expect(idTokenJson).to.have.property('aud');
 }
@@ -98,6 +97,7 @@ function assembleCustomHeaders(ACCESS_TOKEN) {
 }
 
 function fetchDIDLists(I, params = { hardcodedAuthz: null }) {
+  // TODO: Use negate_params to gather authorized (200) and blocked (401) files
   // Only assemble the didList if the list hasn't been initialized
   return new Promise((resolve) => {
     let projectAccessList = [];
