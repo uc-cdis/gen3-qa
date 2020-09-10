@@ -11,7 +11,7 @@ Feature('Google Bucket Manifest Generation');
 const { expect } = require('chai');
 // const tsv = require('tsv');
 const { checkPod, sleepMS } = require('../../utils/apiUtil.js');
-const { Bash, takeLastLine } = require('../../utils/bash.js');
+const { Bash } = require('../../utils/bash.js');
 
 const bash = new Bash();
 
@@ -88,12 +88,8 @@ AfterSuite(async (I) => {
 Scenario('Generate bucket manifest from s3 bucket @googleStorage @batch @bucketManifest', async (I) => {
   const theCmd = `gen3 gcp-bucket-manifest create ${testBucket} $PWD/authz_mapping_${I.cache.UNIQUE_NUM}.tsv`;
   console.log(`Running command: ${theCmd}`);
-  const triggerGCPBucketManifestGenerationJobOut = await bash.runCommand(
-    theCmd,
-    service = undefined, // eslint-disable-line no-undef
-    takeLastLine,
-  );
-  console.log(`gen3 bucket-manifest process initiated, here is the job id: ${triggerGCPBucketManifestGenerationJobOut}. Waiting for infrastructure provisioning...`);
+  const triggerGCPBucketManifestGenerationJobOut = await bash.runCommand(theCmd);
+  console.log(`gen3 bucket-manifest process initiated, here is the job id: ${triggerGCPBucketManifestGenerationJobOut.split('\n').slice(-1)}. Waiting for infrastructure provisioning...`);
 
   await sleepMS(20000);
   await checkPod('gcp-bucket-manifest', 'gen3job', params = { nAttempts: 100, ignoreFailure: false }); // eslint-disable-line no-undef
