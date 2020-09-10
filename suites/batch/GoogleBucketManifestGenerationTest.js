@@ -1,12 +1,12 @@
 /*
- Bucket Manifest Generation tests (PXP-6373)
+ Google Bucket Manifest Generation tests (PXP-6626)
  This test plan has a few pre-requisites:
- 1. A test bucket (bucket-manifest-ci-test) must be provisioned prior to the test run
+ 1. A test bucket (bucket-manifest-ci-test-gs) must be provisioned prior to the test run
     (containing 2 files whose content match the assertions)
  2. The environment must be configured with all the required gen3 cli dependencies
-    (e.g., Terraform).
+    (e.g., Terraform and the gcp-bucket-manifest-test service account).
 */
-Feature('Bucket Manifest Generation');
+Feature('Google Bucket Manifest Generation');
 
 const { expect } = require('chai');
 const tsv = require('tsv');
@@ -15,19 +15,19 @@ const { Bash } = require('../../utils/bash.js');
 
 const bash = new Bash();
 
-const testBucket = 'bucket-manifest-ci-test';
+const testBucket = 'bucket-manifest-ci-test-gs';
 /* eslint-disable no-tabs */
-const contentsOfAuthzMapping = 'url\tauthz\ns3://bucket-manifest-ci-test/test-file.txt\t/programs/DEV/project/test';
+const contentsOfAuthzMapping = 'url\tauthz\ngs://bucket-manifest-ci-test-gs/test-file.txt\t/programs/DEV/project/test';
 
 const expectedMetadataForAssertions = {
   test_file: {
-    url: 's3://bucket-manifest-ci-test/test-file.txt',
+    url: 'gs://bucket-manifest-ci-test-gs/test-file.txt',
     size: 21,
     md5: 'b36827811d9f452c42caa9043cf0dbf6',
     authz: '/programs/DEV/project/test',
   },
   humongous_file: {
-    url: 's3://bucket-manifest-ci-test/humongous-file.bam',
+    url: 'gs://bucket-manifest-ci-test-gs/humongous-file.bam',
     size: 5242880,
     md5: '5f363e0e58a95f06cbe9bbc662c5dfb6',
     authz: '',
@@ -38,7 +38,7 @@ async function deleteLingeringInfra() {
   console.log('deleting manifest_bucket-manifest-ci-test*.tsv files...');
   /* eslint-disable no-useless-escape */
   await bash.runCommand(`
-    find . -name "manifest_bucket-manifest-ci-test*.tsv" -exec rm {} \\\; -exec echo "deleted {}" \\\;
+    find . -name "gcp_manifest_bucket-manifest-ci-test*.tsv" -exec rm {} \\\; -exec echo "deleted {}" \\\;
   `);
   console.log('deleting authz_mapping_*.tsv files...');
   await bash.runCommand(`
@@ -47,7 +47,7 @@ async function deleteLingeringInfra() {
 
   console.log('looking for lingering bucket-manifest jobs...');
   const lingeringInfra = await bash.runCommand(`
-    gen3 bucket-manifest --list | xargs -i echo "{} "
+    gen3 gcp-bucket-manifest list | xargs -i echo "{} "
   `);
 
   if (lingeringInfra.length > 0) {
@@ -57,7 +57,7 @@ async function deleteLingeringInfra() {
     jobIdsFromPreviousRuns.forEach(async (jobId) => {
       console.log(`Tearing down infrastructure from job ${jobId}`);
       await bash.runCommand(`
-        echo yes | gen3 bucket-manifest --cleanup --job-id ${jobId}
+        echo yes | gen3 gcp-bucket-manifest cleanup ${jobId}
       `);
     });
   }
@@ -83,19 +83,19 @@ AfterSuite(async (I) => {
   await deleteLingeringInfra();
 });
 
-// Scenario #1 - Generate indexd manifest out of an s3 bucket
+// Scenario #1 - Generate indexd manifest out of a Google Storage bucket
 // and check if the expected url, size, md5 and authz entries are in place
-Scenario('Generate bucket manifest from s3 bucket @batch @bucketManifest', async (I) => {
-  const theCmd = `gen3 bucket-manifest --create --bucket ${testBucket} --authz $PWD/authz_mapping_${I.cache.UNIQUE_NUM}.tsv --output-variables`;
+Scenario('Generate bucket manifest from s3 bucket @googleStorage @batch @bucketManifest', async (I) => {
+  const theCmd = `gen3 gcp-bucket-manifest create ${testBucket} $PWD/authz_mapping_${I.cache.UNIQUE_NUM}.tsv`;
   console.log(`Running command: ${theCmd}`);
-  await bash.runCommand(theCmd);
-  console.log('gen3 bucket-manifest process initiated. Waiting for infrastructure provisioning...');
+  const triggerGCPBucketManifestGenerationJobOut = await bash.runCommand(theCmd, service = undefined, takeLastLine);
+  console.log(`gen3 bucket-manifest process initiated, here is the job id: ${triggerGCPBucketManifestGenerationJobOut}. Waiting for infrastructure provisioning...`);
 
   await sleepMS(20000);
-  await checkPod('aws-bucket-manifest', 'gen3job', params = { nAttempts: 100, ignoreFailure: false }); // eslint-disable-line no-undef
+  await checkPod('gcp-bucket-manifest', 'gen3job', params = { nAttempts: 100, ignoreFailure: false }); // eslint-disable-line no-undef
 
   const bucketManifestList = await bash.runCommand(`
-    gen3 bucket-manifest --list | xargs -i echo "{} "
+    gen3 gcp-bucket-manifest list | xargs -i echo "{} "
   `);
   console.log(`bucketManifestList: ${bucketManifestList}`);
 
@@ -103,11 +103,7 @@ Scenario('Generate bucket manifest from s3 bucket @batch @bucketManifest', async
     throw new Error(`ERROR: Found more than one jobId on namespace ${process.env.KUBECTL_NAMESPACE}.`);
   }
 
-  // read contents of the paramFile.json containing the bucket name
-  const bucketManifestJobDataRaw = await bash.runCommand(`
-    cat paramFile.json
-  `);
-  console.log(`bucketManifestJobDataRaw: ${bucketManifestJobDataRaw}`);
+/*  console.log(`bucketManifestJobDataRaw: ${bucketManifestJobDataRaw}`);
   const bucketManifestJobData = JSON.parse(bucketManifestJobDataRaw);
 
   const listContentsOfTempBucketRaw = await bash.runCommand(`
@@ -153,5 +149,5 @@ Scenario('Generate bucket manifest from s3 bucket @batch @bucketManifest', async
         assertionFailureMsg,
       ).to.be.equal(expectedMetadataForAssertions[files[i]][assertionKey]);
     });
-  }
+  }*/
 });
