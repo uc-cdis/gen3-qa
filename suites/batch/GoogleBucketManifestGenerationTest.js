@@ -92,10 +92,14 @@ Scenario('Generate bucket manifest from s3 bucket @googleStorage @batch @bucketM
   console.log(`Running command: ${theCmd}`);
   await bash.runCommand(theCmd);
   const triggerGCPBucketManifestGenerationJobOut = await bash.runCommand(theCmd);
-  console.log(`gen3 bucket-manifest process initiated, here is the job id: ${triggerGCPBucketManifestGenerationJobOut.split('\n').slice(-1)}. Waiting for infrastructure provisioning...`);
+  // parsing weird single line output similar to:
+  //  ci-env-1-planx-pla-net-gcp-bucket-manifest-gly9NAME TYPE DATA AGE
+  const jobIDFull = triggerGCPBucketManifestGenerationJobOut.slice(0, triggerGCPBucketManifestGenerationJobOut.indexOf('NAME'));
+  const jobId = jobIDFull.split('-')[-1];
+  console.log(`gen3 bucket-manifest process initiated, here is the job id: ${jobIDFull}. Waiting for infrastructure provisioning...`);
 
   await sleepMS(20000);
-  await checkPod('gcp-bucket-manifest', 'gen3job', params = { nAttempts: 100, ignoreFailure: false }); // eslint-disable-line no-undef
+  await checkPod('google-bucket-manifest', 'gen3job', params = { nAttempts: 100, ignoreFailure: false }); // eslint-disable-line no-undef
 
   const bucketManifestList = await bash.runCommand(`
     gen3 gcp-bucket-manifest list | xargs -i echo "{} "
@@ -108,11 +112,19 @@ Scenario('Generate bucket manifest from s3 bucket @googleStorage @batch @bucketM
 
   expect(triggerGCPBucketManifestGenerationJobOut).to.not.to.be.empty;
   expect(expectedMetadataForAssertions).to.not.to.be.empty;
+
+  const tempBucketName = `gs://${process.env.KUBECTL_NAMESPACE}-planx-pla-net-gcp-bucket-manifest-${jobId}_temp_bucket`;
+
+  const listContentsOfTempBucketRaw = await bash.runCommand(`
+    gsutil ls gs://${tempBucketName} | grep manifest_
+  `);
+  console.log(`listContentsOfTempBucketRaw: ${listContentsOfTempBucketRaw}`);
+
 /*  console.log(`bucketManifestJobDataRaw: ${bucketManifestJobDataRaw}`);
   const bucketManifestJobData = JSON.parse(bucketManifestJobDataRaw);
 
   const listContentsOfTempBucketRaw = await bash.runCommand(`
-    aws s3 ls s3://${bucketManifestJobData.bucket_name} | grep manifest_
+    gsutil ls gs://${bucketManifestJobData.bucket_name} | grep manifest_
   `);
   console.log(`listContentsOfTempBucketRaw: ${listContentsOfTempBucketRaw}`);
 
