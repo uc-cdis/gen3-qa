@@ -118,7 +118,7 @@ Scenario('Generate bucket manifest from s3 bucket @googleStorage @batch @bucketM
   const tempBucketName = `gs://${process.env.KUBECTL_NAMESPACE}-planx-pla-net-gcp-bucket-manifest-${jobId}_temp_bucket`;
 
   const listContentsOfTempBucketRaw = await bash.runCommand(`
-    gsutil ls gs://${tempBucketName} | grep manifest_
+    gsutil ls ${tempBucketName} | grep manifest_
   `);
   console.log(`listContentsOfTempBucketRaw: ${listContentsOfTempBucketRaw}`);
 
