@@ -50,6 +50,7 @@ async function deleteLingeringInfra() {
     gen3 gcp-bucket-manifest list | xargs -i echo "{} "
   `);
 
+  console.log(`lingeringInfra: ${lingeringInfra}`);
   if (lingeringInfra.length > 0) {
     console.log(`Found jobs in this namespace:\n  ${lingeringInfra}`);
     const jobIdsFromPreviousRuns = lingeringInfra.trim().split(' ');
