@@ -107,8 +107,9 @@ Scenario('Generate bucket manifest from s3 bucket @googleStorage @batch @bucketM
   `);
   console.log(`bucketManifestList: ${bucketManifestList}`);
 
-  if (bucketManifestList.trim().split(' ').length > 1) {
-    throw new Error(`ERROR: Found more than one jobId on namespace ${process.env.KUBECTL_NAMESPACE}.`);
+  // looks like this gen3 gcp-bucket-manifest create operation creates two job ids
+  if (bucketManifestList.trim().split(' ').length > 2) {
+    throw new Error(`ERROR: Found more than two jobIds on namespace ${process.env.KUBECTL_NAMESPACE}.`);
   }
 
   expect(triggerGCPBucketManifestGenerationJobOut).to.not.to.be.empty;
