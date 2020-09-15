@@ -96,8 +96,10 @@ Scenario('Generate bucket manifest from s3 bucket @googleStorage @batch @bucketM
   // parsing weird single line output similar to:
   //  ci-env-1-planx-pla-net-gcp-bucket-manifest-gly9NAME TYPE DATA AGE
   const jobIDFull = triggerGCPBucketManifestGenerationJobOut.slice(0, triggerGCPBucketManifestGenerationJobOut.indexOf('NAME'));
-  const jobId = jobIDFull.split('-')[-1];
-  console.log(`gen3 bucket-manifest process initiated, here is the job id: ${jobIDFull}. Waiting for infrastructure provisioning...`);
+  const jobId = jobIDFull.split('-').slice(-1)[0];
+  console.log(`gen3 bucket-manifest process initiated, here is the full job id: ${jobIDFull}. Waiting for infrastructure provisioning...`);
+  console.log(`short jobId: ${jobId}`);
+
 
   await sleepMS(20000);
   await checkPod('google-bucket-manifest', 'gen3job', params = { nAttempts: 100, ignoreFailure: false }); // eslint-disable-line no-undef
