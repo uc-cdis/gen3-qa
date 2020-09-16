@@ -124,17 +124,16 @@ Scenario('Generate bucket manifest from s3 bucket @googleStorage @batch @bucketM
   `);
   console.log(`listContentsOfTempBucketRaw: ${listContentsOfTempBucketRaw}`);
 
-  const downloadManifestFromTempBucket = await bash.runCommand(`
+  await bash.runCommand(`
     gsutil cp ${listContentsOfTempBucketRaw} .
   `);
-  console.log(
-    `downloadManifestFromTempBucket: ${downloadManifestFromTempBucket}`,
-  );
+
+  const bucketManifestFile = listContentsOfTempBucketRaw.split('/').slice(-1)[0];
 
   // read contents of the manifest
   // replacing EOL (End Of Line) after receiving the one-line string from bash
   let bucketManifestContentsRaw = await bash.runCommand(`
-    cat ${downloadManifestFromTempBucket} | xargs -i echo "{}[EOL]"
+    cat ${bucketManifestFile} | xargs -i echo "{}[EOL]"
   `);
   bucketManifestContentsRaw = bucketManifestContentsRaw.replace(/\[EOL\]/g, '\n');
   console.log(`bucketManifestContentsRaw: ${bucketManifestContentsRaw}`);
