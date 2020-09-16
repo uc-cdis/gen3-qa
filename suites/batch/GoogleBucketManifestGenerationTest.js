@@ -125,7 +125,7 @@ Scenario('Generate bucket manifest from s3 bucket @googleStorage @batch @bucketM
   console.log(`listContentsOfTempBucketRaw: ${listContentsOfTempBucketRaw}`);
 
   const downloadManifestFromTempBucket = await bash.runCommand(`
-    gsutil cp ${tempBucketName}/${listContentsOfTempBucketRaw} .
+    gsutil cp ${listContentsOfTempBucketRaw} .
   `);
   console.log(
     `downloadManifestFromTempBucket: ${downloadManifestFromTempBucket}`,
