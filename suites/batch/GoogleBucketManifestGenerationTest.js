@@ -9,7 +9,7 @@
 Feature('Google Bucket Manifest Generation');
 
 const { expect } = require('chai');
-// const tsv = require('tsv');
+const tsv = require('tsv');
 const { checkPod, sleepMS } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
 
@@ -124,6 +124,25 @@ Scenario('Generate bucket manifest from s3 bucket @googleStorage @batch @bucketM
   `);
   console.log(`listContentsOfTempBucketRaw: ${listContentsOfTempBucketRaw}`);
 
+  const downloadManifestFromTempBucket = await bash.runCommand(`
+    gsutil cp ${tempBucketName}/${listContentsOfTempBucketRaw} .
+  `);
+  console.log(
+    `downloadManifestFromTempBucket: ${downloadManifestFromTempBucket}`,
+  );
+
+  // read contents of the manifest
+  // replacing EOL (End Of Line) after receiving the one-line string from bash
+  let bucketManifestContentsRaw = await bash.runCommand(`
+    cat ${downloadManifestFromTempBucket} | xargs -i echo "{}[EOL]"
+  `);
+  bucketManifestContentsRaw = bucketManifestContentsRaw.replace(/\[EOL\]/g, '\n');
+  console.log(`bucketManifestContentsRaw: ${bucketManifestContentsRaw}`);
+  let bucketManifestTSV = tsv.parse(bucketManifestContentsRaw);
+  console.log(`bucketManifestTSV: ${JSON.stringify(bucketManifestTSV)}`);
+
+  bucketManifestTSV = bucketManifestTSV.sort((a, b) => a.size - b.size);
+  console.log(`sorted bucketManifestTSV: ${JSON.stringify(bucketManifestTSV)}`);
 /*  console.log(`bucketManifestJobDataRaw: ${bucketManifestJobDataRaw}`);
   const bucketManifestJobData = JSON.parse(bucketManifestJobDataRaw);
 
