@@ -142,49 +142,13 @@ Scenario('Generate bucket manifest from s3 bucket @googleStorage @batch @bucketM
 
   bucketManifestTSV = bucketManifestTSV.sort((a, b) => a.size - b.size);
   console.log(`sorted bucketManifestTSV: ${JSON.stringify(bucketManifestTSV)}`);
-/*  console.log(`bucketManifestJobDataRaw: ${bucketManifestJobDataRaw}`);
-  const bucketManifestJobData = JSON.parse(bucketManifestJobDataRaw);
-
-  const listContentsOfTempBucketRaw = await bash.runCommand(`
-    gsutil ls gs://${bucketManifestJobData.bucket_name} | grep manifest_
-  `);
-  console.log(`listContentsOfTempBucketRaw: ${listContentsOfTempBucketRaw}`);
-
-  const listContentsOfTempBucket = listContentsOfTempBucketRaw.split(/\s+/);
-  console.log(`listContentsOfTempBucket: ${listContentsOfTempBucket}`);
-
-  // Assertion - The temp bucket has been populated properly
-  // e.g., 2020-07-21 02:24:26        184 manifest_bucket-manifest-ci-test_07_21_20_02:24:25.tsv
-  expect(listContentsOfTempBucket).to.have.lengthOf(4);
-
-  const bucketManifestFile = listContentsOfTempBucket[listContentsOfTempBucket.length - 1];
-
-  const downloadManifestFromTempBucket = await bash.runCommand(`
-    aws s3 cp s3://${bucketManifestJobData.bucket_name}/${bucketManifestFile} .
-  `);
-  console.log(
-    `downloadManifestFromTempBucket: ${downloadManifestFromTempBucket}`
-  );
-
-  // read contents of the manifest
-  // replacing EOL (End Of Line) after receiving the one-line string from bash
-  let bucketManifestContentsRaw = await bash.runCommand(`
-    cat ${bucketManifestFile} | xargs -i echo "{}[EOL]"
-  `);
-  bucketManifestContentsRaw = bucketManifestContentsRaw.replace(/\[EOL\]/g, '\n');
-  console.log(`bucketManifestContentsRaw: ${bucketManifestContentsRaw}`);
-  let bucketManifestTSV = tsv.parse(bucketManifestContentsRaw);
-  console.log(`bucketManifestTSV: ${JSON.stringify(bucketManifestTSV)}`);
-
-  bucketManifestTSV = bucketManifestTSV.sort((a, b) => a.size - b.size);
-  console.log(`sorted bucketManifestTSV: ${JSON.stringify(bucketManifestTSV)}`);
 
   // Final assertions
   const files = ['test_file', 'humongous_file'];
   for (let i = 0; i < files.length; i++) { // eslint-disable-line no-plusplus
     Object.keys(expectedMetadataForAssertions[files[i]]).forEach((assertionKey) => {
       console.log(
-        `Running assertion for ${files[i]} (index: ${i}) - TSV header: ${assertionKey}...`
+        `Running assertion for ${files[i]} (index: ${i}) - TSV header: ${assertionKey}...`,
       );
       const assertionFailureMsg = `The ${assertionKey} in the bucket manifest doesn't match expected value for the ${files[i]}.`;
       expect(
@@ -192,5 +156,5 @@ Scenario('Generate bucket manifest from s3 bucket @googleStorage @batch @bucketM
         assertionFailureMsg,
       ).to.be.equal(expectedMetadataForAssertions[files[i]][assertionKey]);
     });
-  } */
+  }
 });
