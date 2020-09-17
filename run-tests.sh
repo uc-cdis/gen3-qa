@@ -263,7 +263,7 @@ fi
 #
 # RAS AuthN Integration tests are only required for some repos
 #
-if [[ "$isGen3Release" != "true" && "$service" != "gen3-qa" && "$service" != "fence" && "$service" == "cdis-manifest" ]]; then
+if [[ "$isGen3Release" != "true" && "$service" != "gen3-qa" && "$service" != "fence" && "$service" != "cdis-manifest" ]]; then
   # disable ras tests
   echo "INFO: disabling RAS AuthN Integration tests for $service"
   donot '@rasAuthN'
