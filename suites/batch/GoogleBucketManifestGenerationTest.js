@@ -100,7 +100,6 @@ Scenario('Generate bucket manifest from s3 bucket @googleStorage @batch @bucketM
   console.log(`gen3 bucket-manifest process initiated, here is the full job id: ${jobIDFull}. Waiting for infrastructure provisioning...`);
   console.log(`short jobId: ${jobId}`);
 
-
   await sleepMS(20000);
   await checkPod('google-bucket-manifest', 'gen3job', params = { nAttempts: 100, ignoreFailure: false }); // eslint-disable-line no-undef
 
