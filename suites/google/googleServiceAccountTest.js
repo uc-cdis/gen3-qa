@@ -513,7 +513,7 @@ Scenario('Delete a SA that was successfully registered before but was deleted fr
 Scenario('Service Account registration expiration test @reqGoogle', async (fence, users, google, files) => {
   // Test that we do not have access to data anymore after the SA is expired
 
-  const EXPIRES_IN = 5;
+  const EXPIRES_IN = 30;
 
   // Setup
   const googleProject = fence.props.googleProjectDynamic;
@@ -530,6 +530,8 @@ Scenario('Service Account registration expiration test @reqGoogle', async (fence
 
   // Get creds to access data
   const [pathToKeyFile, keyFullName] = await google.createServiceAccountKeyFile(googleProject);
+  // console.log(pathToKeyFile);
+  // console.log(keyFullName);
 
   // Access data
   user0AccessQARes = await google.getFileFromBucket(
