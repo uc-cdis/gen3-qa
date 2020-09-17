@@ -510,7 +510,7 @@ Scenario('Delete a SA that was successfully registered before but was deleted fr
 // Service Account expiration tests
 //
 
-Scenario('Service Account registration expiration test @reqGoogle @debug', async (fence, users, google, files) => {
+Scenario('Service Account registration expiration test @reqGoogle', async (fence, users, google, files) => {
   // Test that we do not have access to data anymore after the SA is expired
 
   const EXPIRES_IN = 60;
