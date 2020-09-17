@@ -19,7 +19,7 @@
                 "run",
                 "--verbose",
                 "--grep",
-                "@debug"
+                "Test Google Data Access user0"
             ],
             "env": {
                 "RUNNING_LOCAL": "true",
