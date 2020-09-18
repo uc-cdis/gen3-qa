@@ -339,6 +339,7 @@ module.exports = {
     // assuming all data files can be submitted with a single link to a
     // core_metadata_collection: add it, and remove other links
     const cmcSubmitterID = await this.generateAndAddCoremetadataNode(sheepdog);
+    console.log(`metadata.data: ${JSON.stringify(metadata.data)}`);
     for (const prop in metadata.data) {
       if (metadata.data.hasOwnProperty(prop) && metadata.data[prop].hasOwnProperty('submitter_id')) {
         delete metadata.data[prop];
