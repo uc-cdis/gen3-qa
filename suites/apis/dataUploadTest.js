@@ -45,13 +45,13 @@ const getUploadUrlFromFence = async function (fence, users) {
  * - Download the file via fence and check who can download and when
  */
 Scenario('File upload and download via API calls @dataUpload', async (fence, users, nodes, indexd, sheepdog, dataUpload) => {
-  // request a  presigned URL from fence
+  console.log(`${new Date()}: request a  presigned URL from fence`);
   const fenceUploadRes = await getUploadUrlFromFence(fence, users);
   const fileGuid = fenceUploadRes.data.guid;
   createdGuids.push(fileGuid);
   const presignedUrl = fenceUploadRes.data.url;
 
-  // check that a (blank) record was created in indexd
+  console.log(`${new Date()}: check that a (blank) record was created in indexd`);
   const fileNode = {
     did: fileGuid,
     data: {
@@ -61,46 +61,44 @@ Scenario('File upload and download via API calls @dataUpload', async (fence, use
   };
   await indexd.complete.checkRecordExists(fileNode);
 
-  // try to link metadata to the file before the indexd listener updates the
-  // record with size and hash: this should fail.
+  console.log(`${new Date()}: try to link metadata to the file before the indexd listener updates the record with size and hash: this should fail.`);
   // we simulate not waiting by not uploading the file to the S3 bucket yet
 
-  // fail to submit metadata for this file
+  console.log(`${new Date()}: fail to submit metadata for this file`);
   let sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, fileGuid, fileSize, fileMd5);
   sheepdog.ask.hasStatusCode(sheepdogRes.addRes, 400, 'Linking metadata to file without hash and size should not be possible');
 
-  // check that we CANNOT download the file (there is no URL in indexd yet)
+  console.log(`${new Date()}: check that we CANNOT download the file (there is no URL in indexd yet)`);
   let signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid);
   fence.ask.hasNoUrl(signedUrlRes);
 
-  // now, upload the file to the S3 bucket using the presigned URL
+  console.log(`${new Date()}: now, upload the file to the S3 bucket using the presigned URL`);
   await dataUpload.uploadFileToS3(presignedUrl, filePath, fileSize);
 
-  // wait for the indexd listener to add size, hashes and URL to the record
+  console.log(`${new Date()}: wait for the indexd listener to add size, hashes and URL to the record`);
   await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 
-  // Try downloading before linking metadata to the file. It should succeed
-  // for the uploader but fail for other users
+  console.log(`${new Date()}: Try downloading before linking metadata to the file. It should succeed for the uploader but fail for other users`);
 
-  // the uploader can now download the file
+  console.log(`${new Date()}: the uploader can now download the file`);
   signedUrlRes = await fence.do.createSignedUrlForUser(fileGuid);
   await fence.complete.checkFileEquals(
     signedUrlRes,
     fileContents,
   );
 
-  // a user who is not the uploader CANNOT download the file
+  console.log(`${new Date()}: a user who is not the uploader CANNOT download the file`);
   signedUrlRes = await fence.do.createSignedUrlForUser(
     fileGuid,
     users.auxAcct1.accessTokenHeader,
   );
   fence.ask.assertStatusCode(signedUrlRes, 401, 'User who is not the uploader should not successfully download file before metadata linking');
 
-  // submit metadata for this file
+  console.log(`${new Date()}: submit metadata for this file`);
   sheepdogRes = await nodes.submitGraphAndFileMetadata(sheepdog, fileGuid, fileSize, fileMd5);
   sheepdog.ask.addNodeSuccess(sheepdogRes);
 
-  // a user who is not the uploader can now download the file
+  console.log(`${new Date()}: a user who is not the uploader can now download the file`);
   signedUrlRes = await fence.do.createSignedUrlForUser(
     fileGuid,
     users.auxAcct1.accessTokenHeader,
@@ -110,7 +108,7 @@ Scenario('File upload and download via API calls @dataUpload', async (fence, use
     fileContents,
   );
 
-  // check that we cannot link metadata to a file that already has metadata:
+  console.log(`${new Date()}: check that we cannot link metadata to a file that already has metadata.`);
   // try to submit metadata for this file again
   sheepdogRes = await nodes.submitGraphAndFileMetadata(
     sheepdog,
