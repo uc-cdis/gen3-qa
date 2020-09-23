@@ -33,8 +33,9 @@ class SshK8s extends Base {
     }
     let result = '';
     if (process.env.RUNNING_LOCAL === 'true') {
+      const kubeconfigPath = process.env.vpc_name === undefined ? 'Gen3Secrets' : process.env.vpc_name;
       result = cleanResult(execSync(
-        `ssh ${commonsUser}@cdistest_dev.csoc 'export GEN3_HOME=$HOME/cloud-automation && source "$GEN3_HOME/gen3/gen3setup.sh"; export KUBECONFIG=/home/${process.env.NAMESPACE}/${process.env.vpc_name}/kubeconfig; g3kubectl exec $(gen3 pod ${service} ${namespace}) -- ${cmd}'`,
+        `ssh ${commonsUser}@cdistest_dev.csoc 'export GEN3_HOME=$HOME/cloud-automation && source "$GEN3_HOME/gen3/gen3setup.sh"; export KUBECONFIG=/home/${process.env.NAMESPACE}/${kubeconfigPath}/kubeconfig; g3kubectl exec $(gen3 pod ${service} ${namespace}) -- ${cmd}'`,
         { shell: '/bin/sh' },
       ).toString('utf8'));
     } else {
