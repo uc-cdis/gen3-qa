@@ -421,7 +421,7 @@ module.exports = {
       },
       accessclinical: {
         summary: {
-          css: '.index-page_introduction',
+          css: '.index-page__introduction',
         },
         cards: {
           css: '.g3-button',
@@ -429,7 +429,7 @@ module.exports = {
       },
       'qa-niaid': {
         summary: {
-          css: '.index-page_introduction',
+          css: '.index-page__introduction',
         },
         cards: {
           css: '.g3-button',
