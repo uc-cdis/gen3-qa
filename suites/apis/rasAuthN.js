@@ -2,7 +2,7 @@
 /*
  RAS Integration Test - AuthN Only (PXP-6505)
  This test plan has a few pre-requisites:
- 1. Fence > 4.22.3 must be deployed.
+ 1. Fence > 4.23.0 must be deployed.
  2. There must be an upstream client previously registered with NIH/RAS and
     the test environment must have its client & secret ID stored into its Fence config.
     e.g., $ cat gen3_secrets_folder/configs/fence-config.yaml | yq .OPENID_CONNECT.ras
