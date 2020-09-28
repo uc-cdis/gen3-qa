@@ -16,8 +16,6 @@
     to complete the OIDC flow.
     - RAS_TEST_USER_1_USERNAME
     - RAS_TEST_USER_1_PASSWORD
-    - RAS_TEST_USER_2_USERNAME
-    - RAS_TEST_USER_2_PASSWORD
 */
 Feature('RASAuthN - Negative Tests');
 
@@ -37,20 +35,11 @@ Before(async () => {
   } else if (process.env.RAS_TEST_USER_1_PASSWORD === undefined) {
     throw new Error('ERROR: There is no password defined for RAS Test User 1. Please declare the "RAS_TEST_USER_1_PASSWORD" environment variable and try again. Aborting test...');
   }
-  if (process.env.RAS_TEST_USER_2_USERNAME === undefined) {
-    throw new Error('ERROR: There is no username defined for RAS Test User 2. Please declare the "RAS_TEST_USER_2_USERNAME" environment variable and try again. Aborting test...');
-  } else if (process.env.RAS_TEST_USER_2_PASSWORD === undefined) {
-    throw new Error('ERROR: There is no password defined for RAS Test User 2. Please declare the "RAS_TEST_USER_2_PASSWORD" environment variable and try again. Aborting test...');
-  }
 
   // Deleting registered clients for idempotent local runs
   const deleteClientCmd1 = 'fence-create --arborist http://arborist-service/ client-delete --client ras-user1-test-client';
   const deleteClientForRASUser1 = bash.runCommand(deleteClientCmd1, 'fence', takeLastLine);
   console.log(`deleteClientForRASUser1: ${deleteClientForRASUser1}`);
-
-  const deleteClientCmd2 = 'fence-create --arborist http://arborist-service/ client-delete --client ras-user2-test-client';
-  const deleteClientForRASUser2 = bash.runCommand(deleteClientCmd2, 'fence', takeLastLine);
-  console.log(`deleteClientForRASUser2: ${deleteClientForRASUser2}`);
 });
 
 const registerRasClient = (username) => {
