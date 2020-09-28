@@ -107,9 +107,14 @@ Scenario('Click on Deny button in RAS Authorization page @rashAuthN @negativeTes
   if (postNIHLoginURL === 'https://stsstg.nih.gov/auth/oauth/v2/authorize/consent') {
     I.click({ xpath: 'xpath: //input[@value=\'Deny\']' });
   }
-
-  await sleepMS(3000);
-  const urlWithCode = await I.grabCurrentUrl();
+  I.saveScreenshot('NIH_Login_3.png');
+  // await sleepMS(3000);
+  let urlWithCode = await I.grabCurrentUrl();
+  console.log(`URL With Code - ${urlWithCode}`);
   expect(urlWithCode).to.contain('error_description=The+resource_owner+denied+access+to+resources',
     'The error message is not as expected');
+  await sleepMS(3000);
+  I.saveScreenshot('NIH_Login_4.png');
+  urlWithCode = await I.grabCurrentUrl();
+  console.log(`URL With Code - ${urlWithCode}`);
 });
