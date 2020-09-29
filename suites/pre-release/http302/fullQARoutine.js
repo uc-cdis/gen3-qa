@@ -509,3 +509,22 @@ Scenario('Test the "Export to PFB" button from the Exploration page @manual', if
     expect(result.didPass, result.details).to.be.true;
   },
 ));
+
+// Scenario #22 - Explorer `Download Manifest` button test
+Scenario('Test the "Download Manifest" button from the Exploration page @manual', ifInteractive(
+  async () => {
+    const result = await interactive(`
+            1. Login with NIH credentials
+            2. Click "Exploration" tab
+            3. Click on the "File" tab and select a project $PROJECT under "Project ID".
+            4. Record the number of files selected $FILE_COUNT
+            3. Click on the "Case" tab and, under "Project Id", select $PROJECT
+            4. Click on the "Download Manifest" button. A 'manifest.json' file should be automatically downloaded.
+            5. The manifest.json file should contain $FILE_COUNT object, or sometimes fewer. Run
+            $ jq '. | length' /path/to/manifest.json
+            NOTE: If there are data files that are not associated with subjects (e.g. Multisample VCFs), this number may
+            be slightly smaller than $FILE_COUNT. I'm not sure how to get the exact number of expected data files :facepalm: --@mpingram
+            `);
+    expect(result.didPass, result.details).to.be.true;
+  },
+));
