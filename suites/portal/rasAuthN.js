@@ -63,13 +63,13 @@ Before(async () => {
   console.log(`deleteClientForRASUser1: ${deleteClientForRASUser1}`);
 });
 
-Scenario('Provide invalid credentials in NIH Login page @rasAuthN @negativeTest', async () => {
+Scenario('Provide invalid credentials in NIH Login page @rasAuthN', async () => {
   // Using RAS Test User 1
   await rasAuthLogin(process.env.RAS_TEST_USER_1_USERNAME, 'THIS_IS_AN_INVALID_PASSWORD_FOR_USER_1');
   I.seeTextEquals('Login Failed', 'h1');
 });
 
-Scenario('Click on Deny button in RAS Authorization page @rashAuthN @negativeTest', async () => {
+Scenario('Click on Deny button in RAS Authorization page @rashAuthN', async () => {
   // Using RAS Test User 1
   await rasAuthLogin(process.env.RAS_TEST_USER_1_USERNAME, process.env.RAS_TEST_USER_1_PASSWORD);
 
