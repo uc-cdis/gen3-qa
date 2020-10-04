@@ -1,3 +1,4 @@
+/*eslint-disable */
 /**
  * Util providing nodes (graph data) access from local files to submit, delete, sort, etc
  * @module nodesUtil
@@ -316,6 +317,7 @@ module.exports = {
   async submitGraphAndFileMetadata(sheepdog, fileGuid = null, fileSize = null, fileMd5 = null, submitter_id = null, consent_codes = null) {
     // submit metadata with object id via sheepdog
     const metadata = this.getFileNode().clone();
+    console.log(`${new Date()}: fail to submit metadata for this file`);
     if (fileGuid) {
       metadata.data.object_id = fileGuid;
     }
@@ -336,19 +338,27 @@ module.exports = {
       metadata.data.consent_codes = consent_codes;
     }
 
+    console.log(`### ## DEBUG HERE`);
     // assuming all data files can be submitted with a single link to a
     // core_metadata_collection: add it, and remove other links
     const cmcSubmitterID = await this.generateAndAddCoremetadataNode(sheepdog);
     console.log(`metadata.data: ${JSON.stringify(metadata.data)}`);
+    console.log(`metadata.data property names: ${Object.getOwnPropertyNames(metadata.data)}`);
     for (const prop in metadata.data) {
-      if (metadata.data.hasOwnProperty(prop) && metadata.data[prop].hasOwnProperty('submitter_id')) {
-        delete metadata.data[prop];
+      console.log(`metadata.data prop: ${JSON.stringify(prop)}`);
+      try {
+        if (metadata.data.hasOwnProperty(prop) && metadata.data[prop].hasOwnProperty('submitter_id')) {
+          delete metadata.data[prop];
+        }
+      } catch (err) {
+        console.error(`WARN: Failed to check for the presence of the submitter_id property in metadata block ${prop}`, err);
       }
     }
     metadata.data.core_metadata_collections = {
       submitter_id: cmcSubmitterID,
     };
 
+    console.log(`${new Date()}: about to add metadata node`);
     await sheepdog.do.addNode(metadata); // submit, but don't check for success
 
     // the result of the submission is stored in metadata.addRes by addNode()
