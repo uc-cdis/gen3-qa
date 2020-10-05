@@ -51,6 +51,8 @@ async function runLoadTestScenario() {
     const overrideJwtData = parseJwt(testDescriptorData.override_access_token);
     targetEnvironment = overrideJwtData.iss;
     console.log(`Target environment from override token: ${targetEnvironment}`);
+    targetEnvironment = targetEnvironment.replace(/(^\w+:|^)\/\//, '').replace('/user', '');
+    console.log(`Sanitized target environment from override token: ${targetEnvironment}`);
   } else {
     token = await getAccessTokenFromApiKey(apiKey, targetEnvironment)
       .then((ACCESS_TOKEN) => {

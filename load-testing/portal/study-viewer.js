@@ -20,8 +20,7 @@ export const options = {
 };
 
 export default function () {
-  // iss parameter from access token already contains the "https://" protocol prefix
-  const url = `${GEN3_HOST}/study-viewer/clinical_trials`;
+  const url = `https://${GEN3_HOST}/study-viewer/clinical_trials`;
 
   const params = {
     headers: {
