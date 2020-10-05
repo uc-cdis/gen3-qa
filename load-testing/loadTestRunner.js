@@ -47,7 +47,8 @@ async function runLoadTestScenario() {
   let token = '';
   if (Object.prototype.hasOwnProperty.call(testDescriptorData, 'override_access_token')) {
     token = testDescriptorData.override_access_token;
-    const overrideJwtData = await parseJwt(testDescriptorData.override_access_token);
+    console.log(`Override token: ${token}`);
+    const overrideJwtData = parseJwt(testDescriptorData.override_access_token);
     targetEnvironment = overrideJwtData.iss;
     console.log(`Target environment from override token: ${targetEnvironment}`);
   } else {
