@@ -352,6 +352,7 @@ module.exports = {
         }
       } catch (err) {
         console.error(`WARN: Failed to check for the presence of the submitter_id property in metadata block ${prop}`, err);
+        console.error(`Here is the full metadata obj: ${metadata}`);
       }
     }
     metadata.data.core_metadata_collections = {
