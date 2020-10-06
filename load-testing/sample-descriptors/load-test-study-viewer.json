@@ -13,7 +13,14 @@
     { "duration": "60s", "target": 100 },
     { "duration": "60s", "target": 150 },
     { "duration": "60s", "target": 200 },
-    { "duration": "60s", "target": 200 },
+    { "duration": "60s", "target": 300 },
+    { "duration": "90s", "target": 400 },
+    { "duration": "90s", "target": 500 },
+    { "duration": "90s", "target": 600 },
+    { "duration": "90s", "target": 700 },
+    { "duration": "120s", "target": 800 },
+    { "duration": "120s", "target": 900 },
+    { "duration": "120s", "target": 1000 },
     { "duration": "120s", "target": 0 }
   ]
 }
