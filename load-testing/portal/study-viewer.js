@@ -37,7 +37,7 @@ export default function () {
       // if (res.status !== 200) {
       //   console.log(`Request response: ${res.status}`);
       //   console.log(`Request response: ${res.body}`);
-      //}
+      // }
       check(res, {
         'is status 200': (r) => r.status === 200,
       });
