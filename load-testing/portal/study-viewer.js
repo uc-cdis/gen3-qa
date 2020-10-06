@@ -30,13 +30,13 @@ export default function () {
   };
   group('Visiting the study viewer page', () => {
     group('http get', () => {
-      console.log(`Shooting requests against: ${url}`);
+      //console.log(`Shooting requests against: ${url}`);
       const res = http.get(url, params, { tags: { name: 'NIAID Study Viewer' } });
       // console.log(`Request performed: ${new Date()}`);
       myFailRate.add(res.status !== 200);
-      if (res.status !== 200) {
-        console.log(`Request response: ${res.status}`);
-        console.log(`Request response: ${res.body}`);
+      // if (res.status !== 200) {
+      //   console.log(`Request response: ${res.status}`);
+      //   console.log(`Request response: ${res.body}`);
       }
       check(res, {
         'is status 200': (r) => r.status === 200,
