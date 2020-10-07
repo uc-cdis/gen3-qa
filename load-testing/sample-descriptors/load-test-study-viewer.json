@@ -16,8 +16,6 @@
     { "duration": "60s", "target": 300 },
     { "duration": "90s", "target": 400 },
     { "duration": "90s", "target": 500 },
-    { "duration": "90s", "target": 600 },
-    { "duration": "90s", "target": 700 },
     { "duration": "120s", "target": 0 }
   ]
 }
