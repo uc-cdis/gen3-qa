@@ -4,13 +4,14 @@ const { expect } = chai;
 
 const apiUtil = require('../../utils/apiUtil.js');
 
-
 Feature('LinkGoogleAccount');
-
 
 BeforeSuite(async ({ fence, users }) => {
   // Cleanup before suite
-  const unlinkResults = Object.values(users).map(({ user }) => fence.do.unlinkGoogleAcct(user));
+  const unlinkResults = await Object.values(users)
+    .map(async ({ user }) => {
+      await fence.do.unlinkGoogleAcct(user);
+    });
   await Promise.all(unlinkResults);
 });
 

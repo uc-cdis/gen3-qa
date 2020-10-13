@@ -148,7 +148,7 @@ BeforeSuite(async ({ I, users }) => {
   await I.sendDeleteRequest(
     `/mds-admin/metadata/${expectedResults.ingest_metadata_manifest.testGUID}`,
     users.indexingAcct.accessTokenHeader,
-  ).then(({ res }) => new Gen3Response(res));
+  );
   await I.sendDeleteRequest(
     `/mds-admin/metadata/${expectedResults.get_dbgap_metadata.testGUID}`,
     users.indexingAcct.accessTokenHeader,
@@ -190,7 +190,6 @@ Scenario('Dispatch ingest-metadata-manifest sower job with simple tsv and verify
   );
   expect(metadataServiceEntry.dbgap.sra_sample_id).to.equal(`${expectedResults.ingest_metadata_manifest.sra_sample_id}`);
 }).retry(1);
-
 
 // Scenario #2 - Instrument sower HTTP API endpoint to trigger the get-dbgap-metadata job
 // pointing to a mock dbgap study file and check if the expected mds entry is created successfully
