@@ -83,7 +83,7 @@ function assertEnvVars(varNames) {
  * @returns {Promise<void>}
  */
 async function tryCreateProgramProject(nAttempts) {
-  console.log(`envs: ${process.env.GEN3_SKIP_PROJ_SETUP}`);
+  console.log(`GEN3_SKIP_PROJ_SETUP: ${process.env.GEN3_SKIP_PROJ_SETUP}`);
   if (process.env.GEN3_SKIP_PROJ_SETUP !== 'true') {
     let success = false;
     for (let i = 0; i < nAttempts; i += 1) {
@@ -218,7 +218,7 @@ async function setupGoogleProjectDynamic() {
  * Should really be named `isNotExcluded` - since it returns true
  * if the tag is not mentioned or if the tag is mentioned and invert is not passed.
  */
-async function isIncluded(tag) {
+function isIncluded(tag) {
   return (!testTags.includes(tag) && testTags.includes('--invert')) || (testTags.includes(tag) && !testTags.includes('--invert'));
 }
 
@@ -261,7 +261,7 @@ module.exports = async function () {
     }
 
     console.log(`isIncluded('@reqGoogle'): ${await isIncluded('@reqGoogle')}`);
-    if (await isIncluded('@reqGoogle')) {
+    if (isIncluded('@reqGoogle')) {
       createGoogleTestBuckets();
       await setupGoogleProjectDynamic();
     }
