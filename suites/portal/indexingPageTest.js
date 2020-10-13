@@ -9,7 +9,7 @@
 Feature('Indexing GUI');
 
 const { expect } = require('chai');
-const { checkPod, sleepMS, Gen3Response } = require('../../utils/apiUtil.js');
+const { checkPod, sleepMS } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
 
 const bash = new Bash();
@@ -39,7 +39,7 @@ BeforeSuite(async ({ I, files, indexd }) => {
   console.log('deleting existing test records...');
   const listOfIndexdRecords = await I.sendGetRequest(
     `${indexd.props.endpoints.get}`,
-  ).then(({ res }) => new Gen3Response(res));
+  );
 
   listOfIndexdRecords.data.records.forEach(async ({ record }) => {
     console.log(record.did);
@@ -72,7 +72,7 @@ Scenario('Navigate to the indexing page and upload a test manifest @indexing', a
     console.log(`Looking up the indexd record... - attempt ${i}`);
     const indexdRecordRes = await I.sendGetRequest(
       `/index/${testGUID}`,
-    ).then(({ res }) => new Gen3Response(res));
+    );
 
     if (indexdRecordRes.data.hashes) {
       expect(indexdRecordRes.data.hashes.md5).to.equal(testHash);
@@ -111,7 +111,7 @@ Scenario('Navigate to the indexing page and download a full indexd manifest @ind
   console.log(`### Manifest download url: ${manifestDownloadUrl}`);
   const getManifestRes = await I.sendGetRequest(
     manifestDownloadUrl.toString(),
-  ).then(({ res }) => new Gen3Response(res));
+  );
   console.log(`### downloadOuput: ${JSON.stringify(getManifestRes)}`);
 
   const downloadedManifestData = getManifestRes.body;
