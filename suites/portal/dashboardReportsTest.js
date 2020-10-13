@@ -8,7 +8,7 @@ const { expect } = chai;
 const hostname = process.env.HOSTNAME;
 
 Scenario('The dashboard reports should break down data by service @manual', ifInteractive(
-  async ({ I }) => {
+  async () => {
     const result = await interactive(`
     Given A user loads the report app at https://${hostname}/dashboard/Secure/reports/index.html
     When Its successful
@@ -19,7 +19,7 @@ Scenario('The dashboard reports should break down data by service @manual', ifIn
 ));
 
 Scenario('The dashboard reports bucket response times in a useful way @manual', ifInteractive(
-  async ({ I }) => {
+  async () => {
     const result = await interactive(`
     Given A user loads the report app at https://${hostname}/dashboard/Secure/reports/index.html
     When Its successful
@@ -30,7 +30,7 @@ Scenario('The dashboard reports bucket response times in a useful way @manual', 
 ));
 
 Scenario('The dashboard reports bucket response codes in a useful way @manual', ifInteractive(
-  async ({ I }) => {
+  async () => {
     const result = await interactive(`
     Given A user loads the report app at https://${hostname}/dashboard/Secure/reports/index.html
     When Its successful
@@ -41,7 +41,7 @@ Scenario('The dashboard reports bucket response codes in a useful way @manual', 
 ));
 
 Scenario('The dashboard reports require login to access @manual', ifInteractive(
-  async ({ I }) => {
+  async () => {
     const result = await interactive(`
     Given A user loads the report app at https://${hostname}/dashboard/Secure/reports/index.html
     When the user is not logged in
@@ -52,7 +52,7 @@ Scenario('The dashboard reports require login to access @manual', ifInteractive(
 ));
 
 Scenario('The dashboard reports gracefully handle no data @manual', ifInteractive(
-  async ({ I }) => {
+  async () => {
     const result = await interactive(`
     Given A user loads the report app at https://${hostname}/dashboard/Secure/reports/index.html
     When no data is available

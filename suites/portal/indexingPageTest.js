@@ -54,7 +54,9 @@ AfterSuite(async ({ I, files }) => {
 });
 
 // Scenario #1 - Login and navigate to the indexing page and upload dummy manifest
-Scenario('Navigate to the indexing page and upload a test manifest @indexing', async ({ I, indexing, home, users }) => {
+Scenario('Navigate to the indexing page and upload a test manifest @indexing', async ({
+  I, indexing, home, users,
+}) => {
   home.do.goToHomepage();
   home.complete.login(users.indexingAcct);
   indexing.do.goToIndexingPage();
@@ -88,7 +90,9 @@ Scenario('Navigate to the indexing page and upload a test manifest @indexing', a
 }).retry(2);
 
 // Scenario #2 - Login and navigate to the indexing page and download a full indexd manifest
-Scenario('Navigate to the indexing page and download a full indexd manifest @indexing', async ({ I, indexing, home, users }) => {
+Scenario('Navigate to the indexing page and download a full indexd manifest @indexing', async ({
+  I, indexing, home, users,
+}) => {
   home.do.goToHomepage();
   home.complete.login(users.indexingAcct);
   indexing.do.goToIndexingPage();
@@ -120,7 +124,9 @@ Scenario('Navigate to the indexing page and download a full indexd manifest @ind
 }).retry(2);
 
 // Scenario #3 - Negative test: navigate to the indexing page and upload imvalid  manifest
-Scenario('Navigate to the indexing page and upload an invalid manifest @indexing', async ({ I, indexing, home, users }) => {
+Scenario('Navigate to the indexing page and upload an invalid manifest @indexing', async ({
+  I, indexing, home, users,
+}) => {
   home.do.goToHomepage();
   home.complete.login(users.indexingAcct);
   indexing.do.goToIndexingPage();

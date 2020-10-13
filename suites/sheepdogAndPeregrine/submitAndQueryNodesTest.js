@@ -3,14 +3,16 @@ const { Gen3Response } = require('../../utils/apiUtil');
 
 Feature('SubmitAndQueryNodesTest').retry(2);
 
-Scenario('submit node unauthenticated @reqData', async ({ sheepdog, nodes, users }) => {
+Scenario('submit node unauthenticated @reqData', async ({
+  sheepdog, nodes, users,
+}) => {
   const authHeader = await users.mainAcct.getExpiredAccessTokenHeader();
   await sheepdog.do.addNode(nodes.getFirstNode(), authHeader);
   sheepdog.ask.hasExpiredAuthError(nodes.getFirstNode().addRes);
   await sheepdog.do.deleteNode(nodes.getFirstNode());
 });
 
-Scenario('submit and delete node @reqData', async ({ I, sheepdog, nodes }) => {
+Scenario('submit and delete node @reqData', async ({ sheepdog, nodes }) => {
   await sheepdog.complete.addNode(nodes.getFirstNode());
   await sheepdog.complete.deleteNode(nodes.getFirstNode());
 });
@@ -36,7 +38,6 @@ Scenario('make simple query @reqData', async ({ sheepdog, peregrine, nodes }) =>
   await sheepdog.complete.deleteNode(nodes.getFirstNode());
 });
 
-
 Scenario('query all node fields @reqData', async ({ sheepdog, peregrine, nodes }) => {
   // add all nodes
   await sheepdog.do.addNodes(nodes.getPathToFile());
@@ -54,7 +55,6 @@ Scenario('query all node fields @reqData', async ({ sheepdog, peregrine, nodes }
   // remove nodes
   await sheepdog.complete.deleteNodes(nodes.getPathToFile());
 });
-
 
 Scenario('submit node without parent @reqData', async ({ sheepdog, peregrine, nodes }) => {
   // verify parent node does not exist
@@ -81,7 +81,6 @@ Scenario('query on invalid field @reqData', async ({ peregrine, nodes }) => {
     `Cannot query field "${invalidField}" on type "${nodeType}".`,
   );
 });
-
 
 Scenario('filter query by string attribute @reqData', async ({ sheepdog, peregrine, nodes }) => {
   await sheepdog.complete.addNodes(nodes.getPathToFile());
@@ -194,7 +193,6 @@ Scenario('test with_path_to - last to first node @reqData', async ({ peregrine, 
   await sheepdog.complete.deleteNodes(nodes.getPathToFile());
 });
 
-
 /**
  * Test non-data-upload flow with consent codes in metadata:
  * - Submit metadata with consent codes to sheepdog
@@ -203,7 +201,9 @@ Scenario('test with_path_to - last to first node @reqData', async ({ peregrine, 
  * so the record is created "from scratch".
  * Compare with cc test in dataUpload suite)
  */
-Scenario('submit data node with consent codes @indexRecordConsentCodes', async ({ sheepdog, indexd, nodes, users, I }) => {
+Scenario('submit data node with consent codes @indexRecordConsentCodes', async ({
+  sheepdog, indexd, nodes, I,
+}) => {
   const listOfIndexdRecords = await I.sendGetRequest(
     `${indexd.props.endpoints.get}`,
   ).then(({ res }) => new Gen3Response(res));
@@ -233,7 +233,6 @@ Scenario('submit data node with consent codes @indexRecordConsentCodes', async (
   };
   await indexd.complete.checkFile(fileNodeWithCCs);
 });
-
 
 BeforeSuite(async ({ sheepdog }) => {
   // try to clean up any leftover nodes

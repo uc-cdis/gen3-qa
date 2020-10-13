@@ -46,7 +46,9 @@ const uploadFile = async function (dataUpload, indexd, sheepdog, nodes, fileObj,
   await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 };
 
-BeforeSuite(async ({ sheepdog, nodes, users, fence, indexd }) => {
+BeforeSuite(async ({
+  sheepdog, nodes, users, indexd,
+}) => {
   // clean up in sheepdog
   await sheepdog.complete.findDeleteAllNodes();
 
@@ -64,7 +66,9 @@ Before(({ home }) => {
   home.complete.login();
 });
 
-Scenario('Map uploaded files in windmill submission page @dataUpload @portal', async ({ sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUpload }) => {
+Scenario('Map uploaded files in windmill submission page @dataUpload @portal', async ({
+  sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUpload,
+}) => {
   // generate file and register in fence, get url
   const { fileObj, presignedUrl } = await generateFileAndGetUrlFromFence(
     files,
@@ -88,7 +92,9 @@ Scenario('Map uploaded files in windmill submission page @dataUpload @portal', a
   portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage([]);
 });
 
-Scenario('Cannot see files uploaded by other users @dataUpload @portal', async ({ sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUpload }) => {
+Scenario('Cannot see files uploaded by other users @dataUpload @portal', async ({
+  sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUpload,
+}) => {
   // user2 upload file2
   const { fileObj, presignedUrl } = await generateFileAndGetUrlFromFence(
     files,
@@ -105,7 +111,9 @@ After(({ home }) => {
   home.complete.logout();
 });
 
-AfterSuite(async ({ sheepdog, indexd, files, dataUpload }) => {
+AfterSuite(async ({
+  sheepdog, indexd, files, dataUpload,
+}) => {
   // clean up in sheepdog
   await sheepdog.complete.findDeleteAllNodes();
 

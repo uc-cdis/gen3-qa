@@ -43,7 +43,7 @@ const files = {
   },
 };
 
-Scenario('get presigned-url', async ({ I, fence }) => {
+Scenario('get presigned-url', async ({ fence }) => {
   const signedUrlRes = await fence.do.createSignedUrl(files.allowed.did);
   await fence.complete.checkFileEquals(
     signedUrlRes,
