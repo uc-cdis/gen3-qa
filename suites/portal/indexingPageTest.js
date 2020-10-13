@@ -26,7 +26,7 @@ ${testGUID}\n	${testHash}	13,	jenkins2		s3://cdis-presigned-url-test/testdata`;
 
 const expectedResult = `${testGUID},s3://cdis-presigned-url-test/testdata,,jenkins2,${testHash},13,`;
 
-BeforeSuite(async (I, files, indexd) => {
+BeforeSuite(async ({ I, files, indexd }) => {
   console.log('Setting up dependencies...');
   I.cache = {};
 
@@ -39,22 +39,22 @@ BeforeSuite(async (I, files, indexd) => {
   console.log('deleting existing test records...');
   const listOfIndexdRecords = await I.sendGetRequest(
     `${indexd.props.endpoints.get}`,
-  ).then((res) => new Gen3Response(res));
+  ).then(({ res }) => new Gen3Response(res));
 
-  listOfIndexdRecords.data.records.forEach(async (record) => {
+  listOfIndexdRecords.data.records.forEach(async ({ record }) => {
     console.log(record.did);
     await indexd.do.deleteFile({ did: record.did });
   });
 });
 
-AfterSuite(async (I, files) => {
+AfterSuite(async ({ I, files }) => {
   // clean up test files
   files.deleteFile(`manifest_${I.cache.UNIQUE_NUM}.tsv`);
   files.deleteFile(`invalid_manifest_${I.cache.UNIQUE_NUM}.tsv`);
 });
 
 // Scenario #1 - Login and navigate to the indexing page and upload dummy manifest
-Scenario('Navigate to the indexing page and upload a test manifest @indexing', async (I, indexing, home, users) => {
+Scenario('Navigate to the indexing page and upload a test manifest @indexing', async ({ I, indexing, home, users }) => {
   home.do.goToHomepage();
   home.complete.login(users.indexingAcct);
   indexing.do.goToIndexingPage();
@@ -70,7 +70,7 @@ Scenario('Navigate to the indexing page and upload a test manifest @indexing', a
     console.log(`Looking up the indexd record... - attempt ${i}`);
     const indexdRecordRes = await I.sendGetRequest(
       `/index/${testGUID}`,
-    ).then((res) => new Gen3Response(res));
+    ).then(({ res }) => new Gen3Response(res));
 
     if (indexdRecordRes.data.hashes) {
       expect(indexdRecordRes.data.hashes.md5).to.equal(testHash);
@@ -88,7 +88,7 @@ Scenario('Navigate to the indexing page and upload a test manifest @indexing', a
 }).retry(2);
 
 // Scenario #2 - Login and navigate to the indexing page and download a full indexd manifest
-Scenario('Navigate to the indexing page and download a full indexd manifest @indexing', async (I, indexing, home, users) => {
+Scenario('Navigate to the indexing page and download a full indexd manifest @indexing', async ({ I, indexing, home, users }) => {
   home.do.goToHomepage();
   home.complete.login(users.indexingAcct);
   indexing.do.goToIndexingPage();
@@ -107,7 +107,7 @@ Scenario('Navigate to the indexing page and download a full indexd manifest @ind
   console.log(`### Manifest download url: ${manifestDownloadUrl}`);
   const getManifestRes = await I.sendGetRequest(
     manifestDownloadUrl.toString(),
-  ).then((res) => new Gen3Response(res));
+  ).then(({ res }) => new Gen3Response(res));
   console.log(`### downloadOuput: ${JSON.stringify(getManifestRes)}`);
 
   const downloadedManifestData = getManifestRes.body;
@@ -120,7 +120,7 @@ Scenario('Navigate to the indexing page and download a full indexd manifest @ind
 }).retry(2);
 
 // Scenario #3 - Negative test: navigate to the indexing page and upload imvalid  manifest
-Scenario('Navigate to the indexing page and upload an invalid manifest @indexing', async (I, indexing, home, users) => {
+Scenario('Navigate to the indexing page and upload an invalid manifest @indexing', async ({ I, indexing, home, users }) => {
   home.do.goToHomepage();
   home.complete.login(users.indexingAcct);
   indexing.do.goToIndexingPage();

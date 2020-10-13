@@ -43,7 +43,7 @@ const files = {
   },
 };
 
-Scenario('get presigned-url', async (I, fence) => {
+Scenario('get presigned-url', async ({ I, fence }) => {
   const signedUrlRes = await fence.do.createSignedUrl(files.allowed.did);
   await fence.complete.checkFileEquals(
     signedUrlRes,
@@ -51,12 +51,12 @@ Scenario('get presigned-url', async (I, fence) => {
   );
 });
 
-Scenario('get presigned-url user does not have permission', async (fence) => {
+Scenario('get presigned-url user does not have permission', async ({ fence }) => {
   const signedUrlRes = await fence.do.createSignedUrl(files.not_allowed.did);
   fence.ask.responsesEqual(signedUrlRes, fence.props.resMissingFilePermission);
 });
 
-Scenario('get presigned-url with invalid protocol', async (fence) => {
+Scenario('get presigned-url with invalid protocol', async ({ fence }) => {
   const signedUrlRes = await fence.do.createSignedUrl(
     files.invalid_protocol.did,
     ['protocol=s2'],
@@ -64,7 +64,7 @@ Scenario('get presigned-url with invalid protocol', async (fence) => {
   fence.ask.responsesEqual(signedUrlRes, fence.props.resInvalidFileProtocol);
 });
 
-Scenario('get presigned-url with protocol not available in indexed document', async (fence) => {
+Scenario('get presigned-url with protocol not available in indexed document', async ({ fence }) => {
   const signedUrlRes = await fence.do.createSignedUrl(files.allowed.did, [
     'protocol=s2',
   ]);
@@ -77,7 +77,7 @@ Scenario('get presigned-url with protocol not available in indexed document', as
   );
 });
 
-Scenario('get presigned-url with protocol not exist for file', async (fence) => {
+Scenario('get presigned-url with protocol not exist for file', async ({ fence }) => {
   const signedUrlRes = await fence.do.createSignedUrl(files.http_link.did, [
     'protocol=s3',
   ]);
@@ -90,7 +90,7 @@ Scenario('get presigned-url with protocol not exist for file', async (fence) => 
   );
 });
 
-Scenario('get presigned-url no data', async (fence) => {
+Scenario('get presigned-url no data', async ({ fence }) => {
   const signedUrlRes = await fence.do.createSignedUrl(files.no_link.did, [
     'protocol=s3',
   ]);
@@ -103,16 +103,16 @@ Scenario('get presigned-url no data', async (fence) => {
   );
 });
 
-Scenario('get presigned-url no requested protocol, no data', async (fence) => {
+Scenario('get presigned-url no requested protocol, no data', async ({ fence }) => {
   const signedUrlRes = await fence.do.createSignedUrl(files.no_link.did);
   fence.ask.responsesEqual(signedUrlRes, fence.props.resNoFileProtocol);
 });
 
-BeforeSuite(async (indexd) => {
+BeforeSuite(async ({ indexd }) => {
   const ok = await indexd.do.addFileIndices(Object.values(files));
   expect(ok).to.be.true;
 });
 
-AfterSuite(async (indexd) => {
+AfterSuite(async ({ indexd }) => {
   await indexd.do.deleteFileIndices(Object.values(files));
 });

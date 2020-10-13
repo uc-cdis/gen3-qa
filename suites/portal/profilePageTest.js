@@ -6,7 +6,7 @@ const { expect } = chai;
 const { interactive, ifInteractive } = require('../../utils/interactive.js');
 
 Scenario('When configuration has showFenceAuthzOnProfile: true, profile page shows projects table from Fence @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     const result = await interactive(`
       1. In gitops.json set showFenceAuthzOnProfile to true
       2. Log in and go to /profile
@@ -18,7 +18,7 @@ Scenario('When configuration has showFenceAuthzOnProfile: true, profile page sho
 ));
 
 Scenario('When configuration has showFenceAuthzOnProfile: false, profile page does not show projects table from Fence @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     const result = await interactive(`
       1. In gitops.json set showFenceAuthzOnProfile to false
       2. Log in and go to /profile
@@ -29,7 +29,7 @@ Scenario('When configuration has showFenceAuthzOnProfile: false, profile page do
 ));
 
 Scenario('When configuration has showArboristAuthzOnProfile: true, profile page shows resources table from Arborist @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     const result = await interactive(`
       1. In gitops.json set showArboristAuthzOnProfile to true
       2. Log in and go to /profile
@@ -41,7 +41,7 @@ Scenario('When configuration has showArboristAuthzOnProfile: true, profile page 
 ));
 
 Scenario('When configuration has showArboristAuthzOnProfile: false, profile page does not show resources table from Arborist @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     const result = await interactive(`
       1. In gitops.json set showArboristAuthzOnProfile to false
       2. Log in and go to /profile

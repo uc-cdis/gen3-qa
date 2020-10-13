@@ -29,17 +29,17 @@ const monitorRoles = [
 ];
 
 
-BeforeSuite(async (google, fence, users) => {
+BeforeSuite(async ({ google, fence, users }) => {
   await fence.complete.suiteCleanup(google, users);
 });
 
 
-After(async (google, fence, users) => {
+After(async ({ google, fence, users }) => {
   await fence.complete.suiteCleanup(google, users);
 });
 
 
-AfterSuite(async (google, fence, users) => {
+AfterSuite(async ({ google, fence, users }) => {
   // make sure the monitor SA has access
   const googleProject = fence.props.googleProjectDynamic;
   for (const role of monitorRoles) {
@@ -67,7 +67,7 @@ function runVerifyUserSAsJob() {
 }
 
 
-Scenario('SA removal job test: no access removal when SA is valid @reqGoogle', async (fence, users, google, files) => {
+Scenario('SA removal job test: no access removal when SA is valid @reqGoogle', async ({ fence, users, google, files }) => {
   // test that the clean up job does not remove access to valid SA/projects
 
   // Setup
@@ -135,7 +135,7 @@ Scenario('SA removal job test: no access removal when SA is valid @reqGoogle', a
 }).retry(3);
 
 
-Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (fence, users, google, files) => {
+Scenario('SA removal job test: user does not exist in fence @reqGoogle', async ({ fence, users, google, files }) => {
   // test invalid project because the user does not exist in fence
 
   // Setup
@@ -185,7 +185,7 @@ Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (
 }).retry(3);
 
 
-Scenario('SA removal job test: user does not have access to data @reqGoogle', async (fence, users, google, files) => {
+Scenario('SA removal job test: user does not have access to data @reqGoogle', async ({ fence, users, google, files }) => {
   // test invalid project because the user does not have access to the data
 
   // Setup
@@ -239,7 +239,7 @@ Scenario('SA removal job test: user does not have access to data @reqGoogle', as
 }).retry(3);
 
 
-Scenario('SA removal job test: SA has external access @reqGoogle', async (fence, users, google, files) => {
+Scenario('SA removal job test: SA has external access @reqGoogle', async ({ fence, users, google, files }) => {
   // test invalid project because the SA has an external key set up
 
   // Setup
@@ -299,7 +299,7 @@ Scenario('SA removal job test: SA has external access @reqGoogle', async (fence,
 
 // We run this test last because if the roles update at the end fails,
 // the following tests would fail.
-Scenario('SA removal job test: monitor SA does not have access @reqGoogle', async (fence, users, google, files) => {
+Scenario('SA removal job test: monitor SA does not have access @reqGoogle', async ({ fence, users, google, files }) => {
   // test invalid SA because the monitor does not have access
 
   // Setup

@@ -43,7 +43,7 @@ async function collectUserInput(I) {
 
 function performSvcAcctRegistrationTest(typeOfTest, testInstructions) {
   Scenario(`Register Google IAM Service Account: ${typeOfTest} @manual`, ifInteractive(
-    async (I, fence) => {
+    async ({ I, fence }) => {
       await collectUserInput(I);
       // console.log('access token: ' + I.cache.ACCESS_TOKEN);
       const httpResp = await fence.do.registerGoogleServiceAccount(
@@ -68,7 +68,7 @@ function performSvcAcctRegistrationTest(typeOfTest, testInstructions) {
 
 function performSvcAcctUpdateTest(typeOfTest, testInstructions) {
   Scenario('Update existing service account @manual', ifInteractive(
-    async (I, fence) => {
+    async ({ I, fence }) => {
       await collectUserInput(I);
       // patch existing svc acct to remove project access
       const httpResp = await fence.do.updateGoogleServiceAccount(
@@ -90,7 +90,7 @@ function performSvcAcctUpdateTest(typeOfTest, testInstructions) {
   ));
 }
 
-BeforeSuite(async (I) => {
+BeforeSuite(async ({ I }) => {
   console.log('Setting up dependencies...');
   I.TARGET_ENVIRONMENT = TARGET_ENVIRONMENT;
 });
@@ -127,7 +127,7 @@ for (const [typeOfTest, testInstructions] of Object.entries(svcAcctRegistrationT
 
 // Scenario #6 - Get details from the service account that has been successfully registered
 Scenario('Get details from registered service account @manual', ifInteractive(
-  async (I, fence) => {
+  async ({ I, fence }) => {
     await collectUserInput(I);
 
     const httpResp = await fence.do.getGoogleServiceAccounts(
@@ -149,7 +149,7 @@ Scenario('Get details from registered service account @manual', ifInteractive(
 // Scenario #7 - Get id of the account that is monitoring the "customer" Google Cloud IAM space
 // within a given project
 Scenario('Get the ID of the GCP monitor ("fence-service" account) @manual', ifInteractive(
-  async (I, fence) => {
+  async ({ I, fence }) => {
     I.cache.ACCESS_TOKEN = !I.cache ? await requestUserInput('Please provide your ACCESS_TOKEN: ') : I.cache.ACCESS_TOKEN;
 
     const httpResp = await fence.do.getGoogleSvcAcctMonitor(I.cache.userAcct);
@@ -188,7 +188,7 @@ for (const [typeOfTest, testInstructions] of Object.entries(svcAcctUpdateTestsMa
 
 // Scenario #11 - Get billing projects
 Scenario('Get billing GCP projects @manual', ifInteractive(
-  async (I, fence) => {
+  async ({ I, fence }) => {
     I.cache.ACCESS_TOKEN = !I.cache ? await requestUserInput('Please provide your ACCESS_TOKEN: ') : I.cache.ACCESS_TOKEN;
 
     const httpResp = await fence.do.getGoogleBillingProjects(I.cache.userAcct);
@@ -207,7 +207,7 @@ Scenario('Get billing GCP projects @manual', ifInteractive(
 
 // Scenario #12 - Delete Google service account that has been registered in previous steps
 Scenario('Delete existing service account @manual', ifInteractive(
-  async (I, fence) => {
+  async ({ I, fence }) => {
     await collectUserInput(I);
     // patch existing svc acct to remove project access
     const httpResp = await fence.do.deleteGoogleServiceAccount(

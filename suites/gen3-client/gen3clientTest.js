@@ -10,7 +10,7 @@ const profile = process.env.NAMESPACE;
 
 // Installation
 Scenario('Install gen3-client @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     const result = await interactive(`
             1. Download the newest version of gen3-client from github repo - https://github.com/uc-cdis/cdis-data-client/releases/tag/{latest-tag}
             2. Unzip the download and add the executable to directory, ~/.gen3/gen3-client.exe
@@ -22,7 +22,7 @@ Scenario('Install gen3-client @manual', ifInteractive(
 
 // configuration
 Scenario('Configure gen3-client @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     const result = await interactive(`
             1. go to the dedicated user's data commons you need your gen3-client configured with
             2. Login and go to Profile tab
@@ -38,7 +38,7 @@ Scenario('Configure gen3-client @manual', ifInteractive(
 
 // misconfiguration error checker
 Scenario('Wrong API key correct apiendpoint @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     const result = await interactive(`
             1. user has a wrong cred.json (API key) and correct API endpoint
             2. the misconfiguration checker displays a message Invalid credentials for apiendpoint '<apiendpoint>': check if your credentials are expired or incorrect  
@@ -48,7 +48,7 @@ Scenario('Wrong API key correct apiendpoint @manual', ifInteractive(
 ));
 
 Scenario('correct API key wrong apiendpoint @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     const result = await interactive(`
             1. user has a correct cred.json (API key) but wrong API endpoint
             2. the misconfiguration checker displays a message 'The provided apiendpoint '<apiendpoint>' is possibly not a valid Gen3 data commons' 
@@ -59,7 +59,7 @@ Scenario('correct API key wrong apiendpoint @manual', ifInteractive(
 
 // version checker
 Scenario('Version Checker error @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     const result = await interactive(`
             1. After the successful installation and configuration of profile, user can use gen3-client command on terminal console
             2. the version checker will show 'A new version of gen3-client is avaliable! The latest version is ${LATEST_VERSION}. You are using version ${CURRENT_VERSION}
@@ -74,7 +74,7 @@ Scenario('Version Checker error @manual', ifInteractive(
 
 // file-upload
 Scenario('Create a folder and generate a test file @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     const result = await interactive(`
             1. Create a new directory called "test_upload"
             2. Go to directory /test_upload
@@ -91,7 +91,7 @@ Scenario('Create a folder and generate a test file @manual', ifInteractive(
 
 // The test assumes the presence of a valid profile configuration in ~/.gen3/config (containing api-key, JWT token and api endpoint)
 Scenario('Run the gen3-client CLI utility and upload the test file to ${profile} @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     const result = await interactive(`
             1. Run the gen3-cli upload command and store the output in a log file: gen3-client upload --profile=${profile} --upload-path=test.txt | tee upload.log
             2. Take note of the GUID that is printed as part of the output
@@ -101,7 +101,7 @@ Scenario('Run the gen3-client CLI utility and upload the test file to ${profile}
 ));
 
 Scenario('Download the same test file and verify integrity @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     const result = await interactive(`
             1. Run the gen3-cli download command: gen3-client download-single --profile=marcelo --guid=<GUI from the previous scenario>
             2. Generate a sha256 hash of the file that was downloaded (see instructions from the first scenario)
@@ -114,7 +114,7 @@ Scenario('Download the same test file and verify integrity @manual', ifInteracti
 
 // clean-up
 Scenario('Delete file from the commons system and also from local disk @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     const result = await interactive(`
             1. Login to the ${hostname} web interface and take note of the value of the "access_token" cookie
             2. Store the access token in an environment variable (export ACCESS_TOKEN=${user.mainAcct.accessToken})

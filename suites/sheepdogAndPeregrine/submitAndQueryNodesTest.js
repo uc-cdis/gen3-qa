@@ -3,14 +3,14 @@ const { Gen3Response } = require('../../utils/apiUtil');
 
 Feature('SubmitAndQueryNodesTest').retry(2);
 
-Scenario('submit node unauthenticated @reqData', async (sheepdog, nodes, users) => {
+Scenario('submit node unauthenticated @reqData', async ({ sheepdog, nodes, users }) => {
   const authHeader = await users.mainAcct.getExpiredAccessTokenHeader();
   await sheepdog.do.addNode(nodes.getFirstNode(), authHeader);
   sheepdog.ask.hasExpiredAuthError(nodes.getFirstNode().addRes);
   await sheepdog.do.deleteNode(nodes.getFirstNode());
 });
 
-Scenario('submit and delete node @reqData', async (I, sheepdog, nodes) => {
+Scenario('submit and delete node @reqData', async ({ I, sheepdog, nodes }) => {
   await sheepdog.complete.addNode(nodes.getFirstNode());
   await sheepdog.complete.deleteNode(nodes.getFirstNode());
 });
@@ -21,12 +21,12 @@ Scenario('submit and delete node @reqData', async (I, sheepdog, nodes) => {
 // disabling bunch of these tests as they make the test suite useless
 //
 // PAULINE & TED: reenabling this for now!
-Scenario('submit and delete node path @reqData', async (sheepdog, nodes) => {
+Scenario('submit and delete node path @reqData', async ({ sheepdog, nodes }) => {
   await sheepdog.complete.addNodes(nodes.getPathToFile());
   await sheepdog.complete.deleteNodes(nodes.getPathToFile());
 });
 
-Scenario('make simple query @reqData', async (sheepdog, peregrine, nodes) => {
+Scenario('make simple query @reqData', async ({ sheepdog, peregrine, nodes }) => {
   await sheepdog.complete.addNode(nodes.getFirstNode());
 
   const q = `query Test { alias1: ${nodes.getFirstNode().data.type} { id } }`;
@@ -37,7 +37,7 @@ Scenario('make simple query @reqData', async (sheepdog, peregrine, nodes) => {
 });
 
 
-Scenario('query all node fields @reqData', async (sheepdog, peregrine, nodes) => {
+Scenario('query all node fields @reqData', async ({ sheepdog, peregrine, nodes }) => {
   // add all nodes
   await sheepdog.do.addNodes(nodes.getPathToFile());
 
@@ -56,7 +56,7 @@ Scenario('query all node fields @reqData', async (sheepdog, peregrine, nodes) =>
 });
 
 
-Scenario('submit node without parent @reqData', async (sheepdog, peregrine, nodes) => {
+Scenario('submit node without parent @reqData', async ({ sheepdog, peregrine, nodes }) => {
   // verify parent node does not exist
   const parentRes = await peregrine.do.queryNodeFields(nodes.getFirstNode());
   peregrine.ask.hasFieldCount(parentRes, nodes.getFirstNode().name, 0);
@@ -66,7 +66,7 @@ Scenario('submit node without parent @reqData', async (sheepdog, peregrine, node
   sheepdog.ask.hasStatusCode(nodes.getSecondNode().addRes, 400);
 });
 
-Scenario('query on invalid field @reqData', async (peregrine, nodes) => {
+Scenario('query on invalid field @reqData', async ({ peregrine, nodes }) => {
   const invalidField = 'abcdefg';
   const nodeType = nodes.getFirstNode().data.type;
   const q = `{
@@ -83,7 +83,7 @@ Scenario('query on invalid field @reqData', async (peregrine, nodes) => {
 });
 
 
-Scenario('filter query by string attribute @reqData', async (sheepdog, peregrine, nodes) => {
+Scenario('filter query by string attribute @reqData', async ({ sheepdog, peregrine, nodes }) => {
   await sheepdog.complete.addNodes(nodes.getPathToFile());
 
   const testField = nodes.getFirstNode().getFieldOfType('string');
@@ -98,7 +98,7 @@ Scenario('filter query by string attribute @reqData', async (sheepdog, peregrine
   await sheepdog.complete.deleteNodes(nodes.getPathToFile());
 });
 
-Scenario('test _[field]_count filter @reqData', async (peregrine, sheepdog, nodes) => {
+Scenario('test _[field]_count filter @reqData', async ({ peregrine, sheepdog, nodes }) => {
   // Count number of each node type
   const previousCounts = {};
   for (const node of nodes.getPathToFile()) {
@@ -120,7 +120,7 @@ Scenario('test _[field]_count filter @reqData', async (peregrine, sheepdog, node
   await sheepdog.complete.deleteNodes(nodes.getPathToFile());
 });
 
-Scenario('filter by project_id @reqData', async (peregrine, sheepdog, nodes) => {
+Scenario('filter by project_id @reqData', async ({ peregrine, sheepdog, nodes }) => {
   // add the nodes
   await sheepdog.complete.addNodes(nodes.getPathToFile());
 
@@ -137,7 +137,7 @@ Scenario('filter by project_id @reqData', async (peregrine, sheepdog, nodes) => 
   await sheepdog.complete.deleteNodes(nodes.getPathToFile());
 });
 
-Scenario('filter by invalid project_id @reqData', async (peregrine, sheepdog, nodes) => {
+Scenario('filter by invalid project_id @reqData', async ({ peregrine, sheepdog, nodes }) => {
   await sheepdog.complete.addNode(nodes.getFirstNode());
 
   // filter by a nonexistent project id
@@ -151,7 +151,7 @@ Scenario('filter by invalid project_id @reqData', async (peregrine, sheepdog, no
 });
 
 // FIXME: This is a known bug that needs to be fixed. See PXP-1569
-Scenario('test with_path_to - first to last node @reqData', async (peregrine, sheepdog, nodes) => {
+Scenario('test with_path_to - first to last node @reqData', async ({ peregrine, sheepdog, nodes }) => {
   await sheepdog.complete.addNodes(nodes.getPathToFile());
 
   // TODO: remove try/catch once bug is fixed
@@ -173,7 +173,7 @@ Scenario('test with_path_to - first to last node @reqData', async (peregrine, sh
 });
 
 // FIXME: This is a known bug that needs to be fixed. See PXP-1569
-Scenario('test with_path_to - last to first node @reqData', async (peregrine, sheepdog, nodes) => {
+Scenario('test with_path_to - last to first node @reqData', async ({ peregrine, sheepdog, nodes }) => {
   await sheepdog.complete.addNodes(nodes.getPathToFile());
 
   // TODO: remove try/catch once bug is fixed
@@ -203,12 +203,12 @@ Scenario('test with_path_to - last to first node @reqData', async (peregrine, sh
  * so the record is created "from scratch".
  * Compare with cc test in dataUpload suite)
  */
-Scenario('submit data node with consent codes @indexRecordConsentCodes', async (sheepdog, indexd, nodes, users, I) => {
+Scenario('submit data node with consent codes @indexRecordConsentCodes', async ({ sheepdog, indexd, nodes, users, I }) => {
   const listOfIndexdRecords = await I.sendGetRequest(
     `${indexd.props.endpoints.get}`,
-  ).then((res) => new Gen3Response(res));
+  ).then(({ res }) => new Gen3Response(res));
 
-  listOfIndexdRecords.data.records.forEach(async (record) => {
+  listOfIndexdRecords.data.records.forEach(async ({ record }) => {
     console.log(record.did);
     await indexd.do.deleteFile({ did: record.did });
   });
@@ -235,17 +235,17 @@ Scenario('submit data node with consent codes @indexRecordConsentCodes', async (
 });
 
 
-BeforeSuite(async (sheepdog) => {
+BeforeSuite(async ({ sheepdog }) => {
   // try to clean up any leftover nodes
   await sheepdog.complete.findDeleteAllNodes();
 });
 
-Before((nodes) => {
+Before(({ nodes }) => {
   // Refresh nodes before every test to clear any appended results, id's, etc
   nodes.refreshPathNodes();
 });
 
-After(async (sheepdog) => {
+After(async ({ sheepdog }) => {
   // clean up by trying to delete all nodes
   await sheepdog.complete.findDeleteAllNodes();
 });

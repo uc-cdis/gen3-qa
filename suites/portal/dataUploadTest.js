@@ -46,7 +46,7 @@ const uploadFile = async function (dataUpload, indexd, sheepdog, nodes, fileObj,
   await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 };
 
-BeforeSuite(async (sheepdog, nodes, users, fence, indexd) => {
+BeforeSuite(async ({ sheepdog, nodes, users, fence, indexd }) => {
   // clean up in sheepdog
   await sheepdog.complete.findDeleteAllNodes();
 
@@ -60,11 +60,11 @@ BeforeSuite(async (sheepdog, nodes, users, fence, indexd) => {
   submitterID = newSubmitterID;
 });
 
-Before((home) => {
+Before(({ home }) => {
   home.complete.login();
 });
 
-Scenario('Map uploaded files in windmill submission page @dataUpload @portal', async (sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUpload) => {
+Scenario('Map uploaded files in windmill submission page @dataUpload @portal', async ({ sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUpload }) => {
   // generate file and register in fence, get url
   const { fileObj, presignedUrl } = await generateFileAndGetUrlFromFence(
     files,
@@ -88,7 +88,7 @@ Scenario('Map uploaded files in windmill submission page @dataUpload @portal', a
   portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage([]);
 });
 
-Scenario('Cannot see files uploaded by other users @dataUpload @portal', async (sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUpload) => {
+Scenario('Cannot see files uploaded by other users @dataUpload @portal', async ({ sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUpload }) => {
   // user2 upload file2
   const { fileObj, presignedUrl } = await generateFileAndGetUrlFromFence(
     files,
@@ -101,18 +101,18 @@ Scenario('Cannot see files uploaded by other users @dataUpload @portal', async (
   await portalDataUpload.complete.checkUnmappedFilesAreNotInFileMappingPage([fileObj]);
 });
 
-After((home) => {
+After(({ home }) => {
   home.complete.logout();
 });
 
-AfterSuite(async (sheepdog, indexd, files, dataUpload) => {
+AfterSuite(async ({ sheepdog, indexd, files, dataUpload }) => {
   // clean up in sheepdog
   await sheepdog.complete.findDeleteAllNodes();
 
   // clean up in indexd and S3 (remove the records created by this test suite)
   await indexd.complete.deleteFiles(createdGuids);
   await dataUpload.cleanS3('clean-windmill-data-upload', createdGuids);
-  createdFileNames.forEach((fileName) => {
+  createdFileNames.forEach(({ fileName }) => {
     files.deleteFile(fileName);
   });
 });
