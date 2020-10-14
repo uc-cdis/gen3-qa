@@ -6,19 +6,17 @@ const apiUtil = require('../../utils/apiUtil.js');
 
 Feature('LinkGoogleAccount');
 
-BeforeSuite(async ({ fence, users }) => {
+BeforeSuite(({ fence, users }) => {
   // Cleanup before suite
-  const unlinkResults = await Object.values(users)
-    .map(async ({ user }) => {
-      await fence.do.unlinkGoogleAcct(user);
-    });
-  await Promise.all(unlinkResults);
+  const unlinkResults = Object.values(users)
+    .map(({ user }) => fence.do.unlinkGoogleAcct(user));
+  Promise.all(unlinkResults);
 });
 
-After(async ({ fence, users }) => {
+After(({ fence, users }) => {
   // Cleanup after each scenario
   const unlinkResults = Object.values(users).map(({ user }) => fence.do.unlinkGoogleAcct(user));
-  await Promise.all(unlinkResults);
+  Promise.all(unlinkResults);
 });
 
 function timeNow() {
