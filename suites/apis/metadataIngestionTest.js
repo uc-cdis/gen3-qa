@@ -9,7 +9,7 @@
 Feature('Metadata Ingestion');
 
 const { expect } = require('chai');
-const { checkPod, sleepMS, Gen3Response } = require('../../utils/apiUtil.js');
+const { checkPod, sleepMS } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
 
 const bash = new Bash();
@@ -37,7 +37,7 @@ async function doPolling(I, url, authHeader, expectedData, nAttempts, operationD
     httpReq = await I.sendGetRequest(
       url,
       authHeader,
-    ).then((res) => new Gen3Response(res));
+    );
 
     if (expectedData in httpReq.data && httpReq.data[expectedData] !== '') {
       break;
@@ -89,8 +89,7 @@ async function feedTSVIntoMetadataIngestion(I, fence, uid, authHeader, expectedR
     );
     [jobLogsURL, preSignedURL] = jobOutput.output.split(' ');
   } catch (e) {
-    const jobLogs = await I.sendGetRequest(jobLogsURL, authHeader)
-      .then((res) => new Gen3Response(res));
+    const jobLogs = await I.sendGetRequest(jobLogsURL, authHeader);
     console.log(`'get-dbgap-metadata logs: ${JSON.stringify(jobLogs)}`);
     throw e;
   }
@@ -152,11 +151,11 @@ BeforeSuite(async ({ I, users }) => {
   await I.sendDeleteRequest(
     `/mds-admin/metadata/${expectedResults.get_dbgap_metadata.testGUID}`,
     users.indexingAcct.accessTokenHeader,
-  ).then(({ res }) => new Gen3Response(res));
+  );
   await I.sendDeleteRequest(
     `/mds-admin/metadata/${expectedResults.get_dbgap_metadata.testGUIDForPartialMatch}`,
     users.indexingAcct.accessTokenHeader,
-  ).then(({ res }) => new Gen3Response(res));
+  );
 });
 
 AfterSuite(async ({ I }) => {

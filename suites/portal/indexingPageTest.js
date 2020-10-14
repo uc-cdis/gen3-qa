@@ -112,7 +112,7 @@ Scenario('Navigate to the indexing page and download a full indexd manifest @ind
   const getManifestRes = await I.sendGetRequest(
     manifestDownloadUrl.toString(),
   );
-  console.log(`### downloadOuput: ${getManifestRes}`);
+  console.log(`### downloadOuput: ${getManifestRes.data}`);
 
   const downloadedManifestData = getManifestRes.data;
 
