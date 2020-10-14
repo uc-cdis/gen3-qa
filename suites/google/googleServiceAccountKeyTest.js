@@ -100,7 +100,7 @@ Scenario('Get current SA creds @reqGoogle', async ({ fence, users }) => {
     fence.props.linkExtendDefaultAmount + 5,
   );
 
-  let key2 = credsList2.filter(({ key }) => key.name.includes(keyId2));
+  let key2 = credsList2.filter(( key ) => key.name.includes(keyId2));
   chai.expect(
     key2.length,
     'The generated SA key should be listed',
@@ -118,7 +118,7 @@ Scenario('Get current SA creds @reqGoogle', async ({ fence, users }) => {
     'Only 1 SA key should be listed after the other one is deleted',
   ).to.equal(1);
 
-  key2 = credsList3.filter(({ key }) => key.name.includes(keyId2));
+  key2 = credsList3.filter(( key ) => key.name.includes(keyId2));
   chai.expect(
     key2.length,
     'Only the SA key that was not deleted should be listed',
