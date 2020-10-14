@@ -114,8 +114,12 @@ async function feedTSVIntoMetadataIngestion(I, fence, uid, authHeader, expectedR
       },
     },
     authHeader,
-  ).then((res) => res);
-  expect(dispatchJob, `Should have triggered the ${sowerJobName} sower job`).to.have.property('status', 200);
+  );
+
+  expect(
+    dispatchJob,
+    `Should have triggered the ${sowerJobName} sower job`,
+  ).to.have.property('status', 200);
 
   await checkMetadataServiceEntry(I, expectedResult, authHeader);
 }
@@ -179,8 +183,12 @@ Scenario('Dispatch ingest-metadata-manifest sower job with simple tsv and verify
       },
     },
     users.indexingAcct.accessTokenHeader,
-  ).then(({ res }) => res);
-  expect(dispatchJob1, `Should have triggered the ${sowerJobName} sower job`).to.have.property('status', 200);
+  );
+
+  expect(
+    dispatchJob1,
+    `Should have triggered the ${sowerJobName} sower job`,
+  ).to.have.property('status', 200);
 
   await checkPod(sowerJobName, 'sowerjob');
   const metadataServiceEntry = await checkMetadataServiceEntry(
@@ -211,8 +219,12 @@ Scenario('Dispatch exact match get-dbgap-metadata job with mock dbgap xml and ve
       },
     },
     users.indexingAcct.accessTokenHeader,
-  ).then(({ res }) => res);
-  expect(dispatchJob2, `Should have triggered the ${sowerJobName} sower job`).to.have.property('status', 200);
+  );
+
+  expect(
+    dispatchJob2,
+    `Should have triggered the ${sowerJobName} sower job`,
+  ).to.have.property('status', 200);
   const { uid } = dispatchJob2.data;
 
   await feedTSVIntoMetadataIngestion(
@@ -246,8 +258,12 @@ Scenario('Dispatch partial match get-dbgap-metadata job with mock dbgap xml and 
       },
     },
     users.indexingAcct.accessTokenHeader,
-  ).then(({ res }) => res);
-  expect(dispatchJob2, `Should have triggered the ${sowerJobName} sower job`).to.have.property('status', 200);
+  );
+
+  expect(
+    dispatchJob2,
+    `Should have triggered the ${sowerJobName} sower job`,
+  ).to.have.property('status', 200);
   const { uid } = dispatchJob2.data;
 
   await feedTSVIntoMetadataIngestion(
