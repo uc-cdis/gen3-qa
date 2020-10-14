@@ -84,7 +84,7 @@ Scenario('Get current SA creds @reqGoogle', async ({ fence, users }) => {
     'The 2 generated SA keys should be listed',
   ).to.equal(2);
 
-  const key1 = credsList2.filter(({ key }) => key.name.includes(keyId1));
+  const key1 = credsList2.filter(( key ) => key.name.includes(keyId1));
   chai.expect(
     key1.length,
     'The generated SA key should be listed',
@@ -300,7 +300,7 @@ Scenario('SA key removal job test: remove expired creds that do not exist in goo
   // Get the complete name of the generated key and delete it in google
   let getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
   let credsList = getCredsRes.access_keys;
-  const key = credsList.filter(({ aKey }) => aKey.name.includes(credsKey1))[0];
+  const key = credsList.filter(( aKey ) => aKey.name.includes(credsKey1))[0];
   await google.deleteServiceAccountKey(key.name).then(({ deletionResult }) => {
     console.log(`deletionResult: ${JSON.stringify(deletionResult)}`);
     console.log(`is it an error?: ${deletionResult instanceof Error}`);

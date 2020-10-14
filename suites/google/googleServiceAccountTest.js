@@ -92,7 +92,7 @@ Scenario('Register SA with a user that has linked their Google Account @reqGoogl
   // Find a user's google email that's NOT in the GCP, meaning
   //   an email that is NOT the owner of the google project and NOT the current user
   // It is assumed that all users' usernames are google account emails
-  const userNotInGCP = Object.values(users).find(({ user }) => user.googleCreds.email !== currentUser.username
+  const userNotInGCP = Object.values(users).find(( user ) => user.googleCreds.email !== currentUser.username
     && user.googleCreds.email !== googleProject.owner);
   // Link user to an email NOT in the GCP
   await fence.complete.forceLinkGoogleAcct(currentUser, userNotInGCP.username);
@@ -384,7 +384,7 @@ Scenario('Register SA for data access where one Project member does not have pri
   //   -an email that is NOT the email of the userWithoutPrivilege
   //   -an email that is NOT the email of the userWithPrivilege
   // It is assumed that all users' usernames are google account emails
-  const differentGoogleEmail = Object.values(users).find(({ user }) => user.username !== googleProject.owner
+  const differentGoogleEmail = Object.values(users).find(( user ) => user.username !== googleProject.owner
     && user.username !== userWithoutPrivilege.username
     && user.username !== userWithPrivilege.username).username;
   if (differentGoogleEmail === undefined) {
