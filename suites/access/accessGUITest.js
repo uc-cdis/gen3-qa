@@ -33,6 +33,32 @@ const dataSetsRaw = [
   'phs001272.c4 phs001272.c4 CMG-Broad-DS-NIC-EMP-LENF',
 ];
 
+async function assertSuccessfulOperation(I, operation) {
+    await I.seeElement({ css: '.high-light' });
+    const successfulOperationMsg = await I.grabTextFrom({ css: '.high-light' });
+    expect(successfulOperationMsg).to.include(`Successfully ${operation}`);
+
+    await I.seeElement({ css: '.high-light' });
+    I.click({ xpath: 'xpath: //button[contains(text(), \'Close\')]'});
+
+    // check if the PR was created
+    const getNumbersOfRecentPRs = await I.sendGetRequest(
+      `https://api.github.com/repos/uc-cdis/${USERS_GITHUB_REPO}/pulls?per_page=10`,
+      {
+        Accept: 'application/json',
+        Authorization: `bearer ${process.env.GITHUB_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+    );
+    // console.log(`getNumbersOfRecentPRs: ${stringify(getNumbersOfRecentPRs)}`);
+    const sortedPRsList = getNumbersOfRecentPRs.data.sort((function (a, b) {
+      return new Date(b.created_at) - new Date(a.created_at);
+    }));
+    const mostRecentPR = sortedPRsList[0];
+
+    return mostRecentPR;
+}
+
 BeforeSuite((I) => {
   console.log('Setting up dependencies...');
   I.cache = {};
@@ -94,7 +120,7 @@ Scenario('Given a payload with minimal info, parse and create data sets in ACCES
 */
 
 // GUI Testing
-Scenario('Super Admin: login + edit, delete, add Admin and export TSV. @manual', ifInteractive(
+Scenario('Super Admin: login + edit Admin. @manual', ifInteractive(
   async (I) => {
     if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
     const accessTokenJson = parseJwt(I.cache.ACCESS_TOKEN);
@@ -104,7 +130,7 @@ Scenario('Super Admin: login + edit, delete, add Admin and export TSV. @manual',
 
     // login
     I.amOnPage(ACCESS_FRONTEND_ENDPOINT);
-    I.click({ xpath: 'xpath: //button[contains(text(), \'Login from Google\')]' });
+    await I.click({ xpath: 'xpath: //button[contains(text(), \'Login from Google\')]' });
     I.saveScreenshot('Super_Admin_consent_page.png');
     I.waitForElement({ css: '.auth-list' }, 20);
     I.click({ xpath: 'xpath: //button[contains(text(), \'Yes, I authorize.\')]' });
@@ -112,7 +138,7 @@ Scenario('Super Admin: login + edit, delete, add Admin and export TSV. @manual',
     await I.seeElement({ css: '.ReactVirtualized__Table__rowColumn' }), 10;
     await I.saveScreenshot('Super_Admin_login_main_page.png');
     await sleepMS(1000);
-/*
+
     // edit
     I.click({ xpath: 'xpath: //button[contains(text(), \'Edit\')]'});
     I.scrollIntoView('.form-info__user-access');
@@ -122,31 +148,45 @@ Scenario('Super Admin: login + edit, delete, add Admin and export TSV. @manual',
     await I.saveScreenshot('Granting_access_to_data_set.png');
     I.click({ xpath: 'xpath: //button[contains(text(), \'Save\')]'});
 
-    await I.seeElement({ css: '.high-light' });
-    const successfullyEditedUserMsg = await I.grabTextFrom({ css: '.high-light' });
-    expect(successfullyEditedUserMsg).to.include('Successfully updated user');
+    const mostRecentEditPR = await assertSuccessfulOperation(I, 'updated');
+    console.log(`most recent PR: ${stringify(mostRecentEditPR)}`);
 
-    // check if the PR was created
-    const getNumbersOfRecentPRs = await I.sendGetRequest(
-      `https://api.github.com/repos/uc-cdis/${USERS_GITHUB_REPO}/pulls?per_page=10`,
-      {
-        Accept: 'application/json',
-        Authorization: `bearer ${process.env.GITHUB_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
-    );
-    // console.log(`getNumbersOfRecentPRs: ${stringify(getNumbersOfRecentPRs)}`);
-    const sortedPRsList = getNumbersOfRecentPRs.data.sort((function (a, b) { 
-      return new Date(b.created_at) - new Date(a.created_at);
-    }));
-    const mostRecentPR = sortedPRsList[0];
-    console.log(`most recent PR: ${stringify(mostRecentPR)}`);
-*/
-    // to be removed later
-    const mostRecentPR = { url: 'meh', created_at: 'mehmeh'};
-      
+    const result = await interactive(`
+            1. [Login] Check screenshot and make sure it shows the Access GUI
+               containing a list of Admin / PI users.
+            Manual verification:
+                // Look at the screenshot (Super_Admin_login_main_page.png)
+                // inside your 'output' folder.
+            2. [Edit] Check if a PR was created by the Edit User operation:
+            Manual verification:
+                // url: ${mostRecentEditPR.url}
+                // timestamp: ${mostRecentEditPR.created_at}
+            `);
+    expect(result.didPass, result.details).to.be.true;
+  },
+));
+
+Scenario('Super Admin: login + add Admin. @manual', ifInteractive(
+  async (I) => {
+    if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
+    const accessTokenJson = parseJwt(I.cache.ACCESS_TOKEN);
+
+    I.amOnPage(ACCESS_API_ENDPOINT);
+    await I.setCookie({ name: 'dev_login', value: accessTokenJson.context.user.name });
+
+    // login
+    I.amOnPage(ACCESS_FRONTEND_ENDPOINT);
+    await I.click({ xpath: 'xpath: //button[contains(text(), \'Login from Google\')]' });
+    I.saveScreenshot('Super_Admin_consent_page.png');
+    I.waitForElement({ css: '.auth-list' }, 20);
+    I.click({ xpath: 'xpath: //button[contains(text(), \'Yes, I authorize.\')]' });
+    await sleepMS(3000);
+    await I.seeElement({ css: '.ReactVirtualized__Table__rowColumn' }), 10;
+    await I.saveScreenshot('Super_Admin_login_main_page.png');
+    await sleepMS(1000);
+
     // Add admin
-    I.scrollPageToTop();
+    await I.saveScreenshot('DEBUG_Before_creating_new_admin_user.png');
     I.click({ xpath: 'xpath: //div[@class=\'manage-users__tab\' and contains(text(), \'Add a New User\')]'});
     await I.saveScreenshot('Before_creating_new_admin_user.png');
     I.click('.form-info__detail-select__control');
@@ -154,59 +194,77 @@ Scenario('Super Admin: login + edit, delete, add Admin and export TSV. @manual',
     await I.saveScreenshot('Creating_new_admin_user.png');
     I.click('#react-select-2-option-0') // select 'Google mail' option
 
-    I.fillField({ xpath: 'xpath: //input[@class=\'form-info__detail-input\']/preceding-sibling::label[contains(text(), \'Name *\')]' }, 'Arnold Schwarzenegger');
-    await I.saveScreenshot('Create_admin_user_form_test_1.png');
-    I.fillField({ xpath: 'xpath: //input[@class=\'form-info__detail-input\'][position()=2]' }, 'Get to the choppa, now');
-    I.fillField({ xpath: 'xpath: //input[@class=\'form-info__detail-input\'][position()=3]' }, 'ASCHWAR');
-    I.fillField({ xpath: 'xpath: //input[@class=\'form-info__detail-input\'][position()=4]' }, '0000-0003-3292-0780'); // fictitious ORCID
-    I.fillField({ xpath: 'xpath: //input[@class=\'form-info__detail-input\'][position()=5]' }, 'cdis.autotest@gmail.com');
-    I.fillField({ xpath: 'xpath: //input[@class=\'form-info__detail-input\'][position()=6]' }, 'cdis.autotest@gmail.com');
-    I.fillField({ xpath: 'xpath: //input[@class=\'form-info__detail-input\'][position()=7]' }, '2021/10/19');
+    I.fillField({ xpath: 'xpath: //li[@class=\'form-info__detail\']/label[contains(text(),\'Name *\')]/following-sibling::input' }, 'Arnold Schwarzenegger');
+    // await I.saveScreenshot('Create_admin_user_form_test_1.png');
+    I.fillField({ xpath: 'xpath: //li[@class=\'form-info__detail\']/label[contains(text(),\'Organization *\')]/following-sibling::input' }, 'Get to the choppa, now');
+    I.fillField({ xpath: 'xpath: //li[@class=\'form-info__detail\']/label[contains(text(),\'eRA Commons ID\')]/following-sibling::input' }, 'ASCHWAR');
+    I.fillField({ xpath: 'xpath: //li[@class=\'form-info__detail\']/label[contains(text(),\'ORCID\')]/following-sibling::input' }, '0000-0003-3292-0780'); // fictitious ORCID
+    I.fillField({ xpath: 'xpath: //li[@class=\'form-info__detail\']/label[contains(text(),\'Contact Email\')]/following-sibling::input' }, 'cdis.autotest@gmail.com');
+    I.fillField({ xpath: 'xpath: //li[@class=\'form-info__detail\']/label[contains(text(),\'Google Email\')]/following-sibling::input' }, 'cdis.autotest@gmail.com');
+    I.fillField({ xpath: 'xpath: //li[@class=\'form-info__detail\']/label[contains(text(),\'Access Expiration Date *\')]/following-sibling::input' }, '2021-10-19');
     I.scrollIntoView('.form-info__user-access');
     await sleepMS(1000);
     I.checkOption({ xpath: 'xpath: //input[@type="checkbox"]'});
     await I.saveScreenshot('Create_admin_user_form_fully_filled.png');
 
-   /*    const password = await I.grabTextFrom('#password'); */
+    I.click({ xpath: 'xpath: //button[contains(text(), \'Add User\')]'});
 
-    // delete
+    const mostRecentAddPR =  await assertSuccessfulOperation(I, 'added');
+    console.log(`most recent PR: ${stringify(mostRecentAddPR)}`);
 
     const result = await interactive(`
-            1. [Login] Check screenshot and make sure it shows the Access GUI
-               containing a list of Admin / PI users.
+            1. [Create] Check if a PR was created by the Add User operation:
             Manual verification:
-                // Look at the screenshot (Super_Admin_login_main_page.png) 
-                // inside your 'output' folder.
-            2. [Edit] Check if a PR was created by the Edit User operation:
-            Manual verification:
-                // url: ${mostRecentPR.url}
-                // timestamp: ${mostRecentPR.created_at}
-            3. [Create] Check if a PR was created by the Edit User operation:
-            Manual verification:
-                // url: ${mostRecentPR.url}
-                // timestamp: ${mostRecentPR.created_at}
-            4. [Delete] Check if a PR was created by the Edit User operation:
-            Manual verification:
-                // url: ${mostRecentPR.url}
-                // timestamp: ${mostRecentPR.created_at}
+                // url: ${mostRecentAddPR.url}
+                // timestamp: ${mostRecentAddPR.created_at}
             `);
     expect(result.didPass, result.details).to.be.true;
   },
 ));
 
-/*
-// GUI Testing
-Scenario('Admin: login + add user, export TSV Edit. @manual', ifInteractive(
+// Tech Debt:
+// The "Export to TSV" feature does not expose a TSV assembled in the backend
+// The file creation and the download operation are executed in the frontend.
+// Hence, with our current testing framework we can't test this easily.
+Scenario('Super Admin: export TSV. @manual', ifInteractive(
+  async (I) => {
+    const result = await interactive(`
+            1. Click on the "Export as TSV" button and download the TSV file.
+            2. Make sure it contains the correct information.
+               (Including the new Admin user and the project access 
+                that was granted in previous scenarios).
+            `);
+    expect(result.didPass, result.details).to.be.true;
+  },
+));
+
+
+// Admin GUI Testing
+Scenario('Admin: login + add user. @manual', ifInteractive(
   async (I) => {
     if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
-    // TODO
+    const accessTokenJson = parseJwt(I.cache.ACCESS_TOKEN);
+
+    I.amOnPage(ACCESS_API_ENDPOINT);
+    await I.setCookie({ name: 'dev_login', value: 'cdis.autotest@gmail.com' });
+
+    // login
+    I.amOnPage(ACCESS_FRONTEND_ENDPOINT);
+    await I.click({ xpath: 'xpath: //button[contains(text(), \'Login from Google\')]' });
+    I.saveScreenshot('Admin_consent_page.png');
+    I.waitForElement({ css: '.auth-list' }, 20);
+    I.click({ xpath: 'xpath: //button[contains(text(), \'Yes, I authorize.\')]' });
+    await sleepMS(3000);
+    await I.seeElement({ css: '.ReactVirtualized__Table__rowColumn' }), 10;
+    await I.saveScreenshot('Admin_login_main_page.png');
+    await sleepMS(1000);
+
     const result = await interactive(`
-            1. [Automated] Something something
-                HTTP POST request to: ${ACCESS_API_ENDPOINT}/datasets
+            1. [Login] Check screenshot and make sure it shows the Access GUI
+               containing an empty list of users.
             Manual verification:
-              Response status: ${createDataSetsResp.status} // Expect a HTTP 200
-              Response data: ${JSON.stringify(createDataSetsResp.body)}
-                // Expect something
+                // Look at the screenshot (Admin_login_main_page.png) 
+                // inside your 'output' folder.
             `);
     expect(result.didPass, result.details).to.be.true;
   },
@@ -244,4 +302,39 @@ Scenario('Admin: login again + edit and delete user. @manual', ifInteractive(
             `);
     expect(result.didPass, result.details).to.be.true;
   },
-));*/
+));
+
+// Super Admin GUI test
+Scenario('Super Admin: delete Admin user. @manual', ifInteractive(
+  async (I) => {
+    if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
+    const accessTokenJson = parseJwt(I.cache.ACCESS_TOKEN);
+
+    I.amOnPage(ACCESS_API_ENDPOINT);
+    await I.setCookie({ name: 'dev_login', value: accessTokenJson.context.user.name });
+
+    // login
+    I.amOnPage(ACCESS_FRONTEND_ENDPOINT);
+    await I.click({ xpath: 'xpath: //button[contains(text(), \'Login from Google\')]' })
+    // delete
+    await I.scrollPageToTop();
+    I.click({ xpath: 'xpath: //div[@class=\'manage-users__tab\' and contains(text(), \'Manage Current Users\')]'});
+    await I.saveScreenshot('DEBUG_Before_deleting_new_admin_user.png');
+    await I.seeElement({ css: '.ReactVirtualized__Table__rowColumn' }), 10;
+    // click on delete bt (in the same row as the test admin user created previously)
+    I.click({ xpath: 'xpath: //div[@title=\'Arnold Schwarzenegger\']/../descendant::button[contains(text(), \'Delete\')]'});
+    await sleepMS(1000);
+    I.click({ xpath: 'xpath: //div[@class=\'popup__foot\']/descendant::button[contains(text(), \'Delete\')]'});  
+
+    const mostRecentDeletePR =  await assertSuccessfulOperation(I, 'deleted');
+    console.log(`most recent PR: ${stringify(mostRecentDeletePR)}`);
+   // TODO
+    const result = await interactive(`
+            1. [Delete] Check if a PR was created by the Delete User operation:
+            Manual verification:
+                // url: ${mostRecentDeletePR.url}
+                // timestamp: ${mostRecentDeletePR.created_at}
+            `);
+    expect(result.didPass, result.details).to.be.true;
+  },
+));
