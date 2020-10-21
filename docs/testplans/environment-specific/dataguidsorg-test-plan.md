@@ -1,13 +1,10 @@
 # dataguids.org test plan
 
-## 
-**Overview**
-
+## Overview
 [Dataguid.org](https://github.com/uc-cdis/indexd/blob/master/dataguid.org) is a centralized resolver, which will resolve the GUID into JSON through the server registered under the prefix of the GUID.
 
 
-## 
-**Technical Document**
+## Technical Document
 
 [Data GUID 1.1 Design Proposal](https://docs.google.com/document/d/1a3uyq0nz9q538GKtIWUqJSz21kvjdJidNdmuR71_amA/edit#heading=h.wuc075sngqhe)
 
@@ -16,17 +13,13 @@
 [Indexd README.md](https://github.com/uc-cdis/indexd/blob/master/README.md)
 
 
-## 
-**Workflow**
-
-
+## Workflow
 
 1. User goes to the page and input the GUID
-2. User click on` resolve` button
+2. User click on`resolve` button
 3. It should show the information user can use
 
-## 
-**Tests Scenarios**
+## Tests Scenarios
 
 1. Test distributed indexd functionality by getting records in linked Data Commons - test GUID with different prefixes.
 
