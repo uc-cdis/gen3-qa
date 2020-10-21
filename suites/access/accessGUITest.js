@@ -118,7 +118,7 @@ Scenario('Given a payload with minimal info, parse and create data sets in ACCES
   },
 ));
 */
-
+/*
 // GUI Testing
 Scenario('Super Admin: login + edit Admin. @manual', ifInteractive(
   async (I) => {
@@ -130,6 +130,7 @@ Scenario('Super Admin: login + edit Admin. @manual', ifInteractive(
 
     // login
     I.amOnPage(ACCESS_FRONTEND_ENDPOINT);
+    // TODO: move css & xpath locators to a separate props file to improve readability.
     await I.click({ xpath: 'xpath: //button[contains(text(), \'Login from Google\')]' });
     I.saveScreenshot('Super_Admin_consent_page.png');
     I.waitForElement({ css: '.auth-list' }, 20);
@@ -237,9 +238,10 @@ Scenario('Super Admin: export TSV. @manual', ifInteractive(
     expect(result.didPass, result.details).to.be.true;
   },
 ));
-
+*/
 
 // Admin GUI Testing
+Click on "Manage Current Users" and ensure new user appears in list on UI
 Scenario('Admin: login + add user. @manual', ifInteractive(
   async (I) => {
     if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
@@ -258,6 +260,43 @@ Scenario('Admin: login + add user. @manual', ifInteractive(
     await I.seeElement({ css: '.ReactVirtualized__Table__rowColumn' }), 10;
     await I.saveScreenshot('Admin_login_main_page.png');
     await sleepMS(1000);
+
+    // Click on "Manage Current Users" and ensure there are no users
+    I.dontSeeElement('.error');
+
+    // Ensure "Dataset Access" contains only the access the "Super Admin"
+    // has has granted this "Admin" (see previous tests)
+    const dataSetsCheckResp = await I.sendGetRequest(
+      `${ACCESS_API_ENDPOINT}/access-backend/datasets`,
+      getAccessTokenHeader(I.cache.ACCESS_TOKEN),
+    );
+
+    // Add admin
+    await I.saveScreenshot('DEBUG_Before_creating_new_user.png');
+    I.click({ xpath: 'xpath: //div[@class=\'manage-users__tab\' and contains(text(), \'Add a New User\')]'});
+    await I.saveScreenshot('Before_creating_new_admin_user.png');
+    I.click('.form-info__detail-select__control');
+    //I.fillField({ xpath: 'xpath: //div[@class=\'form-info__detail-select__placeholder\' and contains(text(), \'Select the login ID for this user\')]/input' },'Google email');
+    await I.saveScreenshot('Creating_new_admin_user.png');
+    I.click('#react-select-2-option-0') // select 'Google mail' option
+
+    I.fillField({ xpath: 'xpath: //li[@class=\'form-info__detail\']/label[contains(text(),\'Name *\')]/following-sibling::input' }, 'Arnold Schwarzenegger');
+    // await I.saveScreenshot('Create_admin_user_form_test_1.png');
+    I.fillField({ xpath: 'xpath: //li[@class=\'form-info__detail\']/label[contains(text(),\'Organization *\')]/following-sibling::input' }, 'Get to the choppa, now');
+    I.fillField({ xpath: 'xpath: //li[@class=\'form-info__detail\']/label[contains(text(),\'eRA Commons ID\')]/following-sibling::input' }, 'ASCHWAR');
+    I.fillField({ xpath: 'xpath: //li[@class=\'form-info__detail\']/label[contains(text(),\'ORCID\')]/following-sibling::input' }, '0000-0003-3292-0780'); // fictitious ORCID
+    I.fillField({ xpath: 'xpath: //li[@class=\'form-info__detail\']/label[contains(text(),\'Contact Email\')]/following-sibling::input' }, 'cdis.autotest@gmail.com');
+    I.fillField({ xpath: 'xpath: //li[@class=\'form-info__detail\']/label[contains(text(),\'Google Email\')]/following-sibling::input' }, 'cdis.autotest@gmail.com');
+    I.fillField({ xpath: 'xpath: //li[@class=\'form-info__detail\']/label[contains(text(),\'Access Expiration Date *\')]/following-sibling::input' }, '2021-10-19');
+    I.scrollIntoView('.form-info__user-access');
+    await sleepMS(1000);
+    I.checkOption({ xpath: 'xpath: //input[@type="checkbox"]'});
+    await I.saveScreenshot('Create_admin_user_form_fully_filled.png');
+
+    I.click({ xpath: 'xpath: //button[contains(text(), \'Add User\')]'});
+
+    const mostRecentAddPR =  await assertSuccessfulOperation(I, 'added');
+    console.log(`most recent PR: ${stringify(mostRecentAddPR)}`);
 
     const result = await interactive(`
             1. [Login] Check screenshot and make sure it shows the Access GUI
@@ -338,3 +377,4 @@ Scenario('Super Admin: delete Admin user. @manual', ifInteractive(
     expect(result.didPass, result.details).to.be.true;
   },
 ));
+*/
