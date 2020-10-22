@@ -205,7 +205,7 @@ Scenario('Super Admin: login + add Admin. @manual', ifInteractive(
 
     I.click({ xpath: 'xpath: //button[contains(text(), \'Add User\')]' });
 
-    const mostRecentAddPR =  await assertSuccessfulOperation(I, 'added');
+    const mostRecentAddPR = await assertSuccessfulOperation(I, 'added');
     console.log(`most recent PR: ${stringify(mostRecentAddPR)}`);
 
     const result = await interactive(`
@@ -223,7 +223,7 @@ Scenario('Super Admin: login + add Admin. @manual', ifInteractive(
 // The file creation and the download operation are executed in the frontend.
 // Hence, with our current testing framework we can't test this easily.
 Scenario('Super Admin: export TSV. @manual', ifInteractive(
-  async (I) => {
+  async () => {
     const result = await interactive(`
             1. Click on the "Export as TSV" button and download the TSV file.
             2. Make sure it contains the correct information.
@@ -329,17 +329,17 @@ Scenario('Super Admin: delete Admin user. @manual', ifInteractive(
     if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
     const accessTokenJson = parseJwt(I.cache.ACCESS_TOKEN);
 
-    await loginFlow(I, 'Super Admin delete Admin',{ user: accessTokenJson.context.user.name, expectUsers: true });
+    await loginFlow(I, 'Super Admin delete Admin', { user: accessTokenJson.context.user.name, expectUsers: true });
 
     // delete
     await I.saveScreenshot('DEBUG_Before_deleting_new_admin_user.png');
-    await I.seeElement({ css: '.ReactVirtualized__Table__rowColumn' }), 10;
+    await I.seeElement({ css: '.ReactVirtualized__Table__rowColumn' });
     // click on delete bt (in the same row as the test admin user created previously)
-    I.click({ xpath: 'xpath: //div[@title=\'Arnold Schwarzenegger\']/../descendant::button[contains(text(), \'Delete\')]'});
+    I.click({ xpath: 'xpath: //div[@title=\'Arnold Schwarzenegger\']/../descendant::button[contains(text(), \'Delete\')]' });
     await sleepMS(1000);
-    I.click({ xpath: 'xpath: //div[@class=\'popup__foot\']/descendant::button[contains(text(), \'Delete\')]'});
+    I.click({ xpath: 'xpath: //div[@class=\'popup__foot\']/descendant::button[contains(text(), \'Delete\')]' });
 
-    const mostRecentDeletePR =  await assertSuccessfulOperation(I, 'deleted');
+    const mostRecentDeletePR = await assertSuccessfulOperation(I, 'deleted');
     console.log(`most recent PR: ${stringify(mostRecentDeletePR)}`);
 
     const result = await interactive(`
