@@ -61,7 +61,7 @@ export default function () {
     if (__ITER < numOfJsons) { // eslint-disable-line no-undef
       group('create record in MDS', () => {
         console.log(`sending POST req to: ${url}`);
-        const res = http.post(url, jsonData, params, { tags: { name: 'createRecord1' } });
+        const res = http.post(url, jsonData, params, { tags: { name: 'createRec1' } });
 
         // If the ACCESS_TOKEN expires, renew it with the apiKey
         if (res.status === 401) {
