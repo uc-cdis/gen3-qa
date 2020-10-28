@@ -11,7 +11,7 @@
     }
   },
   "service": "sheepdog",
-  "load_test_scenario": "export-clinical-metada",
+  "load_test_scenario": "export-clinical-metadata",
   "virtual_users": [
     { "target": 1 }
   ]

@@ -1,7 +1,7 @@
 const { spawnSync } = require('child_process');
 const fs = require('fs');
 const dummyjson = require('dummy-json');
-const { getJWTData, getAccessTokenFromApiKey } = require('../utils/apiUtil.js');
+const { getJWTData, parseJwt, getAccessTokenFromApiKey } = require('../utils/apiUtil.js');
 const { fetchDIDList } = require('./indexd/indexdLTUtils.js');
 
 const args = process.argv.slice(2);
@@ -42,11 +42,17 @@ async function runLoadTestScenario() {
   const loadTestScenario = testDescriptorData.load_test_scenario;
   const jwtData = await getJWTData(pathToCredentialsJson);
   const apiKey = jwtData[Object.keys(jwtData)[0]];
-  const targetEnvironment = jwtData[Object.keys(jwtData)[1]];
+  let targetEnvironment = jwtData[Object.keys(jwtData)[1]];
 
   let token = '';
   if (Object.prototype.hasOwnProperty.call(testDescriptorData, 'override_access_token')) {
     token = testDescriptorData.override_access_token;
+    console.log(`Override token: ${token}`);
+    const overrideJwtData = parseJwt(testDescriptorData.override_access_token);
+    targetEnvironment = overrideJwtData.iss;
+    console.log(`Target environment from override token: ${targetEnvironment}`);
+    targetEnvironment = targetEnvironment.replace(/(^\w+:|^)\/\//, '').replace('/user', '');
+    console.log(`Sanitized target environment from override token: ${targetEnvironment}`);
   } else {
     token = await getAccessTokenFromApiKey(apiKey, targetEnvironment)
       .then((ACCESS_TOKEN) => {
@@ -65,7 +71,7 @@ async function runLoadTestScenario() {
     influxDBHost = 'http://localhost:8086/db0';
   }
   // Set fixed list of args for the load test run
-  const loadTestArgs = ['-e', `GEN3_HOST=${targetEnvironment}`, '-e', `ACCESS_TOKEN=${token}`, '-e', `VIRTUAL_USERS="${JSON.stringify(testDescriptorData.virtual_users)}"`, '--out', `influxdb=${influxDBHost}`, `load-testing/${targetService}/${loadTestScenario}.js`];
+  const loadTestArgs = ['-e', `GEN3_HOST=${targetEnvironment}`, '-e', `ACCESS_TOKEN=${token}`, '-e', `VIRTUAL_USERS="${JSON.stringify(testDescriptorData.virtual_users)}"`, '--out', `influxdb=${influxDBHost}`, '--summary-export=result.json', `load-testing/${targetService}/${loadTestScenario}.js`];
 
   // for additional debugging include the arg below
   // '--http-debug="full"'];
@@ -101,7 +107,7 @@ async function runLoadTestScenario() {
   }
 
   // TODO: Move this to a separate utils function
-  if (loadTestScenario === 'import-export-clinical-metada') {
+  if (loadTestScenario === 'import-clinical-metadata') {
     loadTestArgs.unshift(`NUM_OF_RECORDS=${testDescriptorData.num_of_records}`);
     loadTestArgs.unshift('-e');
   }

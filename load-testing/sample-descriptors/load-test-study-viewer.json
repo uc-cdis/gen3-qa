@@ -1,0 +1,19 @@
+{
+  "objective": "Determine if NIAID can accommodate hundreds of users",
+  "details": {
+    "name": "qa-niaid.planx-plan.net"
+  },
+  "service": "portal",
+  "load_test_scenario": "study-viewer",
+  "override_access_token": "<place_access_token_here>",
+  "virtual_users": [
+    { "duration": "1s", "target": 1 },
+    { "duration": "60s", "target": 10 },
+    { "duration": "60s", "target": 50 },
+    { "duration": "60s", "target": 100 },
+    { "duration": "60s", "target": 150 },
+    { "duration": "60s", "target": 200 },
+    { "duration": "60s", "target": 200 },
+    { "duration": "120s", "target": 0 }
+  ]
+}

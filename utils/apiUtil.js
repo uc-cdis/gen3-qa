@@ -419,6 +419,22 @@ module.exports = {
           css: '.covid19-dashboard_counts',
         },
       },
+      accessclinical: {
+        summary: {
+          css: '.index-page__introduction',
+        },
+        cards: {
+          css: '.g3-button',
+        },
+      },
+      'qa-niaid': {
+        summary: {
+          css: '.index-page__introduction',
+        },
+        cards: {
+          css: '.g3-button',
+        },
+      },
     };
     console.log(`#### hostname:${process.env.testedEnv}`);
     const detailKey = Object.keys(detailsMap).filter((k) => process.env.testedEnv.includes(k)).join('');

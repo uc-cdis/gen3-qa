@@ -65,39 +65,14 @@ const indexed_files = {
   },
 };
 
-BeforeSuite(async (indexd) => {
+BeforeSuite(async (indexd, fence, google) => {
   console.log('Adding indexd files used to test signed urls');
-  const ok = await indexd.do.addFileIndices(Object.values(indexed_files));
-  chai.expect(ok).to.be.true;
-});
-
-AfterSuite(async (fence, indexd, users) => {
-  console.log('Removing indexd files used to test signed urls');
-  await indexd.do.deleteFileIndices(Object.values(indexed_files));
-
-  console.log('Running usersync job');
-  bash.runJob('usersync', args = 'FORCE true');
-  await checkPod('usersync', 'gen3job,job-name=usersync');
-});
-
-/* Before(async (google, fence, users) => {
-  // Cleanup before each scenario
+  await indexd.do.addFileIndices(Object.values(indexed_files));
   console.log('deleting keys for SA associated with users 0, 1 and user2...');
   ['user0', 'user1', 'user2'].forEach(async(user) => {
     const getCredsRes = await fence.do.getUserGoogleCreds(users[user].accessTokenHeader);
     await google.deleteSAKeys(user, getCredsRes.access_keys);
   });
-  // console.log('Running usersync job');
-  // bash.runJob('usersync', args = 'FORCE true');
-  // await checkPod('usersync', 'gen3job,job-name=usersync');
-}); */
-
-After(async (fence, users) => {
-  // Cleanup after each scenario
-  const unlinkResults = Object.values(users).map(async(user) => {
-    fence.do.unlinkGoogleAcct(user);
-  });
-  await Promise.all(unlinkResults);
 });
 
 Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle @googleDataAccess',
@@ -318,12 +293,6 @@ Scenario('Test Google Data Access user0 (signed urls and temp creds) @reqGoogle 
 
     // CLEANUP
     console.log('Finally: Ensure cleanup as successful');
-
-    chai.expect(deleteCreds0Res,
-      'Cleanup of temporary Google creds for User 0 FAILED.').to.have.property('status', 204);
-
-    chai.expect(deleteServiceAccount0Res,
-      'Cleanup of Google service account for User 0 FAILED.').to.be.empty;
   }
 );
 
