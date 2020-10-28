@@ -80,6 +80,7 @@ exports.config = {
     portalDataUpload: './services/portal/dataUpload/dataUploadService.js',
     portalExportToWorkspace: './services/portal/exportToWorkspace/exportToWorkspaceService.js',
     portalCoreMetadataPage: './services/portal/coreMetadataPage/coreMetadataPageService.js',
+    studyViewer: './services/portal/studyViewer/studyViewerService.js',
   },
   mocha: {
     reporterOptions: {
