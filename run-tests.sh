@@ -228,6 +228,9 @@ runTestsIfServiceVersion "@cleverSafe" "fence" "4.22.4" "2020.09"
 # we only run Google Data Access tests for cdis-manifest PRs to these
 envsRequireGoogle="dcp.bionimbus.org internalstaging.theanvil.io staging.theanvil.io gen3.theanvil.io preprod.gen3.biodatacatalyst.nhlbi.nih.gov internalstaging.datastage.io gen3.biodatacatalyst.nhlbi.nih.gov nci-crdc-staging.datacommons.io nci-crdc.datacommons.io"
 
+# Do not run mariner before setting up the jenkins envs
+donot '@mariner'
+
 #
 # DataClientCLI tests require a fix to avoid parallel test runs
 # contending over config files in the home directory
@@ -271,8 +274,10 @@ else
   #
   # Run tests including RAS AuthN Integration tests
   #
-  runTestsIfServiceVersion "@rasAuthN" "fence" "4.22.1" "2020.09"
-  echo "INFO: enabling RAS AuthN Integration tests for $service"
+  # disabling temporarily due to RAS Staging connectivity issues  
+  donot '@rasAuthN'  
+  # runTestsIfServiceVersion "@rasAuthN" "fence" "4.22.1" "2020.09"
+  # echo "INFO: enabling RAS AuthN Integration tests for $service"
 fi
 
 # TODO: eventually enable for all services, but need arborist and fence updates first
