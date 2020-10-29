@@ -67,7 +67,7 @@ Before(({ home }) => {
 });
 
 Scenario('Map uploaded files in windmill submission page @dataUpload @portal', async ({
-    I, sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUpload,
+  I, sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUpload,
 }) => {
   // generate file and register in fence, get url
   const { fileObj, presignedUrl } = await generateFileAndGetUrlFromFence(
