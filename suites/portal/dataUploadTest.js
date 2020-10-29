@@ -67,7 +67,7 @@ Before(({ home }) => {
 });
 
 Scenario('Map uploaded files in windmill submission page @dataUpload @portal', async ({
-  sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUpload,
+    I, sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUpload,
 }) => {
   // generate file and register in fence, get url
   const { fileObj, presignedUrl } = await generateFileAndGetUrlFromFence(
@@ -77,23 +77,23 @@ Scenario('Map uploaded files in windmill submission page @dataUpload @portal', a
   );
 
   // user1 should see 1 file, but not ready yet
-  portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage([fileObj], false);
+  portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage(I, [fileObj], false);
 
   // upload file
   await uploadFile(dataUpload, indexd, sheepdog, nodes, fileObj, presignedUrl);
 
   // user1 should see 1 file ready
-  portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage([fileObj], true);
+  portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage(I, [fileObj], true);
 
   // user1 map file in windmill
-  await portalDataUpload.complete.mapFiles([fileObj], submitterID);
+  await portalDataUpload.complete.mapFiles(I, [fileObj], submitterID);
 
   // user1 should see 0 files now because all files are mapped.
-  portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage([]);
+  portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage(I, []);
 });
 
 Scenario('Cannot see files uploaded by other users @dataUpload @portal', async ({
-  sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUpload,
+  I, sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUpload,
 }) => {
   // user2 upload file2
   const { fileObj, presignedUrl } = await generateFileAndGetUrlFromFence(
@@ -104,7 +104,7 @@ Scenario('Cannot see files uploaded by other users @dataUpload @portal', async (
   await uploadFile(dataUpload, indexd, sheepdog, nodes, fileObj, presignedUrl);
 
   // user1 cannot see file2
-  await portalDataUpload.complete.checkUnmappedFilesAreNotInFileMappingPage([fileObj]);
+  await portalDataUpload.complete.checkUnmappedFilesAreNotInFileMappingPage(I, [fileObj]);
 });
 
 After(({ home }) => {

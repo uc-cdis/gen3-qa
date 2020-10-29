@@ -80,10 +80,7 @@ echo "Leaf node set to: $leafNode"
 export HOME="${WORKSPACE:-$HOME}"
 if [ -f ./pyproject.toml ]; then
   echo "Found pyproject.toml, using poetry to install data simulator"
-  # only poetry 1.1+ works (still a preview version now)
-  # stable version poetry fails to work because it  depends on pythen3-venv
-  # from poetry 1.1 they build virtual envs with virtualenv, see https://github.com/python-poetry/poetry/releases/tag/1.1.0b1
-  /usr/bin/curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | POETRY_VERSION=1.1.0b2 python3.6
+  /usr/bin/curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3.6
   # make sure poetry is using python 3.6
   sed -i '1 s/\<python\>/python3.6/' $HOME/.poetry/bin/poetry
   # these steps are needed to ensure virtualenv creates and activates successfully
@@ -92,12 +89,20 @@ if [ -f ./pyproject.toml ]; then
   touch $HOME/.cache/pypoetry/virtualenvs/envs.toml
   $HOME/.poetry/bin/poetry env use python3.6
   # install data-simulator
-  $HOME/.poetry/bin/poetry install -vv --no-dev
-  if [[ $? -ne 0 ]]; then
-    echo "ERROR: Failed to install poetry / dependencies"
-    writeMetricWithResult "FAIL"
-    exit 1
-  fi
+  
+  # retry in case of any connectivity failures
+  for attempt in {1..3}; do
+    $HOME/.poetry/bin/poetry install -vv --no-dev
+    if [[ $? -ne 0 ]]; then
+      echo "ERROR: Failed to install poetry / dependencies on attempt #${attempt}"
+      writeMetricWithResult "FAIL"
+      sleep ${attempt}
+      echo "trying again..."
+    else
+      echo "poetry install returned a successful status code, proceeding with the data simulation..."
+      break
+    fi
+  done
 
   export PYTHONPATH=.
   pyCMD="$HOME/.poetry/bin/poetry run data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
