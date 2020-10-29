@@ -89,12 +89,20 @@ if [ -f ./pyproject.toml ]; then
   touch $HOME/.cache/pypoetry/virtualenvs/envs.toml
   $HOME/.poetry/bin/poetry env use python3.6
   # install data-simulator
-  $HOME/.poetry/bin/poetry install -vv --no-dev
-  if [[ $? -ne 0 ]]; then
-    echo "ERROR: Failed to install poetry / dependencies"
-    writeMetricWithResult "FAIL"
-    exit 1
-  fi
+  
+  # retry in case of any connectivity failures
+  for attempt in {1..3}; do
+    $HOME/.poetry/bin/poetry install -vv --no-dev
+    if [[ $? -ne 0 ]]; then
+      echo "ERROR: Failed to install poetry / dependencies on attempt #${attempt}"
+      writeMetricWithResult "FAIL"
+      sleep ${attempt}
+      echo "trying again..."
+    else
+      echo "poetry install returned a successful status code, proceeding with the data simulation..."
+      break
+    fi
+  done
 
   export PYTHONPATH=.
   pyCMD="$HOME/.poetry/bin/poetry run data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
