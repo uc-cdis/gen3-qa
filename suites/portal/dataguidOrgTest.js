@@ -8,8 +8,13 @@ correctGuids.add(['00006461-4d2a-4c91-b8ae-b418752ae06b']); //adding guids for "
 correctGuids.add(['0000047f-772f-4241-980d-1f667686fe60']); //adding guids for "NCI CRDC" which doesn't support prefix
 correctGuids.add(['dg.ANV0/0000b4b4-2af4-42e2-9bfa-6fd11e5fb97a']); //adding guids for "AnVIL"
 
-// Pass dataTable to Data()
-Data(correctGuids).Scenario('resolveguids', async( I, current) => {
+let nonexistentGuids = new DataTable(['nguids']);
+nonexistentGuids.add(['dg.ABCD/0000b4b4-2af4-42e2-9bfa-6fd11e5fb97a']); //adding guids with wrong prefix
+nonexistentGuids.add(['0000b456-3r56-1dr3-0rt4-6fd11e5fb97a']); //adding non-existent guids
+
+//Pass dataTable to Data()
+//Test resolving guids
+Data(correctGuids).Scenario('resolveguids', (I, current) => {
     I.amOnPage('https://dataguids.org');
     I.fillField('#guidval', current.guids);
     I.click('#resolveit');
@@ -17,11 +22,7 @@ Data(correctGuids).Scenario('resolveguids', async( I, current) => {
     I.see('"id": "'+ current.guids + '"');
 });
 
-//Nagative test
-let nonexistentGuids = new DataTable(['nguids']);
-nonexistentGuids.add(['dg.ABCD/0000b4b4-2af4-42e2-9bfa-6fd11e5fb97a']); //adding guids with wrong prefix
-nonexistentGuids.add(['0000b456-3r56-1dr3-0rt4-6fd11e5fb97a']); //adding non-existent guids
-
+//Nagative resolving guids test
 Data(nonexistentGuids).Scenario('Negativetest', (I, current) => {
   I.amOnPage('https://dataguids.org');
   I.fillField('#guidval', current.nguids);
@@ -34,6 +35,12 @@ Data(nonexistentGuids).Scenario('Negativetest', (I, current) => {
 Data(correctGuids).Scenario('DRSendpoint', ( I, current) => {
   I.amOnPage('https://dataguids.org/index/ga4gh/drs/v1/objects/' + current.guids);
   I.see('"id":"'+ current.guids + '"');
+});
+
+//Nagative DRS endpoint test
+Data(nonexistentGuids).Scenario('DRSendpoint', ( I, current) => {
+  I.amOnPage('https://dataguids.org/index/ga4gh/drs/v1/objects/' + current.guids);
+  I.see('"error":"no record found"');
 });
 
 
