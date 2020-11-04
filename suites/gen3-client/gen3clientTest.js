@@ -5,7 +5,6 @@ const { interactive, ifInteractive } = require('../../utils/interactive.js');
 
 const { expect } = chai;
 const hostname = process.env.HOSTNAME;
-const profile = process.env.NAMESPACE;
 
 // Installation
 Scenario('Install gen3-client @manual', ifInteractive(
@@ -93,7 +92,7 @@ Scenario('Create a folder and generate a test file @manual', ifInteractive(
 Scenario('Run the gen3-client CLI utility and upload the test file to <profile> @manual', ifInteractive(
   async () => {
     const result = await interactive(`
-            1. Run the gen3-cli upload command and store the output in a log file: gen3-client upload --profile=${profile} --upload-path=test.txt | tee upload.log
+            1. Run the gen3-cli upload command and store the output in a log file: gen3-client upload --profile=<profile> --upload-path=test.txt | tee upload.log
             2. Take note of the GUID that is printed as part of the output
         `);
     expect(result.didPass, result.details).to.be.true;
@@ -103,7 +102,7 @@ Scenario('Run the gen3-client CLI utility and upload the test file to <profile> 
 Scenario('Download the same test file and verify integrity @manual', ifInteractive(
   async () => {
     const result = await interactive(`
-            1. Run the gen3-cli download command: gen3-client download-single --profile=marcelo --guid=<GUID from the previous scenario>
+            1. Run the gen3-cli download command: gen3-client download-single --profile=<profile> --guid=<GUID from the previous scenario>
             2. Generate a sha256 hash of the file that was downloaded (see instructions from the first scenario)
             3. Run a diff command against the hashes to check if both files have the same hash (i.e., confirming integrity of the file by comparing the hash values).
                diff uploaded-file-sha256 downloaded-file-sha256
@@ -116,7 +115,7 @@ Scenario('Try the download-multiple feature @manual', ifInteractive(
   async () => {
     const result = await interactive(`
             1. This scenario assumes the presence of uploaded files that have been ETL'ed. The manifest containing the files metadata should be found under the Files (or Downloadable) tab in the Explorer page. Click on the "Download Manifest" button to save the json file to your disk.
-            2. Run the gen3-cli download-multiple command: gen3-client download-multiple --profile=marcelo --manifest=<path_to_the_manifest_json_file>
+            2. Run the gen3-cli download-multiple command: gen3-client download-multiple --profile=<profile> --manifest=<path_to_the_manifest_json_file>
             3. Make sure the download-multiple operation is completed successfully and all files are downloaded.
         `);
     expect(result.didPass, result.details).to.be.true;
