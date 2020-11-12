@@ -6,8 +6,8 @@ ENV SDET_HOME /var/sdet_home
 
 ARG user=sdet
 ARG group=sdet
-ARG uid=1500
-ARG gid=1500
+ARG uid=1000
+ARG gid=1000
 
 RUN addgroup -g ${gid} ${group} \
     && adduser --home "$SDET_HOME" --uid ${uid} --ingroup ${group} --disabled-password --shell /bin/sh ${user}
@@ -88,5 +88,6 @@ RUN chown -R ${user}:${group} ${SDET_HOME}
 USER sdet
 RUN which poetry
 RUN poetry version
+RUN echo "$(whoami)"
 
 CMD ["poetry", "run", "gen3qa-controller/gen3qa-controller.py"]
