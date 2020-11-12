@@ -84,6 +84,4 @@ COPY controller/gen3qa-controller ${SDET_HOME}/controller/gen3qa-controller/
 # install runtime deps - uses $POETRY_VIRTUALENVS_IN_PROJECT internally
 RUN poetry install --no-dev
 
-RUN chmod -R a+rx ${POETRY_HOME} && chmod -R a+rx ${SDET_HOME}
-
 CMD ["poetry", "run", "gen3qa-controller/gen3qa-controller.py"]
