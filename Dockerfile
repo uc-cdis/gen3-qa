@@ -67,8 +67,6 @@ COPY codecept.conf.js \
      suites \
      utils ${SDET_HOME}/
 
-USER sdet
-
 # install poetry - respects $POETRY_VERSION & $POETRY_HOME
 RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
 
@@ -83,5 +81,8 @@ COPY controller/gen3qa-controller ${SDET_HOME}/controller/gen3qa-controller/
 # Project initialization:
 # install runtime deps - uses $POETRY_VIRTUALENVS_IN_PROJECT internally
 RUN poetry install --no-dev
+
+RUN chown -R ${user}:${group} ${SDET_HOME}
+USER sdet
 
 CMD ["poetry", "run", "gen3qa-controller/gen3qa-controller.py"]
