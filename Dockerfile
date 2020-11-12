@@ -11,6 +11,7 @@ ARG gid=1500
 
 RUN addgroup -g ${gid} ${group} \
     && adduser --home "$SDET_HOME" --uid ${uid} --ingroup ${group} --disabled-password --shell /bin/bash ${user}
+RUN chmod -R a+rx ${SDET_HOME}
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -55,6 +56,6 @@ COPY controller/poetry.lock controller/pyproject.toml ${SDET_HOME}/
 COPY controller/gen3qa-controller ${SDET_HOME}/
 
 # Project initialization:
-RUN $HOME/.poetry/bin/poetry install -vv --no-dev
+RUN ${SDET_HOME}/.poetry/bin/poetry install -vv --no-dev
 
-CMD ["$HOME/.poetry/bin/poetry", "run", "${SDET_HOME}/gen3qa-controller/gen3qa-controller.py"]
+CMD ["/var/sdet_home/.poetry/bin/poetry", "run", "gen3qa-controller.py"]
