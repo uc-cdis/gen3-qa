@@ -72,10 +72,11 @@ RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-
 
 # Copy only requirements to cache them in docker layer
 WORKDIR ${SDET_HOME}
-COPY controller/poetry.lock controller/pyproject.toml ${SDET_HOME}/
+RUN mkdir -p ${SDET_HOME}/controller/gen3qa-controller
+COPY controller/poetry.lock controller/pyproject.toml ${SDET_HOME}/controller/
 
 # copy controller scripts
-COPY controller/gen3qa-controller ${SDET_HOME}/
+COPY controller/gen3qa-controller ${SDET_HOME}/controller/
 
 # Project initialization:
 # install runtime deps - uses $POETRY_VIRTUALENVS_IN_PROJECT internally
@@ -84,4 +85,4 @@ RUN poetry install --no-dev
 RUN chmod -R a+rx ${POETRY_HOME}
 USER sdet
 
-CMD ["poetry", "run", "gen3qa-controller.py"]
+CMD ["poetry", "run", "/controller/gen3qa-controller/gen3qa-controller.py"]
