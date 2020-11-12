@@ -29,6 +29,7 @@ RUN set -xe && apk add --no-cache --virtual .build-deps \
     vim \
     gcc \
     libc-dev \
+    libffi-dev \
     make \
     openssl-dev \
     pcre-dev \
@@ -41,3 +42,19 @@ RUN set -xe && apk add --no-cache --virtual .build-deps \
     npm
 
 USER sdet
+
+# System deps:
+RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python \
+    && source $HOME/.poetry/env
+
+# Copy only requirements to cache them in docker layer
+WORKDIR ${SDET_HOME}
+COPY controller/poetry.lock controller/pyproject.toml ${SDET_HOME}/
+
+# copy controller scripts
+COPY controller/gen3qa-controller ${SDET_HOME}/
+
+# Project initialization:
+RUN $HOME/.poetry/bin/poetry install -vv --no-dev
+
+CMD ['poetry run ${SDET_HOME}/gen3qa-controller/gen3qa-controller.py']
