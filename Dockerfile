@@ -10,7 +10,7 @@ ARG uid=1500
 ARG gid=1500
 
 RUN addgroup -g ${gid} ${group} \
-    && adduser --home "$SDET_HOME" --uid ${uid} --ingroup ${group} --disabled-password --shell /bin/bash ${user}
+    && adduser --home "$SDET_HOME" --uid ${uid} --ingroup ${group} --disabled-password --shell /bin/sh ${user}
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -82,7 +82,11 @@ COPY controller/gen3qa-controller ${SDET_HOME}/controller/gen3qa-controller/
 # install runtime deps - uses $POETRY_VIRTUALENVS_IN_PROJECT internally
 RUN poetry install --no-dev
 
+RUN which poetry
+RUN poetry version
 RUN chown -R ${user}:${group} ${SDET_HOME}
 USER sdet
+RUN which poetry
+RUN poetry version
 
 CMD ["poetry", "run", "gen3qa-controller/gen3qa-controller.py"]
