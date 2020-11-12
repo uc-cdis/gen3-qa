@@ -198,8 +198,8 @@ six = "*"
 
 [metadata]
 lock-version = "1.1"
-python-versions = "^3.7"
-content-hash = "6734951e6565c92dcef9cd09ebfc1eeffb34977393df227ab61e3fa3b812d0c0"
+python-versions = "^3.6"
+content-hash = "4f3bcbf860693f529fd2f1b4b58e29f6456edd19c265a658043aa87c559e9cf9"
 
 [metadata.files]
 cachetools = [
