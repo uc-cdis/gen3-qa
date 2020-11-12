@@ -67,6 +67,8 @@ COPY codecept.conf.js \
      suites \
      utils ${SDET_HOME}/
 
+USER sdet
+
 # install poetry - respects $POETRY_VERSION & $POETRY_HOME
 RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
 
@@ -83,6 +85,5 @@ COPY controller/gen3qa-controller ${SDET_HOME}/controller/gen3qa-controller/
 RUN poetry install --no-dev
 
 RUN chmod -R a+rx ${POETRY_HOME} && chmod -R a+rx ${SDET_HOME}
-USER sdet
 
 CMD ["poetry", "run", "gen3qa-controller/gen3qa-controller.py"]
