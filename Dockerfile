@@ -1,29 +1,43 @@
-# To run: docker run -d --name=dataportal -p 80:80 quay.io/cdis/data-portal
-# To check running container: docker exec -it dataportal /bin/bash
+FROM alpine:3.12.1
 
-FROM ubuntu:18.04
+USER root
+
+ENV SDET_HOME /var/sdet_home
+
+ARG user=sdet
+ARG group=sdet
+ARG uid=1500
+ARG gid=1500
+
+RUN addgroup -g ${gid} ${group} \
+    && adduser --home "$SDET_HOME" --uid ${uid} --ingroup ${group} --disabled-password --shell /bin/bash ${user}
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    ca-certificates \
-    curl \
-    libssl-dev \
-    libcurl4-openssl-dev \
-    git \
-    nginx \
+# Install python/pip
+ENV PYTHONUNBUFFERED=1
+RUN apk add --update --no-cache python3 \
+    && ln -sf python3 /usr/bin/python \
+    && python3 -m ensurepip \
+    && pip3 install --no-cache --upgrade pip setuptools
+
+# install everything else
+RUN set -xe && apk add --no-cache --virtual .build-deps \
+    zip \
+    unzip \
+    less \
     vim \
-    && pip install pip==9.0.3 \
-    && pip install requests \
-    && curl -sL https://deb.nodesource.com/setup_8.x | bash - \
-    && apt-get install -y --no-install-recommends nodejs \
-    && ln -sf /dev/stdout /var/log/nginx/access.log \
-    && ln -sf /dev/stderr /var/log/nginx/error.log
+    gcc \
+    libc-dev \
+    make \
+    openssl-dev \
+    pcre-dev \
+    zlib-dev \
+    linux-headers \
+    curl \
+    wget \
+    jq \
+    nodejs \
+    npm
 
-COPY . /gen3-qa
-
-WORKDIR /gen3-qa
-
-ARG APP=dev
-ARG BASENAME
+USER sdet
