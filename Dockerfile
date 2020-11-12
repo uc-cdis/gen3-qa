@@ -76,13 +76,13 @@ WORKDIR ${SDET_HOME}/controller
 COPY controller/poetry.lock controller/pyproject.toml ${SDET_HOME}/controller/
 
 # copy controller scripts
-COPY controller/gen3qa-controller ${SDET_HOME}/controller/
+COPY controller/gen3qa-controller ${SDET_HOME}/controller/gen3qa-controller/
 
 # Project initialization:
 # install runtime deps - uses $POETRY_VIRTUALENVS_IN_PROJECT internally
 RUN poetry install --no-dev
 
-RUN chmod -R a+rx ${POETRY_HOME}
+RUN chmod -R a+rx ${POETRY_HOME} && chmod -R a+rx ${SDET_HOME}
 USER sdet
 
 CMD ["poetry", "run", "gen3qa-controller/gen3qa-controller.py"]
