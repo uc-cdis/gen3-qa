@@ -11,12 +11,25 @@ ARG gid=1500
 
 RUN addgroup -g ${gid} ${group} \
     && adduser --home "$SDET_HOME" --uid ${uid} --ingroup ${group} --disabled-password --shell /bin/bash ${user}
-RUN chmod -R a+rx ${SDET_HOME}
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install python/pip
-ENV PYTHONUNBUFFERED=1
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=off \
+    PIP_DISABLE_PIP_VERSION_CHECK=on \
+    PIP_DEFAULT_TIMEOUT=100 \
+    POETRY_VERSION=1.1.4 \
+    POETRY_HOME="/opt/poetry" \
+    POETRY_VIRTUALENVS_IN_PROJECT=true \
+    POETRY_NO_INTERACTION=1 \
+    PYSETUP_PATH="/opt/pysetup" \
+    VENV_PATH="/opt/pysetup/.venv"
+
+# prepend poetry and venv to path
+ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
+
 RUN apk add --update --no-cache python3 \
     && ln -sf python3 /usr/bin/python \
     && python3 -m ensurepip \
@@ -42,11 +55,20 @@ RUN set -xe && apk add --no-cache --virtual .build-deps \
     nodejs \
     npm
 
-USER sdet
+# Copy the gen3-qa framework scripts (test suites + service and utils modules)
+COPY codecept.conf.js \
+     package.json \
+     package-lock.json \
+     test_setup.js \
+     .eslintrc.js \
+     helpers \
+     hooks \
+     services \
+     suites \
+     utils ${SDET_HOME}/
 
-# System deps:
-RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python \
-    && source $HOME/.poetry/env
+# install poetry - respects $POETRY_VERSION & $POETRY_HOME
+RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
 
 # Copy only requirements to cache them in docker layer
 WORKDIR ${SDET_HOME}
@@ -56,6 +78,9 @@ COPY controller/poetry.lock controller/pyproject.toml ${SDET_HOME}/
 COPY controller/gen3qa-controller ${SDET_HOME}/
 
 # Project initialization:
-RUN ${SDET_HOME}/.poetry/bin/poetry install -vv --no-dev
+# install runtime deps - uses $POETRY_VIRTUALENVS_IN_PROJECT internally
+RUN poetry install --no-dev
 
-CMD ["/var/sdet_home/.poetry/bin/poetry", "run", "gen3qa-controller.py"]
+USER sdet
+
+CMD ["poetry", "run", "gen3qa-controller.py"]
