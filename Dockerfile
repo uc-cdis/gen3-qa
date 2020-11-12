@@ -57,4 +57,4 @@ COPY controller/gen3qa-controller ${SDET_HOME}/
 # Project initialization:
 RUN $HOME/.poetry/bin/poetry install -vv --no-dev
 
-CMD ['poetry run ${SDET_HOME}/gen3qa-controller/gen3qa-controller.py']
+CMD ["$HOME/.poetry/bin/poetry", "run", "${SDET_HOME}/gen3qa-controller/gen3qa-controller.py"]
