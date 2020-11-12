@@ -82,12 +82,7 @@ COPY controller/gen3qa-controller ${SDET_HOME}/controller/gen3qa-controller/
 # install runtime deps - uses $POETRY_VIRTUALENVS_IN_PROJECT internally
 RUN poetry install --no-dev
 
-RUN which poetry
-RUN poetry version
 RUN chown -R ${user}:${group} ${SDET_HOME}
 USER sdet
-RUN which poetry
-RUN poetry version
-RUN echo "$(whoami)"
 
-CMD ["poetry", "run", "gen3qa-controller/gen3qa-controller.py"]
+CMD ["poetry", "run", "python", "gen3qa-controller/gen3qa-controller.py"]
