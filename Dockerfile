@@ -1,4 +1,4 @@
-FROM python:slim
+FROM quay.io/cdis/alpine:3.12.1
 
 USER root
 
@@ -9,8 +9,8 @@ ARG group=sdet
 ARG uid=1000
 ARG gid=1000
 
-RUN addgroup -gid ${gid} ${group} \
-    && adduser --home "$SDET_HOME" --uid ${uid} --gid ${gid} --disabled-password --shell /bin/sh ${user}
+RUN addgroup -g ${gid} ${group} \
+    && adduser --home "$SDET_HOME" --uid ${uid} --ingroup ${group} --disabled-password --shell /bin/sh ${user}
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -30,19 +30,25 @@ ENV PYTHONUNBUFFERED=1 \
 # prepend poetry and venv to path
 ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
 
-# install everything
-RUN apt-get update \
-  && apt-get install -y lsb-release \
-    gcc \
+RUN apk add --update --no-cache python3 \
+    && ln -sf python3 /usr/bin/python \
+    && python3 -m ensurepip \
+    && pip3 install --no-cache --upgrade pip setuptools
+
+# install everything else
+RUN set -xe && apk add --no-cache --virtual .build-deps \
     zip \
     unzip \
     less \
     vim \
+    gcc \
     libc-dev \
     libffi-dev \
     make \
-    libssl-dev \
-    libcurl4-openssl-dev \
+    openssl-dev \
+    pcre-dev \
+    zlib-dev \
+    linux-headers \
     curl \
     wget \
     jq \
