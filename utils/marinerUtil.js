@@ -1,51 +1,51 @@
 const marinerProps = require('../services/apis/mariner/marinerProps.js');
-const user = require('./user.js');
 
 const I = actor();
 
 // The auth header format might change to fix this bug:
 // https://ctds-planx.atlassian.net/browse/PXP-6814
-const authHeader = { Authorization: user.mainAcct.accessToken };
+// Currently it is { Authorization: user.mainAcct.accessToken }
+// Once the bug is fixed we can use the tokenHeader of user directly
 
 module.exports = {
-  async runWorkflow(workflow) {
+  async runWorkflow(user, workflow) {
     const response = await I.sendPostRequest(
       marinerProps.endpoints.rootEndPoint,
       workflow,
-      authHeader,
+      { Authorization: user.accessToken },
     );
     return response.data.runID;
   },
 
-  async fetchRunStatus(runId) {
+  async fetchRunStatus(user, runId) {
     const response = await I.sendGetRequest(
       `${marinerProps.endpoints.rootEndPoint}/${runId}/status`,
-      authHeader,
+      { Authorization: user.accessToken },
     );
     return response.data.status;
   },
 
-  async fetchRunLogs(runId) {
+  async fetchRunLogs(user, runId) {
     const response = await I.sendGetRequest(
       `${marinerProps.endpoints.rootEndPoint}/${runId}`,
-      authHeader,
+      { Authorization: user.accessToken },
     );
     return response.data.log;
   },
 
-  async fetchRunHistory() {
+  async fetchRunHistory(user) {
     const response = await I.sendGetRequest(
       marinerProps.endpoints.rootEndPoint,
-      authHeader,
+      { Authorization: user.accessToken },
     );
     return response.data.runIDs;
   },
 
-  async cancelRun(runId, workflow) {
+  async cancelRun(user, runId, workflow) {
     const response = await I.sendPostRequest(
       `${marinerProps.endpoints.rootEndPoint}/${runId}/cancel`,
       workflow,
-      authHeader,
+      { Authorization: user.accessToken },
     );
     return response;
   },
