@@ -4,12 +4,19 @@ version = "0.1.0"
 description = "K8s Controller to orchestrate automated tests"
 authors = ["CTDS UChicago <cdis@uchicago.edu>"]
 license = "Apache-2.0"
+packages = [
+    { include = "triage", from = "gen3qa-controller" },
+    { include = "gen3qa-controller/gen3qa-controller.py" }
+]
 
 [tool.poetry.dependencies]
 python = "^3.6"
 kubernetes = "^12.0.0"
 
 [tool.poetry.dev-dependencies]
+
+[tool.poetry.scripts]
+gen3release = 'gen3qa-controller.gen3qa-controller:main'
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
