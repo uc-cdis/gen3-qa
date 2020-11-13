@@ -448,7 +448,7 @@ module.exports = {
    * was saved and the name of that key
    */
   async createServiceAccountKeyFile(googleProject) {
-    const tempCredsRes = await this.createServiceAccountKey(
+    const tempCredsRes = await module.exports.createServiceAccountKey(
       googleProject.id, googleProject.serviceAccountEmail,
     );
     const keyFullName = tempCredsRes.name;

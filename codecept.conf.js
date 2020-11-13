@@ -100,9 +100,9 @@ exports.config = {
       },
     },
   },
-  bootstrap: './test_setup.js',
+  bootstrap: require('./test_setup.js'), // eslint-disable-line global-require
   hooks: [
-    'hooks/test_results.js',
+    require('./hooks/test_results.js'), // eslint-disable-line global-require
   ],
   tests: './suites/**/*.js',
   gherkin: {
@@ -111,6 +111,9 @@ exports.config = {
   },
   plugins: {
     allure: {},
+    tryTo: {
+      enabled: true,
+    },
   },
   timeout: 60000,
   name: 'selenium',
