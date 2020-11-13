@@ -1,4 +1,3 @@
-/* eslint-disable codeceptjs/no-skipped-tests */
 Feature('Study Viewer');
 
 const studyViewerTasks = require('../../services/portal/studyViewer/studyViewerTasks.js');
