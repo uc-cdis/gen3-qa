@@ -58,4 +58,4 @@ Scenario('Navigate to the landing page and click on buttons @landing', async ({ 
     // Go back to the landing page and try to find / click on the buttons again
     I.amOnPage('/');
   }
-});
+}).retry(2);
