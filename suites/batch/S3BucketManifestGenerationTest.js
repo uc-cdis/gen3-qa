@@ -139,7 +139,7 @@ Scenario('Generate bucket manifest from s3 bucket @amazonS3 @batch @bucketManife
   let bucketManifestTSV = tsv.parse(bucketManifestContentsRaw);
   console.log(`bucketManifestTSV: ${JSON.stringify(bucketManifestTSV)}`);
 
-  bucketManifestTSV = bucketManifestTSV.sort(( a, b ) => a.size - b.size);
+  bucketManifestTSV = bucketManifestTSV.sort((a, b) => a.size - b.size);
   console.log(`sorted bucketManifestTSV: ${JSON.stringify(bucketManifestTSV)}`);
 
   // Final assertions
