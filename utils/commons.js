@@ -4,6 +4,7 @@
  */
 
 const request = require('request');
+const path = require('path');
 const user = require('./user');
 const { Bash } = require('./bash');
 
@@ -138,13 +139,15 @@ class Commons {
    * @returns {string}
    */
   static setUserYaml(useryaml) {
-    let dir;
+    /* let dir;
     if (inJenkins) {
       dir = `${process.env.GEN3_HOME}/files/integration_testing`;
     } else {
       dir = '~/cloud-automation/files/integration_testing';
-    }
+    } */
 
+    const dir = path.join(__dirname, '..', 'files');
+    console.log(`*** NEW PATH FOR USER.YAML FILE: ${dir}`);
     bash.runCommand(`rm -f ${dir}/user.yaml`);
     bash.runCommand(`cp ${dir}/${useryaml} ${dir}/user.yaml`);
 

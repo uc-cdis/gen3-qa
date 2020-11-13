@@ -1,0 +1,6 @@
+repos:
+  -   repo: https://github.com/Yelp/detect-secrets.git
+      rev: v0.13.1
+      hooks:
+      -   id: detect-secrets
+          args: ['--baseline', '.secrets.baseline']
