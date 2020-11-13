@@ -99,7 +99,7 @@ const new_dbgap_records = {
   },
 };
 
-BeforeSuite(async (fence, users, indexd) => {
+BeforeSuite(async ({ fence, users, indexd }) => {
   console.log('Removing test indexd records if they exist');
   await indexd.do.deleteFileIndices(Object.values(indexed_files));
   await indexd.do.deleteFileIndices(Object.values(new_dbgap_records));
@@ -130,7 +130,7 @@ BeforeSuite(async (fence, users, indexd) => {
   bash.runCommand(fenceCmd, 'fence');
 });
 
-AfterSuite(async (fence, indexd, users) => {
+AfterSuite(async ({ fence, indexd, users }) => {
   console.log('Removing indexd files used to test signed urls');
   await indexd.do.deleteFileIndices(Object.values(indexed_files));
   await indexd.do.deleteFileIndices(Object.values(new_dbgap_records));
@@ -142,7 +142,7 @@ AfterSuite(async (fence, indexd, users) => {
 });
 
 Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try creating urls to upload @dbgapSyncing @reqGoogle',
-  async (fence, users) => {
+  async ({ fence, users }) => {
     // ASSUME BeforeSuite has run the ONLY_DBGAP usersync
     // users.mainAcct has access to phs000178
     console.log('Use mainAcct to create s3 signed URL for file phs000178');
@@ -245,7 +245,7 @@ Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try crea
   });
 
 Scenario('dbGaP + user.yaml Sync: ensure combined access @dbgapSyncing @reqGoogle',
-  async (fence, users) => {
+  async ({ fence, users }) => {
     console.log('Running usersync job and adding dbgap sync to yaml sync');
     console.log(`start time: ${Math.floor(Date.now() / 1000)}`);
     bash.runJob('usersync', args = 'ADD_DBGAP true FORCE true');
@@ -281,7 +281,7 @@ Scenario('dbGaP + user.yaml Sync: ensure combined access @dbgapSyncing @reqGoogl
   });
 
 Scenario('dbGaP + user.yaml Sync (from prev test): ensure user without dbGap access cannot create/update/delete dbGaP indexd records @dbgapSyncing @reqGoogle',
-  async (fence, indexd, users) => {
+  async ({ fence, indexd, users }) => {
     console.log('populating guids for indexd records to attempt to create...');
     // populate new GUIDs per test
     const dbgapFooBarFileGuid = uuid.v4().toString();
@@ -350,7 +350,7 @@ Scenario('dbGaP + user.yaml Sync (from prev test): ensure user without dbGap acc
   });
 
 Scenario('dbGaP + user.yaml Sync (from prev test): ensure users with dbGap access cannot create/update/delete dbGaP indexd records @dbgapSyncing @reqGoogle',
-  async (fence, indexd, users) => {
+  async ({ fence, indexd, users }) => {
     console.log('populating guids for indexd records to attempt to create...');
     // populate new GUIDs per test
     const dbgapFooBarFileGuid = uuid.v4().toString();

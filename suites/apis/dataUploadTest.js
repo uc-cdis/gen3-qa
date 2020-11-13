@@ -21,7 +21,6 @@ let fileName; let filePath; let fileSize; let
 let bigFileName; let bigFileSize; let bigFileMd5; let bigFileContents; let
   bigFileParts;
 
-
 // //////////////////
 // UTIL FUNCTIONS //
 // //////////////////
@@ -44,7 +43,9 @@ const getUploadUrlFromFence = async function (fence, users) {
  * - Link metadata to the file via sheepdog
  * - Download the file via fence and check who can download and when
  */
-Scenario('File upload and download via API calls @dataUpload', async (fence, users, nodes, indexd, sheepdog, dataUpload) => {
+Scenario('File upload and download via API calls @dataUpload', async ({
+  fence, users, nodes, indexd, sheepdog, dataUpload,
+}) => {
   console.log(`${new Date()}: request a  presigned URL from fence`);
   const fenceUploadRes = await getUploadUrlFromFence(fence, users);
   const fileGuid = fenceUploadRes.data.guid;
@@ -124,7 +125,7 @@ Scenario('File upload and download via API calls @dataUpload', async (fence, use
  * A user who does not have upload access should not be able to upload
  * or download files
  */
-Scenario('User without role cannot upload @dataUpload', async (fence, users) => {
+Scenario('User without role cannot upload @dataUpload', async ({ fence, users }) => {
   // this user does not have the appropriate role
   const token = users.auxAcct1.accessTokenHeader;
 
@@ -144,7 +145,9 @@ Scenario('User without role cannot upload @dataUpload', async (fence, users) => 
  * the config folder configurable ...
  *
  */
-Scenario('File upload and download via client @dataClientCLI @dataUpload', async (dataClient, fence, users, indexd, files, dataUpload) => {
+Scenario('File upload and download via client @dataClientCLI @dataUpload', async ({
+  dataClient, fence, users, indexd, files, dataUpload,
+}) => {
   // configure the gen3-client
   await dataClient.do.configureClient(fence, users, files);
 
@@ -174,7 +177,9 @@ Scenario('File upload and download via client @dataClientCLI @dataUpload', async
  * Upload a file, then delete it through fence. Aftert deletion, the file
  * should not be accessible for metadata linking or download
  */
-Scenario('Data file deletion @dataUpload', async (fence, users, indexd, sheepdog, nodes, dataUpload) => {
+Scenario('Data file deletion @dataUpload', async ({
+  fence, users, indexd, sheepdog, nodes, dataUpload,
+}) => {
   // request a  presigned URL from fence
   const fenceUploadRes = await getUploadUrlFromFence(fence, users);
   const fileGuid = fenceUploadRes.data.guid;
@@ -221,7 +226,9 @@ Scenario('Data file deletion @dataUpload', async (fence, users, indexd, sheepdog
  * Upload 2 files with the same contents (so same hash and size) and
  * link metadata to them via sheepdog
  */
-Scenario('Upload the same file twice @dataUpload', async (sheepdog, indexd, nodes, users, fence, dataUpload) => {
+Scenario('Upload the same file twice @dataUpload', async ({
+  sheepdog, indexd, nodes, users, fence, dataUpload,
+}) => {
   // //////////
   // FILE 1 //
   // //////////
@@ -295,7 +302,9 @@ Scenario('Upload the same file twice @dataUpload', async (sheepdog, indexd, node
 /**
  * Use fence's multipart upload endpoints to upload a large data file (>5MB)
  */
-Scenario('Successful multipart upload @dataUpload @multipartUpload', async (users, fence, indexd, dataUpload) => {
+Scenario('Successful multipart upload @dataUpload @multipartUpload', async ({
+  users, fence, indexd, dataUpload,
+}) => {
   // initialize the multipart upload
   console.log('Initializing multipart upload');
   const accessHeader = users.mainAcct.accessTokenHeader;
@@ -354,7 +363,7 @@ Scenario('Successful multipart upload @dataUpload @multipartUpload', async (user
  * Use fence's multipart upload endpoints to upload a large data file (>5MB).
  * Fail to complete the upload because of a wrong ETag input
  */
-Scenario('Failed multipart upload: wrong ETag for completion @dataUpload @multipartUpload @multipartUploadFailure', async (users, fence, dataUpload) => {
+Scenario('Failed multipart upload: wrong ETag for completion @dataUpload @multipartUpload @multipartUploadFailure', async ({ users, fence, dataUpload }) => {
   // initialize the multipart upload
   console.log('Initializing multipart upload');
   const accessHeader = users.mainAcct.accessTokenHeader;
@@ -404,7 +413,6 @@ Scenario('Failed multipart upload: wrong ETag for completion @dataUpload @multip
   fence.ask.assertStatusCode(signedUrlRes, 404, 'Should not be able to get signed URL for file download when multipart upload completion failed');
 }).retry(1);
 
-
 /**
  * Test data upload flow with consent codes in metadata:
  * - Get presigned URL from fence, upload file to s3
@@ -412,7 +420,9 @@ Scenario('Failed multipart upload: wrong ETag for completion @dataUpload @multip
  * - Link metadata with consent codes to the file via sheepdog
  * - Check that the consent codes end up in the indexd record
  */
-Scenario('File upload with consent codes @dataUpload @indexRecordConsentCodes', async (fence, users, nodes, indexd, sheepdog, dataUpload) => {
+Scenario('File upload with consent codes @dataUpload @indexRecordConsentCodes', async ({
+  fence, users, nodes, indexd, sheepdog, dataUpload,
+}) => {
   // request a presigned URL from fence
   const fenceUploadRes = await getUploadUrlFromFence(fence, users);
   const fileGuid = fenceUploadRes.body.guid;
@@ -456,7 +466,6 @@ Scenario('File upload with consent codes @dataUpload @indexRecordConsentCodes', 
   await indexd.complete.checkFile(fileNodeWithCCs);
 }).retry(1);
 
-
 /**
  * Checks if the gen3-client executable is present in the workspace.
  * During a local run, checks in the homedir instead.
@@ -475,7 +484,7 @@ function assertGen3Client() {
   }
 }
 
-BeforeSuite(async (sheepdog, files) => {
+BeforeSuite(async ({ sheepdog, files }) => {
   assertGen3Client();
   // clean up in sheepdog
   await sheepdog.complete.findDeleteAllNodes();
@@ -505,7 +514,7 @@ BeforeSuite(async (sheepdog, files) => {
   };
 });
 
-AfterSuite(async (files, indexd, dataUpload) => {
+AfterSuite(async ({ files, indexd, dataUpload }) => {
   // delete the temp files from local storage
   if (fs.existsSync(filePath)) {
     files.deleteFile(filePath);
@@ -521,12 +530,12 @@ AfterSuite(async (files, indexd, dataUpload) => {
   await dataUpload.cleanS3(fileName, createdGuids);
 });
 
-Before((nodes) => {
+Before(({ nodes }) => {
   // Refresh nodes before every test to clear any appended results, id's, etc
   nodes.refreshPathNodes();
 });
 
-After(async (sheepdog) => {
+After(async ({ sheepdog }) => {
   // clean up in sheepdog
   await sheepdog.complete.findDeleteAllNodes();
 });

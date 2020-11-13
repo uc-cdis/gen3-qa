@@ -27,7 +27,7 @@ function linkGoogleAccount() {
 
 function performAdjustExpDateTest(typeOfTest) {
   Scenario('Adjust the expiration date of the Google account that has been linked @manual', ifInteractive(
-    async (I, fence) => {
+    async ({ I, fence }) => {
       if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
       console.log(`access token: ${I.cache.ACCESS_TOKEN}`);
 
@@ -58,7 +58,7 @@ function performAdjustExpDateTest(typeOfTest) {
   ));
 }
 
-BeforeSuite(async (I) => {
+BeforeSuite(async ({ I }) => {
   console.log('Setting up dependencies...');
   I.TARGET_ENVIRONMENT = TARGET_ENVIRONMENT;
 
@@ -87,7 +87,7 @@ performAdjustExpDateTest('positive');
 // Scenario #4 - Unlink Google account from the "customer" GCP account
 // so it will be no longer associated with the NIH user
 Scenario('Unlink Google identity from the NIH user @manual', ifInteractive(
-  async (I, fence) => {
+  async ({ I, fence }) => {
     if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
     console.log(`access token: ${I.cache.ACCESS_TOKEN}`);
 

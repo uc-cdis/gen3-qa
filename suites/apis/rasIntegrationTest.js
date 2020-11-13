@@ -26,7 +26,7 @@ const { Bash, takeLastLine } = require('../../utils/bash.js');
 
 const bash = new Bash();
 
-BeforeSuite(async (I) => {
+BeforeSuite(async ({ I }) => {
   console.log('Setting up dependencies...');
   I.cache = {};
 
@@ -51,7 +51,7 @@ BeforeSuite(async (I) => {
   console.log(`deleteClientForRASUser2: ${deleteClientForRASUser2}`);
 });
 
-Scenario('Register a fence client for RAS Test User 1 with the ga4gh_passport_v1 scope @rasAuthN', async (I) => {
+Scenario('Register a fence client for RAS Test User 1 with the ga4gh_passport_v1 scope @rasAuthN', async ({ I }) => {
   const registerClientCmd = `fence-create --arborist http://arborist-service/ client-create --client ras-user1-test-client --user ${process.env.RAS_TEST_USER_1_USERNAME} --urls https://${process.env.HOSTNAME}/user --policies programs.QA-admin programs.test-admin programs.DEV-admin programs.jnkns-admin --allowed-scopes openid user data google_credentials ga4gh_passport_v1`;
 
   const registerClientForRASUser1 = bash.runCommand(registerClientCmd, 'fence', takeLastLine);
@@ -67,7 +67,7 @@ Scenario('Register a fence client for RAS Test User 1 with the ga4gh_passport_v1
   I.cache.rasUser1SecretId = secretID;
 });
 
-Scenario('Visit Auth URL as RAS Test User 1 and click on I Accept button @rasAuthN', async (I) => {
+Scenario('Visit Auth URL as RAS Test User 1 and click on I Accept button @rasAuthN', async ({ I }) => {
   I.amOnPage(`/user/oauth2/authorize?response_type=code&client_id=${I.cache.rasUser1ClientId}&redirect_uri=https://${process.env.HOSTNAME}/user&scope=openid+user+data+google_credentials+ga4gh_passport_v1&idp=ras`);
   await sleepMS(5000);
   I.saveScreenshot('NIH_Login_Page_user2.png');
@@ -97,7 +97,7 @@ Scenario('Visit Auth URL as RAS Test User 1 and click on I Accept button @rasAut
 
   // Check ras test user 1 info
   I.amOnPage('/user/user');
-  I.grabTextFrom('body').then((userInfo) => {
+  I.grabTextFrom('body').then(({ userInfo }) => {
     const ga4ghPassportToken = JSON.parse(userInfo).ga4gh_passport_v1;
     console.log(`ga4gh_passport_v1 jwt from /user/user output: ${ga4ghPassportToken}`);
 
@@ -108,7 +108,7 @@ Scenario('Visit Auth URL as RAS Test User 1 and click on I Accept button @rasAut
   });
 });
 
-Scenario('Use client creds from RAS Test User 1 and auth code to obtain access token and check if scope includes ga4gh_passport_v1 @rasAuthN', async (I) => {
+Scenario('Use client creds from RAS Test User 1 and auth code to obtain access token and check if scope includes ga4gh_passport_v1 @rasAuthN', async ({ I }) => {
   const obtainTokensCmd = `curl --user "${I.cache.rasUser1ClientId}:${I.cache.rasUser1SecretId}" -X POST "https://${process.env.HOSTNAME}/user/oauth2/token?grant_type=authorization_code&code=${I.cache.rasUser1AuthCode}&redirect_uri=https://${process.env.HOSTNAME}/user"`;
   const obtainTokensForRASUser1 = bash.runCommand(obtainTokensCmd);
   console.log(`obtainTokensForRASUser1: ${JSON.stringify(obtainTokensForRASUser1)}`);
@@ -141,7 +141,7 @@ Scenario('Use client creds from RAS Test User 1 and auth code to obtain access t
   expect(accessTokenJson.scope).to.include('openid');
 });
 
-Scenario('Refresh the access token with the refresh_token obtained through the OIDC bootstrapping for RAS Test User 1 @rasAuthN', async (I) => {
+Scenario('Refresh the access token with the refresh_token obtained through the OIDC bootstrapping for RAS Test User 1 @rasAuthN', async ({ I }) => {
   const refreshAccessTokenCmd = `curl --user "${I.cache.rasUser1ClientId}:${I.cache.rasUser1SecretId}" -X POST "https://${process.env.HOSTNAME}/user/oauth2/token?grant_type=refresh_token&refresh_token=${I.cache.rasUser1RefreshToken}&client_id=${I.cache.rasUser1ClientId}&client_secret=${I.cache.rasUser1SecretId}"`;
 
   const refreshAccessTokenOutput = bash.runCommand(refreshAccessTokenCmd);
@@ -158,7 +158,7 @@ Scenario('Refresh the access token with the refresh_token obtained through the O
   expect(accessTokenJson.scope).to.include('ga4gh_passport_v1');
 });
 
-Scenario('Register a fence client for RAS Test User 2 without the ga4gh_passport_v1 scope @rasAuthN', async (I) => {
+Scenario('Register a fence client for RAS Test User 2 without the ga4gh_passport_v1 scope @rasAuthN', async ({ I }) => {
   const registerClientCmd = `fence-create --arborist http://arborist-service/ client-create --client ras-user2-test-client --user ${process.env.RAS_TEST_USER_2_USERNAME} --urls https://${process.env.HOSTNAME}/user --policies programs.QA-admin programs.test-admin programs.DEV-admin programs.jnkns-admin --allowed-scopes openid user data google_credentials`;
 
   const registerClientForRASUser2 = bash.runCommand(registerClientCmd, 'fence', takeLastLine);
@@ -174,7 +174,7 @@ Scenario('Register a fence client for RAS Test User 2 without the ga4gh_passport
   I.cache.rasUser2SecretId = secretID;
 });
 
-Scenario('Visit Auth URL as RAS Test User 2 and click on I Accept button @rasAuthN', async (I) => {
+Scenario('Visit Auth URL as RAS Test User 2 and click on I Accept button @rasAuthN', async ({ I }) => {
   I.amOnPage(`/user/oauth2/authorize?response_type=code&client_id=${I.cache.rasUser2ClientId}&redirect_uri=https://${process.env.HOSTNAME}/user&scope=openid+user+data+google_credentials&idp=ras`);
   await sleepMS(5000);
   I.saveScreenshot('NIH_Login_Page_user2.png');
@@ -203,13 +203,13 @@ Scenario('Visit Auth URL as RAS Test User 2 and click on I Accept button @rasAut
 
   // Check ras test user 2 info
   I.amOnPage('/user/user');
-  I.grabTextFrom('body').then((userInfo) => {
+  I.grabTextFrom('body').then(({ userInfo }) => {
     const userInfoFromBrowser = JSON.parse(userInfo);
     expect(userInfoFromBrowser).to.have.property('ga4gh_passport_v1');
   });
 });
 
-Scenario('Use client creds for RAS Test User 2 and auth code to obtain access token and check if scope does not include ga4gh_passport_v1 @rasAuthN', async (I) => {
+Scenario('Use client creds for RAS Test User 2 and auth code to obtain access token and check if scope does not include ga4gh_passport_v1 @rasAuthN', async ({ I }) => {
   const obtainTokensCmd = `curl --user "${I.cache.rasUser2ClientId}:${I.cache.rasUser2SecretId}" -X POST "https://${process.env.HOSTNAME}/user/oauth2/token?grant_type=authorization_code&code=${I.cache.rasUser2AuthCode}&redirect_uri=https://${process.env.HOSTNAME}/user"`;
   const obtainTokensForRASUser2 = bash.runCommand(obtainTokensCmd);
   console.log(`obtainTokensForRASUser2: ${JSON.stringify(obtainTokensForRASUser2)}`);
