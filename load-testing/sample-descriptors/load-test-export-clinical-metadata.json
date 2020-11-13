@@ -1,0 +1,18 @@
+{
+  "objective": [
+    "Try to export clinical metadata from sheepdog"
+  ],
+  "details": {
+    "name": "qa-dcp.planx-plan.net",
+    "sheepdog_autoscaler": {
+      "min": 3,
+      "max": 5,
+      "targetCpu": 40
+    }
+  },
+  "service": "sheepdog",
+  "load_test_scenario": "export-clinical-metadata",
+  "virtual_users": [
+    { "target": 1 }
+  ]
+}

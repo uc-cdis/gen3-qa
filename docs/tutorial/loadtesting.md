@@ -50,7 +50,7 @@ docker-compose up -d
 	
 	`node load-testing/loadTestRunner.js <path to the credentials.json file> <path to load-test-descriptor.json>`
 	
-    e.g., `node load-testing/loadTestRunner.js /Users/$USER/.gen3/credentials.json load-testing/load-test-descriptor.json`
+    e.g., `node load-testing/loadTestRunner.js /Users/$USER/.gen3/credentials.json load-testing/sample-descriptors/load-test-descriptor.json`
 	
 	_optional argument:_ random-guids -> If an indexd record url is provided in `load-test-descriptor`, a set of GUIDs will be dynamically retrieved from the target environment and the requests will target random records (Note: For `fence/presigned-url` scenario only).
 	
@@ -68,6 +68,7 @@ This file is comprised of the following parameters:
   * _presigned_url_guids_: A hardcoded list of GUIDs to use in presigned url requests.
   * _indexd_record_url_: The url that is associated with one or more records from a given environment (Useful when the environment has been previously configured with some test data, e.g., by tailoring a manifest and creating new clinical metadata instaces using `indexd_utils`).
   * _virtual_users_: This array containing "duration" and "target" parameters are used to set the number of Virtual Users (VUs) that will execute the load test scenarios. The "duration" represents the time that it will take for the test to reach the "target" amount of VUs or maintain the same number if the target did not change between stages, this is used to increase or decrease the number of VUs in specific time-frames (and also to increase the number of requests that are produced by the test).
+  * _override_access_token (optional)_: This optional parameter allows the user to produce a custom access token manually with augmented audience/scope or even with a higher TTL than the 20 min default. Use it wisely.
 
 Once users tailor their own descriptors, we should encourage them to store the `.json` files into Gist (https://gist.github.com) as we should not accummulate descriptors inside the gen3-qa repo. They can share their public gists with other users of the load testing framework.
 

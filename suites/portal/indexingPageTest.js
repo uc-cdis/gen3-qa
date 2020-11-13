@@ -9,7 +9,7 @@
 Feature('Indexing GUI');
 
 const { expect } = require('chai');
-const { sleepMS, Gen3Response } = require('../../utils/apiUtil.js');
+const { checkPod, sleepMS } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
 
 const bash = new Bash();
@@ -26,7 +26,7 @@ ${testGUID}\n	${testHash}	13,	jenkins2		s3://cdis-presigned-url-test/testdata`;
 
 const expectedResult = `${testGUID},s3://cdis-presigned-url-test/testdata,,jenkins2,${testHash},13,`;
 
-BeforeSuite(async (I, files, indexd) => {
+BeforeSuite(async ({ I, files, indexd }) => {
   console.log('Setting up dependencies...');
   I.cache = {};
 
@@ -39,60 +39,40 @@ BeforeSuite(async (I, files, indexd) => {
   console.log('deleting existing test records...');
   const listOfIndexdRecords = await I.sendGetRequest(
     `${indexd.props.endpoints.get}`,
-  ).then((res) => new Gen3Response(res));
+  );
 
-  listOfIndexdRecords.data.records.forEach(async (record) => {
+  listOfIndexdRecords.data.records.forEach(async ({ record }) => {
     console.log(record.did);
     await indexd.do.deleteFile({ did: record.did });
   });
 });
 
-AfterSuite(async (I, files) => {
+AfterSuite(async ({ I, files }) => {
   // clean up test files
   files.deleteFile(`manifest_${I.cache.UNIQUE_NUM}.tsv`);
   files.deleteFile(`invalid_manifest_${I.cache.UNIQUE_NUM}.tsv`);
 });
 
-async function checkPod(podName, nAttempts = 6) {
-  for (let i = 0; i < nAttempts; i += 1) {
-    try {
-      console.log(`waiting for the ${podName} sower job/pod to show up... - attempt ${i}`);
-      await sleepMS(10000);
-      const greppingPod = bash.runCommand(`g3kubectl get pods | grep ${podName}`);
-      console.log(`grep result: ${greppingPod}`);
-      if (greppingPod.includes(podName)) {
-        console.log('the pod was found! Proceed with the assertion checks..');
-        await sleepMS(10000);
-        break;
-      }
-    } catch (e) {
-      console.log(`Failed to find the ${podName} pod on attempt ${i}:`);
-      console.log(e);
-      if (i === nAttempts - 1) {
-        throw e;
-      }
-    }
-  }
-}
-
 // Scenario #1 - Login and navigate to the indexing page and upload dummy manifest
-Scenario('Navigate to the indexing page and upload a test manifest @indexing', async (I, indexing, home, users) => {
+Scenario('Navigate to the indexing page and upload a test manifest @indexing', async ({
+  I, indexing, home, users,
+}) => {
   home.do.goToHomepage();
   home.complete.login(users.indexingAcct);
   indexing.do.goToIndexingPage();
   I.waitForElement({ css: '.indexing-page' }, 10);
   I.click('.index-flow-form'); // after clicking open window file upload dialog
-  await I.attachFile('input[type=\'file\']', `manifest_${I.cache.UNIQUE_NUM}.tsv`);
+  I.attachFile('input[type=\'file\']', `manifest_${I.cache.UNIQUE_NUM}.tsv`);
   I.click({ xpath: 'xpath: //button[contains(text(), \'Index Files\')]' });
 
-  await checkPod('manifest-indexing');
+  await checkPod('manifest-indexing', 'sowerjob');
 
   const nAttempts = 12;
   for (let i = 0; i < nAttempts; i += 1) {
     console.log(`Looking up the indexd record... - attempt ${i}`);
     const indexdRecordRes = await I.sendGetRequest(
       `/index/${testGUID}`,
-    ).then((res) => new Gen3Response(res));
+    );
 
     if (indexdRecordRes.data.hashes) {
       expect(indexdRecordRes.data.hashes.md5).to.equal(testHash);
@@ -110,14 +90,16 @@ Scenario('Navigate to the indexing page and upload a test manifest @indexing', a
 }).retry(2);
 
 // Scenario #2 - Login and navigate to the indexing page and download a full indexd manifest
-Scenario('Navigate to the indexing page and download a full indexd manifest @indexing', async (I, indexing, home, users) => {
+Scenario('Navigate to the indexing page and download a full indexd manifest @indexing', async ({
+  I, indexing, home, users,
+}) => {
   home.do.goToHomepage();
   home.complete.login(users.indexingAcct);
   indexing.do.goToIndexingPage();
   I.waitForElement({ css: '.indexing-page' }, 10);
   I.click({ xpath: 'xpath: //button[contains(text(), \'Download\')]' });
 
-  await checkPod('indexd-manifest');
+  await checkPod('indexd-manifest', 'sowerjob');
 
   const waitingThreshold = 60;
   console.log('Waiting for Green status DONE to show up on the page...');
@@ -129,10 +111,10 @@ Scenario('Navigate to the indexing page and download a full indexd manifest @ind
   console.log(`### Manifest download url: ${manifestDownloadUrl}`);
   const getManifestRes = await I.sendGetRequest(
     manifestDownloadUrl.toString(),
-  ).then((res) => new Gen3Response(res));
-  console.log(`### downloadOuput: ${JSON.stringify(getManifestRes)}`);
+  );
+  console.log(`### downloadOuput: ${getManifestRes.data}`);
 
-  const downloadedManifestData = getManifestRes.body;
+  const downloadedManifestData = getManifestRes.data;
 
   expect(
     downloadedManifestData,
@@ -142,16 +124,18 @@ Scenario('Navigate to the indexing page and download a full indexd manifest @ind
 }).retry(2);
 
 // Scenario #3 - Negative test: navigate to the indexing page and upload imvalid  manifest
-Scenario('Navigate to the indexing page and upload an invalid manifest @indexing', async (I, indexing, home, users) => {
+Scenario('Navigate to the indexing page and upload an invalid manifest @indexing', async ({
+  I, indexing, home, users,
+}) => {
   home.do.goToHomepage();
   home.complete.login(users.indexingAcct);
   indexing.do.goToIndexingPage();
   I.waitForElement({ css: '.indexing-page' }, 10);
   I.click('.index-flow-form'); // after clicking open window file upload dialog
-  await I.attachFile('input[type=\'file\']', `invalid_manifest_${I.cache.UNIQUE_NUM}.tsv`);
+  I.attachFile('input[type=\'file\']', `invalid_manifest_${I.cache.UNIQUE_NUM}.tsv`);
   I.click({ xpath: 'xpath: //button[contains(text(), \'Index Files\')]' });
 
-  await checkPod('manifest-indexing');
+  await checkPod('manifest-indexing', 'sowerjob', { nAttempts: 5, ignoreFailure: true });
 
   const nAttempts = 12;
   for (let i = 0; i < nAttempts; i += 1) {

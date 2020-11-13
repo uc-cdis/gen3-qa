@@ -7,20 +7,22 @@ exports.config = {
   output: './output',
   helpers: {
     WebDriver: {
-      path: '/',
       host: 'selenium-hub',
       url: `https://${process.env.HOSTNAME}`,
       smartWait: 30000,
       browser: 'chrome',
-      fullPageScreenshots: true,
+      // fullPageScreenshots: true,
+      disableScreenshots: true,
       desiredCapabilities: {
         chromeOptions: {
           args: [
             '--headless', // for dev, you can comment this line to open actual chrome for easier test
             '--disable-gpu',
-            '--window-size=1920,1080',
             '--whitelisted-ips=*',
             '--disable-features=VizDisplayCompositor',
+            '--window-size=1280,720',
+            // '--no-sandbox',
+            // '--enable-features=NetworkService,NetworkServiceInProcess',
           ],
         },
       },
@@ -98,9 +100,9 @@ exports.config = {
       },
     },
   },
-  bootstrap: './test_setup.js',
+  bootstrap: require('./test_setup.js'), // eslint-disable-line global-require
   hooks: [
-    'hooks/test_results.js',
+    require('./hooks/test_results.js'), // eslint-disable-line global-require
   ],
   tests: './suites/**/*.js',
   gherkin: {
@@ -109,6 +111,9 @@ exports.config = {
   },
   plugins: {
     allure: {},
+    tryTo: {
+      enabled: true,
+    },
   },
   timeout: 60000,
   name: 'selenium',

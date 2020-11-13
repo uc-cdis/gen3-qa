@@ -6,7 +6,7 @@ const { interactive, ifInteractive } = require('../../utils/interactive.js');
 const { expect } = chai;
 
 Scenario('Download whole of the database @manual', ifInteractive(
-  async (I) => {
+  async () => {
     const result = await interactive(`
         1. The user should login with a valid user login credentials (Google login). After successful login, user should be able to see all the cases in the Graph.
         2. Click on 'Exploration Tab' on the top. Exploration Page is opened with Filters and Cases tables.
@@ -18,7 +18,7 @@ Scenario('Download whole of the database @manual', ifInteractive(
 ));
 
 Scenario('Download some of the database @manual', ifInteractive(
-  async (I) => {
+  async () => {
     const result = await interactive(`
         1. The user should login with a valid user login credentials (Google login). After a successful login, user should be able to see all the cases in the Graph.
         2. Click on 'Exploration Tab' on the top. Exploration Page is opened with Filters and Cases tables.
@@ -31,7 +31,7 @@ Scenario('Download some of the database @manual', ifInteractive(
 ));
 
 Scenario('No permission @manual', ifInteractive(
-  async (I) => {
+  async () => {
     const result = await interactive(`   
         1. When the user logs in with a valid user login credentials (Google login), but the user do not have permissions to the data commons. 
         2. Click on 'Exploration Tab' on the top of the page after a successful login. All the buttons are disabled.

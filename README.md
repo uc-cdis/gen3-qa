@@ -4,27 +4,14 @@ gen3 integration tests - run by https://jenkins.planx-pla.net/ via a `Jenkinsfil
 
 ## Basic test run
 
-### Start selenium
+### Start test infra (influxdb, grafana, selenium)
 
 ```
-# create a docker network
-docker network create selenium-network
-
-# start selenium hub
-docker run -d -p 4444:4444 -p 4443:4443 -p 4442:4442 --name=selenium-hub --rm -v /dev/shm:/dev/shm --network selenium-network selenium/hub:4
-
-# start at least one selenium node
-docker run --rm -d -e HUB_HOST="selenium-hub" --network selenium-network selenium/node-chrome:4
+# start test infra
+docker-compose -f docker-compose-test-infra.yaml up -d
 ```
 
-### Start influxdb and grafana
-```
-# start influxdb and grafana
-cd load-testing/grafana
-docker-compose up -d
-```
-
-### Initial setup of influxdb (only needed on a new influxdb container)
+### Initial setup of influxdb and grafana (only needed on a new containers)
 ```
 # create database
 curl -i -XPOST http://localhost:8086/query --data-urlencode "q=CREATE DATABASE ci_metrics"
@@ -163,7 +150,7 @@ In setup, these values will be read and exported to environment variables before
 ## Local
 After cloning this repo, get the required packages by running `npm install`.
 ### Selenium
-To automate web browser actions, CodeceptJS requires a Selenium webserver. You have two options here: Docker or npm. Note that for both methods, you can visit `localhost:4444/status` to see current Selenium session/check that the server is running.
+To automate web browser actions, CodeceptJS requires a Selenium webserver. You have two options here: Docker or npm. Note that for both methods, you can visit `localhost:4444/wd/hub/sessions` to see current Selenium session/check that the server is running.
 #### Docker ([link](https://github.com/SeleniumHQ/docker-selenium))
 If you have docker, you can just run the preconfigured container
 ```

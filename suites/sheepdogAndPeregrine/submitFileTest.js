@@ -23,7 +23,7 @@ const makeFiles = function (baseNode) {
   };
 };
 
-BeforeSuite(async (sheepdog, nodes) => {
+BeforeSuite(async ({ sheepdog, nodes }) => {
   // Cleanup any leftover nodes from previous Suites
   await sheepdog.complete.findDeleteAllNodes();
   // add nodes up to, but not including, the file node
@@ -34,19 +34,19 @@ Before(() => {
   // clone the base file for "clean" files to work with before each test
   files = makeFiles(baseFileNode);
 });
-AfterSuite(async (sheepdog, nodes) => {
+AfterSuite(async ({ sheepdog, nodes }) => {
   await sheepdog.complete.deleteNodes(nodes.getPathToFile());
   // try to delete anything else that may be remaining
   await sheepdog.complete.findDeleteAllNodes();
 });
-Scenario('submit and delete file @reqData', async (sheepdog, indexd) => {
+Scenario('submit and delete file @reqData', async ({ sheepdog, indexd }) => {
   // submit basic file without url
   await sheepdog.complete.addNode(files.validFile);
   await indexd.complete.checkFile(files.validFile);
   await sheepdog.complete.deleteNode(files.validFile);
   await indexd.complete.deleteFile(files.validFile);
 }).retry(2);
-Scenario('submit file with URL @reqData', async (sheepdog, indexd) => {
+Scenario('submit file with URL @reqData', async ({ sheepdog, indexd }) => {
   // add url and submit
   files.validFile.data.urls = testUrl;
   await sheepdog.complete.addNode(files.validFile);
@@ -54,7 +54,7 @@ Scenario('submit file with URL @reqData', async (sheepdog, indexd) => {
   await sheepdog.complete.deleteNode(files.validFile);
   await indexd.complete.deleteFile(files.validFile);
 }).retry(2);
-Scenario('submit file then update with URL @reqData', async (sheepdog, indexd) => {
+Scenario('submit file then update with URL @reqData', async ({ sheepdog, indexd }) => {
   // submit basic file without url
   await sheepdog.complete.addNode(files.validFile);
   await indexd.complete.checkFile(files.validFile);

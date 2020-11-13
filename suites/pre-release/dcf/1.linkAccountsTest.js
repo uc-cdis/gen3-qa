@@ -7,7 +7,7 @@ Feature('1. Linking accounts - DCF Staging testing for release sign off - PXP-38
 const { expect } = require('chai');
 const fenceProps = require('../../../services/apis/fence/fenceProps.js');
 const { interactive, ifInteractive } = require('../../../utils/interactive.js');
-const { getAccessTokenFromExecutableTest, getAccessTokenHeader } = require('../../../utils/apiUtil');
+const { requestUserInput, getAccessTokenHeader } = require('../../../utils/apiUtil');
 
 // Test elaborated for nci-crdc but it can be reused in other projects
 const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'nci-crdc-staging.datacommons.io';
@@ -27,9 +27,9 @@ function linkGoogleAccount() {
 
 function performAdjustExpDateTest(typeOfTest) {
   Scenario('Adjust the expiration date of the Google account that has been linked @manual', ifInteractive(
-    async (I, fence) => {
-      const ACCESS_TOKEN = await getAccessTokenFromExecutableTest(I);
-      console.log(`access token: ${ACCESS_TOKEN}`);
+    async ({ I, fence }) => {
+      if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
+      console.log(`access token: ${I.cache.ACCESS_TOKEN}`);
 
       // Arbitrarily setting linked Google account to expire in 2 hours
       const expirationDateInSecs = 10800;
@@ -37,7 +37,7 @@ function performAdjustExpDateTest(typeOfTest) {
       // set a userAcct obj {} with an "accessTokenHeader" property
       // to use Gen3-qa's Fence testing API
       const httpResp = await fence.do.extendGoogleLink(
-        { accessTokenHeader: getAccessTokenHeader(ACCESS_TOKEN) },
+        { accessTokenHeader: getAccessTokenHeader(I.cache.ACCESS_TOKEN) },
         expirationDateInSecs,
       );
 
@@ -58,9 +58,11 @@ function performAdjustExpDateTest(typeOfTest) {
   ));
 }
 
-BeforeSuite(async (I) => {
+BeforeSuite(async ({ I }) => {
   console.log('Setting up dependencies...');
   I.TARGET_ENVIRONMENT = TARGET_ENVIRONMENT;
+
+  I.cache = {};
 });
 
 // Scenario #1 - Verifying NIH access and permissions (project access)
@@ -85,12 +87,12 @@ performAdjustExpDateTest('positive');
 // Scenario #4 - Unlink Google account from the "customer" GCP account
 // so it will be no longer associated with the NIH user
 Scenario('Unlink Google identity from the NIH user @manual', ifInteractive(
-  async (I, fence) => {
-    const ACCESS_TOKEN = await getAccessTokenFromExecutableTest(I);
-    console.log(`access token: ${ACCESS_TOKEN}`);
+  async ({ I, fence }) => {
+    if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
+    console.log(`access token: ${I.cache.ACCESS_TOKEN}`);
 
     const httpResp = await fence.do.unlinkGoogleAcct(
-      { accessTokenHeader: getAccessTokenHeader(ACCESS_TOKEN) },
+      { accessTokenHeader: getAccessTokenHeader(I.cache.ACCESS_TOKEN) },
     );
 
     const result = await interactive(`

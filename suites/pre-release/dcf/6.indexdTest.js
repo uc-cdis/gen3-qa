@@ -15,19 +15,19 @@ const {
 // Test elaborated for nci-crdc but it can be reused in other projects
 const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'nci-crdc-staging.datacommons.io';
 
-BeforeSuite(async (I) => {
+BeforeSuite(async ({ I }) => {
   console.log('Setting up dependencies...');
   // making this data accessible in all scenarios through the actor's memory (the "I" object)
   I.cache = {};
 });
 
 Scenario('Get public data record @manual', ifInteractive(
-  async (I, indexd) => {
+  async ({ I, indexd }) => {
     if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
     // Fetching public list of DIDs
     const indexHttpResp = await I.sendGetRequest(
       `https://${TARGET_ENVIRONMENT}/index/index?acl=*`,
-    ).then((res) => new Gen3Response(res));
+    ).then(({ res }) => new Gen3Response(res));
 
     const guid = indexHttpResp.body.records[0].did;
     // set a userAcct obj {} with an "accessTokenHeader" property
@@ -51,13 +51,13 @@ Scenario('Get public data record @manual', ifInteractive(
 ));
 
 Scenario('Get controlled data record @manual', ifInteractive(
-  async (I, indexd) => {
+  async ({ I, indexd }) => {
     if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
     // Fetching list of ACLs associated with the user
     const userHttpResp = await I.sendGetRequest(
       `https://${TARGET_ENVIRONMENT}/user/user`,
       { Authorization: `bearer ${I.cache.ACCESS_TOKEN}` },
-    ).then((res) => new Gen3Response(res));
+    ).then(({ res }) => new Gen3Response(res));
 
     const projectAccessList = userHttpResp.body.project_access;
     const projectAccess = Object.keys(projectAccessList)[0];
@@ -65,7 +65,7 @@ Scenario('Get controlled data record @manual', ifInteractive(
     // Fetching list of DIDs matching one of the ACLs from the user
     const indexHttpResp = await I.sendGetRequest(
       `https://${TARGET_ENVIRONMENT}/index/index?acl=${projectAccess}`,
-    ).then((res) => new Gen3Response(res));
+    ).then(({ res }) => new Gen3Response(res));
 
     const guid = indexHttpResp.body.records[0].did;
     // set a userAcct obj {} with an "accessTokenHeader" property
