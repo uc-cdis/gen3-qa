@@ -15,8 +15,7 @@ module.exports = {
 
     studyViewerDivClass: '.study-viewer',
     datasetDivClass: '.study-viewer__title',
-    detailedButtonXPath: `.ant-collapse-header`,
-        // '//body/div[@id=\'root\']/div[1]/div[1]/div[3]/div[1]/div[1]/div[2]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/span[1]/*[1]',
+    detailedButtonXPath: '.ant-collapse-header',
 
     learnMoreButtonXPath: '//button[contains(text(), \'Learn More\')]',
     loginRAButtonXPath: '//button[contains(text(), \'Login to Request Access\')]',

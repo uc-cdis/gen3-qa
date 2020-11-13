@@ -274,8 +274,8 @@ else
   #
   # Run tests including RAS AuthN Integration tests
   #
-  # disabling temporarily due to RAS Staging connectivity issues  
-  donot '@rasAuthN'  
+  # disabling temporarily due to RAS Staging connectivity issues
+  donot '@rasAuthN'
   # runTestsIfServiceVersion "@rasAuthN" "fence" "4.22.1" "2020.09"
   # echo "INFO: enabling RAS AuthN Integration tests for $service"
 fi
@@ -325,7 +325,7 @@ if [ -z "$ddHasConsentCodes" ]; then
 fi
 
 #
-# try to read configs of portal 
+# try to read configs of portal
 #
 hostname="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.hostname')"
 portalApp="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.portal_app')"
@@ -350,7 +350,7 @@ set +e
 checkForPresenceOfManifestIndexingSowerJob=$(g3kubectl get cm manifest-sower -o yaml | grep manifest-indexing)
 set -e
 if [ -z "$checkForPresenceOfManifestIndexingSowerJob" ]; then
-  echo "the manifest-indexing sower job was not found, skip @indexing tests"; 
+  echo "the manifest-indexing sower job was not found, skip @indexing tests";
   donot '@indexing'
 fi
 
@@ -362,21 +362,29 @@ if [ -z "$checkForPresenceOfMetadataIngestionSowerJob" ]; then
   donot '@metadataIngestion'
 fi
 
+# running studyViewer tests on NCT env
+portalGen3Bundle="$(g3kubectl get configmaps manifest-portal -o json | jq -r '.data.GEN3_BUNDLE')"
+if [ "$portalGen3Bundle" == "nct" ]; then
+  echo "running study-viewer tests..."
+else
+  donot @studyViewer
+fi
+
 if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1 ||
 ! (g3kubectl get pods --no-headers -l app=wts | grep wts) > /dev/null 2>&1; then
   donot '@exportToWorkspaceAPI'
   donot '@exportToWorkspacePortalGeneral'
   donot '@exportToWorkspacePortalJupyterHub'
   donot '@exportToWorkspacePortalHatchery'
-elif [[ $(curl -s "$portalConfigURL" | jq 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}}) | not') == "true" ]] || 
-[[ ! -z "$testedEnv" ]]; then 
+elif [[ $(curl -s "$portalConfigURL" | jq 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}}) | not') == "true" ]] ||
+[[ ! -z "$testedEnv" ]]; then
   # do not run export to workspace portal tests if not enabled or in a manifest PR
   donot '@exportToWorkspacePortalGeneral'
   donot '@exportToWorkspacePortalJupyterHub'
   donot '@exportToWorkspacePortalHatchery'
 elif ! (g3kubectl get pods --no-headers -l app=jupyter-hub | grep jupyterhub) > /dev/null 2>&1; then
   donot '@exportToWorkspacePortalJupyterHub'
-elif ! (g3kubectl get pods --no-headers -l app=hatchery | grep hatchery) > /dev/null 2>&1 || 
+elif ! (g3kubectl get pods --no-headers -l app=hatchery | grep hatchery) > /dev/null 2>&1 ||
 ! (g3kubectl get pods --no-headers -l service=ambassador | grep ambassador) > /dev/null 2>&1; then
   donot '@exportToWorkspacePortalHatchery'
 fi

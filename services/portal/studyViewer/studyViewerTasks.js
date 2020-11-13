@@ -3,18 +3,20 @@ const users = require("../../../utils/user");
 const stringify = require('json-stringify-safe');
 
 const I = actor();
-let req_id;
 
 module.exports = {
 
     goToStudyViewerPage() {
         I.amOnPage(studyViewerProps.path); ///study-viewer/clinical_trials
         I.waitForVisible(studyViewerProps.studyViewerDivClass, 5); //.study-viewer
+        I.saveScreenshot(`study_viewer_page.png`);
     },
 
     goToStudyPage() {
+        // /study-viewer/clinical_trials/ACTT
         I.amOnPage(studyViewerProps.datasetPath);
         I.waitForVisible(studyViewerProps.datasetDivClass, 5);
+        I.saveScreenshot('dataset_page.png');
     },
 
     async clickRequestAccess() {
@@ -36,6 +38,7 @@ module.exports = {
         await I.seeElement(studyViewerProps.detailedButtonXPath);
         I.click(studyViewerProps.detailedButtonXPath);
         await I.seeElement(studyViewerProps.activeDivClass);
+        I.saveScreenshot('.png');
         await I.seeElement(studyViewerProps.learnMoreButtonXPath);
         I.click(studyViewerProps.learnMoreButtonXPath);
         await I.seeElement(studyViewerProps.studyViewerDivClass);
@@ -46,16 +49,15 @@ module.exports = {
             `${studyViewerProps.endpoint.userEndPoint}`,
             users.mainAcct.accessTokenHeader,
         );
-        console.log('#####the response Data:', stringify(getResponse.data));
         const responseData = getResponse.data;
-        req_id = responseData[0].request_id;
+        const req_id = responseData[0].request_id;
         console.log(`### request id: ${req_id}`);
         return req_id;
     },
 
     async putRequest() {
-        req_id_put = this.getRequestId();
-        console.log(`### request id: ${req_id_put}`);
+        let req_id_put = await this.getRequestId();
+        console.log(`### put request id: ${req_id_put}`);
         //sending PUT request /requestor/request/${req_id} endpoint
         await I.sendPutRequest(
             `${studyViewerProps.endpoint.requestEndPoint}/${req_id_put}`,
@@ -64,12 +66,13 @@ module.exports = {
         );
     },
 
-    // async deleteRequest() {
-    //     const req_id_del = this.getRequestId();
-    //     await I.sendDeleteRequest(
-    //         `${studyViewerProps.endpoint.requestEndPoint}/${req_id_del}`,
-    //         users.mainAcct.accessTokenHeader,
-    //     );
-    // }
+    async deleteRequest() {
+        let req_id_del = await this.getRequestId();
+        console.log(`### delete request id: ${req_id_del}`);
+        await I.sendDeleteRequest(
+            `${studyViewerProps.endpoint.requestEndPoint}/${req_id_del}`,
+            users.mainAcct.accessTokenHeader,
+        );
+    }
 };
 
