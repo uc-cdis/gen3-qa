@@ -9,7 +9,7 @@
 Feature('Metadata Ingestion');
 
 const { expect } = require('chai');
-const { checkPod, sleepMS, Gen3Response } = require('../../utils/apiUtil.js');
+const { checkPod, sleepMS } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
 
 const bash = new Bash();
@@ -37,7 +37,7 @@ async function doPolling(I, url, authHeader, expectedData, nAttempts, operationD
     httpReq = await I.sendGetRequest(
       url,
       authHeader,
-    ).then((res) => new Gen3Response(res));
+    );
 
     if (expectedData in httpReq.data && httpReq.data[expectedData] !== '') {
       break;
@@ -89,8 +89,7 @@ async function feedTSVIntoMetadataIngestion(I, fence, uid, authHeader, expectedR
     );
     [jobLogsURL, preSignedURL] = jobOutput.output.split(' ');
   } catch (e) {
-    const jobLogs = await I.sendGetRequest(jobLogsURL, authHeader)
-      .then((res) => new Gen3Response(res));
+    const jobLogs = await I.sendGetRequest(jobLogsURL, authHeader);
     console.log(`'get-dbgap-metadata logs: ${JSON.stringify(jobLogs)}`);
     throw e;
   }
@@ -115,13 +114,17 @@ async function feedTSVIntoMetadataIngestion(I, fence, uid, authHeader, expectedR
       },
     },
     authHeader,
-  ).then((res) => res);
-  expect(dispatchJob, `Should have triggered the ${sowerJobName} sower job`).to.have.property('status', 200);
+  );
+
+  expect(
+    dispatchJob,
+    `Should have triggered the ${sowerJobName} sower job`,
+  ).to.have.property('status', 200);
 
   await checkMetadataServiceEntry(I, expectedResult, authHeader);
 }
 
-BeforeSuite(async (I, users) => {
+BeforeSuite(async ({ I, users }) => {
   console.log('Setting up dependencies...');
   I.cache = {};
   I.cache.UNIQUE_NUM = Date.now();
@@ -148,18 +151,18 @@ BeforeSuite(async (I, users) => {
   await I.sendDeleteRequest(
     `/mds-admin/metadata/${expectedResults.ingest_metadata_manifest.testGUID}`,
     users.indexingAcct.accessTokenHeader,
-  ).then((res) => new Gen3Response(res));
+  );
   await I.sendDeleteRequest(
     `/mds-admin/metadata/${expectedResults.get_dbgap_metadata.testGUID}`,
     users.indexingAcct.accessTokenHeader,
-  ).then((res) => new Gen3Response(res));
+  );
   await I.sendDeleteRequest(
     `/mds-admin/metadata/${expectedResults.get_dbgap_metadata.testGUIDForPartialMatch}`,
     users.indexingAcct.accessTokenHeader,
-  ).then((res) => new Gen3Response(res));
+  );
 });
 
-AfterSuite(async (I) => {
+AfterSuite(async ({ I }) => {
   console.log('cleaning up test artifacts...');
   const recreateSowerConfigMap = bash.runCommand(`g3kubectl delete cm manifest-sower; g3kubectl create configmap manifest-sower --from-file=metadata-ingestion-backup-${I.cache.UNIQUE_NUM}/json; rm -Rf metadata-ingestion-backup-${I.cache.UNIQUE_NUM}; rm -Rf metadata-ingestion-${I.cache.UNIQUE_NUM}`);
   console.log(`recreateSowerConfigMap: ${recreateSowerConfigMap}`);
@@ -167,7 +170,7 @@ AfterSuite(async (I) => {
 
 // Scenario #1 - Instrument sower HTTP API endpoint to trigger the ingest-metadata-manifest job
 // and check if the expected mds entry is created successfully
-Scenario('Dispatch ingest-metadata-manifest sower job with simple tsv and verify metadata ingestion @metadataIngestion', async (I, users) => {
+Scenario('Dispatch ingest-metadata-manifest sower job with simple tsv and verify metadata ingestion @metadataIngestion', async ({ I, users }) => {
   const sowerJobName = 'ingest-metadata-manifest';
   const dispatchJob1 = await I.sendPostRequest(
     '/job/dispatch',
@@ -180,8 +183,12 @@ Scenario('Dispatch ingest-metadata-manifest sower job with simple tsv and verify
       },
     },
     users.indexingAcct.accessTokenHeader,
-  ).then((res) => res);
-  expect(dispatchJob1, `Should have triggered the ${sowerJobName} sower job`).to.have.property('status', 200);
+  );
+
+  expect(
+    dispatchJob1,
+    `Should have triggered the ${sowerJobName} sower job`,
+  ).to.have.property('status', 200);
 
   await checkPod(sowerJobName, 'sowerjob');
   const metadataServiceEntry = await checkMetadataServiceEntry(
@@ -191,10 +198,9 @@ Scenario('Dispatch ingest-metadata-manifest sower job with simple tsv and verify
   expect(metadataServiceEntry.dbgap.sra_sample_id).to.equal(`${expectedResults.ingest_metadata_manifest.sra_sample_id}`);
 }).retry(1);
 
-
 // Scenario #2 - Instrument sower HTTP API endpoint to trigger the get-dbgap-metadata job
 // pointing to a mock dbgap study file and check if the expected mds entry is created successfully
-Scenario('Dispatch exact match get-dbgap-metadata job with mock dbgap xml and verify metadata ingestion @metadataIngestion', async (I, users, fence) => {
+Scenario('Dispatch exact match get-dbgap-metadata job with mock dbgap xml and verify metadata ingestion @metadataIngestion', async ({ I, users, fence }) => {
   const sowerJobName = 'get-dbgap-metadata';
   console.log(`Step #1 - Dispatch ${sowerJobName} job`);
   const dispatchJob2 = await I.sendPostRequest(
@@ -213,8 +219,12 @@ Scenario('Dispatch exact match get-dbgap-metadata job with mock dbgap xml and ve
       },
     },
     users.indexingAcct.accessTokenHeader,
-  ).then((res) => res);
-  expect(dispatchJob2, `Should have triggered the ${sowerJobName} sower job`).to.have.property('status', 200);
+  );
+
+  expect(
+    dispatchJob2,
+    `Should have triggered the ${sowerJobName} sower job`,
+  ).to.have.property('status', 200);
   const { uid } = dispatchJob2.data;
 
   await feedTSVIntoMetadataIngestion(
@@ -229,7 +239,7 @@ Scenario('Dispatch exact match get-dbgap-metadata job with mock dbgap xml and ve
 // Scenario #3 - Instrument sower HTTP API endpoint to trigger the get-dbgap-metadata job again
 // Try a partial match between the Study XML (submitted_sample_id) and the CSV (aws_uri)
 // and check if the expected mds entry is created successfully
-Scenario('Dispatch partial match get-dbgap-metadata job with mock dbgap xml and verify metadata ingestion @metadataIngestion', async (I, users, fence) => {
+Scenario('Dispatch partial match get-dbgap-metadata job with mock dbgap xml and verify metadata ingestion @metadataIngestion', async ({ I, users, fence }) => {
   const sowerJobName = 'get-dbgap-metadata';
   console.log(`Step #1 - Dispatch ${sowerJobName} job`);
   const dispatchJob2 = await I.sendPostRequest(
@@ -248,8 +258,12 @@ Scenario('Dispatch partial match get-dbgap-metadata job with mock dbgap xml and 
       },
     },
     users.indexingAcct.accessTokenHeader,
-  ).then((res) => res);
-  expect(dispatchJob2, `Should have triggered the ${sowerJobName} sower job`).to.have.property('status', 200);
+  );
+
+  expect(
+    dispatchJob2,
+    `Should have triggered the ${sowerJobName} sower job`,
+  ).to.have.property('status', 200);
   const { uid } = dispatchJob2.data;
 
   await feedTSVIntoMetadataIngestion(

@@ -73,7 +73,7 @@ function findNonce(idToken) {
 
 function runVerifyNonceScenario() {
   Scenario('Verify if the "ID Token" produced in the previous scenario has the correct nonce value @manual', ifInteractive(
-    async (I) => {
+    async ({ I }) => {
       const idToken = await requestUserInput('Please paste in your ID Token to verify the nonce: ');
       const result = await interactive(`
             1. [Automated] Compare nonces:
@@ -154,7 +154,7 @@ function fetchDIDLists(I, params = { hardcodedAuthz: null }) {
 
 function performPreSignedURLTest(cloudProvider, typeOfTest, typeOfCreds) {
   Scenario(`Perform ${cloudProvider} PreSigned URL ${typeOfTest} test against DID with ${typeOfCreds} credentials @manual`, ifInteractive(
-    async (I, fence) => {
+    async ({ I, fence }) => {
       if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
       // Obtain project access list to determine which files(DIDs) the user can access
       // two lists: http 200 files and http 401 files
@@ -171,8 +171,8 @@ function performPreSignedURLTest(cloudProvider, typeOfTest, typeOfCreds) {
 
       console.log(`list_of_DIDs: ${JSON.stringify(listOfDIDs)}`);
 
-      const filteredDIDs = Object.keys(listOfDIDs).reduce((filtered, key) => {
-        listOfDIDs[key].urls.forEach((url) => {
+      const filteredDIDs = Object.keys(listOfDIDs).reduce(({ filtered, key }) => {
+        listOfDIDs[key].urls.forEach(({ url }) => {
           if (url.startsWith(preSignedURLPrefix)) filtered[key] = listOfDIDs[key];
         });
         return filtered;
@@ -208,7 +208,7 @@ function performPreSignedURLTest(cloudProvider, typeOfTest, typeOfCreds) {
   ));
 }
 
-BeforeSuite(async (I) => {
+BeforeSuite(async ({ I }) => {
   console.log('Setting up dependencies...');
   I.cache = {};
 
@@ -227,7 +227,7 @@ BeforeSuite(async (I) => {
   // Fetching public list of DIDs
   const httpResp = await I.sendGetRequest(
     `https://${TARGET_ENVIRONMENT}/index/index`,
-  ).then((res) => new Gen3Response(res));
+  ).then(({ res }) => new Gen3Response(res));
 
   I.cache.records = httpResp.body.records;
 });
@@ -238,7 +238,7 @@ BeforeSuite(async (I) => {
 
 // Scenario #1 - Testing OIDC flow with Google credentials
 Scenario('Initiate the OIDC Client flow with Google credentials to obtain the OAuth authorization code @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     const result = await interactive(await printOIDCFlowInstructionsAndObtainTokens(I, 'Google'));
     expect(result.didPass, result.details).to.be.true;
   },
@@ -267,7 +267,7 @@ performPreSignedURLTest('AWS S3', 'positive', 'Google');
 
 // Scenario #7 - Starting the OIDC flow again with NIH credentials
 Scenario('Initiate the OIDC Client flow with NIH credentials to obtain the OAuth authorization code @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     console.log('Click on the logout button so you can log back in with your NIH account.');
     // reset access token
     delete I.cache.ACCESS_TOKEN;
@@ -307,7 +307,7 @@ Scenario('Try to get Google Credentials as a regular user @manual', ifInteractiv
 // Scenario #14 - Temporary Service Account Credentials as a client
 // (with an access token generated through the OIDC flow)
 Scenario('Try to get Google Credentials as a client @manual', ifInteractive(
-  async (I, fence) => {
+  async ({ I, fence }) => {
     if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
     const httpResp = await fence.do.createTempGoogleCreds(
       getAccessTokenHeader(I.cache.ACCESS_TOKEN),
@@ -360,7 +360,7 @@ Scenario('Test a GraphQL query from the Web GUI @manual', ifInteractive(
 
 // Scenario #16 - Implicit OIDC Client Flow
 Scenario('Initiate the Implicit OIDC Client flow with Google credentials to obtain the OAuth authorization code @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     console.log(`1. Using the "Implicit id" provided, paste the following URL into the browser (replacing the CLIENT_ID placeholder accordingly):
                https://${TARGET_ENVIRONMENT}/user/oauth2/authorize?redirect_uri=https://${TARGET_ENVIRONMENT}/user&client_id=${process.env.TEST_IMPLICIT_ID}&scope=openid+user+data+google_credentials&response_type=id_token+token&nonce=test-nonce-${I.cache.NONCE}
 
@@ -383,9 +383,9 @@ Scenario('Initiate the Implicit OIDC Client flow with Google credentials to obta
 
 // Scenario #17 - Fence public keys endpoint
 Scenario('Test Fence\'s public keys endpoint @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     const url = `https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.publicKeysEndpoint}`;
-    const httpResp = await I.sendGetRequest(url).then((res) => new Gen3Response(res));
+    const httpResp = await I.sendGetRequest(url).then(({ res }) => new Gen3Response(res));
 
     const result = await interactive(`
             1. [Automated] Go to ${url}
@@ -413,7 +413,7 @@ Scenario('Test Fence\'s public keys endpoint @manual', ifInteractive(
 
 // Scenario #18 - Make sure custom hyperlinks are found on the portal page
 Scenario('Check contact and footer links @bdcat @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     I.amOnPage(` https://${TARGET_ENVIRONMENT}/login`);
     const contactLink = await I.grabTextFrom({ xpath: '//a[contains(@href,"https://biodatacatalyst.nhlbi.nih.gov/contact")]' });
     const foiaLink = await I.grabTextFrom({ xpath: '//a[contains(@href,"https://www.nhlbi.nih.gov/about/foia-fee-for-service-office")]' });
@@ -449,10 +449,10 @@ Scenario('Check contact and footer links @bdcat @manual', ifInteractive(
 
 // Scenario #19 - Check privacy policy link
 Scenario('Make sure the privacy policy link is configured @bdcat @manual', ifInteractive( // eslint-disable-line codeceptjs/no-skipped-tests
-  async (I) => {
+  async ({ I }) => {
     const privacyPolicyPageStatus = await I.sendGetRequest(
       `https://${TARGET_ENVIRONMENT}/user/privacy-policy`,
-    ).then((res) => res.status);
+    ).then(({ res }) => res.status);
     const result = await interactive(`
           1. Go to https://platform.sb.biodatacatalyst.nhlbi.nih.gov/
           2. Enter your Credentials to login

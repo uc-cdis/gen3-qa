@@ -11,7 +11,6 @@ const bash = new Bash();
 const DEFAULT_TOKEN_EXP = 10800;
 let indexdCache = null;
 
-
 /**
  * Gets indexd password for a commons
  * @returns {string}
@@ -30,7 +29,6 @@ function getIndexPassword() {
   }
   return { ...indexdCache };
 }
-
 
 /**
  * Lazy-load container for access token and indexd creds
