@@ -8,7 +8,7 @@ Feature('GetCoreMetadata');
 let valid_file;
 let invalid_id_file;
 
-Scenario('test core metadata @coreMetadata', async (pidgin, users) => {
+Scenario('test core metadata @coreMetadata', async ({ pidgin, users }) => {
   let metadata = await pidgin.do.getCoremetadata(valid_file, 'application/json', users.mainAcct.accessTokenHeader);
   pidgin.ask.seeJsonCoremetadata(valid_file, metadata);
 
@@ -20,18 +20,18 @@ Scenario('test core metadata @coreMetadata', async (pidgin, users) => {
   // pidgin.ask.seeSchemaorgCoremetadata(valid_file, metadata);
 });
 
-Scenario('test core metadata invalid object_id @coreMetadata', async (pidgin, users) => {
+Scenario('test core metadata invalid object_id @coreMetadata', async ({ pidgin, users }) => {
   const data = await pidgin.do.getCoremetadata(invalid_id_file, 'application/json', users.mainAcct.accessTokenHeader);
   pidgin.ask.seePidginError(data);
 });
 
-Scenario('test core metadata no permission @coreMetadata', async (pidgin) => {
+Scenario('test core metadata no permission @coreMetadata', async ({ pidgin }) => {
   const invalid_token = { Authorization: 'invalid' };
   const data = await pidgin.do.getCoremetadata(valid_file, 'application/json', invalid_token);
   pidgin.ask.seePidginError(data);
 });
 
-BeforeSuite(async (nodes, sheepdog) => {
+BeforeSuite(async ({ nodes, sheepdog }) => {
   // try to clean up any leftover nodes
   await sheepdog.complete.findDeleteAllNodes();
 
@@ -46,6 +46,6 @@ BeforeSuite(async (nodes, sheepdog) => {
   invalid_id_file.did = 'invalid_object_id';
 });
 
-AfterSuite(async (sheepdog) => {
+AfterSuite(async ({ sheepdog }) => {
   await sheepdog.complete.findDeleteAllNodes();
 });

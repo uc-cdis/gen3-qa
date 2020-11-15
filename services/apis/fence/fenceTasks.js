@@ -5,7 +5,7 @@ const ax = require('axios'); // eslint-disable-line import/no-extraneous-depende
 const fenceProps = require('./fenceProps.js');
 const user = require('../../../utils/user.js');
 const portal = require('../../../utils/portal.js');
-const { Gen3Response, getCookie, getAccessTokenHeader } = require('../../../utils/apiUtil');
+const { Gen3Response, sleepMS, getCookie, getAccessTokenHeader } = require('../../../utils/apiUtil');
 const { Bash, takeLastLine } = require('../../../utils/bash');
 
 const bash = new Bash();
@@ -59,11 +59,26 @@ module.exports = {
    * @param {string[]} userHeader - a user's access token header
    * @returns {Promise<Gen3Response>}
    */
-  async createSignedUrlForUser(id, userHeader = user.mainAcct.accessTokenHeader) {
-    return I.sendGetRequest(
-      `${fenceProps.endpoints.getFile}/${id}`,
-      userHeader,
-    ).then((res) => new Gen3Response(res));
+  async createSignedUrlForUser(id, userHeader = user.mainAcct.accessTokenHeader, nAttempts = 3) {
+    let preSignedURL = '';
+    for (let i = 0; i < nAttempts; i += 1) {
+      preSignedURL = await I.sendGetRequest(
+        `${fenceProps.endpoints.getFile}/${id}`,
+        userHeader,
+      ).then((res) => new Gen3Response(res));
+
+      if (preSignedURL.status === 503) {
+        if (i === nAttempts - 1) {
+          throw new Error(`Max number of PreSignedURL attempts reached: ${i}`);
+        }
+        console.log(`PreSigned URL request failed (503 response) on attempt ${i}. Trying again...`);
+        await sleepMS(3000);
+      } else {
+	console.log(`PreSigned URL request returned http code [${preSignedURL.status}] on attempt ${i}.`);
+        break;
+      }
+    }
+    return preSignedURL;
   },
 
   /**
@@ -425,18 +440,18 @@ module.exports = {
     const fullURL = `${fenceProps.endpoints.authorizeOAuth2Client}?response_type=${responseType}&client_id=${clientId}&redirect_uri=https://${process.env.HOSTNAME}&scope=${scope}`;
     I.amOnPage(fullURL);
     if (expectCode) {
-      if (I.seeElement(fenceProps.consentPage.consentBtn.locator)) {
+      // if (I.seeElement(fenceProps.consentPage.consentBtn.locator)) {
         if (consent === 'cancel') {
           portal.clickProp(fenceProps.consentPage.cancelBtn);
         } else {
           portal.clickProp(fenceProps.consentPage.consentBtn);
           I.waitInUrl('code=', 30);
         }
-      }
+      // }
     } else {
       I.seeTextEquals('Unauthorized', 'h2');
     }
-    I.saveScreenshot('consent_auth_code_flow.png');
+    // I.saveScreenshot('consent_auth_code_flow.png');
     const urlStr = await I.grabCurrentUrl();
     return urlStr;
   },
@@ -502,7 +517,7 @@ module.exports = {
           portal.clickProp(fenceProps.consentPage.consentBtn);
           I.waitInUrl('token=', 3);
         }
-        I.saveScreenshot('consent_implicit_flow.png');
+        // I.saveScreenshot('consent_implicit_flow.png');
       }
     } else {
       I.seeTextEquals('Unauthorized', 'h2');

@@ -101,8 +101,82 @@ Scenario('Faceted search - Nested data - Nested fields can be shown @manual', if
     const result = await interactive(`
                 1. Configure portal to show nested fields (like "ActionableMutations.Lab") in dataExplorerConfig
                 2. Navigate to Data Explorer page (e.g. https://qa-brain.planx-pla.net/explorer)
-                3. The configured fiels is shown in the faceted search
+                3. The configured fields is shown in the faceted search
            `);
+    expect(result.didPass, result.details).to.be.true;
+  },
+));
+
+Scenario('Table - Data displayed in the table is correct @manual', ifInteractive(
+  async () => {
+    const result = await interactive(`
+      1. Configure table in portal configuration (gitops.json) like:
+        "table": {
+          "enabled": true,
+          "fields": [
+            "project_id",
+            "auth_resource_path",
+            "Race",
+            "Ethnicity",
+            "Gender"
+          ]
+        }
+      2. Query the data on the query page (e.g. https://qa-mickey.planx-pla.net/query) like:
+        {
+          patients {
+            project_id
+            auth_resource_path
+            Race
+            Ethnicity
+            Gender
+          }
+        }
+      3. Navigate to the explorer page (e.g. https://qa-mickey.planx-pla.net/explorer)
+      4. Verify that the data shown on the table matches the data from the query page
+    `);
+    expect(result.didPass, result.details).to.be.true;
+  },
+));
+
+Scenario('Table - Nested data displayed in the table is correct @manual', ifInteractive(
+  async () => {
+    const result = await interactive(`
+      1. Configure nested fields where the parent is an array in the table in portal configuration (gitops.json) like:
+        "table": {
+          "enabled": true,
+          "fields": [
+            "project_id",
+            "auth_resource_path",
+            "Race",
+            "Ethnicity",
+            "Gender",
+            "ActionableMutations.Lab",
+            "Oncology_Primary.Multiplicitycounter",
+            "Oncology_Primary.ICDOSite"
+          ]
+        }
+      2. Query the data on the query page (e.g. https://qa-mickey.planx-pla.net/query) like:
+      {
+        patients {
+          project_id
+          auth_resource_path
+          Race
+          Ethnicity
+          Gender
+          ActionableMutations {
+            Lab
+          }
+          Oncology_Primary {
+            Multiplicitycounter
+            ICDOSite
+          }
+        }
+      }
+      3. Navigate to the explorer page (e.g. https://qa-mickey.planx-pla.net/explorer)
+      4. Verify that the data in the table matches the data from the query page
+      5. Verify that there is a sub-table for each nested parent (ActionableMutations and Oncology_Primary in the example)
+      6. Verify that the data shown in each sub-table corresponds to the row of non-nested fields
+    `);
     expect(result.didPass, result.details).to.be.true;
   },
 ));
