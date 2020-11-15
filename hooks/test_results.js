@@ -32,10 +32,14 @@ module.exports = function () {
     const resp = await fetch('http://selenium-hub:4444/status');
     const respJson = await resp.json();
     let sessionCount = 0;
-    const { nodes } = respJson.value;
+    const { nodes } = respJson;
     if (nodes.length > 0) {
       nodes.forEach((node) => {
-        sessionCount += node.sessions.length;
+        node.slots.forEach(slot) => {
+          if (slot.session) {
+            sessionCount += 1;
+          }
+        }
       });
     }
     console.log('********');
