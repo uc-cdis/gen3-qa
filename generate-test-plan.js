@@ -50,6 +50,7 @@ const generateTestPlan = () => {
           manual += 1;
         } else {
           sheet.getCell(`C${currentRow}`).value = 'AUTOMATED';
+          sheet.getCell(`D${currentRow}`).value = '';
           sheet.getCell(`E${currentRow}`).value = 'jenkins';
           sheet.getCell(`F${currentRow}`).value = 'Jenkins';
           automated += 1;

@@ -222,10 +222,14 @@ runTestsIfServiceVersion "@dbgapSyncing" "fence" "3.0.0"
 runTestsIfServiceVersion "@indexRecordConsentCodes" "sheepdog" "1.1.13"
 runTestsIfServiceVersion "@coreMetadataPage" "portal" "2.20.8"
 runTestsIfServiceVersion "@indexing" "portal" "2.26.0" "2020.05"
+runTestsIfServiceVersion "@cleverSafe" "fence" "4.22.4" "2020.09"
 
 # environments that use DCF features
 # we only run Google Data Access tests for cdis-manifest PRs to these
 envsRequireGoogle="dcp.bionimbus.org internalstaging.theanvil.io staging.theanvil.io gen3.theanvil.io preprod.gen3.biodatacatalyst.nhlbi.nih.gov internalstaging.datastage.io gen3.biodatacatalyst.nhlbi.nih.gov nci-crdc-staging.datacommons.io nci-crdc.datacommons.io"
+
+# Do not run mariner before setting up the jenkins envs
+donot '@mariner'
 
 #
 # DataClientCLI tests require a fix to avoid parallel test runs
@@ -242,6 +246,9 @@ donot '@manual'
 # Do not run force-fail tests
 donot '@fail'
 
+# Do not run batch processing tests
+donot '@batch'
+
 #
 # Google Data Access tests are only required for some envs
 #
@@ -256,6 +263,23 @@ else
   echo "INFO: enabling Google Data Access tests for $service"
 fi
 
+#
+# RAS AuthN Integration tests are only required for some repos
+#
+if [[ "$isGen3Release" != "true" && "$service" != "gen3-qa" && "$service" != "fence" && "$service" != "cdis-manifest" && "$service" != "gitops-qa" && "$service" != "cloud-automation" && "$service" != "gitops-dev" ]]; then
+  # disable ras tests
+  echo "INFO: disabling RAS AuthN Integration tests for $service"
+  donot '@rasAuthN'
+else
+  #
+  # Run tests including RAS AuthN Integration tests
+  #
+  # disabling temporarily due to RAS Staging connectivity issues  
+  donot '@rasAuthN'  
+  # runTestsIfServiceVersion "@rasAuthN" "fence" "4.22.1" "2020.09"
+  # echo "INFO: enabling RAS AuthN Integration tests for $service"
+fi
+
 # TODO: eventually enable for all services, but need arborist and fence updates first
 #       in all environments
 if [[ "$service" == "cdis-manifest" ]]; then
@@ -264,6 +288,12 @@ if [[ "$service" == "cdis-manifest" ]]; then
   donot '@indexdJWT'
 else
   echo "INFO: enabling Centralized Auth tests for $service"
+fi
+
+# Focus on GUI tests for data-portal
+if [[ "$service" == "data-portal" ]]; then
+  echo "INFO: disabling tests involving RESTful APIs & Gen3 CLI / Batch operations for $service"
+  donot '@metadataIngestion'
 fi
 
 echo "Checking kubernetes for optional services to test"
@@ -284,7 +314,12 @@ if [[ -z "$TEST_DATA_PATH" ]]; then
   echo "ERROR: TEST_DATA_PATH env var is not set--cannot find schema in run-tests.sh."
   exit 1
 fi
-if ! jq -re '.|values|map(select(.data_file_properties.consent_codes!=null))|.[]' < "$TEST_DATA_PATH/schema.json" > /dev/null; then
+
+set +e
+ddHasConsentCodes=$(jq -re '.|values|map(select(.data_file_properties.consent_codes!=null))|.[]' < "$TEST_DATA_PATH/schema.json")
+set -e
+
+if [ -z "$ddHasConsentCodes" ]; then
   # do not run tests for consent codes in indexd records if the dictionary's data_file_properties doesn't have consent_codes
   donot '@indexRecordConsentCodes'
 fi
@@ -319,6 +354,14 @@ if [ -z "$checkForPresenceOfManifestIndexingSowerJob" ]; then
   donot '@indexing'
 fi
 
+set +e
+checkForPresenceOfMetadataIngestionSowerJob=$(g3kubectl get cm manifest-sower -o yaml | grep get-dbgap-metadata)
+set -e
+if [ -z "$checkForPresenceOfMetadataIngestionSowerJob" ]; then
+  echo "the get-dbgap-metadata sower job was not found, skip @metadataIngestion tests";
+  donot '@metadataIngestion'
+fi
+
 if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1 ||
 ! (g3kubectl get pods --no-headers -l app=wts | grep wts) > /dev/null 2>&1; then
   donot '@exportToWorkspaceAPI'
@@ -350,10 +393,12 @@ exitCode=0
 
 # set required vars
 export NAMESPACE="$namespaceName"
+if [[ "$testedEnv" == "ci-env-1.planx-pla.net" ]]; then
+  export GCLOUD_DYNAMIC_PROJECT="gen3qa-ci-env-1-279903"
+fi
 export testedEnv="$testedEnv"
 
 if [ "$selectedTest" == "all" ]; then
-  (
     # no interactive tests
     export GEN3_INTERACTIVE=false
     cat - <<EOM
@@ -361,12 +406,15 @@ if [ "$selectedTest" == "all" ]; then
 ---------------------------
 Launching test in $NAMESPACE
 EOM
+    set +e
     dryrun npm 'test' -- $testArgs
+    RC=$?
     #
     # Do this kind of thing (uncomment the following line, change the grep)
     # to limit your test run in jenkins:
     #    dryrun npm 'test' -- --reporter mocha-multi --verbose --grep '@FRICKJACK'
-  ) || exitCode=1
+    exitCode=$RC
+    set -e
 else
   set +e
   additionalArgs=""
@@ -376,6 +424,8 @@ else
     additionalArgs="--grep @reqGoogle"
   elif [ -n "$foundDataClientCLI" ]; then
     additionalArgs="--grep @indexRecordConsentCodes|@dataClientCLI --invert"
+  elif [[ "$selectedTest" == "suites/sheepdogAndPeregrine/submitAndQueryNodesTest.js" && -z "$ddHasConsentCodes" ]]; then
+    additionalArgs="--grep @indexRecordConsentCodes --invert"
   else
     additionalArgs="--grep @manual --invert"
   fi
