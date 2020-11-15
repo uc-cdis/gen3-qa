@@ -35,11 +35,11 @@ module.exports = function () {
     const { nodes } = respJson;
     if (nodes.length > 0) {
       nodes.forEach((node) => {
-        node.slots.forEach(slot) => {
+        node.slots.forEach((slot) => {
           if (slot.session) {
             sessionCount += 1;
           }
-        }
+        });
       });
     }
     console.log('********');
