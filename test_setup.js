@@ -102,6 +102,7 @@ async function tryCreateProgramProject(nAttempts) {
           );
           if (i === nAttempts - 1) {
             throw err;
+            process.exit()
           }
         });
     }
