@@ -29,13 +29,17 @@ module.exports = function () {
       prName = 'UNDEFINED';
       repoName = 'UNDEFINED';
     }
-    const resp = await fetch('http://selenium-hub:4444/grid/api/sessions');
+    const resp = await fetch('http://selenium-hub:4444/status');
     const respJson = await resp.json();
     let sessionCount = 0;
-    const { proxies } = respJson;
-    if (proxies.length > 0) {
-      proxies.forEach((proxy) => {
-        sessionCount += proxy.sessions.value.length;
+    const { nodes } = respJson;
+    if (nodes.length > 0) {
+      nodes.forEach((node) => {
+        node.slots.forEach((slot) => {
+          if (slot.session) {
+            sessionCount += 1;
+          }
+        });
       });
     }
     console.log('********');
