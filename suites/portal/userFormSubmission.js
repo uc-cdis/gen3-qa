@@ -9,7 +9,6 @@ const { expect } = chai;
 1. User1 with access to project DEV-test
  */
 
-
 Scenario('The property descriptions in the user form submission page are well-spaced and aligned', ifInteractive(
   async () => {
     const result = await interactive(`

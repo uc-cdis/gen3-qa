@@ -21,11 +21,11 @@ services:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
   hub:
-    image: selenium/hub:3.141
+    image: selenium/hub:4
     ports:
       - '4444:4444'
   chrome:
-    image: selenium/node-chrome:3.141
+    image: selenium/node-chrome:4
     volumes:
       - /dev/shm:/dev/shm
     depends_on:
