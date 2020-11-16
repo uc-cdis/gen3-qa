@@ -10,7 +10,6 @@ const {
 const http = require('k6/http'); // eslint-disable-line import/no-unresolved
 const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresolved
 
-
 const {
 //  NUM_OF_RECORDS,
   GEN3_HOST,
