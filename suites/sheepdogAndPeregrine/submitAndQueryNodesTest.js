@@ -1,5 +1,4 @@
 const { Commons } = require('../../utils/commons.js');
-const { Gen3Response } = require('../../utils/apiUtil');
 
 Feature('SubmitAndQueryNodesTest').retry(2);
 
@@ -206,7 +205,7 @@ Scenario('submit data node with consent codes @indexRecordConsentCodes', async (
 }) => {
   const listOfIndexdRecords = await I.sendGetRequest(
     `${indexd.props.endpoints.get}`,
-  ).then(({ res }) => new Gen3Response(res));
+  );
 
   listOfIndexdRecords.data.records.forEach(async ({ record }) => {
     console.log(record.did);
