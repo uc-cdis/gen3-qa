@@ -43,6 +43,7 @@ log4js.configure({
 const logger = log4js.getLogger('accessCheck');
 const progressBar = bar.create(process.stdout);
 
+// TODO: Create a 3-mode flag (acl_only, authz_only, both -> default)
 const skipAuthzCheck = process.env.SKIP_AUTHZ_CHECK;
 let numOfCompletedChecks = 0;
 
@@ -60,7 +61,7 @@ async function checkAccess(I, a, indexdQueryParam) {
     logger.info(`picking one indexd record with GUID ${aGUID} from ${indexdQueryParam} ${a}`);
     // shoot pre signed url against fence with the GUID
     const preSignedURLResp = await I.sendGetRequest(
-      `https://${I.cache.environment}/user/data/download/${aGUID}`,
+      `https://${I.cache.environment}/user/data/download/${aGUID}?protocol=gs`,
       getAccessTokenHeader(I.cache.ACCESS_TOKEN),
     );
     // TODO: 401 Token Expired check to prompt the user for a new access token
@@ -82,7 +83,7 @@ async function checkAccess(I, a, indexdQueryParam) {
     }
     if (httpHeadCheck.status === 200) {
       logger.debug(`Successfully verified the access for ${indexdQueryParam} ${a}!`);
-    }
+    } // TODO: Print a successful message when a http 400 is returned (with a msg)
   } else {
     logger.warn(`Zero indexd records found for ${indexdQueryParam} ${a}`);
   }
