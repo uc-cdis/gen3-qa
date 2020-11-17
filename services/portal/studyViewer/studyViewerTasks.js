@@ -1,5 +1,4 @@
 const studyViewerProps = require('./studyViewerProps.js');
-const users = require('../../../utils/user');
 
 const I = actor();
 
@@ -28,11 +27,6 @@ module.exports = {
     I.click(studyViewerProps.loginRAButtonXPath);
   },
 
-  async clickDownload() {
-    await I.seeElement(studyViewerProps.downloadButtonXPath);
-    I.click(studyViewerProps.downloadButtonXPath);
-  },
-
   async learnMoreButton() {
     await I.seeElement(studyViewerProps.detailedButtonXPath);
     I.click(studyViewerProps.detailedButtonXPath);
@@ -40,37 +34,15 @@ module.exports = {
     I.saveScreenshot('.png');
     await I.seeElement(studyViewerProps.learnMoreButtonXPath);
     I.click(studyViewerProps.learnMoreButtonXPath);
+    I.amOnPage(studyViewerProps.datasetPath);
     await I.seeElement(studyViewerProps.studyViewerDivClass);
   },
 
-  async getRequestId() {
-    const getResponse = await I.sendGetRequest(
-      `${studyViewerProps.endpoint.userEndPoint}`,
-      users.mainAcct.accessTokenHeader,
-    );
-    const responseData = getResponse.data;
-    const reqID = responseData[0].request_id;
-    console.log(`### request id: ${reqID}`);
-    return reqID;
-  },
-
-  async putRequest() {
-    const reqIDPut = await this.getRequestId();
-    console.log(`### put request id: ${reqIDPut}`);
-    // sending PUT request /requestor/request/${req_id} endpoint
-    await I.sendPutRequest(
-      `${studyViewerProps.endpoint.requestEndPoint}/${reqIDPut}`,
-      { status: 'APPROVED' },
-      users.mainAcct.accessTokenHeader,
-    );
-  },
-
-  async deleteRequest() {
-    const reqIDDel = await this.getRequestId();
-    console.log(`### delete request id: ${reqIDDel}`);
-    await I.sendDeleteRequest(
-      `${studyViewerProps.endpoint.requestEndPoint}/${reqIDDel}`,
-      users.mainAcct.accessTokenHeader,
-    );
+  async clickDownload() {
+    await I.seeElement(studyViewerProps.downloadButtonXPath);
+    I.click(studyViewerProps.downloadButtonXPath);
+    await I.waitForVisible(studyViewerProps.modalDivClass, 5);
+    I.click(studyViewerProps.modalDownloadButton);
+    I.click(studyViewerProps.closeButton);
   },
 };
