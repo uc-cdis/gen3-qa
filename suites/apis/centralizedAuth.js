@@ -219,7 +219,7 @@ const new_abc_records = {
   },
 };
 
-BeforeSuite(async (fence, users, indexd) => {
+BeforeSuite(async ({ fence, users, indexd }) => {
   console.log('Removing test indexd records if they exist');
   await indexd.do.deleteFileIndices(Object.values(new_gen3_records));
   await indexd.do.deleteFileIndices(Object.values(new_abc_records));
@@ -232,12 +232,12 @@ BeforeSuite(async (fence, users, indexd) => {
   ).to.be.true;
 });
 
-AfterSuite(async (fence, indexd, users) => {
+AfterSuite(async ({ fence, indexd, users }) => {
   console.log('Removing indexd files used to test signed urls');
   await indexd.do.deleteFileIndices(Object.values(indexed_files));
 });
 
-Before(async (fence, users, indexd) => {
+Before(async ({ fence, users, indexd }) => {
   console.log('populating guids for indexd records to create...');
   // populate new GUIDs per test
   const gen3FooBarFileGuid = uuid.v4().toString();
@@ -255,7 +255,7 @@ Before(async (fence, users, indexd) => {
    - Test that user without policies can't CRUD records in /gen3 or /abc
 */
 Scenario('User without policies cannot CRUD indexd records in /gen3 or /abc @indexdJWT @centralizedAuth',
-  async (fence, indexd, users, files) => {
+  async ({ fence, indexd, users, files }) => {
     // create
     const gen3_create_success = await indexd.do.addFileIndices(
       Object.values(new_gen3_records), users.user2.accessTokenHeader,
@@ -366,7 +366,7 @@ Scenario('User without policies cannot CRUD indexd records in /gen3 or /abc @ind
      make sure they still can't create, read, update OR delete in /gen3
 */
 Scenario('User with access can CRUD indexd records in namespace, not outside namespace @indexdJWT @centralizedAuth',
-  async (fence, indexd, users, files) => {
+  async ({ fence, indexd, users, files }) => {
     // create
     const gen3_create_success = await indexd.do.addFileIndices(
       Object.values(new_gen3_records), users.mainAcct.accessTokenHeader,
@@ -486,7 +486,7 @@ Scenario('User with access can CRUD indexd records in namespace, not outside nam
    - Test the same thing as above, but use a client's access_token for that user
 */
 Scenario('Client (with access) with user token (with access) can CRUD indexd records in namespace, not outside namespace @indexdJWT @centralizedAuth',
-  async (fence, indexd, users, files) => {
+  async ({ fence, indexd, users, files }) => {
     // NOTE: default CLIENT is abc-admin and gen3-admin
     const tokenRes = await fence.complete.getUserTokensWithClient(users.mainAcct);
     const accessToken = tokenRes.data.access_token;
@@ -614,7 +614,7 @@ Scenario('Client (with access) with user token (with access) can CRUD indexd rec
      allow reading data.
 */
 Scenario('Client (with access) with user token (with access) can create signed urls for records in namespace, not outside namespace @centralizedAuth',
-  async (fence, indexd, users, files) => {
+  async ({ fence, indexd, users, files }) => {
     // NOTE: users.mainAcct and ABC_CLIENT have abc-admin role
     const tokenRes = await fence.complete.getUserTokensWithClient(
       users.mainAcct, fence.props.clients.abcClient,
@@ -656,7 +656,7 @@ Scenario('Client (with access) with user token (with access) can create signed u
    - Test client WITH access creating signed urls for data for user WITHOUT access in namespace.
 */
 Scenario('Client (with access) with user token (WITHOUT access) in namespace @centralizedAuth',
-  async (fence, indexd, users, files) => {
+  async ({ fence, indexd, users, files }) => {
     // NOTE: users.mainAcct has access to /abc NOT /gen3
     //       CLIENT does have access to both
     const tokenRes = await fence.complete.getUserTokensWithClient(
@@ -686,7 +686,7 @@ Scenario('Client (with access) with user token (WITHOUT access) in namespace @ce
    - Test client WITHOUT access creating signed urls for data for user WITH access in namespace.
 */
 Scenario('Client (WITHOUT access) with user token (with access) in namespace @centralizedAuth',
-  async (fence, indexd, users, files) => {
+  async ({ fence, indexd, users, files }) => {
     // abcClient only has access to /abc
     // user0 only access to /gen3
     const tokenRes = await fence.complete.getUserTokensWithClient(
@@ -716,7 +716,7 @@ Scenario('Client (WITHOUT access) with user token (with access) in namespace @ce
    - Test that a user with `abc-admin` can create signed urls with their own access_token
 */
 Scenario('User with access can create signed urls for records in namespace, not outside namespace @centralizedAuth',
-  async (fence, indexd, users, files) => {
+  async ({ fence, indexd, users, files }) => {
     // users.mainAcct has abc-admin role
     console.log('Use mainAcct to create signed URL for file under `/abc`');
     const signedUrlAbcRes = await fence.do.createSignedUrlForUser(
@@ -752,7 +752,7 @@ Scenario('User with access can create signed urls for records in namespace, not 
      authorization policy information is there
 */
 Scenario('Test that userinfo endpoint contains authorization information (resources) @centralizedAuth',
-  async (fence, indexd, users, files) => {
+  async ({ fence, indexd, users, files }) => {
     const tokenRes = await fence.complete.getUserTokensWithClient(users.mainAcct);
     const accessToken = tokenRes.data.access_token;
 
@@ -785,7 +785,7 @@ Scenario('Test that userinfo endpoint contains authorization information (resour
      url for file for user that does NOT have necessary permissions, ensure failure.
 */
 Scenario('Client with user token WITHOUT permission CANNOT create signed URL for record with authz AND logic @centralizedAuth',
-  async (fence, indexd, users, files) => {
+  async ({ fence, indexd, users, files }) => {
     // users.auxAcct1 does not have access to both resources
     const tokenRes = await fence.complete.getUserTokensWithClient(
       users.auxAcct1, fence.props.clients.abcClient,
@@ -816,7 +816,7 @@ Scenario('Client with user token WITHOUT permission CANNOT create signed URL for
      we can access data with
 */
 Scenario('Client with user token WITH permission CAN create signed URL for record with authz AND logic @centralizedAuth',
-  async (fence, indexd, users, files) => {
+  async ({ fence, indexd, users, files }) => {
     // users.mainAcct does have access to both resources
     const tokenRes = await fence.complete.getUserTokensWithClient(
       users.mainAcct, fence.props.clients.abcClient,
@@ -840,7 +840,7 @@ Scenario('Client with user token WITH permission CAN create signed URL for recor
 
 /** ****************************** OPEN ACCESS DATA *********************************** */
 Scenario('Test open access data with authenticated user @centralizedAuth',
-  async (fence, indexd, users, files) => {
+  async ({ fence, indexd, users, files }) => {
     console.log('Use user2 to create signed URL for open access file');
     console.log(indexed_files.openAccessFile.did);
     const signedUrlRes = await fence.do.createSignedUrlForUser(
@@ -861,7 +861,7 @@ Scenario('Test open access data with authenticated user @centralizedAuth',
   }).retry(2);
 
 Scenario('Test open access data with anonymous user @centralizedAuth',
-  async (fence, indexd, users, files) => {
+  async ({ fence, indexd, users, files }) => {
     const signedUrlRes = await fence.do.createSignedUrlForUser(
       indexed_files.openAccessFile.did, {},
     );
@@ -886,7 +886,7 @@ Scenario('Test open access data with anonymous user @centralizedAuth',
      to the data and permission to use that consent code in separate policies
 */
 Scenario('Test create signed URL for file in authorized namespace with authorized consent code (multiple policies) @centralizedAuth',
-  async (fence, indexd, users, files) => {
+  async ({ fence, indexd, users, files }) => {
     // dcf-integration-test-0@planx-pla.net (user0)
     //     - gen3-admin
     //     - hmb-researcher
@@ -914,7 +914,7 @@ Scenario('Test create signed URL for file in authorized namespace with authorize
    - Do the same as above but in a single policy
 */
 Scenario('Test create signed URL for file in authorized namespace with authorized consent code (single policies) @centralizedAuth',
-  async (fence, indexd, users, files) => {
+  async ({ fence, indexd, users, files }) => {
     // dcf-integration-test-1@planx-pla.net (user1)
     //     - gen3-hmb-researcher
     //
@@ -943,7 +943,7 @@ Scenario('Test create signed URL for file in authorized namespace with authorize
      the data
 */
 Scenario('Test cannot create signed URL for file in authorized namespace with UNauthorized consent code @centralizedAuth',
-  async (fence, indexd, users, files) => {
+  async ({ fence, indexd, users, files }) => {
     // cdis.autotest@gmail.com (mainAcct)
     //     - abc-admin
     //
@@ -972,7 +972,7 @@ Scenario('Test cannot create signed URL for file in authorized namespace with UN
      files with GRU
 */
 Scenario('Test create signed URL for file in authorized namespace with IMPLIED authorized consent code (based on DUO hierarchy) @centralizedAuth',
-  async (fence, indexd, users, files) => {
+  async ({ fence, indexd, users, files }) => {
     // dcf-integration-test-0@planx-pla.net (user0)
     //     - gen3-admin
     //     - hmb-researcher

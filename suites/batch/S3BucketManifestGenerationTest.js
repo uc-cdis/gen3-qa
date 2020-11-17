@@ -63,7 +63,7 @@ async function deleteLingeringInfra() {
   }
 }
 
-BeforeSuite(async (I) => {
+BeforeSuite(async ({ I }) => {
   console.log('deleting infra from previous runs that might\'ve been interrupted...');
   await deleteLingeringInfra();
 
@@ -78,14 +78,14 @@ BeforeSuite(async (I) => {
   console.log(`authzMappingFile: ${authzMappingFile}`);
 });
 
-AfterSuite(async (I) => {
+AfterSuite(async ({ I }) => {
   console.log(`I.cache: ${JSON.stringify(I.cache)}`);
   await deleteLingeringInfra();
 });
 
 // Scenario #1 - Generate indexd manifest out of an s3 bucket
 // and check if the expected url, size, md5 and authz entries are in place
-Scenario('Generate bucket manifest from s3 bucket @amazonS3 @batch @bucketManifest', async (I) => {
+Scenario('Generate bucket manifest from s3 bucket @amazonS3 @batch @bucketManifest', async ({ I }) => {
   const theCmd = `gen3 bucket-manifest --create --bucket ${testBucket} --authz $PWD/authz_mapping_${I.cache.UNIQUE_NUM}.tsv --output-variables`;
   console.log(`Running command: ${theCmd}`);
   await bash.runCommand(theCmd);
@@ -145,7 +145,7 @@ Scenario('Generate bucket manifest from s3 bucket @amazonS3 @batch @bucketManife
   // Final assertions
   const files = ['test_file', 'humongous_file'];
   for (let i = 0; i < files.length; i++) { // eslint-disable-line no-plusplus
-    Object.keys(expectedMetadataForAssertions[files[i]]).forEach((assertionKey) => {
+    Object.keys(expectedMetadataForAssertions[files[i]]).forEach(({ assertionKey }) => {
       console.log(`Running assertion for ${files[i]} (index: ${i}) - TSV header: ${assertionKey}...`);
       const assertionFailureMsg = `The ${assertionKey} in the bucket manifest doesn't match the expected value for the ${files[i]}.`;
       expect(

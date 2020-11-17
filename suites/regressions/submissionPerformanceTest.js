@@ -13,7 +13,7 @@ if (process.env.presignURLs) {
 }
 
 Data(data)
-  .Scenario('Submission', async (current, sheepdog) => {
+  .Scenario('Submission', async ({ current, sheepdog }) => {
     const nodeAdded = await sheepdog.do.addNodeChunked(await current.nodes);
     assert.notStrictEqual(nodeAdded.addRes.data.message, 'internal server error');
   });

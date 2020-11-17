@@ -38,7 +38,7 @@ function findNonce(idToken) {
   return parseInt(nonceStr.split('-')[2], 10);
 }
 
-BeforeSuite(async (I) => {
+BeforeSuite(async ({ I }) => {
   console.log('Setting up dependencies...');
   // making this data accessible in all scenarios through the actor's memory (the "I" object)
   I.cache = {};
@@ -48,7 +48,7 @@ BeforeSuite(async (I) => {
 
 // Scenario #1 - Testing OIDC flow with NIH credentials
 Scenario('Initiate the OIDC Client flow with NIH credentials to obtain the OAuth authorization code @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     const result = await interactive(`
             1. Using the "client id" provided, paste the following URL into the browser (replacing the CLIENT_ID placeholder accordingly):
                  https://${TARGET_ENVIRONMENT}/user/oauth2/authorize?redirect_uri=https://${TARGET_ENVIRONMENT}/user&client_id=<CLIENT_ID>&scope=openid+user+data+google_credentials&response_type=code&nonce=test-nonce-${I.cache.NONCE}
@@ -68,7 +68,7 @@ Scenario('Initiate the OIDC Client flow with NIH credentials to obtain the OAuth
 
 // Scenario #2 - Verify Nonce
 Scenario('Verify if the "ID Token" produced in the previous scenario has the correct nonce value @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     const idToken = await requestUserInput('Please paste in your ID Token to verify the nonce: ');
     const result = await interactive(`
             1. [Automated] Compare nonces:
@@ -83,11 +83,11 @@ Scenario('Verify if the "ID Token" produced in the previous scenario has the cor
 
 // Scenario #3 - Run PreSigned URL with access token obtained through the OIDC flow
 Scenario('Perform PreSigned URL test @manual', ifInteractive(
-  async (I, fence) => {
+  async ({ I, fence }) => {
     if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide the ACCESS_TOKEN obtained through the OIDC bootstrapping: ');
     const httpResp = await I.sendGetRequest(
       `https://${TARGET_ENVIRONMENT}/index/index`,
-    ).then((res) => new Gen3Response(res));
+    ).then(({ res }) => new Gen3Response(res));
 
     const { records } = httpResp.body;
 

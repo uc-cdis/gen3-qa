@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "description": "Bionimbus Data Portal",
   "main": "index.js",
-  "dependencies": {},
+  "dependencies": {
+    "eslint-plugin-react-hooks": "^1.7.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/uc-cdis/auto-qa.git"
@@ -23,7 +25,7 @@
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chai-subset": "^1.6.0",
-    "codeceptjs": "^2.6.10",
+    "codeceptjs": "^3.0.1",
     "dummy-json": "^2.0.0",
     "es6-promise": "^4.2.8",
     "eslint": "^6.8.0",
@@ -58,7 +60,7 @@
     "unirest": "^0.6.0",
     "uuid": "^3.4.0",
     "wcag": "latest",
-    "webdriverio": "^5.23.0"
+    "webdriverio": "^6.1.17"
   },
   "scripts": {
     "selenium-install": "selenium-standalone install",

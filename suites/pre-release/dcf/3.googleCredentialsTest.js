@@ -15,7 +15,7 @@ const {
 // Test elaborated for nci-crdc but it can be reused in other projects
 const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'nci-crdc-staging.datacommons.io';
 
-BeforeSuite(async (I) => {
+BeforeSuite(async ({ I }) => {
   console.log('Setting up dependencies...');
   I.cache = {};
   I.TARGET_ENVIRONMENT = TARGET_ENVIRONMENT;
@@ -26,7 +26,7 @@ BeforeSuite(async (I) => {
 
 // Scenario #1 - Retrieve temporary access keys
 Scenario('Obtain temporary access keys (Google Credentials) @manual', ifInteractive(
-  async (I, fence) => {
+  async ({ I, fence }) => {
     if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
     const httpResp = await fence.do.createTempGoogleCreds(
       getAccessTokenHeader(I.cache.ACCESS_TOKEN),
@@ -46,7 +46,7 @@ Scenario('Obtain temporary access keys (Google Credentials) @manual', ifInteract
 
 // Scenario #2 - Get list of access keys
 Scenario('List the available temporary access keys (Google Credentials) @manual', ifInteractive(
-  async (I, fence) => {
+  async ({ I, fence }) => {
     if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
     const httpResp = await fence.do.getUserGoogleCreds(
       getAccessTokenHeader(I.cache.ACCESS_TOKEN),
@@ -65,7 +65,7 @@ Scenario('List the available temporary access keys (Google Credentials) @manual'
 
 // Scenario #3 - Delete access keys
 Scenario('Delete access keys (Google Credentials) @manual', ifInteractive(
-  async (I, fence) => {
+  async ({ I, fence }) => {
     if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
     const keysHttpResp = await fence.do.getUserGoogleCreds(
       getAccessTokenHeader(I.cache.ACCESS_TOKEN),
@@ -91,7 +91,7 @@ Scenario('Delete access keys (Google Credentials) @manual', ifInteractive(
 
 // Scenario #4 - Obtain temporary access keys with expiration time
 Scenario('Obtain temporary access keys with specific expiration time (Google Credentials) @manual', ifInteractive(
-  async (I, fence) => {
+  async ({ I, fence }) => {
     const expirationDateInSecs = 10800;
 
     if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
@@ -114,7 +114,7 @@ Scenario('Obtain temporary access keys with specific expiration time (Google Cre
 
 // Scenario #5 - Try to delete an access key that does not exist
 Scenario('Negative test - Delete a non-existing access keys (Google Credentials) @manual', ifInteractive(
-  async (I, fence) => {
+  async ({ I, fence }) => {
     if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
     const someKeyId = 'aa123bb456cc';
 
