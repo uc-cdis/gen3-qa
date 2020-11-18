@@ -24,6 +24,8 @@ services:
     image: selenium/hub:4
     ports:
       - '4444:4444'
+      - '4442:4442'
+      - '4443:4443'
   chrome:
     image: selenium/node-chrome:4
     volumes:
@@ -31,7 +33,9 @@ services:
     depends_on:
       - hub
     environment:
-      HUB_HOST: hub
+      SE_EVENT_BUS_HOST: hub
+      SE_EVENT_BUS_PUBLISH_PORT: 4442
+      SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
 volumes:
   influxdb-storage:
   grafana-storage:
