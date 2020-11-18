@@ -25,7 +25,7 @@ function writeMetricWithResult() {
 }
 
 namespace="${1:-${KUBECTL_NAMESPACE:-default}}"
-testedEnv="${1:-""}"
+testedEnv="${2:-""}"
 echo "namespace: $namespace"
 echo "testedEnv: $testedEnv"
 export GEN3_HOME="${GEN3_HOME:-${WORKSPACE}/cloud-automation}"
