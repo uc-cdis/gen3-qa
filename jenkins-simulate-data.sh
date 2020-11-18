@@ -25,7 +25,9 @@ function writeMetricWithResult() {
 }
 
 namespace="${1:-${KUBECTL_NAMESPACE:-default}}"
-echo $namespace
+testedEnv="${2:-""}"
+echo "namespace: $namespace"
+echo "testedEnv: $testedEnv"
 export GEN3_HOME="${GEN3_HOME:-${WORKSPACE}/cloud-automation}"
 export TEST_DATA_PATH="${TEST_DATA_PATH:-${WORKSPACE}/testData/}"
 
@@ -62,8 +64,16 @@ fi
 # use "submitted_unaligned_reads" if it's there ...
 #
 leafNode="submitted_unaligned_reads"
-if ! jq -r '.|values|map(select(.category=="data_file"))|map(.id)|join("\n")' < "$TEST_DATA_PATH/schema.json" | grep "$leafNode" > /dev/null; then
-  leafNode="$(jq -r '.|values|map(select(.category=="data_file"))|map(.id)|join("\n")' < "$TEST_DATA_PATH/schema.json" | head -1)"
+
+# diff testedEnvs require diff nodes of type "file"
+if [ "$testedEnv" == "data.midrc.org" ] || [ "$testedEnv" == "qa-midrc.planx-pla.net" ]; then
+  if ! jq -r '.|values|map(select(.category=="imaging_data_file"))|map(.id)|join("\n")' < "$TEST_DATA_PATH/schema.json" | grep "$leafNode" > /dev/null; then
+    leafNode="$(jq -r '.|values|map(select(.category=="data_file"))|map(.id)|join("\n")' < "$TEST_DATA_PATH/schema.json" | head -1)"
+  fi
+else
+  if ! jq -r '.|values|map(select(.category=="data_file"))|map(.id)|join("\n")' < "$TEST_DATA_PATH/schema.json" | grep "$leafNode" > /dev/null; then
+    leafNode="$(jq -r '.|values|map(select(.category=="data_file"))|map(.id)|join("\n")' < "$TEST_DATA_PATH/schema.json" | head -1)"
+  fi
 fi
 
 if [[ -z "$leafNode" ]]; then
