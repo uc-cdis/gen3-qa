@@ -11,13 +11,17 @@ module.exports = {
   login(userAcct = user.mainAcct) {
     homeTasks.login(userAcct.username);
     homeQuestions.haveAccessToken();
-    homeQuestions.seeUserLoggedIn(userAcct.username);
+    if (!process.env.testedEnv.includes('midrc')) {
+      homeQuestions.seeUserLoggedIn(userAcct.username);
+    }
   },
 
   topBarLogin(userAcct = user.mainAcct) {
     homeTasks.topBarLogin(userAcct.username);
     homeQuestions.haveAccessToken();
-    homeQuestions.seeUserLoggedIn(userAcct.username);
+    if (!process.env.testedEnv.includes('midrc')) {
+      homeQuestions.seeUserLoggedIn(userAcct.username);
+    }
   },
 
   logout(userAcct = user.mainAcct) {
