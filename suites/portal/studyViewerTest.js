@@ -17,7 +17,7 @@ AfterSuite(async () => {
 });
 
 // // The User logs in the commons and requests access
-Scenario('User doesnot login and requests the access', async ({ I, users, login }) => {
+Scenario('User doesnot login and requests the access @studyViewer', async ({ I, users, login }) => {
   studyViewerTasks.goToStudyPage();
   await studyViewerTasks.loginToRequestAccess();
   login.ask.isCurrentPage();
@@ -56,7 +56,7 @@ Scenario('User has access to download @studyViewer', async ({
   home.complete.logout();
 });
 
-Scenario('Navigation to the detailed dataset page', async () => {
+Scenario('Navigation to the detailed dataset page @studyViewer', async () => {
   // home.do.goToHomepage();
   // login.complete.login(users.mainAcct);
   studyViewerTasks.goToStudyViewerPage();
