@@ -58,7 +58,7 @@ if [[ ! -f "$TEST_DATA_PATH/schema.json" ]]; then
 fi
 
 #
-# pick a data_file node out of the dictionary
+# pick a file type node out of the dictionary
 # use "submitted_unaligned_reads" if it's there ...
 #
 leafNode="submitted_unaligned_reads"
@@ -67,7 +67,7 @@ if ! jq -r '.|values|map(select(.category=="data_file"))|map(.id)|join("\n")' < 
 fi
 
 if [[ -z "$leafNode" ]]; then
-  echo "ERROR: unable to identify data_file node for data simulation from schema at $dictURL"
+  echo "ERROR: unable to identify file type node for data simulation from schema at $dictURL"
   writeMetricWithResult "FAIL"
   exit 1
 fi
