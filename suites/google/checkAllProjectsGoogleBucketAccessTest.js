@@ -7,9 +7,13 @@
  $ export GEN3_SKIP_PROJ_SETUP=true RUNNING_LOCAL=true
  $ npm test -- suites/google/checkAllProjectsGoogleBucketAccessTest.js
 
- If you want to skip the AUTHZ check (run ACL check only), just add "SKIP_AUTHZ_CHECK=true"
+ The full list of indexd records can be filtered through the INDEXD_FILTER var.
+ It supports the following 3 options:
+ - acl
+ - authz
+ - all (default)
  e.g.,
- $ export SKIP_AUTHZ_CHECK=true GEN3_SKIP_PROJ_SETUP=true RUNNING_LOCAL=true
+ $ export INDEXD_FILTER=acl GEN3_SKIP_PROJ_SETUP=true RUNNING_LOCAL=true
  $ npm test -- suites/google/checkAllProjectsGoogleBucketAccessTest.js
 
  Note: The DEBUG level is enabled by default in the logger configuration.
@@ -43,8 +47,7 @@ log4js.configure({
 const logger = log4js.getLogger('accessCheck');
 const progressBar = bar.create(process.stdout);
 
-// TODO: Create a 3-mode flag (acl_only, authz_only, both -> default)
-const skipAuthzCheck = process.env.SKIP_AUTHZ_CHECK;
+const indexdFilter = process.env.INDEXD_FILTER || 'both';
 let numOfCompletedChecks = 0;
 
 async function checkAccess(I, a, indexdQueryParam) {
@@ -83,7 +86,9 @@ async function checkAccess(I, a, indexdQueryParam) {
     }
     if (httpHeadCheck.status === 200) {
       logger.debug(`Successfully verified the access for ${indexdQueryParam} ${a}!`);
-    } // TODO: Print a successful message when a http 400 is returned (with a msg)
+    } else if (httpHeadCheck.status === 400) {
+      logger.debug(`http.status: ${httpHeadCheck.status} - Successfully verified the access for ${indexdQueryParam} ${a} with message <Bucket is a requester pays bucket but no user project provided>.!`);
+    }
   } else {
     logger.warn(`Zero indexd records found for ${indexdQueryParam} ${a}`);
   }
@@ -112,17 +117,18 @@ Scenario('Fetch list of projects (acl/authz) from environment @manual @prjsGoogl
     `https://${environment}/user/user`,
     getAccessTokenHeader(I.cache.ACCESS_TOKEN),
   );
-  const acl = Object.keys(userInfoResp.data.project_access);
-  logger.info(`acl: ${acl}`);
-  // Appending * (for admins)
-  acl.push('*');
-  logger.info(`number of acl items: ${acl.length}`);
-  I.cache.acls = acl;
-  I.cache.numOfChecks = acl.length;
-
-  let authz = [];
-  if (skipAuthzCheck !== 'true') {
-    authz = Object.keys(userInfoResp.data.authz).filter((a) => a.includes('/programs/'));
+  I.cache.numOfChecks = 0;
+  if (indexdFilter === 'acl' || indexdFilter === 'both') {
+    const acl = Object.keys(userInfoResp.data.project_access);
+    logger.info(`acl: ${acl}`);
+    // Appending * (for admins)
+    acl.push('*');
+    logger.info(`number of acl items: ${acl.length}`);
+    I.cache.acls = acl;
+    I.cache.numOfChecks += acl.length;
+  }
+  if (indexdFilter === 'authz' || indexdFilter === 'both') {
+    const authz = Object.keys(userInfoResp.data.authz).filter((a) => a.includes('/programs/'));
     logger.info(`authz: ${authz}`);
     logger.info(`number of authz items: ${authz.length}`);
     I.cache.authzs = authz;
@@ -133,9 +139,11 @@ Scenario('Fetch list of projects (acl/authz) from environment @manual @prjsGoogl
 Scenario('Run PreSigned URL checks against an indexd record from each project @manual @prjsGoogleBucketAccess', async ({ I }) => {
   if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
 
-  for (let i = 0; i < I.cache.acls.length; i++) { // eslint-disable-line no-plusplus
-    const acl = I.cache.acls[i];
-    await checkAccess(I, acl, 'acl');
+  if (I.cache.acls) {
+    for (let i = 0; i < I.cache.acls.length; i++) { // eslint-disable-line no-plusplus
+      const acl = I.cache.acls[i];
+      await checkAccess(I, acl, 'acl');
+    }
   }
   if (I.cache.authzs) {
     for (let i = 0; i < I.cache.authzs.length; i++) { // eslint-disable-line no-plusplus
