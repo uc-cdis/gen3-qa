@@ -146,7 +146,7 @@ const nodePathToProject = function (startNodeName, allNodes) {
 const getPathWithFileNode = function (allNodes) {
   const allNodesClone = cloneNodes(allNodes);
   const fileNodeName = Object.keys(allNodesClone).find(
-    (nodeName) => allNodesClone[nodeName].category.contains('_file'),
+    (nodeName) => allNodesClone[nodeName].category.includes('_file'),
   );
   const file = allNodesClone[fileNodeName].clone();
   delete allNodesClone[fileNodeName];
