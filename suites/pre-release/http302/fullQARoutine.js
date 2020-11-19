@@ -19,7 +19,6 @@ const { expect } = require('chai');
 const fenceProps = require('../../../services/apis/fence/fenceProps.js');
 const { interactive, ifInteractive } = require('../../../utils/interactive.js');
 const {
-  Gen3Response,
   getAccessTokenHeader,
   requestUserInput,
   parseJwt,
@@ -96,60 +95,53 @@ function assembleCustomHeaders(ACCESS_TOKEN) {
   };
 }
 
-function fetchDIDLists(I, params = { hardcodedAuthz: null }) {
+async function fetchDIDLists(I, params = { hardcodedAuthz: null }) {
   // TODO: Use negate_params to gather authorized (200) and blocked (401) files
   // Only assemble the didList if the list hasn't been initialized
-  return new Promise((resolve) => {
-    let projectAccessList = [];
-    let authParam = 'acl';
-    I.sendGetRequest(
-      `https://${TARGET_ENVIRONMENT}/user/user`,
-      { Authorization: `bearer ${I.cache.ACCESS_TOKEN}` },
-    ).then((res) => {
-      const httpResp = new Gen3Response(res);
-      // if hardcodedAuthz is set
-      // check if the program/project path is in the /user/user authz output
-      const foundHardcodedAuthzInResponse = Object.keys(httpResp.data.authz).filter((a) => params.hardcodedAuthz === a).join('');
-      console.log(`foundHardcodedAuthzInResponse: ${foundHardcodedAuthzInResponse}`);
-      if (foundHardcodedAuthzInResponse !== '') {
-        console.log('switching the lookup auth param from [acl] to [authz]');
-        authParam = 'authz';
-        projectAccessList = httpResp.data.authz;
-      } else {
-        projectAccessList = httpResp.data.project_access;
-      }
-      // console.log(`projectAccessList: ${projectAccessList}`);
+  let projectAccessList = [];
+  let authParam = 'acl';
+  const httpResp = await I.sendGetRequest(
+    `https://${TARGET_ENVIRONMENT}/user/user`,
+    { Authorization: `bearer ${I.cache.ACCESS_TOKEN}` },
+  );
+  // if hardcodedAuthz is set
+  // check if the program/project path is in the /user/user authz output
+  const foundHardcodedAuthzInResponse = Object.keys(httpResp.data.authz).filter((a) => params.hardcodedAuthz === a).join('');
+  console.log(`foundHardcodedAuthzInResponse: ${foundHardcodedAuthzInResponse}`);
+  if (foundHardcodedAuthzInResponse !== '') {
+    console.log('switching the lookup auth param from [acl] to [authz]');
+    authParam = 'authz';
+    projectAccessList = httpResp.data.authz;
+  } else {
+    projectAccessList = httpResp.data.project_access;
+  }
+  // console.log(`projectAccessList: ${projectAccessList}`);
 
-      // initialize dict of accessible DIDs
-      let ok200files = {}; // eslint-disable-line prefer-const
-      // initialize dict of blocked DIDs
-      let unauthorized401files = {}; // eslint-disable-line prefer-const
+  // initialize dict of accessible DIDs
+  let ok200files = {}; // eslint-disable-line prefer-const
+  // initialize dict of blocked DIDs
+  let unauthorized401files = {}; // eslint-disable-line prefer-const
 
-      // adding record DIDs to their corresponding ACL key
-      // ( I.cache.records is created in BeforeSuite() )
-      I.cache.records.forEach((record) => {
-        // console.log('ACLs for ' + record['did'] + ' - ' + record['acl']);
-        // Filtering accessible DIDs by checking if the record acl is in the project access list
-        const accessibleDid = record[authParam].filter(
-          (acl) => projectAccessList.hasOwnProperty(acl) || record[authParam] === '*', // eslint-disable-line no-prototype-builtins
-        );
+  // adding record DIDs to their corresponding ACL key
+  // ( I.cache.records is created in BeforeSuite() )
+  I.cache.records.forEach((record) => {
+    // console.log('ACLs for ' + record['did'] + ' - ' + record['acl']);
+    // Filtering accessible DIDs by checking if the record acl is in the project access list
+    const accessibleDid = record[authParam].filter(
+      (acl) => projectAccessList.hasOwnProperty(acl) || record[authParam] === '*', // eslint-disable-line no-prototype-builtins
+    );
 
-        // Put DIDs urls and md5 hash into their respective lists (200 or 401)
-        const theFiles = accessibleDid.length > 0 ? ok200files : unauthorized401files;
-        theFiles[record.did] = { urls: record.urls, md5: record.md5 };
-      });
-
-      console.log(`http 200 files: ${JSON.stringify(ok200files)}`);
-      console.log(`http 401 files: ${JSON.stringify(unauthorized401files)}`);
-
-      // the cache
-      I.didList = {};
-      I.didList.ok200files = ok200files;
-      I.didList.unauthorized401files = unauthorized401files;
-
-      resolve(I.didList);
-    });
+    // Put DIDs urls and md5 hash into their respective lists (200 or 401)
+    const theFiles = accessibleDid.length > 0 ? ok200files : unauthorized401files;
+    theFiles[record.did] = { urls: record.urls, md5: record.md5 };
   });
+
+  // the cache
+  I.didList = {};
+  I.didList.ok200files = ok200files;
+  I.didList.unauthorized401files = unauthorized401files;
+
+  return I.didList;
 }
 
 function performPreSignedURLTest(cloudProvider, typeOfTest, typeOfCreds) {
@@ -163,6 +155,8 @@ function performPreSignedURLTest(cloudProvider, typeOfTest, typeOfCreds) {
       const { ok200files, unauthorized401files } = I.didList
         ? I.didList
         : await fetchDIDLists(I, params);
+      console.log(`http 200 files: ${JSON.stringify(ok200files)}`);
+      console.log(`http 401 files: ${JSON.stringify(unauthorized401files)}`);
 
       // positive: _200files | negative: _401files
       const listOfDIDs = typeOfTest === 'positive' ? ok200files : unauthorized401files;
@@ -201,7 +195,7 @@ function performPreSignedURLTest(cloudProvider, typeOfTest, typeOfCreds) {
               3. Verify if:${verificationMessage}
               Manual verification:
                 HTTP Code: ${signedUrlRes.status}
-                RESPONSE: ${JSON.stringify(signedUrlRes.body) || signedUrlRes.parsedFenceError}
+                RESPONSE: ${JSON.stringify(signedUrlRes.data)}
       `);
       expect(result.didPass, result.details).to.be.true;
     },
@@ -227,9 +221,9 @@ BeforeSuite(async ({ I }) => {
   // Fetching public list of DIDs
   const httpResp = await I.sendGetRequest(
     `https://${TARGET_ENVIRONMENT}/index/index`,
-  ).then(({ res }) => new Gen3Response(res));
+  );
 
-  I.cache.records = httpResp.body.records;
+  I.cache.records = httpResp.data.records;
 });
 
 /* ############################### */
@@ -318,7 +312,7 @@ Scenario('Try to get Google Credentials as a client @manual', ifInteractive(
               HTTP POST request to: https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.googleCredentials}
             Manual verification:
               Response status: ${httpResp.status} // Expect a HTTP 200
-              Response data: ${JSON.stringify(httpResp.body) || httpResp.parsedFenceError}
+              Response data: ${JSON.stringify(httpResp.data)}
                 // Expect a JSON payload containing client information (id, email, etc.) and a private key
             `);
     expect(result.didPass, result.details).to.be.true;
@@ -385,7 +379,7 @@ Scenario('Initiate the Implicit OIDC Client flow with Google credentials to obta
 Scenario('Test Fence\'s public keys endpoint @manual', ifInteractive(
   async ({ I }) => {
     const url = `https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.publicKeysEndpoint}`;
-    const httpResp = await I.sendGetRequest(url).then(({ res }) => new Gen3Response(res));
+    const httpResp = await I.sendGetRequest(url);
 
     const result = await interactive(`
             1. [Automated] Go to ${url}
@@ -404,7 +398,7 @@ Scenario('Test Fence\'s public keys endpoint @manual', ifInteractive(
                }
             Manual verification:
               Response status: ${httpResp.status} // Expect a HTTP 200
-              Response data: ${JSON.stringify(httpResp.body) || httpResp.parsedFenceError}
+              Response data: ${JSON.stringify(httpResp.data)}
                 // Expect a JSON payload containing Public Key info
             `);
     expect(result.didPass, result.details).to.be.true;
@@ -445,7 +439,6 @@ Scenario('Check contact and footer links @bdcat @manual', ifInteractive(
     expect(result.didPass, result.details).to.be.true;
   },
 ));
-
 
 // Scenario #19 - Check privacy policy link
 Scenario('Make sure the privacy policy link is configured @bdcat @manual', ifInteractive( // eslint-disable-line codeceptjs/no-skipped-tests

@@ -70,7 +70,7 @@ module.exports = function () {
       ], {
         precision: 's',
       }).catch((err) => {
-        console.error(`Error saving data to InfluxDB! ${err.stack}`);
+        console.error(`Error saving data to InfluxDB! ${err}`);
       });
     }
 
@@ -93,7 +93,7 @@ module.exports = function () {
       ], {
         precision: 's',
       }).catch((err) => {
-        console.error(`Error saving data to InfluxDB! ${err.stack}`);
+        console.error(`Error saving data to InfluxDB! ${err}`);
       });
     }
 
@@ -115,7 +115,7 @@ module.exports = function () {
       ], {
         precision: 's',
       }).catch((err) => {
-        console.error(`Error saving data to InfluxDB! ${err.stack}`);
+        console.error(`Error saving data to InfluxDB! ${err}`);
       });
     }
   });
