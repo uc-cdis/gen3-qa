@@ -362,12 +362,11 @@ if [ -z "$checkForPresenceOfMetadataIngestionSowerJob" ]; then
   donot '@metadataIngestion'
 fi
 
-# running studyViewer tests on NCT env
-portalGen3Bundle="$(g3kubectl get configmaps manifest-portal -o json | jq -r '.data.GEN3_BUNDLE')"
-if [ "$portalGen3Bundle" == "nct" ]; then
-  echo "running study-viewer tests..."
-else
-  donot @studyViewer
+//studyViewer
+if [[ $(curl -s "$portalConfigURL" | jq 'contains({studyViewerConfig}) | not') == "true" ]] || [[ ! -z "$testedEnv" ]]; then
+  donot '@studyViewer'
+elif ! (g3kubectl get pods --no-header -l app=requestor | grep requestor) > dev/null 2>&1; then
+  donot '@studyViewer'
 fi
 
 if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1 ||
