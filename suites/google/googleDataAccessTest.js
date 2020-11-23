@@ -150,17 +150,17 @@ const googleDataAccessTestSteps = async (fence, user, google, files, paramsQA1, 
   ]
 }
 
-BeforeSuite(async (indexd, fence, google) => {
+BeforeSuite(async ({ indexd, fence, google }) => {
   console.log('Adding indexd files used to test signed urls');
   await indexd.do.addFileIndices(Object.values(indexed_files));
   console.log('deleting keys for SA associated with users 0, 1 and user2...');
-  ['user0', 'user1', 'user2'].forEach(async(user) => {
+  ['user0', 'user1', 'user2'].forEach(async({ user }) => {
     const getCredsRes = await fence.do.getUserGoogleCreds(users[user].accessTokenHeader);
     await google.deleteSAKeys(user, getCredsRes.access_keys);
   });
 });
 
-AfterSuite(async (indexd) => {
+AfterSuite(async ({ indexd }) => {
   console.log('Removing indexd files used to test signed urls');
   await indexd.do.deleteFileIndices(Object.values(indexed_files));
 
@@ -170,7 +170,7 @@ AfterSuite(async (indexd) => {
 });
 
 Scenario('Test Google Data Access User0 @reqGoogle @googleDataAccess @manual',
-  async (fence, users, google, files) => {
+  async ({ fence, users, google, files }) => {
     const result = await googleDataAccessTestSteps(
       fence, users.user0, google, files,
       { nAttempts: 1, expectAccessDenied: false }, // paramsQA1
@@ -199,7 +199,7 @@ Scenario('Test Google Data Access User0 @reqGoogle @googleDataAccess @manual',
 );
 
 Scenario('Test Google Data Access User1 @reqGoogle @googleDataAccess @manual',
-  async (fence, users, google, files) => {
+  async ({ fence, users, google, files }) => {
     const result = await googleDataAccessTestSteps(
       fence, users.user1, google, files,
       { nAttempts: 1, expectAccessDenied: false }, // paramsQA1
@@ -228,7 +228,7 @@ Scenario('Test Google Data Access User1 @reqGoogle @googleDataAccess @manual',
 );
 
 Scenario('Test Google Data Access User2 @reqGoogle @googleDataAccess',
-  async (fence, users, google, files) => {
+  async ({ fence, users, google, files }) => {
     const result = await googleDataAccessTestSteps(
       fence, users.user2, google, files,
       { nAttempts: 3, expectAccessDenied: true }, // paramsQA1

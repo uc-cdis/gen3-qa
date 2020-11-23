@@ -64,7 +64,7 @@ async function deleteLingeringInfra() {
   }
 }
 
-BeforeSuite(async (I) => {
+BeforeSuite(async ({ I }) => {
   console.log('deleting infra from previous runs that might\'ve been interrupted...');
   await deleteLingeringInfra();
 
@@ -79,14 +79,14 @@ BeforeSuite(async (I) => {
   console.log(`authzMappingFile: ${authzMappingFile}`);
 });
 
-AfterSuite(async (I) => {
+AfterSuite(async ({ I }) => {
   console.log(`I.cache: ${JSON.stringify(I.cache)}`);
   await deleteLingeringInfra();
 });
 
 // Scenario #1 - Generate indexd manifest out of a Google Storage bucket
 // and check if the expected url, size, md5 and authz entries are in place
-Scenario('Generate bucket manifest from s3 bucket @googleStorage @batch @bucketManifest', async (I) => {
+Scenario('Generate bucket manifest from s3 bucket @googleStorage @batch @bucketManifest', async ({ I }) => {
   await bash.runCommand('gcloud config set project dcf-integration');
   const svcAccount = await bash.runCommand('gcloud config get-value account');
   const theCmd = `gen3 gcp-bucket-manifest create ${testBucket} ${svcAccount} $PWD/authz_mapping_${I.cache.UNIQUE_NUM}.tsv`;
@@ -145,7 +145,7 @@ Scenario('Generate bucket manifest from s3 bucket @googleStorage @batch @bucketM
   // Final assertions
   const files = ['test_file', 'humongous_file'];
   for (let i = 0; i < files.length; i++) { // eslint-disable-line no-plusplus
-    Object.keys(expectedMetadataForAssertions[files[i]]).forEach((assertionKey) => {
+    Object.keys(expectedMetadataForAssertions[files[i]]).forEach(({ assertionKey }) => {
       console.log(
         `Running assertion for ${files[i]} (index: ${i}) - TSV header: ${assertionKey}...`,
       );

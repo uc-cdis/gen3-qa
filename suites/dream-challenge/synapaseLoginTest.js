@@ -1,15 +1,12 @@
 Feature('Synapse Login');
 
 const chai = require('chai');
-const user = require('../../utils/user.js');
 const { interactive, ifInteractive } = require('../../utils/interactive.js');
 
 const { expect } = chai;
-const hostname = process.env.HOSTNAME;
-const profile = process.env.NAMESPACE;
 
 Scenario('Login with Google / Microsoft @manual', ifInteractive(
-  async (I) => {
+  async () => {
     const result = await interactive(`
             1. Go to https://qa-brain.planx-pla.net
             2. Check Dictionary button and check if graphic representation of data model is visible
@@ -23,7 +20,7 @@ Scenario('Login with Google / Microsoft @manual', ifInteractive(
 ));
 
 Scenario('Login with Synapse first time @manual', ifInteractive(
-  async (I) => {
+  async () => {
     const result = await interactive(`
             Note: execute this test, if the user is logging in with Syanpse account for the first time.
             1. Go to https://qa-brain.planx-pla.net
@@ -38,7 +35,7 @@ Scenario('Login with Synapse first time @manual', ifInteractive(
 ));
 
 Scenario('Login with Synapse @manual', ifInteractive(
-  async (I) => {
+  async () => {
     const result = await interactive(`
             1. Go to https://qa-brain.planx-pla.net
             2. Login with BEAT-PD button (with correct credentials and incorrect credentials)
@@ -50,7 +47,7 @@ Scenario('Login with Synapse @manual', ifInteractive(
 ));
 
 Scenario('Landing Page @manual', ifInteractive(
-  async (I) => {
+  async () => {
     const result = await interactive(`
             1. After successful login, the user is on landing page with Synapse email id displayed on the top right corner
             2. Browse around on the landing page - tabs like Dictionary (if it displays graphical representation of data model), Exploration page, Profile Page
@@ -61,7 +58,7 @@ Scenario('Landing Page @manual', ifInteractive(
 ));
 
 Scenario('Exploration Page @manual', ifInteractive(
-  async (I) => {
+  async () => {
     const result = await interactive(`
             1. Navigate to Exploraton tab, user should see facet filter on left, file graphs and file table on the right
             2. the user selects from the facet and file table changes according to the facet selection
@@ -74,7 +71,7 @@ Scenario('Exploration Page @manual', ifInteractive(
 ));
 
 Scenario('Profile Page @manual', ifInteractive(
-  async (I) => {
+  async () => {
     const result = await interactive(`
             1. Click on Profile Tab on the top bar
             2. the user sees 'Create API key' button and table with resource permissions
@@ -91,7 +88,7 @@ Data Setup:
 */
 // User story https://ctds-planx.atlassian.net/browse/PXP-4777
 Scenario('Synapse Digital ID is shown as the username in brain commons @manual', ifInteractive(
-  async (I) => {
+  async () => {
     const result = await interactive(`
             1. Log in to Commons_1 (brain commons) (e.g. https://qa-brain.planx-pla.net) as User_1 (synapse account)
             2. Verify that the username shown on home page is the Synapse Digital ID

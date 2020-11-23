@@ -277,10 +277,8 @@ else
   #
   # Run tests including RAS AuthN Integration tests
   #
-  # disabling temporarily due to RAS Staging connectivity issues  
-  donot '@rasAuthN'  
-  # runTestsIfServiceVersion "@rasAuthN" "fence" "4.22.1" "2020.09"
-  # echo "INFO: enabling RAS AuthN Integration tests for $service"
+  runTestsIfServiceVersion "@rasAuthN" "fence" "4.22.1" "2020.09"
+  echo "INFO: enabling RAS AuthN Integration tests for $service"
 fi
 
 # TODO: eventually enable for all services, but need arborist and fence updates first
@@ -439,11 +437,16 @@ fi
 # When zero tests are executed, a results*.xml file is produced containing a tests="0" counter
 # e.g., output/result57f4d8778c4987bda6a1790eaa703782.xml
 # <testsuites name="Mocha Tests" time="0.0000" tests="0" failures="0">
-ls -ilha output/result*.xml
-cat output/result*.xml  | head -n2 | sed -n -e 's/^<testsuites.*\(tests\=.*\) failures.*/\1/p'
+[ "$(ls -A output)" ] && ls output/result*.xml || echo "Warn: there are no output/result-*.xml files to parse"
+
 set +e
+
+cat output/result*.xml  | head -n2 | sed -n -e 's/^<testsuites.*\(tests\=.*\) failures.*/\1/p'
+
 zeroTests=$(cat output/result*.xml  | head -n2 | sed -n -e 's/^<testsuites.*\(tests\=.*\) failures.*/\1/p' | grep "tests=\"0\"")
+
 set -e
+
 if [ -n "$zeroTests" ]; then
   echo "No tests have been executed, aborting PR check..."
   npm test -- --verbose suites/fail.js

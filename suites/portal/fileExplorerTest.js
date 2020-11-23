@@ -15,9 +15,8 @@ Data Setup:
         ii) User_22 - Access to all data
  */
 
-
 Scenario('Get Access button is not displayed when portal configuration "hideGetAccessButton" is set to true @manual', ifInteractive(
-  async (I) => {
+  async () => {
     const result = await interactive(`
             1. Set the hideAccessButton to true in the portal config (portal/gitops.json) 
             2. Configure the Access Button URL (URL configured in gitops.json as "getAccessButtonLink": "https://dbgap.ncbi.nlm.nih.gov/")
@@ -36,7 +35,7 @@ Scenario('Get Access button is not displayed when portal configuration "hideGetA
 ));
 
 Scenario('Get Access button is enabled when commons has url configured, hideGetAccessButton is set to false and user does not have full access @manual', ifInteractive(
-  async (I) => {
+  async () => {
     const result = await interactive(`
             1. Log in to Commons_1 (URL configured in gitops.json as "getAccessButtonLink": "https://dbgap.ncbi.nlm.nih.gov/") as User_11 (user without access to some data)
             2. Navigate to Files Explorer page (e.g. https://qa-brain.planx-pla.net/files)
@@ -48,7 +47,7 @@ Scenario('Get Access button is enabled when commons has url configured, hideGetA
 ));
 
 Scenario('Get Access button is not displayed when commons has url configured, hideGetAccessButton is set to false and user has full access @manual', ifInteractive(
-  async (I) => {
+  async () => {
     const result = await interactive(`
             1. Log in to Commons_1 (URL configured in gitops.json as "getAccessButtonLink": "https://dbgap.ncbi.nlm.nih.gov/") as User_12 (user with full access to data)
             2. Navigate to Files Explorer page (e.g. https://qa-brain.planx-pla.net/files)
@@ -59,7 +58,7 @@ Scenario('Get Access button is not displayed when commons has url configured, hi
 ));
 
 Scenario('Get Access button is disabled when commons does not have url configured, hideGetAccessButton is set to false and user has no access @manual', ifInteractive(
-  async (I) => {
+  async () => {
     const result = await interactive(`
             1. Log in to Commons_2 (URL not configured in gitops.json as "getAccessButtonLink") as User_21 (user without access to some data)
             2. Navigate to Files Explorer page (e.g. https://qa-brain.planx-pla.net/files)
@@ -70,7 +69,7 @@ Scenario('Get Access button is disabled when commons does not have url configure
 ));
 
 Scenario('Get Access button is not displayed when commons does not have url configured, hideGetAccessButton is set to false and user has full access @manual', ifInteractive(
-  async (I) => {
+  async () => {
     const result = await interactive(`
             1. Log in to Commons_2 (URL not configured in gitops.json as "getAccessButtonLink") as User_22 (user with full access to data)
             2. Navigate to Files Explorer page (e.g. https://qa-brain.planx-pla.net/files)
