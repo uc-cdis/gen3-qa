@@ -1,5 +1,12 @@
 Feature('Dataguid.org');
 
+let testURL = '';
+if (process.env.RUNNING_LOCAL === 'true') {
+  testURL = 'https://dataguids.org';
+} else {
+  testURL = `https://${process.env.testedEnv}`;
+}
+
 // Add guids to test data table
 const correctGuids = new DataTable(['guids']);
 correctGuids.add(['dg.4503/0000085a-4cca-4abd-9bb3-85cdd4a248fd']); // adding guids for "DataSTAGE"
@@ -14,8 +21,8 @@ nonexistentGuids.add(['0000b456-3r56-1dr3-0rt4-6fd11e5fb97a']); // adding non-ex
 
 // Pass dataTable to Data()
 // Test resolving guids
-Data(correctGuids).Scenario('Resolve guids with different prefixes or without prefix @dataguids', ({I, current }) => {
-  I.amOnPage('https://dataguids.org');
+Data(correctGuids).Scenario('Resolve guids with different prefixes or without prefix @dataguids', ({ I, current }) => {
+  I.amOnPage(testURL);
   I.fillField('#guidval', current.guids);
   I.click('#resolveit');
   I.waitForText(current.guids, 2, '#resolverresult');
@@ -23,8 +30,8 @@ Data(correctGuids).Scenario('Resolve guids with different prefixes or without pr
 });
 
 // Nagative resolving guids test
-Data(nonexistentGuids).Scenario('Negativetest resolving for non-exitent guids @dataguids', ({I, current }) => {
-  I.amOnPage('https://dataguids.org');
+Data(nonexistentGuids).Scenario('Negativetest resolving for non-exitent guids @dataguids', ({ I, current }) => {
+  I.amOnPage(testURL);
   I.fillField('#guidval', current.nguids);
   I.click('#resolveit');
   I.waitForText(current.nguids, 2, '#resolverresult');
@@ -32,13 +39,15 @@ Data(nonexistentGuids).Scenario('Negativetest resolving for non-exitent guids @d
 });
 
 // Test DRS endpoint
-Data(correctGuids).Scenario('Test if DRSendpoint resolve the guids correctly @dataguids', ({I, current }) => {
-  I.amOnPage(`https://dataguids.org/index/ga4gh/drs/v1/objects/${current.guids}`);
+Data(correctGuids).Scenario('Test if DRSendpoint resolve the guids correctly @dataguids', ({ I, current }) => {
+  I.amOnPage(testURL);
+  I.amOnPage(`/index/ga4gh/drs/v1/objects/${current.guids}`);
   I.see(`"id":"${current.guids}"`);
 });
 
 // Nagative DRS endpoint test
-Data(nonexistentGuids).Scenario('Negativetest DRSendpoint with non-existent guids @dataguids', ({I, current }) => {
-  I.amOnPage(`https://dataguids.org/index/ga4gh/drs/v1/objects/${current.guids}`);
+Data(nonexistentGuids).Scenario('Negativetest DRSendpoint with non-existent guids @dataguids', ({ I, current }) => {
+  I.amOnPage(testURL);
+  I.amOnPage(`/index/ga4gh/drs/v1/objects/${current.guids}`);
   I.see('"error":"no record found"');
 });
