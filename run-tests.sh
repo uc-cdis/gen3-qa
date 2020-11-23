@@ -250,7 +250,7 @@ donot '@fail'
 donot '@batch'
 
 #Do not run dataguids.org test for regular PRs
-donot '@dataguidsorg'
+donot '@dataguids'
 
 #
 # Google Data Access tests are only required for some envs
