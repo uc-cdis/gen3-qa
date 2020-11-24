@@ -11,7 +11,7 @@ module.exports = {
   login(userAcct = user.mainAcct) {
     homeTasks.login(userAcct.username);
     homeQuestions.haveAccessToken();
-    if (!process.env.testedEnv.includes('midrc') || !process.env.testedEnv === 'jenkins-brain') {
+    if (!process.env.testedEnv.includes('midrc') && !process.env.testedEnv === 'jenkins-brain') {
       homeQuestions.seeUserLoggedIn(userAcct.username);
     }
   },
@@ -19,14 +19,14 @@ module.exports = {
   topBarLogin(userAcct = user.mainAcct) {
     homeTasks.topBarLogin(userAcct.username);
     homeQuestions.haveAccessToken();
-    if (!process.env.testedEnv.includes('midrc') || !process.env.testedEnv === 'jenkins-brain') {
+    if (!process.env.testedEnv.includes('midrc') && !process.env.testedEnv === 'jenkins-brain') {
       homeQuestions.seeUserLoggedIn(userAcct.username);
     }
   },
 
   logout(userAcct = user.mainAcct) {
     homeTasks.logout();
-    if (!process.env.testedEnv.includes('midrc') || !process.env.testedEnv === 'jenkins-brain' ) {
+    if (!process.env.testedEnv.includes('midrc') && !process.env.testedEnv === 'jenkins-brain' ) {
       homeQuestions.isLoggedOut(userAcct.username);
     }
   },
