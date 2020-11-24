@@ -26,6 +26,8 @@ module.exports = {
 
   logout(userAcct = user.mainAcct) {
     homeTasks.logout();
-    homeQuestions.isLoggedOut(userAcct.username);
+    if (!process.env.testedEnv.includes('midrc')) {
+      homeQuestions.isLoggedOut(userAcct.username);
+    }
   },
 };
