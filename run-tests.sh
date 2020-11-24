@@ -249,6 +249,9 @@ donot '@fail'
 # Do not run batch processing tests
 donot '@batch'
 
+#Do not run dataguids.org test for regular PRs
+donot '@dataguids'
+
 #
 # Google Data Access tests are only required for some envs
 #
