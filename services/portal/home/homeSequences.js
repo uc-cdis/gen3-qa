@@ -2,8 +2,6 @@ const homeQuestions = require('./homeQuestions.js');
 const homeTasks = require('./homeTasks.js');
 const user = require('../../../utils/user.js');
 
-const I = actor();
-
 /**
  * home sequences
  */
@@ -29,7 +27,7 @@ module.exports = {
   logout(userAcct = user.mainAcct) {
     homeTasks.logout();
     // Skip this test flow for envs with useProfileDropdown enabled
-    if (!process.env.testedEnv.includes('midrc') && !process.env.testedEnv === 'jenkins-brain' ) {
+    if (!process.env.testedEnv.includes('midrc') && !process.env.testedEnv === 'jenkins-brain') {
       homeQuestions.isLoggedOut(userAcct.username);
     }
   },
