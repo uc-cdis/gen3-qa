@@ -11,6 +11,7 @@ module.exports = {
   login(userAcct = user.mainAcct) {
     homeTasks.login(userAcct.username);
     homeQuestions.haveAccessToken();
+    // Skip this test flow for envs with useProfileDropdown enabled
     if (!process.env.testedEnv.includes('midrc') && !process.env.testedEnv === 'jenkins-brain') {
       homeQuestions.seeUserLoggedIn(userAcct.username);
     }
@@ -19,6 +20,7 @@ module.exports = {
   topBarLogin(userAcct = user.mainAcct) {
     homeTasks.topBarLogin(userAcct.username);
     homeQuestions.haveAccessToken();
+    // Skip this test flow for envs with useProfileDropdown enabled
     if (!process.env.testedEnv.includes('midrc') && !process.env.testedEnv === 'jenkins-brain') {
       homeQuestions.seeUserLoggedIn(userAcct.username);
     }
@@ -26,6 +28,7 @@ module.exports = {
 
   logout(userAcct = user.mainAcct) {
     homeTasks.logout();
+    // Skip this test flow for envs with useProfileDropdown enabled
     if (!process.env.testedEnv.includes('midrc') && !process.env.testedEnv === 'jenkins-brain' ) {
       homeQuestions.isLoggedOut(userAcct.username);
     }
