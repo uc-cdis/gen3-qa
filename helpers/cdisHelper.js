@@ -11,6 +11,17 @@ class CDISHelper extends Helper {
     });
   }
 
+  _after() {
+    const helper = this.helpers.WebDriverIO;
+    try {
+      helper.browser.close();
+    } catch (err) {
+      console.log(`${new Date()} [WARN]: Something weird happened: ${JSON.stringify(err)}`);
+      // don't let the exception bubble up
+      // avoid erroneous CI failures
+    }
+  }
+
   noTimeoutEnter() {
     const helper = this.helpers.WebDriverIO;
     try {
