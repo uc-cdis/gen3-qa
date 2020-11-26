@@ -12,8 +12,8 @@ class CDISHelper extends Helper {
   }
 
   async _after() {
-    let client = this.helpers['WebDriver'].browser;
-    console.log(`${new Date()} - [INFO] Session ID: ${client['sessionId']}`);
+    const client = this.helpers.WebDriver.browser;
+    console.log(`${new Date()} - [INFO] Session ID: ${client.sessionId}`);
   }
 
   noTimeoutEnter() {
