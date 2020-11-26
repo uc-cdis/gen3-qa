@@ -4,7 +4,8 @@ let testURL = '';
 if (process.env.RUNNING_LOCAL === 'true') {
   testURL = 'https://dataguids.org';
 } else {
-  testURL = `https://${process.env.testedEnv}`;
+  testURL = `https://${process.env.NAMESPACE}.planx-pla.net`;
+  console.log(`testURL: ${testURL}`);
 }
 
 // Add guids to test data table
