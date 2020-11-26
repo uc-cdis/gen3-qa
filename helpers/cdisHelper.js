@@ -12,14 +12,8 @@ class CDISHelper extends Helper {
   }
 
   async _after() {
-    const helper = this.helpers.WebDriverIO;
-    try {
-      await helper.browser.close();
-    } catch (err) {
-      console.log(`${new Date()} [WARN]: Something weird happened: ${err}`);
-      // don't let the exception bubble up
-      // avoid erroneous CI failures
-    }
+    let client = this.helpers['WebDriver'].browser;
+    console.log("Session ID: "+JSON.stringify(client['sessionId']));
   }
 
   noTimeoutEnter() {
