@@ -249,8 +249,15 @@ donot '@fail'
 # Do not run batch processing tests
 donot '@batch'
 
-#Do not run dataguids.org test for regular PRs
+# Do not run dataguids.org test for regular PRs
 donot '@dataguids'
+
+# For dataguids.org PRs, skip all fence-related bootstrapping oprations
+# as the environment does not have fence
+if [ "$testedEnv" == "dataguids.org" ]; then
+  # disable bootstrap script from codeceptjs
+  sed -i '/bootstrap\:/d' codecept.conf.js
+fi
 
 #
 # Google Data Access tests are only required for some envs
