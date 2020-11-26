@@ -12,7 +12,6 @@ Feature('Export PFB To Workspace');
 const { expect } = require('chai');
 const { interactive, ifInteractive } = require('../../utils/interactive.js');
 
-
 Scenario('User1 can assemble a cohort and export pfb to workspace', ifInteractive(
   async () => {
     const result = await interactive(`
