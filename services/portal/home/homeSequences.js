@@ -10,7 +10,7 @@ module.exports = {
     homeTasks.login(userAcct.username);
     homeQuestions.haveAccessToken();
     // Skip this test flow for envs with useProfileDropdown enabled
-    if (!process.env.testedEnv.includes('midrc') && !process.env.testedEnv === 'jenkins-brain') {
+    if (!process.env.testedEnv.includes('midrc') && !process.env.testedEnv === 'jenkins-brain.planx-pla.net') {
       homeQuestions.seeUserLoggedIn(userAcct.username);
     } else {
       homeQuestions.seeUserLoggedInOnDropdown(userAcct.username);
@@ -21,7 +21,7 @@ module.exports = {
     homeTasks.topBarLogin(userAcct.username);
     homeQuestions.haveAccessToken();
     // Skip this test flow for envs with useProfileDropdown enabled
-    if (!process.env.testedEnv.includes('midrc') && !process.env.testedEnv === 'jenkins-brain') {
+    if (!process.env.testedEnv.includes('midrc') && !process.env.testedEnv === 'jenkins-brain.planx-pla.net') {
       homeQuestions.seeUserLoggedIn(userAcct.username);
     } else {
       homeQuestions.seeUserLoggedInOnDropdown(userAcct.username);
