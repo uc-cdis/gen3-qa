@@ -9,17 +9,18 @@ const influx = new Influx.InfluxDB({
   database: 'ci_metrics',
 });
 
-module.exports = function () {
-  event.dispatcher.on(event.test.after, async (test) => {
-    // console.log(stringify(test));
+async function writeMetrics(measurement, test) {
+    // test metrics
     const suiteName = test.parent.title.split(' ').join('_');
     const testName = test.title.split(' ').join('_');
     const ciEnvironment = process.env.KUBECTL_NAMESPACE;
-    const testResult = test.state;
+    const duration = test.duration / 1000;
     // eslint-disable-next-line no-underscore-dangle
     const retries = test._retries;
     // eslint-disable-next-line no-underscore-dangle
     const currentRetry = test._currentRetry;
+
+    // github metrics
     let prName = '';
     let repoName = '';
     try {
@@ -29,6 +30,8 @@ module.exports = function () {
       prName = 'UNDEFINED';
       repoName = 'UNDEFINED';
     }
+
+    // selenium metrics
     const resp = await fetch('http://selenium-hub:4444/status');
     const respJson = await resp.json();
     let sessionCount = 0;
@@ -42,82 +45,62 @@ module.exports = function () {
         });
       });
     }
+
+    // logs
     console.log('********');
     console.log(`TEST: ${testName}`);
-    console.log(`RESULT: ${testResult}`);
+    console.log(`RESULT: ${test.state}`);
     console.log(`CURRENT RETRY - ${currentRetry}`);
     console.log(`TIMESTAMP: ${new Date()}`);
     console.log(`GRID_SESSION_COUNT: ${sessionCount}`);
+    console.log(`TEST_DURATION: ${duration}s`);
     console.log('********');
-    // const duration = test.parent.tests[0].duration / 1000;
-    // const error = test.parent.tests[0].err.message.substring(0, 50);
+
+    // define information to write into time-series db
+    const field_info = measurement === 'run_time' ? duration : 1;
+
+    tsData = {};
+    tsData[measurement] = field_info;
+
+    // writing metrics
+    await influx.writePoints(
+      [{
+        measurement: measurement,
+        tags: {
+          repo_name: repoName,
+          pr_num: prName,
+          suite_name: suiteName,
+          test_name: testName,
+          ci_environment: ciEnvironment,
+          selenium_grid_sessions: sessionCount,
+          run_time: duration,
+        },
+        fields: tsData,
+      }],
+      { precision: 's' }
+   ).catch((err) => {
+     console.error(`Error saving data to InfluxDB! ${err}`);
+   });
+}
+
+module.exports = function () {
+  event.dispatcher.on(event.test.after, async (test) => {
+    // console.log(stringify(test));
+    const testResult = test.state;
+    // eslint-disable-next-line no-underscore-dangle
+    const retries = test._retries;
+    // eslint-disable-next-line no-underscore-dangle
+    const currentRetry = test._currentRetry;
     if (testResult === 'failed' && retries <= currentRetry) {
-      await influx.writePoints([
-        {
-          measurement: 'fail_count',
-          tags: {
-            repo_name: repoName,
-            pr_num: prName,
-            suite_name: suiteName,
-            test_name: testName,
-            ci_environment: ciEnvironment,
-            selenium_grid_sessions: sessionCount,
-            // run_time: duration,
-            // err_msg: error,
-          },
-          fields: { fail_count: 1 },
-        },
-      ], {
-        precision: 's',
-      }).catch((err) => {
-        console.error(`Error saving data to InfluxDB! ${err.stack}`);
-      });
+      await writeMetrics('fail_count', test)
     }
-
     if (testResult === 'passed') {
-      await influx.writePoints([
-        {
-          measurement: 'pass_count',
-          tags: {
-            repo_name: repoName,
-            pr_num: prName,
-            suite_name: suiteName,
-            test_name: testName,
-            ci_environment: ciEnvironment,
-            selenium_grid_sessions: sessionCount,
-            // run_time: duration,
-            // err_msg: error,
-          },
-          fields: { pass_count: 1 },
-        },
-      ], {
-        precision: 's',
-      }).catch((err) => {
-        console.error(`Error saving data to InfluxDB! ${err.stack}`);
-      });
+      await writeMetrics('pass_count', test)
     }
-
     if (currentRetry > 0 && (testResult === 'passed' || retries === currentRetry)) {
-      await influx.writePoints([
-        {
-          measurement: 'retry_count',
-          tags: {
-            repo_name: repoName,
-            pr_num: prName,
-            suite_name: suiteName,
-            test_name: testName,
-            ci_environment: ciEnvironment,
-            // run_time: duration,
-            // err_msg: error,
-          },
-          fields: { retry_count: currentRetry },
-        },
-      ], {
-        precision: 's',
-      }).catch((err) => {
-        console.error(`Error saving data to InfluxDB! ${err.stack}`);
-      });
+      await writeMetrics('retry_count', test)
     }
+    await writeMetrics('run_time', test)
   });
 
   event.dispatcher.on(event.suite.before, (suite) => {
