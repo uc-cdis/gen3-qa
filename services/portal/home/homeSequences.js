@@ -12,6 +12,8 @@ module.exports = {
     // Skip this test flow for envs with useProfileDropdown enabled
     if (!process.env.testedEnv.includes('midrc') && !process.env.testedEnv === 'jenkins-brain') {
       homeQuestions.seeUserLoggedIn(userAcct.username);
+    } else {
+      homeQuestions.seeUserLoggedInOnDropdown(userAcct.username);
     }
   },
 
@@ -21,14 +23,17 @@ module.exports = {
     // Skip this test flow for envs with useProfileDropdown enabled
     if (!process.env.testedEnv.includes('midrc') && !process.env.testedEnv === 'jenkins-brain') {
       homeQuestions.seeUserLoggedIn(userAcct.username);
+    } else {
+      homeQuestions.seeUserLoggedInOnDropdown(userAcct.username);
     }
   },
 
   logout(userAcct = user.mainAcct) {
-    homeTasks.logout();
     // Skip this test flow for envs with useProfileDropdown enabled
     if (!process.env.testedEnv.includes('midrc') && !process.env.testedEnv === 'jenkins-brain') {
-      homeQuestions.isLoggedOut(userAcct.username);
+      homeTasks.logout();
+    } else {
+      homeTasks.logoutThroughDropdown();
     }
   },
 };

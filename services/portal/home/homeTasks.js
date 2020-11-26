@@ -42,4 +42,9 @@ module.exports = {
   logout() {
     portal.clickProp(homeProps.logoutButton);
   },
+
+  logoutThroughDropdown() {
+    I.click('.top-bar__link');
+    portal.clickProp(homeProps.logoutButton);
+  },
 };

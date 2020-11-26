@@ -20,6 +20,11 @@ module.exports = {
     I.waitForText(username, 15);
   },
 
+  seeUserLoggedInOnDropdown(username) {
+    I.click('.top-bar__link');
+    I.waitForText(username, 15);
+  },
+
   isLoggedOut(username) {
     I.wait(5);
     I.dontSee(username);
