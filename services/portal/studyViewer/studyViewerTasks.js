@@ -31,7 +31,7 @@ module.exports = {
     await I.seeElement(studyViewerProps.detailedButtonXPath);
     I.click(studyViewerProps.detailedButtonXPath);
     await I.seeElement(studyViewerProps.activeDivClass);
-    I.saveScreenshot('.png');
+    I.saveScreenshot('expand_dataset_studyViewer.png');
     await I.seeElement(studyViewerProps.learnMoreButtonXPath);
     I.click(studyViewerProps.learnMoreButtonXPath);
     I.amOnPage(studyViewerProps.datasetPath);
