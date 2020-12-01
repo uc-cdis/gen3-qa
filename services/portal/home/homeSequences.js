@@ -9,7 +9,7 @@ module.exports = {
   login(userAcct = user.mainAcct) {
     homeTasks.login(userAcct.username);
     homeQuestions.haveAccessToken();
-    // Custom flow envs with useProfileDropdown enabled
+    // Custom flow for envs with useProfileDropdown enabled
     if (process.env.testedEnv.includes('midrc') || process.env.testedEnv.includes('jenkins-brain')) {
       homeQuestions.seeUserLoggedInOnDropdown(userAcct.username);
     } else {
@@ -20,7 +20,7 @@ module.exports = {
   topBarLogin(userAcct = user.mainAcct) {
     homeTasks.topBarLogin(userAcct.username);
     homeQuestions.haveAccessToken();
-    // Custom flow envs with useProfileDropdown enabled
+    // Custom flow for envs with useProfileDropdown enabled
     if (process.env.testedEnv.includes('midrc') || process.env.testedEnv.includes('jenkins-brain')) {
       homeQuestions.seeUserLoggedInOnDropdown(userAcct.username);
     } else {
@@ -29,7 +29,7 @@ module.exports = {
   },
 
   logout(userAcct = user.mainAcct) {
-    // Custom flow envs with useProfileDropdown enabled
+    // Custom flow for envs with useProfileDropdown enabled
     if (process.env.testedEnv.includes('midrc') || process.env.testedEnv.includes('jenkins-brain')) {
       homeTasks.logoutThroughDropdown();
     } else {
