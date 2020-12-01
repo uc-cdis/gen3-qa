@@ -11,17 +11,32 @@ module.exports = {
   login(userAcct = user.mainAcct) {
     loginTasks.login(userAcct.username);
     loginQuestions.haveAccessToken();
-    loginQuestions.seeUserLoggedIn(userAcct.username);
+    // Custom flow envs with useProfileDropdown enabled
+    if (process.env.testedEnv.includes('midrc') || process.env.testedEnv.includes('jenkins-brain')) {
+      loginQuestions.seeUserLoggedInOnDropdown(userAcct.username);
+    } else {
+      loginQuestions.seeUserLoggedIn(userAcct.username);
+    }
   },
 
   topBarLogin(userAcct = user.mainAcct) {
     loginTasks.topBarLogin(userAcct.username);
     loginQuestions.haveAccessToken();
-    loginQuestions.seeUserLoggedIn(userAcct.username);
+    // Custom flow envs with useProfileDropdown enabled
+    if (process.env.testedEnv.includes('midrc') || process.env.testedEnv.includes('jenkins-brain')) {
+      loginQuestions.seeUserLoggedInOnDropdown(userAcct.username);
+    } else {
+      loginQuestions.seeUserLoggedIn(userAcct.username);
+    }
   },
 
   logout(userAcct = user.mainAcct) {
-    loginTasks.logout();
+    // Custom flow envs with useProfileDropdown enabled
+    if (process.env.testedEnv.includes('midrc') || process.env.testedEnv.includes('jenkins-brain')) {
+      loginTasks.logoutThroughDropdown();
+    } else {
+      loginTasks.logout();
+    }
     loginQuestions.isLoggedOut(userAcct.username);
   },
 };
