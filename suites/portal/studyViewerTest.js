@@ -1,46 +1,67 @@
-Feature('Study Viewer / Requestor');
+Feature('Study Viewer');
 
-const chai = require('chai');
-const { interactive, ifInteractive } = require('../../utils/interactive.js');
+const { Bash } = require('../../utils/bash.js');
+const studyViewerTasks = require('../../services/portal/studyViewer/studyViewerTasks.js');
+const studyViewerProps = require('../../services/portal/studyViewer/studyViewerProps.js');
+const requestorTasks = require('../../services/apis/requestor/requestorTasks.js');
 
-const { expect } = chai;
+const bash = new Bash();
 
-/* User without access */
-Scenario('User1 has no access to download @manual', ifInteractive(
-  async () => {
-    const result = interactive(`
-              1. Go to the Study Viewer Page
-              2. Select the dataset that is needed for research
-              3. Click on 'Request Access' button to acquire access to download
-              4. User will receive request_id from 'Request Access Queue'
-              5. User3 (who has Requestor access) makes a manual call to Requestor to validate the 'request_id' received
-              6. Go back to the page and user will have access to 'Download' button 
-              7. Click in 'Download' button to download the file from indexd
-          `);
-    expect(result.didPass, result.details).to.be.true;
-  },
-));
+After(async ({ home }) => {
+  home.complete.logout();
+});
 
-Scenario('User2 has access to download @manual', ifInteractive(
-  async () => {
-    const result = interactive(`
-              1. Go to the Study Viewer Page
-              2. Select the dataset that is needed for research
-              3. Click on 'Download' button to download the file from indexd
-          `);
-    expect(result.didPass, result.details).to.be.true;
-  },
-));
+AfterSuite(async () => {
+  console.log('### revoking arborist access');
+  await bash.runCommand(`
+        gen3 devterm curl -X DELETE arborist-service/user/cdis.autotest@gmail.com/policy/programs.NIAID.projects.ACTT_reader
+    `);
+  console.log('### The access is revoked');
+});
 
-Scenario('Navigation to the detailed dataset page @manual', ifInteractive(
-  async () => {
-    const result = interactive(`
-              1. Go to the Study Viewer Page
-              2. Select the dataset that is needed for research
-              3. Click on 'Learn More' button
-              4. Navigates the user to the detailed page of the dataset that is selected
-              5. User should be able to see 'Download' or 'Request Access' button depending on the access user has
-          `);
-    expect(result.didPass, result.details).to.be.true;
-  },
-));
+// User does not log in and has no access. User see 'Login to Request access' button
+Scenario('User doesnot login and requests the access @studyViewer', async ({ I, users, login }) => {
+  studyViewerTasks.goToStudyPage();
+  await studyViewerTasks.loginToRequestAccess();
+  login.ask.isCurrentPage();
+  login.complete.login(users.mainAcct);
+  studyViewerTasks.goToStudyPage();
+  await I.waitForElement(studyViewerProps.requestAccessButtonXPath, 5);
+});
+
+// The User logs in the commons and requests access
+Scenario('User logs in and requests the access @studyViewer', async ({
+  I, home, users, login,
+}) => {
+  home.do.goToHomepage();
+  login.complete.login(users.mainAcct);
+  studyViewerTasks.goToStudyPage();
+  await studyViewerTasks.clickRequestAccess();
+  // request id from requestor db
+  const requestID = await requestorTasks.getRequestId();
+  await requestorTasks.putRequest(requestID);
+  I.refreshPage();
+  I.wait(5);
+  await studyViewerTasks.clickDownload();
+  await requestorTasks.deleteRequest(requestID);
+});
+
+// For download feature
+/* user with access and can download the dataset */
+Scenario('User has access to download @studyViewer', async ({
+  home, users, login,
+}) => {
+  home.do.goToHomepage();
+  // auxAcct1 has access granted in user.yaml
+  login.complete.login(users.auxAcct1);
+  studyViewerTasks.goToStudyPage();
+  await studyViewerTasks.clickDownload();
+});
+
+// checking the details of the dataset
+Scenario('Navigation to the detailed dataset page @studyViewer', async ({ home, users, login }) => {
+  home.do.goToHomepage();
+  login.complete.login(users.mainAcct);
+  studyViewerTasks.goToStudyViewerPage();
+  await studyViewerTasks.learnMoreButton();
+});

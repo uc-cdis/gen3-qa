@@ -333,7 +333,7 @@ if [ -z "$ddHasConsentCodes" ]; then
 fi
 
 #
-# try to read configs of portal 
+# try to read configs of portal
 #
 hostname="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.hostname')"
 portalApp="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.portal_app')"
@@ -358,7 +358,7 @@ set +e
 checkForPresenceOfManifestIndexingSowerJob=$(g3kubectl get cm manifest-sower -o yaml | grep manifest-indexing)
 set -e
 if [ -z "$checkForPresenceOfManifestIndexingSowerJob" ]; then
-  echo "the manifest-indexing sower job was not found, skip @indexing tests"; 
+  echo "the manifest-indexing sower job was not found, skip @indexing tests";
   donot '@indexing'
 fi
 
@@ -370,21 +370,28 @@ if [ -z "$checkForPresenceOfMetadataIngestionSowerJob" ]; then
   donot '@metadataIngestion'
 fi
 
+# studyViewer
+if [[ $(curl -s "$portalConfigURL" | jq 'contains({studyViewerConfig}) | not') == "true" ]] || [[ ! -z "$testedEnv" ]]; then
+  donot '@studyViewer'
+elif ! (g3kubectl get pods --no-header -l app=requestor | grep requestor) > dev/null 2>&1; then
+  donot '@studyViewer'
+fi
+
 if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1 ||
 ! (g3kubectl get pods --no-headers -l app=wts | grep wts) > /dev/null 2>&1; then
   donot '@exportToWorkspaceAPI'
   donot '@exportToWorkspacePortalGeneral'
   donot '@exportToWorkspacePortalJupyterHub'
   donot '@exportToWorkspacePortalHatchery'
-elif [[ $(curl -s "$portalConfigURL" | jq 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}}) | not') == "true" ]] || 
-[[ ! -z "$testedEnv" ]]; then 
+elif [[ $(curl -s "$portalConfigURL" | jq 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}}) | not') == "true" ]] ||
+[[ ! -z "$testedEnv" ]]; then
   # do not run export to workspace portal tests if not enabled or in a manifest PR
   donot '@exportToWorkspacePortalGeneral'
   donot '@exportToWorkspacePortalJupyterHub'
   donot '@exportToWorkspacePortalHatchery'
 elif ! (g3kubectl get pods --no-headers -l app=jupyter-hub | grep jupyterhub) > /dev/null 2>&1; then
   donot '@exportToWorkspacePortalJupyterHub'
-elif ! (g3kubectl get pods --no-headers -l app=hatchery | grep hatchery) > /dev/null 2>&1 || 
+elif ! (g3kubectl get pods --no-headers -l app=hatchery | grep hatchery) > /dev/null 2>&1 ||
 ! (g3kubectl get pods --no-headers -l service=ambassador | grep ambassador) > /dev/null 2>&1; then
   donot '@exportToWorkspacePortalHatchery'
 fi
