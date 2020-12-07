@@ -146,7 +146,7 @@ const nodePathToProject = function (startNodeName, allNodes) {
 const getPathWithFileNode = function (allNodes) {
   const allNodesClone = cloneNodes(allNodes);
   const fileNodeName = Object.keys(allNodesClone).find(
-    (nodeName) => allNodesClone[nodeName].category === 'data_file',
+    (nodeName) => allNodesClone[nodeName].category.includes('_file'),
   );
   const file = allNodesClone[fileNodeName].clone();
   delete allNodesClone[fileNodeName];
@@ -312,7 +312,7 @@ module.exports = {
    * link metadata to an indexd file via sheepdog,
    * after submitting metadata for the parent nodes
    * /!\ this function does not include a check for success or
-   * failure of the data_file node's submission
+   * failure of the file node's submission
    */
   async submitGraphAndFileMetadata(sheepdog, fileGuid = null, fileSize = null, fileMd5 = null, submitter_id = null, consent_codes = null) {
     // submit metadata with object id via sheepdog
