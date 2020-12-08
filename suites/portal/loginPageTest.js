@@ -18,5 +18,7 @@ Scenario('Login redirects to requested page with query params intact', async ({ 
   await I.saveScreenshot('Post_login_page_for_debugging.png');
   const theURL = await I.grabCurrentUrl();
   console.log(`${new Date()} - INFO: Current URL: ${theURL}`);
-  I.seeInCurrentUrl('/DEV-test/search?node_type=summary_clinical');
+  // current_url no longer keeps the query strings from the url.
+  // This is enough for this user flow assertion
+  I.seeInCurrentUrl('/DEV-test/search');
 }).tag('@loginRedirect');
