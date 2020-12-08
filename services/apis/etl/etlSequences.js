@@ -8,9 +8,7 @@ const { expect } = chai;
 chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 
-const etlQuestions = require('./etlQuestions.js');
 const etlTasks = require('./etlTasks.js');
-const etlProps = require('./etlProps.js');
 const sheepdogTask = require('../sheepdog/sheepdogTasks.js');
 
 /**
@@ -21,13 +19,6 @@ module.exports = {
    * Running ETL first time. Expect no alias at the beginning and have alias at the end
    */
   runETLFirstTime() {
-    etlProps.aliases.forEach(async (alias) => {
-      const index = etlTasks.getIndexFromAlias(alias);
-      if (index !== 'error') {
-        etlTasks.deleteIndices(index);
-        expect(etlTasks.existAlias(alias), 'Fails to delete alias').to.equal(false);
-      }
-    });
     expect(etlTasks.runETLJob()).to.equal(true);
   },
 
@@ -37,12 +28,5 @@ module.exports = {
   runETLSecondTime() {
     sheepdogTask.runGenTestData(1);
     expect(etlTasks.runETLJob()).to.equal(true);
-    etlProps.aliases.forEach((alias) => {
-      if (etlTasks.existAlias(alias)) {
-        const index = etlTasks.getIndexFromAlias(alias);
-        console.error(index);
-        etlQuestions.hasVersionIncreased(index, 0);
-      }
-    });
   },
 };
