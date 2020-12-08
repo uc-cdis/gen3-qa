@@ -15,5 +15,6 @@ Scenario('Login redirects to requested page with query params intact', ({ login 
   I.amOnPage('/DEV-test/search?node_type=summary_clinical');
   login.ask.isCurrentPage();
   login.complete.login();
+  I.saveScreenshot('Post_login_page_for_debugging.png');
   I.seeInCurrentUrl('/DEV-test/search?node_type=summary_clinical');
 }).tag('@loginRedirect');
