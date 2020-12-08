@@ -49,7 +49,7 @@ Scenario('Navigate to the landing page and click on buttons @landing', async ({ 
       await sleepMS(500);
       const theUrl = await I.grabCurrentUrl();
 
-      let validURLs = [];
+      const validURLs = [];
       button.expectedUrls.forEach((expectedUrl) => {
         validURLs.push(`https://${process.env.HOSTNAME}/${expectedUrl}`);
       });
