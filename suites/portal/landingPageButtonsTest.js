@@ -2,10 +2,10 @@
  Automated tests for Landing Page buttons (PXP-6216)
  This test plan assumes the presence of one or more default
  landing page with the following cards:
-  1. Define Data Field (redirects user to #hostname/DD)
-  2. Explore Data (redirects user to #hostname/explorer)
-  3. Access Data (redirects user to #hotname/query)
-  4. Analyze Data (redirects user to #hostname/workspace)
+  1. Define Data Field (redirects user to /DD)
+  2. Explore Data (redirects user to /explorer or /files)
+  3. Access Data (redirects user to /query)
+  4. Analyze Data (redirects user to /workspace)
 */
 Feature('Landing page buttons');
 
@@ -20,19 +20,19 @@ Scenario('Navigate to the landing page and click on buttons @landing', async ({ 
   const buttons = [
     {
       text: 'Learn more',
-      expectedUrl: 'DD',
+      expectedUrls: ['DD'],
     },
     {
       text: 'Explore data',
-      expectedUrl: 'explorer',
+      expectedUrls: ['explorer', 'files'],
     },
     {
       text: 'Query data',
-      expectedUrl: 'query',
+      expectedUrls: ['query'],
     },
     {
       text: 'Run analysis',
-      expectedUrl: 'workspace',
+      expectedUrls: ['workspace'],
     },
   ];
 
@@ -44,18 +44,24 @@ Scenario('Navigate to the landing page and click on buttons @landing', async ({ 
     I.waitForElement({ css: '.index-button-bar' }, 10);
     const btExists = await tryTo(() => I.seeElement({ xpath: `//button[contains(text(), '${button.text}')]` })); // eslint-disable-line no-undef
     if (btExists) {
-      const assertionFailureMsg = `button ${button.text} did not redirect user to expected url ${button.expectedUrl}.`;
+      const assertionFailureMsg = `button ${button.text} did not redirect user to one of the expected urls ${button.expectedUrls}.`;
       I.click({ xpath: `//button[contains(text(), '${button.text}')]` });
       await sleepMS(500);
       const theUrl = await I.grabCurrentUrl();
+
+      let validURLs = [];
+      button.expectedUrls.forEach((expectedUrl) => {
+        validURLs.push(`https://${process.env.HOSTNAME}/${expectedUrl}`);
+      });
+
       expect(
-        theUrl,
+        validURLs,
         assertionFailureMsg,
-      ).to.be.equal(`https://${process.env.HOSTNAME}/${button.expectedUrl}`);
+      ).to.include(theUrl);
     } else {
       console.log(`Button ${button.text} does not exist on this landing page. Skipping check...`);
     }
     // Go back to the landing page and try to find / click on the buttons again
     I.amOnPage('/');
   }
-}).retry(2);
+}).retry(1);
