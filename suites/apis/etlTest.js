@@ -18,7 +18,7 @@ BeforeSuite(async ({ etl }) => {
 Scenario('run ETL first time @etl', async () => {
   console.log(`${new Date()}: Before run ETL first time`);
   await bash.runJob('etl', '', false);
-  await checkPod('etl', 'gen3job,job-name=etl');
+  await checkPod('etl', 'gen3job,job-name=etl', params = { nAttempts: 18, ignoreFailure: false });
   console.log(`${new Date()}: After run ETL first time`);
 });
 
@@ -26,7 +26,7 @@ Scenario('run ETL second time @etl', async ({ sheepdog }) => {
   console.log(`${new Date()}: Before run ETL second time`);
   await sheepdog.do.runGenTestData(1);
   await bash.runJob('etl', '', false);
-  await checkPod('etl', 'gen3job,job-name=etl');
+  await checkPod('etl', 'gen3job,job-name=etl', params = { nAttempts: 18, ignoreFailure: false });
   console.log(`${new Date()}: After run ETL second time`);
 });
 
