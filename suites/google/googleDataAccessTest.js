@@ -160,7 +160,7 @@ BeforeSuite(async ({ indexd, fence, google }) => {
   });
 });
 
-AfterSuite(async ({ indexd }) => {
+AfterSuite(async ({ I, indexd }) => {
   console.log('Removing indexd files used to test signed urls');
   await indexd.do.deleteFileIndices(Object.values(indexed_files));
 
