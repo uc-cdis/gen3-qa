@@ -63,7 +63,7 @@ class Gen3Response {
    * @param {string} [request.uri.href]
    * @param {string} [fenceError] Parsed from body if determined to be an error page
    */
-  constructor(data, body, status, request, fenceError) {
+  constructor({ data, body, status, request, fenceError }) {
     this.fenceError = fenceError;
     this.parsedFenceError = (isErrorPage(data) ? parseFenceError(data) : undefined);
     // include body if not error page
