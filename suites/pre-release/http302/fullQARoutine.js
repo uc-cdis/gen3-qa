@@ -70,29 +70,19 @@ function findNonce(idToken) {
   }
 }
 
-function runVerifyNonceScenario() {
-  Scenario('Verify if the "ID Token" produced in the previous scenario has the correct nonce value @manual', ifInteractive(
-    async ({ I }) => {
-      const idToken = await requestUserInput('Please paste in your ID Token to verify the nonce: ');
-      const result = await interactive(`
-            1. [Automated] Compare nonces:
-               This is the nonce from the previous scenario: ${I.cache.NONCE}
-               And this is the nonce obtained after decoding your ID Token: ${findNonce(idToken)}
-               Result: ${I.cache.NONCE === findNonce(idToken)}
-            2. Confirm if the numbers match.
-      `);
-      expect(result.didPass, result.details).to.be.true;
-    },
-  ));
-}
-
-function assembleCustomHeaders(ACCESS_TOKEN) {
-  // Add ACCESS_TOKEN to custom headers
-  return {
-    Accept: 'application/json',
-    Authorization: `bearer ${ACCESS_TOKEN}`,
-    'Content-Type': 'application/json',
-  };
+/*
+ * nonceVal: random number to be used in one occasion (it must be unique for every iteration)
+*/
+async function runVerifyNonceScenario(nonceVal) {
+  const idToken = await requestUserInput('Please paste in your ID Token to verify the nonce: ');
+  const result = await interactive(`
+      1. [Automated] Compare nonces:
+         This is the nonce from the previous scenario: ${nonceVal}
+         And this is the nonce obtained after decoding your ID Token: ${findNonce(idToken)}
+         Result: ${nonceVal === findNonce(idToken)}
+      2. Confirm if the numbers match.
+  `);
+  return result;
 }
 
 async function fetchDIDLists(I, params = { hardcodedAuthz: null }) {
@@ -146,7 +136,7 @@ async function fetchDIDLists(I, params = { hardcodedAuthz: null }) {
 
 function performPreSignedURLTest(cloudProvider, typeOfTest, typeOfCreds) {
   Scenario(`Perform ${cloudProvider} PreSigned URL ${typeOfTest} test against DID with ${typeOfCreds} credentials @manual`, ifInteractive(
-    async ({ I, fence }) => {
+    async ({ I }) => {
       if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
       // Obtain project access list to determine which files(DIDs) the user can access
       // two lists: http 200 files and http 401 files
@@ -165,8 +155,8 @@ function performPreSignedURLTest(cloudProvider, typeOfTest, typeOfCreds) {
 
       console.log(`list_of_DIDs: ${JSON.stringify(listOfDIDs)}`);
 
-      const filteredDIDs = Object.keys(listOfDIDs).reduce(({ filtered, key }) => {
-        listOfDIDs[key].urls.forEach(({ url }) => {
+      const filteredDIDs = Object.keys(listOfDIDs).reduce((filtered, key) => {
+        listOfDIDs[key].urls.forEach((url) => {
           if (url.startsWith(preSignedURLPrefix)) filtered[key] = listOfDIDs[key];
         });
         return filtered;
@@ -175,10 +165,9 @@ function performPreSignedURLTest(cloudProvider, typeOfTest, typeOfCreds) {
       // Must have at least one sample to conduct this test
       const selectedDid = Object.keys(filteredDIDs)[0];
       // PreSignedURL request
-      const signedUrlRes = await fence.do.createSignedUrl(
-        `${selectedDid}`,
-        [],
-        assembleCustomHeaders(I.cache.ACCESS_TOKEN),
+      const signedUrlRes = await I.sendGetRequest(
+        `https://${TARGET_ENVIRONMENT}/user/data/download/${selectedDid}`,
+        { Authorization: `bearer ${I.cache.ACCESS_TOKEN}` },
       );
 
       // TODO: Run `wget` with PreSignedURL and check if md5 matches the record['md5']
@@ -214,9 +203,6 @@ BeforeSuite(async ({ I }) => {
     throw new Error(`ERROR: There is no implicit_id defined for this ${TARGET_ENVIRONMENT} Test User. Please declare the "TEST_IMPLICIT_ID" environment variable and try again. Aborting test...`);
   }
 
-  // random number to be used in one occasion (it must be unique for every iteration)
-  I.cache.NONCE = Date.now();
-
   I.TARGET_ENVIRONMENT = TARGET_ENVIRONMENT;
   // Fetching public list of DIDs
   const httpResp = await I.sendGetRequest(
@@ -226,20 +212,26 @@ BeforeSuite(async ({ I }) => {
   I.cache.records = httpResp.data.records;
 });
 
-/* ############################### */
-/* Scenarios with Google account   */
-/* ############################### */
+// ###############################
+// Scenarios with Google account
+// ###############################
 
 // Scenario #1 - Testing OIDC flow with Google credentials
 Scenario('Initiate the OIDC Client flow with Google credentials to obtain the OAuth authorization code @manual', ifInteractive(
   async ({ I }) => {
+    I.cache.NONCE = Date.now();
     const result = await interactive(await printOIDCFlowInstructionsAndObtainTokens(I, 'Google'));
     expect(result.didPass, result.details).to.be.true;
   },
 ));
 
 // Scenario #2 - Verify Nonce
-runVerifyNonceScenario();
+Scenario('Verify if the ID Token produced in the Google-OIDC scenario above has the correct nonce value @manual', ifInteractive(
+  async ({ I }) => {
+    const result = await runVerifyNonceScenario(I.cache.NONCE);
+    expect(result.didPass, result.details).to.be.true;
+  },
+));
 
 // Scenario #3 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
 // TODO: internalstaging.datastage is missing a sample file for this scenario
@@ -255,13 +247,14 @@ performPreSignedURLTest('AWS S3', 'negative', 'Google');
 // Scenario #6 - Controlled Access Data - Google PreSignedURL test against DID the user can access
 performPreSignedURLTest('AWS S3', 'positive', 'Google');
 
-/* ############################### */
-/* Scenarios with NIH account   */
-/* ############################### */
+// ###############################
+// Scenarios with NIH account
+// ###############################
 
 // Scenario #7 - Starting the OIDC flow again with NIH credentials
 Scenario('Initiate the OIDC Client flow with NIH credentials to obtain the OAuth authorization code @manual', ifInteractive(
   async ({ I }) => {
+    I.cache.NONCE = Date.now();
     console.log('Click on the logout button so you can log back in with your NIH account.');
     // reset access token
     delete I.cache.ACCESS_TOKEN;
@@ -271,7 +264,13 @@ Scenario('Initiate the OIDC Client flow with NIH credentials to obtain the OAuth
 ));
 
 // Scenario #8 - Verify Nonce again
-runVerifyNonceScenario();
+// Scenario #2 - Verify Nonce
+Scenario('Verify if the ID Token produced in the NIH-OIDC scenario above has the correct nonce value @manual', ifInteractive(
+  async ({ I }) => {
+    const result = await runVerifyNonceScenario(I.cache.NONCE);
+    expect(result.didPass, result.details).to.be.true;
+  },
+));
 
 // Scenario #9 - Controlled Access Data - Google PreSignedURL test against DID the user cant access
 performPreSignedURLTest('Google Storage', 'negative', 'NIH');
@@ -301,9 +300,11 @@ Scenario('Try to get Google Credentials as a regular user @manual', ifInteractiv
 // Scenario #14 - Temporary Service Account Credentials as a client
 // (with an access token generated through the OIDC flow)
 Scenario('Try to get Google Credentials as a client @manual', ifInteractive(
-  async ({ I, fence }) => {
+  async ({ I }) => {
     if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
-    const httpResp = await fence.do.createTempGoogleCreds(
+    const httpResp = await I.sendPostRequest(
+      `https://${TARGET_ENVIRONMENT}/user/credentials/google/`,
+      {},
       getAccessTokenHeader(I.cache.ACCESS_TOKEN),
     );
 
@@ -355,6 +356,7 @@ Scenario('Test a GraphQL query from the Web GUI @manual', ifInteractive(
 // Scenario #16 - Implicit OIDC Client Flow
 Scenario('Initiate the Implicit OIDC Client flow with Google credentials to obtain the OAuth authorization code @manual', ifInteractive(
   async ({ I }) => {
+    I.cache.NONCE = Date.now();
     console.log(`1. Using the "Implicit id" provided, paste the following URL into the browser (replacing the CLIENT_ID placeholder accordingly):
                https://${TARGET_ENVIRONMENT}/user/oauth2/authorize?redirect_uri=https://${TARGET_ENVIRONMENT}/user&client_id=${process.env.TEST_IMPLICIT_ID}&scope=openid+user+data+google_credentials&response_type=id_token+token&nonce=test-nonce-${I.cache.NONCE}
 
@@ -443,9 +445,9 @@ Scenario('Check contact and footer links @bdcat @manual', ifInteractive(
 // Scenario #19 - Check privacy policy link
 Scenario('Make sure the privacy policy link is configured @bdcat @manual', ifInteractive( // eslint-disable-line codeceptjs/no-skipped-tests
   async ({ I }) => {
-    const privacyPolicyPageStatus = await I.sendGetRequest(
+    const privacyPolicyHttpResp = await I.sendGetRequest(
       `https://${TARGET_ENVIRONMENT}/user/privacy-policy`,
-    ).then(({ res }) => res.status);
+    );
     const result = await interactive(`
           1. Go to https://platform.sb.biodatacatalyst.nhlbi.nih.gov/
           2. Enter your Credentials to login
@@ -454,7 +456,7 @@ Scenario('Make sure the privacy policy link is configured @bdcat @manual', ifInt
 
           // Semi-automated test:
           // Expect http status to be 200
-          privacyPolicyPageStatus: ${privacyPolicyPageStatus}
+          privacyPolicyPageStatus: ${privacyPolicyHttpResp.status}
         `);
     expect(result.didPass, result.details).to.be.true;
   },
@@ -466,8 +468,8 @@ Scenario('Test the exploration page @manual', ifInteractive(
     const result = await interactive(`
             1. Login with NIH credentials
             2. Click "Exploration" tab
-            3. Click on the "Case" tab and, under "Project Id", check the studies the user has access to:
-            // Expect a list of NIH projects, e.g.: topmed-COPD_DS-CS-RD
+            3. Click on the "Subject" tab and make sure the faceted search is working properly:
+            // Expect changes in the number of projects and subjects for each interaction with filtering controls
             `);
     expect(result.didPass, result.details).to.be.true;
   },
