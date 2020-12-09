@@ -74,7 +74,7 @@ async function checkMetadataServiceEntry(I, expectedResult, authHeader) {
 }
 
 async function feedTSVIntoMetadataIngestion(I, fence, uid, authHeader, expectedResult) {
-  await checkPod('get-dbgap-metadata', 'sowerjob');
+  await checkPod(I, 'get-dbgap-metadata', 'sowerjob');
 
   let jobOutput = ''; let jobLogsURL = ''; let preSignedURL = '';
   try {
@@ -190,7 +190,7 @@ Scenario('Dispatch ingest-metadata-manifest sower job with simple tsv and verify
     `Should have triggered the ${sowerJobName} sower job`,
   ).to.have.property('status', 200);
 
-  await checkPod(sowerJobName, 'sowerjob');
+  await checkPod(I, sowerJobName, 'sowerjob');
   const metadataServiceEntry = await checkMetadataServiceEntry(
     I,
     expectedResults.ingest_metadata_manifest.testGUID,

@@ -1,5 +1,10 @@
 Feature('ETL');
 
+const { Bash } = require('../../utils/bash.js');
+const { checkPod } = require('../../utils/apiUtil.js');
+
+const bash = new Bash();
+
 BeforeSuite(async ({ etl }) => {
   etl.props.aliases.forEach(async (alias) => {
     const index = etl.do.getIndexFromAlias(alias);
@@ -10,15 +15,18 @@ BeforeSuite(async ({ etl }) => {
   });
 });
 
-Scenario('run ETL first time @etl', async ({ etl }) => {
+Scenario('run ETL first time @etl', async ({ I }) => {
   console.log(`${new Date()}: Before run ETL first time`);
-  await etl.complete.runETLFirstTime();
+  await bash.runJob('etl', '', false);
+  await checkPod(I, 'etl', 'gen3job,job-name=etl', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: true });
   console.log(`${new Date()}: After run ETL first time`);
 });
 
-Scenario('run ETL second time @etl', async ({ etl }) => {
+Scenario('run ETL second time @etl', async ({ I, sheepdog }) => {
   console.log(`${new Date()}: Before run ETL second time`);
-  await etl.complete.runETLSecondTime();
+  await sheepdog.do.runGenTestData(1);
+  await bash.runJob('etl', '', false);
+  await checkPod(I, 'etl', 'gen3job,job-name=etl', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: true });
   console.log(`${new Date()}: After run ETL second time`);
 });
 
