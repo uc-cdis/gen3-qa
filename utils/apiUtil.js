@@ -358,12 +358,27 @@ module.exports = {
    * @param {string} podName - name of the pod that must be found
    * @param {int} nAttempts - number of times the function should try to find the expected pod
    */
-  async checkPod(jobName, labelName, params = { nAttempts: 10, ignoreFailure: false }) {
+  async checkPod(
+    I,
+    jobName,
+    labelName,
+    params = {
+      nAttempts: 10,
+      ignoreFailure: false,
+      keepSessionAlive: false,
+    },
+  ) {
     let podFound = false;
     for (let i = 1; i < params.nAttempts; i += 1) {
       try {
         console.log(`waiting for ${jobName} job pod... - attempt ${i}`);
         await module.exports.sleepMS(10000);
+
+        // refresh page on the underlying chrome browser to force the Selenium session to stay alive
+        if (params.keepSessionAlive) {
+          I.refreshPage();
+        }
+
         const singleQuote = process.env.RUNNING_LOCAL === 'true' ? "\'\\'\'" : "'"; // eslint-disable-line quotes,no-useless-escape
         const podName = await bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=${labelName} -o jsonpath="{.items[*].metadata.name}" | awk ${singleQuote}{print $NF}${singleQuote}`);
         console.log(`latest pod found: ${podName}`);
@@ -438,6 +453,7 @@ module.exports = {
     };
     console.log(`#### hostname:${process.env.testedEnv}`);
     const detailKey = Object.keys(detailsMap).filter((k) => process.env.testedEnv.includes(k)).join('');
+    console.log(`#### detailKey:${detailKey}`);
     return detailsMap[detailKey][detail];
   },
 
