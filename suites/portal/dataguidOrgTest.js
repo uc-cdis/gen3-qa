@@ -25,6 +25,7 @@ nonexistentGuids.add(['0000b456-3r56-1dr3-0rt4-6fd11e5fb97a']); // adding non-ex
 Data(correctGuids).Scenario('Resolve guids with different prefixes or without prefix @dataguids', ({ I, current }) => {
   I.amOnPage(testURL);
   I.fillField('#guidval', current.guids);
+  I.scrollIntoView('#resolveit');
   I.click('#resolveit');
   I.waitForText(current.guids, 2, '#resolverresult');
   I.see(`"id": "${current.guids}"`);
@@ -43,7 +44,7 @@ Data(nonexistentGuids).Scenario('Negativetest resolving for non-exitent guids @d
 Data(correctGuids).Scenario('Test if DRSendpoint resolve the guids correctly @dataguids', ({ I, current }) => {
   I.amOnPage(testURL);
   I.amOnPage(`/index/ga4gh/drs/v1/objects/${current.guids}`);
-  I.see(`"id":"${current.guids}"`);
+  I.see(`${current.guids}`);
 });
 
 // Nagative DRS endpoint test
