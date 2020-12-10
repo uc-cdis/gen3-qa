@@ -65,10 +65,10 @@ const indexed_files = {
   },
 };
 
-const googleDataAccessTestSteps = async (fence, user, google, files, paramsQA1, paramsTest1, paramsQA2, paramsTest2) => {
+const googleDataAccessTestSteps = async (I, fence, user, google, files, paramsQA1, paramsTest1, paramsQA2, paramsTest2) => {
   console.log('*** RUN USERSYNC JOB ***');
   bash.runJob('usersync', args = 'FORCE true');
-  await checkPod('usersync', 'gen3job,job-name=usersync');
+  await checkPod(I, 'usersync', 'gen3job,job-name=usersync');
 
   console.log('*** UNLINK AND LINK GOOGLE ACCOUNT ***');
   await fence.complete.forceUnlinkGoogleAcct(user);
@@ -109,7 +109,7 @@ const googleDataAccessTestSteps = async (fence, user, google, files, paramsQA1, 
   console.log(`*** RUN USERYAML WITH ${Commons.userAccessFiles.newUserAccessFile2} ***`);
   Commons.setUserYaml(Commons.userAccessFiles.newUserAccessFile2);
   bash.runJob('useryaml');
-  await checkPod('useryaml', 'gen3job,job-name=useryaml');
+  await checkPod(I, 'useryaml', 'gen3job,job-name=useryaml');
   await sleepMS(30000);
 
   console.log(`*** RE-CREATE TEMP GOOGLE CREDS FOR USER ${user.username} AND SAVE TO TEMP FILE ***`);
@@ -160,19 +160,19 @@ BeforeSuite(async ({ indexd, fence, google }) => {
   });
 });
 
-AfterSuite(async ({ indexd }) => {
+AfterSuite(async ({ I, indexd }) => {
   console.log('Removing indexd files used to test signed urls');
   await indexd.do.deleteFileIndices(Object.values(indexed_files));
 
   console.log('Running usersync job');
   bash.runJob('usersync', args = 'FORCE true');
-  await checkPod('usersync', 'gen3job,job-name=usersync');
+  await checkPod(I, 'usersync', 'gen3job,job-name=usersync');
 });
 
 Scenario('Test Google Data Access User0 @reqGoogle @googleDataAccess @manual',
-  async ({ fence, users, google, files }) => {
+  async ({ I, fence, users, google, files }) => {
     const result = await googleDataAccessTestSteps(
-      fence, users.user0, google, files,
+      I, fence, users.user0, google, files,
       { nAttempts: 1, expectAccessDenied: false }, // paramsQA1
       { nAttempts: 3, expectAccessDenied: true }, // paramsTest1
       { nAttempts: 3, expectAccessDenied: true }, // paramsQA2
@@ -199,9 +199,9 @@ Scenario('Test Google Data Access User0 @reqGoogle @googleDataAccess @manual',
 );
 
 Scenario('Test Google Data Access User1 @reqGoogle @googleDataAccess @manual',
-  async ({ fence, users, google, files }) => {
+  async ({ I, fence, users, google, files }) => {
     const result = await googleDataAccessTestSteps(
-      fence, users.user1, google, files,
+      I, fence, users.user1, google, files,
       { nAttempts: 1, expectAccessDenied: false }, // paramsQA1
       { nAttempts: 1, expectAccessDenied: false }, // paramsTest1
       { nAttempts: 3, expectAccessDenied: true }, // paramsQA2
@@ -228,9 +228,9 @@ Scenario('Test Google Data Access User1 @reqGoogle @googleDataAccess @manual',
 );
 
 Scenario('Test Google Data Access User2 @reqGoogle @googleDataAccess',
-  async ({ fence, users, google, files }) => {
+  async ({ I, fence, users, google, files }) => {
     const result = await googleDataAccessTestSteps(
-      fence, users.user2, google, files,
+      I, fence, users.user2, google, files,
       { nAttempts: 3, expectAccessDenied: true }, // paramsQA1
       { nAttempts: 3, expectAccessDenied: true }, // paramsTest1
       { nAttempts: 1, expectAccessDenied: false }, // paramsQA2
