@@ -73,6 +73,11 @@ RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-
 # Copy only requirements to cache them in docker layer
 RUN mkdir -p ${SDET_HOME}/controller/gen3qa-controller
 WORKDIR ${SDET_HOME}/controller
+
+# utilize the selenium sidecar as there is no selenium-hub in prod-tier environments
+RUN sed -i "s/      host: 'selenium-hub',/      host: 'localhost',/" codecept.conf.js
+
+# poetry artifacts
 COPY controller/poetry.lock controller/pyproject.toml ${SDET_HOME}/controller/
 
 # copy controller scripts
