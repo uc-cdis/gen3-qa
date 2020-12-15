@@ -28,18 +28,23 @@ async function writeMetrics(measurement, test, currentRetry) {
   }
 
   // selenium metrics
-  const resp = await fetch('http://selenium-hub:4444/status');
-  const respJson = await resp.json();
   let sessionCount = 0;
-  const { nodes } = respJson.value;
-  if (nodes.length > 0) {
-    nodes.forEach((node) => {
-      node.slots.forEach((slot) => {
-        if (slot.session) {
-          sessionCount += 1;
-        }
+  if (process.env.RUNNING_IN_PROD_TIER === 'true') {
+    console.log('INFO: Running in prod-tier environment. Ignore selenium-hub metrics.');
+  } else {
+    const resp = await fetch('http://localhost:4444/status');
+    const respJson = await resp.json();
+
+    const { nodes } = respJson.value;
+    if (nodes.length > 0) {
+      nodes.forEach((node) => {
+        node.slots.forEach((slot) => {
+          if (slot.session) {
+            sessionCount += 1;
+          }
+        });
       });
-    });
+    }
   }
 
   // logs
