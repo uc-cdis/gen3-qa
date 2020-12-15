@@ -75,7 +75,9 @@ RUN mkdir -p ${SDET_HOME}/controller/gen3qa-controller
 WORKDIR ${SDET_HOME}/controller
 
 # utilize the selenium sidecar as there is no selenium-hub in prod-tier environments
-RUN cd ${SDET_HOME} && sed -i "s/      host: 'selenium-hub',/      host: 'localhost',/" codecept.conf.js
+RUN cd ${SDET_HOME} \
+    && npm install \
+    && sed -i "s/      host: 'selenium-hub',/      host: 'localhost',/" codecept.conf.js
 
 # poetry artifacts
 COPY controller/poetry.lock controller/pyproject.toml ${SDET_HOME}/controller/
