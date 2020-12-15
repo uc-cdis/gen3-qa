@@ -29,7 +29,7 @@ async function writeMetrics(measurement, test, currentRetry) {
 
   // selenium metrics
   let sessionCount = 0;
-  if (process.env.RUNNING_IN_PROD_TIER === "true") {
+  if (process.env.RUNNING_IN_PROD_TIER === 'true') {
     console.log('INFO: Running in prod-tier environment. Ignore selenium-hub metrics.');
   } else {
     const resp = await fetch('http://localhost:4444/status');
