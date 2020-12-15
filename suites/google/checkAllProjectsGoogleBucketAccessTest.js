@@ -47,7 +47,7 @@ log4js.configure({
 const logger = log4js.getLogger('accessCheck');
 const progressBar = bar.create(process.stdout);
 
-const indexdFilter = process.env.INDEXD_FILTER || 'both';
+const indexdFilter = process.env.INDEXD_FILTER || 'all';
 let numOfCompletedChecks = 0;
 
 async function checkAccess(I, a, indexdQueryParam) {
@@ -106,7 +106,11 @@ BeforeSuite(async ({ I }) => {
 });
 
 Scenario('Fetch list of projects (acl/authz) from environment @manual @prjsGoogleBucketAccess', async ({ I }) => {
-  I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
+  if (process.env.RUNNING_IN_PROD_TIER === 'true') {
+    I.cache.ACCESS_TOKEN = process.env.ACCESS_TOKEN;
+  } else {
+    I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
+  }
   const accessTokenJson = parseJwt(I.cache.ACCESS_TOKEN);
   const username = accessTokenJson.context.user.name;
   const environment = accessTokenJson.iss.split('/')[2];
@@ -118,7 +122,7 @@ Scenario('Fetch list of projects (acl/authz) from environment @manual @prjsGoogl
     getAccessTokenHeader(I.cache.ACCESS_TOKEN),
   );
   I.cache.numOfChecks = 0;
-  if (indexdFilter === 'acl' || indexdFilter === 'both') {
+  if (indexdFilter === 'acl' || indexdFilter === 'all') {
     const acl = Object.keys(userInfoResp.data.project_access);
     logger.info(`acl: ${acl}`);
     // Appending * (for admins)
@@ -127,7 +131,7 @@ Scenario('Fetch list of projects (acl/authz) from environment @manual @prjsGoogl
     I.cache.acls = acl;
     I.cache.numOfChecks += acl.length;
   }
-  if (indexdFilter === 'authz' || indexdFilter === 'both') {
+  if (indexdFilter === 'authz' || indexdFilter === 'all') {
     const authz = Object.keys(userInfoResp.data.authz).filter((a) => a.includes('/programs/'));
     logger.info(`authz: ${authz}`);
     logger.info(`number of authz items: ${authz.length}`);
