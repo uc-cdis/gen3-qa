@@ -106,7 +106,11 @@ BeforeSuite(async ({ I }) => {
 });
 
 Scenario('Fetch list of projects (acl/authz) from environment @manual @prjsGoogleBucketAccess', async ({ I }) => {
-  I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
+  if (process.env.RUNNING_IN_PROD_TIER === 'true') {
+    I.cache.ACCESS_TOKEN = process.env.ACCESS_TOKEN;
+  else {
+    I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
+  }
   const accessTokenJson = parseJwt(I.cache.ACCESS_TOKEN);
   const username = accessTokenJson.context.user.name;
   const environment = accessTokenJson.iss.split('/')[2];
