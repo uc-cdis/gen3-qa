@@ -10,7 +10,7 @@ module.exports = {
   goToHomepage() {
     I.amOnPage(homeProps.path);
     console.log(`### ## testedEnv:${process.env.testedEnv}`);
-    if (process.env.testedEnv.includes('covid19') || process.env.testedEnv.includes('pandemicresponsecommons')) {
+    if (process.env.testedEnv.includes('covid19') || process.env.testedEnv.includes('pandemicresponsecommons')|| process.env.testedEnv.includes('midrc')) {
       I.refreshPage();
     }
     portal.seeProp(homeProps.ready_cue, 60);
