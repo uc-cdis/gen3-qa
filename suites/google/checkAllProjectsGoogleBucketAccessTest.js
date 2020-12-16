@@ -39,9 +39,10 @@ log4js.configure({
       type: 'file',
       filename: 'all-projects-google-bucket-access-check.log',
     },
+    console: { type: 'console' },
   },
   categories: {
-    default: { appenders: ['accessCheck'], level: 'debug' },
+    default: { appenders: ['accessCheck', 'console'], level: 'debug' },
   },
 });
 const logger = log4js.getLogger('accessCheck');
