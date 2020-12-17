@@ -23,7 +23,7 @@
 */
 Feature('CheckAllProjectsGoogleBucketAccess');
 
-const bar = require('progress-bar');
+const bar = require('cli-progress');
 const axios = require('axios');
 const log4js = require('log4js');
 const {
@@ -39,13 +39,14 @@ log4js.configure({
       type: 'file',
       filename: 'all-projects-google-bucket-access-check.log',
     },
+    console: { type: 'console' },
   },
   categories: {
-    default: { appenders: ['accessCheck'], level: 'debug' },
+    default: { appenders: ['accessCheck', 'console'], level: 'debug' },
   },
 });
 const logger = log4js.getLogger('accessCheck');
-const progressBar = bar.create(process.stdout);
+const progressBar = new bar.SingleBar({}, bar.Presets.shades_classic);
 
 const indexdFilter = process.env.INDEXD_FILTER || 'all';
 let numOfCompletedChecks = 0;
@@ -93,8 +94,7 @@ async function checkAccess(I, a, indexdQueryParam) {
     logger.warn(`Zero indexd records found for ${indexdQueryParam} ${a}`);
   }
   numOfCompletedChecks += 1;
-  const progress = (numOfCompletedChecks / I.cache.numOfChecks);
-  progressBar.update(progress);
+  progressBar.update(numOfCompletedChecks);
 
   // Sleep for a sec to avoid stressing fence
   await sleepMS(1000);
@@ -138,6 +138,7 @@ Scenario('Fetch list of projects (acl/authz) from environment @manual @prjsGoogl
     I.cache.authzs = authz;
     I.cache.numOfChecks += authz.length;
   }
+  progressBar.start(I.cache.numOfChecks, 0);
 });
 
 Scenario('Run PreSigned URL checks against an indexd record from each project @manual @prjsGoogleBucketAccess', async ({ I }) => {
