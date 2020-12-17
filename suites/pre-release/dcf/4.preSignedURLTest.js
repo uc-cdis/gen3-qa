@@ -84,8 +84,8 @@ function performPreSignedURLTest(cloudProvider, typeOfTest, typeOfCreds) {
 
       console.log(`list_of_DIDs: ${JSON.stringify(listOfDIDs)}`);
 
-      const filteredDIDs = Object.keys(listOfDIDs).reduce(({ filtered, key }) => {
-        listOfDIDs[key].urls.forEach(({ url }) => {
+      const filteredDIDs = Object.keys(listOfDIDs).reduce(( filtered, key ) => {
+        listOfDIDs[key].urls.forEach(( url ) => {
           if (url.startsWith(preSignedURLPrefix)) filtered[key] = listOfDIDs[key];
         });
         return filtered;
@@ -128,7 +128,7 @@ BeforeSuite(async ({ I }) => {
   // Fetching public list of DIDs
   const httpResp = await I.sendGetRequest(
     `https://${TARGET_ENVIRONMENT}/index/index`,
-  ).then(({ res }) => new Gen3Response(res));
+  ).then(( res ) => new Gen3Response(res));
 
   I.cache.records = httpResp.body.records;
 });
