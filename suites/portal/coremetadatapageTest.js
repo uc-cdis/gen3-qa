@@ -14,6 +14,7 @@ BeforeSuite(async ({ nodes, sheepdog }) => {
 
 Before(({ home }) => {
   home.complete.login();
+  I.saveScreenshot('coremetadata_page_login.png');
 });
 
 Scenario('test core metadata page @coreMetadataPage @portal', async ({ portalCoreMetadataPage, pidgin, users }) => {
