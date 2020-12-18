@@ -45,7 +45,7 @@ const uploadFile = async function (dataUpload, indexd, sheepdog, nodes, fileObj,
     },
   };
 
-  await checkPod(I, 'aws-bucket-manifest', 'ssjdispatcherjob', params = { nAttempts: 24, ignoreFailure: false }); // eslint-disable-line no-undef
+  await checkPod(I, 'indexing', 'ssjdispatcherjob', params = { nAttempts: 24, ignoreFailure: false }); // eslint-disable-line no-undef
 
   await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 };
