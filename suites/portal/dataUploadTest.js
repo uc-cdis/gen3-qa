@@ -1,6 +1,7 @@
 Feature('DataUploadTest');
 
 const { interactive, ifInteractive } = require('../../utils/interactive');
+const { checkPod } = require('../../utils/apiUtil.js');
 
 // const I = actor();
 const createdGuids = [];
@@ -43,6 +44,9 @@ const uploadFile = async function (dataUpload, indexd, sheepdog, nodes, fileObj,
       file_size: fileSize,
     },
   };
+
+  await checkPod(I, 'aws-bucket-manifest', 'ssjdispatcherjob', params = { nAttempts: 24, ignoreFailure: false }); // eslint-disable-line no-undef
+
   await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 };
 
