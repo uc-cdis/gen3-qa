@@ -171,7 +171,7 @@ module.exports = {
         return false;
       }
     };
-    const timeout = 60; // max number of seconds to wait
+    const timeout = 180; // max number of seconds to wait
     let dataAccessIsDenied = true;
     try {
       await apiUtil.smartWait(isDataInaccessible, [], timeout, '');
