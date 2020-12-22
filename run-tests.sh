@@ -377,6 +377,11 @@ elif ! (g3kubectl get pods --no-header -l app=requestor | grep requestor) > dev/
   donot '@studyViewer'
 fi
 
+# landing page buttons
+if [[ $(curl -s "$portalConfigURL" | jq '.components | contains({buttons}) | not') == "true" ]] || [[ ! -z "$testedEnv" ]]; then
+  donot '@landing'
+fi
+
 if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1 ||
 ! (g3kubectl get pods --no-headers -l app=wts | grep wts) > /dev/null 2>&1; then
   donot '@exportToWorkspaceAPI'
