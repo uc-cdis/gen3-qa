@@ -1,13 +1,13 @@
-#HEAL PROJECT Study Viewer: Tiered Access Support
+# HEAL PROJECT Study Viewer: Tiered Access Support
 
-##Overview
+## Overview
 The Study Viewer should be able to display both open-access and controlled-access study level metadata. The user can 
 view the metadata depending on the user authorization.
 
-##Technical Document
+## Technical Document
 [Study Viewer : Tiered Access Support](https://docs.google.com/document/d/1F9ytUu-jedmtIj9SRRq4BtJdTfuklAqbsKHctI9UwNQ/edit#)
 
-##Use-Cases
+## Use-Cases
 1. Researcher without prior access to studies,
 
     a. can navigate through all the studies and view their study level metadata, can request access if needed.
@@ -26,13 +26,13 @@ view the metadata depending on the user authorization.
     a. able to dictate which displayed properties are controlled-access and which are open-access so that authorized/non-authorized 
     users have information based on their access.
     
-    b. open-access properties are visible to all the users and controlled-access properties would be visible to user with 
-    approved authorization for specific study.
+    b. open-access properties are visible to all the users on study-viewer. controlled-access properties will be displayed 
+    on the data exploration page.
     
-    c. controlled-access properties not necessarily be commons for all studies, 
-    but the core open access properties are common to all the studies.
+    c. controlled-access properties can or cannot be common across all the studies. The "core" set of open access properties
+    are similar for all the studies. 
 
-##User Flow
+## User Flow
 
 1. Researcher/Developer visits HEAL platform.
 2. Logs in Google user account.
@@ -48,17 +48,17 @@ ES indices
 
 ```
 {
-"name": "open"
-"doc_type": "open",
-"root": "study",
-"props": ["study_name", "description", "date", "auth_resource_path"],
+    "name": "open"
+    "doc_type": "open",
+    "root": "study",
+    "props": ["study_name", "description", "date", "auth_resource_path"],
 }
 
 {
-"name": "studies"
-"doc_type": "studies",
-"root": "study",
-"props": ["study_name", "description", "date", "auth_resource_path", "controlled_info", ...],
+    "name": "studies"
+    "doc_type": "studies",
+    "root": "study",
+    "props": ["study_name", "description", "date", "auth_resource_path", "controlled_info", ...],
 }
 ```
 Guppy Configuration
