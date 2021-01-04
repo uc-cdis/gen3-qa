@@ -276,17 +276,20 @@ fi
 #
 # RAS AuthN Integration tests are only required for some repos
 #
-if [[ "$isGen3Release" != "true" && "$service" != "gen3-qa" && "$service" != "fence" && "$service" != "cdis-manifest" && "$service" != "gitops-qa" && "$service" != "cloud-automation" && "$service" != "gitops-dev" ]]; then
-  # disable ras tests
-  echo "INFO: disabling RAS AuthN Integration tests for $service"
-  donot '@rasAuthN'
-else
+#if [[ "$isGen3Release" != "true" && "$service" != "gen3-qa" && "$service" != "fence" && "$service" != "cdis-manifest" && "$service" != "gitops-qa" && "$service" != "cloud-automation" && "$service" != "gitops-dev" ]]; then
+#  # disable ras tests
+#  echo "INFO: disabling RAS AuthN Integration tests for $service"
+#  donot '@rasAuthN'
+#else
   #
   # Run tests including RAS AuthN Integration tests
   #
-  runTestsIfServiceVersion "@rasAuthN" "fence" "4.22.1" "2020.09"
-  echo "INFO: enabling RAS AuthN Integration tests for $service"
-fi
+#  runTestsIfServiceVersion "@rasAuthN" "fence" "4.22.1" "2020.09"
+#  echo "INFO: enabling RAS AuthN Integration tests for $service"
+#fi
+
+# RAS Staging will be under maintenance until the end of Jan 2021
+donot '@rasAuthN'
 
 # TODO: eventually enable for all services, but need arborist and fence updates first
 #       in all environments
