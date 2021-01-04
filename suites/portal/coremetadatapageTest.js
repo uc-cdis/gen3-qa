@@ -13,8 +13,8 @@ BeforeSuite(async ({ nodes, sheepdog }) => {
 });
 
 Before(({ home }) => {
-  home.complete.login();
   I.saveScreenshot('coremetadata_page_login.png');
+  home.complete.login();
 });
 
 Scenario('test core metadata page @coreMetadataPage @portal', async ({ portalCoreMetadataPage, pidgin, users }) => {
