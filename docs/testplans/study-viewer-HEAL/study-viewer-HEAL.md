@@ -1,7 +1,7 @@
 # HEAL PROJECT Study Viewer: Tiered Access Support
 
 ## Overview
-The Study Viewer should be able to display both open-access and controlled-access study level metadata. The user can 
+The Study Viewer should be able to display both open-access study level metadata. The user can 
 view the metadata depending on the user authorization.
 
 ## Technical Document
