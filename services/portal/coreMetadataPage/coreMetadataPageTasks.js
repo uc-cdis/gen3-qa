@@ -10,7 +10,6 @@ module.exports = {
     const coreMetadataPagePath = `${coreMetadataPageProps.filesPagePath}/${guid}`;
     I.amOnPage(coreMetadataPagePath);
     I.saveScreenshot('coremetadata_page.png');
-    I.waitForVisible(coreMetadataPageProps.coreMetadataPageClass, 10);
-
+    I.waitForVisible(coreMetadataPageProps.coreMetadataPageClass, 30);
   },
 };
