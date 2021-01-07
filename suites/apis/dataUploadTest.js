@@ -536,6 +536,9 @@ Before(({ nodes }) => {
 });
 
 After(async ({ sheepdog }) => {
+  // investigate "Unable to find session with ID:" error
+  console.log(`${new Date()}: Start clean up of graph nodes...`);
   // clean up in sheepdog
   await sheepdog.complete.findDeleteAllNodes();
+  console.log(`${new Date()}: Finish clean up of graph nodes...`);
 });
