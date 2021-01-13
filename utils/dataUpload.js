@@ -13,7 +13,6 @@ const files = require('./file.js');
 
 const I = actor();
 
-
 module.exports = {
   /**
    * upload a file to an S3 bucket using a presigned URL
@@ -91,6 +90,7 @@ module.exports = {
         await indexd.complete.checkFile(fileNode);
         return true;
       } catch (err) {
+        console.log(`Error captured while checking file upload results: ${err}`);
         return false;
       }
     };

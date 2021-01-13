@@ -276,17 +276,20 @@ fi
 #
 # RAS AuthN Integration tests are only required for some repos
 #
-if [[ "$isGen3Release" != "true" && "$service" != "gen3-qa" && "$service" != "fence" && "$service" != "cdis-manifest" && "$service" != "gitops-qa" && "$service" != "cloud-automation" && "$service" != "gitops-dev" ]]; then
-  # disable ras tests
-  echo "INFO: disabling RAS AuthN Integration tests for $service"
-  donot '@rasAuthN'
-else
+#if [[ "$isGen3Release" != "true" && "$service" != "gen3-qa" && "$service" != "fence" && "$service" != "cdis-manifest" && "$service" != "gitops-qa" && "$service" != "cloud-automation" && "$service" != "gitops-dev" ]]; then
+#  # disable ras tests
+#  echo "INFO: disabling RAS AuthN Integration tests for $service"
+#  donot '@rasAuthN'
+#else
   #
   # Run tests including RAS AuthN Integration tests
   #
-  runTestsIfServiceVersion "@rasAuthN" "fence" "4.22.1" "2020.09"
-  echo "INFO: enabling RAS AuthN Integration tests for $service"
-fi
+#  runTestsIfServiceVersion "@rasAuthN" "fence" "4.22.1" "2020.09"
+#  echo "INFO: enabling RAS AuthN Integration tests for $service"
+#fi
+
+# RAS Staging will be under maintenance until the end of Jan 2021
+donot '@rasAuthN'
 
 # TODO: eventually enable for all services, but need arborist and fence updates first
 #       in all environments
@@ -375,6 +378,11 @@ if [[ $(curl -s "$portalConfigURL" | jq 'contains({studyViewerConfig}) | not') =
   donot '@studyViewer'
 elif ! (g3kubectl get pods --no-header -l app=requestor | grep requestor) > dev/null 2>&1; then
   donot '@studyViewer'
+fi
+
+# landing page buttons
+if [[ $(curl -s "$portalConfigURL" | jq '.components | contains({buttons}) | not') == "true" ]] || [[ ! -z "$testedEnv" ]]; then
+  donot '@landing'
 fi
 
 if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1 ||
