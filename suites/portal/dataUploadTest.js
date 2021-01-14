@@ -1,6 +1,7 @@
 Feature('DataUploadTest');
 
 const { interactive, ifInteractive } = require('../../utils/interactive');
+const { checkPod } = require('../../utils/apiUtil.js');
 
 // const I = actor();
 const createdGuids = [];
@@ -26,7 +27,7 @@ const generateFileAndGetUrlFromFence = async function (files, fence, accessToken
   };
 };
 
-const uploadFile = async function (dataUpload, indexd, sheepdog, nodes, fileObj, presignedUrl) {
+const uploadFile = async function (I, dataUpload, indexd, sheepdog, nodes, fileObj, presignedUrl) {
   const { filePath } = fileObj;
   const { fileSize } = fileObj;
   const { fileMd5 } = fileObj;
@@ -43,6 +44,9 @@ const uploadFile = async function (dataUpload, indexd, sheepdog, nodes, fileObj,
       file_size: fileSize,
     },
   };
+
+  await checkPod(I, 'indexing', 'ssjdispatcherjob', params = { nAttempts: 40, ignoreFailure: false, keepSessionAlive: true }); // eslint-disable-line no-undef
+
   await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 };
 
@@ -80,7 +84,7 @@ Scenario('Map uploaded files in windmill submission page @dataUpload @portal', a
   portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage(I, [fileObj], false);
 
   // upload file
-  await uploadFile(dataUpload, indexd, sheepdog, nodes, fileObj, presignedUrl);
+  await uploadFile(I, dataUpload, indexd, sheepdog, nodes, fileObj, presignedUrl);
 
   // user1 should see 1 file ready
   portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage(I, [fileObj], true);
@@ -101,7 +105,7 @@ Scenario('Cannot see files uploaded by other users @dataUpload @portal', async (
     fence,
     users.auxAcct2.accessTokenHeader,
   );
-  await uploadFile(dataUpload, indexd, sheepdog, nodes, fileObj, presignedUrl);
+  await uploadFile(I, dataUpload, indexd, sheepdog, nodes, fileObj, presignedUrl);
 
   // user1 cannot see file2
   await portalDataUpload.complete.checkUnmappedFilesAreNotInFileMappingPage(I, [fileObj]);

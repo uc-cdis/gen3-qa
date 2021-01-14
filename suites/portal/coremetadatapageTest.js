@@ -13,6 +13,7 @@ BeforeSuite(async ({ nodes, sheepdog }) => {
 });
 
 Before(({ home }) => {
+  I.saveScreenshot('coremetadata_page_login.png');
   home.complete.login();
 });
 

@@ -1,0 +1,24 @@
+{
+  "objective": "Check if success rate stays above 90%",
+  "details": {
+    "name": "internalstaging.datastage.io",
+    "UWSGI_PROCESSES": 1,
+    "fence_autoscaler": {
+      "min": 20,
+      "max": 25,
+      "targetCpu": 40
+    },
+    "nginx_rate_limit": "6r/s"
+  },
+  "service": "fence",
+  "load_test_scenario": "presigned-url",
+  "presigned_url_guids": ["2d574740-d90f-42af-84e0-e12fdedd17a5"],
+  "indexd_record_url": "",
+  "virtual_users": [
+     { "duration": "5s", "target": 1 },
+     { "duration": "10s", "target": 10 },
+     { "duration": "120s", "target": 100 },
+     { "duration": "120s", "target": 300 },
+     { "duration": "30s", "target": 1 },
+  ]		     
+}		     

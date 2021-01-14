@@ -87,7 +87,7 @@ Scenario('Perform PreSigned URL test @manual', ifInteractive(
     if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide the ACCESS_TOKEN obtained through the OIDC bootstrapping: ');
     const httpResp = await I.sendGetRequest(
       `https://${TARGET_ENVIRONMENT}/index/index`,
-    ).then(({ res }) => new Gen3Response(res));
+    ).then(( res ) => new Gen3Response(res));
 
     const { records } = httpResp.body;
 
