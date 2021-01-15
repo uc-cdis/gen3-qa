@@ -35,7 +35,7 @@ Data(correctGuids).Scenario('Resolve guids with different prefixes or without pr
 Data(nonexistentGuids).Scenario('Negativetest resolving for non-exitent guids @dataguids', ({ I, current }) => {
   I.amOnPage(testURL);
   I.fillField('#guidval', current.nguids);
-  I.forceClick('#resolveit'); 
+  I.forceClick('#resolveit');
   I.waitForText(current.nguids, 2, '#resolverresult');
   I.see(`Data GUID "${current.nguids}" not found.`);
 });
