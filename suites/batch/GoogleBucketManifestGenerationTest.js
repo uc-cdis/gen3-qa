@@ -145,7 +145,7 @@ Scenario('Generate bucket manifest from s3 bucket @googleStorage @batch @bucketM
   // Final assertions
   const files = ['test_file', 'humongous_file'];
   for (let i = 0; i < files.length; i++) { // eslint-disable-line no-plusplus
-    Object.keys(expectedMetadataForAssertions[files[i]]).forEach(( assertionKey ) => {
+    Object.keys(expectedMetadataForAssertions[files[i]]).forEach((assertionKey) => {
       console.log(
         `Running assertion for ${files[i]} (index: ${i}) - TSV header: ${assertionKey}...`,
       );
