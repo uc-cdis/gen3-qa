@@ -45,7 +45,7 @@ const uploadFile = async function (I, dataUpload, indexd, sheepdog, nodes, fileO
     },
   };
 
-  await checkPod(I, 'indexing', 'ssjdispatcherjob', params = { nAttempts: 40, ignoreFailure: false, keepSessionAlive: true }); // eslint-disable-line no-undef
+  await checkPod(I, 'indexing', 'ssjdispatcherjob', params = { nAttempts: 30, ignoreFailure: false, keepSessionAlive: true }); // eslint-disable-line no-undef
 
   await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 };
