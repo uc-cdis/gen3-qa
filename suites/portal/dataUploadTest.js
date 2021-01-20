@@ -2,11 +2,14 @@ Feature('DataUploadTest');
 
 const { interactive, ifInteractive } = require('../../utils/interactive');
 const { checkPod } = require('../../utils/apiUtil.js');
+const { Bash } = require('../../utils/bash');
 
 // const I = actor();
 const createdGuids = [];
 const createdFileNames = [];
 let submitterID;
+
+const bash = new Bash();
 
 const generateFileAndGetUrlFromFence = async function (files, fence, accessTokenHeader) {
   // generate a file unique to this session
@@ -39,9 +42,9 @@ const uploadFile = async function (I, dataUpload, indexd, sheepdog, nodes, fileO
   // make sure the file shows up in S3
   let fileFound = false;
   const nAttempts = 6;
-  let bucketName = "";
+  let bucketName = '';
   if (process.env.KUBECTL_NAMESPACE !== '' && process.env.KUBECTL_NAMESPACE !== undefined) {
-    bucketName = "qaplanetv1-data-bucket";
+    bucketName = 'qaplanetv1-data-bucket';
   } else {
     bucketName = `${process.env.KUBECTL_NAMESPACE}-databucket-gen3`;
   }
@@ -50,7 +53,6 @@ const uploadFile = async function (I, dataUpload, indexd, sheepdog, nodes, fileO
       console.log(`waiting for file with guid ${fileGuid} to show up on ${bucketName}... - attempt ${i}`);
       await module.exports.sleepMS(10000);
 
-      const singleQuote = process.env.RUNNING_LOCAL === 'true' ? "\'\\'\'" : "'"; // eslint-disable-line quotes,no-useless-escape
       const contentsOfTheBucket = await bash.runCommand(`aws s3 ls s3://${bucketName}/${fileGuid}`);
       console.log(`contentsOfTheBucket: ${contentsOfTheBucket}`);
       if (!fileFound) {
@@ -59,7 +61,7 @@ const uploadFile = async function (I, dataUpload, indexd, sheepdog, nodes, fileO
           fileFound = true;
         }
       } else {
-        console.log(`The file did now show up in the bucket yet...`);
+        console.log('The file did now show up in the bucket yet...');
         if (i === nAttempts) {
           throw new Error(`Max number of attempts reached: ${i}`);
         }
