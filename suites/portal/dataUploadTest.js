@@ -47,26 +47,25 @@ const uploadFile = async function (I, dataUpload, indexd, sheepdog, nodes, fileO
   }
   for (let i = 1; i < nAttempts; i += 1) {
     try {
-        console.log(`waiting for file with guid ${fileGuid} to show up on ${bucketName}... - attempt ${i}`);
-        await module.exports.sleepMS(10000);
+      console.log(`waiting for file with guid ${fileGuid} to show up on ${bucketName}... - attempt ${i}`);
+      await module.exports.sleepMS(10000);
 
-        const singleQuote = process.env.RUNNING_LOCAL === 'true' ? "\'\\'\'" : "'"; // eslint-disable-line quotes,no-useless-escape
-        const contentsOfTheBucket = await bash.runCommand(`aws s3 ls s3://${bucketName}/${fileGuid}`);
-        console.log(`contentsOfTheBucket: ${contentsOfTheBucket}`);
-        if (!fileFound) {
-          if (contentsOfTheBucket.includes(fileObj)) {
-            console.log(`the file ${fileObj} was found! Proceed with the rest of the test...`);
-            fileFound = true;
-          }
-        } else {
-          console.log(`The file did now show up in the bucket yet...`);
-          if (i === nAttempts) {
-            throw new Error(`Max number of attempts reached: ${i}`);
-          }
+      const singleQuote = process.env.RUNNING_LOCAL === 'true' ? "\'\\'\'" : "'"; // eslint-disable-line quotes,no-useless-escape
+      const contentsOfTheBucket = await bash.runCommand(`aws s3 ls s3://${bucketName}/${fileGuid}`);
+      console.log(`contentsOfTheBucket: ${contentsOfTheBucket}`);
+      if (!fileFound) {
+        if (contentsOfTheBucket.includes(fileObj)) {
+          console.log(`the file ${fileObj} was found! Proceed with the rest of the test...`);
+          fileFound = true;
         }
-      } catch (e) {
-        throw new Error(`Failed to upload the file ${fileObj} to bucket ${bucketName} on attempt ${i}: ${e.message}`);
+      } else {
+        console.log(`The file did now show up in the bucket yet...`);
+        if (i === nAttempts) {
+          throw new Error(`Max number of attempts reached: ${i}`);
+        }
       }
+    } catch (e) {
+      throw new Error(`Failed to upload the file ${fileObj} to bucket ${bucketName} on attempt ${i}: ${e.message}`);
     }
   }
 
