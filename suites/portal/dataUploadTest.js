@@ -52,7 +52,7 @@ const uploadFile = async function (I, dataUpload, indexd, sheepdog, nodes, fileO
   for (let i = 1; i < nAttempts; i += 1) {
     try {
       console.log(`waiting for file [${fileName}] with guid [${fileGuid}] to show up on ${bucketName}... - attempt ${i}`);
-      await module.exports.sleepMS(10000);
+      await sleepMS(10000);
 
       const contentsOfTheBucket = await bash.runCommand(`aws s3 ls s3://${bucketName}/${fileGuid}`);
       console.log(`contentsOfTheBucket: ${contentsOfTheBucket}`);
