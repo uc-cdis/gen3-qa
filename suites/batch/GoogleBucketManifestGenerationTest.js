@@ -101,7 +101,7 @@ Scenario('Generate bucket manifest from s3 bucket @googleStorage @batch @bucketM
   console.log(`short jobId: ${jobId}`);
 
   await sleepMS(20000);
-  await checkPod(I, 'google-bucket-manifest', 'gen3job', params = { nAttempts: 100, ignoreFailure: false }); // eslint-disable-line no-undef
+  await checkPod(I, 'google-bucket-manifest', 'gen3job', params = { nAttempts: 100, ignoreFailure: false, keepSessionAlive: true }); // eslint-disable-line no-undef
 
   const bucketManifestList = await bash.runCommand(`
     gen3 gcp-bucket-manifest list | xargs -i echo "{} "
