@@ -1,7 +1,7 @@
 Feature('DataUploadTest');
 
 const { interactive, ifInteractive } = require('../../utils/interactive');
-const { checkPod } = require('../../utils/apiUtil.js');
+const { checkPod, sleepMS } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash');
 
 // const I = actor();
@@ -31,6 +31,7 @@ const generateFileAndGetUrlFromFence = async function (files, fence, accessToken
 };
 
 const uploadFile = async function (I, dataUpload, indexd, sheepdog, nodes, fileObj, presignedUrl) {
+  const { fileName } = fileObj;
   const { filePath } = fileObj;
   const { fileSize } = fileObj;
   const { fileMd5 } = fileObj;
@@ -43,21 +44,21 @@ const uploadFile = async function (I, dataUpload, indexd, sheepdog, nodes, fileO
   let fileFound = false;
   const nAttempts = 6;
   let bucketName = '';
-  if (process.env.KUBECTL_NAMESPACE !== '' && process.env.KUBECTL_NAMESPACE !== undefined) {
+  if (process.env.NAMESPACE !== '' && process.env.NAMESPACE !== undefined) {
     bucketName = 'qaplanetv1-data-bucket';
   } else {
-    bucketName = `${process.env.KUBECTL_NAMESPACE}-databucket-gen3`;
+    bucketName = `${process.env.NAMESPACE}-databucket-gen3`;
   }
   for (let i = 1; i < nAttempts; i += 1) {
     try {
-      console.log(`waiting for file with guid ${fileGuid} to show up on ${bucketName}... - attempt ${i}`);
+      console.log(`waiting for file [${fileName}] with guid [${fileGuid}] to show up on ${bucketName}... - attempt ${i}`);
       await module.exports.sleepMS(10000);
 
       const contentsOfTheBucket = await bash.runCommand(`aws s3 ls s3://${bucketName}/${fileGuid}`);
       console.log(`contentsOfTheBucket: ${contentsOfTheBucket}`);
       if (!fileFound) {
-        if (contentsOfTheBucket.includes(fileObj)) {
-          console.log(`the file ${fileObj} was found! Proceed with the rest of the test...`);
+        if (contentsOfTheBucket.includes(fileName)) {
+          console.log(`the file ${fileName} was found! Proceed with the rest of the test...`);
           fileFound = true;
         }
       } else {
