@@ -252,7 +252,7 @@ Scenario('SA key removal job test: remove expired creds @reqGoogle', async ({ fe
   await fence.do.deleteTempGoogleCreds(
     creds0Key,
     users.user0.accessTokenHeader,
-  ).then(({ deletionResult }) => {
+  ).then(( deletionResult ) => {
     console.log(`deletionResult: ${JSON.stringify(deletionResult)}`);
     console.log(`is it an error?: ${deletionResult instanceof Error}`);
     if(deletionResult instanceof Error) {
@@ -301,7 +301,7 @@ Scenario('SA key removal job test: remove expired creds that do not exist in goo
   let getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
   let credsList = getCredsRes.access_keys;
   const key = credsList.filter(( aKey ) => aKey.name.includes(credsKey1))[0];
-  await google.deleteServiceAccountKey(key.name).then(({ deletionResult }) => {
+  await google.deleteServiceAccountKey(key.name).then(( deletionResult ) => {
     console.log(`deletionResult: ${JSON.stringify(deletionResult)}`);
     console.log(`is it an error?: ${deletionResult instanceof Error}`);
     if(deletionResult instanceof Error) {
@@ -336,7 +336,7 @@ Scenario('SA key removal job test: remove expired creds that do not exist in goo
   await fence.do.deleteTempGoogleCreds(
     credsKey1,
     users.user0.accessTokenHeader,
-  ).then(({ deletionResult }) => {
+  ).then(( deletionResult ) => {
     console.log(`deletionResult: ${JSON.stringify(deletionResult)}`);
     console.log(`is it an error?: ${deletionResult instanceof Error}`);
     if(deletionResult instanceof Error) {
@@ -347,7 +347,7 @@ Scenario('SA key removal job test: remove expired creds that do not exist in goo
   await fence.do.deleteTempGoogleCreds(
     credsKey2,
     users.user0.accessTokenHeader,
-  ).then(({ deletionResult }) => {
+  ).then(( deletionResult ) => {
     console.log(`deletionResult: ${JSON.stringify(deletionResult)}`);
     console.log(`is it an error?: ${deletionResult instanceof Error}`);
     if(deletionResult instanceof Error) {
