@@ -319,16 +319,31 @@ Scenario('SA key removal job test: remove expired creds that do not exist in goo
 
   await apiUtil.checkPod(I, 'google-manage-keys', 'gen3job', { nAttempts: 20, ignoreFailure: false, keepSessionAlive: true });
 
-  await bash.runCommand('source ~/.bashrc; gen3 job logs google-manage-keys');
+  const nAttempts = 6;
+  for (let i = 1; i <= nAttempts; i += 1) {
+    console.log(`Checking the number of keys associated with the service account... - attempt ${i}`);
 
-  // Wait a bit more for the key deletion to kick in ¯\_(ツ)_/
-  console.log('waiting for the keys to be deleted');
-  await apiUtil.sleepMS((EXPIRES_IN + 5) * 1000);
+    // Get list of current creds (again)
+    getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
+    console.log(`getCredRes - This is supposed to return zero keys: ${JSON.stringify(getCredsRes.access_keys)}`);
+    credsList = getCredsRes.access_keys;
 
-  // Get list of current creds
-  getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
-  console.log(`getCredRes - This is supposed to return zero keys: ${JSON.stringify(getCredsRes.access_keys)}`);
-  credsList = getCredsRes.access_keys;
+    if (credsList.length > 0) {
+      console.log(`${new Date()} WARN: There is still one or more pesky keys in there... - attempt ${i}`);
+      await apiUtil.sleepMS(10000);
+      if (i === nAttempts) {
+        const googleManageKeysLogs = await bash.runCommand('gen3 job logs google-manage-keys');
+        console.log(`googleManageKeysLogs: ${googleManageKeysLogs}`);
+        console.log(`ERROR: Something went wrong with the deletion of expired keys. Proceed with the assertions and mark this test as failed.`);
+      }
+    }
+
+    // Run the expired SA key clean up job
+    console.log('Clean up expired Service Account keys');
+    await bash.runJob('google-manage-keys');
+
+    await apiUtil.checkPod(I, 'google-manage-keys', 'gen3job', { nAttempts: 20, ignoreFailure: false, keepSessionAlive: true });
+  }
 
   // Clean up
   console.log('cleaning up');
