@@ -282,20 +282,20 @@ Scenario('SA key removal job test: remove expired creds that do not exist in goo
   const EXPIRES_IN = 1;
 
   // Get creds to access data
-  let tempCredsRes = await fence.complete.createTempGoogleCreds(
+  const tempCredsRes1 = await fence.complete.createTempGoogleCreds(
     users.user0.accessTokenHeader,
     EXPIRES_IN,
   );
-  console.log(`tempCredsRes: ${tempCredsRes.data.private_key_id}`);
-  const credsKey1 = tempCredsRes.data.private_key_id;
+  console.log(`tempCredsRes1: ${tempCredsRes1.data.private_key_id}`);
+  const credsKey1 = tempCredsRes1.data.private_key_id;
 
   // Get other creds to access data, with short expiration time
-  tempCredsRes = await fence.complete.createTempGoogleCreds(
+  const tempCredsRes2 = await fence.complete.createTempGoogleCreds(
     users.user0.accessTokenHeader,
     EXPIRES_IN,
   );
-  console.log(`tempCredsRes: ${tempCredsRes.data.private_key_id}`);
-  const credsKey2 = tempCredsRes.data.private_key_id;
+  console.log(`tempCredsRes2: ${tempCredsRes2.data.private_key_id}`);
+  const credsKey2 = tempCredsRes2.data.private_key_id;
 
   // Get the complete name of the generated key and delete it in google
   let getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
@@ -320,6 +320,10 @@ Scenario('SA key removal job test: remove expired creds that do not exist in goo
   await apiUtil.checkPod(I, 'google-manage-keys', 'gen3job', { nAttempts: 20, ignoreFailure: false, keepSessionAlive: true });
 
   await bash.runCommand('source ~/.bashrc; gen3 job logs google-manage-keys');
+
+  // Wait a bit more for the key deletion to kick in ¯\_(ツ)_/
+  console.log('waiting for the keys to be deleted');
+  await apiUtil.sleepMS((EXPIRES_IN + 5) * 1000);
 
   // Get list of current creds
   getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
