@@ -276,7 +276,7 @@ Scenario('SA key removal job test: remove expired creds @reqGoogle', async ({ fe
 }).retry(2);
 
 
-Scenario('SA key removal job test: remove expired creds that do not exist in google @reqGoogle', async ({ fence, users, google }) => {
+Scenario('SA key removal job test: remove expired creds that do not exist in google @reqGoogle', async ({ I, fence, users, google }) => {
   // Test that the job removes keys from the fence DB even if some of them do not exist in google
 
   const EXPIRES_IN = 1;
