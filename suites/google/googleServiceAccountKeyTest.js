@@ -315,13 +315,11 @@ Scenario('SA key removal job test: remove expired creds that do not exist in goo
 
   // Run the expired SA key clean up job
   console.log('Clean up expired Service Account keys');
-  bash.runJob('google-manage-keys');
+  await bash.runJob('google-manage-keys');
 
-  // Wait to check google-manage-keys-job pod logs
-  console.log('waiting a few seconds before checking the results of the keys clean-up jobs');
-  await apiUtil.sleepMS(10 * 1000).then(() => {
-    bash.runCommand('source ~/.bashrc; gen3 job logs google-manage-keys');
-  });
+  await checkPod(I, 'google-manage-keys', 'gen3job', { nAttempts: 20, ignoreFailure: false, keepSessionAlive: true });
+
+  await bash.runCommand('source ~/.bashrc; gen3 job logs google-manage-keys');
 
   // Get list of current creds
   getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
@@ -331,6 +329,7 @@ Scenario('SA key removal job test: remove expired creds that do not exist in goo
   // Clean up
   console.log('cleaning up');
 
+  /* UPDATE: Keep the crime scene around if google-manage-keys-job fails 
   // should have been deleted by the google-manage-keys-job
   // send delete request just in case (do not check if it was actually deleted)
   await fence.do.deleteTempGoogleCreds(
@@ -354,6 +353,7 @@ Scenario('SA key removal job test: remove expired creds that do not exist in goo
       console.log(`Error during Google service account key deletion: ${deletionResult}`);
     }
   });
+  */
 
   // Asserts
   chai.expect(
