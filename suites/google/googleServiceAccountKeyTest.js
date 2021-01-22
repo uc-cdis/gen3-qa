@@ -317,7 +317,7 @@ Scenario('SA key removal job test: remove expired creds that do not exist in goo
   console.log('Clean up expired Service Account keys');
   await bash.runJob('google-manage-keys');
 
-  await checkPod(I, 'google-manage-keys', 'gen3job', { nAttempts: 20, ignoreFailure: false, keepSessionAlive: true });
+  await apiUtil.checkPod(I, 'google-manage-keys', 'gen3job', { nAttempts: 20, ignoreFailure: false, keepSessionAlive: true });
 
   await bash.runCommand('source ~/.bashrc; gen3 job logs google-manage-keys');
 
