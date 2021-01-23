@@ -237,32 +237,6 @@ Scenario('SA key removal job test: remove expired creds @reqGoogle', async ({ I,
   console.log(`getCredRes - This is supposed to return zero keys: ${JSON.stringify(getCredsRes.access_keys)}`);
   credsList = getCredsRes.access_keys;
 
-  const nAttempts = 6;
-  for (let i = 1; i <= nAttempts; i += 1) {
-    console.log(`Checking the number of keys associated with the service account... - attempt ${i}`);
-
-    // Get list of current creds (again)
-    getCredsRes = await fence.do.getUserGoogleCreds(users.user0.accessTokenHeader);
-    console.log(`getCredRes - This is supposed to return zero keys: ${JSON.stringify(getCredsRes.access_keys)}`);
-    credsList = getCredsRes.access_keys;
-
-    if (credsList.length > 0) {
-      console.log(`${new Date()} WARN: There is still one or more pesky keys in there... - attempt ${i}`);
-      await apiUtil.sleepMS(10000);
-      if (i === nAttempts) {
-        const googleManageKeysLogs = await bash.runCommand('gen3 job logs google-manage-keys');
-        console.log(`googleManageKeysLogs: ${googleManageKeysLogs}`);
-        console.log(`ERROR: Something went wrong with the deletion of expired keys. Proceed with the assertions and mark this test as failed.`);
-      }
-    }
-
-    // Run the expired SA key clean up job
-    console.log('Clean up expired Service Account keys');
-    await bash.runJob('google-manage-keys');
-
-    await apiUtil.checkPod(I, 'google-manage-keys', 'gen3job', { nAttempts: 20, ignoreFailure: false, keepSessionAlive: true });
-  }
-
   // Try to access data
   const user0AccessQAResExpired = await google.getFileFromBucket(
     fence.props.googleBucketInfo.QA.googleProjectId,
