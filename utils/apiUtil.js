@@ -395,7 +395,7 @@ module.exports = {
             break;
           }
         }
-        if (i === params.nAttempts - 1) {
+        if (i === params.nAttempts) {
           if (params.ignoreFailure === true) {
             break;
           } else {
