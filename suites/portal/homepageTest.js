@@ -1,4 +1,4 @@
-Feature('Homepage');
+Feature('Homepage').retry(2);
 
 Scenario('login @portal', ({ I, home }) => {
   home.do.goToHomepage();
