@@ -1,13 +1,41 @@
 Feature('ETL');
 
-Scenario('run ETL first time @etl', async ({ etl }) => {
-  console.log(`${new Date()}: Before run ETL first time`);
-  await etl.complete.runETLFirstTime();
-  console.log(`${new Date()}: After run ETL first time`);
-}).retry(1);
+const { Bash } = require('../../utils/bash.js');
+const { checkPod } = require('../../utils/apiUtil.js');
 
-Scenario('run ETL second time @etl', async ({ etl }) => {
+const bash = new Bash();
+
+BeforeSuite(async ({ etl }) => {
+  etl.props.aliases.forEach(async (alias) => {
+    const index = etl.do.getIndexFromAlias(alias);
+    if (index !== 'error') {
+      etl.do.deleteIndices(index);
+      expect(etl.do.existAlias(alias), 'Fails to delete alias').to.equal(false);
+    }
+  });
+});
+
+Scenario('run ETL first time @etl', async ({ I }) => {
+  console.log(`${new Date()}: Before run ETL first time`);
+  await bash.runJob('etl', '', false);
+  await checkPod(I, 'etl', 'gen3job,job-name=etl', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: true });
+  console.log(`${new Date()}: After run ETL first time`);
+});
+
+Scenario('run ETL second time @etl', async ({ I, sheepdog }) => {
   console.log(`${new Date()}: Before run ETL second time`);
-  await etl.complete.runETLSecondTime();
+  await sheepdog.do.runGenTestData(1);
+  await bash.runJob('etl', '', false);
+  await checkPod(I, 'etl', 'gen3job,job-name=etl', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: true });
   console.log(`${new Date()}: After run ETL second time`);
-}).retry(1);
+});
+
+AfterSuite(async ({ etl }) => {
+  etl.props.aliases.forEach((alias) => {
+    if (etl.do.existAlias(alias)) {
+      const index = etl.do.getIndexFromAlias(alias);
+      console.error(index);
+      etl.ask.hasVersionIncreased(index, 0);
+    }
+  });
+});

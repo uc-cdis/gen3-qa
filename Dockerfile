@@ -60,12 +60,12 @@ COPY codecept.conf.js \
      package.json \
      package-lock.json \
      test_setup.js \
-     .eslintrc.js \
-     helpers \
-     hooks \
-     services \
-     suites \
-     utils ${SDET_HOME}/
+     .eslintrc.js ${SDET_HOME}/
+COPY helpers ${SDET_HOME}/helpers/
+COPY hooks ${SDET_HOME}/hooks/
+COPY services ${SDET_HOME}/services/
+COPY suites ${SDET_HOME}/suites/
+COPY utils ${SDET_HOME}/utils/
 
 # install poetry - respects $POETRY_VERSION & $POETRY_HOME
 RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
@@ -73,6 +73,13 @@ RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-
 # Copy only requirements to cache them in docker layer
 RUN mkdir -p ${SDET_HOME}/controller/gen3qa-controller
 WORKDIR ${SDET_HOME}/controller
+
+# utilize the selenium sidecar as there is no selenium-hub in prod-tier environments
+RUN cd ${SDET_HOME} \
+    && npm install \
+    && sed -i "s/      host: 'selenium-hub',/      host: 'localhost',/" codecept.conf.js
+
+# poetry artifacts
 COPY controller/poetry.lock controller/pyproject.toml ${SDET_HOME}/controller/
 
 # copy controller scripts
