@@ -26,7 +26,7 @@ function linkGoogleAccount() {
 }
 
 function performAdjustExpDateTest(typeOfTest) {
-  Scenario('Adjust the expiration date of the Google account that has been linked @manual', ifInteractive(
+  Scenario(`Adjust the expiration date of the Google account that has been linked. ${typeOfTest} test @manual`, ifInteractive(
     async ({ I, fence }) => {
       if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
       console.log(`access token: ${I.cache.ACCESS_TOKEN}`);
