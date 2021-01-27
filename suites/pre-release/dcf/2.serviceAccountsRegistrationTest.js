@@ -67,7 +67,7 @@ function performSvcAcctRegistrationTest(typeOfTest, testInstructions) {
 }
 
 function performSvcAcctUpdateTest(typeOfTest, testInstructions) {
-  Scenario('Update existing service account @manual', ifInteractive(
+  Scenario(`Update existing service account. ${typeOfTest} test @manual`, ifInteractive(
     async ({ I, fence }) => {
       await collectUserInput(I);
       // patch existing svc acct to remove project access
@@ -225,9 +225,3 @@ Scenario('Delete existing service account @manual', ifInteractive(
     expect(result.didPass, result.details).to.be.true;
   },
 ));
-
-// Scenario #13 - Register account again to support next steps
-performSvcAcctRegistrationTest('validSvcAccount', {
-  expectedStatus: 200,
-  expectedResponse: 'service account registration details (service_account_email, google_project_id and project_access)',
-});
