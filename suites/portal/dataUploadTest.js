@@ -1,12 +1,16 @@
 Feature('DataUploadTest');
 
 const { interactive, ifInteractive } = require('../../utils/interactive');
-const { checkPod } = require('../../utils/apiUtil.js');
+const { checkPod, sleepMS } = require('../../utils/apiUtil.js');
+const { Bash } = require('../../utils/bash');
 
 // const I = actor();
 const createdGuids = [];
 const createdFileNames = [];
 let submitterID;
+
+const bash = new Bash();
+const inJenkins = (process.env.JENKINS_HOME !== '' && process.env.JENKINS_HOME !== undefined);
 
 const generateFileAndGetUrlFromFence = async function (files, fence, accessTokenHeader) {
   // generate a file unique to this session
@@ -28,6 +32,7 @@ const generateFileAndGetUrlFromFence = async function (files, fence, accessToken
 };
 
 const uploadFile = async function (I, dataUpload, indexd, sheepdog, nodes, fileObj, presignedUrl) {
+  const { fileName } = fileObj;
   const { filePath } = fileObj;
   const { fileSize } = fileObj;
   const { fileMd5 } = fileObj;
@@ -35,6 +40,34 @@ const uploadFile = async function (I, dataUpload, indexd, sheepdog, nodes, fileO
 
   // upload the file to the S3 bucket using the presigned URL
   await dataUpload.uploadFileToS3(presignedUrl, filePath, fileSize);
+
+  // additional scrutiny for file upload only when running inside Jenkins
+  if (inJenkins) {
+    const maxAttempts = 6;
+    const jenkinsNamespace = process.env.HOSTNAME.replace('.planx-pla.net', '');
+    const bucketName = `${jenkinsNamespace}-databucket-gen3`;
+
+    for (let i = 1; i <= maxAttempts; i += 1) {
+      try {
+        console.log(`waiting for file [${fileName}] with guid [${fileGuid}] to show up on ${bucketName}... - attempt ${i}`);
+        await sleepMS(10000);
+
+        const contentsOfTheBucket = await bash.runCommand(`aws s3 ls s3://${bucketName}/${fileGuid}/`);
+        console.log(`contentsOfTheBucket: ${contentsOfTheBucket}`);
+        if (contentsOfTheBucket.includes(fileName)) {
+          console.log(`the file ${fileName} was found! Proceed with the rest of the test...`);
+          break;
+        } else {
+          console.log('The file did now show up in the bucket yet...');
+          if (i === maxAttempts) {
+            throw new Error(`Max number of attempts reached: ${i}`);
+          }
+        }
+      } catch (e) {
+        throw new Error(`Failed to upload the file ${fileObj} to bucket ${bucketName} on attempt ${i}: ${e.message}`);
+      }
+    }
+  }
 
   // wait for the indexd listener to add size, hashes and URL to the record
   const fileNode = {
