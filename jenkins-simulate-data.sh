@@ -85,24 +85,17 @@ echo "Leaf node set to: $leafNode"
 
 #
 # assume that we are running in the data-simulator directory
-# try to trick pip into working in the WORKSPACE
 #
-export HOME="${WORKSPACE:-$HOME}"
 if [ -f ./pyproject.toml ]; then
   echo "Found pyproject.toml, using poetry to install data simulator"
-  /usr/bin/curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3.6
-  # make sure poetry is using python 3.6
-  sed -i '1 s/\<python\>/python3.6/' $HOME/.poetry/bin/poetry
-  # these steps are needed to ensure virtualenv creates and activates successfully
-  source $HOME/.poetry/env
-  mkdir -p $HOME/.cache/pypoetry/virtualenvs
-  touch $HOME/.cache/pypoetry/virtualenvs/envs.toml
-  $HOME/.poetry/bin/poetry env use python3.6
-  # install data-simulator
-  
+  # put poetry in the path
+  export PATH="/var/jenkins_home/.local/bin:$PATH"
+  poetry config virtualenvs.path "${WORKSPACE}/datasimvirtenv" --local  
+  poetry env use python3.6
+  # install data-simulator  
   # retry in case of any connectivity failures
   for attempt in {1..3}; do
-    $HOME/.poetry/bin/poetry install -vv --no-dev
+    poetry install -vv --no-dev
     if [[ $? -ne 0 ]]; then
       echo "ERROR: Failed to install poetry / dependencies on attempt #${attempt}"
       writeMetricWithResult "FAIL"
@@ -115,7 +108,7 @@ if [ -f ./pyproject.toml ]; then
   done
 
   export PYTHONPATH=.
-  pyCMD="$HOME/.poetry/bin/poetry run data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
+  pyCMD="poetry run data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
   eval $pyCMD
   if [[ $? -ne 0 ]]; then
     echo "ERROR: Failed to simulate test data for $namespace"
@@ -123,7 +116,7 @@ if [ -f ./pyproject.toml ]; then
     exit 1
   fi
 
-  pyCMD2="$HOME/.poetry/bin/poetry run data-simulator submission_order --url $dictURL --path $TEST_DATA_PATH --node_name $leafNode"
+  pyCMD2="poetry run data-simulator submission_order --url $dictURL --path $TEST_DATA_PATH --node_name $leafNode"
   eval $pyCMD2
   if [[ $? -ne 0 ]]; then
     echo "ERROR: Failed to generate submission_order data for $namespace"
