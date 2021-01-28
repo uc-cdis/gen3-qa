@@ -88,6 +88,8 @@ echo "Leaf node set to: $leafNode"
 #
 if [ -f ./pyproject.toml ]; then
   echo "Found pyproject.toml, using poetry to install data simulator"
+  # put poetry in the path
+  export PATH="/var/jenkins_home/.local/bin:$PATH"
   poetry config virtualenvs.path "${WORKSPACE}/datasimvirtenv" --local  
   poetry env use python3.6
   # install data-simulator  
