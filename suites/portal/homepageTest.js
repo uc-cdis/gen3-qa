@@ -3,7 +3,6 @@ Feature('Homepage').retry(2);
 Scenario('login @portal', ({ I, home }) => {
   home.do.goToHomepage();
   home.complete.login();
-  I.saveScreenshot('Home_page_for_debugging.png');
   home.ask.seeDetails();
   home.complete.logout();
 });

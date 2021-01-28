@@ -13,6 +13,7 @@ module.exports = {
     if (process.env.testedEnv.includes('covid19') || process.env.testedEnv.includes('pandemicresponsecommons') || process.env.testedEnv.includes('midrc')) {
       I.refreshPage();
     }
+    I.saveScreenshot('Home_page_for_debugging.png');
     portal.seeProp(homeProps.ready_cue, 60);
   },
 
