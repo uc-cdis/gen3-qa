@@ -25,7 +25,7 @@
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chai-subset": "^1.6.0",
-    "codeceptjs": "^3.0.1",
+    "codeceptjs": "^3.0.5",
     "dummy-json": "^2.0.0",
     "es6-promise": "^4.2.8",
     "eslint": "^6.8.0",
