@@ -101,6 +101,11 @@ module.exports = function () {
     if (currentRetry > 0 && (testResult === 'passed' || retries === currentRetry)) {
       await writeMetrics('retry_count', test, currentRetry);
     }
+    if (testResult === undefined) {
+      // If there are any Selenium failures, we cannot let the test fail silently.
+      // We need to force return an exit code 1.
+      throw new Error(`THE TEST RESULT IS UNDEFINED! ABORT ALL TESTS AND FAIL THIS PR.`);
+    }
     await writeMetrics('run_time', test, currentRetry);
   });
 
