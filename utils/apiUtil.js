@@ -393,14 +393,19 @@ module.exports = {
           if (checkIfContainerSucceeded === 'Succeeded') {
             console.log(`The container from pod ${podName} is ready! Proceed with the assertion checks..`);
             break;
+          } else if (checkIfContainerSucceeded === 'Failed') {
+            if (params.ignoreFailure === true) {
+              console.log(`The container from pod ${podName} failed as expected! Just ignore as this is part of a negative test.`);
+              break;
+            } else {
+              // The pod failed 4 realz
+              throw new Error(`THE POD FAILED ON ATTEMPT ${i}. OMG!`);
+            }
           }
         }
         if (i === params.nAttempts) {
-          if (params.ignoreFailure === true) {
-            break;
-          } else {
-            throw new Error(`Max number of attempts reached: ${i}`);
-          }
+          // We have reached the max number of attempts. This test has failed
+          throw new Error(`Max number of attempts reached: ${i}`);
         }
       } catch (e) {
         throw new Error(`Failed to obtain a successful phase check from the ${jobName} job on attempt ${i}: ${e.message}`);
