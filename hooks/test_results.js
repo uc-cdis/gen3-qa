@@ -104,7 +104,7 @@ module.exports = function () {
     if (testResult === undefined) {
       // If there are any Selenium failures, we cannot let the test fail silently.
       // We need to force return an exit code 1.
-      throw new Error(`THE TEST RESULT IS UNDEFINED! ABORT ALL TESTS AND FAIL THIS PR.`);
+      throw new Error('THE TEST RESULT IS UNDEFINED! ABORT ALL TESTS AND FAIL THIS PR.');
     }
     await writeMetrics('run_time', test, currentRetry);
   });
