@@ -63,7 +63,7 @@ export default function () {
 
   console.log(`submitting: ${__ITER}`); // eslint-disable-line no-undef
 
-  group('Importing and exporting clinical metadata', () => {
+  group('Creating indexd records', () => {
     // TODO: Come up with a way to interrupt the load test
     // When we reach a certain number of records
     console.log(`__ITER: ${__ITER}`); // eslint-disable-line no-undef
