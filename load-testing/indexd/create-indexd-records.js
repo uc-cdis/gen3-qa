@@ -46,7 +46,6 @@ export default function () {
     },
   };
   const body = {
-    eligibility: false,
     acl: ['QA'],
     authz: [],
     did: uuidv4(),
