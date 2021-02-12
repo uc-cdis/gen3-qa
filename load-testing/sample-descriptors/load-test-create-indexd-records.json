@@ -3,6 +3,11 @@
     "indexd records creation"
   ],
   "details": {
+    "name": "emalinowskiv1.planx-plan.net",
+    "indexd_autoscaler": {
+      "min": 3,
+      "max": 5,
+      "targetCpu": 40
     }
   },
   "service": "indexd",
