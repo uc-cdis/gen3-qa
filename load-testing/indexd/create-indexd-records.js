@@ -96,13 +96,13 @@ export default function () {
     } else {
       // console.log(`Request performed: ${new Date()}`);
       console.log(`Request response: ${res.status}`);
-      myFailRate.add(res.status !== 201);
-      if (res.status !== 201) {
+      myFailRate.add(res.status !== 200);
+      if (res.status !== 200) {
         console.log(`Request response: ${res.status}`);
         console.log(`Request response: ${res.body}`);
       }
       check(res, {
-        'is status 201': (r) => r.status === 201,
+        'is status 200': (r) => r.status === 200,
       });
     }
     group('wait 0.1s between requests', () => {
