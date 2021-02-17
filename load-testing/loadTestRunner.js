@@ -165,9 +165,6 @@ async function runLoadTestScenario() {
     loadTestArgs.unshift(`NUM_OF_JSONS="${testDescriptorData.num_of_jsons}"`);
     loadTestArgs.unshift('-e');
 
-    loadTestArgs.unshift(`API_KEY="${apiKey}"`);
-    loadTestArgs.unshift('-e');
-
     generateLib('uuid');
   }
 
@@ -183,6 +180,10 @@ async function runLoadTestScenario() {
       console.log(`browserify ${browserifyArgs}`);
     },
   );
+
+  // Always make the apiKey available for long-running tests
+  loadTestArgs.unshift(`API_KEY="${apiKey}"`);
+  loadTestArgs.unshift('-e');
 
   // The first arg should always be 'run'
   loadTestArgs.unshift('run');
