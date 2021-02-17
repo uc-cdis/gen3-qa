@@ -99,8 +99,49 @@ Scenario('Upload a file through the gen3-client CLI @jupyterNb', async (fence, u
   // expect(indexdLookupResponse.data).to.have.property('authz', []);    
 });
 
-xScenario('Map the uploaded file to one of the subjects of the dummy dataset @jupyterNb', async (fence, users) => {
-  // TODO
+Scenario('Map the uploaded file to one of the subjects of the dummy dataset @jupyterNb', async ({ I }) => {
+  // Go to submission page
+  I.amOnPage('/submission');
+
+  I.amOnPage('/submission/files');
+  I.click({ react: 'Mc', props: { id: '0' } });
+  console.log('Start to map file');
+  // TODO :Click checkbox with id of the guid of the uploadedfile
+  // I.click({ react: 'Mc', props: { id: <guid> }});
+
+  I.click({ react: 'l', props: { label: 'Map Files (1)' } });
+  I.waitForVisible('.map-data-model__form', 5);
+
+  // Select Project
+  I.fillField({ react: 'Input', props: { id: 'react-select-2-input' } }, 'DEV-test');
+  I.pressKey('Enter');
+  I.waitNumberOfVisibleElements({ react: 'Fc' }, 1);
+  console.log('Project selected');
+
+  // Select File Node
+  I.fillField({ react: 'Input', props: { id: 'react-select-3-input' } }, 'submitted_unaligned_reads');
+  I.pressKey('Enter');
+  I.waitNumberOfVisibleElements({ react: 'Fc' }, 2);
+  console.log('File Node selected');
+  I.waitForText('Required Fields');
+
+  // Select required fields and core_metadata_collection
+  const COMPOENT_INDEX_START = 4;
+  const COMPOENT_INDEX_END = 8;
+  for (let i = COMPOENT_INDEX_START; i <= COMPOENT_INDEX_END; i += 1) {
+    I.click({ react: 'Input', props: { id: `react-select-${i}-input` } });
+    // Select the 1st option
+    I.pressKey('Enter');
+  }
+  I.waitNumberOfVisibleElements({ react: 'Fc' }, 7);
+  console.log('Required Fileds selected, core_metadata_collection selected');
+
+  // Click submit button
+  I.waitForVisible('//button[contains(text(),\'Submit\')]', 5);
+  I.click('//button[contains(text(),\'Submit\')]');
+
+  I.see('1 files mapped successfully!');
+  // TODO: check if file number in DEV-test project was increased by one
 });
 
 xScenario('Run ETL so the recently-submitted dataset will be available on the Explorer page @jupyterNb', async (fence, users) => {
