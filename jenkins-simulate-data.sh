@@ -95,6 +95,7 @@ if [ -f ./pyproject.toml ]; then
   # install data-simulator  
   # retry in case of any connectivity failures
   for attempt in {1..3}; do
+    yes | poetry cache clear --all pypi
     poetry run pip install --upgrade pip
     poetry install -vv --no-dev
     if [[ $? -ne 0 ]]; then
