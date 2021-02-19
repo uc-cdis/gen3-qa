@@ -96,7 +96,7 @@ if [ -f ./pyproject.toml ]; then
   # retry in case of any connectivity failures
   for attempt in {1..3}; do
     yes | poetry cache clear --all pypi
-    pip3 install avro
+    /usr/bin/pip3 install avro
     poetry run pip install --upgrade pip
     poetry install -vv --no-dev
     if [[ $? -ne 0 ]]; then
