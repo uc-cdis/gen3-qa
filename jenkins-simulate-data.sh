@@ -91,7 +91,7 @@ if [ -f ./pyproject.toml ]; then
   # put poetry in the path
   export PATH="/var/jenkins_home/.local/bin:$PATH"
   poetry config virtualenvs.path "${WORKSPACE}/datasimvirtenv" --local  
-  poetry env use python3.6
+  poetry env use python3.8
   # install data-simulator  
   # retry in case of any connectivity failures
   for attempt in {1..3}; do
