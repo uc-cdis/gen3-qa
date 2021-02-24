@@ -14,7 +14,9 @@ const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'nci-crdc-stagin
 
 function linkGoogleAccount() {
   Scenario('Link Google identity to the NIH user @manual', ifInteractive(
-    async () => {
+    async ({ I }) => {
+      // delete cached token to pick up new linked user
+      delete I.cache.ACCESS_TOKEN;
       const result = await interactive(`
               1. Navigate to https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.linkGoogle}
               2. Provide the credentials of the Google account that owns the "Customer" GCP account
@@ -65,6 +67,27 @@ BeforeSuite(async ({ I }) => {
   I.cache = {};
 });
 
+
+// Scenario #0 - Delete any linked user from previous test iterations
+Scenario(`Delete linked user @manual`, ifInteractive(
+  async ({ I }) => {
+    if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
+    // console.log(`access token: ${I.cache.ACCESS_TOKEN}`);
+    const likedUserDeletionrequest = await I.sendDeleteRequest(
+      `https://${TARGET_ENVIRONMENT}/user/link/google`,
+      { Authorization: `bearer ${I.cache.ACCESS_TOKEN}` },
+    );
+    const result = await interactive(`
+              1. [Automated] Send a HTTP DELETE request with the NIH user's ACCESS TOKEN to unlink the Google account:
+              HTTP DELETE request to: https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.deleteGoogleLink}
+              Manual verification:
+                Response status: ${likedUserDeletionrequest.status} // Expect a HTTP 200
+                Response data: ${JSON.stringify(likedUserDeletionrequest.body) || likedUserDeletionrequest.parsedFenceError} // Expect "undefined"
+            `);
+    expect(result.didPass, result.details).to.be.true;
+  },
+));
+
 // Scenario #1 - Verifying NIH access and permissions (project access)
 Scenario(`Login to https://${TARGET_ENVIRONMENT} and check the Project Access list under the Profile page @manual`, ifInteractive(
   async () => {
@@ -108,7 +131,6 @@ Scenario('Unlink Google identity from the NIH user @manual', ifInteractive(
 
 performAdjustExpDateTest('negative');
 
-// Google login is not enabled for DCF
 // Scenario #5 - Link Google account with the NIH user again
 // to support the next features in the sequence
-// linkGoogleAccount();
+linkGoogleAccount();
