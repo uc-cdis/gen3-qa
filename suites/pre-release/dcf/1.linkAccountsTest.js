@@ -67,9 +67,8 @@ BeforeSuite(async ({ I }) => {
   I.cache = {};
 });
 
-
 // Scenario #0 - Delete any linked user from previous test iterations
-Scenario(`Delete linked user @manual`, ifInteractive(
+Scenario('Delete linked user @manual', ifInteractive(
   async ({ I }) => {
     if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
     // console.log(`access token: ${I.cache.ACCESS_TOKEN}`);
