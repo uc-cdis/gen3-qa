@@ -57,7 +57,7 @@ module.exports = {
   // click download button on dataset page
   async clickDownload() {
     await I.seeElement(studyViewerProps.downloadButtonXPath);
-    I.saveScreenshot("before_click_download.png")
+    I.saveScreenshot('before_click_download.png');
     I.click(studyViewerProps.downloadButtonXPath);
     await I.waitForVisible(studyViewerProps.modalDivClass, 5);
     I.saveScreenshot('click_download.png');

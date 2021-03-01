@@ -75,8 +75,8 @@ Scenario('Navigation to the detailed dataset page @studyViewer', async ({ home, 
   await studyViewerTasks.learnMoreButton();
 });
 
-//test multiple datasets
-Scenario('Multiple dataset @studyViewer', async ({home, users, login}) => {
+// test multiple datasets
+Scenario('Multiple dataset @studyViewer', async ({ home, users, login }) => {
   home.do.goToHomepage();
   login.complete.login(users.mainAcct);
   studyViewerTasks.goToStudyViewerPage();

@@ -20,9 +20,9 @@ module.exports = {
   async approvedStatus(reqIDPut) {
     console.log(`### put request id: ${reqIDPut}`);
     await I.sendPutRequest(
-        `${studyViewerProps.endpoint.requestEndPoint}/${reqIDPut}`,
-        { status:'APPROVED' },
-        users.mainAcct.accessTokenHeader,
+      `${studyViewerProps.endpoint.requestEndPoint}/${reqIDPut}`,
+      { status: 'APPROVED' },
+      users.mainAcct.accessTokenHeader,
     );
   },
 
@@ -32,9 +32,9 @@ module.exports = {
     console.log(`### put request id: ${reqIDPut}`);
     // sending PUT request /requestor/request/${req_id} endpoint
     await I.sendPutRequest(
-        `${studyViewerProps.endpoint.requestEndPoint}/${reqIDPut}`,
-        { status:'SIGNED' },
-        users.mainAcct.accessTokenHeader,
+      `${studyViewerProps.endpoint.requestEndPoint}/${reqIDPut}`,
+      { status: 'SIGNED' },
+      users.mainAcct.accessTokenHeader,
     );
   },
 
