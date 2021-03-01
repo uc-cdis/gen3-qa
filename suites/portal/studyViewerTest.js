@@ -7,10 +7,14 @@ const requestorTasks = require('../../services/apis/requestor/requestorTasks.js'
 
 const bash = new Bash();
 
-After(async ({ home }) => {
-  home.complete.logout();
-});
+// logout after each test
+// After(async ({ home }) => {
+//   home.complete.logout();
+// });
 
+// I need a beforeSuite block to run ETL
+
+// revokes your arborist access
 AfterSuite(async () => {
   console.log('### revoking arborist access');
   await bash.runCommand(`
@@ -30,6 +34,7 @@ Scenario('User doesnot login and requests the access @studyViewer', async ({ I, 
 });
 
 // The User logs in the commons and requests access
+// The request is APPROVED and then the request is SIGNED
 Scenario('User logs in and requests the access @studyViewer', async ({
   I, home, users, login,
 }) => {
@@ -39,7 +44,11 @@ Scenario('User logs in and requests the access @studyViewer', async ({
   await studyViewerTasks.clickRequestAccess();
   // request id from requestor db
   const requestID = await requestorTasks.getRequestId();
-  await requestorTasks.putRequest(requestID);
+  await requestorTasks.approvedStatus(requestID);
+  I.refreshPage();
+  I.wait(5);
+  await I.waitForElement(studyViewerProps.disabledButton);
+  await requestorTasks.signedRequest(requestID);
   I.refreshPage();
   I.wait(5);
   await studyViewerTasks.clickDownload();
@@ -64,4 +73,12 @@ Scenario('Navigation to the detailed dataset page @studyViewer', async ({ home, 
   login.complete.login(users.mainAcct);
   studyViewerTasks.goToStudyViewerPage();
   await studyViewerTasks.learnMoreButton();
+});
+
+//test multiple datasets
+Scenario('Multiple dataset @studyViewer', async ({home, users, login}) => {
+  home.do.goToHomepage();
+  login.complete.login(users.mainAcct);
+  studyViewerTasks.goToStudyViewerPage();
+  await studyViewerTasks.multipleStudyViewer();
 });
