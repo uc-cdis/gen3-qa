@@ -321,7 +321,7 @@ Scenario('Try to get Google Credentials as a client @manual', ifInteractive(
 ));
 
 // Scenario #15 - Run GraphQL Query against Peregrine (Graph Model)
-Scenario('Test a GraphQL query from the Web GUI @manual', ifInteractive(
+Scenario('Test a GraphQL query from the Web GUI @bdcat @manual', ifInteractive(
   async () => {
     const result = await interactive(`
             1. Login with NIH credentials
@@ -519,6 +519,21 @@ Scenario('Test the "Download Manifest" button from the Exploration page @manual'
             $ jq '. | length' /path/to/manifest.json
             NOTE: If there are data files that are not associated with subjects (e.g. Multisample VCFs), this number may
             be slightly smaller than $FILE_COUNT. I'm not sure how to get the exact number of expected data files :facepalm: --@mpingram
+            `);
+    expect(result.didPass, result.details).to.be.true;
+  },
+));
+
+// Scenario #23 - Explorer `AND/OR` toggle filter test
+Scenario('Test the "AND/OR" toggle filters in the Exploration page @bdcat @manual', ifInteractive(
+  async () => {
+    const result = await interactive(`
+            1. Login with NIH credentials
+            2. Click "Exploration" tab
+            3. Click on the "Project" tab and select two consent codes $CONSENT_CODES_ARRAY under "Data Use Restriction".
+            4. Record the number of subjects selected $SUBJECT_COUNT. The Data Use Restriction values for all records displayed should contain one or both of the selected consent codes in $CONSENT_CODES_ARRAY.
+            5. Click the gear toggle in the filter facet that displays the AND/OR toggle. Two buttons should appear. Switch the toggle from OR to AND by clicking the button labeled AND.
+            6. Expect changes in the number of projects and subjects. Record the number of subjects selected $SUBJECT_COUNT_2. The number of displayed records should decrease or remain constant: $SUBJECT_COUNT >= $SUBJECT_COUNT_2. The Data Use Restriction values for all records displayed should contain both selected consent codes in $CONSENT_CODES_ARRAY.
             `);
     expect(result.didPass, result.details).to.be.true;
   },
