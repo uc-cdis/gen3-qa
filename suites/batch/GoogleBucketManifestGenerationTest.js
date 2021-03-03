@@ -86,7 +86,7 @@ AfterSuite(async ({ I }) => {
 
 // Scenario #1 - Generate indexd manifest out of a Google Storage bucket
 // and check if the expected url, size, md5 and authz entries are in place
-Scenario('Generate bucket manifest from s3 bucket @googleStorage @batch @bucketManifest', async ({ I }) => {
+Scenario('Generate bucket manifest from Google Storage bucket @googleStorage @batch @bucketManifest', async ({ I }) => {
   await bash.runCommand('gcloud config set project dcf-integration');
   const svcAccount = await bash.runCommand('gcloud config get-value account');
   const theCmd = `gen3 gcp-bucket-manifest create ${testBucket} ${svcAccount} $PWD/authz_mapping_${I.cache.UNIQUE_NUM}.tsv`;
