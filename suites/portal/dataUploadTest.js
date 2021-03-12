@@ -113,22 +113,22 @@ Scenario('Map uploaded files in windmill submission page @dataUpload @portal', a
     users.mainAcct.accessTokenHeader,
   );
 
-  // user1 should see 1 file, but not ready yet
-  portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage(I, [fileObj], false);
-
-  // upload file
-  await uploadFile(I, dataUpload, indexd, sheepdog, nodes, fileObj, presignedUrl);
-
   if (!process.env.testedEnv.includes('midrc')) {
+    // user1 should see 1 file, but not ready yet
+    portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage(I, [fileObj], false);
+
+    // upload file
+    await uploadFile(I, dataUpload, indexd, sheepdog, nodes, fileObj, presignedUrl);
+
     // user1 should see 1 file ready
     portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage(I, [fileObj], true);
+
+    // user1 map file in windmill
+    await portalDataUpload.complete.mapFiles(I, [fileObj], submitterID);
+
+    // user1 should see 0 files now because all files are mapped.
+    portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage(I, []);
   }
-
-  // user1 map file in windmill
-  await portalDataUpload.complete.mapFiles(I, [fileObj], submitterID);
-
-  // user1 should see 0 files now because all files are mapped.
-  portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage(I, []);
 }).retry(2);
 
 Scenario('Cannot see files uploaded by other users @dataUpload @portal', async ({
