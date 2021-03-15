@@ -119,8 +119,10 @@ Scenario('Map uploaded files in windmill submission page @dataUpload @portal', a
   // upload file
   await uploadFile(I, dataUpload, indexd, sheepdog, nodes, fileObj, presignedUrl);
 
-  // user1 should see 1 file ready
-  portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage(I, [fileObj], true);
+  if (!process.env.testedEnv.includes('midrc')) {
+    // user1 should see 1 file ready
+    portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage(I, [fileObj], true);
+  }
 
   // user1 map file in windmill
   await portalDataUpload.complete.mapFiles(I, [fileObj], submitterID);
