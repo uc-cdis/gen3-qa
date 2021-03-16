@@ -38,7 +38,7 @@ log-encoding = UTF-8
 
 # File to write out logs
 # Type: string
-log-file = true
+#log-file = /test.log
 
 # Use plain log lines
 # Type: boolean
