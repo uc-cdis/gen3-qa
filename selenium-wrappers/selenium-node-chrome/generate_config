@@ -27,9 +27,6 @@ echo "[node]
 max-concurrent-sessions = ${SE_NODE_MAX_CONCURRENT_SESSIONS}
 " >> /opt/selenium/config.toml
 
-echo "line 1
-line 2" >> greetings.txt
-
 echo "[logging]
 # Configure logging
 # Type: boolean
