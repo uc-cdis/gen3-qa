@@ -276,16 +276,21 @@ Scenario('Dispatch partial match get-dbgap-metadata job with mock dbgap xml and 
 }).retry(1);
 
 // Scenario #4 - Instrument the metadata-service DELETE endpoint
-Scenario('send http delete to mds/objects/{guid} @metadataIngestion', async ({ I, users, fence }) => {
+Scenario('send http delete to mds/objects/{guid} @metadataIngestion', async ({ I, users }) => {
   const guidToBeDeleted = expectedResults.ingest_metadata_manifest.testGUID;
   console.log(`Step #4 - send http delete to mds/objects/${guidToBeDeleted} `);
-  const dispatchJob2 = await I.sendDeleteRequest(
+  const deleteReq = await I.sendDeleteRequest(
     `/mds/objects/${guidToBeDeleted}`,
     users.indexingAcct.accessTokenHeader,
   );
 
+  expect(
+    deleteReq,
+    'Deletion request did not return a http 200. Check mds logs tarball archived in Jenkins',
+  ).to.have.property('status', 201);
+
   // Make sure the GUID no longer exists in the json blobstore
-  httpReq = await I.sendGetRequest(
+  const httpReq = await I.sendGetRequest(
     `/mds/metadata/${guidToBeDeleted}`,
     users.indexingAcct.accessTokenHeader,
   );
