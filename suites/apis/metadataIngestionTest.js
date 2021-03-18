@@ -290,7 +290,7 @@ Scenario('send http delete to mds/objects/{guid} @metadataIngestion', async ({ I
   expect(
     deleteReq,
     'Deletion request did not return a http 200. Check mds logs tarball archived in Jenkins',
-  ).to.have.property('status', 201);
+  ).to.have.property('status', 204);
 
   // Make sure the GUID no longer exists in the json blobstore
   const httpReq = await I.sendGetRequest(
