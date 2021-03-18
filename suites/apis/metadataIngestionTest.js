@@ -274,3 +274,24 @@ Scenario('Dispatch partial match get-dbgap-metadata job with mock dbgap xml and 
     expectedResults.get_dbgap_metadata.testGUIDForPartialMatch,
   );
 }).retry(1);
+
+// Scenario #4 - Instrument the metadata-service DELETE endpoint
+Scenario('send http delete to mds/objects/{guid} @metadataIngestion', async ({ I, users, fence }) => {
+  const guidToBeDeleted = expectedResults.ingest_metadata_manifest.testGUID;
+  console.log(`Step #4 - send http delete to mds/objects/${guidToBeDeleted} `);
+  const dispatchJob2 = await I.sendDeleteRequest(
+    `/mds/objects/${guidToBeDeleted}`,
+    users.indexingAcct.accessTokenHeader,
+  );
+
+  // Make sure the GUID no longer exists in the json blobstore
+  httpReq = await I.sendGetRequest(
+    `/mds/metadata/${guidToBeDeleted}`,
+    users.indexingAcct.accessTokenHeader,
+  );
+
+  expect(
+    httpReq,
+    `Should have deleted the ${guidToBeDeleted} entry`,
+  ).to.have.property('status', 404);
+}).retry(1);
