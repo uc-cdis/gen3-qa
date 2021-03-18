@@ -191,6 +191,9 @@ Scenario('Dispatch ingest-metadata-manifest sower job with simple tsv and verify
   ).to.have.property('status', 200);
 
   await checkPod(I, sowerJobName, 'sowerjob');
+
+  // Deliberately leaving the authHeader argument undefined
+  // because the GET operation does not require auth
   const metadataServiceEntry = await checkMetadataServiceEntry(
     I,
     expectedResults.ingest_metadata_manifest.testGUID,
