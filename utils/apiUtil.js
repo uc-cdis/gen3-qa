@@ -439,7 +439,7 @@ module.exports = {
           css: '.covid19-dashboard_counts',
         },
       },
-      'niaid': {
+      niaid: {
         summary: {
           css: '.index-page__introduction',
         },
