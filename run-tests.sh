@@ -210,8 +210,9 @@ Running with:
   selectedTest=$selectedTest
 EOM
 
-echo 'INFO: installing dependencies'
-dryrun npm ci
+# Move this instruction to the Jenkins Pipeline Groovy logic 
+# echo 'INFO: installing dependencies'
+# dryrun npm ci
 
 ################################ Disable Test Tags #####################################
 
