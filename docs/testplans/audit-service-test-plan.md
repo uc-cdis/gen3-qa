@@ -11,10 +11,16 @@ More details can be found in the repo documentation.
 
 **Note:** At the time of writing, there is no endpoint to delete audit logs. To make sure you are querying the right audit data, and not data resulting from previous tests, make sure to use filters when querying logs.
 
-## Technical Documents
+## Technical documents
 
 - [Design doc](https://docs.google.com/document/d/1xcuU4QT1fYN69pmJo-emswvnTpiuWFa1xm7Air67aaw/edit?pli=1#heading=h.f061qmehfpgz)
 - [Swagger doc](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/uc-cdis/audit-service/master/docs/openapi.yaml)
+
+## Scope
+
+The scenarios described below cover all the use cases at the time of writing:
+- successful login audit logs (login via the portal, or via the OIDC flow)
+- successful downloads (presigned URLs) audit logs
 
 ## Configuration
 
@@ -56,3 +62,7 @@ Step #1 might be tricky since we can't easily automate going through the OIDC fl
 2. User C does not have access to download file X. User C requests a presigned URL from Fence to download file X. The request is unsuccessful.
 3. User B has access to query presigned URL audit logs. User B queries logs by making a call to the `GET /audit/log/presigned_url` endpoint. Use a filter: `guid=<file X GUID>`.
 4. Make sure there is no log describing step #2.
+
+## TODOs
+
+- We may need to update these scenarios and add new ones in the future as more audit log categories are implemented, or if we start recording unsuccessful events.
