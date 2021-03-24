@@ -1,6 +1,7 @@
 repos:
-  -   repo: https://github.com/Yelp/detect-secrets.git
-      rev: v0.13.1
-      hooks:
-      -   id: detect-secrets
-          args: ['--baseline', '.secrets.baseline']
+  - repo: https://github.com/Yelp/detect-secrets.git
+    rev: v1.0.3
+    hooks:
+    - id: detect-secrets
+      args: ['--baseline', '.secrets.baseline']
+      exclude: (package-lock.json|poetry.lock)$
