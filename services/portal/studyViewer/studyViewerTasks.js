@@ -13,7 +13,7 @@ module.exports = {
   goToStudyPage() {
     // /study-viewer/clinical_trials/ACTT
     I.amOnPage(studyViewerProps.datasetPath);
-    I.wait(5);
+    I.wait(10);
     I.saveScreenshot('dataset_page.png');
     I.waitForVisible(studyViewerProps.datasetDivClass, 5);
   },
