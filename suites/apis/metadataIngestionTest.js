@@ -18,6 +18,16 @@ const testTSVURL = 'https://cdis-presigned-url-test.s3.amazonaws.com/test-study-
 const testDbGaPURL = 'https://cdis-presigned-url-test.s3.amazonaws.com/test-dbgap-mock-study.xml'; // this is a copy of phs000200.v12.p3 with only 7 samples
 const testCSVToMergeWithStudyXML = 'https://cdis-presigned-url-test.s3.amazonaws.com/test-dbgap-mock-study.csv';
 
+const files = {
+  allowed: {
+    filename: 'test_valid',
+    link: 's3://cdis-presigned-url-test/testdata',
+    md5: '73d643ec3f4beb9020eef0beed440ad0',
+    acl: ['QA', 'jenkins'],
+    size: 9,
+  },
+}
+
 const expectedResults = {
   ingest_metadata_manifest: {
     sra_sample_id: 'SRS1361261',
@@ -124,7 +134,7 @@ async function feedTSVIntoMetadataIngestion(I, fence, uid, authHeader, expectedR
   await checkMetadataServiceEntry(I, expectedResult, authHeader);
 }
 
-BeforeSuite(async ({ I, users }) => {
+BeforeSuite(async ({ I, users, indexd }) => {
   console.log('Setting up dependencies...');
   I.cache = {};
   I.cache.UNIQUE_NUM = Date.now();
@@ -160,6 +170,11 @@ BeforeSuite(async ({ I, users }) => {
     `/mds-admin/metadata/${expectedResults.get_dbgap_metadata.testGUIDForPartialMatch}`,
     users.indexingAcct.accessTokenHeader,
   );
+
+  // To test the deletion endpoint, the mds record entry needs to reference an indexd record
+  // So let us create one
+  const ok = await indexd.do.addFileIndices(Object.values(files));
+  expect(ok).to.be.true;
 });
 
 AfterSuite(async ({ I }) => {
@@ -170,7 +185,7 @@ AfterSuite(async ({ I }) => {
 
 // Scenario #1 - Instrument sower HTTP API endpoint to trigger the ingest-metadata-manifest job
 // and check if the expected mds entry is created successfully
-Scenario('Dispatch ingest-metadata-manifest sower job with simple tsv and verify metadata ingestion @metadataIngestion', async ({ I, users }) => {
+xScenario('Dispatch ingest-metadata-manifest sower job with simple tsv and verify metadata ingestion @metadataIngestion', async ({ I, users }) => {
   const sowerJobName = 'ingest-metadata-manifest';
   const dispatchJob1 = await I.sendPostRequest(
     '/job/dispatch',
@@ -203,7 +218,7 @@ Scenario('Dispatch ingest-metadata-manifest sower job with simple tsv and verify
 
 // Scenario #2 - Instrument sower HTTP API endpoint to trigger the get-dbgap-metadata job
 // pointing to a mock dbgap study file and check if the expected mds entry is created successfully
-Scenario('Dispatch exact match get-dbgap-metadata job with mock dbgap xml and verify metadata ingestion @metadataIngestion', async ({ I, users, fence }) => {
+xScenario('Dispatch exact match get-dbgap-metadata job with mock dbgap xml and verify metadata ingestion @metadataIngestion', async ({ I, users, fence }) => {
   const sowerJobName = 'get-dbgap-metadata';
   console.log(`Step #1 - Dispatch ${sowerJobName} job`);
   const dispatchJob2 = await I.sendPostRequest(
@@ -242,7 +257,7 @@ Scenario('Dispatch exact match get-dbgap-metadata job with mock dbgap xml and ve
 // Scenario #3 - Instrument sower HTTP API endpoint to trigger the get-dbgap-metadata job again
 // Try a partial match between the Study XML (submitted_sample_id) and the CSV (aws_uri)
 // and check if the expected mds entry is created successfully
-Scenario('Dispatch partial match get-dbgap-metadata job with mock dbgap xml and verify metadata ingestion @metadataIngestion', async ({ I, users, fence }) => {
+xScenario('Dispatch partial match get-dbgap-metadata job with mock dbgap xml and verify metadata ingestion @metadataIngestion', async ({ I, users, fence }) => {
   const sowerJobName = 'get-dbgap-metadata';
   console.log(`Step #1 - Dispatch ${sowerJobName} job`);
   const dispatchJob2 = await I.sendPostRequest(
@@ -279,8 +294,22 @@ Scenario('Dispatch partial match get-dbgap-metadata job with mock dbgap xml and 
 }).retry(1);
 
 // Scenario #4 - Instrument the metadata-service DELETE endpoint
-Scenario('send http delete to mds/objects/{guid} @metadataIngestion', async ({ I, users }) => {
-  const guidToBeDeleted = expectedResults.ingest_metadata_manifest.testGUID;
+Scenario('create a new mds entry and then issue http delete against mds/objects/{guid} @metadataIngestion', async ({ I, users }) => {
+  const guidToBeDeleted = files.allowed.did;
+
+  const createMdsEntryReq = await I.sendPostRequest(
+    `/mds/objects/${guidToBeDeleted}`,
+    {
+      acl: files.allowed.acl,
+      authz: [],
+      file_name: files.allowed.filename,
+      metadata: expectedResults.ingest_metadata_manifest,
+    },
+    users.indexingAcct.accessTokenHeader,
+  );
+
+  // Currently returning 403 (You do not have access to generate the upload url for dg.xxx/xxxx})
+
   console.log(`Step #4 - send http delete to mds/objects/${guidToBeDeleted} `);
   const deleteReq = await I.sendDeleteRequest(
     `/mds/objects/${guidToBeDeleted}`,
@@ -289,8 +318,8 @@ Scenario('send http delete to mds/objects/{guid} @metadataIngestion', async ({ I
 
   expect(
     deleteReq,
-    'Deletion request did not return a http 200. Check mds logs tarball archived in Jenkins',
-  ).to.have.property('status', 200);
+    'Deletion request did not return a http 204. Check mds logs tarball archived in Jenkins',
+  ).to.have.property('status', 204);
 
   // Make sure the GUID no longer exists in the json blobstore
   const httpReq = await I.sendGetRequest(
