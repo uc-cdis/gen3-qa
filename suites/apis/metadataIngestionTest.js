@@ -26,7 +26,7 @@ const files = {
     acl: ['QA', 'jenkins'],
     size: 9,
   },
-}
+};
 
 const expectedResults = {
   ingest_metadata_manifest: {
@@ -185,7 +185,7 @@ AfterSuite(async ({ I }) => {
 
 // Scenario #1 - Instrument sower HTTP API endpoint to trigger the ingest-metadata-manifest job
 // and check if the expected mds entry is created successfully
-xScenario('Dispatch ingest-metadata-manifest sower job with simple tsv and verify metadata ingestion @metadataIngestion', async ({ I, users }) => {
+Scenario('Dispatch ingest-metadata-manifest sower job with simple tsv and verify metadata ingestion @metadataIngestion', async ({ I, users }) => {
   const sowerJobName = 'ingest-metadata-manifest';
   const dispatchJob1 = await I.sendPostRequest(
     '/job/dispatch',
@@ -218,7 +218,7 @@ xScenario('Dispatch ingest-metadata-manifest sower job with simple tsv and verif
 
 // Scenario #2 - Instrument sower HTTP API endpoint to trigger the get-dbgap-metadata job
 // pointing to a mock dbgap study file and check if the expected mds entry is created successfully
-xScenario('Dispatch exact match get-dbgap-metadata job with mock dbgap xml and verify metadata ingestion @metadataIngestion', async ({ I, users, fence }) => {
+Scenario('Dispatch exact match get-dbgap-metadata job with mock dbgap xml and verify metadata ingestion @metadataIngestion', async ({ I, users, fence }) => {
   const sowerJobName = 'get-dbgap-metadata';
   console.log(`Step #1 - Dispatch ${sowerJobName} job`);
   const dispatchJob2 = await I.sendPostRequest(
@@ -257,7 +257,7 @@ xScenario('Dispatch exact match get-dbgap-metadata job with mock dbgap xml and v
 // Scenario #3 - Instrument sower HTTP API endpoint to trigger the get-dbgap-metadata job again
 // Try a partial match between the Study XML (submitted_sample_id) and the CSV (aws_uri)
 // and check if the expected mds entry is created successfully
-xScenario('Dispatch partial match get-dbgap-metadata job with mock dbgap xml and verify metadata ingestion @metadataIngestion', async ({ I, users, fence }) => {
+Scenario('Dispatch partial match get-dbgap-metadata job with mock dbgap xml and verify metadata ingestion @metadataIngestion', async ({ I, users, fence }) => {
   const sowerJobName = 'get-dbgap-metadata';
   console.log(`Step #1 - Dispatch ${sowerJobName} job`);
   const dispatchJob2 = await I.sendPostRequest(
@@ -308,6 +308,7 @@ Scenario('create a new mds entry and then issue http delete against mds/objects/
     users.indexingAcct.accessTokenHeader,
   );
 
+  console.log(`createMdsEntryReq status: ${createMdsEntryReq.status}`);
   // Currently returning 403 (You do not have access to generate the upload url for dg.xxx/xxxx})
 
   console.log(`Step #4 - send http delete to mds/objects/${guidToBeDeleted} `);
