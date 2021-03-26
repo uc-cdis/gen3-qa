@@ -295,51 +295,15 @@ xScenario('Dispatch partial match get-dbgap-metadata job with mock dbgap xml and
 
 // Scenario #4 - Instrument the metadata-service DELETE endpoint
 Scenario('create a new mds entry and then issue http delete against mds/objects/{guid} @metadataIngestion', async ({ I, users }) => {
-  const guidToBeDeleted = 'b44748d0-b95f-4075-8523-0f76bbeae7de';
+  const guidToBeDeleted = files.allowed.did;
 
   const createMdsEntryReq = await I.sendPostRequest(
-    `/mds/metadata/${guidToBeDeleted}`,
+    `/mds/objects/${guidToBeDeleted}`,
     {
-      record: {
-        acl: ['QA', 'jenkins'],
-        authz: [],
-        file_name: 'whatever.txt',
-      },
-      metadata: {
-        dbgap: {
-          sex: "female",
-          body_site: "peripheral blood",
-          repository: "STARLabs",
-          sample_use: [
-            "Seq_DNA_BMW_CIA_FBI",
-          ],
-          analyte_type: "DNA",
-          biosample_id: "SAMN666",
-          consent_code: 2,
-          dbgap_status: "Loaded",
-          sra_sample_id: "SRS666",
-          dbgap_sample_id: 666,
-          study_accession: "phs666.v6.p6",
-          dbgap_subject_id: 666,
-          sra_data_details: {
-            runs: "2",
-            bases: "666",
-            center: "Macrogen",
-            status: "public",
-            size_Gb: "666",
-            platform: "TEST",
-            experiments: "2",
-            experiment_type: "WGS"
-          },
-          study_subject_id: "phs666.v6_GS666",
-          consent_short_name: "DS-CVD-FBI-BMW-JLA-SHIELD",
-          study_with_consent: "phs666.c6",
-          submitted_sample_id: "NWD666",
-          submitted_subject_id: "GS666",
-          study_accession_with_consent: "phs666.v6.p6.c6"
-        },
-        _guid_type: "indexed_file_object"
-      },
+      acl: files.allowed.acl,
+      authz: [],
+      file_name: files.allowed.filename,
+      metadata: expectedResults.ingest_metadata_manifest,
     },
     users.indexingAcct.accessTokenHeader,
   );
