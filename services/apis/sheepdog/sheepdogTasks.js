@@ -74,6 +74,7 @@ module.exports = {
    */
   async addNode(node, accessTokenHeader = user.mainAcct.accessTokenHeader) {
     // PUT to sheepdog
+    console.log(`Submitting node: ${node.data}`);
     return I.sendPutRequest(
       sheepdogProps.endpoints.add,
       node.data,

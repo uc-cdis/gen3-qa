@@ -5,6 +5,10 @@ class CDISHelper extends Helper {
   async _failed(testResult) { // eslint-disable-line class-methods-use-this
     // append health of services to error stack
     const healthCheck = await Commons.makeHealthCheck();
+    if (!testResult.err) {
+      console.log('Cannot push to test results error stack...');
+      return;
+    }
     testResult.err.stack += '\n\nServices Health Check:';
     Promise.all(healthCheck).then((res) => {
       testResult.err.stack += res;
