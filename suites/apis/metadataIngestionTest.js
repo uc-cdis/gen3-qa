@@ -20,10 +20,10 @@ const testCSVToMergeWithStudyXML = 'https://cdis-presigned-url-test.s3.amazonaws
 
 const files = {
   allowed: {
-    filename: 'test_valid',
-    link: 's3://cdis-presigned-url-test/testdata',
+    filename: 'mds-test.file',
     md5: '73d643ec3f4beb9020eef0beed440ad0',
-    acl: ['QA', 'jenkins'],
+    link: 's3://cdis-presigned-url-test/mds-test.file',
+    authz: ['/programs/QA'],
     size: 9,
   },
 };
@@ -295,13 +295,18 @@ xScenario('Dispatch partial match get-dbgap-metadata job with mock dbgap xml and
 
 // Scenario #4 - Instrument the metadata-service DELETE endpoint
 Scenario('create a new mds entry and then issue http delete against mds/objects/{guid} @metadataIngestion', async ({ I, users }) => {
+  // create a local small file to upload to test bucket.
+  const uploadTmpFile = await bash.runCommand(`
+    echo "hello mds" > mds-test.file && aws s3 cp ./mds-test.file s3://cdis-presigned-url-test/mds-test.file
+  `);
+  console.log(`uploadTmpFile: ${uploadTmpFile}`);
+
   const guidToBeDeleted = files.allowed.did;
 
   const createMdsEntryReq = await I.sendPostRequest(
     `/mds/objects/${guidToBeDeleted}`,
     {
-      acl: files.allowed.acl,
-      authz: [],
+      authz: files.allowed.authz,
       file_name: files.allowed.filename,
       metadata: expectedResults.ingest_metadata_manifest,
     },
