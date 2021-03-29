@@ -93,6 +93,7 @@ if [ -f ./pyproject.toml ]; then
   poetry config virtualenvs.path "${WORKSPACE}/datasimvirtenv" --local  
   poetry env use python3.8
   sed -i '/^dictionaryutils*/a py2neo = "^2021.0.1"' pyproject.toml
+  poetry update
   # install data-simulator  
   # retry in case of any connectivity failures
   for attempt in {1..3}; do
