@@ -439,15 +439,7 @@ module.exports = {
           css: '.covid19-dashboard_counts',
         },
       },
-      accessclinical: {
-        summary: {
-          css: '.index-page__introduction',
-        },
-        cards: {
-          css: '.g3-button',
-        },
-      },
-      'qa-niaid': {
+      niaid: {
         summary: {
           css: '.index-page__introduction',
         },
