@@ -292,9 +292,9 @@ if [[ "$isGen3Release" != "true" && "$service" != "gen3-qa" && "$service" != "fe
 else
   #
   # Run tests including RAS AuthN Integration tests
-  #
-  runTestsIfServiceVersion "@rasAuthN" "fence" "4.22.1" "2020.09"
-  echo "INFO: enabling RAS AuthN Integration tests for $service"
+  donot '@rasAuthN'
+  # runTestsIfServiceVersion "@rasAuthN" "fence" "4.22.1" "2020.09"
+  # echo "INFO: enabling RAS AuthN Integration tests for $service"
 fi
 
 # TODO: eventually enable for all services, but need arborist and fence updates first
@@ -379,12 +379,13 @@ if [ -z "$checkForPresenceOfMetadataIngestionSowerJob" ]; then
   donot '@metadataIngestion'
 fi
 
-# studyViewer
-if [[ $(curl -s "$portalConfigURL" | jq 'contains({studyViewerConfig}) | not') == "true" ]] || [[ ! -z "$testedEnv" ]]; then
-  donot '@studyViewer'
-elif ! (g3kubectl get pods --no-header -l app=requestor | grep requestor) > dev/null 2>&1; then
-  donot '@studyViewer'
-fi
+# # studyViewer
+# if [[ $(curl -s "$portalConfigURL" | jq 'contains({studyViewerConfig}) | not') == "true" ]] || [[ ! -z "$testedEnv" ]]; then
+#   donot '@studyViewer'
+# elif ! (g3kubectl get pods --no-header -l app=requestor | grep requestor) > dev/null 2>&1; then
+#   donot '@studyViewer'
+# fi
+donot '@studyViewer'
 
 # landing page buttons
 if [[ $(curl -s "$portalConfigURL" | jq '.components | contains({buttons}) | not') == "true" ]] || [[ ! -z "$testedEnv" ]]; then
