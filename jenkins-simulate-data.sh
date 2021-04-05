@@ -88,24 +88,17 @@ echo "Leaf node set to: $leafNode"
 #
 
 # temp patch
-sudo docker run -d -v "${TEST_DATA_PATH}:/mnt/data" --rm --name=dsim --entrypoint=data-simulator quay.io/cdis/data-simulator:master simulate --url "${TEST_DICTIONARY}" --path /mnt/data --program jnkns --project jenkins --max_samples 10
 
-sleep 10
+aws s3 cp s3://cdistest-public-test-bucket/data-simulator-1.3.3.tar.gz $WORKSPACE/data-simulator.tar.gz
 
-docker logs dsim
+pwd
+ls -ltr
 
-sudo docker run -d -v "${TEST_DATA_PATH}:/mnt/data" --rm --name=dsim --entrypoint=data-simulator quay.io/cdis/data-simulator:master submission_order --url "${TEST_DICTIONARY}" --path /mnt/data --node_name $leafNode
+python3 -m pip install data-simulator.tar.gz --user
 
-sleep 3
-docker logs dsim
+data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins
 
-gen3 api access-token cdis.autotest@gmail.com | tail -n1 > token
-
-sudo docker run -d -v "${TEST_DATA_PATH}:/mnt/data" -v "$(pwd):/tmp/" --rm --name=dsim --entrypoint=data-simulator quay.io/cdis/data-simulator:master submitting_data --host https://${namespace}.planx-pla.net  --dir /mnt/data --project jnkns/jenkins --access_token /tmp/token
-
-sleep 10
-
-docker logs dsim
+data-simulator submission_order --url $dictURL --path $TEST_DATA_PATH --node_name $leafNode
 
 #if [ -f ./pyproject.toml ]; then
 #  echo "Found pyproject.toml, using poetry to install data simulator"
