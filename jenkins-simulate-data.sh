@@ -94,14 +94,14 @@ sleep 10
 
 docker logs dsim
 
-sudo docker run -privileged -d -v "${TEST_DATA_PATH}:/mnt/data" --rm --name=dsim --entrypoint=data-simulator quay.io/cdis/data-simulator:master submission_order --url "${TEST_DICTIONARY}" --path /mnt/data --node_name $leafNode
+sudo docker run -d -v "${TEST_DATA_PATH}:/mnt/data" --rm --name=dsim --entrypoint=data-simulator quay.io/cdis/data-simulator:master submission_order --url "${TEST_DICTIONARY}" --path /mnt/data --node_name $leafNode
 
 sleep 3
 docker logs dsim
 
 gen3 api access-token cdis.autotest@gmail.com | tail -n1 > token
 
-sudo docker run -privileged -d -v "${TEST_DATA_PATH}:/mnt/data" -v "$(pwd):/tmp/" --rm --name=dsim --entrypoint=data-simulator quay.io/cdis/data-simulator:master submitting_data --host https://${namespace}.planx-pla.net  --dir /mnt/data --project jnkns/jenkins --access_token /tmp/token
+sudo docker run -d -v "${TEST_DATA_PATH}:/mnt/data" -v "$(pwd):/tmp/" --rm --name=dsim --entrypoint=data-simulator quay.io/cdis/data-simulator:master submitting_data --host https://${namespace}.planx-pla.net  --dir /mnt/data --project jnkns/jenkins --access_token /tmp/token
 
 sleep 10
 
