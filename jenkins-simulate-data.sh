@@ -88,7 +88,7 @@ echo "Leaf node set to: $leafNode"
 #
 
 # temp patch
-gen3 job run gentestdata SUBMISSION_USER cdis.autotest@gmail.com
+gen3 job run gentestdata SUBMISSION_USER cdis.autotest@gmail.com GEN3_SUBMISSION_ORDER $leafNode
 
 sleep 60
 
