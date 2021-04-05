@@ -94,7 +94,8 @@ aws s3 cp s3://cdistest-public-test-bucket/data-simulator-1.3.3.tar.gz $WORKSPAC
 pwd
 ls -ltr
 
-python3 -m pip install $WORKSPACE/data-simulator.tar.gz --user
+python3 -m pip install $WORKSPACE/data-simulator.tar.gz --user --force-reinstall
+export PATH="/var/jenkins_home/.local/bin:$PATH"
 
 data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins
 
