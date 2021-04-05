@@ -88,7 +88,6 @@ echo "Leaf node set to: $leafNode"
 #
 
 # temp patch
-<<<<<<< HEAD
 docker run -d -v "${TEST_DATA_PATH}:/mnt/data" --rm --name=dsim --entrypoint=data-simulator quay.io/cdis/data-simulator:master simulate --url "${TEST_DICTIONARY}" --path /mnt/data --program jnkns --project jenkins --max_samples 10
 
 sleep 10
