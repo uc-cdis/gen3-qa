@@ -88,11 +88,16 @@ echo "Leaf node set to: $leafNode"
 #
 
 # temp patch
-gen3 job run gentestdata SUBMISSION_USER cdis.autotest@gmail.com GEN3_SUBMISSION_ORDER $leafNode
+docker run -it -v "${TEST_DATA_PATH}:/mnt/data" --rm --name=dsim --entrypoint=data-simulator quay.io/cdis/data-simulator:master simulate --url "${TEST_DICTIONARY}" --path /mnt/data --program jnkns --project jenkins --max_samples 10
 
-sleep 60
+sleep 2
 
-gen3 job logs gentestdata
+docker run -it -v "${TEST_DATA_PATH}:/mnt/data" --rm --name=dsim --entrypoint=data-simulator quay.io/cdis/data-simulator:master submission_order --url "${TEST_DICTIONARY}" --path /mnt/data --node_name $leafNode
+
+gen3 api access-token cdis.autotest@gmail.com | tail -n1 > token
+
+docker run -it -v "${TEST_DATA_PATH}:/mnt/data" -v "$(pwd):/tmp/" --rm --name=dsim --entrypoint=data-simulator quay.io/cdis/data-simulator:master submitting_data --host https://${namespace}.planx-pla.net  --dir /mnt/data --project jnkns/jenkins --access_token /tmp/token
+
 
 #if [ -f ./pyproject.toml ]; then
 #  echo "Found pyproject.toml, using poetry to install data simulator"
