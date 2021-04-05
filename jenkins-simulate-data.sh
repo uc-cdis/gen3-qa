@@ -86,70 +86,78 @@ echo "Leaf node set to: $leafNode"
 #
 # assume that we are running in the data-simulator directory
 #
-if [ -f ./pyproject.toml ]; then
-  echo "Found pyproject.toml, using poetry to install data simulator"
-  # put poetry in the path
-  export PATH="/var/jenkins_home/.local/bin:$PATH"
-  poetry config virtualenvs.path "${WORKSPACE}/datasimvirtenv" --local  
-  poetry env use python3.8
-  # install data-simulator  
-  # retry in case of any connectivity failures
-  for attempt in {1..3}; do
-    yes | poetry cache clear --all pypi
-    poetry run pip install --upgrade pip
-    poetry install -vv --no-dev
-    if [[ $? -ne 0 ]]; then
-      echo "ERROR: Failed to install poetry / dependencies on attempt #${attempt}"
-      writeMetricWithResult "FAIL"
-      sleep ${attempt}
-      echo "trying again..."
-    else
-      echo "poetry install returned a successful status code, proceeding with the data simulation..."
-      break
-    fi
-  done
 
-  export PYTHONPATH=.
-  pyCMD="poetry run data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
-  eval $pyCMD
-  if [[ $? -ne 0 ]]; then
-    echo "ERROR: Failed to simulate test data for $namespace"
-    writeMetricWithResult "FAIL"
-    exit 1
-  fi
+# temp patch
+gen3 job run gentestdata SUBMISSION_USER cdis.autotest@gmail.com
 
-  pyCMD2="poetry run data-simulator submission_order --url $dictURL --path $TEST_DATA_PATH --node_name $leafNode"
-  eval $pyCMD2
-  if [[ $? -ne 0 ]]; then
-    echo "ERROR: Failed to generate submission_order data for $namespace"
-    writeMetricWithResult "FAIL"
-    exit 1
-  fi
-else
-  echo "Not found pyproject.toml, using pip to install data simulator (old way)"
-  /usr/bin/pip3 install cdislogging
-  /usr/bin/pip3 install --user -r requirements.txt
-  #python setup.py develop --user
+sleep 60
 
-  # Fail script if any of following commands fail
-  set -e
+gen3 job logs gentestdata
 
-  export PYTHONPATH=.
-  pyCMD="python3 bin/data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
-  eval $pyCMD
-  if [[ $? -ne 0 ]]; then
-    echo "ERROR: Failed to simulate test data for $namespace"
-    writeMetricWithResult "FAIL"
-    exit 1
-  fi
-
-  pyCMD2="python3 bin/data-simulator submission_order --url $dictURL --path $TEST_DATA_PATH --node_name $leafNode"
-  eval $pyCMD2
-  if [[ $? -ne 0 ]]; then
-    echo "ERROR: Failed to generate submission_order data for $namespace"
-    writeMetricWithResult "FAIL"
-    exit 1
-  fi
-fi
+#if [ -f ./pyproject.toml ]; then
+#  echo "Found pyproject.toml, using poetry to install data simulator"
+#  # put poetry in the path
+#  export PATH="/var/jenkins_home/.local/bin:$PATH"
+#  poetry config virtualenvs.path "${WORKSPACE}/datasimvirtenv" --local  
+#  poetry env use python3.8
+#  # install data-simulator  
+#  # retry in case of any connectivity failures
+#  for attempt in {1..3}; do
+#    yes | poetry cache clear --all pypi
+#    poetry run pip install --upgrade pip
+#    poetry install -vv --no-dev
+#    if [[ $? -ne 0 ]]; then
+#      echo "ERROR: Failed to install poetry / dependencies on attempt #${attempt}"
+#      writeMetricWithResult "FAIL"
+#      sleep ${attempt}
+#      echo "trying again..."
+#    else
+#      echo "poetry install returned a successful status code, proceeding with the data simulation..."
+#      break
+#    fi
+#  done
+# 
+#  export PYTHONPATH=.
+#  pyCMD="poetry run data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
+#  eval $pyCMD
+#  if [[ $? -ne 0 ]]; then
+#    echo "ERROR: Failed to simulate test data for $namespace"
+#    writeMetricWithResult "FAIL"
+#    exit 1
+#  fi
+# 
+#  pyCMD2="poetry run data-simulator submission_order --url $dictURL --path $TEST_DATA_PATH --node_name $leafNode"
+#  eval $pyCMD2
+#  if [[ $? -ne 0 ]]; then
+#    echo "ERROR: Failed to generate submission_order data for $namespace"
+#    writeMetricWithResult "FAIL"
+#    exit 1
+#  fi
+#else
+#  echo "Not found pyproject.toml, using pip to install data simulator (old way)"
+#  /usr/bin/pip3 install cdislogging
+#  /usr/bin/pip3 install --user -r requirements.txt
+#  #python setup.py develop --user
+# 
+#  # Fail script if any of following commands fail
+#  set -e
+# 
+#  export PYTHONPATH=.
+#  pyCMD="python3 bin/data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
+#  eval $pyCMD
+#  if [[ $? -ne 0 ]]; then
+#    echo "ERROR: Failed to simulate test data for $namespace"
+#    writeMetricWithResult "FAIL"
+#    exit 1
+#  fi
+# 
+#  pyCMD2="python3 bin/data-simulator submission_order --url $dictURL --path $TEST_DATA_PATH --node_name $leafNode"
+#  eval $pyCMD2
+#  if [[ $? -ne 0 ]]; then
+#    echo "ERROR: Failed to generate submission_order data for $namespace"
+#    writeMetricWithResult "FAIL"
+#    exit 1
+#  fi
+#fi
 
 writeMetricWithResult "PASS"
