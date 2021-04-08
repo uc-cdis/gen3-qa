@@ -1,5 +1,7 @@
 const { Commons } = require('../utils/commons');
 
+console.log(`### KUBECTL_NAMESPACE: ${process.env.KUBECTL_NAMESPACE}`);
+
 async function createProgramAndProjectsForTesting(nAttempts = 3) {
   let success = false;
   for (let i = 0; i < nAttempts; i += 1) {
