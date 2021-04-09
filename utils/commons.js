@@ -56,6 +56,7 @@ class Commons {
       form: JSON.stringify(Commons.program),
     };
     console.log(`### ## programForm['headers']: ${JSON.stringify(programForm.headers)}`);
+    console.log(`### ## programForm['url']: ${JSON.stringify(programForm.url)}`);
     const projectForm = {
       url: `${endpoint}${programName}/`,
       method: 'POST',
