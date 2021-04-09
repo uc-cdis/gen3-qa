@@ -73,6 +73,7 @@
     "eslintdiff": "lint-diff $TRAVIS_COMMIT_RANGE",
     "flint": "eslint --ignore-path .gitignore",
     "test": "npx --stack-size=65500 codeceptjs run --plugins allure",
+    "parallel-test": "npx --stack-size=65500 codeceptjs run-workers 3 --plugins allure",
     "grep-test": ". local_run.sh && codeceptjs run --verbose --grep",
     "create-service": "node scripts/create_service.js"
   }

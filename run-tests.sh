@@ -2,7 +2,7 @@
 #
 # Jenkins launch script.
 # Use:
-#   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--selectedTest=selectedTest]
+#   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--isParallelTesting=isParallelTesting] [--selectedTest=selectedTest]
 #
 
 set -xe
@@ -13,11 +13,12 @@ Jenkins test launch script.  Assumes the  GEN3_HOME environment variable
 references a current [cloud-automation](https://github.com/uc-cdis/cloud-automation) folder.
 
 Use:
-  bash run-tests.sh [[--namespace=]KUBECTL_NAMESPACE] [--service=service] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--selectedTest=selectedTest] [--dryrun]
+  bash run-tests.sh [[--namespace=]KUBECTL_NAMESPACE] [--service=service] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--isParallelTesting=isParallelTesting] [--selectedTest=selectedTest] [--dryrun]
     --namespace default is KUBECTL_NAMESPACE:-default
     --service default is service:-none
     --testedEnv default is testedEnv:-none (for cdis-manifest PRs, specifies which environment is being tested, to know which tests are relevant)
     --isGen3Release default is "false"
+    --isParallelTesting default is "false"
     --selectedTest default is selectedTest:-none
 EOM
 }
@@ -142,6 +143,7 @@ namespaceName="${KUBECTL_NAMESPACE}"
 service="${service:-""}"
 testedEnv="${testedEnv:-""}"
 isGen3Release="${isGen3Release:false}"
+isParallelTesting="${isParallelTesting:false}"
 selectedTest="${selectedTest:-"all"}"
 
 while [[ $# -gt 0 ]]; do
@@ -163,6 +165,9 @@ while [[ $# -gt 0 ]]; do
       ;;
     isGen3Release)
       isGen3Release="$value"
+      ;;
+    isParallelTesting)
+      isParallelTesting="$value"
       ;;
     selectedTest)
       selectedTest="$value"
@@ -207,6 +212,7 @@ Running with:
   service=$service
   testedEnv=$testedEnv
   isGen3Release=$isGen3Release
+  isParallelTesting=$isParallelTesting
   selectedTest=$selectedTest
 EOM
 
@@ -437,7 +443,13 @@ if [ "$selectedTest" == "all" ]; then
 Launching test in $NAMESPACE
 EOM
     set +e
-    dryrun npm 'test' -- $testArgs
+
+    # CodeceptJS Parallel Execution
+    if [ "$isParallelTesting" == "true" ]; then
+      dryrun npm run-script parallel-test -- $testArgs
+    else
+      dryrun npm 'test' -- $testArgs
+    fi
     RC=$?
     #
     # Do this kind of thing (uncomment the following line, change the grep)
@@ -459,8 +471,14 @@ else
   else
     additionalArgs="--grep @manual --invert"
   fi
+
   set -e
-  npm 'test' -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
+  # CodeceptJS Parallel Execution
+  if [ "$isParallelTesting" == "true" ]; then
+    npm run-script parallel-test -- $testArgs
+  else
+    npm 'test' -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
+  fi
 fi
 
 # When zero tests are executed, a results*.xml file is produced containing a tests="0" counter
