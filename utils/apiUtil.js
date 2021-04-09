@@ -178,6 +178,7 @@ module.exports = {
       //     or with API key when running in LOCAL_AGAINST_REMOTE mode ...
       const fenceCmd = `fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account,google_credentials --type access_token --exp ${expiration} --username ${username}`;
       try {
+        console.log(`### THE KUBECTL_NAMESPACE: ${process.env.KUBECTL_NAMESPACE}`);
         const accessToken = bash.runCommand(fenceCmd, 'fence', takeLastLine);
         console.log(`### THE ACCESS TOKEN: ${accessToken}`);
         const decodedToken = module.exports.parseJwt(accessToken);
