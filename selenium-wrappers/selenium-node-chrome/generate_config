@@ -1,0 +1,53 @@
+#!/bin/bash
+
+echo "[events]
+publish = \"tcp://${SE_EVENT_BUS_HOST}:${SE_EVENT_BUS_PUBLISH_PORT}\"
+subscribe = \"tcp://${SE_EVENT_BUS_HOST}:${SE_EVENT_BUS_SUBSCRIBE_PORT}\"
+" > /opt/selenium/config.toml
+
+if [[ -z "${SE_NODE_HOST}" ]] || [[ -z "${SE_NODE_PORT}" ]]; then
+  echo "Configuring server..."
+else
+  echo "[server]" >> /opt/selenium/config.toml
+fi
+
+if [[ -z "${SE_NODE_HOST}" ]]; then
+  echo "Setting up SE_NODE_HOST..."
+else
+  echo "hostname = \"${SE_NODE_HOST}\"" >> /opt/selenium/config.toml
+fi
+
+if [[ -z "${SE_NODE_PORT}" ]]; then
+  echo "Setting up SE_NODE_PORT..."
+else
+  echo "port = \"${SE_NODE_PORT}\"" >> /opt/selenium/config.toml
+fi
+
+echo "[node]
+max-concurrent-sessions = ${SE_NODE_MAX_CONCURRENT_SESSIONS}
+" >> /opt/selenium/config.toml
+
+echo "[logging]
+# Configure logging
+# Type: boolean
+enable = true
+
+# Log encoding
+# Type: string
+log-encoding = UTF-8
+
+# File to write out logs
+# Type: string
+#log-file = /test.log
+
+# Use plain log lines
+# Type: boolean
+plain-logs = true
+
+# Use structured logs
+# Type: boolean
+structured-logs = false
+
+# Enable trace collection
+# Type: boolean
+tracing = true" >> /opt/selenium/config.toml
