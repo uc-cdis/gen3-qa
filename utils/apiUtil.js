@@ -177,8 +177,10 @@ module.exports = {
       // TODO - introduce support for getting token from environment variable
       //     or with API key when running in LOCAL_AGAINST_REMOTE mode ...
       const fenceCmd = `fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account,google_credentials --type access_token --exp ${expiration} --username ${username}`;
-      const accessToken = bash.runCommand(fenceCmd, 'fence', takeLastLine);
       try {
+        console.log(`### THE KUBECTL_NAMESPACE: ${process.env.KUBECTL_NAMESPACE}`);
+        const accessToken = bash.runCommand(fenceCmd, 'fence', takeLastLine);
+        console.log(`### THE ACCESS TOKEN: ${accessToken}`);
         const decodedToken = module.exports.parseJwt(accessToken);
         // console.log(`decodedToken: ${JSON.stringify(decodedToken)}`);
         const nameFromToken = decodedToken.context.user.name;

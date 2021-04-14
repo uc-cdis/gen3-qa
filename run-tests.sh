@@ -211,7 +211,7 @@ Running with:
 EOM
 
 echo 'INFO: installing dependencies'
-if [ -f gen3-qa-mutext.marker ]; then
+if [ -f gen3-qa-mutex.marker ]; then
   echo "parallel-testing is enabled, the dependencies have already been installed by Jenkins."
 else
   dryrun npm ci
