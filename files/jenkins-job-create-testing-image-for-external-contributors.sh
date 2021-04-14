@@ -30,7 +30,7 @@ else
   git push origin --delete automatedCopy-$NAME_OF_THE_BRANCH
 fi
 
-echo "creating new branch $NAME_OF_THE_BRANCH"
+echo "creating new branch automatedCopy-$NAME_OF_THE_BRANCH"
 git checkout -b automatedCopy-$NAME_OF_THE_BRANCH
 
 echo "changing origin to pull changes from external repo: https://${EXTERNAL_REPO_REMOTE_URL}"
