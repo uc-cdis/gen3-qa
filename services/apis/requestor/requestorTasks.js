@@ -8,7 +8,7 @@ module.exports = {
   async getRequestId() {
     const getResponse = await I.sendGetRequest(
       `${studyViewerProps.endpoint.userEndPoint}`,
-      users.mainAcct.accessTokenHeader,
+      users.user0.accessTokenHeader,
     );
     const responseData = getResponse.data;
     const reqID = responseData[0].request_id;
