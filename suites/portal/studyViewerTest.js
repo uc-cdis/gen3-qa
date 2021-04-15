@@ -18,10 +18,11 @@ const bash = new Bash();
 AfterSuite(async () => {
   console.log('### revoking arborist access');
   // for qa-niaid testing to revoke the arborist access
-  // gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/policy/programs.NIAID.projects.ACTT_reader
+  /* gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/
+  policy/programs.NIAID.projects.ACTT_reader */
   // if running in jenkins use this policy -> programs.jnkns.projects.jenkins_reader
   await bash.runCommand(`
-        gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/policy/programs.jnkns.projects.jenkins_reader
+     gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/policy/programs.jnkns.projects.jenkins_reader
     `);
   console.log('### The access is revoked');
 });
@@ -48,7 +49,7 @@ Scenario('User logs in and requests the access @studyViewer', async ({
   home.do.goToHomepage();
   login.complete.login(users.user0);
   studyViewerTasks.goToStudyViewerPage();
-  await studyViewerTasks.learnMoreButton()
+  await studyViewerTasks.learnMoreButton();
   await studyViewerTasks.clickRequestAccess();
   // request id from requestor db
   const requestID = await requestorTasks.getRequestId();
@@ -84,8 +85,10 @@ Scenario('Navigation to the detailed dataset page @studyViewer', async ({ home, 
   await studyViewerTasks.learnMoreButton();
 });
 
-//test multiple datasets
-Scenario('Multiple dataset @studyViewer', async ({ I, home, users, login }) => {
+// test multiple datasets
+Scenario('Multiple dataset @studyViewer', async ({
+  I, home, users, login,
+}) => {
   home.do.goToHomepage();
   login.complete.login(users.user0);
   studyViewerTasks.goToStudyViewerPage();
@@ -96,6 +99,6 @@ Scenario('Multiple dataset @studyViewer', async ({ I, home, users, login }) => {
     I.saveScreenshot('multipleDataset.png');
     await studyViewerTasks.multipleStudyViewer();
   } else {
-    console.log("### This environment contains only one dataset for testing");
+    console.log('### This environment contains only one dataset for testing');
   }
 });

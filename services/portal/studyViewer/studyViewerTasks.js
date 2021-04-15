@@ -7,7 +7,7 @@ module.exports = {
   goToStudyViewerPage() {
     I.amOnPage(studyViewerProps.dataset1Path); // study-viewer/clinical_trials
     I.waitForVisible(studyViewerProps.studyViewerDivClass, 5); // .study-viewer
-    I.wait(5)
+    I.wait(5);
     I.saveScreenshot('study_viewer_page.png');
   },
 
@@ -30,7 +30,7 @@ module.exports = {
   },
 
   // testing `Learn More` button
-  async learnMoreButton(){
+  async learnMoreButton() {
     await I.seeElement(studyViewerProps.dataset1detailedButtonXPath);
     I.saveScreenshot('before_click.png');
     I.click(studyViewerProps.dataset1detailedButtonXPath);
@@ -41,7 +41,7 @@ module.exports = {
     await I.seeElement(studyViewerProps.datasetDivClass);
   },
 
-// testing multiple datasets
+  // testing multiple datasets
   async multipleStudyViewer() {
     await this.learnMoreButton();
     await I.seeElement(studyViewerProps.backButton);
