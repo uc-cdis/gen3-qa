@@ -1,14 +1,13 @@
 module.exports = {
-  path: '/study-viewer/clinical_trials',
-  datasetPath: '/study-viewer/clinical_trials/ACTT',
-  datasetPath1: 'study-viewer/clinical_trials/NCT04401579',
+  dataset1Path: '/study-viewer/clinical_trials/',
+  dataset2Path: 'study-viewer/clinical_trials/NCT04401579',
   studyViewerDivClass: '.study-viewer',
   // TODO : improve the selector
-  studyViewerRelPath: '//body/div[@id=\'root\']/div[1]/div[1]/div[3]/div[1]/div[1]',
+  studyViewerRelPath: '.study-viewer',
   datasetDivClass: '.study-viewer__title',
-  detailedButtonXPath: '.ant-collapse-header:nth-child(1)',
-  detailedButtonXPath1: '//body/div[@id=\'root\']/div[1]/div[1]/div[3]/div[1]/div[1]/div[2]/div[2]/div[1]/'
-      + 'div[2]/div[1]/div[1]/div[1]',
+  dataset1detailedButtonXPath: '.ant-collapse-header:nth-child(1)',
+  dataset2detailedButtonXPath: '//body/div[@id=\'root\']/div[1]/div[1]/div[3]/div[1]/div[1]/div[2]/div[2]/div[1]/'
+  + 'div[2]/div[1]/div[1]/div[1]',
   modalDivClass: '.ant-modal-content',
   backButton: '.back-link',
 
