@@ -6,7 +6,8 @@
 git config --global user.email "cdis@uchicago.edu"
 git config --global user.name "$GITHUB_USERNAME"
 
-OUR_REMOTE_URL="https://github.com/uc-cdis/${OUR_GEN3_SERVICE_REPO_NAME}"
+URL_PREFIX="https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/uc-cdis/"
+OUR_REMOTE_URL="${URL_PREFIX}${OUR_GEN3_SERVICE_REPO_NAME}"
 
 echo "cloning $OUR_REMOTE_URL..."
 git clone $OUR_REMOTE_URL
@@ -40,7 +41,6 @@ echo "pulling changes from external branch $NAME_OF_THE_BRANCH"
 git pull origin $NAME_OF_THE_BRANCH
 
 echo "restore original origin $OUR_REMOTE_URL"
-URL_PREFIX="https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/uc-cdis/"
 git remote set-url origin ${URL_PREFIX}${OUR_GEN3_SERVICE_REPO_NAME}.git
 
 echo "finish branch cloning process but pushing local changes to our repo's branch."
