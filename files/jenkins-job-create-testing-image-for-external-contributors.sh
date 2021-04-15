@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -x
+set -e
+
 # This automation is required so Gen3 Engineering can produce a copy of a branch from a forked-repo
 # and trigger a Quay image build that is utilized in our CI Pipeline.
 
@@ -19,15 +22,19 @@ cd $OUR_GEN3_SERVICE_REPO_NAME
 
 ls -ilha
 
+set +e
 # delete branch if it already exists
 branch_exists=$(git ls-remote --heads ${OUR_REMOTE_URL}.git automatedCopy-$NAME_OF_THE_BRANCH)
+set -e
 
 if [[ -z $branch_exists ]]; then
   echo "git ls-remote output empty. The branch does not exist."
 else
   echo "WARN: git ls-remote output is NOT empty."
   echo " Deleting the existing automatedCopy branch to create a new copy based on new changes from the forked-repo branch..."
+  set +e
   git branch -D automatedCopy-$NAME_OF_THE_BRANCH
+  set -e
   git push origin --delete automatedCopy-$NAME_OF_THE_BRANCH
 fi
 
