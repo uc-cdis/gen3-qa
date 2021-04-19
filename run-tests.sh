@@ -211,7 +211,11 @@ Running with:
 EOM
 
 echo 'INFO: installing dependencies'
-dryrun npm ci
+if [ -f gen3-qa-mutex.marker ]; then
+  echo "parallel-testing is enabled, the dependencies have already been installed by Jenkins."
+else
+  dryrun npm ci
+fi
 
 ################################ Disable Test Tags #####################################
 
@@ -226,7 +230,7 @@ runTestsIfServiceVersion "@cleverSafe" "fence" "4.22.4" "2020.09"
 
 # environments that use DCF features
 # we only run Google Data Access tests for cdis-manifest PRs to these
-envsRequireGoogle="dcp.bionimbus.org internalstaging.theanvil.io staging.theanvil.io gen3.theanvil.io preprod.gen3.biodatacatalyst.nhlbi.nih.gov internalstaging.datastage.io gen3.biodatacatalyst.nhlbi.nih.gov nci-crdc-staging.datacommons.io nci-crdc.datacommons.io"
+envsRequireGoogle="dcp.bionimbus.org internalstaging.theanvil.io staging.theanvil.io gen3.theanvil.io preprod.gen3.biodatacatalyst.nhlbi.nih.gov staging.gen3.biodatacatalyst.nhlbi.nih.gov  gen3.biodatacatalyst.nhlbi.nih.gov nci-crdc-staging.datacommons.io nci-crdc.datacommons.io"
 
 # Do not run mariner before setting up the jenkins envs
 donot '@mariner'
@@ -259,6 +263,11 @@ if [ "$testedEnv" == "dataguids.org" ]; then
   sed -i '/bootstrap\:/d' codecept.conf.js
 fi
 
+if [[ "$testedEnv" == *"heal"* ]]; then
+  # use moon instead of selenium
+  sed -i 's/selenium-hub/moon.moon/' codecept.conf.js
+fi
+
 #
 # Google Data Access tests are only required for some envs
 #
@@ -276,20 +285,17 @@ fi
 #
 # RAS AuthN Integration tests are only required for some repos
 #
-#if [[ "$isGen3Release" != "true" && "$service" != "gen3-qa" && "$service" != "fence" && "$service" != "cdis-manifest" && "$service" != "gitops-qa" && "$service" != "cloud-automation" && "$service" != "gitops-dev" ]]; then
-#  # disable ras tests
-#  echo "INFO: disabling RAS AuthN Integration tests for $service"
-#  donot '@rasAuthN'
-#else
+if [[ "$isGen3Release" != "true" && "$service" != "gen3-qa" && "$service" != "fence" && "$service" != "cdis-manifest" && "$service" != "gitops-qa" && "$service" != "cloud-automation" && "$service" != "gitops-dev" ]]; then
+  # disable ras tests
+  echo "INFO: disabling RAS AuthN Integration tests for $service"
+  donot '@rasAuthN'
+else
   #
   # Run tests including RAS AuthN Integration tests
-  #
-#  runTestsIfServiceVersion "@rasAuthN" "fence" "4.22.1" "2020.09"
-#  echo "INFO: enabling RAS AuthN Integration tests for $service"
-#fi
-
-# RAS Staging will be under maintenance until the end of Jan 2021
-donot '@rasAuthN'
+  donot '@rasAuthN'
+  # runTestsIfServiceVersion "@rasAuthN" "fence" "4.22.1" "2020.09"
+  # echo "INFO: enabling RAS AuthN Integration tests for $service"
+fi
 
 # TODO: eventually enable for all services, but need arborist and fence updates first
 #       in all environments
@@ -379,6 +385,7 @@ if [[ $(curl -s "$portalConfigURL" | jq 'contains({studyViewerConfig}) | not') =
 elif ! (g3kubectl get pods --no-header -l app=requestor | grep requestor) > dev/null 2>&1; then
   donot '@studyViewer'
 fi
+# donot '@studyViewer'
 
 # landing page buttons
 if [[ $(curl -s "$portalConfigURL" | jq '.components | contains({buttons}) | not') == "true" ]] || [[ ! -z "$testedEnv" ]]; then

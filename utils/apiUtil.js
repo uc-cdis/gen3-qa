@@ -177,8 +177,10 @@ module.exports = {
       // TODO - introduce support for getting token from environment variable
       //     or with API key when running in LOCAL_AGAINST_REMOTE mode ...
       const fenceCmd = `fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account,google_credentials --type access_token --exp ${expiration} --username ${username}`;
-      const accessToken = bash.runCommand(fenceCmd, 'fence', takeLastLine);
       try {
+        console.log(`### THE KUBECTL_NAMESPACE: ${process.env.KUBECTL_NAMESPACE}`);
+        const accessToken = bash.runCommand(fenceCmd, 'fence', takeLastLine);
+        console.log(`### THE ACCESS TOKEN: ${accessToken}`);
         const decodedToken = module.exports.parseJwt(accessToken);
         // console.log(`decodedToken: ${JSON.stringify(decodedToken)}`);
         const nameFromToken = decodedToken.context.user.name;
@@ -393,14 +395,19 @@ module.exports = {
           if (checkIfContainerSucceeded === 'Succeeded') {
             console.log(`The container from pod ${podName} is ready! Proceed with the assertion checks..`);
             break;
+          } else if (checkIfContainerSucceeded === 'Failed') {
+            if (params.ignoreFailure === true) {
+              console.log(`The container from pod ${podName} failed as expected! Just ignore as this is part of a negative test.`);
+              break;
+            } else {
+              // The pod failed 4 realz
+              throw new Error(`THE POD FAILED ON ATTEMPT ${i}. OMG!`);
+            }
           }
         }
-        if (i === params.nAttempts - 1) {
-          if (params.ignoreFailure === true) {
-            break;
-          } else {
-            throw new Error(`Max number of attempts reached: ${i}`);
-          }
+        if (i === params.nAttempts) {
+          // We have reached the max number of attempts. This test has failed
+          throw new Error(`Max number of attempts reached: ${i}`);
         }
       } catch (e) {
         throw new Error(`Failed to obtain a successful phase check from the ${jobName} job on attempt ${i}: ${e.message}`);
@@ -434,15 +441,7 @@ module.exports = {
           css: '.covid19-dashboard_counts',
         },
       },
-      accessclinical: {
-        summary: {
-          css: '.index-page__introduction',
-        },
-        cards: {
-          css: '.g3-button',
-        },
-      },
-      'qa-niaid': {
+      niaid: {
         summary: {
           css: '.index-page__introduction',
         },

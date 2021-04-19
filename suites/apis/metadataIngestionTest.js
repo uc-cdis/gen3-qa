@@ -18,6 +18,16 @@ const testTSVURL = 'https://cdis-presigned-url-test.s3.amazonaws.com/test-study-
 const testDbGaPURL = 'https://cdis-presigned-url-test.s3.amazonaws.com/test-dbgap-mock-study.xml'; // this is a copy of phs000200.v12.p3 with only 7 samples
 const testCSVToMergeWithStudyXML = 'https://cdis-presigned-url-test.s3.amazonaws.com/test-dbgap-mock-study.csv';
 
+const files = {
+  allowed: {
+    filename: 'mds-test.file',
+    md5: '73d643ec3f4beb9020eef0beed440ad0',
+    link: 's3://cdis-presigned-url-test/mds-test.file',
+    authz: ['/programs/QA'],
+    size: 9,
+  },
+};
+
 const expectedResults = {
   ingest_metadata_manifest: {
     sra_sample_id: 'SRS1361261',
@@ -124,7 +134,7 @@ async function feedTSVIntoMetadataIngestion(I, fence, uid, authHeader, expectedR
   await checkMetadataServiceEntry(I, expectedResult, authHeader);
 }
 
-BeforeSuite(async ({ I, users }) => {
+BeforeSuite(async ({ I, users, indexd }) => {
   console.log('Setting up dependencies...');
   I.cache = {};
   I.cache.UNIQUE_NUM = Date.now();
@@ -160,6 +170,11 @@ BeforeSuite(async ({ I, users }) => {
     `/mds-admin/metadata/${expectedResults.get_dbgap_metadata.testGUIDForPartialMatch}`,
     users.indexingAcct.accessTokenHeader,
   );
+
+  // To test the deletion endpoint, the mds record entry needs to reference an indexd record
+  // So let us create one
+  const ok = await indexd.do.addFileIndices(Object.values(files));
+  expect(ok).to.be.true;
 });
 
 AfterSuite(async ({ I }) => {
@@ -191,6 +206,9 @@ Scenario('Dispatch ingest-metadata-manifest sower job with simple tsv and verify
   ).to.have.property('status', 200);
 
   await checkPod(I, sowerJobName, 'sowerjob');
+
+  // Deliberately leaving the authHeader argument undefined
+  // because the GET operation does not require auth
   const metadataServiceEntry = await checkMetadataServiceEntry(
     I,
     expectedResults.ingest_metadata_manifest.testGUID,
@@ -273,4 +291,53 @@ Scenario('Dispatch partial match get-dbgap-metadata job with mock dbgap xml and 
     users.indexingAcct.accessTokenHeader,
     expectedResults.get_dbgap_metadata.testGUIDForPartialMatch,
   );
+}).retry(1);
+
+// Scenario #4 - Instrument the metadata-service DELETE endpoint
+Scenario('create a new mds entry and then issue http delete against mds/objects/{guid} @metadataIngestion', async ({ I, users }) => {
+  // create a local small file to upload to test bucket.
+  const uploadTmpFile = await bash.runCommand(`
+    echo "hello mds" > mds-test.file && aws s3 cp ./mds-test.file s3://cdis-presigned-url-test/mds-test.file
+  `);
+  console.log(`uploadTmpFile: ${uploadTmpFile}`);
+
+  const guidToBeDeleted = files.allowed.did;
+
+  const createMdsEntryReq = await I.sendPostRequest(
+    `/mds/objects/${guidToBeDeleted}`,
+    {
+      authz: files.allowed.authz,
+      file_name: files.allowed.filename,
+      metadata: expectedResults.ingest_metadata_manifest,
+    },
+    users.indexingAcct.accessTokenHeader,
+  );
+
+  console.log(`createMdsEntryReq status: ${createMdsEntryReq.status}`);
+  expect(
+    createMdsEntryReq,
+    'Creation request did not return a http 201. Check mds logs tarball archived in Jenkins',
+  ).to.have.property('status', 201);
+
+  console.log(`Step #4 - send http delete to mds/objects/${guidToBeDeleted} `);
+  const deleteReq = await I.sendDeleteRequest(
+    `/mds/objects/${guidToBeDeleted}`,
+    users.indexingAcct.accessTokenHeader,
+  );
+
+  expect(
+    deleteReq,
+    'Deletion request did not return a http 204. Check mds logs tarball archived in Jenkins',
+  ).to.have.property('status', 204);
+
+  // Make sure the GUID no longer exists in the json blobstore
+  const httpReq = await I.sendGetRequest(
+    `/mds/metadata/${guidToBeDeleted}`,
+    users.indexingAcct.accessTokenHeader,
+  );
+
+  expect(
+    httpReq,
+    `Should have deleted the ${guidToBeDeleted} entry`,
+  ).to.have.property('status', 404);
 }).retry(1);
