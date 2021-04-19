@@ -19,7 +19,7 @@
     "@elastic/elasticsearch": "^7.9.0",
     "@google-cloud/storage": "^4.7.0",
     "atob": "^2.1.2",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "babel-eslint": "^10.1.0",
     "browserify": "^16.5.2",
     "chai": "^4.2.0",
