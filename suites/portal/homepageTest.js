@@ -1,3 +1,5 @@
+const fetch = require('node-fetch');
+
 Feature('Homepage').retry(2);
 
 Scenario('login @portal', async ({ home }) => {
