@@ -22,7 +22,7 @@ AfterSuite(async () => {
   policy/programs.NIAID.projects.ACTT_reader */
   // if running in jenkins use this policy -> programs.jnkns.projects.jenkins_reader
   await bash.runCommand(`
-     gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/policy/programs.jnkns.projects.jenkins_reader
+     gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/policy/programs.NIAID.projects.ACTT_reader
     `);
   console.log('### The access is revoked');
 });
@@ -60,7 +60,18 @@ Scenario('User logs in and requests the access @studyViewer', async ({
   await requestorTasks.signedRequest(requestID);
   I.refreshPage();
   I.wait(5);
-  await studyViewerTasks.clickDownload();
+  if (process.env.testedEnv.includes('qa-niaid') || process.env.testedEnv.includes('accessclinicaldata')) {
+    console.log('### The test is running in qa-niaid env, now clicking the Download Button ...');
+    await studyViewerTasks.clickDownload();
+  } else {
+    console.log('### The test is running in Jenkins Environment');
+    console.log('### Checking the request status in requestor ...');
+    const reqStatus = await requestorTasks.getRequestStatus(requestID);
+    expect(
+        reqStatus,
+        'Check the requestor logs'
+    ).to.equal('SIGNED');
+  }
   await requestorTasks.deleteRequest(requestID);
 });
 
