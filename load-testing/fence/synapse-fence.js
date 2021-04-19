@@ -1,3 +1,4 @@
+/*eslint-disable*/
 import { check } from 'k6';
 import http from 'k6/http';
 
