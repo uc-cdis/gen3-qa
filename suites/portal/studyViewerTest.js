@@ -68,8 +68,8 @@ Scenario('User logs in and requests the access @studyViewer', async ({
     console.log('### Checking the request status in requestor ...');
     const reqStatus = await requestorTasks.getRequestStatus(requestID);
     expect(
-        reqStatus,
-        'Check the requestor logs'
+      reqStatus,
+      'Check the requestor logs',
     ).to.equal('SIGNED');
   }
   await requestorTasks.deleteRequest(requestID);

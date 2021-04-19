@@ -20,8 +20,8 @@ module.exports = {
   async getRequestStatus(requestID) {
     console.log(`### put request id: ${requestID}`);
     const getResponse = await I.sendGetRequest(
-        `${studyViewerProps.endpoint.requestEndPoint}/${requestID}`,
-        users.mainAcct.accessTokenHeader,
+      `${studyViewerProps.endpoint.requestEndPoint}/${requestID}`,
+      users.mainAcct.accessTokenHeader,
     );
     const responseData = getResponse.data;
     const reqStatus = responseData[0].status;
