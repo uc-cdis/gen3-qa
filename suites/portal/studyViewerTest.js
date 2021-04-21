@@ -86,7 +86,13 @@ Scenario('User has access to download @studyViewer', async ({
   login.complete.login(users.auxAcct1);
   studyViewerTasks.goToStudyViewerPage();
   await studyViewerTasks.learnMoreButton();
-  await studyViewerTasks.clickDownload();
+  if (process.env.testedEnv.includes('qa-niaid') || process.env.testedEnv.includes('accessclinicaldata')) {
+    console.log('### The test is running in qa-niaid env, now clicking the Download Button ...');
+    await studyViewerTasks.clickDownload();
+  } else {
+    console.log('### The test is running in Jenkins Environment');
+    console.log('### The auxAcct1 has download privileges in user.yaml');
+  }
 });
 
 // checking the details of the dataset
