@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@elastic/elasticsearch": "^7.9.0",
-    "@google-cloud/storage": "^4.7.0",
+    "@google-cloud/storage": "^5.8.3",
     "atob": "^2.1.2",
     "axios": "^0.21.1",
     "babel-eslint": "^10.1.0",
