@@ -50,7 +50,7 @@ xScenario('Submit dummy data to the Gen3 Commons environment @jupyterNb', async 
   );
 
   // make sure the query return results
-  console.log(`query response: ${JSON.stringify(queryResponse.data)}`);  
+  console.log(`query response: ${JSON.stringify(queryResponse.data)}`);
   expect(queryResponse).to.have.property('status', 200);
 });
 
@@ -75,12 +75,12 @@ Scenario('Upload a file through the gen3-client CLI @jupyterNb', async (fence, u
   };
 
   const credsPath = `./${process.env.NAMESPACE}_creds.json`;
-  // if RUNNING_LOCAL=true, this will create the file inside the admin vm  
+  // if RUNNING_LOCAL=true, this will create the file inside the admin vm
   await bash.runCommand(`echo "${JSON.stringify(data)}" > ${credsPath}`);
 
   // create client profile
   await bash.runCommand(`./gen3-client configure --profile=${process.env.NAMESPACE} --cred=${credsPath} --apiendpoint=https://${process.env.NAMESPACE}.planx-pla.net`);
- 
+
   const dummyFileContents = 'Hello world!';
   await bash.runCommand(`echo "${dummyFileContents}" > ./hello.txt`);
 
@@ -96,7 +96,7 @@ Scenario('Upload a file through the gen3-client CLI @jupyterNb', async (fence, u
   // expect(indexdLookupResponse).to.have.property('status', 200);
   // expect(indexdLookupResponse.data).to.have.property('file_name', 'hello.txt');
   // expect(indexdLookupResponse.data).to.have.property('acl', []);
-  // expect(indexdLookupResponse.data).to.have.property('authz', []);    
+  // expect(indexdLookupResponse.data).to.have.property('authz', []);
 });
 
 Scenario('Map the uploaded file to one of the subjects of the dummy dataset @jupyterNb', async ({ I }) => {
@@ -145,12 +145,14 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @jup
   // TODO: check if file number in DEV-test project was increased by one
 });
 
-xScenario('Run ETL so the recently-submitted dataset will be available on the Explorer page @jupyterNb', async (fence, users) => {
-  // TODO
+xScenario('Run ETL so the recently-submitted dataset will be available on the Explorer page @jupyterNb', async ({ I }) => {
+  console.log('### running ETL for recently-submitted dataset');
+  await bash.runJob('etl', '', wait= true);
+  await checkPod(I, 'etl','gen3job,job-name=etl', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: true });
 });
 
 xScenario('Select a cohort that contains the recently-mapped file and export it to the workspace @jupyterNb', async (fence, users) => {
- // TODO  
+ // TODO
 });
 
 xScenario('Open the workspace, launch a Jupyter Notebook Bio Python app and load the exported manifest with some Python code @jupyterNb', async (fence, users) => {
