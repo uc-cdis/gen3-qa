@@ -19,11 +19,10 @@ const bash = new Bash();
 AfterSuite(async () => {
   console.log('### revoking arborist access');
   // for qa-niaid testing to revoke the arborist access
-  /* gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/
-  policy/programs.NIAID.projects.ACTT_reader */
+  // programs.NIAID.projects.ACTT_reader */
   // if running in jenkins use this policy -> programs.jnkns.projects.jenkins_reader
   await bash.runCommand(`
-     gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/policy/programs.NIAID.projects.ACTT_reader
+     gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/policy/programs.jnkns.projects.jenkins_reader
     `);
   console.log('### The access is revoked');
 });
