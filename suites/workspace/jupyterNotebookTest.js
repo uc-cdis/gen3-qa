@@ -145,7 +145,7 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @jup
   // TODO: check if file number in DEV-test project was increased by one
 });
 
-xScenario('Run ETL so the recently-submitted dataset will be available on the Explorer page @jupyterNb', async ({ I }) => {
+Scenario('Run ETL so the recently-submitted dataset will be available on the Explorer page @jupyterNb', async ({ I }) => {
   console.log('### running ETL for recently-submitted dataset');
   await bash.runJob('etl', '', false);
   await checkPod(I, 'etl','gen3job,job-name=etl', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: true });
