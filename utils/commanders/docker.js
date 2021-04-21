@@ -8,7 +8,6 @@ class Docker extends Base {
     console.error('Not supported yet');
   }
 
-
   /**
    * Remotely run a command from local PC via SSH connecting to Kubernetes cluster
    * @param service
