@@ -15,7 +15,7 @@ module.exports = {
   loginRAButtonXPath: '//button[contains(text(), \'Login to Request Access\')]',
   requestAccessButtonXPath: '//button[contains(text(), \'Request Access\')]',
   // //button[contains(text(), 'Download')]
-  downloadButtonXPath: '//button[contains(text(), \'Download\')]',
+  downloadButtonXPath: '//button[contains(text(),\'Download\')]',
   modalDownloadButton: '//a[contains(text(),\'download\')]',
   closeButton: '//button[contains(text(), \'Close\')]',
   // TODO : improve the selector

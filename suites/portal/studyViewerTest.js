@@ -4,7 +4,7 @@ const { Bash } = require('../../utils/bash.js');
 const studyViewerTasks = require('../../services/portal/studyViewer/studyViewerTasks.js');
 const studyViewerProps = require('../../services/portal/studyViewer/studyViewerProps.js');
 const requestorTasks = require('../../services/apis/requestor/requestorTasks.js');
-
+const { expect } = require ('chai');
 const bash = new Bash();
 
 // logout after each test

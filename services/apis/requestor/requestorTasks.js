@@ -24,7 +24,8 @@ module.exports = {
       users.mainAcct.accessTokenHeader,
     );
     const responseData = getResponse.data;
-    const reqStatus = responseData[0].status;
+    console.log(`### responseData: ${JSON.stringify(responseData)}`);
+    const reqStatus = responseData.status;
     console.log(`### request status: ${reqStatus}`);
     return reqStatus;
   },
