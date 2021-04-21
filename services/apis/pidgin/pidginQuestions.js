@@ -4,7 +4,6 @@ const { expect } = chai;
 chai.config.includeStack = true;
 chai.config.truncateThreshold = 0;
 
-
 /**
  * pidgin Questions
  */

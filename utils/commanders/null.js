@@ -1,4 +1,3 @@
-
 class NullCommander {
   runJob(jobName, args) {
     throw new Error('NullCommander cannot run backend jobs');
