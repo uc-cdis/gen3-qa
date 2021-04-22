@@ -83,25 +83,28 @@ function assertEnvVars(varNames) {
  * @returns {Promise<void>}
  */
 async function tryCreateProgramProject(nAttempts) {
-  let success = false;
-  for (let i = 0; i < nAttempts; i += 1) {
-    if (success === true) {
-      break;
+  console.log(`GEN3_SKIP_PROJ_SETUP: ${process.env.GEN3_SKIP_PROJ_SETUP}`);
+  if (process.env.GEN3_SKIP_PROJ_SETUP !== 'true') {
+    let success = false;
+    for (let i = 0; i < nAttempts; i += 1) {
+      if (success === true) {
+        break;
+      }
+      await Commons.createProgramProject()
+        .then(() => {         // eslint-disable-line
+          console.log(`Successfully created program/project on attempt ${i}`);
+          success = true;
+        })
+        .catch((err) => {
+          console.log(
+            `Failed to create program/project on attempt ${i}:\n`,
+            JSON.stringify(err),
+          );
+          if (i === nAttempts - 1) {
+            throw err;
+          }
+        });
     }
-    await Commons.createProgramProject()
-      .then(() => {         // eslint-disable-line
-        console.log(`Successfully created program/project on attempt ${i}`);
-        success = true;
-      })
-      .catch((err) => {
-        console.log(
-          `Failed to create program/project on attempt ${i}:\n`,
-          JSON.stringify(err),
-        );
-        if (i === nAttempts - 1) {
-          throw err;
-        }
-      });
   }
 }
 
@@ -154,6 +157,7 @@ function createGoogleTestBuckets() {
 }
 
 async function setupGoogleProjectDynamic() {
+  console.log('Creating program/project\n');
   // Update the id and SA email depending on the current namespace
   let namespace = process.env.NAMESPACE; // jenkins run
   if (process.env.RUNNING_LOCAL) {
@@ -218,7 +222,7 @@ function isIncluded(tag) {
   return (!testTags.includes(tag) && testTags.includes('--invert')) || (testTags.includes(tag) && !testTags.includes('--invert'));
 }
 
-module.exports = async function (done) {
+module.exports = async function () {
   try {
     // get some vars from the commons
     console.log('Setting environment variables...\n');
@@ -256,6 +260,7 @@ module.exports = async function (done) {
       console.log(`INFO: Setting testedEnv var to ${process.env.testedEnv}`);
     }
 
+    console.log(`isIncluded('@reqGoogle'): ${await isIncluded('@reqGoogle')}`);
     if (isIncluded('@reqGoogle')) {
       createGoogleTestBuckets();
       await setupGoogleProjectDynamic();
@@ -265,13 +270,9 @@ module.exports = async function (done) {
     // may want to skip this if only running
     // DCFS tests or interactive tests ...
     //
-    if (process.env.GEN3_SKIP_PROJ_SETUP !== 'true') {
-      // Create a program and project (does nothing if already exists)
-      console.log('Creating program/project\n');
-      await tryCreateProgramProject(3);
-    }
+    // Create a program and project (does nothing if already exists)
+    await tryCreateProgramProject(3);
 
-    done();
   } catch (ex) {
     console.error('Failed initialization', ex);
     process.exit(1);

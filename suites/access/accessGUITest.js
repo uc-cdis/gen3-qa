@@ -82,7 +82,7 @@ async function assertSuccessfulOperation(I, operation) {
   return mostRecentPR;
 }
 
-BeforeSuite((I) => {
+BeforeSuite(({ I }) => {
   console.log('Setting up dependencies...');
   I.cache = {};
 
@@ -107,7 +107,7 @@ BeforeSuite((I) => {
 
 // Create Datasets in ACCESS
 Scenario('Given a payload with minimal info, parse and create data sets in ACCESS backend. @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
     for (
       const [_, dataSet] of Object.entries(I.cache.dataSets) // eslint-disable-line no-unused-vars
@@ -143,7 +143,7 @@ Scenario('Given a payload with minimal info, parse and create data sets in ACCES
 
 // GUI Testing
 Scenario('Super Admin: login + edit Admin. @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
     const accessTokenJson = parseJwt(I.cache.ACCESS_TOKEN);
 
@@ -176,7 +176,7 @@ Scenario('Super Admin: login + edit Admin. @manual', ifInteractive(
 ));
 
 Scenario('Super Admin: login + add Admin. @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
     const accessTokenJson = parseJwt(I.cache.ACCESS_TOKEN);
 
@@ -236,7 +236,7 @@ Scenario('Super Admin: export TSV. @manual', ifInteractive(
 
 // Admin GUI Testing
 Scenario('Admin: login + add user. @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     await loginFlow(I, 'Admin Add user', { user: 'cdis.autotest@gmail.com', expectUsers: false });
 
     // Add user
@@ -284,7 +284,7 @@ Scenario('Admin: login + add user. @manual', ifInteractive(
 
 // Admin GUI Testing
 Scenario('Admin: login again + edit and delete user. @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     await loginFlow(I, 'Admin Edit and Delete user', { user: 'cdis.autotest@gmail.com', expectUsers: true });
 
     // edit
@@ -325,7 +325,7 @@ Scenario('Admin: login again + edit and delete user. @manual', ifInteractive(
 
 // Super Admin GUI test
 Scenario('Super Admin: delete Admin user. @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
     const accessTokenJson = parseJwt(I.cache.ACCESS_TOKEN);
 

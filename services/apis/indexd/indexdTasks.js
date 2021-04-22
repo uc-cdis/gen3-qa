@@ -18,7 +18,6 @@ const getRevFromResponse = function (res) {
   }
 };
 
-
 /**
  * indexd Tasks
  */

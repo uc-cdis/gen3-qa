@@ -41,12 +41,12 @@ const files = {
   },
 };
 
-BeforeSuite(async (indexd) => {
+BeforeSuite(async ({ indexd }) => {
   const ok = await indexd.do.addFileIndices(Object.values(files));
   expect(ok).to.be.true;
 });
 
-Scenario('get drs object @drs', async (drs, indexd) => {
+Scenario('get drs object @drs', async ({ drs, indexd }) => {
   const indexdRecord = await indexd.do.getFile(files.allowed);
   console.log('-------------------indexd record---------------------');
   console.log(indexdRecord);
@@ -55,12 +55,12 @@ Scenario('get drs object @drs', async (drs, indexd) => {
   await drs.complete.checkFile(drsObject);
 });
 
-Scenario('get drs no record found @drs', async (drs) => {
+Scenario('get drs no record found @drs', async ({ drs }) => {
   const drsObject = await drs.do.getDrsObject(files.not_allowed);
   await drs.complete.checkRecordExists(drsObject);
 });
 
-Scenario('get drs presigned-url @drs', async (drs, fence) => {
+Scenario('get drs presigned-url @drs', async ({ drs, fence }) => {
   const signedUrlRes = await drs.do.getDrsSignedUrl(files.allowed);
   await fence.complete.checkFileEquals(
     signedUrlRes,
@@ -68,16 +68,16 @@ Scenario('get drs presigned-url @drs', async (drs, fence) => {
   );
 });
 
-Scenario('get drs invalid access id @drs', async (drs, fence) => {
+Scenario('get drs invalid access id @drs', async ({ drs, fence }) => {
   const signedUrlRes = await drs.do.createSignedUrl(files.invalid_protocol);
   await fence.ask.responsesEqual(signedUrlRes, drs.props.resInvalidFileProtocol);
 });
 
-Scenario('get drs presigned-url no auth header @drs', async (drs, fence) => {
+Scenario('get drs presigned-url no auth header @drs', async ({ drs, fence }) => {
   const signedUrlRes = await drs.do.getDrsSignedUrlWithoutHeader(files.allowed);
   fence.ask.responsesEqual(signedUrlRes, drs.props.noAccessToken);
 });
 
-AfterSuite(async (indexd) => {
+AfterSuite(async ({ indexd }) => {
   await indexd.do.deleteFileIndices(Object.values(files));
 });

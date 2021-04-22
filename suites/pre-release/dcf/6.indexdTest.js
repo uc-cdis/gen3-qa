@@ -15,14 +15,14 @@ const {
 // Test elaborated for nci-crdc but it can be reused in other projects
 const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'nci-crdc-staging.datacommons.io';
 
-BeforeSuite(async (I) => {
+BeforeSuite(async ({ I }) => {
   console.log('Setting up dependencies...');
   // making this data accessible in all scenarios through the actor's memory (the "I" object)
   I.cache = {};
 });
 
 Scenario('Get public data record @manual', ifInteractive(
-  async (I, indexd) => {
+  async ({ I, indexd }) => {
     if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
     // Fetching public list of DIDs
     const indexHttpResp = await I.sendGetRequest(
@@ -51,7 +51,7 @@ Scenario('Get public data record @manual', ifInteractive(
 ));
 
 Scenario('Get controlled data record @manual', ifInteractive(
-  async (I, indexd) => {
+  async ({ I, indexd }) => {
     if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
     // Fetching list of ACLs associated with the user
     const userHttpResp = await I.sendGetRequest(

@@ -75,7 +75,7 @@ async function deleteRecord(I, guid) {
   }
 }
 
-BeforeSuite(async (I) => {
+BeforeSuite(async ({ I }) => {
   console.log('Setting up dependencies...');
   I.cache = {};
 
@@ -88,20 +88,20 @@ BeforeSuite(async (I) => {
 
 // Scenario #1 - Testing POST /mds-admin/metadata_index/{GUID}: Create record
 Scenario('Create records against the metadata svc blobstore - positive test @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     await setupCredentials(I);
 
     const httpResp1 = await I.sendPostRequest(
       `https://${TARGET_ENVIRONMENT}/mds/metadata/${testData.fictitiousRecord1.guid}`,
       testData.fictitiousRecord1,
       getAuthHeader(I.cache.USERNAME, I.cache.PASSWORD),
-    ).then((res) => res);
+    ).then(({ res }) => res);
 
     const httpResp2 = await I.sendPostRequest(
       `https://${TARGET_ENVIRONMENT}/mds/metadata/${testData.fictitiousRecord2.guid}`,
       testData.fictitiousRecord2,
       getAuthHeader(I.cache.USERNAME, I.cache.PASSWORD),
-    ).then((res) => res);
+    ).then(({ res }) => res);
 
     const result = await interactive(`
             1. [Automated] Send two HTTP POST requests with the user's credentials
@@ -125,15 +125,14 @@ Scenario('Create records against the metadata svc blobstore - positive test @man
   },
 ));
 
-
 // Scenario #2 - Testing GET /metadata_index: return keys from stored records
 Scenario('Get existing keys from metadata records - positive test @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     await setupCredentials(I);
 
     const httpResp = await I.sendGetRequest(
       `https://${TARGET_ENVIRONMENT}/mds/metadata`,
-    ).then((res) => res);
+    ).then(({ res }) => res);
 
     const result = await interactive(`
             1. [Automated] Send a HTTP GET request to retrieve the GUIDs (keys only)
@@ -153,16 +152,16 @@ Scenario('Get existing keys from metadata records - positive test @manual', ifIn
 
 // Scenario #3 - Testing GET /metadata: Apply filter to retrieve specific records
 Scenario('Query metadata for matching records - positive test @manual', ifInteractive(
-  async (I) => {
+  async ({ I }) => {
     await setupCredentials(I);
 
     const httpResp1 = await I.sendGetRequest(
       `https://${TARGET_ENVIRONMENT}/mds/metadata?${testData.filter1}`,
-    ).then((res) => res);
+    ).then(({ res }) => res);
 
     const httpResp2 = await I.sendGetRequest(
       `https://${TARGET_ENVIRONMENT}/mds/metadata?${testData.filter2}`,
-    ).then((res) => res);
+    ).then(({ res }) => res);
 
     const result = await interactive(`
             1. [Automated] Send a couple of HTTP GET requests with the user's credentials

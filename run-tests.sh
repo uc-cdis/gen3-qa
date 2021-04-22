@@ -211,7 +211,11 @@ Running with:
 EOM
 
 echo 'INFO: installing dependencies'
-dryrun npm ci
+if [ -f gen3-qa-mutex.marker ]; then
+  echo "parallel-testing is enabled, the dependencies have already been installed by Jenkins."
+else
+  dryrun npm ci
+fi
 
 ################################ Disable Test Tags #####################################
 
@@ -226,7 +230,7 @@ runTestsIfServiceVersion "@cleverSafe" "fence" "4.22.4" "2020.09"
 
 # environments that use DCF features
 # we only run Google Data Access tests for cdis-manifest PRs to these
-envsRequireGoogle="dcp.bionimbus.org internalstaging.theanvil.io staging.theanvil.io gen3.theanvil.io preprod.gen3.biodatacatalyst.nhlbi.nih.gov internalstaging.datastage.io gen3.biodatacatalyst.nhlbi.nih.gov nci-crdc-staging.datacommons.io nci-crdc.datacommons.io"
+envsRequireGoogle="dcp.bionimbus.org internalstaging.theanvil.io staging.theanvil.io gen3.theanvil.io preprod.gen3.biodatacatalyst.nhlbi.nih.gov staging.gen3.biodatacatalyst.nhlbi.nih.gov  gen3.biodatacatalyst.nhlbi.nih.gov nci-crdc-staging.datacommons.io nci-crdc.datacommons.io"
 
 # Do not run mariner before setting up the jenkins envs
 donot '@mariner'
@@ -248,6 +252,21 @@ donot '@fail'
 
 # Do not run batch processing tests
 donot '@batch'
+
+# Do not run dataguids.org test for regular PRs
+donot '@dataguids'
+
+# For dataguids.org PRs, skip all fence-related bootstrapping oprations
+# as the environment does not have fence
+if [ "$testedEnv" == "dataguids.org" ]; then
+  # disable bootstrap script from codeceptjs
+  sed -i '/bootstrap\:/d' codecept.conf.js
+fi
+
+if [[ "$testedEnv" == *"heal"* ]]; then
+  # use moon instead of selenium
+  sed -i 's/selenium-hub/moon.moon/' codecept.conf.js
+fi
 
 #
 # Google Data Access tests are only required for some envs
@@ -273,9 +292,7 @@ if [[ "$isGen3Release" != "true" && "$service" != "gen3-qa" && "$service" != "fe
 else
   #
   # Run tests including RAS AuthN Integration tests
-  #
-  # disabling temporarily due to RAS Staging connectivity issues  
-  donot '@rasAuthN'  
+  donot '@rasAuthN'
   # runTestsIfServiceVersion "@rasAuthN" "fence" "4.22.1" "2020.09"
   # echo "INFO: enabling RAS AuthN Integration tests for $service"
 fi
@@ -325,7 +342,7 @@ if [ -z "$ddHasConsentCodes" ]; then
 fi
 
 #
-# try to read configs of portal 
+# try to read configs of portal
 #
 hostname="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.hostname')"
 portalApp="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.portal_app')"
@@ -350,7 +367,7 @@ set +e
 checkForPresenceOfManifestIndexingSowerJob=$(g3kubectl get cm manifest-sower -o yaml | grep manifest-indexing)
 set -e
 if [ -z "$checkForPresenceOfManifestIndexingSowerJob" ]; then
-  echo "the manifest-indexing sower job was not found, skip @indexing tests"; 
+  echo "the manifest-indexing sower job was not found, skip @indexing tests";
   donot '@indexing'
 fi
 
@@ -362,21 +379,34 @@ if [ -z "$checkForPresenceOfMetadataIngestionSowerJob" ]; then
   donot '@metadataIngestion'
 fi
 
+# studyViewer
+if [[ $(curl -s "$portalConfigURL" | jq 'contains({studyViewerConfig}) | not') == "true" ]] || [[ ! -z "$testedEnv" ]]; then
+  donot '@studyViewer'
+elif ! (g3kubectl get pods --no-header -l app=requestor | grep requestor) > dev/null 2>&1; then
+  donot '@studyViewer'
+fi
+# donot '@studyViewer'
+
+# landing page buttons
+if [[ $(curl -s "$portalConfigURL" | jq '.components | contains({buttons}) | not') == "true" ]] || [[ ! -z "$testedEnv" ]]; then
+  donot '@landing'
+fi
+
 if ! (g3kubectl get pods --no-headers -l app=manifestservice | grep manifestservice) > /dev/null 2>&1 ||
 ! (g3kubectl get pods --no-headers -l app=wts | grep wts) > /dev/null 2>&1; then
   donot '@exportToWorkspaceAPI'
   donot '@exportToWorkspacePortalGeneral'
   donot '@exportToWorkspacePortalJupyterHub'
   donot '@exportToWorkspacePortalHatchery'
-elif [[ $(curl -s "$portalConfigURL" | jq 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}}) | not') == "true" ]] || 
-[[ ! -z "$testedEnv" ]]; then 
+elif [[ $(curl -s "$portalConfigURL" | jq 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-workspace"}]}}) | not') == "true" ]] ||
+[[ ! -z "$testedEnv" ]]; then
   # do not run export to workspace portal tests if not enabled or in a manifest PR
   donot '@exportToWorkspacePortalGeneral'
   donot '@exportToWorkspacePortalJupyterHub'
   donot '@exportToWorkspacePortalHatchery'
 elif ! (g3kubectl get pods --no-headers -l app=jupyter-hub | grep jupyterhub) > /dev/null 2>&1; then
   donot '@exportToWorkspacePortalJupyterHub'
-elif ! (g3kubectl get pods --no-headers -l app=hatchery | grep hatchery) > /dev/null 2>&1 || 
+elif ! (g3kubectl get pods --no-headers -l app=hatchery | grep hatchery) > /dev/null 2>&1 ||
 ! (g3kubectl get pods --no-headers -l service=ambassador | grep ambassador) > /dev/null 2>&1; then
   donot '@exportToWorkspacePortalHatchery'
 fi
@@ -436,11 +466,16 @@ fi
 # When zero tests are executed, a results*.xml file is produced containing a tests="0" counter
 # e.g., output/result57f4d8778c4987bda6a1790eaa703782.xml
 # <testsuites name="Mocha Tests" time="0.0000" tests="0" failures="0">
-ls -ilha output/result*.xml
-cat output/result*.xml  | head -n2 | sed -n -e 's/^<testsuites.*\(tests\=.*\) failures.*/\1/p'
+[ "$(ls -A output)" ] && ls output/result*.xml || echo "Warn: there are no output/result-*.xml files to parse"
+
 set +e
+
+cat output/result*.xml  | head -n2 | sed -n -e 's/^<testsuites.*\(tests\=.*\) failures.*/\1/p'
+
 zeroTests=$(cat output/result*.xml  | head -n2 | sed -n -e 's/^<testsuites.*\(tests\=.*\) failures.*/\1/p' | grep "tests=\"0\"")
+
 set -e
+
 if [ -n "$zeroTests" ]; then
   echo "No tests have been executed, aborting PR check..."
   npm test -- --verbose suites/fail.js

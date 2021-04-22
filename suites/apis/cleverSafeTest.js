@@ -20,7 +20,7 @@ const indexedFiles = {
   },
 };
 
-BeforeSuite(async (indexd) => {
+BeforeSuite(async ({ indexd }) => {
   console.log('Removing test indexd records if they exist');
   await indexd.do.deleteFileIndices(Object.values(indexedFiles));
 
@@ -32,7 +32,9 @@ BeforeSuite(async (indexd) => {
 });
 
 Scenario('Simple CleverSafe PreSigned URL test @cleverSafe',
-  async (I, fence, indexd, users) => {
+  async ({
+    I, fence, users,
+  }) => {
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
     console.log('Use mainAcct to create signed URL for a test file in the Clever Safe bucket');
     const signedUrlCleverSafe = await fence.do.createSignedUrlForUser(

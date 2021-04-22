@@ -63,7 +63,7 @@ async function deleteLingeringInfra() {
   }
 }
 
-BeforeSuite(async (I) => {
+BeforeSuite(async ({ I }) => {
   console.log('deleting infra from previous runs that might\'ve been interrupted...');
   await deleteLingeringInfra();
 
@@ -78,21 +78,21 @@ BeforeSuite(async (I) => {
   console.log(`authzMappingFile: ${authzMappingFile}`);
 });
 
-AfterSuite(async (I) => {
+AfterSuite(async ({ I }) => {
   console.log(`I.cache: ${JSON.stringify(I.cache)}`);
   await deleteLingeringInfra();
 });
 
 // Scenario #1 - Generate indexd manifest out of an s3 bucket
 // and check if the expected url, size, md5 and authz entries are in place
-Scenario('Generate bucket manifest from s3 bucket @amazonS3 @batch @bucketManifest', async (I) => {
+Scenario('Generate bucket manifest from s3 bucket @amazonS3 @batch @bucketManifest', async ({ I }) => {
   const theCmd = `gen3 bucket-manifest --create --bucket ${testBucket} --authz $PWD/authz_mapping_${I.cache.UNIQUE_NUM}.tsv --output-variables`;
   console.log(`Running command: ${theCmd}`);
   await bash.runCommand(theCmd);
   console.log('gen3 bucket-manifest process initiated. Waiting for infrastructure provisioning...');
 
   await sleepMS(20000);
-  await checkPod('aws-bucket-manifest', 'gen3job', params = { nAttempts: 100, ignoreFailure: false }); // eslint-disable-line no-undef
+  await checkPod(I, 'aws-bucket-manifest', 'gen3job', params = { nAttempts: 100, ignoreFailure: false, keepSessionAlive: true }); // eslint-disable-line no-undef
 
   const bucketManifestList = await bash.runCommand(`
     gen3 bucket-manifest --list | xargs -i echo "{} "

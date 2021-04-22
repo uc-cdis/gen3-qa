@@ -41,9 +41,9 @@ module.exports = {
     const rand = (Math.random() + 1).toString(36).substring(2, 7); // 5 random chars
     const fileName = `qa-upload-file_${rand}.txt`;
     const filePath = `./${fileName}`;
-    await this.createTmpFile(filePath, fileContents);
-    const fileSize = await this.getFileSize(filePath);
-    const fileMd5 = await this.getFileHash(filePath);
+    await module.exports.createTmpFile(filePath, fileContents);
+    const fileSize = await module.exports.getFileSize(filePath);
+    const fileMd5 = await module.exports.getFileHash(filePath);
     return {
       fileName,
       filePath,

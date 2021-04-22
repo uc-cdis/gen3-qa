@@ -171,7 +171,7 @@ module.exports = {
         return false;
       }
     };
-    const timeout = 60; // max number of seconds to wait
+    const timeout = 180; // max number of seconds to wait
     let dataAccessIsDenied = true;
     try {
       await apiUtil.smartWait(isDataInaccessible, [], timeout, '');
@@ -448,7 +448,7 @@ module.exports = {
    * was saved and the name of that key
    */
   async createServiceAccountKeyFile(googleProject) {
-    const tempCredsRes = await this.createServiceAccountKey(
+    const tempCredsRes = await module.exports.createServiceAccountKey(
       googleProject.id, googleProject.serviceAccountEmail,
     );
     const keyFullName = tempCredsRes.name;

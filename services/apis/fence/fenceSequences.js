@@ -264,6 +264,8 @@ module.exports = {
       }
     }
 
+    console.log(`${new Date()}: running suiteCleanup...`);
+
     // unlink all google accounts
     const unlinkPromises = Object.values(users).map((user) => fenceTasks.unlinkGoogleAcct(user));
     await Promise.all(unlinkPromises);
