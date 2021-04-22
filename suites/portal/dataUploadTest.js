@@ -3,6 +3,7 @@ Feature('DataUploadTest');
 const { interactive, ifInteractive } = require('../../utils/interactive');
 const { checkPod, sleepMS } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash');
+const assert = require('assert');
 
 // const I = actor();
 const createdGuids = [];
@@ -106,6 +107,9 @@ Before(({ home }) => {
 Scenario('Map uploaded files in windmill submission page @dataUpload @portal', async ({
   I, sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUpload,
 }) => {
+
+  //fail the first scenario
+  assert.deepStrictEqual(1,2);
   // generate file and register in fence, get url
   const { fileObj, presignedUrl } = await generateFileAndGetUrlFromFence(
     files,
