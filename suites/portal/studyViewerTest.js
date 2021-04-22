@@ -1,5 +1,6 @@
 Feature('Study Viewer');
 
+const { expect } = require('chai');
 const { Bash } = require('../../utils/bash.js');
 const studyViewerTasks = require('../../services/portal/studyViewer/studyViewerTasks.js');
 const studyViewerProps = require('../../services/portal/studyViewer/studyViewerProps.js');
@@ -18,8 +19,7 @@ const bash = new Bash();
 AfterSuite(async () => {
   console.log('### revoking arborist access');
   // for qa-niaid testing to revoke the arborist access
-  /* gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/
-  policy/programs.NIAID.projects.ACTT_reader */
+  // programs.NIAID.projects.ACTT_reader */
   // if running in jenkins use this policy -> programs.jnkns.projects.jenkins_reader
   await bash.runCommand(`
      gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/policy/programs.jnkns.projects.jenkins_reader
@@ -60,7 +60,18 @@ Scenario('User logs in and requests the access @studyViewer', async ({
   await requestorTasks.signedRequest(requestID);
   I.refreshPage();
   I.wait(5);
-  await studyViewerTasks.clickDownload();
+  if (process.env.testedEnv.includes('qa-niaid') || process.env.testedEnv.includes('accessclinicaldata')) {
+    console.log('### The test is running in qa-niaid env, now clicking the Download Button ...');
+    await studyViewerTasks.clickDownload();
+  } else {
+    console.log('### The test is running in Jenkins Environment');
+    console.log('### Checking the request status in requestor ...');
+    const reqStatus = await requestorTasks.getRequestStatus(requestID);
+    expect(
+      reqStatus,
+      'Check the requestor logs',
+    ).to.equal('SIGNED');
+  }
   await requestorTasks.deleteRequest(requestID);
 });
 
@@ -74,7 +85,13 @@ Scenario('User has access to download @studyViewer', async ({
   login.complete.login(users.auxAcct1);
   studyViewerTasks.goToStudyViewerPage();
   await studyViewerTasks.learnMoreButton();
-  await studyViewerTasks.clickDownload();
+  if (process.env.testedEnv.includes('qa-niaid') || process.env.testedEnv.includes('accessclinicaldata')) {
+    console.log('### The test is running in qa-niaid env, now clicking the Download Button ...');
+    await studyViewerTasks.clickDownload();
+  } else {
+    console.log('### The test is running in Jenkins Environment');
+    console.log('### The auxAcct1 has download privileges in user.yaml');
+  }
 });
 
 // checking the details of the dataset
