@@ -85,7 +85,7 @@ Scenario('Upload a file through the gen3-client CLI @jupyterNb', async ({ I, fen
   // create client profile
   await bash.runCommand(`./gen3-client configure --profile=${process.env.NAMESPACE} --cred=${credsPath} --apiendpoint=https://${process.env.NAMESPACE}.planx-pla.net`);
 
-  const ourFileToBeUploaded = "hello6.txt";
+  const ourFileToBeUploaded = `hello_${Date.now()}.txt`;
 
   const dummyFileContents = 'Hello world!';
   await bash.runCommand(`echo "${dummyFileContents}" > ./${ourFileToBeUploaded}`);
