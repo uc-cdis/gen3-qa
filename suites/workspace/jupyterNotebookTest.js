@@ -13,8 +13,11 @@ const { Bash } = require('../../utils/bash.js');
 
 const bash = new Bash();
 
-BeforeSuite(async ( I, indexd, sheepdog ) => {
+BeforeSuite(async ({ I, indexd, sheepdog }) => {
   console.log('Preparing environment for the test scenarios...');
+
+  I.cache = {};
+
   /*
   // clean up all indexd records
   console.log('deleting all files / indexd records...');
@@ -33,10 +36,10 @@ BeforeSuite(async ( I, indexd, sheepdog ) => {
   */
 });
 
-xScenario('Submit dummy data to the Gen3 Commons environment @jupyterNb', async (I, fence, users) => {
+Scenario('Submit dummy data to the Gen3 Commons environment @jupyterNb', async ({I, fence, users}) => {
   // generate dummy data
-  bash.runJob('gentestdata', args = "SUBMISSION_USER cdis.autotest@gmail.com");
-  await checkPod('gentestdata', 'gen3job,job-name=gentestdata');
+  //bash.runJob('gentestdata', args = "SUBMISSION_USER cdis.autotest@gmail.com MAX_EXAMPLES 1");
+  //await checkPod('gentestdata', 'gen3job,job-name=gentestdata');
 
   const queryRecentlySubmittedData = {
     "query": "{ submitted_unaligned_reads (first: 20, project_id: \"DEV-test\", quick_search: \"\", order_by_desc: \"updated_datetime\") {id, type, submitter_id} }",
@@ -54,7 +57,7 @@ xScenario('Submit dummy data to the Gen3 Commons environment @jupyterNb', async 
   expect(queryResponse).to.have.property('status', 200);
 });
 
-Scenario('Upload a file through the gen3-client CLI @jupyterNb', async (fence, users, files) => {
+Scenario('Upload a file through the gen3-client CLI @jupyterNb', async ({ I, fence, users, files }) => {
   // Download the latest linux binary from https://github.com/uc-cdis/cdis-data-client/releases
 
   // if RUNNING_LOCAL=true, this will run inside the admin vm (vpn connection required)
@@ -76,27 +79,37 @@ Scenario('Upload a file through the gen3-client CLI @jupyterNb', async (fence, u
 
   const credsPath = `./${process.env.NAMESPACE}_creds.json`;
   // if RUNNING_LOCAL=true, this will create the file inside the admin vm
-  await bash.runCommand(`echo "${JSON.stringify(data)}" > ${credsPath}`);
+  const stringifiedData = JSON.stringify(data).replace(/"/g, '\\"');
+  await bash.runCommand(`echo "${stringifiedData}" > ${credsPath}`);
 
   // create client profile
   await bash.runCommand(`./gen3-client configure --profile=${process.env.NAMESPACE} --cred=${credsPath} --apiendpoint=https://${process.env.NAMESPACE}.planx-pla.net`);
 
+  const ourFileToBeUploaded = "hello6.txt";
+
   const dummyFileContents = 'Hello world!';
-  await bash.runCommand(`echo "${dummyFileContents}" > ./hello.txt`);
+  await bash.runCommand(`echo "${dummyFileContents}" > ./${ourFileToBeUploaded}`);
 
   // upload the file
-  const uploadOutput = await bash.runCommand(`./gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=./hello.txt`);
+  const uploadOutput = await bash.runCommand(`./gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=./${ourFileToBeUploaded} 2>&1`);
 
-  // TODO: Parse output to find GUID
+  console.log(`### ## uploadOutput: ${uploadOutput}`);
+
+  const regexToFindGUID = /.*GUID(.*)\..*$/;
+  const theGUID = regexToFindGUID.exec(uploadOutput)[1].replace(' ', '')
+
+  // Cache the guid
+  I.cache.theGUID = theGUID;
+
   await checkPod('indexing', 'ssjdispatcherjob');
 
   // TODO: Query GUID to confirm the indexd record was created succeessfully
-  //  e.g., const indexdLookupResponse = I.sendGetRequest(`https://qa-dcp.planx-pla.net/index/dg.ANV0/a0dd0a09-f1ee-47be-a268-1dd7ae26f5b7`);
+  const indexdLookupResponse = I.sendGetRequest(`https://${process.env.NAMESPACE}.planx-pla.net/index/${theGUID}`);
 
-  // expect(indexdLookupResponse).to.have.property('status', 200);
-  // expect(indexdLookupResponse.data).to.have.property('file_name', 'hello.txt');
-  // expect(indexdLookupResponse.data).to.have.property('acl', []);
-  // expect(indexdLookupResponse.data).to.have.property('authz', []);
+  expect(indexdLookupResponse).to.have.property('status', 200);
+  expect(indexdLookupResponse.data).to.have.property('file_name', ourFileToBeUploaded);
+  expect(indexdLookupResponse.data).to.have.property('acl', []);
+  expect(indexdLookupResponse.data).to.have.property('authz', []);
 });
 
 Scenario('Map the uploaded file to one of the subjects of the dummy dataset @jupyterNb', async ({ I }) => {
@@ -104,9 +117,15 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @jup
   I.amOnPage('/submission');
 
   I.amOnPage('/submission/files');
+
+  // TODO: unmapped files sometimes show up in "Generating... " state.
+  // Need to wait a few seconds
+
+  // tick checkbox of the very first file in the list of unmapped files
   I.click('//input[@id=\'0\']');
   console.log('Start to map file');
   // TODO :Click checkbox with id of the guid of the uploadedfile
+  // Utilize cache (I.cache.theGUID)
   // I.click(//input[@id=<guid>]);
 
   I.click('Map Files (1)');
@@ -151,8 +170,19 @@ Scenario('Run ETL so the recently-submitted dataset will be available on the Exp
   await checkPod(I, 'etl','gen3job,job-name=etl', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: true });
 });
 
+xScenario('Login and check if the Explorer page renders successfully @jupyterNb', async (fence, users) => {
+ I.amOnPage('/explorer');
+ // TODO check if the buttons turn red?
+});
+
+/*
+  Let us stop here for now and introduce this test to the CI Pipeline
+*/
+
 xScenario('Select a cohort that contains the recently-mapped file and export it to the workspace @jupyterNb', async (fence, users) => {
+ I.amOnPage('/explorer');
  // TODO
+ //console.log('We did it!');
 });
 
 xScenario('Open the workspace, launch a Jupyter Notebook Bio Python app and load the exported manifest with some Python code @jupyterNb', async (fence, users) => {
