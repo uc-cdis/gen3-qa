@@ -36,18 +36,18 @@ BeforeSuite(async ({ I, indexd, sheepdog }) => {
   */
 });
 
-Scenario('Submit dummy data to the Gen3 Commons environment @jupyterNb', async ({I, fence, users}) => {
+Scenario('Submit dummy data to the Gen3 Commons environment @jupyterNb', async ({ I, fence, users }) => {
   // generate dummy data
-  //bash.runJob('gentestdata', args = "SUBMISSION_USER cdis.autotest@gmail.com MAX_EXAMPLES 1");
-  //await checkPod('gentestdata', 'gen3job,job-name=gentestdata');
+  // bash.runJob('gentestdata', args = "SUBMISSION_USER cdis.autotest@gmail.com MAX_EXAMPLES 1");
+  // await checkPod('gentestdata', 'gen3job,job-name=gentestdata');
 
   const queryRecentlySubmittedData = {
-    "query": "{ submitted_unaligned_reads (first: 20, project_id: \"DEV-test\", quick_search: \"\", order_by_desc: \"updated_datetime\") {id, type, submitter_id} }",
-    "variables": null,
+    query: '{ submitted_unaligned_reads (first: 20, project_id: "DEV-test", quick_search: "", order_by_desc: "updated_datetime") {id, type, submitter_id} }',
+    variables: null,
   };
   // query the data to confirm its successfull submission
   const queryResponse = await I.sendPostRequest(
-    `/api/v0/submission/graphql`,
+    '/api/v0/submission/graphql',
     queryRecentlySubmittedData,
     users.mainAcct.accessTokenHeader,
   );
@@ -57,7 +57,9 @@ Scenario('Submit dummy data to the Gen3 Commons environment @jupyterNb', async (
   expect(queryResponse).to.have.property('status', 200);
 });
 
-Scenario('Upload a file through the gen3-client CLI @jupyterNb', async ({ I, fence, users, files }) => {
+Scenario('Upload a file through the gen3-client CLI @jupyterNb', async ({
+  I, fence, users, files,
+}) => {
   // Download the latest linux binary from https://github.com/uc-cdis/cdis-data-client/releases
 
   // if RUNNING_LOCAL=true, this will run inside the admin vm (vpn connection required)
@@ -96,7 +98,7 @@ Scenario('Upload a file through the gen3-client CLI @jupyterNb', async ({ I, fen
   console.log(`### ## uploadOutput: ${uploadOutput}`);
 
   const regexToFindGUID = /.*GUID(.*)\..*$/;
-  const theGUID = regexToFindGUID.exec(uploadOutput)[1].replace(' ', '')
+  const theGUID = regexToFindGUID.exec(uploadOutput)[1].replace(' ', '');
 
   // Cache the guid
   I.cache.theGUID = theGUID;
@@ -167,24 +169,24 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @jup
 Scenario('Run ETL so the recently-submitted dataset will be available on the Explorer page @jupyterNb', async ({ I }) => {
   console.log('### running ETL for recently-submitted dataset');
   await bash.runJob('etl', '', false);
-  await checkPod(I, 'etl','gen3job,job-name=etl', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: true });
+  await checkPod(I, 'etl', 'gen3job,job-name=etl', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: true });
 });
 
-xScenario('Login and check if the Explorer page renders successfully @jupyterNb', async (fence, users) => {
- I.amOnPage('/explorer');
- // TODO check if the buttons turn red?
+Scenario('Login and check if the Explorer page renders successfully @jupyterNb', async ({ I }) => {
+  I.amOnPage('/explorer');
+  // TODO check if the buttons turn red?
 });
 
 /*
   Let us stop here for now and introduce this test to the CI Pipeline
 */
 
-xScenario('Select a cohort that contains the recently-mapped file and export it to the workspace @jupyterNb', async (fence, users) => {
- I.amOnPage('/explorer');
- // TODO
- //console.log('We did it!');
+Scenario('Select a cohort that contains the recently-mapped file and export it to the workspace @jupyterNb', async (fence, users) => {
+  I.amOnPage('/explorer');
+  // TODO
+  // console.log('We did it!');
 });
 
-xScenario('Open the workspace, launch a Jupyter Notebook Bio Python app and load the exported manifest with some Python code @jupyterNb', async (fence, users) => {
- // TODO
+Scenario('Open the workspace, launch a Jupyter Notebook Bio Python app and load the exported manifest with some Python code @jupyterNb', async (fence, users) => {
+  // TODO
 });
