@@ -120,15 +120,16 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @jup
 
   I.amOnPage('/submission/files');
 
-  // TODO: unmapped files sometimes show up in "Generating... " state.
+  // Unmapped files sometimes show up in "Generating... " state.
   // Need to wait a few seconds
-
-  // tick checkbox of the very first file in the list of unmapped files
-  I.click('//input[@id=\'0\']');
+  const checkboxIsClickable = await tryTo(() => I.waitForClickable(`//input[@id=${I.cache.theGUID}`, 20));
+  if (!checkboxIsClickable) {
+    // if the checkbox is still not clickable,refresh the page
+    I.refreshPage();
+  }
+  // Click checkbox with id of the guid of the uploadedfile
+  I.click(`//input[@id=${I.cache.theGUID}`);
   console.log('Start to map file');
-  // TODO :Click checkbox with id of the guid of the uploadedfile
-  // Utilize cache (I.cache.theGUID)
-  // I.click(//input[@id=<guid>]);
 
   I.click('Map Files (1)');
   I.waitForVisible('.map-data-model__form', 5);
@@ -136,13 +137,13 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @jup
   // Select Project
   I.fillField('//input[@id=\'react-select-2-input\']', 'DEV-test');
   I.pressKey('Enter');
-  I.seeNumberOfElements({ react: 'Fc' }, 1);
+  I.seeNumberOfElements({ react: 'Sc' }, 1);
   console.log('Project selected');
 
   // Select File Node
   I.fillField('//input[@id=\'react-select-3-input\']', 'submitted_unaligned_reads');
   I.pressKey('Enter');
-  I.seeNumberOfElements({ react: 'Fc' }, 2);
+  I.seeNumberOfElements({ react: 'Sc' }, 2);
   console.log('File Node selected');
   I.waitForText('Required Fields');
 
@@ -181,7 +182,7 @@ Scenario('Login and check if the Explorer page renders successfully @jupyterNb',
   Let us stop here for now and introduce this test to the CI Pipeline
 */
 
-Scenario('Select a cohort that contains the recently-mapped file and export it to the workspace @jupyterNb', async (fence, users) => {
+Scenario('Select a cohort that contains the recently-mapped file and export it to the workspace @jupyterNb', async ({ I }) => {
   I.amOnPage('/explorer');
   // TODO
   // console.log('We did it!');
