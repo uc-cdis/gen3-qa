@@ -19,8 +19,6 @@ def collect_test_suites_from_codeceptjs_dryrun():
     elif '.js' in line:
       full_path_to_test_js = line.split('/')
 
-      # TODO: check if there are any @manual annotations in any of the scenarios
-
       suite_folder = full_path_to_test_js[-2]
       # print(f'## suite_folder: {suite_folder}')
       test_script = full_path_to_test_js[-1]
