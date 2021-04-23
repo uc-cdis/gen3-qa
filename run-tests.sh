@@ -482,4 +482,6 @@ if [ -n "$zeroTests" ]; then
   exitCode=1
 fi
 
+echo "Testing done at $(date)" > output/gen3-qa.log
+
 exit $exitCode
