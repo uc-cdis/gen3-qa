@@ -1,0 +1,1 @@
+{"data":{"_aggregation":{"subject":{"bmiBy1":{"histogram":[{"key":[0,1],"count":25,"avg":0},{"key":[1,2],"count":0,"avg":null},{"key":[2,3],"count":75,"avg":2}]},"bmiBy2":{"histogram":[{"key":[0,2],"count":25,"avg":0},{"key":[2,4],"count":75,"avg":2}]}}}}}

@@ -1,0 +1,16 @@
+{
+    "query": "query {
+        _aggregation {
+            subject {
+              _aliquots_count {
+                    histogram(rangeStart: 0, rangeEnd: 100, rangeStep: 5) {
+                        key
+                        min
+                        max
+                        count
+                    }
+                }
+            }
+        }     
+    }"
+}

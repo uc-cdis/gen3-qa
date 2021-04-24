@@ -1,0 +1,15 @@
+{
+    "mappings" : {
+      "_doc" : {
+        "properties" : {
+          "array" : {
+            "type" : "keyword"
+          },
+          "timestamp" : {
+            "type" : "date"
+          }
+        }
+      }
+    }
+}
+

@@ -1,0 +1,1 @@
+{"data":{"_aggregation":{"subject":{"disease_type":{"histogram":[{"key":"healthy","count":75},{"key":"Diffuse Large B-cell Lymphoma","count":4},{"key":"Oral melanome","count":4},{"key":"Osteosarcoma","count":2},{"key":"Lymphoma","count":1},{"key":"Sarcoma","count":1},{"key":"Soft tissue sarcomas","count":1},{"key":"no data","count":12}]}}}}}

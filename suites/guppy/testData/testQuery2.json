@@ -1,0 +1,25 @@
+{
+  "query": "query ($filter: JSON) {
+    _aggregation {
+      subject (filter: $filter) { 
+        _totalCount 
+      } 
+    } 
+  }",
+  "variables": {
+    "filter": {
+      "AND": [
+        {
+          "<": {
+            "_mRNA_microarrays_count": 30
+          } 
+        }, 
+        {
+          "=": {
+            "project_id": "Canine-NHGRI"
+          }
+        }
+      ]
+    }
+  }
+}

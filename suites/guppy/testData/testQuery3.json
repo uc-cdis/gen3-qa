@@ -1,0 +1,14 @@
+{
+  "query": "query {
+    _aggregation {
+      subject {
+        disease_type {
+          histogram {
+            key
+            count
+          }
+        }
+      }     
+    }
+  }"
+}

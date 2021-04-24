@@ -1,0 +1,22 @@
+{
+  "objective": [
+    "Stress test sheepdog by creating multiple clinical metadata entries",
+    "and then try to export all the data from a given node with a single virtual user"
+  ],
+  "details": {
+    "name": "qa-dcp.planx-plan.net",
+    "sheepdog_autoscaler": {
+      "min": 3,
+      "max": 5,
+      "targetCpu": 40
+    }
+  },
+  "service": "sheepdog",
+  "num_of_records": 2,
+  "load_test_scenario": "import-clinical-metadata",
+  "virtual_users": [
+    { "duration": "1s", "target": 1 },
+    { "duration": "5s", "target": 5 },
+    { "duration": "300s", "target": 10 }
+  ]
+}

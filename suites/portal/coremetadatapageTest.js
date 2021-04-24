@@ -1,42 +1,39 @@
-'use strict';
+Feature('CoreMetadataPageTest');
 
-let nodes, nodes_list;
+const I = actor();
 
-Feature('Core Metadata');
+// test data
+let validFile;
 
-Scenario('test core metadata page', async(I) => {
-
-  // submit files
-  await I.addNodes(I.getSheepdogRoot(), nodes_list);
-  I.seeAllNodesAddSuccess(nodes_list);
-
-  I.goToFiles();
-  I.loadFiles();
-
-  var fileNames = await I.grabTextFrom('//tr/td[2]');
-  I.clickAFile(fileNames);
-  I.loadCoreMetadata();
-
-  I.click('.boRitF'); // click back link
-  I.loadFiles();
-
-  // delete files
-  await I.deleteNodes(I.getSheepdogRoot(), nodes_list);
-  I.seeAllNodesDeleteSuccess(nodes_list);
-
+BeforeSuite(async ({ nodes, sheepdog }) => {
+  await sheepdog.complete.findDeleteAllNodes();
+  await sheepdog.complete.addNodes(nodes.getPathToFile());
+  validFile = nodes.getFileNode().clone();
+  await sheepdog.complete.addNode(validFile);
 });
 
-BeforeSuite(async (I) => {
-  // try to clean up any leftover nodes
-  await I.findDeleteAllNodes();
+Before(({ home }) => {
+  I.saveScreenshot('coremetadata_page_login.png');
+  home.complete.login();
 });
 
-Before((I) => {
-  // load test data
-  nodes = I.getNodePathToFile();
-  nodes_list = I.sortNodes(Object.values(nodes));
+Scenario('test core metadata page @coreMetadataPage @portal', async ({ portalCoreMetadataPage, pidgin, users }) => {
+  const metadata = await pidgin.do.getCoremetadata(validFile, 'application/json', users.mainAcct.accessTokenHeader);
+  pidgin.ask.seeJsonCoremetadata(validFile, metadata);
+  await portalCoreMetadataPage.complete.checkFileCoreMetadataPage(metadata);
 });
 
-AfterSuite(async (I) => {
-  await I.findDeleteAllNodes();
+/* TODO: an optimal test scenario for this core metadata page test is to generate test data,
+and then starts from the file explorer page, clicks on an available file record, checks if the
+it redirect to core metadata page and finally verifies the page contents.
+Unfortunately this cannot be achieved for now since we are pinning ES indices in Jenkins envs
+and the file explorer depends on Guppy and ES now.
+*/
+
+After(async ({ home }) => {
+  home.complete.logout();
+});
+
+AfterSuite(async ({ sheepdog }) => {
+  await sheepdog.complete.findDeleteAllNodes();
 });

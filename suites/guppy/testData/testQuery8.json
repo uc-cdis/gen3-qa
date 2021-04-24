@@ -1,0 +1,34 @@
+{
+  "type": "subject",
+  "fields": [
+    "project_id",
+    "gender",
+    "auth_resource_path",
+    "_aggregated_genotyping_arrays_count",
+    "subject_id",
+    "breed",
+    "_copy_numer_segments_count",
+    "_submitted_unaligned_reads_count",
+    "disease_type",
+    "primary_site",
+    "submitter_id"
+  ],
+  "sort": [
+    { "primary_site": "asc" }
+  ],
+  "filter": {
+    "AND": [
+      {
+        "<": {
+          "_mRNA_microarrays_count": 30
+        } 
+      }, 
+      {
+        "=": {
+          "project_id": "Canine-NHGRI"
+        }
+      }
+    ]
+  }
+
+}

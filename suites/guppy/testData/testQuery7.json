@@ -1,0 +1,22 @@
+{ 
+  "query": "query {
+      _aggregation {
+        subject {
+          bmiBy1: _genotyping_arrays_count {
+            histogram(rangeStart: 0, rangeEnd: 10, rangeStep: 1) {
+              key
+              count
+              avg
+            }
+          }
+          bmiBy2: _genotyping_arrays_count {
+            histogram(rangeStart: 0, rangeEnd: 10, rangeStep: 2) {
+              key
+              count
+              avg
+            }
+          }
+      }
+    }
+  }"
+}

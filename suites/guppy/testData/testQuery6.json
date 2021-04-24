@@ -1,0 +1,32 @@
+{
+  "query": "query {
+    _aggregation {
+      subject {
+        project_id {
+          histogram {
+            key
+            count
+          }
+        },
+        breed {
+          histogram {
+            key
+            count
+          }
+        },
+        gender {
+          histogram {
+            key
+            count
+          }
+        },
+        disease_type {
+          histogram {
+            key
+            count
+          }
+        }
+      }
+    }
+  }"
+}

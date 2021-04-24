@@ -1,7 +1,14 @@
 node_modules/*
 output/*
 .idea/*
-package-lock.json
 *.log
+*.bak
+testData/
 .DS_Store
 codecept.json
+local_vars.txt
+google_creds.sh
+tmp_creds.json
+
+load-testing/tmp
+load-testing/libs/*.js

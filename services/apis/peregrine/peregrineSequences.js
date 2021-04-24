@@ -1,0 +1,4 @@
+/**
+ * peregrine sequences
+ */
+module.exports = {};
