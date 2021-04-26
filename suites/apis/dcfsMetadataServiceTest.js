@@ -125,7 +125,6 @@ Scenario('Create records against the metadata svc blobstore - positive test @man
   },
 ));
 
-
 // Scenario #2 - Testing GET /metadata_index: return keys from stored records
 Scenario('Get existing keys from metadata records - positive test @manual', ifInteractive(
   async ({ I }) => {

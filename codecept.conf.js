@@ -51,6 +51,9 @@ exports.config = {
     CDISHelper: {
       require: './helpers/cdisHelper.js',
     },
+    browserLogHelper: {
+      require: './helpers/browserLogHelper.js',
+    },
   },
   include: {
     // General Utils

@@ -92,7 +92,7 @@ Scenario('Generate bucket manifest from s3 bucket @amazonS3 @batch @bucketManife
   console.log('gen3 bucket-manifest process initiated. Waiting for infrastructure provisioning...');
 
   await sleepMS(20000);
-  await checkPod(I, 'aws-bucket-manifest', 'gen3job', params = { nAttempts: 100, ignoreFailure: false }); // eslint-disable-line no-undef
+  await checkPod(I, 'aws-bucket-manifest', 'gen3job', params = { nAttempts: 100, ignoreFailure: false, keepSessionAlive: true }); // eslint-disable-line no-undef
 
   const bucketManifestList = await bash.runCommand(`
     gen3 bucket-manifest --list | xargs -i echo "{} "
@@ -145,7 +145,7 @@ Scenario('Generate bucket manifest from s3 bucket @amazonS3 @batch @bucketManife
   // Final assertions
   const files = ['test_file', 'humongous_file'];
   for (let i = 0; i < files.length; i++) { // eslint-disable-line no-plusplus
-    Object.keys(expectedMetadataForAssertions[files[i]]).forEach(({ assertionKey }) => {
+    Object.keys(expectedMetadataForAssertions[files[i]]).forEach((assertionKey) => {
       console.log(`Running assertion for ${files[i]} (index: ${i}) - TSV header: ${assertionKey}...`);
       const assertionFailureMsg = `The ${assertionKey} in the bucket manifest doesn't match the expected value for the ${files[i]}.`;
       expect(
