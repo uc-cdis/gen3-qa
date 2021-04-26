@@ -110,6 +110,7 @@ BeforeSuite(({ I }) => {
 
 // Create Datasets in ACCESS
 Scenario('Given a payload with minimal info, parse and create data sets in ACCESS backend. @manual', async ({ I, users }) => {
+    // TODO: Create new access-backend SUPER_ADMIN user in user.yaml instead of hardcoding the sdet username here
     const obtainAccessTokenOutput = await bash.runCommand('gen3 api access-token marceloc@uchicago.edu');
     console.log(`### obtainAccessTokenOutput: ${obtainAccessTokenOutput}`);
     I.cache.ACCESS_TOKEN = obtainAccessTokenOutput;
