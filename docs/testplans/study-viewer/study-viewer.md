@@ -17,7 +17,7 @@ It enables to the user to check :
 1. User goes to the page and selects the needed dataset for research
 2. If the user has access, Click on Download button and the file gets downloaded from indexd
 3. if the user has no access, Click on `Request Access` button and the receive `request_id` from the `Request Access Queue`
-4. User makes a manual call to validate the `request_id` with the Requestor
+4. With `request_id`, the request is send update the status of the request to requestor service
 5. If successful validation, user goes back to the study-viewer page and clicks `Download` button and the file get downloaded from indexd
 6. User can click on `Learn More` button allows the user to see more details about the dataset
 
@@ -48,3 +48,5 @@ It enables to the user to check :
 
 4. testing multiple datasets - user0 user logs in and goes to study viewer page, the user would see multiple dataset. <br>
    navigate through different datasets on the study viewer page
+   
+5. Test functionality in a Data Commons with multiple configured Study Viewers (not implemented)
