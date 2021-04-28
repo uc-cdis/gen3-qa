@@ -38,7 +38,7 @@ It enables to the user to check :
   a. logs in and goes to the study page, clicks on `Request Access` button <br>
   b. the user receives `request_id` <br>
   c. using `request_id` received, request to requestor service is send to update the status of the request to `APPROVED` <br>
-  d. user refreshes the study page and sees button disabled with message `DAR In Progress`
+  d. user refreshes the study page and sees button disabled with message `DAR In Progress` <br>
   e. with the same `request_id`, another request to requestor service is send to update the status of the request to `SIGNED` <br>
   f. user refreshes the study page and sees `Download` button displayed where the user can now download the study
 
