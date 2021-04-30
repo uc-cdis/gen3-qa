@@ -13,7 +13,12 @@ const { Bash } = require('../../utils/bash.js');
 
 const bash = new Bash();
 
-BeforeSuite(async ({ I, indexd, sheepdog }) => {
+// TODO: If we utilize the sheepdog module here
+// the framework expects the testData folder and the DataImportOrderPath.txt to exist
+// We need to replace that findDeleteAllNodes with a bash.runJob(removetestdata) call (to be implemented).
+//BeforeSuite(async ({ I, indexd, sheepdog }) => {
+
+BeforeSuite(async ({ I}) => {
   console.log('Preparing environment for the test scenarios...');
 
   I.cache = {};
