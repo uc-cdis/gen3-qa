@@ -1,13 +1,20 @@
 const { event } = require('codeceptjs');
 const request = require('request');
-const Influx = require('influx');
+// const Influx = require('influx');
+
+const { InfluxDB } = require('@influxdata/influxdb-client');
+const { Point } = require('@influxdata/influxdb-client');
+
 const fetch = require('node-fetch');
 // const stringify = require('json-stringify-safe');
 
-const influx = new Influx.InfluxDB({
-  host: 'influxdb',
-  database: 'ci_metrics',
-});
+const token = '<k8s_secret>';
+const org = '<admin_email_should_be_an_environment_variable>';
+const bucket = '<bucket_should_also_be_an_environment_variable>';
+
+const influx = new InfluxDB({ url: 'https://us-central1-1.gcp.cloud2.influxdata.com', token });
+const writeApi = influx.getWriteApi(org, bucket);
+writeApi.useDefaultTags({ host: process.env.NAMESPACE });
 
 async function writeMetrics(measurement, test, currentRetry) {
   // test metrics
@@ -60,28 +67,16 @@ async function writeMetrics(measurement, test, currentRetry) {
   // define information to write into time-series db
   const fieldInfo = measurement === 'run_time' ? duration : 1;
 
-  const tsData = {};
-  tsData[measurement] = fieldInfo;
-
   // writing metrics
-  await influx.writePoints(
-    [{
-      measurement,
-      tags: {
-        repo_name: repoName,
-        pr_num: prName,
-        suite_name: suiteName,
-        test_name: testName,
-        ci_environment: ciEnvironment,
-        selenium_grid_sessions: sessionCount,
-        run_time: duration,
-      },
-      fields: tsData,
-    }],
-    { precision: 's' },
-  ).catch((err) => {
-    console.error(`Error saving data to InfluxDB! ${err}`);
-  });
+  const point = new Point(measurement)
+    .tag('repo_name', repoName)
+    .tag('pr_num', prName)
+    .tag('suite_name', suiteName)
+    .tag('test_name', testName)
+    .tag('ci_environment', ciEnvironment)
+    .tag('selenium_grid_sessions', sessionCount)
+    .floatField(measurement, fieldInfo);
+  await writeApi.writePoint(point);
 }
 
 module.exports = function () {

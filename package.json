@@ -4,6 +4,7 @@
   "description": "Bionimbus Data Portal",
   "main": "index.js",
   "dependencies": {
+    "@influxdata/influxdb-client": "^1.13.0",
     "eslint-plugin-react-hooks": "^1.7.0"
   },
   "repository": {
