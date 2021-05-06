@@ -8,16 +8,18 @@
 Feature('Jupyter Notebook');
 
 const { expect } = require('chai');
-const { checkPod, sleepMS, Gen3Response } = require('../../utils/apiUtil.js');
+const { checkPod } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
+
 const bash = new Bash();
 
 // TODO: If we utilize the sheepdog module here
 // the framework expects the testData folder and the DataImportOrderPath.txt to exist
-// We need to replace that findDeleteAllNodes with a bash.runJob(removetestdata) call (to be implemented).
-//BeforeSuite(async ({ I, indexd, sheepdog }) => {
+// We need to replace that findDeleteAllNodes with a bash.runJob(removetestdata)
+// call (to be implemented).
+// BeforeSuite(async ({ I, indexd, sheepdog }) => {
 
-BeforeSuite(async ({ I}) => {
+BeforeSuite(async ({ I }) => {
   console.log('Preparing environment for the test scenarios...');
 
   I.cache = {};
@@ -40,7 +42,7 @@ BeforeSuite(async ({ I}) => {
   */
 });
 
-xScenario('Submit dummy data to the Gen3 Commons environment @jupyterNb', async ({I, fence, users}) => {
+Scenario('Submit dummy data to the Gen3 Commons environment @jupyterNb', async ({ I, users }) => {
   // generate dummy data
   // bash.runJob('gentestdata', args = "SUBMISSION_USER cdis.autotest@gmail.com MAX_EXAMPLES 1");
   // await checkPod('gentestdata', 'gen3job,job-name=gentestdata');
@@ -61,7 +63,9 @@ xScenario('Submit dummy data to the Gen3 Commons environment @jupyterNb', async 
   expect(queryResponse).to.have.property('status', 200);
 });
 
-xScenario('Upload a file through the gen3-client CLI @jupyterNb', async ({ I, fence, users, files }) => {
+Scenario('Upload a file through the gen3-client CLI @jupyterNb', async ({
+  I, fence, users,
+}) => {
   // Download the latest linux binary from https://github.com/uc-cdis/cdis-data-client/releases
 
   // if RUNNING_LOCAL=true, this will run inside the admin vm (vpn connection required)
@@ -116,7 +120,7 @@ xScenario('Upload a file through the gen3-client CLI @jupyterNb', async ({ I, fe
   expect(indexdLookupResponse.data).to.have.property('authz', []);
 });
 
-xScenario('Map the uploaded file to one of the subjects of the dummy dataset @jupyterNb', async ({ I }) => {
+Scenario('Map the uploaded file to one of the subjects of the dummy dataset @jupyterNb', async ({ I }) => {
   // Go to submission page
   I.amOnPage('/submission');
 
@@ -124,6 +128,7 @@ xScenario('Map the uploaded file to one of the subjects of the dummy dataset @ju
 
   // Unmapped files sometimes show up in "Generating... " state.
   // Need to wait a few seconds
+  // eslint-disable-next-line no-undef
   const checkboxIsClickable = await tryTo(() => I.waitForClickable(`//input[@id=${I.cache.theGUID}`, 20));
   if (!checkboxIsClickable) {
     // if the checkbox is still not clickable,refresh the page
@@ -169,7 +174,7 @@ xScenario('Map the uploaded file to one of the subjects of the dummy dataset @ju
   // TODO: check if file number in DEV-test project was increased by one
 });
 
-xScenario('Run ETL so the recently-submitted dataset will be available on the Explorer page @jupyterNb', async ({ I }) => {
+Scenario('Run ETL so the recently-submitted dataset will be available on the Explorer page @jupyterNb', async ({ I }) => {
   console.log('### running ETL for recently-submitted dataset');
   await bash.runJob('etl', '', false);
   await checkPod(I, 'etl', 'gen3job,job-name=etl', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: true });
@@ -183,7 +188,7 @@ Scenario('Login and check if the Explorer page renders successfully @jupyterNb',
   // exploration Page
   I.seeElement('.guppy-explorer', 5);
   I.wait(5);
-  I.saveScreenshot('explorationPage.png')
+  I.saveScreenshot('explorationPage.png');
   // Exploration page filters
   I.seeElement('.guppy-data-explorer__filter', 5);
   if (I.seeElement('.g3-button--disabled') || process.env.testedEnv.includes('qa-brain')) {
@@ -191,7 +196,7 @@ Scenario('Login and check if the Explorer page renders successfully @jupyterNb',
     I.waitForVisible('//button[contains(text(),\'Export to Workspace\')]', 10);
     I.saveScreenshot('fileTab.png');
   } else {
-    I.waitForVisible('//button[contains(text(),\'Export to Workspace\')]', 10)
+    I.waitForVisible('//button[contains(text(),\'Export to Workspace\')]', 10);
   }
 });
 
@@ -205,6 +210,6 @@ Scenario('Select a cohort that contains the recently-mapped file and export it t
   // console.log('We did it!');
 });
 
-Scenario('Open the workspace, launch a Jupyter Notebook Bio Python app and load the exported manifest with some Python code @jupyterNb', async (fence, users) => {
+Scenario('Open the workspace, launch a Jupyter Notebook Bio Python app and load the exported manifest with some Python code @jupyterNb', async () => {
   // TODO
 });
