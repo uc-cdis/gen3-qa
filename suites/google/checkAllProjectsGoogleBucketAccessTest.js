@@ -42,7 +42,7 @@ log4js.configure({
     console: { type: 'console' },
   },
   categories: {
-    default: { appenders: ['accessCheck', 'console'], level: 'debug' },
+    default: { appenders: ['accessCheck', 'console'], level: process.env.LOG_LEVEL || 'info' },
   },
 });
 const logger = log4js.getLogger('accessCheck');
@@ -62,7 +62,7 @@ async function checkAccess(I, a, indexdQueryParam) {
     const aGUID = indexdLookupResp.data.records[
       Math.floor(Math.random() * indexdLookupResp.data.records.length)
     ].did;
-    logger.info(`picking one indexd record with GUID ${aGUID} from ${indexdQueryParam} ${a}`);
+    logger.debug(`picking one indexd record with GUID ${aGUID} from ${indexdQueryParam} ${a}`);
     // shoot pre signed url against fence with the GUID
     const preSignedURLResp = await I.sendGetRequest(
       `https://${I.cache.environment}/user/data/download/${aGUID}?protocol=gs`,
@@ -80,7 +80,7 @@ async function checkAccess(I, a, indexdQueryParam) {
       // Error 😨
       if (error.response) {
         logger.error(`Failed to obtain a successful access check against GUID ${aGUID} from ${indexdQueryParam} ${a} - Status Code: ${error.response.status}`);
-        logger.error(`Details: ${error.response.data}`);
+        logger.debug(`Details: ${error.response.data}`);
       } else {
         logger.error(`Failed to process HTTP HEAD request for GUID ${aGUID}`);
       }
@@ -101,7 +101,7 @@ async function checkAccess(I, a, indexdQueryParam) {
 }
 
 BeforeSuite(async ({ I }) => {
-  logger.info('Initializing cache object...');
+  logger.debug('Initializing cache object...');
   I.cache = {};
 });
 
