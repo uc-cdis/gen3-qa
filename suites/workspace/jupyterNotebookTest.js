@@ -10,10 +10,14 @@ Feature('Jupyter Notebook');
 const { expect } = require('chai');
 const { checkPod, sleepMS, Gen3Response } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
-
 const bash = new Bash();
 
-BeforeSuite(async ({ I, indexd, sheepdog }) => {
+// TODO: If we utilize the sheepdog module here
+// the framework expects the testData folder and the DataImportOrderPath.txt to exist
+// We need to replace that findDeleteAllNodes with a bash.runJob(removetestdata) call (to be implemented).
+//BeforeSuite(async ({ I, indexd, sheepdog }) => {
+
+BeforeSuite(async ({ I}) => {
   console.log('Preparing environment for the test scenarios...');
 
   I.cache = {};
@@ -36,7 +40,7 @@ BeforeSuite(async ({ I, indexd, sheepdog }) => {
   */
 });
 
-Scenario('Submit dummy data to the Gen3 Commons environment @jupyterNb', async ({ I, fence, users }) => {
+xScenario('Submit dummy data to the Gen3 Commons environment @jupyterNb', async ({I, fence, users}) => {
   // generate dummy data
   // bash.runJob('gentestdata', args = "SUBMISSION_USER cdis.autotest@gmail.com MAX_EXAMPLES 1");
   // await checkPod('gentestdata', 'gen3job,job-name=gentestdata');
@@ -57,9 +61,7 @@ Scenario('Submit dummy data to the Gen3 Commons environment @jupyterNb', async (
   expect(queryResponse).to.have.property('status', 200);
 });
 
-Scenario('Upload a file through the gen3-client CLI @jupyterNb', async ({
-  I, fence, users, files,
-}) => {
+xScenario('Upload a file through the gen3-client CLI @jupyterNb', async ({ I, fence, users, files }) => {
   // Download the latest linux binary from https://github.com/uc-cdis/cdis-data-client/releases
 
   // if RUNNING_LOCAL=true, this will run inside the admin vm (vpn connection required)
@@ -114,7 +116,7 @@ Scenario('Upload a file through the gen3-client CLI @jupyterNb', async ({
   expect(indexdLookupResponse.data).to.have.property('authz', []);
 });
 
-Scenario('Map the uploaded file to one of the subjects of the dummy dataset @jupyterNb', async ({ I }) => {
+xScenario('Map the uploaded file to one of the subjects of the dummy dataset @jupyterNb', async ({ I }) => {
   // Go to submission page
   I.amOnPage('/submission');
 
@@ -167,15 +169,36 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @jup
   // TODO: check if file number in DEV-test project was increased by one
 });
 
-Scenario('Run ETL so the recently-submitted dataset will be available on the Explorer page @jupyterNb', async ({ I }) => {
+xScenario('Run ETL so the recently-submitted dataset will be available on the Explorer page @jupyterNb', async ({ I }) => {
   console.log('### running ETL for recently-submitted dataset');
   await bash.runJob('etl', '', false);
   await checkPod(I, 'etl', 'gen3job,job-name=etl', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: true });
 });
 
+<<<<<<< HEAD
 Scenario('Login and check if the Explorer page renders successfully @jupyterNb', async ({ I }) => {
   I.amOnPage('/explorer');
   // TODO check if the buttons turn red?
+=======
+Scenario('Login and check if the Explorer page renders successfully @jupyterNb', async ({ I, login, users }) => {
+  login.do.goToLoginPage();
+  I.saveScreenshot('loginPage.png');
+  login.complete.login(users.mainAcct);
+  I.amOnPage('/explorer');
+  // exploration Page
+  I.seeElement('.guppy-explorer', 5);
+  I.wait(5);
+  I.saveScreenshot('explorationPage.png')
+  // Exploration page filters
+  I.seeElement('.guppy-data-explorer__filter', 5);
+  if (I.seeElement('.g3-button--disabled') || process.env.testedEnv.includes('qa-brain')) {
+    I.click('//h3[contains(text(),\'File\')]');
+    I.waitForVisible('//button[contains(text(),\'Export to Workspace\')]', 10);
+    I.saveScreenshot('fileTab.png');
+  } else {
+    I.waitForVisible('//button[contains(text(),\'Export to Workspace\')]', 10)
+  }
+>>>>>>> c6711284fc96c395ccfb017438b4f2ffbee160ba
 });
 
 /*
