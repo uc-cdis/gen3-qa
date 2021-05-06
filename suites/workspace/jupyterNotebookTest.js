@@ -175,11 +175,6 @@ xScenario('Run ETL so the recently-submitted dataset will be available on the Ex
   await checkPod(I, 'etl', 'gen3job,job-name=etl', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: true });
 });
 
-<<<<<<< HEAD
-Scenario('Login and check if the Explorer page renders successfully @jupyterNb', async ({ I }) => {
-  I.amOnPage('/explorer');
-  // TODO check if the buttons turn red?
-=======
 Scenario('Login and check if the Explorer page renders successfully @jupyterNb', async ({ I, login, users }) => {
   login.do.goToLoginPage();
   I.saveScreenshot('loginPage.png');
@@ -198,7 +193,6 @@ Scenario('Login and check if the Explorer page renders successfully @jupyterNb',
   } else {
     I.waitForVisible('//button[contains(text(),\'Export to Workspace\')]', 10)
   }
->>>>>>> c6711284fc96c395ccfb017438b4f2ffbee160ba
 });
 
 /*
