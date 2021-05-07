@@ -123,7 +123,8 @@ Scenario('Map uploaded files in windmill submission page @dataUpload @portal', a
 
     if (process.env.PARALLEL_TESTING_ENABLED === "true") {
       dataUploadTasks.goToSubmissionPage();
-      // TODO: Something 
+      const unmappedFilesMsg = await I.grabValueFrom({ xpath: 'xpath: //div[contains(text(),\' files | \')]'});
+      console.log(`### ## unmappedFilesMsg: ${unmappedFilesMsg}`); 
     } else {
       // user1 should see 1 file ready
       portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage(I, [fileObj], true);
