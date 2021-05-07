@@ -3,6 +3,7 @@ Feature('DataUploadTest');
 const { interactive, ifInteractive } = require('../../utils/interactive');
 const { checkPod, sleepMS } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash');
+const dataUploadTasks = require('./dataUploadTasks.js');
 
 // const I = actor();
 const createdGuids = [];
@@ -120,14 +121,19 @@ Scenario('Map uploaded files in windmill submission page @dataUpload @portal', a
     // upload file
     await uploadFile(I, dataUpload, indexd, sheepdog, nodes, fileObj, presignedUrl);
 
-    // user1 should see 1 file ready
-    portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage(I, [fileObj], true);
+    if (process.env.PARALLEL_TESTING_ENABLED === "true") {
+      dataUploadTasks.goToSubmissionPage();
+      // TODO: Something 
+    } else {
+      // user1 should see 1 file ready
+      portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage(I, [fileObj], true);
+    
+      // user1 map file in windmill
+      await portalDataUpload.complete.mapFiles(I, [fileObj], submitterID);
 
-    // user1 map file in windmill
-    await portalDataUpload.complete.mapFiles(I, [fileObj], submitterID);
-
-    // user1 should see 0 files now because all files are mapped.
-    portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage(I, []);
+      // user1 should see 0 files now because all files are mapped.
+      portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage(I, []);
+    }
   }
 }).retry(2);
 
