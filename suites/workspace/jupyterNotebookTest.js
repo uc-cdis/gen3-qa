@@ -44,8 +44,8 @@ BeforeSuite(async ({ I }) => {
 
 Scenario('Submit dummy data to the Gen3 Commons environment @jupyterNb', async ({ I, users }) => {
   // generate dummy data
-  // bash.runJob('gentestdata', args = "SUBMISSION_USER cdis.autotest@gmail.com MAX_EXAMPLES 1");
-  // await checkPod('gentestdata', 'gen3job,job-name=gentestdata');
+  bash.runJob('gentestdata', args = "SUBMISSION_USER cdis.autotest@gmail.com MAX_EXAMPLES 1");
+  await checkPod('gentestdata', 'gen3job,job-name=gentestdata');
 
   const queryRecentlySubmittedData = {
     query: '{ submitted_unaligned_reads (first: 20, project_id: "DEV-test", quick_search: "", order_by_desc: "updated_datetime") {id, type, submitter_id} }',
@@ -112,12 +112,12 @@ Scenario('Upload a file through the gen3-client CLI @jupyterNb', async ({
   await checkPod('indexing', 'ssjdispatcherjob');
 
   // TODO: Query GUID to confirm the indexd record was created succeessfully
-  const indexdLookupResponse = I.sendGetRequest(`https://${process.env.NAMESPACE}.planx-pla.net/index/${theGUID}`);
+  const indexdLookupResponse = await I.sendGetRequest(`https://${process.env.NAMESPACE}.planx-pla.net/index/${theGUID}`);
 
   expect(indexdLookupResponse).to.have.property('status', 200);
   expect(indexdLookupResponse.data).to.have.property('file_name', ourFileToBeUploaded);
-  expect(indexdLookupResponse.data).to.have.property('acl', []);
-  expect(indexdLookupResponse.data).to.have.property('authz', []);
+  expect(indexdLookupResponse.data.acl).to.eql([]);
+  expect(indexdLookupResponse.data.authz).to.eql([]);
 });
 
 Scenario('Map the uploaded file to one of the subjects of the dummy dataset @jupyterNb', async ({ I }) => {
