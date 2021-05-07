@@ -116,8 +116,8 @@ Scenario('Upload a file through the gen3-client CLI @jupyterNb', async ({
 
   expect(indexdLookupResponse).to.have.property('status', 200);
   expect(indexdLookupResponse.data).to.have.property('file_name', ourFileToBeUploaded);
-  expect(indexdLookupResponse.data.acl).to.equal([]);
-  expect(indexdLookupResponse.data.authz).to.equal([]);
+  expect(indexdLookupResponse.data.acl).to.eql([]);
+  expect(indexdLookupResponse.data.authz).to.eql([]);
 });
 
 Scenario('Map the uploaded file to one of the subjects of the dummy dataset @jupyterNb', async ({ I }) => {
