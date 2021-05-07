@@ -140,7 +140,9 @@ gen3_load "gen3/gen3setup"
 
 namespaceName="${KUBECTL_NAMESPACE}"
 service="${service:-""}"
-testedEnv="${testedEnv:-""}"
+# in the parallel block closure the Groovy global envs can't be accessed
+# hence the fallback to env. variable
+testedEnv="${testedEnv:-"$TESTED_ENVIRONMENT"}"
 isGen3Release="${isGen3Release:false}"
 selectedTest="${selectedTest:-"all"}"
 
