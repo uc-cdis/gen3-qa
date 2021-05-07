@@ -60,7 +60,7 @@ Scenario('Submit dummy data to the Gen3 Commons environment @jupyterNb', async (
 
   // make sure the query return results
   console.log(`query response: ${JSON.stringify(queryResponse.data)}`);
-  expect(queryResponse).to.have.property('status', 200);
+  expect(queryResponse).to.have.property('statusCode', 200);
 });
 
 Scenario('Upload a file through the gen3-client CLI @jupyterNb', async ({
