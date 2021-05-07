@@ -1,10 +1,16 @@
 import os
 import subprocess
 
+test_suites_that_cant_run_in_parallel = [
+  'test-google-googleDataAccessTest',
+  'test-google-googleServiceAccountKeyTest',
+  'test-google-googleServiceAccountRemovalTest'  
+]
 
 def collect_test_suites_from_codeceptjs_dryrun():
   bashCommand = "npx codeceptjs dry-run 2>&1"
-  process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
+  with open(os.devnull, 'w') as devnull:
+    process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE, stderr=devnull)
   output, error = process.communicate()
 
   test_suites = []
@@ -32,8 +38,13 @@ def collect_test_suites_from_codeceptjs_dryrun():
 
 def main():
   test_suites = collect_test_suites_from_codeceptjs_dryrun()
-  print(f"## ## test_suites: {test_suites}")
-  print(f"## test_suites size: {len(test_suites)}")
+
+  for ts in test_suites:
+    if ts not in test_suites_that_cant_run_in_parallel:
+      print(ts)
+
+  #print(f"## ## test_suites: {test_suites}")
+  #print(f"## test_suites size: {len(test_suites)}")
 
 if __name__ == '__main__':
   main()
