@@ -2,9 +2,21 @@ import os
 import subprocess
 
 test_suites_that_cant_run_in_parallel = [
-  'test-google-googleDataAccessTest',
-  'test-google-googleServiceAccountKeyTest',
-  'test-google-googleServiceAccountRemovalTest'  
+  'test-google-googleDataAccessTest',            # not thread-safe
+  'test-google-googleServiceAccountRemovalTest', # not thread-safe
+  'test-smokeTests-brainTests',                  # manual (executable test)
+  'test-suites-fail',                            # special suite to force failures for invalid test labels
+  'test-portal-roleBasedUITest',                 # manual (executable test)
+  'test-portal-limitedFilePFBExportTestPlan',    # manual (executable test)
+  'test-access-accessGUITest',                   # manual (executable test)
+  'test-portal-tieredAccessTest',                # manual (executable test)
+  'test-portal-discoveryPageTestPlan',           # manual (executable test)
+  'test-guppy-guppyTest',                        # manual (executable test)
+  'test-guppy-nestedAggTest',                    # manual (executable test)
+  'test-regressions-exportPerformanceTest',      # legacy (disabled test)
+  'test-regressions-generateTestData',           # legacy (disabled test)
+  'test-regressions-queryPerformanceTest',       # legacy (disabled test)
+  'test-regressions-submissionPerformanceTest'  # legacy (disabled test)
 ]
 
 def collect_test_suites_from_codeceptjs_dryrun():
