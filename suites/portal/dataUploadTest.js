@@ -3,7 +3,7 @@ Feature('DataUploadTest');
 const { interactive, ifInteractive } = require('../../utils/interactive');
 const { checkPod, sleepMS } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash');
-const dataUploadTasks = require('./dataUploadTasks.js');
+const dataUploadTasks = require('../../services/portal/dataUpload/dataUploadTasks.js');
 
 // const I = actor();
 const createdGuids = [];
@@ -121,14 +121,14 @@ Scenario('Map uploaded files in windmill submission page @dataUpload @portal', a
     // upload file
     await uploadFile(I, dataUpload, indexd, sheepdog, nodes, fileObj, presignedUrl);
 
-    if (process.env.PARALLEL_TESTING_ENABLED === "true") {
+    if (process.env.PARALLEL_TESTING_ENABLED === 'true') {
       dataUploadTasks.goToSubmissionPage();
-      const unmappedFilesMsg = await I.grabValueFrom({ xpath: 'xpath: //div[contains(text(),\' files | \')]'});
-      console.log(`### ## unmappedFilesMsg: ${unmappedFilesMsg}`); 
+      const unmappedFilesMsg = await I.grabValueFrom({ xpath: 'xpath: //div[contains(text(),\' files | \')]' });
+      console.log(`### ## unmappedFilesMsg: ${unmappedFilesMsg}`);
     } else {
       // user1 should see 1 file ready
       portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage(I, [fileObj], true);
-    
+
       // user1 map file in windmill
       await portalDataUpload.complete.mapFiles(I, [fileObj], submitterID);
 
