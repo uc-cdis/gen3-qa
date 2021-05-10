@@ -44,7 +44,7 @@ BeforeSuite(async ({ I }) => {
 
 Scenario('Submit dummy data to the Gen3 Commons environment @jupyterNb', async ({ I, users }) => {
   // generate dummy data
-  bash.runJob('gentestdata', args = "SUBMISSION_USER cdis.autotest@gmail.com MAX_EXAMPLES 1");
+  bash.runJob('gentestdata', 'SUBMISSION_USER cdis.autotest@gmail.com MAX_EXAMPLES 1');
   await checkPod('gentestdata', 'gen3job,job-name=gentestdata');
 
   const queryRecentlySubmittedData = {
