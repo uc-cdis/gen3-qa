@@ -150,13 +150,11 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @jup
   // Select Project
   I.fillField('//input[@id=\'react-select-2-input\']', 'DEV-test');
   I.pressKey('Enter');
-  I.seeNumberOfElements({ react: 'Sc' }, 1);
   console.log('Project selected');
 
   // Select File Node
   I.fillField('//input[@id=\'react-select-3-input\']', 'submitted_unaligned_reads');
   I.pressKey('Enter');
-  I.seeNumberOfElements({ react: 'Sc' }, 2);
   console.log('File Node selected');
   I.waitForText('Required Fields');
 
