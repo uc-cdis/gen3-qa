@@ -129,10 +129,12 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @jup
   // Unmapped files sometimes show up in "Generating... " state.
   // Need to wait a few seconds
   // eslint-disable-next-line no-undef
-  const checkboxIsClickable = await tryTo(() => I.waitForClickable(`//input[@id='${I.cache.theGUID}]'`, 20));
+  const checkboxIsClickable = await tryTo(() => I.waitForClickable(`//input[@id='${I.cache.theGUID}]'`, 30));
+  I.saveScreenshot('ClickCheckboxOfUnmappedFile.png');
   if (!checkboxIsClickable) {
     // if the checkbox is still not clickable,refresh the page
     I.refreshPage();
+    I.saveScreenshot('ClickCheckboxOfUnmappedFileAfterRefresh.png');
   }
   // Click checkbox with id of the guid of the uploadedfile
   I.click(`//input[@id='${I.cache.theGUID}']`);
