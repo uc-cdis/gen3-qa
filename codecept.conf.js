@@ -117,6 +117,9 @@ exports.config = {
     tryTo: {
       enabled: true,
     },
+    screenshotOnFail: {
+      enabled: true,
+    },
   },
   timeout: 60000,
   name: 'selenium',
