@@ -137,6 +137,7 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @jup
   if (!checkboxIsClickable) {
     // if the checkbox is still not clickable,refresh the page
     I.refreshPage();
+    I.wait(1);
     I.saveScreenshot('ClickCheckboxOfUnmappedFileAfterRefresh.png');
   }
   // Click checkbox with id of the guid of the uploadedfile
