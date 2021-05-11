@@ -186,9 +186,9 @@ Scenario('Login and check if the Explorer page renders successfully @jupyterNb',
   login.complete.login(users.mainAcct);
   I.amOnPage('/explorer');
   // exploration Page
-  I.seeElement('.guppy-explorer', 5);
   I.wait(5);
   I.saveScreenshot('explorationPage.png');
+  I.seeElement('.guppy-explorer', 10);
   // Exploration page filters
   I.seeElement('.guppy-data-explorer__filter', 5);
   if (I.seeElement('.g3-button--disabled') || process.env.testedEnv.includes('qa-brain')) {
