@@ -135,7 +135,7 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @jup
     I.refreshPage();
   }
   // Click checkbox with id of the guid of the uploadedfile
-  I.click(`//input[@id=${I.cache.theGUID}`);
+  I.click(`//input[@id=${I.cache.theGUID}]`);
   console.log('Start to map file');
 
   I.click('Map Files (1)');
