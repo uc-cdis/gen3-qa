@@ -22,6 +22,11 @@ const bash = new Bash();
 BeforeSuite(async ({ I }) => {
   console.log('Preparing environment for the test scenarios...');
 
+  console.log('Running ETL once');
+  await bash.runJob('etl', '', false);
+  await checkPod(I, 'etl', 'gen3job,job-name=etl', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: true });
+  console.log(`${new Date()}: After run ETL first time`);
+
   I.cache = {};
 
   /*
