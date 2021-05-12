@@ -8,7 +8,7 @@
 Feature('Jupyter Notebook');
 
 const { expect } = require('chai');
-const { checkPod } = require('../../utils/apiUtil.js');
+const { checkPod, sleepMS } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
 
 const bash = new Bash();
@@ -21,11 +21,6 @@ const bash = new Bash();
 
 BeforeSuite(async ({ I }) => {
   console.log('Preparing environment for the test scenarios...');
-
-  console.log('Running ETL once');
-  await bash.runJob('etl', '', false);
-  await checkPod(I, 'etl', 'gen3job,job-name=etl', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: true });
-  console.log(`${new Date()}: After run ETL first time`);
 
   I.cache = {};
 
@@ -129,7 +124,7 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @jup
   login.do.goToLoginPage();
   I.saveScreenshot('loginPage.png');
   login.complete.login(users.mainAcct);
-  
+
   // Go to submission page
   I.amOnPage('/submission');
   I.amOnPage('/submission/files');
@@ -187,6 +182,9 @@ Scenario('Run ETL so the recently-submitted dataset will be available on the Exp
   console.log('### running ETL for recently-submitted dataset');
   await bash.runJob('etl', '', false);
   await checkPod(I, 'etl', 'gen3job,job-name=etl', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: true });
+  await sleepMS(10000);
+  await bash.runCommand('gen3 roll guppy');
+  await sleepMS(20000);
 });
 
 Scenario('Login and check if the Explorer page renders successfully @jupyterNb', async ({ I, login, users }) => {
