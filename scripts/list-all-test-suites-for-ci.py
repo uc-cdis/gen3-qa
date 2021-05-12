@@ -22,7 +22,10 @@ test_suites_that_cant_run_in_parallel = [
 def collect_test_suites_from_codeceptjs_dryrun():
   my_env = os.environ.copy()
   bashCommand = "npx codeceptjs dry-run"
-  process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)
+
+  current_workspace = os.getenv("WORKSPACE") + "/gen3-qa" if 'WORKSPACE' in os.environ else "."
+  
+  process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env, cwd=current_workspace)
   output, error = process.communicate()
 
   test_suites = []
