@@ -22,8 +22,7 @@ test_suites_that_cant_run_in_parallel = [
 def collect_test_suites_from_codeceptjs_dryrun():
   my_env = os.environ.copy()
   bashCommand = "npx codeceptjs dry-run"
-  with open(os.devnull, 'w') as devnull:
-    process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)
+  process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)
   output, error = process.communicate()
 
   test_suites = []
