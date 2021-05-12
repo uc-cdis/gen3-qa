@@ -1,7 +1,7 @@
 # GWAS Test Plan
 
 ## Overview
-Helper tool to convert input files/folder to input manifest for mariner
+Helper tool to convert input files/folder to input manifest for mariner.
 
 ## Workflow
 
