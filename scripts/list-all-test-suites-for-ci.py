@@ -2,6 +2,7 @@ import os
 import subprocess
 
 test_suites_that_cant_run_in_parallel = [
+  'test-apis-dbgapTest',                         # not thread-safe
   'test-google-googleDataAccessTest',            # not thread-safe
   'test-google-googleServiceAccountRemovalTest', # not thread-safe
   'test-smokeTests-brainTests',                  # manual (executable test)
