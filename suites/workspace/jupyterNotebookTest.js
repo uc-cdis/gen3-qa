@@ -120,7 +120,7 @@ Scenario('Upload a file through the gen3-client CLI @jupyterNb', async ({
   expect(indexdLookupResponse.data.authz).to.eql([]);
 });
 
-Scenario('Map the uploaded file to one of the subjects of the dummy dataset @jupyterNb', async ({ I, login, users}) => {
+Scenario('Map the uploaded file to one of the subjects of the dummy dataset @jupyterNb', async ({ I, login, users }) => {
   login.do.goToLoginPage();
   I.saveScreenshot('loginPage.png');
   login.complete.login(users.mainAcct);
