@@ -191,19 +191,36 @@ Scenario('Login and check if the Explorer page renders successfully @jupyterNb',
   login.do.goToLoginPage();
   I.saveScreenshot('loginPage.png');
   login.complete.login(users.mainAcct);
-  I.amOnPage('/explorer');
-  // exploration Page
   I.wait(5);
-  I.saveScreenshot('explorationPage.png');
-  I.seeElement('.guppy-explorer', 10);
-  // Exploration page filters
-  I.seeElement('.guppy-data-explorer__filter', 5);
-  if (I.seeElement('.g3-button--disabled') || process.env.testedEnv.includes('qa-brain')) {
-    I.click('//h3[contains(text(),\'File\')]');
+  I.saveScreenshot('before_checking_navbar.png');
+  const navBarButtons = await I.grabTextFromAll({ xpath: 'xpath: //nav[@class=\'nav-bar__nav--items\']//div/a/descendant-or-self::*' });
+
+  if (navBarButtons.includes('Explorer')) {
+    I.amOnPage('/explorer');
+    // exploration Page
+    I.wait(5);
+    I.saveScreenshot('explorationPage.png');
+    I.seeElement('.guppy-explorer', 10);
+    // Exploration page filters
+    I.seeElement('.guppy-data-explorer__filter', 5);
+    if (I.seeElement('.g3-button--disabled') || process.env.testedEnv.includes('qa-brain')) {
+      I.click('//h3[contains(text(),\'File\')]');
+      I.waitForVisible('//button[contains(text(),\'Export to Workspace\')]', 10);
+      I.saveScreenshot('fileTab.png');
+    } else {
+      I.waitForVisible('//button[contains(text(),\'Export to Workspace\')]', 10);
+    }
+  } else if (navBarButtons.includes('Files')) {
+    I.amOnPage('/files');
+    // Files Page
+    I.wait(5);
+    I.saveScreenshot('filesPage.png');
+    I.seeElement('.guppy-explorer', 10);
+    // Exploration page filters
+    I.seeElement('.guppy-data-explorer__filter', 5);
     I.waitForVisible('//button[contains(text(),\'Export to Workspace\')]', 10);
-    I.saveScreenshot('fileTab.png');
   } else {
-    I.waitForVisible('//button[contains(text(),\'Export to Workspace\')]', 10);
+    console.log('WARN: This environment does not have any Explorer or Files button on the navigation bar. This test should not run here');
   }
 });
 
