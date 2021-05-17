@@ -7,6 +7,7 @@ const {
   GEN3_HOST,
   ACCESS_TOKEN,
   VIRTUAL_USERS,
+  SIGNED_URL_PROTOCOL,
 } = __ENV; // eslint-disable-line no-undef
 
 // __ENV.GUIDS_LIST should contain either a list of GUIDs from load-test-descriptor.json
@@ -26,7 +27,7 @@ export const options = {
 };
 
 export default function () {
-  const url = `https://${GEN3_HOST}/index/ga4gh/drs/v1/objects/${guids[Math.floor(Math.random() * guids.length)]}`;
+  const url = `https://${GEN3_HOST}/index/ga4gh/drs/v1/objects/${guids[Math.floor(Math.random() * guids.length)]}/access/${SIGNED_URL_PROTOCOL}`;
   const params = {
     headers: {
       'Content-Type': 'application/json',
