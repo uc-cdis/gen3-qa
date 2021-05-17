@@ -49,5 +49,5 @@ Data(correctGuids).Scenario('Test if DRSendpoint resolve the guids correctly @da
 // Nagative DRS endpoint test
 Data(nonexistentGuids).Scenario('Negativetest DRSendpoint with non-existent guids @dataguids', ({ I, current }) => {
   I.amOnPage(`${testURL}/ga4gh/dos/v1/dataobjects/${current.nguids}`);
-  I.see("no record found");
+  I.see('no record found');
 });

@@ -2,6 +2,7 @@ import os
 import subprocess
 
 test_suites_that_cant_run_in_parallel = [
+  'test-apis-dbgapTest',                         # not thread-safe
   'test-google-googleDataAccessTest',            # not thread-safe
   'test-google-googleServiceAccountRemovalTest', # not thread-safe
   'test-smokeTests-brainTests',                  # manual (executable test)
@@ -20,9 +21,9 @@ test_suites_that_cant_run_in_parallel = [
 ]
 
 def collect_test_suites_from_codeceptjs_dryrun():
-  bashCommand = "npx codeceptjs dry-run 2>&1"
-  with open(os.devnull, 'w') as devnull:
-    process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE, stderr=devnull)
+  my_env = os.environ.copy()
+  bashCommand = "npx codeceptjs dry-run"
+  process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)
   output, error = process.communicate()
 
   test_suites = []
