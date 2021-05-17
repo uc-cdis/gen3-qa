@@ -1,10 +1,29 @@
 import os
 import subprocess
 
+test_suites_that_cant_run_in_parallel = [
+  'test-apis-dbgapTest',                         # not thread-safe
+  'test-google-googleDataAccessTest',            # not thread-safe
+  'test-google-googleServiceAccountRemovalTest', # not thread-safe
+  'test-smokeTests-brainTests',                  # manual (executable test)
+  'test-suites-fail',                            # special suite to force failures for invalid test labels
+  'test-portal-roleBasedUITest',                 # manual (executable test)
+  'test-portal-limitedFilePFBExportTestPlan',    # manual (executable test)
+  'test-access-accessGUITest',                   # manual (executable test)
+  'test-portal-tieredAccessTest',                # manual (executable test)
+  'test-portal-discoveryPageTestPlan',           # manual (executable test)
+  'test-guppy-guppyTest',                        # manual (executable test)
+  'test-guppy-nestedAggTest',                    # manual (executable test)
+  'test-regressions-exportPerformanceTest',      # legacy (disabled test)
+  'test-regressions-generateTestData',           # legacy (disabled test)
+  'test-regressions-queryPerformanceTest',       # legacy (disabled test)
+  'test-regressions-submissionPerformanceTest'  # legacy (disabled test)
+]
 
 def collect_test_suites_from_codeceptjs_dryrun():
-  bashCommand = "npx codeceptjs dry-run 2>&1"
-  process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
+  my_env = os.environ.copy()
+  bashCommand = "npx codeceptjs dry-run"
+  process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)
   output, error = process.communicate()
 
   test_suites = []
@@ -32,8 +51,13 @@ def collect_test_suites_from_codeceptjs_dryrun():
 
 def main():
   test_suites = collect_test_suites_from_codeceptjs_dryrun()
-  print(f"## ## test_suites: {test_suites}")
-  print(f"## test_suites size: {len(test_suites)}")
+
+  for ts in test_suites:
+    if ts not in test_suites_that_cant_run_in_parallel:
+      print(ts)
+
+  #print(f"## ## test_suites: {test_suites}")
+  #print(f"## test_suites size: {len(test_suites)}")
 
 if __name__ == '__main__':
   main()
