@@ -74,6 +74,7 @@ exports.config = {
     etl: './services/apis/etl/etlService.js',
     manifestService: './services/apis/manifestService/manifestServiceService.js',
     guppy: './services/apis/guppy/guppyService.js',
+    mds: './services/apis/mds/mdsService.js',
 
     // Pages
     home: './services/portal/home/homeService.js',
@@ -83,6 +84,7 @@ exports.config = {
     portalDataUpload: './services/portal/dataUpload/dataUploadService.js',
     portalExportToWorkspace: './services/portal/exportToWorkspace/exportToWorkspaceService.js',
     portalCoreMetadataPage: './services/portal/coreMetadataPage/coreMetadataPageService.js',
+    discovery: './services/portal/discovery/discoveryService.js',
   },
   mocha: {
     reporterOptions: {
