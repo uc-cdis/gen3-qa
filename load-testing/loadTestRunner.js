@@ -98,6 +98,11 @@ async function runLoadTestScenario() {
   loadTestArgs.unshift(`GUIDS_LIST=${listOfDIDs.join()}`);
   loadTestArgs.unshift('-e');
 
+  const presignedUrlProtocol = testDescriptorData.presigned_url_protocol ? testDescriptorData.presigned_url_protocol : '';
+  console.log(`## presignedUrlProtocol: ${presignedUrlProtocol}`);
+  loadTestArgs.unshift(`SIGNED_URL_PROTOCOL=${presignedUrlProtocol}`);
+  loadTestArgs.unshift('-e');
+
   // TODO: Move this to a separate utils function
   if (loadTestScenario === 'service-account-patch') {
     loadTestArgs.unshift(`GOOGLE_SVC_ACCOUNT=${testDescriptorData.google_svc_account}`);
