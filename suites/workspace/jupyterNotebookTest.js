@@ -42,7 +42,7 @@ BeforeSuite(async ({ I }) => {
   */
 });
 
-Scenario('Submit dummy data to the Gen3 Commons environment @jupyterNb', async ({ I, users }) => {
+xScenario('Submit dummy data to the Gen3 Commons environment @jupyterNb', async ({ I, users }) => {
   // generate dummy data
   bash.runJob('gentestdata', 'SUBMISSION_USER cdis.autotest@gmail.com MAX_EXAMPLES 1');
   await checkPod('gentestdata', 'gen3job,job-name=gentestdata');
@@ -63,7 +63,7 @@ Scenario('Submit dummy data to the Gen3 Commons environment @jupyterNb', async (
   expect(queryResponse).to.have.property('status', 200);
 });
 
-Scenario('Upload a file through the gen3-client CLI @jupyterNb', async ({
+xScenario('Upload a file through the gen3-client CLI @jupyterNb', async ({
   I, fence, users,
 }) => {
   // Download the latest linux binary from https://github.com/uc-cdis/cdis-data-client/releases
@@ -120,7 +120,7 @@ Scenario('Upload a file through the gen3-client CLI @jupyterNb', async ({
   expect(indexdLookupResponse.data.authz).to.eql([]);
 });
 
-Scenario('Map the uploaded file to one of the subjects of the dummy dataset @jupyterNb', async ({ I, login, users }) => {
+xScenario('Map the uploaded file to one of the subjects of the dummy dataset @jupyterNb', async ({ I, login, users }) => {
   login.do.goToLoginPage();
   I.saveScreenshot('loginPage.png');
   login.complete.login(users.mainAcct);
@@ -178,7 +178,12 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @jup
   // TODO: check if file number in DEV-test project was increased by one
 });
 
-Scenario('Run ETL so the recently-submitted dataset will be available on the Explorer page @jupyterNb', async ({ I }) => {
+Scenario('Mutate etl-mapping config and run ETL so the recently-submitted dataset will be available on the Explorer page @jupyterNb', async ({ I }) => {
+  console.log('### mutate the etl-mapping k8s config map');
+  await bash.runCommand('
+    kubectl get cm etl-mapping -o jsonpath='{.data.etlMapping\.yaml}' > etlMapping.yaml && sed -i 's/.*name: (.*)_etl/123.repo_name.\1_etl/' etlMapping.yaml
+  ');
+
   console.log('### running ETL for recently-submitted dataset');
   await bash.runJob('etl', '', false);
   await checkPod(I, 'etl', 'gen3job,job-name=etl', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: true });
@@ -187,7 +192,7 @@ Scenario('Run ETL so the recently-submitted dataset will be available on the Exp
   await sleepMS(20000);
 });
 
-Scenario('Login and check if the Explorer page renders successfully @jupyterNb', async ({ I, login, users }) => {
+xScenario('Login and check if the Explorer page renders successfully @jupyterNb', async ({ I, login, users }) => {
   login.do.goToLoginPage();
   I.saveScreenshot('loginPage.png');
   login.complete.login(users.mainAcct);
@@ -228,12 +233,12 @@ Scenario('Login and check if the Explorer page renders successfully @jupyterNb',
   Let us stop here for now and introduce this test to the CI Pipeline
 */
 
-Scenario('Select a cohort that contains the recently-mapped file and export it to the workspace @jupyterNb', async ({ I }) => {
+xScenario('Select a cohort that contains the recently-mapped file and export it to the workspace @jupyterNb', async ({ I }) => {
   I.amOnPage('/explorer');
   // TODO
   // console.log('We did it!');
 });
 
-Scenario('Open the workspace, launch a Jupyter Notebook Bio Python app and load the exported manifest with some Python code @jupyterNb', async () => {
+xScenario('Open the workspace, launch a Jupyter Notebook Bio Python app and load the exported manifest with some Python code @jupyterNb', async () => {
   // TODO
 });

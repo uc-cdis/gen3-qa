@@ -201,6 +201,12 @@ if [[ "$KUBECTL_NAMESPACE" != "$namespaceName" ]]; then
   exit 1
 fi
 
+if [[ "$JENKINS_HOME" != "" && "$RUNNING_LOCAL" == "false" ]]; then
+  # Set HOME environment variable as the current PR workspace
+  # to avoid conflicts between gen3 CLI (cdis-data-client) profile configurations
+  export HOME=$WORKSPACE
+fi
+
 cat - <<EOM
 Running with:
   namespace=$namespaceName
