@@ -7,16 +7,16 @@ module.exports = {
     css: '.ant-pagination-next[title="Next Page"]',
   },
   txtDiscoverySearch: {
-    css: '.discovery-search > input[type="text"]',
+    xpath: '//div[@class="discovery-search-container"]/span/input[@type="text"]',
   },
   btnAdvancedSearch: {
-    xpath: '//button[span[text()="Advanced Search"]]',
+    xpath: '//button[span[text()="ADVANCED SEARCH"]]',
   },
   btnOpenInWorkspace: {
-    xpath: '//button[span[text()="Open in Workspace"]]',
+    xpath: '//button[span[text()="Open In Workspace"]]',
   },
   tagLocator(categoryName, tagName) {
-    return { xpath: `//h5[text()="${categoryName}"]/following-sibling::span[text()="${tagName}"]` };
+    return { xpath: `//span[text()="${tagName}"]` };
   },
   studyLocator(studyId) {
     return { xpath: `//tr[@data-row-key="${studyId}"]` };
