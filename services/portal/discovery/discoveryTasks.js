@@ -5,9 +5,12 @@ const I = actor();
 module.exports = {
   goToPage() {
     I.amOnPage(props.path);
+    I.waitForElement(props.readyCue, 30);
+    I.wait(2);
   },
 
   tagSearch(categoryName, tagName) {
+    I.saveScreenshot('tag_search.png');
     I.click(props.tagLocator(categoryName, tagName));
   },
 
@@ -25,6 +28,9 @@ module.exports = {
 
   openInWorkspace(studyId) {
     I.click(props.studySelectorLocator(studyId));
+    I.wait(1);
+    I.saveScreenshot('study_selected.png');
+    I.seeElementInDOM(props.btnOpenInWorkspace);
     I.click(props.btnOpenInWorkspace);
   },
 };

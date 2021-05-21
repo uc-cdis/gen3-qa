@@ -19,11 +19,12 @@
                 "run",
                 "--verbose",
                 "--grep",
-                "Test Google Data Access user0"
+                "Publish a study, search and export to workspace"
             ],
             "env": {
                 "RUNNING_LOCAL": "true",
-                "NAMESPACE": "qa-dcp"
+                "GEN3_SKIP_PROJ_SETUP": "true",
+                "NAMESPACE": "qa-heal"
             },
         }
     ]

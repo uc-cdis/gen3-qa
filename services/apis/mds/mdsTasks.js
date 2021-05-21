@@ -10,6 +10,6 @@ module.exports = {
   },
 
   deleteMetadataRecord(accessTokenHeader, guid) {
-    I.sendDeleteRequest(`${mdsProps.endpoints.metadata}/${guid}`);
+    I.sendDeleteRequest(`${mdsProps.endpoints.metadata}/${guid}`, accessTokenHeader);
   },
 };
