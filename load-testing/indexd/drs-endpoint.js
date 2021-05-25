@@ -48,8 +48,5 @@ export default function () {
         'is status 200': (r) => r.status === 200,
       });
     });
-    group('wait 0.3s between requests', () => {
-      sleep(0.3);
-    });
   });
 }
