@@ -42,12 +42,12 @@ Data(nonexistentGuids).Scenario('Negativetest resolving for non-exitent guids @d
 
 // Test DRS endpoint
 Data(correctGuids).Scenario('Test if DRSendpoint resolve the guids correctly @dataguids', ({ I, current }) => {
-  I.amOnPage(`${testURL}/index/ga4gh/drs/v1/objects/${current.guids}`);
+  I.amOnPage(`${testURL}/ga4gh/dos/v1/dataobjects/${current.guids}`);
   I.see(`${current.guids}`);
 });
 
 // Nagative DRS endpoint test
 Data(nonexistentGuids).Scenario('Negativetest DRSendpoint with non-existent guids @dataguids', ({ I, current }) => {
-  I.amOnPage(`${testURL}/index/ga4gh/drs/v1/objects/${current.nguids}`);
-  I.see('"error":"no record found"');
+  I.amOnPage(`${testURL}/ga4gh/dos/v1/dataobjects/${current.nguids}`);
+  I.see('no record found');
 });
