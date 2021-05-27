@@ -21,7 +21,7 @@ export const options = {
 
 export default function () {
     // the url to post the logs to
-    const auditURL = `https://${GEN3_HOST}/audit/log/presigned-url`;
+    const auditURL = `https://${GEN3_HOST}/audit/log/presigned_url`;
     // authentication for request a POST
     const params = {
         headers: {
@@ -34,7 +34,7 @@ export default function () {
         "action": "download",
         "guid": "dg.fake/b01ebf46-3832-4a75-8736-b09e8d9fd952",
         "request_url": "/data/download/dg.fake/b01ebf46-3832-4a75-8736-b09e8d9fd952",
-        "resource_path": [ "/my/resource/path1", "/path2" ],
+        "resource_paths": [ "/my/resource/path1", "/path2" ],
         "status_code": 200,
         "sub": 10,
         "username": "user_91"
@@ -43,7 +43,7 @@ export default function () {
 
     group('posting Presigned URLs Logs', () => {
         group('http post', () => {
-           console.log(`posting presigned url to: ${url}`);
+           console.log(`posting presigned url to: ${auditURL}`);
            const res = http.post(auditURL, body, params, {tags: { name: 'presignedURL'} });
            myFailRate.add(res.status !== 201);
            if (res.status !== 201) {

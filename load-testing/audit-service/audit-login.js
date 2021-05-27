@@ -36,14 +36,14 @@ export default function () {
         "request_url": "",
         "status_code": 200,
         "sub": 1,
-        "username" : ""
+        "username" : "user10"
     };
 
     const body = JSON.stringify(schema);
 
     group('posting login logs', () => {
         group('http post', () => {
-            console.log(`posting login logs to: ${url}`);
+            console.log(`posting login logs to: ${auditURL}`);
             const res = http.post(auditURL, body, params, {tags: { name: 'login'} });
             myFailRate.add(res.status !== 201);
             if (res.status !== 201) {
