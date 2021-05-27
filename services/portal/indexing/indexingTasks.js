@@ -8,5 +8,18 @@ const I = actor();
 module.exports = {
   goToIndexingPage() {
     I.amOnPage(indexingProps.path);
+    I.waitForElement(indexingProps.readyCue, 10);
+  },
+
+  async indexManifest(user, manifestFileName) {
+    this.goToIndexingPage();
+    I.click(indexingProps.formIndexFiles);
+    I.attachFile('input[type="file"]', `${manifestFileName}.tsv`);
+    I.saveScreenshot('attached_file.png');
+    I.click(indexingProps.btnIndexFiles);
+    I.wait(2);
+    I.saveScreenshot('clicked_button.png');
+    I.waitForElement(indexingProps.labelDone, 300);
+    I.click(indexingProps.btnClosePopup);
   },
 };

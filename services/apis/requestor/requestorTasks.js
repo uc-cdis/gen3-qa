@@ -16,6 +16,20 @@ module.exports = {
     return reqID;
   },
 
+  // get the request ID status
+  async getRequestStatus(requestID) {
+    console.log(`### put request id: ${requestID}`);
+    const getResponse = await I.sendGetRequest(
+      `${studyViewerProps.endpoint.requestEndPoint}/${requestID}`,
+      users.mainAcct.accessTokenHeader,
+    );
+    const responseData = getResponse.data;
+    console.log(`### responseData: ${JSON.stringify(responseData)}`);
+    const reqStatus = responseData.status;
+    console.log(`### request status: ${reqStatus}`);
+    return reqStatus;
+  },
+
   // update to APPROVED status
   async approvedStatus(reqIDPut) {
     console.log(`### put request id: ${reqIDPut}`);

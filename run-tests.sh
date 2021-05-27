@@ -213,6 +213,7 @@ EOM
 echo 'INFO: installing dependencies'
 if [ -f gen3-qa-mutex.marker ]; then
   echo "parallel-testing is enabled, the dependencies have already been installed by Jenkins."
+  export PARALLEL_TESTING_ENABLED="true"
 else
   dryrun npm ci
 fi
@@ -481,5 +482,7 @@ if [ -n "$zeroTests" ]; then
   npm test -- --verbose suites/fail.js
   exitCode=1
 fi
+
+echo "Testing done at $(date)" > output/gen3-qa.log
 
 exit $exitCode
