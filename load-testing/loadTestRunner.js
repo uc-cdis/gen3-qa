@@ -59,6 +59,7 @@ async function runLoadTestScenario() {
         console.log(ACCESS_TOKEN);
         return ACCESS_TOKEN;
       }).catch((reason) => {
+        console.log(`### ## reason: ${JSON.stringify(reason)}`)
         console.log(`Failed: ${reason.status} - ${reason.statusText}`);
         process.exit(1);
       });
@@ -92,6 +93,7 @@ async function runLoadTestScenario() {
         process.exit(1);
       });
   } else {
+    console.log("not using random guids!")
     listOfDIDs = testDescriptorData.presigned_url_guids ? testDescriptorData.presigned_url_guids : [''];
   }
   console.log(listOfDIDs);
