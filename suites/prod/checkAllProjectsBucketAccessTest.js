@@ -64,13 +64,17 @@ async function checkAccess(I, a, indexdQueryParam) {
     ].did;
     logger.info(`picking one indexd record with GUID ${aGUID} from ${indexdQueryParam} ${a}`);
     // shoot pre signed url against fence with the GUID
-    const preSignedURLResp = await I.sendGetRequest(
-      `https://${I.cache.environment}/user/data/download/${aGUID}?protocol=gs`,
-      getAccessTokenHeader(I.cache.ACCESS_TOKEN),
-    );
-    // TODO: 401 Token Expired check to prompt the user for a new access token
-    // if we expect this check to take longer than 20 minutes
-    logger.debug(`preSignedURLResp: ${JSON.stringify(preSignedURLResp.data)}`);
+
+    const listOfProtocols = ['s3' , 'gs'];
+
+    .forEach(protocol =>
+      const preSignedURLResp = await I.sendGetRequest(
+        `https://${I.cache.environment}/user/data/download/${aGUID}?protocol=gs`,
+        getAccessTokenHeader(I.cache.ACCESS_TOKEN),
+      );
+      // TODO: 401 Token Expired check to prompt the user for a new access token
+      // if we expect this check to take longer than 20 minutes
+      logger.debug(`preSignedURLResp: ${JSON.stringify(preSignedURLResp.data)}`);
 
     let httpHeadCheck = {};
     try {
