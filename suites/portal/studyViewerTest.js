@@ -21,9 +21,17 @@ AfterSuite(async () => {
   // for qa-niaid testing to revoke the arborist access
   // programs.NIAID.projects.ACTT_reader */
   // if running in jenkins use this policy -> programs.jnkns.projects.jenkins_reader
-  await bash.runCommand(`
-     gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/policy/programs.jnkns.projects.jenkins_reader
+  if (process.env.testedEnv.includes('qa-niaid') || process.env.testedEnv.includes('accessclinicaldata')) {
+    console.log('### revoking access for user0 in QA/PROD envs ...');
+    await bash.runCommand(`
+      gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/policy/programs.NIAID.projects.ACTT_reader
     `);
+  } else {
+    console.log('### revoking access for user0 in jenkins env ...');
+    await bash.runCommand(`
+      gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/policy/programs.jnkns.projects.jenkins_reader
+    `);
+  }
   console.log('### The access is revoked');
 });
 
