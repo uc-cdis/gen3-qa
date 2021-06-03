@@ -58,7 +58,7 @@ def verify_manifest(manifest_file, manifest_file_delimiter, datacommons):
 
 
 manifest_file = os.environ["MANIFEST_FILE"]
-manifest_file_delimiter = os.environ["MANIFEST_FILE_DELIMITER"]
+manifest_file_delimiter = '\t'
 datacommons = os.environ["DATACOMMONS"]
 
 verify_manifest(manifest_file, manifest_file_delimiter, datacommons) 
