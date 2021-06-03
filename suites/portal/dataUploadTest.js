@@ -92,6 +92,7 @@ BeforeSuite(async ({
   // clean up previous upload files
   await indexd.do.clearPreviousUploadFiles(users.mainAcct);
   await indexd.do.clearPreviousUploadFiles(users.auxAcct2);
+  await indexd.do.clearPreviousUploadFiles(users.indexingAcct);
 
   // Add coremetadata node.
   // FIXME: once windmill allow parent nodes other than core-metadata-collection, remove this
