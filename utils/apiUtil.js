@@ -383,8 +383,13 @@ module.exports = {
         if (params.keepSessionAlive) {
           I.refreshPage();
         }
-
+        if (process.env.RUNNING_LOCAL === 'true') {
+          process.env.KUBECTL_NAMESPACE = process.env.NAMESPACE;
+        }
+        console.log(`### THE KUBECTL_NAMESPACE: ${process.env.KUBECTL_NAMESPACE}`);
         const singleQuote = process.env.RUNNING_LOCAL === 'true' ? "\'\\'\'" : "'"; // eslint-disable-line quotes,no-useless-escape
+        const podNameDebug = await bash.runCommand(`echo "$KUBECTL_NAMESPACE"`);
+        console.log(`#### ### ## podNameDebug: ${podNameDebug}`);
         const podName = await bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=${labelName} -o jsonpath="{.items[*].metadata.name}" | awk ${singleQuote}{print $NF}${singleQuote}`);
         console.log(`latest pod found: ${podName}`);
         if (!podFound) {

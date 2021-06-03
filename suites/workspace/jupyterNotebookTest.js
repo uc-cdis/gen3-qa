@@ -24,6 +24,19 @@ BeforeSuite(async ({ I }) => {
 
   I.cache = {};
 
+  // TODO: instead of failing the test if someone is running this locally, maybe we should set default values
+  if (process.env.JOB_NAME === undefined) {
+    throw new Error(`ERROR: you need to define an environment variable called JOB_NAME with the following format: "CDIS_GitHub_Org/myRepo", and try again. Aborting test...`);
+  } else if (process.env.BRANCH_NAME === undefined) {
+    throw new Error(`ERROR: you need to define an environment variable called BRANCH_NAME with the following format: "PR-1234", and try again. Aborting test...`);
+  }
+
+  const repoName = process.env.JOB_NAME.split('/')[1];
+  const prNumber = process.env.BRANCH_NAME.split('-')[1];
+
+  I.cache.repoName = repoName;
+  I.cache.prNumber = prNumber;
+
   /*
   // clean up all indexd records
   console.log('deleting all files / indexd records...');
@@ -42,7 +55,7 @@ BeforeSuite(async ({ I }) => {
   */
 });
 
-xScenario('Submit dummy data to the Gen3 Commons environment @jupyterNb', async ({ I, users }) => {
+Scenario('Submit dummy data to the Gen3 Commons environment @jupyterNb', async ({ I, users }) => {
   // generate dummy data
   bash.runJob('gentestdata', 'SUBMISSION_USER cdis.autotest@gmail.com MAX_EXAMPLES 1');
   await checkPod('gentestdata', 'gen3job,job-name=gentestdata');
@@ -178,18 +191,25 @@ xScenario('Map the uploaded file to one of the subjects of the dummy dataset @ju
   // TODO: check if file number in DEV-test project was increased by one
 });
 
-Scenario('Mutate etl-mapping config and run ETL so the recently-submitted dataset will be available on the Explorer page @jupyterNb', async ({ I }) => {
+xScenario('Mutate etl-mapping config and run ETL to create new indices in elastic search @jupyterNb', async ({ I }) => {
   console.log('### mutate the etl-mapping k8s config map');
-  await bash.runCommand('
-    kubectl get cm etl-mapping -o jsonpath='{.data.etlMapping\.yaml}' > etlMapping.yaml && sed -i 's/.*name: (.*)_etl/123.repo_name.\1_etl/' etlMapping.yaml
-  ');
+
+  await bash.runCommand(`gen3 mutate-etl-mapping-config ${I.cache.prNumber} ${I.cache.repoName}`);
 
   console.log('### running ETL for recently-submitted dataset');
   await bash.runJob('etl', '', false);
   await checkPod(I, 'etl', 'gen3job,job-name=etl', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: true });
   await sleepMS(10000);
+});
+
+xScenario('Mutate manifest-guppy config and roll guppy so the recently-submitted dataset will be available on the Explorer page @jupyterNb', async ({ I }) => {
+  console.log('### mutate the manifest-guppy k8s config map');
+  
+  await bash.runCommand(`gen3 mutate-guppy-config ${I.cache.prNumber} ${I.cache.repoName}`);
   await bash.runCommand('gen3 roll guppy');
-  await sleepMS(20000);
+  
+  await checkPod(I, 'guppy', 'guppy', { nAttempts: 40, ignoreFailure: false, keepSessionAlive: true });
+  // TODO: Run some guppy query to confirm the indices exist
 });
 
 xScenario('Login and check if the Explorer page renders successfully @jupyterNb', async ({ I, login, users }) => {
