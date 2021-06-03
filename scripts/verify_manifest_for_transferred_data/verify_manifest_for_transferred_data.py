@@ -56,13 +56,4 @@ def verify_manifest(manifest_file, manifest_file_delimiter, datacommons):
 
 
 
-# TODO: Get these parameters from jenkins
-# manifest_file = "example_manifest.tsv"
-manifest_file = "midrc_sample_image_manifest_v2.txt"
-manifest_file_delimiter = "\t"
-datacommons = 'staging.midrc.org'
-
-verify_manifest(manifest_file, manifest_file_delimiter, datacommons) 
-
-
 
