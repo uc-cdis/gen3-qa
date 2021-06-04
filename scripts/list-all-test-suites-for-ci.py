@@ -18,10 +18,13 @@ test_suites_that_cant_run_in_parallel = [
   'test-portal-discoveryPageTestPlan',             # manual (executable test)
   'test-guppy-guppyTest',                          # manual (executable test)
   'test-guppy-nestedAggTest',                      # manual (executable test)
+  'test-pelican-exportPfbTest',                    # not ready
   'test-regressions-exportPerformanceTest',        # legacy (disabled test)
   'test-regressions-generateTestData',             # legacy (disabled test)
   'test-regressions-queryPerformanceTest',         # legacy (disabled test)
   'test-regressions-submissionPerformanceTest'     # legacy (disabled test)
+  'test-dream-challenge-DCgen3clientTest',         # legacy (disabled test)
+  'test-dream-challenge-synapaseLoginTest'         # legacy (disabled test)
 ]
 
 def collect_test_suites_from_codeceptjs_dryrun():
