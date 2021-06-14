@@ -15,9 +15,10 @@ Scenario('Index study tsv manifest', ifInteractive(
   async () => {
     const result = await interactive(`
       1. Create a tsv file named 'indexing.tsv' with the headers - 'GUID', 'md5', 'size', 'acl', 'authz', 'urls'
-      2. Enter the values - '${I.cache.GUID}', '98b13816c474b2f3310076d98bd7da61', '822969', '', '/programs/open', 's3://jcoinprod-default-258867494168-upload/dg.6VTS/07246ed5-8c4a-4d53-a559-ce07c1dd7d11/Access05_Z.csv'
-      3. Navigate to the /indexing page, choose file 'indexing.tsv' and click on 'Index Files' button
-      4. Wait for the the indexing job to complete and return a file with extension '.log'
+      2. Navigate to /index/index
+      3. Select a record and save the values to 'indexing.tsv' - '${I.cache.GUID}', hashes.md5, size, acl, authz, urls
+      4. Navigate to the /indexing page, choose file 'indexing.tsv' and click on 'Index Files' button
+      5. Wait for the the indexing job to complete and return a file with extension '.log'
     `);
     expect(result.didPass, result.details).to.be.true;
   },
