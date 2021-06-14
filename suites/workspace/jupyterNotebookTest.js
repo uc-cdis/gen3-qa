@@ -24,11 +24,12 @@ BeforeSuite(async ({ I }) => {
 
   I.cache = {};
 
-  // TODO: instead of failing the test if someone is running this locally, maybe we should set default values
+  // TODO: instead of failing the test if the env. var. is not declared
+  // maybe we should set default values
   if (process.env.JOB_NAME === undefined) {
-    throw new Error(`ERROR: you need to define an environment variable called JOB_NAME with the following format: "CDIS_GitHub_Org/myRepo", and try again. Aborting test...`);
+    throw new Error('ERROR: you need to define an environment variable called JOB_NAME with the following format: "CDIS_GitHub_Org/myRepo", and try again. Aborting test...');
   } else if (process.env.BRANCH_NAME === undefined) {
-    throw new Error(`ERROR: you need to define an environment variable called BRANCH_NAME with the following format: "PR-1234", and try again. Aborting test...`);
+    throw new Error('ERROR: you need to define an environment variable called BRANCH_NAME with the following format: "PR-1234", and try again. Aborting test...');
   }
 
   const repoName = process.env.JOB_NAME.split('/')[1];
@@ -76,7 +77,7 @@ Scenario('Submit dummy data to the Gen3 Commons environment @jupyterNb', async (
   expect(queryResponse).to.have.property('status', 200);
 });
 
-xScenario('Upload a file through the gen3-client CLI @jupyterNb', async ({
+Scenario('Upload a file through the gen3-client CLI @jupyterNb', async ({
   I, fence, users,
 }) => {
   // Download the latest linux binary from https://github.com/uc-cdis/cdis-data-client/releases
@@ -133,7 +134,7 @@ xScenario('Upload a file through the gen3-client CLI @jupyterNb', async ({
   expect(indexdLookupResponse.data.authz).to.eql([]);
 });
 
-xScenario('Map the uploaded file to one of the subjects of the dummy dataset @jupyterNb', async ({ I, login, users }) => {
+Scenario('Map the uploaded file to one of the subjects of the dummy dataset @jupyterNb', async ({ I, login, users }) => {
   login.do.goToLoginPage();
   I.saveScreenshot('loginPage.png');
   login.complete.login(users.mainAcct);
@@ -191,7 +192,7 @@ xScenario('Map the uploaded file to one of the subjects of the dummy dataset @ju
   // TODO: check if file number in DEV-test project was increased by one
 });
 
-xScenario('Mutate etl-mapping config and run ETL to create new indices in elastic search @jupyterNb', async ({ I }) => {
+Scenario('Mutate etl-mapping config and run ETL to create new indices in elastic search @jupyterNb', async ({ I }) => {
   console.log('### mutate the etl-mapping k8s config map');
 
   await bash.runCommand(`gen3 mutate-etl-mapping-config ${I.cache.prNumber} ${I.cache.repoName}`);
@@ -202,17 +203,17 @@ xScenario('Mutate etl-mapping config and run ETL to create new indices in elasti
   await sleepMS(10000);
 });
 
-xScenario('Mutate manifest-guppy config and roll guppy so the recently-submitted dataset will be available on the Explorer page @jupyterNb', async ({ I }) => {
+Scenario('Mutate manifest-guppy config and roll guppy so the recently-submitted dataset will be available on the Explorer page @jupyterNb', async ({ I }) => {
   console.log('### mutate the manifest-guppy k8s config map');
-  
+
   await bash.runCommand(`gen3 mutate-guppy-config ${I.cache.prNumber} ${I.cache.repoName}`);
   await bash.runCommand('gen3 roll guppy');
-  
+
   await checkPod(I, 'guppy', 'guppy', { nAttempts: 40, ignoreFailure: false, keepSessionAlive: true });
   // TODO: Run some guppy query to confirm the indices exist
 });
 
-xScenario('Login and check if the Explorer page renders successfully @jupyterNb', async ({ I, login, users }) => {
+Scenario('Login and check if the Explorer page renders successfully @jupyterNb', async ({ I, login, users }) => {
   login.do.goToLoginPage();
   I.saveScreenshot('loginPage.png');
   login.complete.login(users.mainAcct);
@@ -253,12 +254,12 @@ xScenario('Login and check if the Explorer page renders successfully @jupyterNb'
   Let us stop here for now and introduce this test to the CI Pipeline
 */
 
-xScenario('Select a cohort that contains the recently-mapped file and export it to the workspace @jupyterNb', async ({ I }) => {
+Scenario('Select a cohort that contains the recently-mapped file and export it to the workspace @jupyterNb', async ({ I }) => {
   I.amOnPage('/explorer');
   // TODO
   // console.log('We did it!');
 });
 
-xScenario('Open the workspace, launch a Jupyter Notebook Bio Python app and load the exported manifest with some Python code @jupyterNb', async () => {
+Scenario('Open the workspace, launch a Jupyter Notebook Bio Python app and load the exported manifest with some Python code @jupyterNb', async () => {
   // TODO
 });
