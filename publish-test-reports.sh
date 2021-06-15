@@ -24,9 +24,10 @@ name_of_the_report="$2"
 QA_USER="${3:-qaplanetv1}"
 
 if [ $QA_USER == "qaplanetv1" ]; then
-    $HOSTNAME="qa.planx-pla.net"
+    HOSTNAME="qa.planx-pla.net"
 else
-    $HOSTNAME="${QA_USER}.planx-pla.net"
+    HOSTNAME="${QA_USER}.planx-pla.net"
+fi
 
 which allure
 RC=$?
