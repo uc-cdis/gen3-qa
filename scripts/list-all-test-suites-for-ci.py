@@ -25,7 +25,8 @@ test_suites_that_cant_run_in_parallel = [
   'test-regressions-queryPerformanceTest',         # legacy (disabled test)
   'test-regressions-submissionPerformanceTest',    # legacy (disabled test)
   'test-dream-challenge-DCgen3clientTest',         # legacy (disabled test)
-  'test-dream-challenge-synapaseLoginTest'         # legacy (disabled test)
+  'test-dream-challenge-synapaseLoginTest',        # legacy (disabled test)
+  'test-prod-checkAllProjectsBucketAccessTest.js'  # prod test
 ]
 
 def collect_test_suites_from_codeceptjs_dryrun():

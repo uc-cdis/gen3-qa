@@ -1,11 +1,11 @@
 /*
- Google Bucket Access test (PXP-7076)
+ Bucket Access test for ALL projects and protocols (PXP-7076)
  This automation should be utilized on every release to run a PreSigned URL request
  against an indexd record from each Project (acl / authz).
 
  How to run:
  $ export GEN3_SKIP_PROJ_SETUP=true RUNNING_LOCAL=true
- $ npm test -- suites/google/checkAllProjectsGoogleBucketAccessTest.js
+ $ npm test -- suites/prod/checkAllProjectsBucketAccessTest.js 
 
  The full list of indexd records can be filtered through the INDEXD_FILTER var.
  It supports the following 3 options:
@@ -14,14 +14,14 @@
  - all (default)
  e.g.,
  $ export INDEXD_FILTER=acl GEN3_SKIP_PROJ_SETUP=true RUNNING_LOCAL=true
- $ npm test -- suites/google/checkAllProjectsGoogleBucketAccessTest.js
+ $ npm test -- suites/prod/checkAllProjectsBucketAccessTest.js 
 
  Note: The DEBUG level is enabled by default in the logger configuration.
  To tail the logs and focus only on successful or Failed checks
  just run the command below:
- $ tail -f all-projects-google-bucket-access-check.log | grep -E "Successfully|Failed"
+ $ tail -f all-projects-bucket-access-check.log | grep -E "Successfully|Failed"
 */
-Feature('CheckAllProjectsGoogleBucketAccess');
+Feature('CheckAllProjectsBucketAccess');
 
 const bar = require('cli-progress');
 const axios = require('axios');
@@ -37,7 +37,7 @@ log4js.configure({
   appenders: {
     accessCheck: { // eslint-disable-line no-undef
       type: 'file',
-      filename: 'all-projects-google-bucket-access-check.log',
+      filename: 'all-projects-bucket-access-check.log',
     },
     console: { type: 'console' },
   },
@@ -111,7 +111,7 @@ BeforeSuite(async ({ I }) => {
   I.cache = {};
 });
 
-Scenario('Fetch list of projects (acl/authz) from environment @manual @prjsGoogleBucketAccess', async ({ I }) => {
+Scenario('Fetch list of projects (acl/authz) from environment @manual @prjsBucketAccess', async ({ I }) => {
   if (process.env.RUNNING_IN_PROD_TIER === 'true') {
     I.cache.ACCESS_TOKEN = process.env.ACCESS_TOKEN;
   } else {
@@ -147,7 +147,7 @@ Scenario('Fetch list of projects (acl/authz) from environment @manual @prjsGoogl
   progressBar.start(I.cache.numOfChecks, 0);
 });
 
-Scenario('Run PreSigned URL checks against an indexd record from each project @manual @prjsGoogleBucketAccess', async ({ I }) => {
+Scenario('Run PreSigned URL checks against an indexd record from each project @manual @prjsBucketAccess', async ({ I }) => {
   if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
 
   if (I.cache.acls) {

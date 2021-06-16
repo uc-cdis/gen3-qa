@@ -257,6 +257,9 @@ donot '@batch'
 # Do not run dataguids.org test for regular PRs
 donot '@dataguids'
 
+# Do not run prjsBucketAccess (for prod-execution only)
+donot '@prjsBucketAccess'
+
 # For dataguids.org PRs, skip all fence-related bootstrapping oprations
 # as the environment does not have fence
 if [ "$testedEnv" == "dataguids.org" ]; then
