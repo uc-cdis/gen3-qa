@@ -65,34 +65,36 @@ async function checkAccess(I, a, indexdQueryParam) {
     logger.info(`picking one indexd record with GUID ${aGUID} from ${indexdQueryParam} ${a}`);
     // shoot pre signed url against fence with the GUID
 
-    const listOfProtocols = ['s3' , 'gs'];
+    const listOfProtocols = ['s3', 'gs'];
 
-    listOfProtocols.forEach(protocol =>
-      preSignedURLResp = await I.sendGetRequest(
-        `https://${$I.cache.environment}/user/data/download/${aGUID}?protocol=%{protocol}`,
+    for (const protocol of listOfProtocols) {
+      logger.debug(`checking guid ${aGUID} with protocol ${protocol}...`);
+      const preSignedURLResp = await I.sendGetRequest(
+        `https://${I.cache.environment}/user/data/download/${aGUID}?protocol=${protocol}`,
         getAccessTokenHeader(I.cache.ACCESS_TOKEN),
       );
       // TODO: 401 Token Expired check to prompt the user for a new access token
       // if we expect this check to take longer than 20 minutes
       logger.debug(`preSignedURLResp: ${JSON.stringify(preSignedURLResp.data)}`);
 
-    let httpHeadCheck = {};
-    try {
-      httpHeadCheck = await axios.head(preSignedURLResp.data.url);
-      // logger.debug(`http HEAD Check for ${aGUID}: ${httpHeadCheck}`);
-    } catch (error) {
-      // Error 😨
-      if (error.response) {
-        logger.error(`Failed to obtain a successful access check against GUID ${aGUID} from ${indexdQueryParam} ${a} - Status Code: ${error.response.status}`);
-        logger.error(`Details: ${error.response.data}`);
-      } else {
-        logger.error(`Failed to process HTTP HEAD request for GUID ${aGUID}`);
+      let httpHeadCheck = {};
+      try {
+        httpHeadCheck = await axios.head(preSignedURLResp.data.url);
+        // logger.debug(`http HEAD Check for ${aGUID}: ${httpHeadCheck}`);
+      } catch (error) {
+        // Error 😨
+        if (error.response) {
+          logger.error(`Failed to obtain a successful access check against GUID ${aGUID} from ${indexdQueryParam} ${a} - Status Code: ${error.response.status}`);
+          logger.error(`Details: ${error.response.data}`);
+        } else {
+          logger.error(`Failed to process HTTP HEAD request for GUID ${aGUID}`);
+        }
       }
-    }
-    if (httpHeadCheck.status === 200) {
-      logger.debug(`Successfully verified the access for ${indexdQueryParam} ${a}!`);
-    } else if (httpHeadCheck.status === 400) {
-      logger.debug(`http.status: ${httpHeadCheck.status} - Successfully verified the access for ${indexdQueryParam} ${a} with message <Bucket is a requester pays bucket but no user project provided>.!`);
+      if (httpHeadCheck.status === 200) {
+        logger.debug(`Successfully verified the access for ${indexdQueryParam} ${a}!`);
+      } else if (httpHeadCheck.status === 400) {
+        logger.debug(`http.status: ${httpHeadCheck.status} - Successfully verified the access for ${indexdQueryParam} ${a} with message <Bucket is a requester pays bucket but no user project provided>.!`);
+      }
     }
   } else {
     logger.warn(`Zero indexd records found for ${indexdQueryParam} ${a}`);
