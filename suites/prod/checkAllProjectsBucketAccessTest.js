@@ -67,9 +67,9 @@ async function checkAccess(I, a, indexdQueryParam) {
 
     const listOfProtocols = ['s3' , 'gs'];
 
-    .forEach(protocol =>
+    listOfProtocols.forEach(protocol =>
       const preSignedURLResp = await I.sendGetRequest(
-        `https://${I.cache.environment}/user/data/download/${aGUID}?protocol=gs`,
+        `https://${$I.cache.environment}/user/data/download/${aGUID}?protocol=%{protocol}`,
         getAccessTokenHeader(I.cache.ACCESS_TOKEN),
       );
       // TODO: 401 Token Expired check to prompt the user for a new access token
