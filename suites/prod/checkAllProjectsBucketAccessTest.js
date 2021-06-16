@@ -68,7 +68,7 @@ async function checkAccess(I, a, indexdQueryParam) {
     const listOfProtocols = ['s3' , 'gs'];
 
     listOfProtocols.forEach(protocol =>
-      const preSignedURLResp = await I.sendGetRequest(
+      preSignedURLResp = await I.sendGetRequest(
         `https://${$I.cache.environment}/user/data/download/${aGUID}?protocol=%{protocol}`,
         getAccessTokenHeader(I.cache.ACCESS_TOKEN),
       );
