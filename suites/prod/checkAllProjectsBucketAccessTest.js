@@ -5,7 +5,7 @@
 
  How to run:
  $ export GEN3_SKIP_PROJ_SETUP=true RUNNING_LOCAL=true
- $ npm test -- suites/prod/checkAllProjectsBucketAccessTest.js 
+ $ npm test -- suites/prod/checkAllProjectsBucketAccessTest.js
 
  The full list of indexd records can be filtered through the INDEXD_FILTER var.
  It supports the following 3 options:
@@ -14,7 +14,7 @@
  - all (default)
  e.g.,
  $ export INDEXD_FILTER=acl GEN3_SKIP_PROJ_SETUP=true RUNNING_LOCAL=true
- $ npm test -- suites/prod/checkAllProjectsBucketAccessTest.js 
+ $ npm test -- suites/prod/checkAllProjectsBucketAccessTest.js
 
  Note: The DEBUG level is enabled by default in the logger configuration.
  To tail the logs and focus only on successful or Failed checks
