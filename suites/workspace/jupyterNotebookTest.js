@@ -24,16 +24,18 @@ BeforeSuite(async ({ I }) => {
 
   I.cache = {};
 
-  // TODO: instead of failing the test if the env. var. is not declared
-  // maybe we should set default values
   if (process.env.JOB_NAME === undefined) {
-    throw new Error('ERROR: you need to define an environment variable called JOB_NAME with the following format: "CDIS_GitHub_Org/myRepo", and try again. Aborting test...');
+    process.env.JOB_NAME = 'CDIS_GitHub_Org/myrepo';
   } else if (process.env.BRANCH_NAME === undefined) {
-    throw new Error('ERROR: you need to define an environment variable called BRANCH_NAME with the following format: "PR-1234", and try again. Aborting test...');
+    process.env.BRANCH_NAME = 'PR-1234';
   }
 
-  const repoName = process.env.JOB_NAME.split('/')[1];
+  let repoName = process.env.JOB_NAME.split('/')[1];
+  repoName = repoName.toLowerCase();
   const prNumber = process.env.BRANCH_NAME.split('-')[1];
+
+  console.log(`${new Date()}: repoName: ${repoName}`);
+  console.log(`${new Date()}: prNumber: ${prNumber}`);
 
   I.cache.repoName = repoName;
   I.cache.prNumber = prNumber;
@@ -59,7 +61,7 @@ BeforeSuite(async ({ I }) => {
 Scenario('Submit dummy data to the Gen3 Commons environment @jupyterNb', async ({ I, users }) => {
   // generate dummy data
   bash.runJob('gentestdata', 'SUBMISSION_USER cdis.autotest@gmail.com MAX_EXAMPLES 1');
-  await checkPod('gentestdata', 'gen3job,job-name=gentestdata');
+  await checkPod(I, 'gentestdata', 'gen3job,job-name=gentestdata');
 
   const queryRecentlySubmittedData = {
     query: '{ submitted_unaligned_reads (first: 20, project_id: "DEV-test", quick_search: "", order_by_desc: "updated_datetime") {id, type, submitter_id} }',
@@ -123,7 +125,7 @@ Scenario('Upload a file through the gen3-client CLI @jupyterNb', async ({
   // Cache the guid
   I.cache.theGUID = theGUID;
 
-  await checkPod('indexing', 'ssjdispatcherjob');
+  await checkPod(I, 'indexing', 'ssjdispatcherjob');
 
   // TODO: Query GUID to confirm the indexd record was created succeessfully
   const indexdLookupResponse = await I.sendGetRequest(`https://${process.env.NAMESPACE}.planx-pla.net/index/${theGUID}`);
@@ -209,8 +211,14 @@ Scenario('Mutate manifest-guppy config and roll guppy so the recently-submitted 
   await bash.runCommand(`gen3 mutate-guppy-config ${I.cache.prNumber} ${I.cache.repoName}`);
   await bash.runCommand('gen3 roll guppy');
 
-  await checkPod(I, 'guppy', 'guppy', { nAttempts: 40, ignoreFailure: false, keepSessionAlive: true });
-  // TODO: Run some guppy query to confirm the indices exist
+  const guppyStatusCheckResp = I.sendGetRequest(
+    "https://${process.env.NAMESPACE}.planx-pla.net/guppy/_status",
+    users.mainAcct.accessTokenHeader,
+  )
+
+  expect(guppyStatusCheckResp).to.have.property('status', 200);
+  expect(guppyStatusCheckResp.data).to.have.nested.property(`aliases.${I.cache.prNumber}\\.${I.cache.repoName}\\.qa-dcp_etl`);
+  expect(guppyStatusCheckResp.data).to.have.nested.property(`aliases.${I.cache.prNumber}\\.${I.cache.repoName}\\.qa-dcp_file`);
 });
 
 Scenario('Login and check if the Explorer page renders successfully @jupyterNb', async ({ I, login, users }) => {
