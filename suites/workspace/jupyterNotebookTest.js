@@ -58,7 +58,7 @@ BeforeSuite(async ({ I }) => {
   */
 });
 
-xScenario('Submit dummy data to the Gen3 Commons environment @jupyterNb', async ({ I, users }) => {
+Scenario('Submit dummy data to the Gen3 Commons environment @jupyterNb', async ({ I, users }) => {
   // generate dummy data
   bash.runJob('gentestdata', 'SUBMISSION_USER cdis.autotest@gmail.com MAX_EXAMPLES 1');
   await checkPod(I, 'gentestdata', 'gen3job,job-name=gentestdata');
@@ -79,7 +79,7 @@ xScenario('Submit dummy data to the Gen3 Commons environment @jupyterNb', async 
   expect(queryResponse).to.have.property('status', 200);
 });
 
-xScenario('Upload a file through the gen3-client CLI @jupyterNb', async ({
+Scenario('Upload a file through the gen3-client CLI @jupyterNb', async ({
   I, fence, users,
 }) => {
   // Download the latest linux binary from https://github.com/uc-cdis/cdis-data-client/releases
@@ -136,7 +136,7 @@ xScenario('Upload a file through the gen3-client CLI @jupyterNb', async ({
   expect(indexdLookupResponse.data.authz).to.eql([]);
 });
 
-xScenario('Map the uploaded file to one of the subjects of the dummy dataset @jupyterNb', async ({ I, login, users }) => {
+Scenario('Map the uploaded file to one of the subjects of the dummy dataset @jupyterNb', async ({ I, login, users }) => {
   login.do.goToLoginPage();
   I.saveScreenshot('loginPage.png');
   login.complete.login(users.mainAcct);
@@ -194,7 +194,7 @@ xScenario('Map the uploaded file to one of the subjects of the dummy dataset @ju
   // TODO: check if file number in DEV-test project was increased by one
 });
 
-xScenario('Mutate etl-mapping config and run ETL to create new indices in elastic search @jupyterNb', async ({ I }) => {
+Scenario('Mutate etl-mapping config and run ETL to create new indices in elastic search @jupyterNb', async ({ I }) => {
   console.log('### mutate the etl-mapping k8s config map');
 
   await bash.runCommand(`gen3 mutate-etl-mapping-config ${I.cache.prNumber} ${I.cache.repoName}`);
@@ -222,7 +222,7 @@ Scenario('Mutate manifest-guppy config and roll guppy so the recently-submitted 
   expect(guppyStatusCheckResp.data.indices).to.have.property(`${I.cache.prNumber}.${I.cache.repoName}.qa-dcp_file`);
 });
 
-Scenario('Login and check if the Explorer page renders successfully @jupyterNb', async ({ I, login, users }) => {
+xScenario('Login and check if the Explorer page renders successfully @jupyterNb', async ({ I, login, users }) => {
   login.do.goToLoginPage();
   I.saveScreenshot('loginPage.png');
   login.complete.login(users.mainAcct);
