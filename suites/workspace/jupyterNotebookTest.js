@@ -208,13 +208,13 @@ Scenario('Mutate etl-mapping config and run ETL to create new indices in elastic
 Scenario('Mutate manifest-guppy config and roll guppy so the recently-submitted dataset will be available on the Explorer page @jupyterNb', async ({ I, users }) => {
   console.log('### mutate the manifest-guppy k8s config map');
 
-  //await bash.runCommand(`gen3 mutate-guppy-config ${I.cache.prNumber} ${I.cache.repoName}`);
-  //await bash.runCommand('gen3 roll guppy');
+  // await bash.runCommand(`gen3 mutate-guppy-config ${I.cache.prNumber} ${I.cache.repoName}`);
+  // await bash.runCommand('gen3 roll guppy');
 
   const guppyStatusCheckResp = await I.sendGetRequest(
     `https://${process.env.NAMESPACE}.planx-pla.net/guppy/_status`,
     users.mainAcct.accessTokenHeader,
-  )
+  );
 
   expect(guppyStatusCheckResp).to.have.property('status', 200);
   expect(guppyStatusCheckResp.data).to.have.property('statusCode', 200);
@@ -222,7 +222,7 @@ Scenario('Mutate manifest-guppy config and roll guppy so the recently-submitted 
   expect(guppyStatusCheckResp.data.indices).to.have.property(`${I.cache.prNumber}.${I.cache.repoName}.qa-dcp_file`);
 });
 
-xScenario('Login and check if the Explorer page renders successfully @jupyterNb', async ({ I, login, users }) => {
+Scenario('Login and check if the Explorer page renders successfully @jupyterNb', async ({ I, login, users }) => {
   login.do.goToLoginPage();
   I.saveScreenshot('loginPage.png');
   login.complete.login(users.mainAcct);
