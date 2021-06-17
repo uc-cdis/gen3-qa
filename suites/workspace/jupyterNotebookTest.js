@@ -218,8 +218,8 @@ Scenario('Mutate manifest-guppy config and roll guppy so the recently-submitted 
 
   expect(guppyStatusCheckResp).to.have.property('status', 200);
   expect(guppyStatusCheckResp.data).to.have.property('statusCode', 200);
-  expect(guppyStatusCheckResp.data).to.have.nested.property(`aliases.${I.cache.prNumber}\\.${I.cache.repoName}\\.qa-dcp_etl`);
-  expect(guppyStatusCheckResp.data).to.have.nested.property(`aliases.${I.cache.prNumber}\\.${I.cache.repoName}\\.qa-dcp_file`);
+  expect(guppyStatusCheckResp.data.indices).to.have.property(`${I.cache.prNumber}.${I.cache.repoName}.qa-dcp_etl`);
+  expect(guppyStatusCheckResp.data.indices).to.have.property(`${I.cache.prNumber}.${I.cache.repoName}.qa-dcp_file`);
 });
 
 Scenario('Login and check if the Explorer page renders successfully @jupyterNb', async ({ I, login, users }) => {
