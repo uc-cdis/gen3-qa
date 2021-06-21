@@ -208,8 +208,8 @@ Scenario('Mutate etl-mapping config and run ETL to create new indices in elastic
 Scenario('Mutate manifest-guppy config and roll guppy so the recently-submitted dataset will be available on the Explorer page @jupyterNb', async ({ I, users }) => {
   console.log('### mutate the manifest-guppy k8s config map');
 
-  // await bash.runCommand(`gen3 mutate-guppy-config ${I.cache.prNumber} ${I.cache.repoName}`);
-  // await bash.runCommand('gen3 roll guppy');
+  await bash.runCommand(`gen3 mutate-guppy-config ${I.cache.prNumber} ${I.cache.repoName}`);
+  await bash.runCommand('gen3 roll guppy');
 
   const guppyStatusCheckResp = await I.sendGetRequest(
     `https://${process.env.NAMESPACE}.planx-pla.net/guppy/_status`,
