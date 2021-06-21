@@ -232,27 +232,33 @@ Scenario('Login and check if the Explorer page renders successfully @jupyterNb',
 
   if (navBarButtons.includes('Exploration')) {
     I.amOnPage('/explorer');
+    console.log('### I am on Exploration Page');
     // exploration Page
     I.wait(5);
     I.saveScreenshot('explorationPage.png');
     I.seeElement('.guppy-explorer', 10);
-    // Exploration page filters
-    I.seeElement('.guppy-data-explorer__filter', 5);
-    if (I.seeElement('.g3-button--disabled') || process.env.testedEnv.includes('qa-brain')) {
+    // checks if the Filters are present on the left side of Exploration Page
+    I.seeElement('//*[@id="root"]/div/div/div[3]/div/div/div[2]/div/div[2]', 5);
+    // checks if the `Export to Workspace` button is disabled on the page
+    if (I.seeElement('//*[@id="root"]/div/div/div[3]/div/div/div[2]/div/div[3]/div[1]/button[3]') || process.env.testedEnv.includes('qa-brain')) {
+      console.log('### The `Export to Workspace` is disabled')
+      //clicks the File tab on the exploration page
       I.click('//h3[contains(text(),\'File\')]');
       I.waitForVisible('//button[contains(text(),\'Export to Workspace\')]', 10);
       I.saveScreenshot('fileTab.png');
     } else {
+      console.log('### The `Export to Workspace` is enabled')
       I.waitForVisible('//button[contains(text(),\'Export to Workspace\')]', 10);
     }
   } else if (navBarButtons.includes('Files')) {
     I.amOnPage('/files');
+    console.log('### I am on Files Page');
     // Files Page
     I.wait(5);
     I.saveScreenshot('filesPage.png');
     I.seeElement('.guppy-explorer', 10);
     // Exploration page filters
-    I.seeElement('.guppy-data-explorer__filter', 5);
+    I.seeElement('//*[@id="root"]/div/div/div[3]/div/div/div[2]/div/div[2]', 5);
     I.waitForVisible('//button[contains(text(),\'Export to Workspace\')]', 10);
   } else {
     I.saveScreenshot('whatTheHellIsGoingOnWithTheNavBar.png');
