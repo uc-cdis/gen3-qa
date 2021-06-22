@@ -24,21 +24,22 @@ BeforeSuite(async ({ I }) => {
 
   I.cache = {};
 
-  if (process.env.JOB_NAME === undefined) {
-    process.env.JOB_NAME = 'CDIS_GitHub_Org/myrepo';
-  } else if (process.env.BRANCH_NAME === undefined) {
-    process.env.BRANCH_NAME = 'PR-1234';
-  }
+  const JOB_NAME = process.env.JOB_NAME || 'CDIS_GitHub_Org/myrepo';
+  const BRANCH_NAME = process.env.BRANCH_NAME || 'PR-1234';
 
-  let repoName = process.env.JOB_NAME.split('/')[1];
+  let repoName = JOB_NAME.split('/')[1];
   repoName = repoName.toLowerCase();
-  const prNumber = process.env.BRANCH_NAME.split('-')[1];
+  const prNumber = BRANCH_NAME.split('-')[1];
 
   console.log(`${new Date()}: repoName: ${repoName}`);
   console.log(`${new Date()}: prNumber: ${prNumber}`);
 
   I.cache.repoName = repoName;
   I.cache.prNumber = prNumber;
+
+  // Restore original etl-mapping and manifest-guppy configmaps (for idempotency)
+  console.log('Running kube-setup-guppy to restore any configmaps that have been mutated. This can take a couple of mins...');
+  await bash.runCommand('gen3 kube-setup-guppy');
 
   /*
   // clean up all indexd records
