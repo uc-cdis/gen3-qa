@@ -415,6 +415,12 @@ elif ! (g3kubectl get pods --no-headers -l app=hatchery | grep hatchery) > /dev/
   donot '@exportToWorkspacePortalHatchery'
 fi
 
+if [[ $(curl -s "$portalConfigURL" | jq 'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-pfb"}]}}) | not') == "true" ]] ||
+[[ ! -z "$testedEnv" ]]; then
+  # do not run export to pfb portal tests if not enabled or in a manifest PR
+  donot '@pfbExport'
+fi
+
 ########################################################################################
 
 testArgs="--reporter mocha-multi"
