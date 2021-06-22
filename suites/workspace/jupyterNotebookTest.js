@@ -212,6 +212,10 @@ Scenario('Mutate manifest-guppy config and roll guppy so the recently-submitted 
   await bash.runCommand(`gen3 mutate-guppy-config ${I.cache.prNumber} ${I.cache.repoName}`);
   await bash.runCommand('gen3 roll guppy');
 
+  // Wait a min for the new guppy pod to come up, otherwise it will not pick up the newly-created indices
+  console.log('waiting for a new guppy pod...');
+  await sleepMS(30000);
+
   const guppyStatusCheckResp = await I.sendGetRequest(
     `https://${process.env.NAMESPACE}.planx-pla.net/guppy/_status`,
     users.mainAcct.accessTokenHeader,
