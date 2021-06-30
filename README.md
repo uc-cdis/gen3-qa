@@ -147,6 +147,9 @@ If there are things which cannot/should not be fetched in the commons by the set
 ```
 In setup, these values will be read and exported to environment variables before running the test. So in the example above `MY_VAR` is actually going to be a string that will need to be parsed when it's used. Note that the setup gives environment variables higher priority over the config file. So if you did `export MY_VAL="rock"` in the shell you're running the test and in your config had `{ MY_VAL: "scissors" }`, when the test is run, `process.env.MY_VAL === "rock"`.
 
+## Local
+After cloning this repo, get the required packages by running `npm install`.
+
 # Test Development
 ## Running Tests
 Once you have your environment variables configured and the Selenium server is running, you should be able to successfully run the tests.
