@@ -302,9 +302,10 @@ if [[ "$isGen3Release" != "true" && "$service" != "gen3-qa" && "$service" != "fe
 else
   #
   # Run tests including RAS AuthN Integration tests
-  donot '@rasAuthN'
-  # runTestsIfServiceVersion "@rasAuthN" "fence" "4.22.1" "2020.09"
-  # echo "INFO: enabling RAS AuthN Integration tests for $service"
+  # If RAS Staging is down, uncomment the line below to skip these tests
+  # donot '@rasAuthN'
+  runTestsIfServiceVersion "@rasAuthN" "fence" "4.22.1" "2020.09"
+  echo "INFO: enabling RAS AuthN Integration tests for $service"
 fi
 
 # TODO: eventually enable for all services, but need arborist and fence updates first
