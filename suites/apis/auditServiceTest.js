@@ -53,12 +53,12 @@ Scenario('Audit: download presigned URL events', async ({ fence, auditService })
         [],
         user.mainAcct.accessTokenHeader,
     );
-    expect(signedUrlRes).to.have.property('status', 401); // TODO 200
+    expect(signedUrlRes).to.have.property('status', 200);
     expectedResults.push({
         action: 'download',
         username: user.mainAcct.username,
         guid: files.private.did,
-        status_code: 401, // TODO 200
+        status_code: 200,
     });
 
     // fail to request a presigned URL (unauthorized) to download
@@ -97,12 +97,12 @@ Scenario('Audit: download presigned URL events', async ({ fence, auditService })
         [],
         {}, // no authorization header
     );
-    expect(signedUrlRes).to.have.property('status', 401); // TODO 200
+    expect(signedUrlRes).to.have.property('status', 200);
     expectedResults.push({
         action: 'download',
         username: 'anonymous',
         guid: files.private.did,
-        status_code: 401, // TODO 200
+        status_code: 200,
     });
   
     const logCategory = 'presigned_url';
