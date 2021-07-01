@@ -212,19 +212,44 @@ Scenario('Mutate manifest-guppy config and roll guppy so the recently-submitted 
   await bash.runCommand(`gen3 mutate-guppy-config ${I.cache.prNumber} ${I.cache.repoName}`);
   await bash.runCommand('gen3 roll guppy');
 
-  // Wait a min for the new guppy pod to come up, otherwise it will not pick up the newly-created indices
+  // Wait a few seconds for the new guppy pod to come up, otherwise it will not pick up the newly-created indices
   console.log('waiting for a new guppy pod...');
   await sleepMS(30000);
 
-  const guppyStatusCheckResp = await I.sendGetRequest(
-    `https://${process.env.NAMESPACE}.planx-pla.net/guppy/_status`,
-    users.mainAcct.accessTokenHeader,
-  );
+  // start polling logic to capture new es indices
+  const nAttempts = 24; // 2 minutes and then we give up :(
+
+  let guppyStatusCheckResp = "";
+  for (let i = 0; i < nAttempts; i += 1) {
+    console.log(`waiting for the new guppy pod with the new indices - Attempt #${i}...`);
+    guppyStatusCheckResp = await I.sendGetRequest(
+      `https://${process.env.NAMESPACE}.planx-pla.net/guppy/_status`,
+      users.mainAcct.accessTokenHeader,
+    );
+
+    if (guppyStatusCheckResp.status === 200 &&
+      (guppyStatusCheckResp.data.indices.hasOwnProperty(`${I.cache.prNumber}.${I.cache.repoName}.${process.env.NAMESPACE}_etl`) ||
+      guppyStatusCheckResp.data.indices.hasOwnProperty(`${I.cache.prNumber}.${I.cache.repoName}.${process.env.NAMESPACE}_subject`) ||
+      guppyStatusCheckResp.data.indices.hasOwnProperty(`${I.cache.prNumber}.${I.cache.repoName}.${process.env.NAMESPACE}_file`))) {
+      console.log(`${new Date()}: all good, proceed with the assertions...`);
+      break;
+    } else {
+      console.log(`${new Date()}: The new indices did not show up on guppy's status payload yet...`);
+      await sleepMS(5000);
+      if (i === nAttempts - 1) {
+        console.log(`${new Date()}: The new guppy pod never came up with the new indices: Details: ${guppyStatusCheckResp.data}`)
+        throw err;
+      }
+    }
+  }
 
   expect(guppyStatusCheckResp).to.have.property('status', 200);
   expect(guppyStatusCheckResp.data).to.have.property('statusCode', 200);
-  expect(guppyStatusCheckResp.data.indices).to.have.property(`${I.cache.prNumber}.${I.cache.repoName}.qa-dcp_etl`);
-  expect(guppyStatusCheckResp.data.indices).to.have.property(`${I.cache.prNumber}.${I.cache.repoName}.qa-dcp_file`);
+  expect(guppyStatusCheckResp.data.indices).to.have.any.keys(
+    `${I.cache.prNumber}.${I.cache.repoName}.${process.env.NAMESPACE}_subject`,
+    `${I.cache.prNumber}.${I.cache.repoName}.${process.env.NAMESPACE}_etl`,
+    `${I.cache.prNumber}.${I.cache.repoName}.${process.env.NAMESPACE}_file`,
+  );
 });
 
 Scenario('Login and check if the Explorer page renders successfully @jupyterNb', async ({ I, login, users }) => {
@@ -243,17 +268,18 @@ Scenario('Login and check if the Explorer page renders successfully @jupyterNb',
     I.saveScreenshot('explorationPage.png');
     I.seeElement('.guppy-explorer', 10);
     // checks if the Filters are present on the left side of Exploration Page
-    // if this doesnt work use this -> //body/div[@id='root']/div[1]/div[1]/div[3]/div[1]/div[1]/div[3]/div[1]/div[2]
     I.seeElement('//h4[contains(text(),\'Filters\')]', 5);
+
     // checks if the `Export to Workspace` button is disabled on the page
-    if (I.seeElement('//*[@id="root"]/div/div/div[3]/div/div/div[2]/div/div[3]/div[1]/button[3]') || process.env.testedEnv.includes('qa-brain')) {
-      console.log('### The `Export to Workspace` is disabled');
+    const expToWorkspaceBtExists = await tryTo(() => I.seeElement({ xpath: '//button[contains(text(),\'Export to Workspace\')]' })); // eslint-disable-line no-undef
+    if (!expToWorkspaceBtExists) {
+      console.log('### The `Export to Workspace` is disabled on the "Data" tab. Let us switch to the "File" tab...');
       // clicks the File tab on the exploration page
       I.click('//h3[contains(text(),\'File\')]');
       I.waitForVisible('//button[contains(text(),\'Export to Workspace\')]', 10);
       I.saveScreenshot('fileTab.png');
     } else {
-      console.log('### The `Export to Workspace` is enabled');
+      console.log('### The `Export to Workspace` is enabled on the "Data" tab. Just click on it!');
       I.waitForVisible('//button[contains(text(),\'Export to Workspace\')]', 10);
     }
   } else if (navBarButtons.includes('Files')) {
