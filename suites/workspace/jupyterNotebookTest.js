@@ -238,7 +238,8 @@ Scenario('Login and check if the Explorer page renders successfully @jupyterNb',
     I.saveScreenshot('explorationPage.png');
     I.seeElement('.guppy-explorer', 10);
     // checks if the Filters are present on the left side of Exploration Page
-    I.seeElement('//*[@id="root"]/div/div/div[3]/div/div/div[2]/div/div[2]', 5);
+    // if this doesnt work use this -> //body/div[@id='root']/div[1]/div[1]/div[3]/div[1]/div[1]/div[3]/div[1]/div[2]
+    I.seeElement('//h4[contains(text(),\'Filters\')]', 5);
     // checks if the `Export to Workspace` button is disabled on the page
     if (I.seeElement('//*[@id="root"]/div/div/div[3]/div/div/div[2]/div/div[3]/div[1]/button[3]') || process.env.testedEnv.includes('qa-brain')) {
       console.log('### The `Export to Workspace` is disabled');
@@ -258,7 +259,8 @@ Scenario('Login and check if the Explorer page renders successfully @jupyterNb',
     I.saveScreenshot('filesPage.png');
     I.seeElement('.guppy-explorer', 10);
     // Exploration page filters
-    I.seeElement('//*[@id="root"]/div/div/div[3]/div/div/div[2]/div/div[2]', 5);
+    // if this doesnt work use this -> //body/div[@id='root']/div[1]/div[1]/div[3]/div[1]/div[1]/div[3]/div[1]/div[2]
+    I.seeElement('//h4[contains(text(),\'Filters\')]', 5);
     I.waitForVisible('//button[contains(text(),\'Export to Workspace\')]', 10);
   } else {
     I.saveScreenshot('whatTheHellIsGoingOnWithTheNavBar.png');
