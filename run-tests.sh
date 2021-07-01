@@ -385,7 +385,7 @@ if [ -z "$checkForPresenceOfMetadataIngestionSowerJob" ]; then
 fi
 
 # studyViewer
-if [[ $(curl -s "$portalConfigURL" | jq 'contains({studyViewerConfig}) | not') == true ]]; then
+if [[ $(curl -s "$portalConfigURL" | jq 'contains({studyViewerConfig}) | not') == "true" ]]; then
   donot '@studyViewer'
 elif ! (g3kubectl get pods --no-headers -l app=requestor | grep requestor) > /dev/null 2>&1; then
   donot '@studyViewer'
