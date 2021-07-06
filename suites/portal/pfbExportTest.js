@@ -7,6 +7,7 @@
 */
 Feature('PFB Export');
 
+const { spawnSync } = require('child_process');
 const { expect } = require('chai');
 const { checkPod, sleepMS } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
@@ -39,27 +40,15 @@ BeforeSuite(async ({ I }) => {
 
   // Restore original etl-mapping and manifest-guppy configmaps (for idempotency)
   console.log('Running kube-setup-guppy to restore any configmaps that have been mutated. This can take a couple of mins...');
-  await bash.runCommand('gen3 kube-setup-guppy');
+  //await bash.runCommand('gen3 kube-setup-guppy');
 
-  /*
-  // clean up all indexd records
-  console.log('deleting all files / indexd records...');
-  const listOfIndexdRecords = await I.sendGetRequest(
-    `${indexd.props.endpoints.get}`,
-  );
-
-  listOfIndexdRecords.data.records.forEach(async ( record ) => {
-    console.log(`deleting indexd record: ${record.did}...`);
-    await indexd.do.deleteFile({ did: record.did });
-  });
-
-  // clean up any leftover nodes if any
-  console.log('deleting sheepdog entries / clinical data...');
-  await sheepdog.complete.findDeleteAllNodes();
-  */
+  console.log('deleting temp .avro files...');
+  await bash.runCommand(`
+    find . -name "test_export_*" -exec rm {} \\\; -exec echo "deleted {}" \\\;
+  `);
 });
 
-Scenario('Submit dummy data to the Gen3 Commons environment @pfbExport', async ({ I, users }) => {
+xScenario('Submit dummy data to the Gen3 Commons environment @pfbExport', async ({ I, users }) => {
   // generate dummy data
   bash.runJob('gentestdata', 'SUBMISSION_USER cdis.autotest@gmail.com MAX_EXAMPLES 1');
   await checkPod(I, 'gentestdata', 'gen3job,job-name=gentestdata');
@@ -80,7 +69,7 @@ Scenario('Submit dummy data to the Gen3 Commons environment @pfbExport', async (
   expect(queryResponse).to.have.property('status', 200);
 });
 
-Scenario('Upload a file through the gen3-client CLI @pfbExport', async ({
+xScenario('Upload a file through the gen3-client CLI @pfbExport', async ({
   I, fence, users,
 }) => {
   // Download the latest linux binary from https://github.com/uc-cdis/cdis-data-client/releases
@@ -137,7 +126,7 @@ Scenario('Upload a file through the gen3-client CLI @pfbExport', async ({
   expect(indexdLookupResponse.data.authz).to.eql([]);
 });
 
-Scenario('Map the uploaded file to one of the subjects of the dummy dataset @pfbExport', async ({ I, login, users }) => {
+xScenario('Map the uploaded file to one of the subjects of the dummy dataset @pfbExport', async ({ I, login, users }) => {
   login.do.goToLoginPage();
   I.saveScreenshot('loginPage.png');
   login.complete.login(users.mainAcct);
@@ -195,7 +184,7 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @pfb
   // TODO: check if file number in DEV-test project was increased by one
 });
 
-Scenario('Mutate etl-mapping config and run ETL to create new indices in elastic search @pfbExport', async ({ I }) => {
+xScenario('Mutate etl-mapping config and run ETL to create new indices in elastic search @pfbExport', async ({ I }) => {
   console.log('### mutate the etl-mapping k8s config map');
 
   await bash.runCommand(`gen3 mutate-etl-mapping-config ${I.cache.prNumber} ${I.cache.repoName}`);
@@ -206,28 +195,53 @@ Scenario('Mutate etl-mapping config and run ETL to create new indices in elastic
   await sleepMS(10000);
 });
 
-Scenario('Mutate manifest-guppy config and roll guppy so the recently-submitted dataset will be available on the Explorer page @pfbExport', async ({ I, users }) => {
+xScenario('Mutate manifest-guppy config and roll guppy so the recently-submitted dataset will be available on the Explorer page @pfbExport', async ({ I, users }) => {
   console.log('### mutate the manifest-guppy k8s config map');
 
   await bash.runCommand(`gen3 mutate-guppy-config ${I.cache.prNumber} ${I.cache.repoName}`);
   await bash.runCommand('gen3 roll guppy');
 
-  // Wait a min for the new guppy pod to come up, otherwise it will not pick up the newly-created indices
+  // Wait a few seconds for the new guppy pod to come up, otherwise it will not pick up the newly-created indices
   console.log('waiting for a new guppy pod...');
   await sleepMS(30000);
 
-  const guppyStatusCheckResp = await I.sendGetRequest(
-    `https://${process.env.NAMESPACE}.planx-pla.net/guppy/_status`,
-    users.mainAcct.accessTokenHeader,
-  );
+  // start polling logic to capture new es indices
+  const nAttempts = 24; // 2 minutes and then we give up :(
+
+  let guppyStatusCheckResp = "";
+  for (let i = 0; i < nAttempts; i += 1) {
+    console.log(`waiting for the new guppy pod with the new indices - Attempt #${i}...`);
+    guppyStatusCheckResp = await I.sendGetRequest(
+      `https://${process.env.NAMESPACE}.planx-pla.net/guppy/_status`,
+      users.mainAcct.accessTokenHeader,
+    );
+
+    if (guppyStatusCheckResp.status === 200 &&
+      (guppyStatusCheckResp.data.indices.hasOwnProperty(`${I.cache.prNumber}.${I.cache.repoName}.${process.env.NAMESPACE}_etl`) ||
+      guppyStatusCheckResp.data.indices.hasOwnProperty(`${I.cache.prNumber}.${I.cache.repoName}.${process.env.NAMESPACE}_subject`) ||
+      guppyStatusCheckResp.data.indices.hasOwnProperty(`${I.cache.prNumber}.${I.cache.repoName}.${process.env.NAMESPACE}_file`))) {
+      console.log(`${new Date()}: all good, proceed with the assertions...`);
+      break;
+    } else {
+      console.log(`${new Date()}: The new indices did not show up on guppy's status payload yet...`);
+      await sleepMS(5000);
+      if (i === nAttempts - 1) {
+        console.log(`${new Date()}: The new guppy pod never came up with the new indices: Details: ${guppyStatusCheckResp.data}`)
+        throw err;
+      }
+    }
+  }
 
   expect(guppyStatusCheckResp).to.have.property('status', 200);
   expect(guppyStatusCheckResp.data).to.have.property('statusCode', 200);
-  expect(guppyStatusCheckResp.data.indices).to.have.property(`${I.cache.prNumber}.${I.cache.repoName}.qa-dcp_etl`);
-  expect(guppyStatusCheckResp.data.indices).to.have.property(`${I.cache.prNumber}.${I.cache.repoName}.qa-dcp_file`);
+  expect(guppyStatusCheckResp.data.indices).to.have.any.keys(
+    `${I.cache.prNumber}.${I.cache.repoName}.${process.env.NAMESPACE}_subject`,
+    `${I.cache.prNumber}.${I.cache.repoName}.${process.env.NAMESPACE}_etl`,
+    `${I.cache.prNumber}.${I.cache.repoName}.${process.env.NAMESPACE}_file`,
+  );
 });
 
-Scenario('Login and check if the Explorer page renders successfully @pfbExport', async ({ I, login, users }) => {
+Scenario('Visit the Explorer page, select a cohort, export to PFB and download the .avro file @pfbExport', async ({ I, login, users, files }) => {
   login.do.goToLoginPage();
   I.saveScreenshot('loginPage.png');
   login.complete.login(users.mainAcct);
@@ -243,34 +257,76 @@ Scenario('Login and check if the Explorer page renders successfully @pfbExport',
     I.saveScreenshot('explorationPage.png');
     I.seeElement('.guppy-explorer', 10);
     // checks if the Filters are present on the left side of Exploration Page
-    I.seeElement('//*[@id="root"]/div/div/div[3]/div/div/div[2]/div/div[2]', 5);
-    console.log('### About to click on the `Export to PFB` button');
+    I.seeElement('//h4[contains(text(),\'Filters\')]', 5);
+
+    // TODO: Select random cohorts to try different PFBs
+
+    // checks if the `Export to PFB` button is disabled on the page
+    const expToWorkspaceBtExists = await tryTo(() => I.seeElement({ xpath: '//button[contains(text(),\'Export to PFB\')]' })); // eslint-disable-line no-undef
+    if (!expToWorkspaceBtExists) {
+      console.log('### The `Export to PFB` is disabled on the "Data" tab. Let us switch to the "File" tab...');
+      // clicks the File tab on the exploration page
+      I.click('//h3[contains(text(),\'File\')]');
+      I.waitForVisible('//button[contains(text(),\'Export to PFB\')]', 10);
+      I.saveScreenshot('fileTab.png');
+    } else {
+      console.log('### The `Export to PFB` is enabled on the "Data" tab. Just click on it!');
+      I.waitForVisible('//button[contains(text(),\'Export to PFB\')]', 10);
+    }
+  } else if (navBarButtons.includes('Files')) {
+    I.amOnPage('/files');
+    console.log('### I am on Files Page');
+    // Files Page
+    I.wait(5);
+    I.saveScreenshot('filesPage.png');
+    I.seeElement('.guppy-explorer', 10);
+    // Exploration page filters
+    // if this doesnt work use this -> //body/div[@id='root']/div[1]/div[1]/div[3]/div[1]/div[1]/div[3]/div[1]/div[2]
+    I.seeElement('//h4[contains(text(),\'Filters\')]', 5);
     I.waitForVisible('//button[contains(text(),\'Export to PFB\')]', 10);
   } else {
     I.saveScreenshot('whatTheHellIsGoingOnWithTheNavBar.png');
-    console.log('WARN: This environment does not have any Explorer button on the navigation bar. This test should not run here');
+    console.log('WARN: This environment does not have any Explorer or Files button on the navigation bar. This test should not run here');
   }
+
+  // Click on the Export to PFB button
+  I.click('//button[contains(text(),\'Export to PFB\')]');
+
+  // Check if the footer shows expected msg
+  I.seeElement({ xpath: '//div[@class=\'explorer-button-group__toaster-text\']/div[contains(.,\'Please do not navigate away from this page until your export is finished.\')]' }, 10);
+
+  // check if the pelican-export pod (sower job) runs successfully
+  await checkPod(I, 'pelican-export', 'sowerjob', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: false });
+  await sleepMS(5000);
+
+  // check if the footer is updated with the download link and fetch the PreSigned URL to download the PFB file
+  const pfbDownloadURL = await I.grabAttributeFrom({ xpath: '//div[@class=\'explorer-button-group__toaster-text\']/a[contains(.,\'Click here to download your PFB.\')]' }, 'href');
+  
+  // Fetch the contents of the PFB file
+  const contentsOfPFB = await I.sendGetRequest(
+    pfbDownloadURL,
+  );
+
+  // write the pfb data into a file
+  I.cache.UNIQUE_NUM = Date.now();
+  
+  const base64EncodedBinaryAvroPayload = Buffer.from(contentsOfPFB.data).toString('base64')
+  console.log(`${new Date()}: base64 encoded contentsOfPFB.data = ${base64EncodedBinaryAvroPayload.substring(0, 50)}`);
+  await files.createTmpFile(`./test_export_${I.cache.UNIQUE_NUM}.b64`, base64EncodedBinaryAvroPayload);
+  if (process.env.RUNNING_LOCAL) {
+    const scpArgs = [`test_export_${I.cache.UNIQUE_NUM}.b64`, `${process.env.NAMESPACE}@cdistest.csoc:/home/${process.env.NAMESPACE}/test_export_${I.cache.UNIQUE_NUM}.b64`];
+    console.log('SCPing base64 file to admin vm...');
+    const scpCmd = spawnSync('scp', scpArgs, { stdio: 'pipe' });
+    console.log(`${new Date()}: scp output => ${scpCmd.output.toString()}`);
+  }
+  await bash.runCommand(`cat ./test_export_${I.cache.UNIQUE_NUM}.b64 | base64 -d > ./test_export_${I.cache.UNIQUE_NUM}.avro`);
 });
 
-/*
-  Let us stop here for now and introduce this test to the CI Pipeline
-*/
-
-Scenario('Select a cohort that contains the recently-mapped file and export it to a PFB file @pfbExport', async ({ I }) => {
-  I.amOnPage('/explorer');
-  I.wait(5);
-  I.saveScreenshot('explorationPageAgain.png');
-  // TODO
-  // console.log('We did it!');
-});
-
-Scenario('Download the PFB file, install the pypfb CLI and make sure we can parse the avro file @pfbExport', async () => {
-  // TODO
-  /* a. Run '% pip install pypfb'
-     b. Print the contents of the PFB file: 'pfb show -i ~/Downloads/<downloaded-file-name>.avro'
-        // # cd tmp/; pfb show -i export_2019-11-26T19_34_39.avro
-     c. You can also try to visualize the nodes: 'pfb show -i ~/Downloads/<downloaded-file-name>.avro nodes'
-        // # cd tmp/; pfb show -i export_2019-11-26T19_34_39.avro nodes
-     d. Convert output to JSON and run assertions
-  */
+Scenario('Install the latest pypfb CLI version and make sure we can parse the avro file @pfbExport', async ({ I }) => {
+   await bash.runCommand('pip install pypfb');
+   await bash.runCommand(`cat ./test_export_${I.cache.UNIQUE_NUM}.avro`);
+   const pfbParsingResult = await bash.runCommand(`/home/${process.env.NAMESPACE}/.local/bin/pfb show -i ./test_export_${I.cache.UNIQUE_NUM}.avro | jq .`);
+   
+   const pfbConvertedToJSON = JSON.parse(pfbParsingResult);
+   console.log(`${new Date()}: pfbConvertedToJSON = ${pfbConvertedToJSON}`);
 });
