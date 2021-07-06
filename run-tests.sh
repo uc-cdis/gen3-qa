@@ -421,7 +421,6 @@ fi
 # be deployed everywhere.
 #
 if [[ "$isGen3Release" != "true" && "$service" != "gen3-qa" && "$service" != "fence" && "$service" != "audit-service" && "$service" != "cloud-automation" ]]; then
-  # disable
   echo "INFO: disabling audit-service tests for $service"
   donot '@audit'
 fi

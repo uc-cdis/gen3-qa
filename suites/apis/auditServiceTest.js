@@ -3,13 +3,15 @@ Feature('AuditServiceAPI');
 /**
  * Because it can take a bit of time for audit logs to be processed, we test
  * all the download scenarios in the same test, and then wait for all the
- * expected logs to be returned by the audit log query (same for the login
- * scenarios).
+ * expected logs to be returned by the audit log query. However we split the
+ * login scenarios so that we at least run the homepage login test when the RAS
+ * tests are disabled (the OIDC login test depends on RAS).
+ *
  * The `PULL_FREQUENCY_SECONDS` audit-service config should be set
  * to a few seconds instead of the default, so we don't wait too long.
-
+ *
  * This test suite assumes the following access is configured:
- * - mainAcct => download access, no audit logs access
+ * - mainAcct => download access to '/programs/jenkins', no audit logs access
  * - auxAcct1 => presigned URL audit logs access
  * - auxAcct2 => login audit logs access
  */

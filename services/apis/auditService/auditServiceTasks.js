@@ -1,21 +1,28 @@
 const chai = require('chai');
 
-const { expect } = chai;
+const auditServiceProps = require('./auditServiceProps.js');
 const { smartWait } = require('../../../utils/apiUtil');
 
-const auditServiceProps = require('./auditServiceProps.js');
-
+const { expect } = chai;
 const I = actor();
 
-/**
- * wait until the audit-service has processed `nLogs` as expected
- */
 async function waitForAuditLogs(category, userTokenHeader, params, nLogs) {
   /**
-   * return true if the expected number of audit logs have been processed,
-   * false otherwise
+   * Wait until the audit-service has processed `nLogs` as expected.
+   * @param {string} category - audit log category
+   * @param {string} userTokenHeader - headers to use for authoriation
+   * @param {string[]} params - optional query parameters
+   * @param {boolean} nLogs - number of logs we expect to receive
    */
   const areLogsThere = async function (_category, _userTokenHeader, _params, _nLogs) {
+    /**
+     * Return true if the expected number of audit logs have been processed,
+     * false otherwise
+     * @param {string} _category - audit log category
+     * @param {string} _userTokenHeader - headers to use for authoriation
+     * @param {string[]} _params - optional query parameters
+     * @param {boolean} _nLogs - number of logs we expect to receive
+     */
     // query audit logs
     const json = await module.exports.query(_category, _userTokenHeader, _params);
     if (json.data.length === _nLogs) {
@@ -98,7 +105,7 @@ module.exports = {
     // in the right order.
     expectedResults.forEach((expectedResult) => {
       // check that we received a log that matches the current expected log.
-      // found==true if we found a recevied log for which all the fields match
+      // found==true if we found a received log for which all the fields match
       // the current expected log, false otherwise.
       const found = receivedLogs.some(
         (receivedLog) => Object.entries(expectedResult).every(
