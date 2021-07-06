@@ -14,144 +14,202 @@ Feature('AuditServiceAPI');
  * - auxAcct2 => login audit logs access
  */
 
+// TODO no audit-service tests if it's not deployed
+
 const chai = require('chai');
-const { expect } = chai;
+
 const user = require('../../utils/user.js');
+const { registerRasClient } = require('../../utils/rasAuthN');
+const { sleepMS } = require('../../utils/apiUtil.js');
+
+const { expect } = chai;
 
 const files = {
-    private: {
-        filename: 'test_valid',
-        link: 's3://cdis-presigned-url-test/testdata',
-        md5: '73d643ec3f4beb9020eef0beed440ad0',
-        authz: ['/programs/jenkins'],
-        size: 9,
-    },
-    public: {
-        filename: 'public_file',
-        link: 's3://cdis-presigned-url-test/testdata',
-        md5: '73d643ec3f4beb9020eef0beed440ad1',
-        authz: ['/open'],
-        size: 10,
-    },
-}
+  private: {
+    filename: 'test_valid',
+    link: 's3://cdis-presigned-url-test/testdata',
+    md5: '73d643ec3f4beb9020eef0beed440ad0',
+    authz: ['/programs/jenkins'],
+    size: 9,
+  },
+  public: {
+    filename: 'public_file',
+    link: 's3://cdis-presigned-url-test/testdata',
+    md5: '73d643ec3f4beb9020eef0beed440ad1',
+    authz: ['/open'],
+    size: 10,
+  },
+};
 
 BeforeSuite(async ({ indexd }) => {
-    // index the files we get presigned URLs for
-    const ok = await indexd.do.addFileIndices(Object.values(files));
-    expect(ok, 'Unable to index files').to.be.true;
+  // index the files we get presigned URLs for
+  const ok = await indexd.do.addFileIndices(Object.values(files));
+  expect(ok, 'Unable to index files').to.be.true;
 });
 
 Scenario('Audit: download presigned URL events', async ({ fence, auditService }) => {
-    const timestamp = Math.floor(Date.now() / 1000); // epoch timestamp
-    const expectedResults = [];
-    let signedUrlRes;
+  const timestamp = Math.floor(Date.now() / 1000); // epoch timestamp
+  const expectedResults = [];
+  let signedUrlRes;
 
-    // user 'mainAcct' successfully requests a presigned URL to download
-    // a private file
-    signedUrlRes = await fence.do.createSignedUrl(
-        files.private.did,
-        [],
-        user.mainAcct.accessTokenHeader,
-    );
-    expect(signedUrlRes).to.have.property('status', 200);
-    expectedResults.push({
-        action: 'download',
-        username: user.mainAcct.username,
-        guid: files.private.did,
-        status_code: 200,
-    });
+  // user 'mainAcct' successfully requests a presigned URL to download
+  // a private file
+  signedUrlRes = await fence.do.createSignedUrl(
+    files.private.did,
+    [],
+    user.mainAcct.accessTokenHeader,
+  );
+  expect(signedUrlRes).to.have.property('status', 200);
+  expectedResults.push({
+    action: 'download',
+    username: user.mainAcct.username,
+    guid: files.private.did,
+    status_code: 200,
+  });
 
-    // fail to request a presigned URL (unauthorized) to download
-    // a private file
-    signedUrlRes = await fence.do.createSignedUrl(
-        files.private.did,
-        [],
-        {}, // no authorization header
-    );
-    expect(signedUrlRes).to.have.property('status', 401);
-    expectedResults.push({
-        action: 'download',
-        username: 'anonymous',
-        guid: files.private.did,
-        status_code: 401,
-    });
+  // fail to request a presigned URL (unauthorized) to download
+  // a private file
+  signedUrlRes = await fence.do.createSignedUrl(
+    files.private.did,
+    [],
+    {}, // no authorization header
+  );
+  expect(signedUrlRes).to.have.property('status', 401);
+  expectedResults.push({
+    action: 'download',
+    username: 'anonymous',
+    guid: files.private.did,
+    status_code: 401,
+  });
 
-    // fail to request a presigned URL to download a file that does not exit
-    signedUrlRes = await fence.do.createSignedUrl(
-        '123', // fake GUID
-        [],
-        user.mainAcct.accessTokenHeader,
-    );
-    expect(signedUrlRes).to.have.property('status', 404);
-    expectedResults.push({
-        action: 'download',
-        username: user.mainAcct.username,
-        guid: '123',
-        status_code: 404,
-    });
+  // fail to request a presigned URL to download a file that does not exit
+  signedUrlRes = await fence.do.createSignedUrl(
+    '123', // fake GUID
+    [],
+    user.mainAcct.accessTokenHeader,
+  );
+  expect(signedUrlRes).to.have.property('status', 404);
+  expectedResults.push({
+    action: 'download',
+    username: user.mainAcct.username,
+    guid: '123',
+    status_code: 404,
+  });
 
-    // anynymous user successfully requests a presigned URL to download
-    // a public file
-    signedUrlRes = await fence.do.createSignedUrl(
-        files.public.did,
-        [],
-        {}, // no authorization header
-    );
-    expect(signedUrlRes).to.have.property('status', 200);
-    expectedResults.push({
-        action: 'download',
-        username: 'anonymous',
-        guid: files.private.did,
-        status_code: 200,
-    });
-  
-    const logCategory = 'presigned_url';
-    const userTokenHeader = user.auxAcct1.accessTokenHeader;
-    const params = [`start=${timestamp}`];
-    await auditService.do.checkQueryResults(logCategory, userTokenHeader, params, expectedResults.length, expectedResults);
+  // anynymous user successfully requests a presigned URL to download
+  // a public file
+  signedUrlRes = await fence.do.createSignedUrl(
+    files.public.did,
+    [],
+    {}, // no authorization header
+  );
+  expect(signedUrlRes).to.have.property('status', 200);
+  expectedResults.push({
+    action: 'download',
+    username: 'anonymous',
+    guid: files.private.did,
+    status_code: 200,
+  });
+
+  const logCategory = 'presigned_url';
+  const userTokenHeader = user.auxAcct1.accessTokenHeader;
+  const params = [`start=${timestamp}`];
+  await auditService.do.checkQueryResults(
+    logCategory,
+    userTokenHeader,
+    params,
+    expectedResults.length,
+    expectedResults,
+  );
 });
 
-/**
- * atm we do not test a login event via an OIDC client, only a login event
- * on the data-portal homepage
- */
-Scenario('Audit: login events', async ({ home, auditService }) => {
-    const timestamp = Math.floor(Date.now() / 1000); // epoch timestamp
-    const expectedResults = [];
+Scenario('Audit: homepage login events', async ({ home, auditService }) => {
+  const timestamp = Math.floor(Date.now() / 1000); // epoch timestamp
+  const expectedResults = [];
 
-    // user logs in
-    home.do.goToHomepage();
-    home.complete.login(user.mainAcct);
-    home.ask.seeDetails();
-    home.complete.logout();
-    expectedResults.push({
-        username: user.mainAcct.username,
-        idp: 'google',
-        client_id: null,
-        status_code: 302,
-    });
+  // user logs in
+  home.do.goToHomepage();
+  home.complete.login(user.mainAcct);
+  home.ask.seeDetails();
+  home.complete.logout();
 
-    const logCategory = 'login';
-    const userTokenHeader = user.auxAcct2.accessTokenHeader;
-    const params = [`start=${timestamp}`];
-    await auditService.do.checkQueryResults(logCategory, userTokenHeader, params, expectedResults.length, expectedResults);
+  expectedResults.push({
+    username: user.mainAcct.username,
+    idp: 'google',
+    client_id: null,
+    status_code: 302,
+  });
+
+  const logCategory = 'login';
+  const userTokenHeader = user.auxAcct2.accessTokenHeader;
+  const params = [`start=${timestamp}`];
+  await auditService.do.checkQueryResults(
+    logCategory,
+    userTokenHeader,
+    params,
+    expectedResults.length,
+    expectedResults,
+  );
+});
+
+Scenario('Audit: OIDC login events @rasAuthN', async ({ I, auditService }) => {
+  const timestamp = Math.floor(Date.now() / 1000); // epoch timestamp
+  const expectedResults = [];
+
+  // user logs in via the OIDC flow (IDP RAS)
+  const { clientID } = registerRasClient(process.env.RAS_TEST_USER_1_USERNAME);
+  I.amOnPage(`/user/oauth2/authorize?response_type=code&client_id=${clientID}&redirect_uri=https://${process.env.HOSTNAME}/user&scope=openid+user+data+google_credentials+ga4gh_passport_v1&idp=ras`);
+  await sleepMS(5000);
+  I.fillField('USER', process.env.RAS_TEST_USER_1_USERNAME);
+  I.fillField('PASSWORD', process.env.RAS_TEST_USER_1_PASSWORD);
+  I.click({ xpath: 'xpath: //button[contains(text(), \'Sign in\')]' });
+  await sleepMS(3000);
+  const postNIHLoginURL = await I.grabCurrentUrl();
+  if (postNIHLoginURL === 'https://stsstg.nih.gov/auth/oauth/v2/authorize/consent') {
+    I.click({ xpath: 'xpath: //input[@value=\'Grant\']' });
+  }
+  I.waitForElement({ css: '.auth-list' }, 10);
+  await I.click({ xpath: 'xpath: //button[contains(text(), \'Yes, I authorize.\')]' });
+  await sleepMS(5000);
+  const urlWithCode = await I.grabCurrentUrl();
+  console.log(`the code: ${urlWithCode}`);
+  const theCode = urlWithCode.split('=')[1];
+  expect(theCode).to.not.to.be.empty;
+
+  expectedResults.push({
+    username: process.env.RAS_TEST_USER_1_USERNAME,
+    idp: 'ras',
+    client_id: clientID,
+    status_code: 302,
+  });
+
+  const logCategory = 'login';
+  const userTokenHeader = user.auxAcct2.accessTokenHeader;
+  const params = [`start=${timestamp}`];
+  await auditService.do.checkQueryResults(
+    logCategory,
+    userTokenHeader,
+    params,
+    expectedResults.length,
+    expectedResults,
+  );
 });
 
 Scenario('Audit: unauthorized log query', async ({ auditService }) => {
-    const timestamp = Math.floor(Date.now() / 1000); // epoch timestamp
-    // add a start timestamp so we don't receive lots of data back.
-    // we're only interested in the status code
-    const params = [`start=${timestamp}`];
+  const timestamp = Math.floor(Date.now() / 1000); // epoch timestamp
+  // add a start timestamp so we don't receive lots of data back.
+  // we're only interested in the status code
+  const params = [`start=${timestamp}`];
 
-    // `mainAcct` does not have access to query any audit logs
-    await auditService.do.query('presigned_url', user.mainAcct.accessTokenHeader, [], 403);
-    await auditService.do.query('login', user.mainAcct.accessTokenHeader, params, 403);
+  // `mainAcct` does not have access to query any audit logs
+  await auditService.do.query('presigned_url', user.mainAcct.accessTokenHeader, [], 403);
+  await auditService.do.query('login', user.mainAcct.accessTokenHeader, params, 403);
 
-    // `auxAcct1` has access to query presigned_url audit logs, not login
-    await auditService.do.query('presigned_url', user.auxAcct1.accessTokenHeader, [], 200);
-    await auditService.do.query('login', user.auxAcct1.accessTokenHeader, params, 403);
+  // `auxAcct1` has access to query presigned_url audit logs, not login
+  await auditService.do.query('presigned_url', user.auxAcct1.accessTokenHeader, [], 200);
+  await auditService.do.query('login', user.auxAcct1.accessTokenHeader, params, 403);
 
-    // `auxAcct2` has access to query login audit logs, not presigned_url
-    await auditService.do.query('presigned_url', user.auxAcct2.accessTokenHeader, [], 403);
-    await auditService.do.query('login', user.auxAcct2.accessTokenHeader, params, 200);
+  // `auxAcct2` has access to query login audit logs, not presigned_url
+  await auditService.do.query('presigned_url', user.auxAcct2.accessTokenHeader, [], 403);
+  await auditService.do.query('login', user.auxAcct2.accessTokenHeader, params, 200);
 });
