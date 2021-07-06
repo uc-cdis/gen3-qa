@@ -449,6 +449,10 @@ module.exports = {
           css: '.g3-button',
         },
       },
+      heal: {
+        summary: { css: '.discovery-header' },
+        cards: { css: '.discovery-studies-container' },
+      },
     };
     console.log(`#### hostname:${process.env.testedEnv}`);
     const detailKey = Object.keys(detailsMap).filter((k) => process.env.testedEnv.includes(k)).join('');
