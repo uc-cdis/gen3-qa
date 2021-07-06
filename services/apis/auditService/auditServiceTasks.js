@@ -98,7 +98,7 @@ module.exports = {
     // in the right order.
     expectedResults.forEach((expectedResult) => {
       // check that we received a log that matches the current expected log.
-      // found==true if all the fields in this received log match
+      // found==true if we found a recevied log for which all the fields match
       // the current expected log, false otherwise.
       const found = receivedLogs.some(
         (receivedLog) => Object.entries(expectedResult).every(

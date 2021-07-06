@@ -14,8 +14,6 @@ Feature('AuditServiceAPI');
  * - auxAcct2 => login audit logs access
  */
 
-// TODO no audit-service tests if it's not deployed
-
 const chai = require('chai');
 
 const user = require('../../utils/user.js');
@@ -47,7 +45,7 @@ BeforeSuite(async ({ indexd }) => {
   expect(ok, 'Unable to index files').to.be.true;
 });
 
-Scenario('Audit: download presigned URL events', async ({ fence, auditService }) => {
+Scenario('Audit: download presigned URL events @audit', async ({ fence, auditService }) => {
   const timestamp = Math.floor(Date.now() / 1000); // epoch timestamp
   const expectedResults = [];
   let signedUrlRes;
@@ -123,7 +121,7 @@ Scenario('Audit: download presigned URL events', async ({ fence, auditService })
   );
 });
 
-Scenario('Audit: homepage login events', async ({ home, auditService }) => {
+Scenario('Audit: homepage login events @audit', async ({ home, auditService }) => {
   const timestamp = Math.floor(Date.now() / 1000); // epoch timestamp
   const expectedResults = [];
 
@@ -152,7 +150,7 @@ Scenario('Audit: homepage login events', async ({ home, auditService }) => {
   );
 });
 
-Scenario('Audit: OIDC login events @rasAuthN', async ({ I, auditService }) => {
+Scenario('Audit: OIDC login events @audit @rasAuthN', async ({ I, auditService }) => {
   const timestamp = Math.floor(Date.now() / 1000); // epoch timestamp
   const expectedResults = [];
 
@@ -195,7 +193,7 @@ Scenario('Audit: OIDC login events @rasAuthN', async ({ I, auditService }) => {
   );
 });
 
-Scenario('Audit: unauthorized log query', async ({ auditService }) => {
+Scenario('Audit: unauthorized log query @audit', async ({ auditService }) => {
   const timestamp = Math.floor(Date.now() / 1000); // epoch timestamp
   // add a start timestamp so we don't receive lots of data back.
   // we're only interested in the status code

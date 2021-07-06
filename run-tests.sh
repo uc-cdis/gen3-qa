@@ -415,6 +415,17 @@ elif ! (g3kubectl get pods --no-headers -l app=hatchery | grep hatchery) > /dev/
   donot '@exportToWorkspacePortalHatchery'
 fi
 
+#
+# audit-service tests only run for some repos.
+# they don't run for manifest repos because the audit-service might not
+# be deployed everywhere.
+#
+if [[ "$isGen3Release" != "true" && "$service" != "gen3-qa" && "$service" != "fence" && "$service" != "audit-service" && "$service" != "cloud-automation" ]]; then
+  # disable
+  echo "INFO: disabling audit-service tests for $service"
+  donot '@audit'
+fi
+
 ########################################################################################
 
 testArgs="--reporter mocha-multi"
