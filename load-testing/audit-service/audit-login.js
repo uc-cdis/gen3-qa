@@ -21,7 +21,8 @@ export const options = {
 };
 
 export default function () {
-  const auditURL = `https://${GEN3_HOST}/audit/log/login`;
+  //https://${GEN3_HOST}/audit/log/login
+  const auditSqsURL = `https://${GEN3_HOST}/audit/log/login`;
 
   const params = {
     headers: {
@@ -30,38 +31,38 @@ export default function () {
     },
   };
 
-  const schema = {
-    idp: 'fence',
-    request_url: '',
-    status_code: 200,
-    sub: 1,
-    username: 'user10',
-  };
-
-  const body = JSON.stringify(schema);
-
-  group('posting login logs', () => {
-    group('http post', () => {
-      console.log(`posting login logs to: ${auditURL}`);
-      const res = http.post(auditURL, body, params, { tags: { name: 'login' } });
-      myFailRate.add(res.status !== 201);
-      if (res.status !== 201) {
-        console.log(`Request response Status: ${res.status}`);
-        console.log(`Request response Body: ${res.body}`);
-      }
-      check(res, {
-        'is status 201': (r) => r.status === 201,
-      });
-    });
-    group('wait 0.3s between requests', () => {
-      sleep(0.3);
-    });
-  });
+  // const schema = {
+  //   idp: 'fence',
+  //   request_url: '',
+  //   status_code: 200,
+  //   sub: 1,
+  //   username: 'user10',
+  // };
+  //
+  // const body = JSON.stringify(schema);
+  //
+  // group('posting login logs', () => {
+  //   group('http post', () => {
+  //     console.log(`posting login logs to: ${auditSqsURL}`);
+  //     const res = http.post(auditSqsURL, body, params, { tags: { name: 'login' } });
+  //     myFailRate.add(res.status !== 201);
+  //     if (res.status !== 201) {
+  //       console.log(`Request response Status: ${res.status}`);
+  //       console.log(`Request response Body: ${res.body}`);
+  //     }
+  //     check(res, {
+  //       'is status 201': (r) => r.status === 201,
+  //     });
+  //   });
+  //   group('wait 0.3s between requests', () => {
+  //     sleep(0.3);
+  //   });
+  // });
 
   group('getting login logs', () => {
     group('http get', () => {
-      console.log(`Getting logs ${auditURL}`);
-      const res = http.get(auditURL, params);
+      console.log(`Getting logs ${auditSqsURL}`);
+      const res = http.get(auditSqsURL, params);
       myFailRate.add(res.status !== 200);
       if (res.status !== 200) {
         console.log(`${res.status}`);
