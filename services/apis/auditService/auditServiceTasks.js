@@ -97,6 +97,7 @@ module.exports = {
     // query audit logs starting at time 'timestamp'
     const json = await module.exports.query(logCategory, userTokenHeader, params);
     const receivedLogs = json.data;
+    console.log(`Received logs: ${receivedLogs}`);
     expect(receivedLogs.length, `Should receive exactly ${nExpectedLogs} audit logs but received ${receivedLogs}`).to.equal(nExpectedLogs);
 
     // check that the returned audit logs contain the data we expect.
@@ -104,6 +105,7 @@ module.exports = {
     // created, but some older versions might not, so we can't assume they're
     // in the right order.
     expectedResults.forEach((expectedResult) => {
+      console.log(`Checking expected result: ${expectedResult}`);
       // check that we received a log that matches the current expected log.
       // found==true if we found a received log for which all the fields match
       // the current expected log, false otherwise.
@@ -112,7 +114,7 @@ module.exports = {
           ([field, expectedValue]) => receivedLog[field] === expectedValue,
         ),
       );
-      expect(found, `Expected ${expectedResult} to be in audit logs ${receivedLogs}`).to.be.true;
+      expect(found, 'The audit log I expect is not in the logs I received').to.be.true;
     });
   },
 };

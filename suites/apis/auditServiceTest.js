@@ -11,7 +11,7 @@ Feature('AuditServiceAPI');
  * to a few seconds instead of the default, so we don't wait too long.
  *
  * This test suite assumes the following access is configured:
- * - mainAcct => download access to '/programs/jenkins', no audit logs access
+ * - mainAcct => download access to '/programs/jnkns', no audit logs access
  * - auxAcct1 => presigned URL audit logs access
  * - auxAcct2 => login audit logs access
  */
@@ -29,7 +29,7 @@ const files = {
     filename: 'test_valid',
     link: 's3://cdis-presigned-url-test/testdata',
     md5: '73d643ec3f4beb9020eef0beed440ad0',
-    authz: ['/programs/jenkins'],
+    authz: ['/programs/jnkns'],
     size: 9,
   },
   public: {
@@ -49,6 +49,7 @@ BeforeSuite(async ({ indexd }) => {
 
 Scenario('Audit: download presigned URL events @audit', async ({ fence, auditService }) => {
   const timestamp = Math.floor(Date.now() / 1000); // epoch timestamp
+  console.log(`Start timestamp: ${timestamp}`);
   const expectedResults = [];
   let signedUrlRes;
 
@@ -125,6 +126,7 @@ Scenario('Audit: download presigned URL events @audit', async ({ fence, auditSer
 
 Scenario('Audit: homepage login events @audit', async ({ home, auditService }) => {
   const timestamp = Math.floor(Date.now() / 1000); // epoch timestamp
+  console.log(`Start timestamp: ${timestamp}`);
   const expectedResults = [];
 
   // user logs in
@@ -154,6 +156,7 @@ Scenario('Audit: homepage login events @audit', async ({ home, auditService }) =
 
 Scenario('Audit: OIDC login events @audit @rasAuthN', async ({ I, auditService }) => {
   const timestamp = Math.floor(Date.now() / 1000); // epoch timestamp
+  console.log(`Start timestamp: ${timestamp}`);
   const expectedResults = [];
 
   // user logs in via the OIDC flow (IDP RAS)
@@ -197,6 +200,7 @@ Scenario('Audit: OIDC login events @audit @rasAuthN', async ({ I, auditService }
 
 Scenario('Audit: unauthorized log query @audit', async ({ auditService }) => {
   const timestamp = Math.floor(Date.now() / 1000); // epoch timestamp
+  console.log(`Start timestamp: ${timestamp}`);
   // add a start timestamp so we don't receive lots of data back.
   // we're only interested in the status code
   const params = [`start=${timestamp}`];
