@@ -175,9 +175,9 @@ Scenario('Audit: OIDC login events @audit @rasAuthN', async ({ I, auditService }
   await I.click({ xpath: 'xpath: //button[contains(text(), \'Yes, I authorize.\')]' });
   await sleepMS(5000);
   const urlWithCode = await I.grabCurrentUrl();
-  console.log(`the code: ${urlWithCode}`);
   const theCode = urlWithCode.split('=')[1];
   expect(theCode).to.not.to.be.empty;
+  console.log("Successfully logged in")
 
   expectedResults.push({
     username: process.env.RAS_TEST_USER_1_USERNAME,

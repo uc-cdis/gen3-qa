@@ -35,7 +35,9 @@ async function waitForAuditLogs(category, userTokenHeader, params, nLogs) {
     return false;
   };
 
-  const timeout = 120; // max number of seconds to wait
+  // wait up to 5 min - it can take very long for the SQS to return
+  // messages to the audit-service...
+  const timeout = 300;
   const startWait = 1; // initial number of seconds to wait
   const errorMessage = `The audit-service did not process ${nLogs} logs as expected after ${timeout} seconds`;
 
@@ -97,7 +99,8 @@ module.exports = {
     // query audit logs starting at time 'timestamp'
     const json = await module.exports.query(logCategory, userTokenHeader, params);
     const receivedLogs = json.data;
-    console.log(`Received logs: ${receivedLogs}`);
+    console.log("Received logs:");
+    console.log(receivedLogs);
     expect(receivedLogs.length, `Should receive exactly ${nExpectedLogs} audit logs but received ${receivedLogs}`).to.equal(nExpectedLogs);
 
     // check that the returned audit logs contain the data we expect.
@@ -105,7 +108,8 @@ module.exports = {
     // created, but some older versions might not, so we can't assume they're
     // in the right order.
     expectedResults.forEach((expectedResult) => {
-      console.log(`Checking expected result: ${expectedResult}`);
+      console.log("Checking expected result:");
+      console.log(expectedResult);
       // check that we received a log that matches the current expected log.
       // found==true if we found a received log for which all the fields match
       // the current expected log, false otherwise.
