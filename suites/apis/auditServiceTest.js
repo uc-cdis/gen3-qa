@@ -108,7 +108,7 @@ Scenario('Audit: download presigned URL events @audit', async ({ fence, auditSer
   expectedResults.push({
     action: 'download',
     username: 'anonymous',
-    guid: files.private.did,
+    guid: files.public.did,
     status_code: 200,
   });
 
