@@ -30,19 +30,7 @@ export default function () {
       Authorization: `Bearer ${ACCESS_TOKEN}`,
     },
   };
-    // POST body
-  const schema = {
-    action: 'download',
-    guid: 'dg.fake/b01ebf46-3832-4a75-8736-b09e8d9fd952',
-    request_url: '/data/download/dg.fake/b01ebf46-3832-4a75-8736-b09e8d9fd952',
-    resource_paths: ['/my/resource/path1', '/path2'],
-    status_code: 200,
-    sub: 10,
-    username: 'user_91',
-  };
-  const body = JSON.stringify(schema);
 
-  // Steps :
   // 1. bash script to populate the audit-service db (for loop) - send-message
   // 2. should run this script before running the GET operation
   // 3. run this script to GET the audit-service transactions

@@ -6,11 +6,11 @@ export AWS_DEFAULT_REGION=us-east-1
 
 message= '
 {
-    idp: 'fence',
-    request_url: '',
-    status_code: 200,
-    sub: 1,
-    username: 'user10',
+    "idp":"fence",
+    "request_url": "",
+    "status_code": 200,
+    "sub": 1,
+    "username": "user10",
 }
 '
 # get SQS url for audit-service-sqs
