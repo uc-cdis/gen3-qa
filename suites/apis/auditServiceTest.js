@@ -119,7 +119,6 @@ Scenario('Audit: download presigned URL events @audit', async ({ fence, auditSer
     logCategory,
     userTokenHeader,
     params,
-    expectedResults.length,
     expectedResults,
   );
 });
@@ -149,7 +148,6 @@ Scenario('Audit: homepage login events @audit', async ({ home, auditService }) =
     logCategory,
     userTokenHeader,
     params,
-    expectedResults.length,
     expectedResults,
   );
 });
@@ -193,7 +191,6 @@ Scenario('Audit: OIDC login events @audit @rasAuthN', async ({ I, auditService }
     logCategory,
     userTokenHeader,
     params,
-    expectedResults.length,
     expectedResults,
   );
 });
@@ -206,14 +203,14 @@ Scenario('Audit: unauthorized log query @audit', async ({ auditService }) => {
   const params = [`start=${timestamp}`];
 
   // `mainAcct` does not have access to query any audit logs
-  await auditService.do.query('presigned_url', user.mainAcct.accessTokenHeader, [], 403);
+  await auditService.do.query('presigned_url', user.mainAcct.accessTokenHeader, params, 403);
   await auditService.do.query('login', user.mainAcct.accessTokenHeader, params, 403);
 
   // `auxAcct1` has access to query presigned_url audit logs, not login
-  await auditService.do.query('presigned_url', user.auxAcct1.accessTokenHeader, [], 200);
+  await auditService.do.query('presigned_url', user.auxAcct1.accessTokenHeader, params, 200);
   await auditService.do.query('login', user.auxAcct1.accessTokenHeader, params, 403);
 
   // `auxAcct2` has access to query login audit logs, not presigned_url
-  await auditService.do.query('presigned_url', user.auxAcct2.accessTokenHeader, [], 403);
+  await auditService.do.query('presigned_url', user.auxAcct2.accessTokenHeader, params, 403);
   await auditService.do.query('login', user.auxAcct2.accessTokenHeader, params, 200);
 });

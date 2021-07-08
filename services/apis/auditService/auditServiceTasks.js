@@ -29,7 +29,7 @@ async function waitForAuditLogs(category, userTokenHeader, params, nLogs) {
       return true;
     } if (json.data.length > _nLogs) {
       // this should never happen
-      console.error(`Expected to receive ${_nLogs} audit logs or less, bugt received ${json.data.length}.`);
+      console.error(`Expected to receive ${_nLogs} audit logs or less, but received ${json.data.length}.`);
     }
     console.log(`Expecting ${_nLogs} logs, received ${json.data.length} logs - waiting...`);
     return false;
@@ -82,7 +82,6 @@ module.exports = {
     logCategory,
     userTokenHeader,
     params = [],
-    nExpectedLogs,
     expectedResults,
   ) {
     /**
@@ -90,23 +89,23 @@ module.exports = {
      * @param {string} logCategory - audit log category
      * @param {string} userTokenHeader - headers to use for authoriation
      * @param {string[]} params - optional query parameters
-     * @param {int} nExpectedLogs - expected number of logs
      * @param {Object[]} expectedResults - values we expect to see in the logs
      */
     // we need some buffer time for the audit logs to be processed
+    const nExpectedLogs = expectedResults.length;
     await waitForAuditLogs(logCategory, userTokenHeader, params, nExpectedLogs);
 
-    // query audit logs starting at time 'timestamp'
+    // query audit logs
     const json = await module.exports.query(logCategory, userTokenHeader, params);
     const receivedLogs = json.data;
     console.log('Received logs:');
     console.log(receivedLogs);
-    expect(receivedLogs.length, `Should receive exactly ${nExpectedLogs} audit logs but received ${receivedLogs}`).to.equal(nExpectedLogs);
+    expect(receivedLogs.length, `Should receive exactly ${nExpectedLogs} audit logs, but received ${receivedLogs.length} logs`).to.equal(nExpectedLogs);
 
     // check that the returned audit logs contain the data we expect.
     // the latest audit-service returns audit logs in the order they were
-    // created, but some older versions might not, so we can't assume they're
-    // in the right order.
+    // created, but some older versions might not, and AWS SQS might shuffle
+    // the messages, so we can't assume they're in the right order.
     expectedResults.forEach((expectedResult) => {
       console.log('Checking expected result:');
       console.log(expectedResult);
