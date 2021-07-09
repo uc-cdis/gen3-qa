@@ -41,13 +41,13 @@ BeforeSuite(async ({ I }) => {
 
   // Restore original etl-mapping and manifest-guppy configmaps (for idempotency)
   console.log('Running kube-setup-guppy to restore any configmaps that have been mutated. This can take a couple of mins...');
-  //await bash.runCommand('gen3 kube-setup-guppy');
+  // await bash.runCommand('gen3 kube-setup-guppy');
 
   console.log('deleting temp .avro files...');
   await bash.runCommand(`find . -name "test_export_*" -exec rm {} \\\; -exec echo "deleted {}" \\\;`); // eslint-disable-line quotes,no-useless-escape
 });
 
-xScenario('Submit dummy data to the Gen3 Commons environment @pfbExport', async ({ I, users }) => {
+Scenario('Submit dummy data to the Gen3 Commons environment @pfbExport', async ({ I, users }) => {
   // generate dummy data
   bash.runJob('gentestdata', 'SUBMISSION_USER cdis.autotest@gmail.com MAX_EXAMPLES 1');
   await checkPod(I, 'gentestdata', 'gen3job,job-name=gentestdata');
@@ -68,7 +68,7 @@ xScenario('Submit dummy data to the Gen3 Commons environment @pfbExport', async 
   expect(queryResponse).to.have.property('status', 200);
 });
 
-xScenario('Upload a file through the gen3-client CLI @pfbExport', async ({
+Scenario('Upload a file through the gen3-client CLI @pfbExport', async ({
   I, fence, users,
 }) => {
   // Download the latest linux binary from https://github.com/uc-cdis/cdis-data-client/releases
@@ -125,7 +125,7 @@ xScenario('Upload a file through the gen3-client CLI @pfbExport', async ({
   expect(indexdLookupResponse.data.authz).to.eql([]);
 });
 
-xScenario('Map the uploaded file to one of the subjects of the dummy dataset @pfbExport', async ({ I, login, users }) => {
+Scenario('Map the uploaded file to one of the subjects of the dummy dataset @pfbExport', async ({ I, login, users }) => {
   login.do.goToLoginPage();
   I.saveScreenshot('loginPage.png');
   login.complete.login(users.mainAcct);
@@ -183,7 +183,7 @@ xScenario('Map the uploaded file to one of the subjects of the dummy dataset @pf
   // TODO: check if file number in DEV-test project was increased by one
 });
 
-xScenario('Mutate etl-mapping config and run ETL to create new indices in elastic search @pfbExport', async ({ I }) => {
+Scenario('Mutate etl-mapping config and run ETL to create new indices in elastic search @pfbExport', async ({ I }) => {
   console.log('### mutate the etl-mapping k8s config map');
 
   await bash.runCommand(`gen3 mutate-etl-mapping-config ${I.cache.prNumber} ${I.cache.repoName}`);
@@ -194,7 +194,7 @@ xScenario('Mutate etl-mapping config and run ETL to create new indices in elasti
   await sleepMS(10000);
 });
 
-xScenario('Mutate manifest-guppy config and roll guppy so the recently-submitted dataset will be available on the Explorer page @pfbExport', async ({ I, users }) => {
+Scenario('Mutate manifest-guppy config and roll guppy so the recently-submitted dataset will be available on the Explorer page @pfbExport', async ({ I, users }) => {
   console.log('### mutate the manifest-guppy k8s config map');
 
   await bash.runCommand(`gen3 mutate-guppy-config ${I.cache.prNumber} ${I.cache.repoName}`);
@@ -234,11 +234,11 @@ xScenario('Mutate manifest-guppy config and roll guppy so the recently-submitted
 
   expect(guppyStatusCheckResp).to.have.property('status', 200);
   expect(guppyStatusCheckResp.data).to.have.property('statusCode', 200);
-  //expect(guppyStatusCheckResp.data.indices).to.have.any.keys(
+  // expect(guppyStatusCheckResp.data.indices).to.have.any.keys(
   //  `${I.cache.prNumber}.${I.cache.repoName}.${process.env.NAMESPACE}_subject`,
   //  `${I.cache.prNumber}.${I.cache.repoName}.${process.env.NAMESPACE}_etl`,
   //  `${I.cache.prNumber}.${I.cache.repoName}.${process.env.NAMESPACE}_file`,
-  //);
+  // );
 });
 
 Scenario('Visit the Explorer page, select a cohort, export to PFB and download the .avro file @pfbExport', async ({
@@ -330,7 +330,7 @@ Scenario('Install the latest pypfb CLI version and make sure we can parse the av
   await bash.runCommand('pip install pypfb');
   await bash.runCommand(`cat ./test_export_${I.cache.UNIQUE_NUM}.avro`);
   const pfbParsingResult = await bash.runCommand(`/home/${process.env.NAMESPACE}/.local/bin/pfb show -i ./test_export_${I.cache.UNIQUE_NUM}.avro | jq .`);
-  console.log(`${new Date()}: pfbParsingResult = ${pfbParsingResult}`);
+  // console.log(`${new Date()}: pfbParsingResult = ${pfbParsingResult}`);
   const pfbConvertedToJSON = JSON.parse(`[${pfbParsingResult.replace(/\}\{/g, '},{')}]`);
-  console.log(`${new Date()}: pfbConvertedToJSON = ${pfbConvertedToJSON}`);
+  console.log(`${new Date()}: pfbConvertedToJSON = ${JSON.string(pfbConvertedToJSON)}`);
 });
