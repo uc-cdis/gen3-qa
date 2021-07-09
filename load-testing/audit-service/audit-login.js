@@ -1,4 +1,4 @@
-const { check, group, sleep } = require('k6'); // eslint-disable-line import/no-unresolved
+const { check, group } = require('k6'); // eslint-disable-line import/no-unresolved
 const http = require('k6/http'); // eslint-disable-line import/no-unresolved
 const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresolved
 
@@ -20,7 +20,6 @@ export const options = {
 };
 
 export default function () {
-  //https://${GEN3_HOST}/audit/log/login
   const auditSqsURL = `https://${GEN3_HOST}/audit/log/login`;
 
   const params = {
