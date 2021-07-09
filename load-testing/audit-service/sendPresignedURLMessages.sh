@@ -4,9 +4,9 @@
 #
 
 export AWS_DEFAULT_REGION=us-east-1
-#
-# sqsURL= $(aws sqs get-queue-url --queue-name qaplanetv2--qa-niaid--audit-sqs)
 
+awsURL='https://sqs.us-east-1.amazonaws.com/707767160287'
+sqsURL='qaplanetv2--qa-niaid--audit-sqs'
 message='
 {
     "action": "download",
@@ -21,6 +21,6 @@ message='
 # send 20 dummy logs to audit-service sqs
 for i in {1..20};
     do
-        aws sqs send-message --queue-url "https://sqs.us-east-1.amazonaws.com/707767160287/qaplanetv2--qa-niaid--audit-sqs" --message-body "$message"
+        aws sqs send-message --queue-url "$awsURL/$sqsURL" --message-body "$message"
     done
 

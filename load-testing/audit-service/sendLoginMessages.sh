@@ -4,7 +4,8 @@
 #
 
 export AWS_DEFAULT_REGION=us-east-1
-
+awsURL='https://sqs.us-east-1.amazonaws.com/707767160287'
+sqsURL='qaplanetv2--qa-niaid--audit-sqs'
 message= '
 {
     "idp":"fence",
@@ -17,5 +18,5 @@ message= '
 # send 20 dummy logs to audit-service sqs
 for i in {1..20};
     do
-        aws sqs send-message --queue-url "https://sqs.us-east-1.amazonaws.com/707767160287/${auditSQS}" --message-body "$message"
+        aws sqs send-message --queue-url "$awsURL/$sqsURL" --message-body "$message"
     done
