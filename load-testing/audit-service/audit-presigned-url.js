@@ -20,39 +20,15 @@ export const options = {
 };
 
 export default function () {
-  // the url to post the logs to
   // https://${GEN3_HOST}/audit/log/presigned_url
   const auditURL = `https://${GEN3_HOST}/audit/log/presigned_url`;
-  // authentication for request a POST
+
   const params = {
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${ACCESS_TOKEN}`,
     },
   };
-
-  // 1. bash script to populate the audit-service db (for loop) - send-message
-  // 2. should run this script before running the GET operation
-  // 3. run this script to GET the audit-service transactions
-
-  //delete this
-  // group('posting Presigned URLs Logs', () => {
-  //   group('http post', () => {
-  //     console.log(`posting presigned url to: ${auditSqsURL}`);
-  //     const res = http.post(auditSqsURL, body, params, { tags: { name: 'presignedURL' } });
-  //     myFailRate.add(res.status !== 201);
-  //     if (res.status !== 201) {
-  //       console.log(`Request response Status: ${res.status}`);
-  //       console.log(`Request response Body: ${res.body}`);
-  //     }
-  //     check(res, {
-  //       'is status 201': (r) => r.status === 201,
-  //     });
-  //   });
-  //   group('wait 0.3s between requests', () => {
-  //     sleep(0.3);
-  //   });
-  // });
 
   group('getting presigned url logs', () => {
     group('http get', () => {
