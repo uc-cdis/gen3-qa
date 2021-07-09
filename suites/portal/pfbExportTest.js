@@ -8,6 +8,8 @@
 Feature('PFB Export');
 
 const axios = require('axios');
+const path = require('path');
+const fs = require('fs');
 const { spawnSync } = require('child_process');
 const { expect } = require('chai');
 const { checkPod, sleepMS } = require('../../utils/apiUtil.js');
@@ -41,10 +43,18 @@ BeforeSuite(async ({ I }) => {
 
   // Restore original etl-mapping and manifest-guppy configmaps (for idempotency)
   console.log('Running kube-setup-guppy to restore any configmaps that have been mutated. This can take a couple of mins...');
-  // await bash.runCommand('gen3 kube-setup-guppy');
+  await bash.runCommand('gen3 kube-setup-guppy');
 
   console.log('deleting temp .avro files...');
   await bash.runCommand(`find . -name "test_export_*" -exec rm {} \\\; -exec echo "deleted {}" \\\;`); // eslint-disable-line quotes,no-useless-escape
+});
+
+AfterSuite(async () => {
+  console.log('Reverting artifacts back to their original state...');
+
+  // Restore original etl-mapping and manifest-guppy configmaps (for idempotency)
+  console.log('Running kube-setup-guppy to restore any configmaps that have been mutated. This can take a couple of mins...');
+  await bash.runCommand('gen3 kube-setup-guppy');
 });
 
 Scenario('Submit dummy data to the Gen3 Commons environment @pfbExport', async ({ I, users }) => {
@@ -317,7 +327,12 @@ Scenario('Visit the Explorer page, select a cohort, export to PFB and download t
     headers: { Accept: 'binary/octet-stream' },
   });
   // I.say(util.inspect(pfbDownloadURLResp, { depth: null }));
-  await I.writeToFile(`./test_export_${I.cache.UNIQUE_NUM}.avro`, pfbDownloadURLResp.data);
+  try {
+    console.log(`Writing test_export_${I.cache.UNIQUE_NUM}.avro file to ${process.cwd()} folder...`);
+    fs.writeFileSync(path.join(process.cwd(), `./test_export_${I.cache.UNIQUE_NUM}.avro`), pfbDownloadURLResp.data);
+  } catch (e) {
+    throw new Error(e);
+  }
   if (process.env.RUNNING_LOCAL) {
     const scpArgs = [`test_export_${I.cache.UNIQUE_NUM}.avro`, `${process.env.NAMESPACE}@cdistest.csoc:/home/${process.env.NAMESPACE}/test_export_${I.cache.UNIQUE_NUM}.avro`];
     console.log('SCPing avro file to admin vm...');
@@ -328,9 +343,24 @@ Scenario('Visit the Explorer page, select a cohort, export to PFB and download t
 
 Scenario('Install the latest pypfb CLI version and make sure we can parse the avro file @pfbExport', async ({ I }) => {
   await bash.runCommand('pip install pypfb');
-  await bash.runCommand(`cat ./test_export_${I.cache.UNIQUE_NUM}.avro`);
+  // await bash.runCommand(`cat ./test_export_${I.cache.UNIQUE_NUM}.avro`);
   const pfbParsingResult = await bash.runCommand(`/home/${process.env.NAMESPACE}/.local/bin/pfb show -i ./test_export_${I.cache.UNIQUE_NUM}.avro | jq .`);
   // console.log(`${new Date()}: pfbParsingResult = ${pfbParsingResult}`);
   const pfbConvertedToJSON = JSON.parse(`[${pfbParsingResult.replace(/\}\{/g, '},{')}]`);
-  console.log(`${new Date()}: pfbConvertedToJSON = ${JSON.string(pfbConvertedToJSON)}`);
+  // console.log(`${new Date()}: pfbConvertedToJSON = ${JSON.stringify(pfbConvertedToJSON)}`);
+
+  // assertions
+  // make sure the parsed PFB follows the expected Clinical Data Model hierarchy traversal path
+  // (program -> project -> study)
+  const ddNodesSet = new Set();
+  for (const node in pfbConvertedToJSON) { // eslint-disable-line guard-for-in
+    // console.log(`node name: ${pfbConvertedToJSON[node].name}`);
+    await ddNodesSet.add(pfbConvertedToJSON[node].name);
+  }
+  const itDDNodesSet = ddNodesSet.values();
+  expect(itDDNodesSet.next().value).to.equal('program');
+  expect(itDDNodesSet.next().value).to.equal('project');
+  expect(itDDNodesSet.next().value).to.equal('study');
+
+  // TODO: Refine cohort later and make sure the selected projects show up in the PFB file
 });
