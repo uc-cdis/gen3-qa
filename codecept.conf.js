@@ -27,10 +27,10 @@ exports.config = {
         },
       },
       restart: true, // restart browser for every test
-      timeouts: {
+      /* timeouts: {
         script: 6000,
         'page load': 10000,
-      },
+      }, */
       port: 4444,
     },
     REST: {
