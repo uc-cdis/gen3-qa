@@ -171,7 +171,7 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @pfb
   I.fillField('//input[@id=\'react-select-3-input\']', 'submitted_unaligned_reads');
   I.pressKey('Enter');
   console.log('File Node selected');
-  I.waitForText('Required Fields');
+  I.waitForText('Required Fields', 10);
 
   // Select required fields and core_metadata_collection
   const FIELDS_INDEX_START = 4;
