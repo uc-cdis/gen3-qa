@@ -17,20 +17,23 @@ exports.config = {
         chromeOptions: {
           args: [
             '--headless', // for dev, you can comment this line to open actual chrome for easier test
-            '--disable-gpu',
+            '--disable-gpu', // https://stackoverflow.com/questions/51959986/how-to-solve-selenium-chromedriver-timed-out-receiving-message-from-renderer-exc
             '--whitelisted-ips=*',
-            '--disable-features=VizDisplayCompositor',
+            '--disable-features=VizDisplayCompositor', // https://stackoverflow.com/a/55371396/491553
             '--window-size=1280,720',
-            // '--no-sandbox',
+            '--no-sandbox',
             // '--enable-features=NetworkService,NetworkServiceInProcess',
+            '--disable-infobars', // https://stackoverflow.com/a/43840128/1689770
+            '--disable-dev-shm-usage', // https://stackoverflow.com/a/50725918/1689770
+            '--disable-browser-side-navigation', // https://stackoverflow.com/a/49123152/1689770
           ],
         },
       },
       restart: true, // restart browser for every test
-      timeouts: {
+      /* timeouts: {
         script: 6000,
         'page load': 10000,
-      },
+      }, */
       port: 4444,
     },
     REST: {

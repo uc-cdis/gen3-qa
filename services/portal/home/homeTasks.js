@@ -15,7 +15,7 @@ module.exports = {
     }
     // wait 2 sec to let the page fully loaded
     I.wait(2);
-    I.captureBrowserLog();
+    // I.captureBrowserLog();
     I.saveScreenshot('Home_page_for_debugging.png');
     portal.seeProp(homeProps.ready_cue, 60);
   },
