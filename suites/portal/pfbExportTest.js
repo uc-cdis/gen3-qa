@@ -196,7 +196,7 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @pfb
 Scenario('Mutate etl-mapping config and run ETL to create new indices in elastic search @pfbExport', async ({ I }) => {
   console.log('### mutate the etl-mapping k8s config map');
 
-  await bash.runCommand(`gen3 mutate-etl-mapping-config ${I.cache.prNumber} ${I.cache.repoName}`);
+  await bash.runCommand(`export KUBECTL_NAMESPACE="${process.env.NAMESPACE}" && gen3 mutate-etl-mapping-config ${I.cache.prNumber} ${I.cache.repoName}`);
 
   console.log('### running ETL for recently-submitted dataset');
   await bash.runJob('etl', '', false);
@@ -207,7 +207,7 @@ Scenario('Mutate etl-mapping config and run ETL to create new indices in elastic
 Scenario('Mutate manifest-guppy config and roll guppy so the recently-submitted dataset will be available on the Explorer page @pfbExport', async ({ I, users }) => {
   console.log('### mutate the manifest-guppy k8s config map');
 
-  await bash.runCommand(`gen3 mutate-guppy-config ${I.cache.prNumber} ${I.cache.repoName}`);
+  await bash.runCommand(`export KUBECTL_NAMESPACE="${process.env.NAMESPACE}" && gen3 mutate-guppy-config ${I.cache.prNumber} ${I.cache.repoName}`);
   await bash.runCommand('gen3 roll guppy');
 
   // Wait a few seconds for the new guppy pod to come up
