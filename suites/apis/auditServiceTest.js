@@ -41,10 +41,16 @@ const files = {
   },
 };
 
-BeforeSuite(async ({ indexd }) => {
+BeforeSuite(async ({ auditService, indexd }) => {
+  await auditService.do.configureFenceAuditLogging(true); // enable
+
   // index the files we get presigned URLs for
   const ok = await indexd.do.addFileIndices(Object.values(files));
   expect(ok, 'Unable to index files').to.be.true;
+});
+
+AfterSuite(async ({ auditService }) => {
+  await auditService.do.configureFenceAuditLogging(false); // disable
 });
 
 Scenario('Audit: download presigned URL events @audit', async ({ fence, auditService }) => {

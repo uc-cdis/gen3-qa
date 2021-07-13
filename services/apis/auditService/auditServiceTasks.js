@@ -2,7 +2,9 @@ const chai = require('chai');
 
 const auditServiceProps = require('./auditServiceProps.js');
 const { smartWait } = require('../../../utils/apiUtil');
+const { Bash } = require('../../../utils/bash.js');
 
+const bash = new Bash();
 const { expect } = chai;
 const I = actor();
 
@@ -22,6 +24,7 @@ async function waitForAuditLogs(category, userTokenHeader, params, nLogs) {
      * @param {string} _userTokenHeader - headers to use for authoriation
      * @param {string[]} _params - optional query parameters
      * @param {boolean} _nLogs - number of logs we expect to receive
+     * @returns {boolean}
      */
     // query audit logs
     const json = await module.exports.query(_category, _userTokenHeader, _params);
@@ -38,19 +41,86 @@ async function waitForAuditLogs(category, userTokenHeader, params, nLogs) {
   // wait up to 5 min - it can take very long for the SQS to return
   // messages to the audit-service...
   const timeout = 300;
-  const startWait = 1; // initial number of seconds to wait
-  const errorMessage = `The audit-service did not process ${nLogs} logs as expected after ${timeout} seconds`;
-
   await smartWait(
     areLogsThere,
     [category, userTokenHeader, params, nLogs],
     timeout,
-    errorMessage,
-    startWait,
+    `The audit-service did not process ${nLogs} logs as expected after ${timeout} seconds`, // error message
+    1, // initial number of seconds to wait
+  );
+}
+
+async function waitForFenceToRoll() {
+  /**
+   * Wait until both fence and presigned-url-fence pods are ready.
+   */
+  const isFenceReady = async function () {
+    /**
+     * Return true if both fence and presigned-url-fence pods are ready,
+     * false otherwise.
+     * @returns {boolean}
+     */
+    for (const service of ['fence', 'presigned-url-fence']) {
+      // get the status of the most recently started pod
+      const res = await bash.runCommand(`g3kubectl get pods -l app=${service} --sort-by=.metadata.creationTimestamp | tail -1`);
+      console.log(res);
+      let ready = false;
+      try {
+        ready = res.includes('4/4');
+      } catch (err) {
+        console.error(`Unable to parse output. Error: ${err}. Output:`);
+        console.error(res);
+      }
+      if (!ready) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  console.log('Waiting for pods to be ready');
+  const timeout = 300; // wait up to 5 min
+  await smartWait(
+    isFenceReady,
+    [],
+    timeout,
+    `Fence and presigned-url-fence pods are not ready after ${timeout} seconds`, // error message
+    1, // initial number of seconds to wait
   );
 }
 
 module.exports = {
+  async configureFenceAuditLogging(enable) {
+    /**
+     * Update the fence-config secret to enable or disable audit logging.
+     * @param {boolean} enable - if true enable audit logging, otherwise disable it.
+     */
+    console.log(`Updating the fence-config secret to ${enable === true ? 'enable' : 'disable'} audit logging`);
+
+    // 1. dump the current secret in a temp file.
+    // 2. remove the first and last lines ("-------- fence-config.yaml:" and
+    //    "--------") because they are added again when we edit the secret, and
+    //    duplicates cause errors.
+    // 3. add the config we need at the bottom of the file - it will override
+    //    any audit config already defined.
+    const enableString = enable === true ? 'true' : 'false';
+    // eslint-disable-next-line no-useless-escape
+    await bash.runCommand(`gen3 secrets decode fence-config > fence_config_tmp.yaml; sed -i \'"\'"\'1d;$d\'"\'"\' fence_config_tmp.yaml'; cat - >> "fence_config_tmp.yaml" <<EOM
+ENABLE_AUDIT_LOGS:
+  presigned_url: ${enableString}
+  login: ${enableString}
+EOM`);
+
+    // update the secret and roll Fence
+    // eslint-disable-next-line no-useless-escape
+    const res = bash.runCommand('g3kubectl get secret fence-config -o json | jq --arg new_config "$(cat fence_config_tmp.yaml | base64)" \'"\'"\'.data["fence-config.yaml"]=$new_config\'"\'"\' | g3kubectl apply -f -');
+    expect(res, 'Unable to update fence-config secret').to.equal('secret/fence-config configured');
+    await bash.runCommand('gen3 roll fence; gen3 roll presigned-url-fence');
+
+    // wait for the pods to roll
+    await waitForFenceToRoll();
+  },
+
   async query(logCategory, userTokenHeader, params = [], expectedStatus = 200) {
     /**
      * Hit the audit-service query endpoint.
