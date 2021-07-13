@@ -267,10 +267,10 @@ if [ "$testedEnv" == "dataguids.org" ]; then
   sed -i '/bootstrap\:/d' codecept.conf.js
 fi
 
-# if [[ "$testedEnv" == *"heal"* ]]; then
+if [[ "$testedEnv" == *"heal"* ]]; then
   # use moon instead of selenium
-  # sed -i 's/selenium-hub/moon.moon/' codecept.conf.js
-# fi
+  sed -i 's/selenium-hub/moon.moon/' codecept.conf.js
+fi
 
 #
 # Google Data Access tests are only required for some envs
