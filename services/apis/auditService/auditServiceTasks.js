@@ -97,25 +97,28 @@ module.exports = {
      */
     console.log(`Updating the fence-config secret to ${enable === true ? 'enable' : 'disable'} audit logging`);
 
-    // 1. dump the current secret in a temp file.
-    // 2. remove the first and last lines ("-------- fence-config.yaml:" and
-    //    "--------") because they are added again when we edit the secret, and
-    //    duplicates cause errors.
-    // 3. add the config we need at the bottom of the file - it will override
-    //    any audit config already defined.
+    // dump the current secret in a temp file.
+    // remove the first and last lines ("-------- fence-config.yaml:" and
+    // "--------") because they are added again when we edit the secret, and
+    // duplicates cause errors.
+    await bash.runCommand('gen3 secrets decode fence-config > fence_config_tmp.yaml; sed -i \'"\'"\'1d;$d\'"\'"\' fence_config_tmp.yaml');
+
+    // add the config we need at the bottom of the file - it will override
+    // any audit config already defined.
     const enableString = enable === true ? 'true' : 'false';
-    // eslint-disable-next-line no-useless-escape
-    await bash.runCommand(`gen3 secrets decode fence-config > fence_config_tmp.yaml; sed -i \'"\'"\'1d;$d\'"\'"\' fence_config_tmp.yaml'; cat - >> "fence_config_tmp.yaml" <<EOM
+    await bash.runCommand(`cat - >> "fence_config_tmp.yaml" <<EOM
 ENABLE_AUDIT_LOGS:
   presigned_url: ${enableString}
   login: ${enableString}
 EOM`);
 
-    // update the secret and roll Fence
+    // update the secret
     // eslint-disable-next-line no-useless-escape
     const res = bash.runCommand('g3kubectl get secret fence-config -o json | jq --arg new_config "$(cat fence_config_tmp.yaml | base64)" \'"\'"\'.data["fence-config.yaml"]=$new_config\'"\'"\' | g3kubectl apply -f -');
     expect(res, 'Unable to update fence-config secret').to.equal('secret/fence-config configured');
-    await bash.runCommand('gen3 roll fence; gen3 roll presigned-url-fence');
+
+    // roll Fence
+    await bash.runCommand('rm fence_config_tmp.yaml; gen3 roll fence; gen3 roll presigned-url-fence');
 
     // wait for the pods to roll
     await waitForFenceToRoll();
