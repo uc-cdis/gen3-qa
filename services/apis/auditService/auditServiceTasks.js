@@ -101,7 +101,7 @@ module.exports = {
     // remove the first and last lines ("-------- fence-config.yaml:" and
     // "--------") because they are added again when we edit the secret, and
     // duplicates cause errors.
-    await bash.runCommand('gen3 secrets decode fence-config > fence_config_tmp.yaml; sed -i \'"\'"\'1d;$d\'"\'"\' fence_config_tmp.yaml');
+    await bash.runCommand('gen3 secrets decode fence-config > fence_config_tmp.yaml; sed -i \'1d;$d\' fence_config_tmp.yaml');
 
     // add the config we need at the bottom of the file - it will override
     // any audit config already defined.
@@ -113,8 +113,7 @@ ENABLE_AUDIT_LOGS:
 EOM`);
 
     // update the secret
-    // eslint-disable-next-line no-useless-escape
-    const res = bash.runCommand('g3kubectl get secret fence-config -o json | jq --arg new_config "$(cat fence_config_tmp.yaml | base64)" \'"\'"\'.data["fence-config.yaml"]=$new_config\'"\'"\' | g3kubectl apply -f -');
+    const res = bash.runCommand('g3kubectl get secret fence-config -o json | jq --arg new_config "$(cat fence_config_tmp.yaml | base64)" \'.data["fence-config.yaml"]=$new_config\' | g3kubectl apply -f -');
     expect(res, 'Unable to update fence-config secret').to.equal('secret/fence-config configured');
 
     // roll Fence
