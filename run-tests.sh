@@ -416,6 +416,29 @@ elif ! (g3kubectl get pods --no-headers -l app=hatchery | grep hatchery) > /dev/
   donot '@exportToWorkspacePortalHatchery'
 fi
 
+#
+# only run audit-service tests for manifest repos IF audit-service is
+# deployed, and for repos with an audit-service integration.
+#
+runAuditTests=true
+if ! [[ "$service" =~ ^(audit-service|fence|cloud-automation|gen3-qa)$ ]]; then
+  if [[ "$service" =~ ^(cdis-manifest|gitops-qa|gitops-dev)$ ]]; then
+    if ! (g3kubectl get pods --no-headers -l app=audit-service | grep audit-service) > /dev/null 2>&1; then
+      echo "INFO: audit-service is not deployed"
+      runAuditTests=false
+    fi
+  else
+    echo "INFO: no need to run audit-service tests for repo $service"
+    runAuditTests=false
+  fi
+fi
+if [[ "$runAuditTests" == true ]]; then
+  echo "INFO: enabling audit-service tests"
+else
+  echo "INFO: disabling audit-service tests"
+  donot '@audit'
+fi
+
 ########################################################################################
 
 testArgs="--reporter mocha-multi"
