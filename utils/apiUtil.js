@@ -323,15 +323,23 @@ module.exports = {
   async smartWait(checkFunc, checkArgs, timeout, errorMessage, startWait = null) {
     let waitTime = (startWait * 1000) || 50; // start by waiting 50 ms
     let waited = 0; // keep track of how many ms have passed
+    let firstIteration = true;
     while (waited < timeout * 1000) {
+      if (firstIteration) {
+        firstIteration = false;
+      } else {
+        // if not done, keep waiting
+        await module.exports.sleepMS(waitTime);
+        waited += waitTime;
+        waitTime *= 2; // wait longer every time
+      }
+
       // check if the task is done
       const done = await checkFunc(...checkArgs);
-      if (done) return;
-
-      // if not done, keep waiting
-      await module.exports.sleepMS(waitTime);
-      waited += waitTime;
-      waitTime *= 2; // wait longer every time
+      if (done) {
+        console.log(`'smartWait' done waiting after ${waited / 1000} seconds`);
+        return;
+      }
     }
     throw new Error(errorMessage);
   },

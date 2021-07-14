@@ -75,6 +75,7 @@ exports.config = {
     manifestService: './services/apis/manifestService/manifestServiceService.js',
     guppy: './services/apis/guppy/guppyService.js',
     mds: './services/apis/mds/mdsService.js',
+    auditService: './services/apis/auditService/auditService.js',
 
     // Pages
     home: './services/portal/home/homeService.js',

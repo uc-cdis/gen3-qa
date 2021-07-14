@@ -61,8 +61,4 @@ Step #1 might be tricky since we can't easily automate going through the OIDC fl
 1. Index file X.
 2. User C does not have access to download file X. User C requests a presigned URL from Fence to download file X. The request is unsuccessful.
 3. User B has access to query presigned URL audit logs. User B queries logs by making a call to the `GET /audit/log/presigned_url` endpoint. Use a filter: `guid=<file X GUID>`.
-4. Make sure there is no log describing step #2.
-
-## TODOs
-
-- We may need to update these scenarios and add new ones in the future as more audit log categories are implemented, or if we start recording unsuccessful events.
+4. The log describing step #2 is returned. Make sure the values look right.
