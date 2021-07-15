@@ -1,6 +1,7 @@
 Feature('Guppy');
 
 const { Bash } = require('../../utils/bash.js');
+
 const bash = new Bash();
 
 let token;
