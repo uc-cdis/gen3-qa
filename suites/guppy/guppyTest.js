@@ -1,8 +1,15 @@
 Feature('Guppy');
 
+const { Bash } = require('../../utils/bash.js');
+const bash = new Bash();
+
 let token;
 
 Before(async ({ users, fence }) => {
+  // Mutate guppy config to point guppy to pre-defined Canine ETL'ed data
+  // more details: https://github.com/uc-cdis/cloud-automation/pull/1667
+  await bash.runCommand(`export KUBECTL_NAMESPACE="${process.env.NAMESPACE}" && gen3 mutate-guppy-config-for-guppy-test`);
+
   const scope = ['data', 'user'];
   const apiKeyRes = await fence.complete.createAPIKey(scope, users.mainAcct.accessTokenHeader);
   token = await fence.do.getAccessToken(apiKeyRes.data.api_key);
