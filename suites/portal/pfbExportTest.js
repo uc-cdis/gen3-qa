@@ -342,7 +342,7 @@ Scenario('Visit the Explorer page, select a cohort, export to PFB and download t
 });
 
 Scenario('Install the latest pypfb CLI version and make sure we can parse the avro file @pfbExport', async ({ I }) => {
-  await bash.runCommand(`python3 -m pip install pypfb --user`);
+  await bash.runCommand('python3 -m pip install pypfb --user');
   // await bash.runCommand(`cat ./test_export_${I.cache.UNIQUE_NUM}.avro`);
   const pfbParsingResult = await bash.runCommand(`/home/${process.env.NAMESPACE}/.local/bin/pfb show -i ./test_export_${I.cache.UNIQUE_NUM}.avro | jq .`);
   // console.log(`${new Date()}: pfbParsingResult = ${pfbParsingResult}`);
