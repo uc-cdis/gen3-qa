@@ -36,6 +36,8 @@ Before(async ({ I, users, fence }) => {
       }
     }
   }
+  // wait a bit for any old pod replicas to go away
+  await sleepMS(30000);
 
   const scope = ['data', 'user'];
   const apiKeyRes = await fence.complete.createAPIKey(scope, users.mainAcct.accessTokenHeader);
