@@ -228,6 +228,8 @@ runTestsIfServiceVersion "@indexRecordConsentCodes" "sheepdog" "1.1.13"
 runTestsIfServiceVersion "@coreMetadataPage" "portal" "2.20.8"
 runTestsIfServiceVersion "@indexing" "portal" "2.26.0" "2020.05"
 runTestsIfServiceVersion "@cleverSafe" "fence" "4.22.4" "2020.09"
+# the tests assume audit-service can read from an AWS SQS
+runTestsIfServiceVersion "@audit" "audit-service" "1.0.0" "2021.06"
 
 # environments that use DCF features
 # we only run Google Data Access tests for cdis-manifest PRs to these
@@ -420,26 +422,17 @@ fi
 # only run audit-service tests for manifest repos IF audit-service is
 # deployed, and for repos with an audit-service integration.
 #
-runAuditTests=true
 if ! [[ "$service" =~ ^(audit-service|fence|cloud-automation|gen3-qa)$ ]]; then
   if [[ "$service" =~ ^(cdis-manifest|gitops-qa|gitops-dev)$ ]]; then
     if ! (g3kubectl get pods --no-headers -l app=audit-service | grep audit-service) > /dev/null 2>&1; then
       echo "INFO: audit-service is not deployed"
-      runAuditTests=false
+      donot '@audit'      
     fi
   else
     echo "INFO: no need to run audit-service tests for repo $service"
-    runAuditTests=false
+    donot '@audit'
   fi
 fi
-if [[ "$runAuditTests" == true ]]; then
-  echo "INFO: enabling audit-service tests"
-else
-  echo "INFO: disabling audit-service tests"
-  donot '@audit'
-fi
-# the tests assume audit-service can read from an AWS SQS
-runTestsIfServiceVersion "@audit" "audit-service" "1.0.0" "2021.06"
 
 ########################################################################################
 
