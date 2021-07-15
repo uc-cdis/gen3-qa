@@ -40,7 +40,7 @@ getServiceVersion() {
   local command
   local response
   local version
-  command="g3kubectl get configmap manifest-versions -o json | jq -r .data.json | jq -r '.[\"$1\"]'"
+  command="g3kubectl get configmap manifest-versions -o json | jq -r .data.json | jq -r "'".[\"$s\"]"'""
   response=$(eval "$command")
 
   # Get last item of delimited string using string operators:
