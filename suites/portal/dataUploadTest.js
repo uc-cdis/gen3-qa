@@ -46,7 +46,7 @@ const uploadFile = async function (I, dataUpload, indexd, sheepdog, nodes, fileO
     const maxAttempts = 6;
     // const jenkinsNamespace = process.env.HOSTNAME.replace('.planx-pla.net', '');
     // const bucketName = `${jenkinsNamespace}-databucket-gen3`;
-    const bucketName = bash.runCommand('cat ~/Gen3Secrets/apis_configs/fence-config.yaml | yq -r .DATA_UPLOAD_BUCKET');
+    const bucketName = bash.runCommand('gen3 secrets decode fence-config fence-config.yaml | yq -r .DATA_UPLOAD_BUCKET');
     console.log(bucketName);
     for (let i = 1; i <= maxAttempts; i += 1) {
       try {
