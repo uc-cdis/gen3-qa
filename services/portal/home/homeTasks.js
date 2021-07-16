@@ -10,7 +10,7 @@ module.exports = {
   goToHomepage() {
     I.amOnPage(homeProps.path);
     console.log(`### ## testedEnv:${process.env.testedEnv}`);
-    if (process.env.testedEnv.includes('covid19') || process.env.testedEnv.includes('pandemicresponsecommons') || process.env.testedEnv.includes('midrc')) {
+    if (process.env.testedEnv.includes('covid19') || process.env.testedEnv.includes('pandemicresponsecommons') || process.env.testedEnv.includes('midrc') || process.env.testedEnv.includes('accessclinicaldata')) {
       I.refreshPage();
     }
     // wait 2 sec to let the page fully loaded
