@@ -44,9 +44,10 @@ const uploadFile = async function (I, dataUpload, indexd, sheepdog, nodes, fileO
   // additional scrutiny for file upload only when running inside Jenkins
   if (inJenkins) {
     const maxAttempts = 6;
-    const jenkinsNamespace = process.env.HOSTNAME.replace('.planx-pla.net', '');
-    const bucketName = `${jenkinsNamespace}-databucket-gen3`;
-
+    // const jenkinsNamespace = process.env.HOSTNAME.replace('.planx-pla.net', '');
+    // const bucketName = `${jenkinsNamespace}-databucket-gen3`;
+    const bucketName = bash.runCommand('cat ~/Gen3Secrets/apis_configs/fence-config.yaml | yq -r .DATA_UPLOAD_BUCKET');
+    console.log(bucketName);
     for (let i = 1; i <= maxAttempts; i += 1) {
       try {
         console.log(`waiting for file [${fileName}] with guid [${fileGuid}] to show up on ${bucketName}... - attempt ${i}`);
