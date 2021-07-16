@@ -112,6 +112,22 @@ module.exports = function () {
   event.dispatcher.on(event.suite.before, (suite) => {
     console.log('********');
     console.log(`SUITE: ${suite.title}`);
+
+    if (suite.title === 'RASAuthN') {
+      request(`https://authtest.nih.gov/status`, { json: true }, (err, res) => {
+        if (err) { console.log(err); }
+        if (res.statusCode !== 200) {
+          console.log('Skipping RASAuthN tests since RAS Staging is unhealthy...');
+          suite.tests.forEach((test) => {
+            test.run = function skip() { // eslint-disable-line func-names
+              console.log(`Ignoring test - ${test.title}`);
+              this.skip();
+            };
+          });
+        }
+      });
+    }
+
     if (suite.title === 'DrsAPI') {
       request(`https://${process.env.HOSTNAME}/index/ga4gh/drs/v1/objects`, { json: true }, (err, res) => {
         if (err) { console.log(err); }
