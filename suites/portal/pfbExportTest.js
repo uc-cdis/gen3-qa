@@ -344,11 +344,13 @@ Scenario('Visit the Explorer page, select a cohort, export to PFB and download t
 Scenario('Install the latest pypfb CLI version and make sure we can parse the avro file @pfbExport', async ({ I }) => {
   // TODO: [python3 -m pip install pypfb --user] is NOT pulling the latest one
   // It always downloads the 0.5.0 instead :/
-  const pyPfbInstallationOutput = await bash.runCommand('python3 -m venv pfb_test && source pfb_test/bin/activate && python3 -m pip install pypfb --user');
+  // that is because 0.5.0 has the follow py version criteria = Requires: Python >=3.6, <4.0
+  // whereas 0.5.14 = Requires: Python >=3.6.1, <3.8
+  const pyPfbInstallationOutput = await bash.runCommand('python3 -m venv pfb_test && source pfb_test/bin/activate && pip install pypfb --user');
   console.log(`${new Date()}: pyPfbInstallationOutput = ${pyPfbInstallationOutput}`);
 
   // await bash.runCommand(`cat ./test_export_${I.cache.UNIQUE_NUM}.avro`);
-  const pfbParsingResult = await bash.runCommand(`${process.env.WORKSPACE}/pfb_test/bin/pfb show -i ./test_export_${I.cache.UNIQUE_NUM}.avro | jq .`);
+  const pfbParsingResult = await bash.runCommand(`${process.env.WORKSPACE}/gen3-qa/pfb_test/bin/pfb show -i ./test_export_${I.cache.UNIQUE_NUM}.avro | jq .`);
   // console.log(`${new Date()}: pfbParsingResult = ${pfbParsingResult}`);
   const pfbConvertedToJSON = JSON.parse(`[${pfbParsingResult.replace(/\}\{/g, '},{')}]`);
   // console.log(`${new Date()}: pfbConvertedToJSON = ${JSON.stringify(pfbConvertedToJSON)}`);
