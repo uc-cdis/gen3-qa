@@ -201,6 +201,12 @@ if [[ "$KUBECTL_NAMESPACE" != "$namespaceName" ]]; then
   exit 1
 fi
 
+if [[ "$JENKINS_HOME" != "" && "$RUNNING_LOCAL" == "false" ]]; then
+  # Set HOME environment variable as the current PR workspace
+  # to avoid conflicts between gen3 CLI (cdis-data-client) profile configurations
+  export HOME=$WORKSPACE
+fi
+
 cat - <<EOM
 Running with:
   namespace=$namespaceName
@@ -415,6 +421,10 @@ elif ! (g3kubectl get pods --no-headers -l app=hatchery | grep hatchery) > /dev/
 ! (g3kubectl get pods --no-headers -l service=ambassador | grep ambassador) > /dev/null 2>&1; then
   donot '@exportToWorkspacePortalHatchery'
 fi
+
+# Nightly Build exclusive tests
+donot '@pfbExport'
+donot '@jupyterNb'
 
 #
 # only run audit-service tests for manifest repos IF audit-service is
