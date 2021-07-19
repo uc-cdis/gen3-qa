@@ -20,7 +20,7 @@ export const options = {
 };
 
 export default function () {
-  const auditSqsURL = `https://${GEN3_HOST}/audit/log/login`;
+  const auditURL = `https://${GEN3_HOST}/audit/log/login`;
 
   const params = {
     headers: {
@@ -31,8 +31,8 @@ export default function () {
 
   group('getting login logs', () => {
     group('http get', () => {
-      console.log(`Getting logs ${auditSqsURL}`);
-      const res = http.get(auditSqsURL, params);
+      console.log(`Getting logs ${auditURL}`);
+      const res = http.get(auditURL, params);
       myFailRate.add(res.status !== 200);
       if (res.status !== 200) {
         console.log(`${res.status}`);
