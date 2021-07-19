@@ -16,11 +16,11 @@ message='
     "username": "user_loadtest",
 }'
 
-# # clean up the queue before the load test runs
-# aws sqs purge-queue --queue-url "$awsURL/$sqsURL"
+# clean up the queue before the load test runs
+aws sqs purge-queue --queue-url "$awsURL/$sqsURL"
 
 # send 20 dummy logs to audit-service sqs
-for i in {1..20};
+for i in {1..100};
     do
         aws sqs send-message --queue-url "$awsURL/$sqsURL" --message-body "$message"
     done
