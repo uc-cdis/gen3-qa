@@ -19,7 +19,9 @@ message='
 }'
 
 # clean up the queue before the load test runs
+echo '## Clearing the SQS queue'
 aws sqs purge-queue --queue-url "$awsURL/$sqsURL"
+sleep 3s
 
 # send 20 dummy logs to audit-service sqs
 for i in {1..100};
