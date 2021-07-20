@@ -5,8 +5,11 @@
 
 export AWS_DEFAULT_REGION=us-east-1
 
-awsURL='https://sqs.us-east-1.amazonaws.com/707767160287'
-sqsURL='qaplanetv2--qa-niaid--audit-sqs'
+# awsURL='https://sqs.us-east-1.amazonaws.com/707767160287'
+# sqsURL='qaplanetv2--qa-niaid--audit-sqs'
+awsURl=$1
+sqsURL=$2
+
 message='
 {
     "idp":"fence",
@@ -21,7 +24,7 @@ echo '## Clearing the SQS queue'
 aws sqs purge-queue --queue-url "$awsURL/$sqsURL"
 sleep 3s
 
-# send 20 dummy logs to audit-service sqs
+# send 100 dummy logs to audit-service sqs
 for i in {1..100};
     do
         aws sqs send-message --queue-url "$awsURL/$sqsURL" --message-body "$message"
