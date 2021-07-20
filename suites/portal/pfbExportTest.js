@@ -198,6 +198,9 @@ Scenario('Mutate etl-mapping config and run ETL to create new indices in elastic
 
   await bash.runCommand(`gen3 mutate-etl-mapping-config ${I.cache.prNumber} ${I.cache.repoName}`);
 
+  const etlMappingConfigMapOutput = await bash.runCommand(`g3kubectl get cm etl-mapping -o jsonpath='{.data.etlMapping\.yaml}'`); // eslint-disable-line quotes, no-useless-escape
+  console.log(`${new Date()}: etlMappingConfigMapOutput = ${etlMappingConfigMapOutput}`);
+
   console.log('### running ETL for recently-submitted dataset');
   await bash.runJob('etl', '', false);
   await checkPod(I, 'etl', 'gen3job,job-name=etl', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: true });
