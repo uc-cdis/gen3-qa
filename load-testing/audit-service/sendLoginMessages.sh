@@ -27,5 +27,5 @@ message='
 # send 100 dummy logs to audit-service sqs
 for i in {1..100};
     do
-        aws sqs send-message --queue-url "$awsURL/$sqsURL" --message-body "$message"
+        aws sqs send-message --queue-url "$awsURL$sqsURL" --message-body "$message"
     done
