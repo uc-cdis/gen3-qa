@@ -343,11 +343,7 @@ Scenario('Visit the Explorer page, select a cohort, export to PFB and download t
 });
 
 Scenario('Install the latest pypfb CLI version and make sure we can parse the avro file @pfbExport', async ({ I }) => {
-  // TODO: [python3 -m pip install pypfb --user] is NOT pulling the latest one
-  // It always downloads the 0.5.0 instead :/
-  // that is because 0.5.0 has the follow py version criteria = Requires: Python >=3.6, <4.0
-  // whereas 0.5.14 = Requires: Python >=3.6.1, <3.8
-  const pyPfbInstallationOutput = await bash.runCommand(`python3 -m venv pfb_test && source pfb_test/bin/activate && pip install pypfb && ${process.env.WORKSPACE}/gen3-qa/pfb_test/bin/pfb`);
+  const pyPfbInstallationOutput = await bash.runCommand(`python3.8 -m venv pfb_test && source pfb_test/bin/activate && pip install pypfb && ${process.env.WORKSPACE}/gen3-qa/pfb_test/bin/pfb`);
   console.log(`${new Date()}: pyPfbInstallationOutput = ${pyPfbInstallationOutput}`);
 
   // await bash.runCommand(`cat ./test_export_${I.cache.UNIQUE_NUM}.avro`);
