@@ -450,6 +450,7 @@ else
 fi
 # the tests assume audit-service can read from an AWS SQS
 runTestsIfServiceVersion "@audit" "audit-service" "1.0.0" "2021.06"
+runTestsIfServiceVersion "@audit" "fence" "5.1.0" "2021.07"
 
 ########################################################################################
 
