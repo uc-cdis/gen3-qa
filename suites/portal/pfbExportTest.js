@@ -198,6 +198,9 @@ Scenario('Mutate etl-mapping config and run ETL to create new indices in elastic
 
   await bash.runCommand(`gen3 mutate-etl-mapping-config ${I.cache.prNumber} ${I.cache.repoName}`);
 
+  const etlMappingConfigMapOutput = await bash.runCommand(`g3kubectl get cm etl-mapping -o jsonpath='{.data.etlMapping\.yaml}'`); // eslint-disable-line quotes, no-useless-escape
+  console.log(`${new Date()}: etlMappingConfigMapOutput = ${etlMappingConfigMapOutput}`);
+
   console.log('### running ETL for recently-submitted dataset');
   await bash.runJob('etl', '', false);
   await checkPod(I, 'etl', 'gen3job,job-name=etl', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: true });
@@ -227,9 +230,7 @@ Scenario('Mutate manifest-guppy config and roll guppy so the recently-submitted 
     );
 
     if (guppyStatusCheckResp.status === 200
-      && (Object.prototype.hasOwnProperty.call(guppyStatusCheckResp.data.indices, `${I.cache.prNumber}.${I.cache.repoName}.${process.env.NAMESPACE}_etl`)
-      || Object.prototype.hasOwnProperty.call(guppyStatusCheckResp.data.indices, `${I.cache.prNumber}.${I.cache.repoName}.${process.env.NAMESPACE}_subject`)
-      || Object.prototype.hasOwnProperty.call(guppyStatusCheckResp.data.indices, `${I.cache.prNumber}.${I.cache.repoName}.${process.env.NAMESPACE}_file`))) {
+      && Object.keys(guppyStatusCheckResp.data.indices).filter((k) => k.includes(`${I.cache.prNumber}.${I.cache.repoName}`)).length > 0) {
       console.log(`${new Date()}: all good, proceed with the assertions...`);
       break;
     } else {
@@ -342,11 +343,7 @@ Scenario('Visit the Explorer page, select a cohort, export to PFB and download t
 });
 
 Scenario('Install the latest pypfb CLI version and make sure we can parse the avro file @pfbExport', async ({ I }) => {
-  // TODO: [python3 -m pip install pypfb --user] is NOT pulling the latest one
-  // It always downloads the 0.5.0 instead :/
-  // that is because 0.5.0 has the follow py version criteria = Requires: Python >=3.6, <4.0
-  // whereas 0.5.14 = Requires: Python >=3.6.1, <3.8
-  const pyPfbInstallationOutput = await bash.runCommand(`python3 -m venv pfb_test && source pfb_test/bin/activate && pip install pypfb && ${process.env.WORKSPACE}/gen3-qa/pfb_test/bin/pfb`);
+  const pyPfbInstallationOutput = await bash.runCommand(`python3.8 -m venv pfb_test && source pfb_test/bin/activate && pip install pypfb && ${process.env.WORKSPACE}/gen3-qa/pfb_test/bin/pfb`);
   console.log(`${new Date()}: pyPfbInstallationOutput = ${pyPfbInstallationOutput}`);
 
   // await bash.runCommand(`cat ./test_export_${I.cache.UNIQUE_NUM}.avro`);
