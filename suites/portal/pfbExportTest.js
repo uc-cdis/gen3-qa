@@ -230,9 +230,7 @@ Scenario('Mutate manifest-guppy config and roll guppy so the recently-submitted 
     );
 
     if (guppyStatusCheckResp.status === 200
-      && (Object.prototype.hasOwnProperty.call(guppyStatusCheckResp.data.indices, `${I.cache.prNumber}.${I.cache.repoName}.${process.env.NAMESPACE}_etl`)
-      || Object.prototype.hasOwnProperty.call(guppyStatusCheckResp.data.indices, `${I.cache.prNumber}.${I.cache.repoName}.${process.env.NAMESPACE}_subject`)
-      || Object.prototype.hasOwnProperty.call(guppyStatusCheckResp.data.indices, `${I.cache.prNumber}.${I.cache.repoName}.${process.env.NAMESPACE}_file`))) {
+      && Object.keys(guppyStatusCheckResp.data.indices).filter((k) => k.includes(`${I.cache.prNumber}.${I.cache.repoName}`)).length > 0) {
       console.log(`${new Date()}: all good, proceed with the assertions...`);
       break;
     } else {
