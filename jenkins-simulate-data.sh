@@ -152,4 +152,9 @@ else
   fi
 fi
 
+for f in $TEST_DATA_PATH/*; do
+  printf "\n$f:\n"
+  cat $f
+done
+
 writeMetricWithResult "PASS"

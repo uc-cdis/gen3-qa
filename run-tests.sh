@@ -40,7 +40,7 @@ getServiceVersion() {
   local command
   local response
   local version
-  command="g3kubectl get configmap manifest-versions -o json | jq -r .data.json | jq -r .$1"
+  command="g3kubectl get configmap manifest-versions -o json | jq -r .data.json | jq -r "'".[\"$1\"]"'""
   response=$(eval "$command")
 
   # Get last item of delimited string using string operators:
@@ -199,6 +199,12 @@ if [[ "$KUBECTL_NAMESPACE" != "$namespaceName" ]]; then
   echo -e "$(red_color "ERROR: KUBECTL_NAMESPACE environment does not match --namespace option: $KUBECTL_NAMESPACE != $namespaceName")\n"
   help
   exit 1
+fi
+
+if [[ "$JENKINS_HOME" != "" && "$RUNNING_LOCAL" == "false" ]]; then
+  # Set HOME environment variable as the current PR workspace
+  # to avoid conflicts between gen3 CLI (cdis-data-client) profile configurations
+  export HOME=$WORKSPACE
 fi
 
 cat - <<EOM
@@ -416,6 +422,10 @@ elif ! (g3kubectl get pods --no-headers -l app=hatchery | grep hatchery) > /dev/
   donot '@exportToWorkspacePortalHatchery'
 fi
 
+# Nightly Build exclusive tests
+donot '@pfbExport'
+donot '@jupyterNb'
+
 #
 # only run audit-service tests for manifest repos IF audit-service is
 # deployed, and for repos with an audit-service integration.
@@ -440,6 +450,8 @@ else
 fi
 # the tests assume audit-service can read from an AWS SQS
 runTestsIfServiceVersion "@audit" "audit-service" "1.0.0" "2021.06"
+# the tests assume fence records both successful and unsuccessful events
+runTestsIfServiceVersion "@audit" "fence" "5.1.0" "2021.07"
 
 ########################################################################################
 
