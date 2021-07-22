@@ -23,6 +23,7 @@ Feature('RASAuthN');
 const { expect } = require('chai');
 const { sleepMS, parseJwt } = require('../../utils/apiUtil.js');
 const { Bash, takeLastLine } = require('../../utils/bash.js');
+const { registerRasClient } = require('../../utils/rasAuthN');
 
 const bash = new Bash();
 
@@ -52,17 +53,7 @@ BeforeSuite(async ({ I }) => {
 });
 
 Scenario('Register a fence client for RAS Test User 1 with the ga4gh_passport_v1 scope @rasAuthN', async ({ I }) => {
-  const registerClientCmd = `fence-create --arborist http://arborist-service/ client-create --client ras-user1-test-client --user ${process.env.RAS_TEST_USER_1_USERNAME} --urls https://${process.env.HOSTNAME}/user --policies programs.QA-admin programs.test-admin programs.DEV-admin programs.jnkns-admin --allowed-scopes openid user data google_credentials ga4gh_passport_v1`;
-
-  const registerClientForRASUser1 = bash.runCommand(registerClientCmd, 'fence', takeLastLine);
-  console.log(`registerClientForRASUser1: ${registerClientForRASUser1}`);
-
-  const re = /\('(.*)',\s'(.*)'\)/;
-  const clientID = registerClientForRASUser1.match(re)[1];
-  const secretID = registerClientForRASUser1.match(re)[2];
-  expect(clientID).to.not.to.be.empty;
-  expect(secretID).to.not.to.be.empty;
-
+  const { clientID, secretID } = registerRasClient(process.env.RAS_TEST_USER_1_USERNAME);
   I.cache.rasUser1ClientId = clientID;
   I.cache.rasUser1SecretId = secretID;
 });
@@ -159,17 +150,7 @@ Scenario('Refresh the access token with the refresh_token obtained through the O
 });
 
 Scenario('Register a fence client for RAS Test User 2 without the ga4gh_passport_v1 scope @rasAuthN', async ({ I }) => {
-  const registerClientCmd = `fence-create --arborist http://arborist-service/ client-create --client ras-user2-test-client --user ${process.env.RAS_TEST_USER_2_USERNAME} --urls https://${process.env.HOSTNAME}/user --policies programs.QA-admin programs.test-admin programs.DEV-admin programs.jnkns-admin --allowed-scopes openid user data google_credentials`;
-
-  const registerClientForRASUser2 = bash.runCommand(registerClientCmd, 'fence', takeLastLine);
-  console.log(`registerClientForRASUser2: ${registerClientForRASUser2}`);
-
-  const re = /\('(.*)',\s'(.*)'\)/;
-  const clientID = registerClientForRASUser2.match(re)[1];
-  const secretID = registerClientForRASUser2.match(re)[2];
-  expect(clientID).to.not.to.be.empty;
-  expect(secretID).to.not.to.be.empty;
-
+  const { clientID, secretID } = registerRasClient(process.env.RAS_TEST_USER_2_USERNAME, 'openid user data google_credentials');
   I.cache.rasUser2ClientId = clientID;
   I.cache.rasUser2SecretId = secretID;
 });

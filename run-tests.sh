@@ -40,7 +40,7 @@ getServiceVersion() {
   local command
   local response
   local version
-  command="g3kubectl get configmap manifest-versions -o json | jq -r .data.json | jq -r .$1"
+  command="g3kubectl get configmap manifest-versions -o json | jq -r .data.json | jq -r "'".[\"$1\"]"'""
   response=$(eval "$command")
 
   # Get last item of delimited string using string operators:
@@ -199,6 +199,12 @@ if [[ "$KUBECTL_NAMESPACE" != "$namespaceName" ]]; then
   echo -e "$(red_color "ERROR: KUBECTL_NAMESPACE environment does not match --namespace option: $KUBECTL_NAMESPACE != $namespaceName")\n"
   help
   exit 1
+fi
+
+if [[ "$JENKINS_HOME" != "" && "$RUNNING_LOCAL" == "false" ]]; then
+  # Set HOME environment variable as the current PR workspace
+  # to avoid conflicts between gen3 CLI (cdis-data-client) profile configurations
+  export HOME=$WORKSPACE
 fi
 
 cat - <<EOM
@@ -415,6 +421,37 @@ elif ! (g3kubectl get pods --no-headers -l app=hatchery | grep hatchery) > /dev/
 ! (g3kubectl get pods --no-headers -l service=ambassador | grep ambassador) > /dev/null 2>&1; then
   donot '@exportToWorkspacePortalHatchery'
 fi
+
+# Nightly Build exclusive tests
+donot '@pfbExport'
+donot '@jupyterNb'
+
+#
+# only run audit-service tests for manifest repos IF audit-service is
+# deployed, and for repos with an audit-service integration.
+#
+runAuditTests=true
+if ! [[ "$service" =~ ^(audit-service|fence|cloud-automation|gen3-qa)$ ]]; then
+  if [[ "$service" =~ ^(cdis-manifest|gitops-qa|gitops-dev)$ ]]; then
+    if ! (g3kubectl get pods --no-headers -l app=audit-service | grep audit-service) > /dev/null 2>&1; then
+      echo "INFO: audit-service is not deployed"
+      runAuditTests=false
+    fi
+  else
+    echo "INFO: no need to run audit-service tests for repo $service"
+    runAuditTests=false
+  fi
+fi
+if [[ "$runAuditTests" == true ]]; then
+  echo "INFO: enabling audit-service tests"
+else
+  echo "INFO: disabling audit-service tests"
+  donot '@audit'
+fi
+# the tests assume audit-service can read from an AWS SQS
+runTestsIfServiceVersion "@audit" "audit-service" "1.0.0" "2021.06"
+# the tests assume fence records both successful and unsuccessful events
+runTestsIfServiceVersion "@audit" "fence" "5.1.0" "2021.07"
 
 ########################################################################################
 
