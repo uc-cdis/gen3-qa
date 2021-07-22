@@ -42,7 +42,8 @@ elif [ "$LOAD_TEST_DESCRIPTOR" == "audit-login" ]; then
 
 Now after the messages are send to the SQS, Audit service will start consuming these messages from the SQS and the 
 `load-test-audit-<test-type>-sample.json` descriptor will run the `audit-<test>.json` which will invoke the HTTP GET request 
-on audit service endpoints
+on audit service endpoints. So by the time load-testing script is executed, the audit-service would have consumed all the
+messages from the queue.
     
     
 
