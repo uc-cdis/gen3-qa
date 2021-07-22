@@ -31,8 +31,10 @@ Before(async ({ I, users, fence }) => {
       console.log(`${new Date()}: The expected predefined canine indices did not show up on guppy's status payload yet...`);
       await sleepMS(5000);
       if (i === nAttempts - 1) {
-        console.log(`${new Date()}: The new guppy pod never came up with the expected indices: Details: ${guppyStatusCheckResp.data}`);
+        const errMsg = `${new Date()}: The new guppy pod never came up with the expected indices: Details: ${guppyStatusCheckResp.data}`;
+        console.log(errMsg);
         console.log(`err: ${guppyStatusCheckResp.data}`);
+        throw new Error(`ERROR: ${errMsg}`);
       }
     }
   }
