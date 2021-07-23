@@ -1,9 +1,9 @@
 # How to run audit service load test
 
 ### How is load Testing performed?
-User visits the commons and logs in to the via Incommons Login or Google ir requests a PresignedURL, a message is send to AWS SQS via Fence 
-which now sits between Fence and Audit Service. Audit service pulls in 10messages at a time from the queue to the audit DB. The load test will
-send a HTTP GET request to either `/audit/log/login` or `/audit/log/presigned_url` over a duration of 5 minutes with 100 virtual 
+User visits the commons and logs in via InCommons Login or Google Login. Bash script sends fake 100 messages to AWS SQS
+which now sits between Fence and Audit Service. Audit service pulls in 10 messages at a time from the queue to the audit DB. 
+The load test will send an HTTP GET request to either `/audit/log/login` or `/audit/log/presigned_url` over a duration of 5 minutes with 100 virtual 
 users.
 
 Before every run, the bash script will run `purge` command inside the bash script which will clear the SQS queue. So the
@@ -27,20 +27,18 @@ node load-testing/loadTestRunner.js credentials.json load-testing/sample-descrip
 ### Step 3: Running the load tests via Jenkins Job
 Jenkins job https://jenkins.planx-pla.net/job/gen3-run-load-tests/
 
-In the pre-test setup, we populate the AWS SQS with some fake messages that are send via bash script (location link TBA)
+In the pre-test setup, we populate the AWS SQS with some fake messages that are sent via bash script (location link TBA)
 
 ```
 if [ "$LOAD_TEST_DESCRIPTOR" == "audit-presigned-url" ]; then
   echo "Populating audit-service SQS with presigned-url messages"
-  chmod u+x gen3-qa/load-testing/audit-service/sendPresignedURLMessages.sh
   bash gen3-qa/load-testing/audit-service/sendPresignedURLMessages.sh $SQS_URL
 elif [ "$LOAD_TEST_DESCRIPTOR" == "audit-login" ]; then
   echo "Populating audit-service SQS with login messages"
-  chmod u+x gen3-qa/load-testing/audit-service/sendLoginMessages.sh
   bash gen3-qa/load-testing/audit-service/sendLoginMessages.sh $SQS_URL
 ```
 
-Now after the messages are send to the SQS, Audit service will start consuming these messages from the SQS and the 
+Now after the messages are sent to the SQS, Audit service will start consuming these messages from the SQS and the 
 `load-test-audit-<test-type>-sample.json` descriptor will run the `audit-<test>.json` which will invoke the HTTP GET request 
 on audit service endpoints. So by the time load-testing script is executed, the audit-service would have consumed all the
 messages from the queue.
