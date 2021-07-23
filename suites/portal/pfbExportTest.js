@@ -59,7 +59,15 @@ AfterSuite(async () => {
 
 Scenario('Submit dummy data to the Gen3 Commons environment @pfbExport', async ({ I, users }) => {
   // generate dummy data
-  bash.runJob('gentestdata', 'SUBMISSION_USER cdis.autotest@gmail.com MAX_EXAMPLES 1');
+  let genTestDataArgs = 'SUBMISSION_USER cdis.autotest@gmail.com MAX_EXAMPLES 1';
+  if (process.env.testedEnv.includes('anvil')) {
+    // submitted_unaligned_reads is set by default in:
+    // cloud-automation/blob/master/kube/services/jobs/gentestdata-job.yaml
+    // if this is running against an Anvil DD, sequencing must be used
+    genTestDataArgs += ' SUBMISSION_ORDER sequencing';
+  }
+
+  bash.runJob('gentestdata', genTestDataArgs);
   await checkPod(I, 'gentestdata', 'gen3job,job-name=gentestdata');
 
   // Graph node for file mapping
