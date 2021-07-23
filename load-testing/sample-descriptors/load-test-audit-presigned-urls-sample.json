@@ -1,5 +1,5 @@
 {
-  "objective": "Test metadata service with basic auth",
+  "objective": "Test GET audit service presigned url",
   "details": {
     "name": "qa-niaid.planx-plan.net",
     "fence_autoscaler": {
