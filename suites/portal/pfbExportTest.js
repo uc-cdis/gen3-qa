@@ -41,6 +41,15 @@ BeforeSuite(async ({ I }) => {
   I.cache.repoName = repoName;
   I.cache.prNumber = prNumber;
 
+  // handling the targetMappingNode
+  // submitted_unaligned_reads is set by default in pretty every dictionary
+  // cloud-automation/blob/master/kube/services/jobs/gentestdata-job.yaml
+  // if this is running against an Anvil DD, sequencing must be used
+  // TODO: Look into reusing the leafNode logic from jenkins-simulate-data.sh
+  const targetMappingNode = process.env.testedEnv.includes('anvil') ? 'sequencing' : 'submitted_unaligned_reads';
+
+  I.cache.targetMappingNode = targetMappingNode;
+
   // Restore original etl-mapping and manifest-guppy configmaps (for idempotency)
   console.log('Running kube-setup-guppy to restore any configmaps that have been mutated. This can take a couple of mins...');
   await bash.runCommand('gen3 kube-setup-guppy');
@@ -58,23 +67,12 @@ AfterSuite(async () => {
 });
 
 Scenario('Submit dummy data to the Gen3 Commons environment @pfbExport', async ({ I, users }) => {
-  // generate dummy data
-  let genTestDataArgs = 'SUBMISSION_USER cdis.autotest@gmail.com MAX_EXAMPLES 1';
-  if (process.env.testedEnv.includes('anvil')) {
-    // submitted_unaligned_reads is set by default in:
-    // cloud-automation/blob/master/kube/services/jobs/gentestdata-job.yaml
-    // if this is running against an Anvil DD, sequencing must be used
-    genTestDataArgs += ' SUBMISSION_ORDER sequencing';
-  }
-
-  bash.runJob('gentestdata', genTestDataArgs);
+  bash.runJob('gentestdata', `SUBMISSION_USER cdis.autotest@gmail.com MAX_EXAMPLES 1 SUBMISSION_ORDER ${I.cache.targetMappingNode}`);
   await checkPod(I, 'gentestdata', 'gen3job,job-name=gentestdata');
 
-  // Graph node for file mapping
-  // Look into reusing the leafNode logic from jenkins-simulate-data.sh
-  const targetMappingNode = process.env.testedEnv.includes('anvil') ? 'sequencing' : 'submitted_unaligned_reads';
+  // Querying based on the graph node utilized for file mapping
   const queryRecentlySubmittedData = {
-    query: `{ ${targetMappingNode} (first: 20, project_id: "DEV-test", quick_search: "", order_by_desc: "updated_datetime") {id, type, submitter_id} }`,
+    query: `{ ${I.cache.targetMappingNode} (first: 20, project_id: "DEV-test", quick_search: "", order_by_desc: "updated_datetime") {id, type, submitter_id} }`,
     variables: null,
   };
   // query the data to confirm its successfull submission
@@ -179,7 +177,7 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @pfb
   console.log('Project selected');
 
   // Select File Node
-  I.fillField('//input[@id=\'react-select-3-input\']', 'submitted_unaligned_reads');
+  I.fillField('//input[@id=\'react-select-3-input\']', I.cache.targetMappingNode);
   I.pressKey('Enter');
   console.log('File Node selected');
   I.waitForText('Required Fields', 10);
