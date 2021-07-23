@@ -42,7 +42,7 @@ BeforeSuite(async ({ I }) => {
   I.cache.prNumber = prNumber;
 
   // handling the targetMappingNode
-  // submitted_unaligned_reads is set by default in pretty every dictionary
+  // submitted_unaligned_reads is set by default in pretty much every dictionary
   // cloud-automation/blob/master/kube/services/jobs/gentestdata-job.yaml
   // if this is running against an Anvil DD, sequencing must be used
   // TODO: Look into reusing the leafNode logic from jenkins-simulate-data.sh
