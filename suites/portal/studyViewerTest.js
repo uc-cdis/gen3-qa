@@ -21,7 +21,7 @@ AfterSuite(async () => {
   // for qa-niaid testing to revoke the arborist access
   // programs.NIAID.projects.ACTT_reader */
   // if running in jenkins use this policy -> programs.jnkns.projects.jenkins_reader
-  if (process.env.testedEnv.includes('qa-niaid') || process.env.testedEnv.includes('accessclinicaldata')) {
+  if (process.env.NAMESPACE.includes('qa-niaid') || process.env.NAMESPACE.includes('accessclinicaldata')) {
     console.log('### revoking access for user0 in QA/PROD envs ...');
     await bash.runCommand(`
       gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/policy/programs.NIAID.projects.ACTT_reader
@@ -68,7 +68,7 @@ Scenario('User logs in and requests the access @studyViewer', async ({
   await requestorTasks.signedRequest(requestID);
   I.refreshPage();
   I.wait(5);
-  if (process.env.testedEnv.includes('qa-niaid') || process.env.testedEnv.includes('accessclinicaldata')) {
+  if (process.env.NAMESPACE.includes('qa-niaid') || process.env.NAMESPACE.includes('accessclinicaldata')) {
     console.log('### The test is running in qa-niaid env, now clicking the Download Button ...');
     await studyViewerTasks.clickDownload();
   } else {
@@ -93,7 +93,7 @@ Scenario('User has access to download @studyViewer', async ({
   login.complete.login(users.auxAcct1);
   studyViewerTasks.goToStudyViewerPage();
   await studyViewerTasks.learnMoreButton();
-  if (process.env.testedEnv.includes('qa-niaid') || process.env.testedEnv.includes('accessclinicaldata')) {
+  if (process.env.NAMESPACE.includes('qa-niaid') || process.env.NAMESPACE.includes('accessclinicaldata')) {
     console.log('### The test is running in qa-niaid env, now clicking the Download Button ...');
     await studyViewerTasks.clickDownload();
   } else {
@@ -120,7 +120,7 @@ Scenario('Multiple dataset @studyViewer', async ({
   // qa-niaid env is configured with two dataset,
   // but jenkins-niaid is configured with one dataset
   // so the check below will save the test from failing in jenkins
-  if (process.env.testedEnv.includes('qa-niaid') || process.env.testedEnv.includes('accessclinicaldata')) {
+  if (process.env.NAMESPACE.includes('qa-niaid') || process.env.NAMESPACE.includes('accessclinicaldata')) {
     I.saveScreenshot('multipleDataset.png');
     await studyViewerTasks.multipleStudyViewer();
   } else {
