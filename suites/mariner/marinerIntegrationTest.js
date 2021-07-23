@@ -17,7 +17,9 @@ const path = require('path');
 const { expect } = require('chai');
 const { sleepMS } = require('../../utils/apiUtil.js');
 const user = require('../../utils/user.js');
-const { runWorkflow, fetchRunStatus, cancelRun } = require('../../utils/marinerUtil.js');
+const {
+  runWorkflow, fetchRunStatus, cancelRun, fetchRunLogs, fetchRunHistory,
+} = require('../../utils/marinerUtil.js');
 
 Scenario('Run no_input_test workflow @mariner',
   async () => {
@@ -34,6 +36,13 @@ Scenario('Run no_input_test workflow @mariner',
       }
     } while (status !== 'running' && retryCount > 0);
     expect(status).to.equal('running');
+    // fetch run log and check the user
+    const runlog = await fetchRunLogs(user.mainAcct, runId);
+    console.log(runlog);
+    expect(runlog).to.have.nested.property('main.eventLog.events');
+    // fetch run history
+    const runIDs = await fetchRunHistory(user.mainAcct);
+    expect(runIDs).to.be.an('array').that.includes(runId);
   });
 
 Scenario('Cancel running no_input_test workflow @mariner',
@@ -62,4 +71,7 @@ Scenario('Cancel running no_input_test workflow @mariner',
       }
     } while (status !== 'cancelled' && retryCount > 0);
     expect(status).to.equal('cancelled');
+    // fetch run history
+    const runIDs = await fetchRunHistory(user.mainAcct);
+    expect(runIDs).to.be.an('array').that.includes(runId);
   });
