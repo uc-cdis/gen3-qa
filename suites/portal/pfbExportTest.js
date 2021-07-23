@@ -62,8 +62,11 @@ Scenario('Submit dummy data to the Gen3 Commons environment @pfbExport', async (
   bash.runJob('gentestdata', 'SUBMISSION_USER cdis.autotest@gmail.com MAX_EXAMPLES 1');
   await checkPod(I, 'gentestdata', 'gen3job,job-name=gentestdata');
 
+  // Graph node for file mapping
+  // Look into reusing the leafNode logic from jenkins-simulate-data.sh
+  const targetMappingNode = process.env.testedEnv.includes('anvil') ? 'sequencing' : 'submitted_unaligned_reads';
   const queryRecentlySubmittedData = {
-    query: '{ submitted_unaligned_reads (first: 20, project_id: "DEV-test", quick_search: "", order_by_desc: "updated_datetime") {id, type, submitter_id} }',
+    query: `{ ${targetMappingNode} (first: 20, project_id: "DEV-test", quick_search: "", order_by_desc: "updated_datetime") {id, type, submitter_id} }`,
     variables: null,
   };
   // query the data to confirm its successfull submission
