@@ -142,7 +142,10 @@ Scenario('Upload a file through the gen3-client CLI @pfbExport', async ({
   expect(indexdLookupResponse.data).to.have.property('file_name', ourFileToBeUploaded);
   expect(indexdLookupResponse.data.acl).to.eql([]);
   expect(indexdLookupResponse.data.authz).to.eql([]);
-});
+}).retry(2);
+// TODO: Investigate intermittent issue with the HTTP POST against /user/credentials/api/
+// You don't have permission to upload data, detailed error message:
+// Error occurred in RequestNewAccessKey with error code 401, check FENCE log for more details
 
 Scenario('Map the uploaded file to one of the subjects of the dummy dataset @pfbExport', async ({ I, login, users }) => {
   login.do.goToLoginPage();
@@ -185,10 +188,18 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @pfb
   // Select required fields and core_metadata_collection
   const FIELDS_INDEX_START = 4;
   const FIELDS_INDEX_END = 8;
+  let isFileMappingFieldSelectionSuccessful = '';
   for (let i = FIELDS_INDEX_START; i <= FIELDS_INDEX_END; i += 1) {
-    I.click(`//input[@id='react-select-${i}-input']`);
-    // Select the 1st option
-    I.pressKey('Enter');
+    // Not evevery data dictionary file_mapping node will present the same number of fields
+    // Try to iterate through a certain number of fields to select whatever in the dropdowns
+    // but ignore any missing select-lists so we can move forward with the "Submit" button click 
+    isFileMappingFieldSelectionSuccessful = await tryTo(() => I.click(`//input[@id='react-select-${i}-input']`));
+    if (isFileMappingFieldSelectionSuccessful) {
+      // Select the 1st option
+      I.pressKey('Enter');
+    } else {
+      console.log('meh');
+    }
   }
   I.waitForVisible('//button[contains(text(),\'Submit\')]', 5);
   console.log('Required Fileds selected, core_metadata_collection selected');
