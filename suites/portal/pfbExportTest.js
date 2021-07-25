@@ -115,7 +115,9 @@ Scenario('Upload a file through the gen3-client CLI @pfbExport', async ({
   await bash.runCommand(`echo "${stringifiedData}" > ${credsPath}`);
 
   // create client profile
-  await bash.runCommand(`./gen3-client configure --profile=${process.env.NAMESPACE} --cred=${credsPath} --apiendpoint=https://${process.env.NAMESPACE}.planx-pla.net`);
+  // HOME has to be set to each individual PR workspace, otherwise there will be
+  // lots of conclicting cdis-data-client [jenkins-*] profiles under /var/jenkins_home/.gen3
+  await bash.runCommand(`export HOME="${process.env.WORKSPACE}" && ./gen3-client configure --profile=${process.env.NAMESPACE} --cred=${credsPath} --apiendpoint=https://${process.env.NAMESPACE}.planx-pla.net`);
 
   const ourFileToBeUploaded = `hello_${Date.now()}.txt`;
 
@@ -123,9 +125,13 @@ Scenario('Upload a file through the gen3-client CLI @pfbExport', async ({
   await bash.runCommand(`echo "${dummyFileContents}" > ./${ourFileToBeUploaded}`);
 
   // upload the file
-  const uploadOutput = await bash.runCommand(`./gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=./${ourFileToBeUploaded} 2>&1`);
+  const uploadOutput = await bash.runCommand(`export HOME="${process.env.WORKSPACE}" && ./gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=./${ourFileToBeUploaded} 2>&1`);
 
   console.log(`### ## uploadOutput: ${uploadOutput}`);
+
+  if (uploadOutput.includes('You don\'t have permission to upload data')) {
+    throw new Error('The gen3 CLI upload operation failed. Abort test scenario.');
+  }
 
   const regexToFindGUID = /.*GUID(.*)\..*$/;
   const theGUID = regexToFindGUID.exec(uploadOutput)[1].replace(' ', '');
@@ -159,7 +165,7 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @pfb
   // Unmapped files sometimes show up in "Generating... " state.
   // Need to wait a few seconds
   // eslint-disable-next-line no-undef
-  const checkboxIsClickable = await tryTo(() => I.waitForClickable(`//input[@id='${I.cache.theGUID}]'`, 30));
+  const checkboxIsClickable = await tryTo(() => I.waitForClickable(`//input[@id='${I.cache.theGUID}]'`, 30)); // eslint-disable-line no-undef
   I.saveScreenshot('ClickCheckboxOfUnmappedFile.png');
   if (!checkboxIsClickable) {
     // if the checkbox is still not clickable,refresh the page
@@ -192,8 +198,8 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @pfb
   for (let i = FIELDS_INDEX_START; i <= FIELDS_INDEX_END; i += 1) {
     // Not evevery data dictionary file_mapping node will present the same number of fields
     // Try to iterate through a certain number of fields to select whatever in the dropdowns
-    // but ignore any missing select-lists so we can move forward with the "Submit" button click 
-    isFileMappingFieldSelectionSuccessful = await tryTo(() => I.click(`//input[@id='react-select-${i}-input']`));
+    // but ignore any missing select-lists so we can move forward with the "Submit" button click
+    isFileMappingFieldSelectionSuccessful = await tryTo(() => I.click(`//input[@id='react-select-${i}-input']`)); // eslint-disable-line no-undef
     if (isFileMappingFieldSelectionSuccessful) {
       // Select the 1st option
       I.pressKey('Enter');
