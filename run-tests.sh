@@ -40,7 +40,7 @@ getServiceVersion() {
   local command
   local response
   local version
-  command="g3kubectl get configmap manifest-versions -o json | jq -r .data.json | jq -r .$1"
+  command="g3kubectl get configmap manifest-versions -o json | jq -r .data.json | jq -r "'".[\"$1\"]"'""
   response=$(eval "$command")
 
   # Get last item of delimited string using string operators:
@@ -201,6 +201,12 @@ if [[ "$KUBECTL_NAMESPACE" != "$namespaceName" ]]; then
   exit 1
 fi
 
+if [[ "$JENKINS_HOME" != "" && "$RUNNING_LOCAL" == "false" ]]; then
+  # Set HOME environment variable as the current PR workspace
+  # to avoid conflicts between gen3 CLI (cdis-data-client) profile configurations
+  export HOME=$WORKSPACE
+fi
+
 cat - <<EOM
 Running with:
   namespace=$namespaceName
@@ -211,7 +217,12 @@ Running with:
 EOM
 
 echo 'INFO: installing dependencies'
-dryrun npm ci
+if [ -f gen3-qa-mutex.marker ]; then
+  echo "parallel-testing is enabled, the dependencies have already been installed by Jenkins."
+  export PARALLEL_TESTING_ENABLED="true"
+else
+  dryrun npm ci
+fi
 
 ################################ Disable Test Tags #####################################
 
@@ -252,12 +263,20 @@ donot '@batch'
 # Do not run dataguids.org test for regular PRs
 donot '@dataguids'
 
+# Do not run prjsBucketAccess (for prod-execution only)
+donot '@prjsBucketAccess'
+
 # For dataguids.org PRs, skip all fence-related bootstrapping oprations
 # as the environment does not have fence
 if [ "$testedEnv" == "dataguids.org" ]; then
   # disable bootstrap script from codeceptjs
   sed -i '/bootstrap\:/d' codecept.conf.js
 fi
+
+# if [[ "$testedEnv" == *"heal"* ]]; then
+  # use moon instead of selenium
+  # sed -i 's/selenium-hub/moon.moon/' codecept.conf.js
+# fi
 
 #
 # Google Data Access tests are only required for some envs
@@ -276,20 +295,18 @@ fi
 #
 # RAS AuthN Integration tests are only required for some repos
 #
-#if [[ "$isGen3Release" != "true" && "$service" != "gen3-qa" && "$service" != "fence" && "$service" != "cdis-manifest" && "$service" != "gitops-qa" && "$service" != "cloud-automation" && "$service" != "gitops-dev" ]]; then
-#  # disable ras tests
-#  echo "INFO: disabling RAS AuthN Integration tests for $service"
-#  donot '@rasAuthN'
-#else
+if [[ "$isGen3Release" != "true" && "$service" != "gen3-qa" && "$service" != "fence" && "$service" != "cdis-manifest" && "$service" != "gitops-qa" && "$service" != "cloud-automation" && "$service" != "gitops-dev" ]]; then
+  # disable ras tests
+  echo "INFO: disabling RAS AuthN Integration tests for $service"
+  donot '@rasAuthN'
+else
   #
   # Run tests including RAS AuthN Integration tests
-  #
-#  runTestsIfServiceVersion "@rasAuthN" "fence" "4.22.1" "2020.09"
-#  echo "INFO: enabling RAS AuthN Integration tests for $service"
-#fi
-
-# RAS Staging will be under maintenance until the end of Jan 2021
-donot '@rasAuthN'
+  # If RAS Staging is down, uncomment the line below to skip these tests
+  # donot '@rasAuthN'
+  runTestsIfServiceVersion "@rasAuthN" "fence" "4.22.1" "2020.09"
+  echo "INFO: enabling RAS AuthN Integration tests for $service"
+fi
 
 # TODO: eventually enable for all services, but need arborist and fence updates first
 #       in all environments
@@ -374,11 +391,12 @@ if [ -z "$checkForPresenceOfMetadataIngestionSowerJob" ]; then
 fi
 
 # studyViewer
-if [[ $(curl -s "$portalConfigURL" | jq 'contains({studyViewerConfig}) | not') == "true" ]] || [[ ! -z "$testedEnv" ]]; then
+if [[ $(curl -s "$portalConfigURL" | jq 'contains({studyViewerConfig}) | not') == "true" ]]; then
   donot '@studyViewer'
-elif ! (g3kubectl get pods --no-header -l app=requestor | grep requestor) > dev/null 2>&1; then
+elif ! (g3kubectl get pods --no-headers -l app=requestor | grep requestor) > /dev/null 2>&1; then
   donot '@studyViewer'
 fi
+#donot '@studyViewer'
 
 # landing page buttons
 if [[ $(curl -s "$portalConfigURL" | jq '.components | contains({buttons}) | not') == "true" ]] || [[ ! -z "$testedEnv" ]]; then
@@ -403,6 +421,37 @@ elif ! (g3kubectl get pods --no-headers -l app=hatchery | grep hatchery) > /dev/
 ! (g3kubectl get pods --no-headers -l service=ambassador | grep ambassador) > /dev/null 2>&1; then
   donot '@exportToWorkspacePortalHatchery'
 fi
+
+# Nightly Build exclusive tests
+donot '@pfbExport'
+donot '@jupyterNb'
+
+#
+# only run audit-service tests for manifest repos IF audit-service is
+# deployed, and for repos with an audit-service integration.
+#
+runAuditTests=true
+if ! [[ "$service" =~ ^(audit-service|fence|cloud-automation|gen3-qa)$ ]]; then
+  if [[ "$service" =~ ^(cdis-manifest|gitops-qa|gitops-dev)$ ]]; then
+    if ! (g3kubectl get pods --no-headers -l app=audit-service | grep audit-service) > /dev/null 2>&1; then
+      echo "INFO: audit-service is not deployed"
+      runAuditTests=false
+    fi
+  else
+    echo "INFO: no need to run audit-service tests for repo $service"
+    runAuditTests=false
+  fi
+fi
+if [[ "$runAuditTests" == true ]]; then
+  echo "INFO: enabling audit-service tests"
+else
+  echo "INFO: disabling audit-service tests"
+  donot '@audit'
+fi
+# the tests assume audit-service can read from an AWS SQS
+runTestsIfServiceVersion "@audit" "audit-service" "1.0.0" "2021.06"
+# the tests assume fence records both successful and unsuccessful events
+runTestsIfServiceVersion "@audit" "fence" "5.1.0" "2021.07"
 
 ########################################################################################
 
@@ -474,5 +523,7 @@ if [ -n "$zeroTests" ]; then
   npm test -- --verbose suites/fail.js
   exitCode=1
 fi
+
+echo "Testing done at $(date)" > output/gen3-qa.log
 
 exit $exitCode

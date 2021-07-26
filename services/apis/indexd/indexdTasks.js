@@ -18,7 +18,6 @@ const getRevFromResponse = function (res) {
   }
 };
 
-
 /**
  * indexd Tasks
  */
@@ -61,13 +60,10 @@ module.exports = {
       return data;
     }).map((data) => I.sendPostRequest(indexdProps.endpoints.add, data, authHeaders).then(
       (res) => {
-        if (res.status === 200 && res.data && res.data.rev) {
-          console.log('### ## Do we ever enter this block?');
-          file.rev = res.data.rev; // eslint-disable-line  no-undef
-          return Promise.resolve(file); // eslint-disable-line  no-undef
+        if (res.status !== 200 || !res.data || !res.data.rev) {
+          console.error(`Failed indexd submission got status ${res.status}`, res.data);
+          return Promise.reject(new Error('Failed to register file with indexd'));
         }
-        console.error(`Failed indexd submission got status ${res.status}`, res.data);
-        return Promise.reject(new Error('Failed to register file with indexd'));
       },
       (err) => {
         console.err(`Error on indexd submission ${data.file_name}`, err);

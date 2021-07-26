@@ -44,9 +44,10 @@ const uploadFile = async function (I, dataUpload, indexd, sheepdog, nodes, fileO
   // additional scrutiny for file upload only when running inside Jenkins
   if (inJenkins) {
     const maxAttempts = 6;
-    const jenkinsNamespace = process.env.HOSTNAME.replace('.planx-pla.net', '');
-    const bucketName = `${jenkinsNamespace}-databucket-gen3`;
-
+    // const jenkinsNamespace = process.env.HOSTNAME.replace('.planx-pla.net', '');
+    // const bucketName = `${jenkinsNamespace}-databucket-gen3`;
+    const bucketName = bash.runCommand('gen3 secrets decode fence-config fence-config.yaml | yq -r .DATA_UPLOAD_BUCKET');
+    console.log(bucketName);
     for (let i = 1; i <= maxAttempts; i += 1) {
       try {
         console.log(`waiting for file [${fileName}] with guid [${fileGuid}] to show up on ${bucketName}... - attempt ${i}`);
@@ -92,6 +93,7 @@ BeforeSuite(async ({
   // clean up previous upload files
   await indexd.do.clearPreviousUploadFiles(users.mainAcct);
   await indexd.do.clearPreviousUploadFiles(users.auxAcct2);
+  await indexd.do.clearPreviousUploadFiles(users.indexingAcct);
 
   // Add coremetadata node.
   // FIXME: once windmill allow parent nodes other than core-metadata-collection, remove this
@@ -113,20 +115,22 @@ Scenario('Map uploaded files in windmill submission page @dataUpload @portal', a
     users.mainAcct.accessTokenHeader,
   );
 
-  // user1 should see 1 file, but not ready yet
-  portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage(I, [fileObj], false);
+  if (!process.env.testedEnv.includes('midrc')) {
+    // user1 should see 1 file, but not ready yet
+    portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage(I, [fileObj], false);
 
-  // upload file
-  await uploadFile(I, dataUpload, indexd, sheepdog, nodes, fileObj, presignedUrl);
+    // upload file
+    await uploadFile(I, dataUpload, indexd, sheepdog, nodes, fileObj, presignedUrl);
 
-  // user1 should see 1 file ready
-  portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage(I, [fileObj], true);
+    // user1 should see 1 file ready
+    portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage(I, [fileObj], true);
 
-  // user1 map file in windmill
-  await portalDataUpload.complete.mapFiles(I, [fileObj], submitterID);
+    // user1 map file in windmill
+    await portalDataUpload.complete.mapFiles(I, [fileObj], submitterID);
 
-  // user1 should see 0 files now because all files are mapped.
-  portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage(I, []);
+    // user1 should see 0 files now because all files are mapped.
+    portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage(I, []);
+  }
 }).retry(2);
 
 Scenario('Cannot see files uploaded by other users @dataUpload @portal', async ({

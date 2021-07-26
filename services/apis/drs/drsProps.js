@@ -20,7 +20,6 @@ module.exports = {
    * Create Access Token Responses
    */
 
-
   /**
    * Presigned URL responses
    */

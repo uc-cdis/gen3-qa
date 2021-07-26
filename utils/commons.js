@@ -55,12 +55,15 @@ class Commons {
       headers: user.mainAcct.accessTokenHeader,
       form: JSON.stringify(Commons.program),
     };
+    console.log(`### ## programForm['headers']: ${JSON.stringify(programForm.headers)}`);
+    console.log(`### ## programForm['url']: ${JSON.stringify(programForm.url)}`);
     const projectForm = {
       url: `${endpoint}${programName}/`,
       method: 'POST',
       headers: user.mainAcct.accessTokenHeader,
       form: JSON.stringify(Commons.project),
     };
+    console.log(`### ## projectForm['headers']: ${JSON.stringify(projectForm.headers)}`);
 
     return new Promise((resolve, reject) => {
       request.post(programForm, (error, response, body) => {
