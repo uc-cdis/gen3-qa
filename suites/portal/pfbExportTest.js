@@ -28,6 +28,12 @@ BeforeSuite(async ({ I }) => {
 
   I.cache = {};
 
+  const testedEnv = process.env.testedEnv || `${process.env.NAMESPACE}.planx-pla.net`;
+  I.cache.testedEnv = testedEnv;
+
+  const WORKSPACE = process.env.WORKSPACE || process.cwd();
+  I.cache.WORKSPACE = WORKSPACE;
+
   const JOB_NAME = process.env.JOB_NAME || 'CDIS_GitHub_Org/myrepo';
   const BRANCH_NAME = process.env.BRANCH_NAME || 'PR-1234';
 
@@ -46,7 +52,7 @@ BeforeSuite(async ({ I }) => {
   // cloud-automation/blob/master/kube/services/jobs/gentestdata-job.yaml
   // if this is running against an Anvil DD, sequencing must be used
   // TODO: Look into reusing the leafNode logic from jenkins-simulate-data.sh
-  const targetMappingNode = process.env.testedEnv.includes('anvil') ? 'sequencing' : 'submitted_unaligned_reads';
+  const targetMappingNode = I.cache.testedEnv.includes('anvil') ? 'sequencing' : 'submitted_unaligned_reads';
 
   I.cache.targetMappingNode = targetMappingNode;
 
@@ -117,7 +123,7 @@ Scenario('Upload a file through the gen3-client CLI @pfbExport', async ({
   // create client profile
   // HOME has to be set to each individual PR workspace, otherwise there will be
   // lots of conclicting cdis-data-client [jenkins-*] profiles under /var/jenkins_home/.gen3
-  await bash.runCommand(`export HOME="${process.env.WORKSPACE}" && ./gen3-client configure --profile=${process.env.NAMESPACE} --cred=${credsPath} --apiendpoint=https://${process.env.NAMESPACE}.planx-pla.net`);
+  await bash.runCommand(`export HOME="${I.cache.WORKSPACE}" && ./gen3-client configure --profile=${process.env.NAMESPACE} --cred=${credsPath} --apiendpoint=https://${process.env.NAMESPACE}.planx-pla.net`);
 
   const ourFileToBeUploaded = `hello_${Date.now()}.txt`;
 
@@ -125,7 +131,7 @@ Scenario('Upload a file through the gen3-client CLI @pfbExport', async ({
   await bash.runCommand(`echo "${dummyFileContents}" > ./${ourFileToBeUploaded}`);
 
   // upload the file
-  const uploadOutput = await bash.runCommand(`export HOME="${process.env.WORKSPACE}" && ./gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=./${ourFileToBeUploaded} 2>&1`);
+  const uploadOutput = await bash.runCommand(`export HOME="${I.cache.WORKSPACE}" && ./gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=./${ourFileToBeUploaded} 2>&1`);
 
   console.log(`### ## uploadOutput: ${uploadOutput}`);
 
@@ -303,7 +309,7 @@ Scenario('Visit the Explorer page, select a cohort, export to PFB and download t
     I.seeElement('//h4[contains(text(),\'Filters\')]', 5);
 
     // If bloodpac-like environment, switch to the "Cases" tab
-    if (process.env.testedEnv.includes('blood')) {
+    if (I.cache.testedEnv.includes('blood')) {
       console.log('### Running in a bloodpac-like environment...');
       I.click('//h3[contains(text(),\'Cases\')]');
     }
@@ -382,11 +388,11 @@ Scenario('Visit the Explorer page, select a cohort, export to PFB and download t
 });
 
 Scenario('Install the latest pypfb CLI version and make sure we can parse the avro file @pfbExport', async ({ I }) => {
-  const pyPfbInstallationOutput = await bash.runCommand(`python3.8 -m venv pfb_test && source pfb_test/bin/activate && pip install pypfb && ${process.env.WORKSPACE}/gen3-qa/pfb_test/bin/pfb`);
+  const pyPfbInstallationOutput = await bash.runCommand(`python3.8 -m venv pfb_test && source pfb_test/bin/activate && pip install pypfb && ${I.cache.WORKSPACE}/gen3-qa/pfb_test/bin/pfb`);
   console.log(`${new Date()}: pyPfbInstallationOutput = ${pyPfbInstallationOutput}`);
 
   // await bash.runCommand(`cat ./test_export_${I.cache.UNIQUE_NUM}.avro`);
-  const pfbParsingResult = await bash.runCommand(`source pfb_test/bin/activate && ${process.env.WORKSPACE}/gen3-qa/pfb_test/bin/pfb show -i ./test_export_${I.cache.UNIQUE_NUM}.avro | jq .`);
+  const pfbParsingResult = await bash.runCommand(`source pfb_test/bin/activate && ${I.cache.WORKSPACE}/gen3-qa/pfb_test/bin/pfb show -i ./test_export_${I.cache.UNIQUE_NUM}.avro | jq .`);
   // console.log(`${new Date()}: pfbParsingResult = ${pfbParsingResult}`);
   const pfbConvertedToJSON = JSON.parse(`[${pfbParsingResult.replace(/\}\{/g, '},{')}]`);
   // console.log(`${new Date()}: pfbConvertedToJSON = ${JSON.stringify(pfbConvertedToJSON)}`);
