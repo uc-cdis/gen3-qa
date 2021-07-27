@@ -300,6 +300,7 @@ Scenario('Visit the Explorer page, select a cohort, export to PFB and download t
 
     // If bloodpac-like environment, switch to the "Cases" tab
     if (process.env.testedEnv.includes('blood')) {
+      console.log('### Running in a bloodpac-like environment...');
       I.click('//h3[contains(text(),\'Cases\')]');
     }
 
