@@ -31,7 +31,7 @@ BeforeSuite(async ({ I }) => {
   const testedEnv = process.env.testedEnv || `${process.env.NAMESPACE}.planx-pla.net`;
   I.cache.testedEnv = testedEnv;
 
-  const WORKSPACE = process.env.RUNNING_LOCAL == "true" ? `/home/${process.env.NAMESPACE}` :  process.env.WORKSPACE;
+  const WORKSPACE = process.env.RUNNING_LOCAL === 'true' ? `/home/${process.env.NAMESPACE}` : process.env.WORKSPACE;
   I.cache.WORKSPACE = WORKSPACE;
 
   const JOB_NAME = process.env.JOB_NAME || 'CDIS_GitHub_Org/myrepo';
@@ -93,7 +93,7 @@ Scenario('Submit dummy data to the Gen3 Commons environment @pfbExport', async (
   expect(queryResponse).to.have.property('status', 200);
 });
 
-xScenario('Upload a file through the gen3-client CLI @pfbExport', async ({
+Scenario('Upload a file through the gen3-client CLI @pfbExport', async ({
   I, fence, users,
 }) => {
   // Download the latest linux binary from https://github.com/uc-cdis/cdis-data-client/releases
@@ -159,7 +159,7 @@ xScenario('Upload a file through the gen3-client CLI @pfbExport', async ({
 // You don't have permission to upload data, detailed error message:
 // Error occurred in RequestNewAccessKey with error code 401, check FENCE log for more details
 
-xScenario('Map the uploaded file to one of the subjects of the dummy dataset @pfbExport', async ({ I, login, users }) => {
+Scenario('Map the uploaded file to one of the subjects of the dummy dataset @pfbExport', async ({ I, login, users }) => {
   login.do.goToLoginPage();
   I.saveScreenshot('loginPage.png');
   login.complete.login(users.mainAcct);
@@ -225,7 +225,7 @@ xScenario('Map the uploaded file to one of the subjects of the dummy dataset @pf
   // TODO: check if file number in DEV-test project was increased by one
 });
 
-xScenario('Mutate etl-mapping config and run ETL to create new indices in elastic search @pfbExport', async ({ I }) => {
+Scenario('Mutate etl-mapping config and run ETL to create new indices in elastic search @pfbExport', async ({ I }) => {
   console.log('### mutate the etl-mapping k8s config map');
 
   await bash.runCommand(`gen3 mutate-etl-mapping-config ${I.cache.prNumber} ${I.cache.repoName}`);
@@ -239,7 +239,7 @@ xScenario('Mutate etl-mapping config and run ETL to create new indices in elasti
   await sleepMS(10000);
 });
 
-xScenario('Mutate manifest-guppy config and roll guppy so the recently-submitted dataset will be available on the Explorer page @pfbExport', async ({ I, users }) => {
+Scenario('Mutate manifest-guppy config and roll guppy so the recently-submitted dataset will be available on the Explorer page @pfbExport', async ({ I, users }) => {
   console.log('### mutate the manifest-guppy k8s config map');
 
   await bash.runCommand(`gen3 mutate-guppy-config-for-pfb-export-test ${I.cache.prNumber} ${I.cache.repoName}`);
@@ -284,7 +284,7 @@ xScenario('Mutate manifest-guppy config and roll guppy so the recently-submitted
   // );
 });
 
-xScenario('Visit the Explorer page, select a cohort, export to PFB and download the .avro file @pfbExport', async ({
+Scenario('Visit the Explorer page, select a cohort, export to PFB and download the .avro file @pfbExport', async ({
   I, login, users,
 }) => {
   login.do.goToLoginPage();
@@ -387,7 +387,7 @@ xScenario('Visit the Explorer page, select a cohort, export to PFB and download 
   }
 });
 
-xScenario('Install the latest pypfb CLI version and make sure we can parse the avro file @pfbExport', async ({ I }) => {
+Scenario('Install the latest pypfb CLI version and make sure we can parse the avro file @pfbExport', async ({ I }) => {
   const pyPfbInstallationOutput = await bash.runCommand(`python3.8 -m venv pfb_test && source pfb_test/bin/activate && pip install pypfb && ${I.cache.WORKSPACE}/gen3-qa/pfb_test/bin/pfb`);
   console.log(`${new Date()}: pyPfbInstallationOutput = ${pyPfbInstallationOutput}`);
 
