@@ -298,6 +298,11 @@ Scenario('Visit the Explorer page, select a cohort, export to PFB and download t
     // checks if the Filters are present on the left side of Exploration Page
     I.seeElement('//h4[contains(text(),\'Filters\')]', 5);
 
+    // If bloodpac-like environment, switch to the "Cases" tab
+    if (process.env.testedEnv.includes('blood')) {
+      I.click('//h3[contains(text(),\'Cases\')]');
+    }
+
     // TODO: Select random cohorts to try different PFBs
 
     // checks if the `Export to PFB` button is disabled on the page
@@ -331,7 +336,7 @@ Scenario('Visit the Explorer page, select a cohort, export to PFB and download t
   I.click('//button[contains(text(),\'Export to PFB\')]');
 
   // Check if the footer shows expected msg
-  I.seeElement({ xpath: '//div[@class=\'explorer-button-group__toaster-text\']/div[contains(.,\'Please do not navigate away from this page until your export is finished.\')]' }, 10);
+  I.seeElement({ xpath: '//div[@class=\'explorer-button-group__toaster-text\']/div[contains(.,\'Please do not navigate away from this page until your export is finished.\')]' }, 60);
 
   // check if the pelican-export pod (sower job) runs successfully
   await checkPod(I, 'pelican-export', 'sowerjob', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: false });
