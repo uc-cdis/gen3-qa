@@ -28,6 +28,12 @@ BeforeSuite(async ({ I }) => {
 
   I.cache = {};
 
+  const testedEnv = process.env.testedEnv || `${process.env.NAMESPACE}.planx-pla.net`;
+  I.cache.testedEnv = testedEnv;
+
+  const WORKSPACE = process.env.RUNNING_LOCAL === 'true' ? `/home/${process.env.NAMESPACE}` : process.env.WORKSPACE;
+  I.cache.WORKSPACE = WORKSPACE;
+
   const JOB_NAME = process.env.JOB_NAME || 'CDIS_GitHub_Org/myrepo';
   const BRANCH_NAME = process.env.BRANCH_NAME || 'PR-1234';
 
@@ -40,6 +46,15 @@ BeforeSuite(async ({ I }) => {
 
   I.cache.repoName = repoName;
   I.cache.prNumber = prNumber;
+
+  // handling the targetMappingNode
+  // submitted_unaligned_reads is set by default in pretty much every dictionary
+  // cloud-automation/blob/master/kube/services/jobs/gentestdata-job.yaml
+  // if this is running against an Anvil DD, sequencing must be used
+  // TODO: Look into reusing the leafNode logic from jenkins-simulate-data.sh
+  const targetMappingNode = I.cache.testedEnv.includes('anvil') ? 'sequencing' : 'submitted_unaligned_reads';
+
+  I.cache.targetMappingNode = targetMappingNode;
 
   // Restore original etl-mapping and manifest-guppy configmaps (for idempotency)
   console.log('Running kube-setup-guppy to restore any configmaps that have been mutated. This can take a couple of mins...');
@@ -58,23 +73,12 @@ AfterSuite(async () => {
 });
 
 Scenario('Submit dummy data to the Gen3 Commons environment @pfbExport', async ({ I, users }) => {
-  // generate dummy data
-  let genTestDataArgs = 'SUBMISSION_USER cdis.autotest@gmail.com MAX_EXAMPLES 1';
-  if (process.env.testedEnv.includes('anvil')) {
-    // submitted_unaligned_reads is set by default in:
-    // cloud-automation/blob/master/kube/services/jobs/gentestdata-job.yaml
-    // if this is running against an Anvil DD, sequencing must be used
-    genTestDataArgs += ' SUBMISSION_ORDER sequencing';
-  }
-
-  bash.runJob('gentestdata', genTestDataArgs);
+  bash.runJob('gentestdata', `SUBMISSION_USER cdis.autotest@gmail.com MAX_EXAMPLES 1 SUBMISSION_ORDER ${I.cache.targetMappingNode}`);
   await checkPod(I, 'gentestdata', 'gen3job,job-name=gentestdata');
 
-  // Graph node for file mapping
-  // Look into reusing the leafNode logic from jenkins-simulate-data.sh
-  const targetMappingNode = process.env.testedEnv.includes('anvil') ? 'sequencing' : 'submitted_unaligned_reads';
+  // Querying based on the graph node utilized for file mapping
   const queryRecentlySubmittedData = {
-    query: `{ ${targetMappingNode} (first: 20, project_id: "DEV-test", quick_search: "", order_by_desc: "updated_datetime") {id, type, submitter_id} }`,
+    query: `{ ${I.cache.targetMappingNode} (first: 20, project_id: "DEV-test", quick_search: "", order_by_desc: "updated_datetime") {id, type, submitter_id} }`,
     variables: null,
   };
   // query the data to confirm its successfull submission
@@ -117,7 +121,9 @@ Scenario('Upload a file through the gen3-client CLI @pfbExport', async ({
   await bash.runCommand(`echo "${stringifiedData}" > ${credsPath}`);
 
   // create client profile
-  await bash.runCommand(`./gen3-client configure --profile=${process.env.NAMESPACE} --cred=${credsPath} --apiendpoint=https://${process.env.NAMESPACE}.planx-pla.net`);
+  // HOME has to be set to each individual PR workspace, otherwise there will be
+  // lots of conclicting cdis-data-client [jenkins-*] profiles under /var/jenkins_home/.gen3
+  await bash.runCommand(`export HOME="${I.cache.WORKSPACE}" && ./gen3-client configure --profile=${process.env.NAMESPACE} --cred=${credsPath} --apiendpoint=https://${process.env.NAMESPACE}.planx-pla.net`);
 
   const ourFileToBeUploaded = `hello_${Date.now()}.txt`;
 
@@ -125,9 +131,13 @@ Scenario('Upload a file through the gen3-client CLI @pfbExport', async ({
   await bash.runCommand(`echo "${dummyFileContents}" > ./${ourFileToBeUploaded}`);
 
   // upload the file
-  const uploadOutput = await bash.runCommand(`./gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=./${ourFileToBeUploaded} 2>&1`);
+  const uploadOutput = await bash.runCommand(`export HOME="${I.cache.WORKSPACE}" && ./gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=./${ourFileToBeUploaded} 2>&1`);
 
   console.log(`### ## uploadOutput: ${uploadOutput}`);
+
+  if (uploadOutput.includes('You don\'t have permission to upload data')) {
+    throw new Error('The gen3 CLI upload operation failed. Abort test scenario.');
+  }
 
   const regexToFindGUID = /.*GUID(.*)\..*$/;
   const theGUID = regexToFindGUID.exec(uploadOutput)[1].replace(' ', '');
@@ -144,7 +154,10 @@ Scenario('Upload a file through the gen3-client CLI @pfbExport', async ({
   expect(indexdLookupResponse.data).to.have.property('file_name', ourFileToBeUploaded);
   expect(indexdLookupResponse.data.acl).to.eql([]);
   expect(indexdLookupResponse.data.authz).to.eql([]);
-});
+}).retry(2);
+// TODO: Investigate intermittent issue with the HTTP POST against /user/credentials/api/
+// You don't have permission to upload data, detailed error message:
+// Error occurred in RequestNewAccessKey with error code 401, check FENCE log for more details
 
 Scenario('Map the uploaded file to one of the subjects of the dummy dataset @pfbExport', async ({ I, login, users }) => {
   login.do.goToLoginPage();
@@ -158,7 +171,7 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @pfb
   // Unmapped files sometimes show up in "Generating... " state.
   // Need to wait a few seconds
   // eslint-disable-next-line no-undef
-  const checkboxIsClickable = await tryTo(() => I.waitForClickable(`//input[@id='${I.cache.theGUID}]'`, 30));
+  const checkboxIsClickable = await tryTo(() => I.waitForClickable(`//input[@id='${I.cache.theGUID}]'`, 30)); // eslint-disable-line no-undef
   I.saveScreenshot('ClickCheckboxOfUnmappedFile.png');
   if (!checkboxIsClickable) {
     // if the checkbox is still not clickable,refresh the page
@@ -179,7 +192,7 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @pfb
   console.log('Project selected');
 
   // Select File Node
-  I.fillField('//input[@id=\'react-select-3-input\']', 'submitted_unaligned_reads');
+  I.fillField('//input[@id=\'react-select-3-input\']', I.cache.targetMappingNode);
   I.pressKey('Enter');
   console.log('File Node selected');
   I.waitForText('Required Fields', 10);
@@ -187,10 +200,18 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @pfb
   // Select required fields and core_metadata_collection
   const FIELDS_INDEX_START = 4;
   const FIELDS_INDEX_END = 8;
+  let isFileMappingFieldSelectionSuccessful = '';
   for (let i = FIELDS_INDEX_START; i <= FIELDS_INDEX_END; i += 1) {
-    I.click(`//input[@id='react-select-${i}-input']`);
-    // Select the 1st option
-    I.pressKey('Enter');
+    // Not evevery data dictionary file_mapping node will present the same number of fields
+    // Try to iterate through a certain number of fields to select whatever in the dropdowns
+    // but ignore any missing select-lists so we can move forward with the "Submit" button click
+    isFileMappingFieldSelectionSuccessful = await tryTo(() => I.click(`//input[@id='react-select-${i}-input']`)); // eslint-disable-line no-undef
+    if (isFileMappingFieldSelectionSuccessful) {
+      // Select the 1st option
+      I.pressKey('Enter');
+    } else {
+      console.log('meh');
+    }
   }
   I.waitForVisible('//button[contains(text(),\'Submit\')]', 5);
   console.log('Required Fileds selected, core_metadata_collection selected');
@@ -279,6 +300,10 @@ Scenario('Visit the Explorer page, select a cohort, export to PFB and download t
     // exploration Page
     I.wait(5);
     I.saveScreenshot('explorationPage.png');
+
+    // lots of things can go wrong here, so let's capture browser logs
+    I.captureBrowserLog();
+
     I.seeElement('.guppy-explorer', 10);
     // checks if the Filters are present on the left side of Exploration Page
     I.seeElement('//h4[contains(text(),\'Filters\')]', 5);
@@ -314,9 +339,12 @@ Scenario('Visit the Explorer page, select a cohort, export to PFB and download t
 
   // Click on the Export to PFB button
   I.click('//button[contains(text(),\'Export to PFB\')]');
+  I.wait(5);
+  I.captureBrowserLog();
+  I.saveScreenshot('explorationPageWaitingForExportToPfbMsg.png');
 
   // Check if the footer shows expected msg
-  I.seeElement({ xpath: '//div[@class=\'explorer-button-group__toaster-text\']/div[contains(.,\'Please do not navigate away from this page until your export is finished.\')]' }, 10);
+  I.seeElement({ xpath: '//div[@class=\'explorer-button-group__toaster-text\']/div[contains(.,\'Please do not navigate away from this page until your export is finished.\')]' }, 60);
 
   // check if the pelican-export pod (sower job) runs successfully
   await checkPod(I, 'pelican-export', 'sowerjob', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: false });
@@ -354,11 +382,11 @@ Scenario('Visit the Explorer page, select a cohort, export to PFB and download t
 });
 
 Scenario('Install the latest pypfb CLI version and make sure we can parse the avro file @pfbExport', async ({ I }) => {
-  const pyPfbInstallationOutput = await bash.runCommand(`python3.8 -m venv pfb_test && source pfb_test/bin/activate && pip install pypfb && ${process.env.WORKSPACE}/gen3-qa/pfb_test/bin/pfb`);
+  const pyPfbInstallationOutput = await bash.runCommand(`python3.8 -m venv pfb_test && source pfb_test/bin/activate && pip install pypfb && ${I.cache.WORKSPACE}/gen3-qa/pfb_test/bin/pfb`);
   console.log(`${new Date()}: pyPfbInstallationOutput = ${pyPfbInstallationOutput}`);
 
   // await bash.runCommand(`cat ./test_export_${I.cache.UNIQUE_NUM}.avro`);
-  const pfbParsingResult = await bash.runCommand(`source pfb_test/bin/activate && ${process.env.WORKSPACE}/gen3-qa/pfb_test/bin/pfb show -i ./test_export_${I.cache.UNIQUE_NUM}.avro | jq .`);
+  const pfbParsingResult = await bash.runCommand(`source pfb_test/bin/activate && ${I.cache.WORKSPACE}/gen3-qa/pfb_test/bin/pfb show -i ./test_export_${I.cache.UNIQUE_NUM}.avro | jq .`);
   // console.log(`${new Date()}: pfbParsingResult = ${pfbParsingResult}`);
   const pfbConvertedToJSON = JSON.parse(`[${pfbParsingResult.replace(/\}\{/g, '},{')}]`);
   // console.log(`${new Date()}: pfbConvertedToJSON = ${JSON.stringify(pfbConvertedToJSON)}`);
