@@ -308,12 +308,6 @@ Scenario('Visit the Explorer page, select a cohort, export to PFB and download t
     // checks if the Filters are present on the left side of Exploration Page
     I.seeElement('//h4[contains(text(),\'Filters\')]', 5);
 
-    // If bloodpac-like environment, switch to the "Cases" tab
-    if (I.cache.testedEnv.includes('blood')) {
-      console.log('### Running in a bloodpac-like environment...');
-      I.click('//h3[contains(text(),\'Cases\')]');
-    }
-
     // TODO: Select random cohorts to try different PFBs
 
     // checks if the `Export to PFB` button is disabled on the page
