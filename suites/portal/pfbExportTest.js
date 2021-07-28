@@ -263,8 +263,10 @@ Scenario('Mutate manifest-guppy config and roll guppy so the recently-submitted 
       console.log(`${new Date()}: The new indices did not show up on guppy's status payload yet...`);
       await sleepMS(5000);
       if (i === nAttempts - 1) {
-        console.log(`${new Date()}: The new guppy pod never came up with the new indices: Details: ${guppyStatusCheckResp.data}`);
-        console.log(`err: ${guppyStatusCheckResp.data}`);
+        console.log(`${new Date()}: The new guppy pod never came up with the new indices.`);
+        // TODO: Capture logs from guppy pod that failed to come up
+        // fail fast (there is no point in running the remaining scenarios)
+        throw new Error('The new guppy pod never came up with the new indices');
       }
     }
   }
