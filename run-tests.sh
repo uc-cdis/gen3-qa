@@ -403,7 +403,7 @@ if ! [[ "$service" =~ ^(data-portal|requestor|gen3-qa)$ ]]; then
     runStudyViewerTests=false
   fi
 fi
-if [[runStudyViewerTests = true]; then
+if [[runStudyViewerTests = true]]; then
   echo "Enabling study-viewer test"
 else
   echo "Disabling study-viewer test"
