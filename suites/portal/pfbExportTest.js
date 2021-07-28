@@ -269,8 +269,10 @@ Scenario('Mutate manifest-guppy config and roll guppy so the recently-submitted 
       console.log(`${new Date()}: The new indices did not show up on guppy's status payload yet...`);
       await sleepMS(5000);
       if (i === nAttempts - 1) {
-        console.log(`${new Date()}: The new guppy pod never came up with the new indices: Details: ${guppyStatusCheckResp.data}`);
-        console.log(`err: ${guppyStatusCheckResp.data}`);
+        console.log(`${new Date()}: The new guppy pod never came up with the new indices.`);
+        // TODO: Capture logs from guppy pod that failed to come up
+        // fail fast (there is no point in running the remaining scenarios)
+        throw new Error('The new guppy pod never came up with the new indices');
       }
     }
   }
@@ -402,7 +404,10 @@ Scenario('Install the latest pypfb CLI version and make sure we can parse the av
   const itDDNodesSet = ddNodesSet.values();
   expect(itDDNodesSet.next().value).to.equal('program');
   expect(itDDNodesSet.next().value).to.equal('project');
-  expect(itDDNodesSet.next().value).to.equal('study');
-
+  if (I.cache.testedEnv.includes('anvil')) {
+    expect(itDDNodesSet.next().value).to.equal('subject');
+  } else {
+    expect(itDDNodesSet.next().value).to.equal('study');
+  }
   // TODO: Refine cohort later and make sure the selected projects show up in the PFB file
 });
