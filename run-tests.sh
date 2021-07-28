@@ -408,6 +408,7 @@ if [[runStudyViewerTests = true]; then
 else
   echo "Disabling study-viewer test"
   donot "@studyViewer"
+fi
 
 # landing page buttons
 if [[ $(curl -s "$portalConfigURL" | jq '.components | contains({buttons}) | not') == "true" ]] || [[ ! -z "$testedEnv" ]]; then
