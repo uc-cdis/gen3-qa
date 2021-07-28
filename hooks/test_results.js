@@ -126,5 +126,32 @@ module.exports = function () {
         }
       });
     }
+    // Not all environments that are tested through the nightly build support the PFB Export feature
+    if (suite.title === 'PFB Export') {
+      request(`https://${process.env.HOSTNAME}/data/config/gitops.json`, { json: true }, (err, res) => {
+        if (err) { console.log(err); }
+        let areThereAnyExportToPFBButtons = false;
+        if (res.statusCode === 200 && Object.prototype.hasOwnProperty.call(res.body, 'explorerConfig')) {
+          res.body.explorerConfig.forEach((config) => {
+            console.log(`looking for export-to-pfb buttons in config: ${config.tabTitle}`);
+            config.buttons.forEach((button) => {
+              console.log(`## ### BUTTON : ${JSON.stringify(button)}`);
+              if (button.type === 'export-to-pfb') {
+                areThereAnyExportToPFBButtons = true;
+              }
+            });
+          });
+        }
+        if (!areThereAnyExportToPFBButtons) {
+          console.log('Skipping PFB Export test scenarios since its config does not contain any export-to-pfb buttons...');
+          suite.tests.forEach((test) => {
+            test.run = function skip() { // eslint-disable-line func-names
+              console.log(`Ignoring test - ${test.title}`);
+              this.skip();
+            };
+          });
+        }
+      });
+    }
   });
 };
