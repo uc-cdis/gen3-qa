@@ -393,7 +393,7 @@ fi
 # Study Viewer test
 runStudyViewerTests=true
 if ! [[ "$service" =~ ^(data-portal|requestor|gen3-qa)$ ]]; then
-  if [[ "$service" =~ ^(cdis-manifest|gitops-qa)]]; then
+  if [[ "$service" =~ ^(cdis-manifest|gitops-qa)$ ]]; then
     if ! (g3kubectl get pods --no-headers -l app=requestor | grep requestor) > /dev/null 2>&1; then
       echo "### Study-Viewer is not deployed"
       runStudyViewerTests=false
