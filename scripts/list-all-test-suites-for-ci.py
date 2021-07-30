@@ -28,6 +28,10 @@ test_suites_that_cant_run_in_parallel = [
     "test-dream-challenge-synapaseLoginTest",          # legacy (disabled test)
     "test-prod-checkAllProjectsBucketAccessTest.js",   # prod test
     "test-portal-pfbExportTest",                       # nightly build test
+    "test-apis-etlTest",
+    "test-google-googleServiceAccountTest",
+    "test-google-googleServiceAccountKeyTest",
+    "test-portal-dataUploadTest",
 ]
 
 
