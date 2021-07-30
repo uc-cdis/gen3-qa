@@ -30,8 +30,14 @@ Scenario('Run no_input_test workflow @mariner',
     do {
       try {
         status = await fetchRunStatus(user.mainAcct, runId);
+        if (status === 'not-started' && retryCount > 0) {
+          retryCount -= 1;
+          console.log('### wait for job to run...');
+          await sleepMS(10000);
+        }
       } catch (error) {
         retryCount -= 1;
+        console.log('### wait for job to run...');
         await sleepMS(10000);
       }
     } while (status !== 'running' && retryCount > 0);
@@ -54,8 +60,14 @@ Scenario('Cancel running no_input_test workflow @mariner',
     do {
       try {
         status = await fetchRunStatus(user.mainAcct, runId);
+        if (status === 'not-started' && retryCount > 0) {
+          retryCount -= 1;
+          console.log('### wait for job to run...');
+          await sleepMS(10000);
+        }
       } catch (error) {
         retryCount -= 1;
+        console.log('### wait for job to run...');
         await sleepMS(10000);
       }
     } while (status !== 'running' && retryCount > 0);
@@ -65,8 +77,14 @@ Scenario('Cancel running no_input_test workflow @mariner',
     do {
       try {
         status = await fetchRunStatus(user.mainAcct, runId);
+        if (status === 'running' && retryCount > 0) {
+          retryCount -= 1;
+          console.log('### wait for job to cancel...');
+          await sleepMS(10000);
+        }
       } catch (error) {
         retryCount -= 1;
+        console.log('### wait for job to cancel...');
         await sleepMS(10000);
       }
     } while (status !== 'cancelled' && retryCount > 0);
