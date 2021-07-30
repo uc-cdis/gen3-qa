@@ -390,13 +390,25 @@ if [ -z "$checkForPresenceOfMetadataIngestionSowerJob" ]; then
   donot '@metadataIngestion'
 fi
 
-# studyViewer
-if [[ $(curl -s "$portalConfigURL" | jq 'contains({studyViewerConfig}) | not') == "true" ]]; then
-  donot '@studyViewer'
-elif ! (g3kubectl get pods --no-headers -l app=requestor | grep requestor) > /dev/null 2>&1; then
-  donot '@studyViewer'
+# Study Viewer test
+runStudyViewerTests=true
+if ! [[ "$service" =~ ^(data-portal|requestor|gen3-qa)$ ]]; then
+  if [[ "$service" =~ ^(cdis-manifest|gitops-qa)$ ]]; then
+    if ! (g3kubectl get pods --no-headers -l app=requestor | grep requestor) > /dev/null 2>&1; then
+      echo "### Study-Viewer is not deployed"
+      runStudyViewerTests=false
+    fi
+  else
+    echo "### Not necessary run Study-Viewer test for repo $service"
+    runStudyViewerTests=false
+  fi
 fi
-#donot '@studyViewer'
+if [[ "$runStudyViewerTests" == true ]]; then
+  echo "Enabling study-viewer test"
+else
+  echo "Disabling study-viewer test"
+  donot "@studyViewer"
+fi
 
 # landing page buttons
 if [[ $(curl -s "$portalConfigURL" | jq '.components | contains({buttons}) | not') == "true" ]] || [[ ! -z "$testedEnv" ]]; then
