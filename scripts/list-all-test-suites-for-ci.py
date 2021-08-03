@@ -17,8 +17,14 @@ test_suites_that_cant_run_in_parallel = [
     "test-access-accessGUITest",                       # manual (executable test)
     "test-portal-tieredAccessTest",                    # manual (executable test)
     "test-portal-discoveryPageTestPlan",               # manual (executable test)
+    "test-portal-dashboardReportsTest",                # manual (executable test)
     "test-guppy-nestedAggTest",                        # manual (executable test)
     "test-portal-404pageTest",                         # manual (executable test)
+    "test-apis-dcfDataReplicationTest",                # manual (executable test)
+    "test-portal-exportPfbToWorkspaceTest",            # manual (executable test)
+    "test-portal-homepageChartNodesExecutableTestPlan",# manual (executable test)
+    "test-portal-profilePageTest",                     # manual (executable test)
+    "test-portal-terraExportWarningTestPlan",          # manual (executable test)
     "test-pelican-exportPfbTest",                      # not ready
     "test-regressions-exportPerformanceTest",          # legacy (disabled test)
     "test-regressions-generateTestData",               # legacy (disabled test)
@@ -26,12 +32,16 @@ test_suites_that_cant_run_in_parallel = [
     "test-regressions-submissionPerformanceTest",      # legacy (disabled test)
     "test-dream-challenge-DCgen3clientTest",           # legacy (disabled test)
     "test-dream-challenge-synapaseLoginTest",          # legacy (disabled test)
-    "test-prod-checkAllProjectsBucketAccessTest.js",   # prod test
+    "test-prod-checkAllProjectsBucketAccessTest",      # prod test
     "test-portal-pfbExportTest",                       # nightly build test
-    "test-apis-etlTest",
-    "test-google-googleServiceAccountTest",
-    "test-google-googleServiceAccountKeyTest",
-    "test-portal-dataUploadTest",
+    "test-apis-etlTest",                               # long-running test
+    "test-apis-centralizedAuth",                       # long-running test
+    "test-google-googleServiceAccountTest",            # long-running test
+    "test-google-googleServiceAccountKeyTest",         # long-running test
+    "test-portal-dataUploadTest",                      # SUPER long-running test
+    "test-portal-indexingPageTest",                    # long-running test
+    "test-apis-metadataIngestionTest",                 # long-running test
+    "test-apis-auditServiceTest"                       # long-running test
 ]
 
 
