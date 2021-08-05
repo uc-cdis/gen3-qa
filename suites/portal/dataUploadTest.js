@@ -166,19 +166,3 @@ AfterSuite(async ({
   });
 });
 
-/*
---- SAMPLE DATA FOR QA-BRAIN FOR THE SCENARIO BELOW ---
-1. study.csv at gen3-qa/docs/sample-data/data-upload/study.csv
-2. case.csv at gen3-qa/docs/sample-data/data-upload/case.csv
-
-Order of upload - study, case
-*/
-Scenario('Upload clinical data file through portal large enough to trigger chunking @manual @regression', ifInteractive(
-  async () => {
-    const result = await interactive(`
-      1. Submit a clinical data file with enough lines to trigger chunking (>30 rows in the default setting)
-      2. Data is submitted successfully and the state is shown as Succeeded in the 'Recent Submissions' pane
-    `);
-    expect(result.didPass, result.details).to.be.true;
-  },
-));
