@@ -1,4 +1,4 @@
-FROM quay.io/cdis/alpine:3.12.1
+FROM quay.io/cdis/debian:bullseye
 
 USER root
 
@@ -9,8 +9,8 @@ ARG group=sdet
 ARG uid=1000
 ARG gid=1000
 
-RUN addgroup -g ${gid} ${group} \
-    && adduser --home "$SDET_HOME" --uid ${uid} --ingroup ${group} --disabled-password --shell /bin/sh ${user}
+RUN addgroup --gid ${gid} ${group} \
+    && useradd -m -d "$SDET_HOME" -u ${uid} -g ${group} -s /bin/bash ${user}
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -30,37 +30,42 @@ ENV PYTHONUNBUFFERED=1 \
 # prepend poetry and venv to path
 ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
 
-RUN apk add --update --no-cache python3 \
+RUN apt-get update \
+    && apt-get install -y python3 python3-pip \
     && ln -sf python3 /usr/bin/python \
-    && python3 -m ensurepip \
     && pip3 install --no-cache --upgrade pip setuptools
 
 # install everything else
-RUN set -xe && apk add --no-cache --virtual .build-deps \
+RUN set -xe && apt-get update && apt-get upgrade -y && apt-get install -y \
     zip \
     unzip \
     less \
     vim \
     gcc \
+    xvfb \
+    libxi6 \
+    libgconf-2-4 \
     libc-dev \
     libffi-dev \
     make \
-    openssl-dev \
-    pcre-dev \
-    zlib-dev \
-    linux-headers \
+    libssl-dev \
+    libghc-regex-pcre-dev \
+    zlib1g-dev \
+    linux-headers-amd64 \
     curl \
     wget \
     jq \
     nodejs \
-    npm
+    npm \
+    openjdk-11-jre-headless
 
 # Copy the gen3-qa framework scripts (test suites + service and utils modules)
-COPY codecept.conf.js \
-     package.json \
+COPY package.json \
      package-lock.json \
      test_setup.js \
      .eslintrc.js ${SDET_HOME}/
+# gen3-qa-in-a-box requires a couple of changes to its webdriver config
+COPY gen3.qa.in.a.box.codecept.conf.js ${SDET_HOME}/codecept.conf.js
 COPY helpers ${SDET_HOME}/helpers/
 COPY hooks ${SDET_HOME}/hooks/
 COPY services ${SDET_HOME}/services/
@@ -74,9 +79,16 @@ RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-
 RUN mkdir -p ${SDET_HOME}/controller/gen3qa-controller
 WORKDIR ${SDET_HOME}/controller
 
+# Install google chrome
+RUN curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && echo "deb [arch=amd64]  http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
+    && apt-get -y update \
+    && apt-get -y install google-chrome-stable
+
 # utilize the selenium sidecar as there is no selenium-hub in prod-tier environments
 RUN cd ${SDET_HOME} \
     && npm install \
+    && npx selenium-standalone install \
     && sed -i "s/      host: 'selenium-hub',/      host: 'localhost',/" codecept.conf.js
 
 # poetry artifacts
