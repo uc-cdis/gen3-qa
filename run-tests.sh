@@ -391,21 +391,17 @@ if [ -z "$checkForPresenceOfMetadataIngestionSowerJob" ]; then
 fi
 
 # Study Viewer test
-runStudyViewerTests=true
-if ! [[ "$service" =~ ^(data-portal|requestor|gen3-qa)$ ]]; then
-  if [[ "$service" =~ ^(cdis-manifest|gitops-qa)$ ]]; then
-    # check both conditions
-    # 1. if studyViewer is deployed to that env
-    # 2. if requestor is also deployed   
-    if [[ $(curl -s "$portalConfigURL" | jq 'contains({studyViewerConfig}) | not') == "true" ]]; then
-      if ! (g3kubectl get pods --no-headers -l app=requestor | grep requestor) > /dev/null 2>&1; then
-        echo "### Study-Viewer is not deployed"
-        runStudyViewerTests=false
-      fi
+runStudyViewerTests=false
+#run for data-portal/requestor/gen3-qa/gitops-qa/cdis-manifest repo
+if [[ "$service" =~ ^(data-portal|requestor|gen3-qa|cdis-manifest|gitops-qa)$ ]]; then
+  # checks both conditions
+  # 1. if studyViewer is deployed to that env
+  # 2. if requestor is also deployed   
+  if [[ $(curl -s "$portalConfigURL" | jq 'contains({studyViewerConfig})') == "true" ]]; then
+    if (g3kubectl get pods --no-headers -l app=requestor | grep requestor) > /dev/null 2>&1; then
+      echo "### Study-Viewer is deployed"
+      runStudyViewerTests=true
     fi
-  else
-    echo "### Not necessary run Study-Viewer test for repo $service"
-    runStudyViewerTests=false
   fi
 fi
 if [[ "$runStudyViewerTests" == true ]]; then
