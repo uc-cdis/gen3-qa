@@ -3,7 +3,7 @@ const mdsTasks = require('./mdsTasks.js');
 const mdsQuestions = require('./mdsQuestions.js');
 
 /**
- * manifestService Service
+ * MDS Service
  */
 module.exports = {
   props: mdsProps,

@@ -466,6 +466,14 @@ runTestsIfServiceVersion "@audit" "audit-service" "1.0.0" "2021.06"
 # the tests assume fence records both successful and unsuccessful events
 runTestsIfServiceVersion "@audit" "fence" "5.1.0" "2021.07"
 
+#
+# Run Agg MDS tests only if the feature is enabled
+#
+usingAggMDS=$(kubectl get secret metadata-g3auto -o json | jq -r '.data["metadata.env"]' | base64 --decode | grep USE_AGG_MDS | cut -d '=' -f2)
+echo $usingAggMDS
+if ! [[ $usingAggMDS == "true" ]]; then
+	donot '@aggMDS'
+fi
 ########################################################################################
 
 testArgs="--reporter mocha-multi"
