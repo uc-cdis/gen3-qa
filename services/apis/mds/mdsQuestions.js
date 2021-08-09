@@ -1,4 +1,4 @@
 /**
- * manifestService Questions
+ * MDS Questions
  */
 module.exports = {};
