@@ -497,7 +497,7 @@ if [[ "$testedEnv" == "ci-env-1.planx-pla.net" ]]; then
 fi
 export testedEnv="$testedEnv"
 
-# Start selenium process within the ephemeral jenkins pod
+# Start selenium process within the ephemeral jenkins pod.
 npx selenium-standalone install --version=4.0.0-alpha-7
 timeout $seleniumTimeout npx selenium-standalone start --version=4.0.0-alpha-7 &
 
