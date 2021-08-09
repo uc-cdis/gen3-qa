@@ -2,7 +2,7 @@
 #
 # Jenkins launch script.
 # Use:
-#   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--selectedTest=selectedTest]
+#   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--seleniumTimeout] [--selectedTest=selectedTest]
 #
 
 set -xe
@@ -18,6 +18,7 @@ Use:
     --service default is service:-none
     --testedEnv default is testedEnv:-none (for cdis-manifest PRs, specifies which environment is being tested, to know which tests are relevant)
     --isGen3Release default is "false"
+    --seleniumTimeout default is 3600
     --selectedTest default is selectedTest:-none
 EOM
 }
@@ -142,6 +143,7 @@ namespaceName="${KUBECTL_NAMESPACE}"
 service="${service:-""}"
 testedEnv="${testedEnv:-""}"
 isGen3Release="${isGen3Release:false}"
+seleniumTimeout="${seleniumTimeout:3600}"
 selectedTest="${selectedTest:-"all"}"
 
 while [[ $# -gt 0 ]]; do
@@ -163,6 +165,9 @@ while [[ $# -gt 0 ]]; do
       ;;
     isGen3Release)
       isGen3Release="$value"
+      ;;
+    seleniumTimeout)
+      seleniumTimeout="$value"
       ;;
     selectedTest)
       selectedTest="$value"
@@ -213,6 +218,7 @@ Running with:
   service=$service
   testedEnv=$testedEnv
   isGen3Release=$isGen3Release
+  seleniumTimeout=$seleniumTimeout
   selectedTest=$selectedTest
 EOM
 
@@ -490,6 +496,10 @@ if [[ "$testedEnv" == "ci-env-1.planx-pla.net" ]]; then
   export GCLOUD_DYNAMIC_PROJECT="gen3qa-ci-env-1-279903"
 fi
 export testedEnv="$testedEnv"
+
+# Start selenium process within the ephemeral jenkins pod
+npx selenium-standalone install --version=4.0.0-alpha-7
+timeout $seleniumTimeout npx selenium-standalone start --version=4.0.0-alpha-7 &
 
 if [ "$selectedTest" == "all" ]; then
     # no interactive tests
