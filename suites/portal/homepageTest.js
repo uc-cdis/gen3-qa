@@ -1,10 +1,8 @@
 const fetch = require('node-fetch');
 
-const I = actor();
-
 Feature('Homepage').retry(2);
 
-Scenario('login @portal', async ({ home }) => {
+Scenario('login @portal', async ({ I, home }) => {
   home.do.goToHomepage();
   home.complete.login();
   I.saveScreenshot('Home_page_after_login_for_debugging.png');
