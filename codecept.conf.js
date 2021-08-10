@@ -7,6 +7,7 @@ exports.config = {
   output: './output',
   helpers: {
     WebDriver: {
+      host: 'selenium-hub',
       url: `https://${process.env.HOSTNAME}`,
       smartWait: 30000,
       browser: 'chrome',
@@ -20,7 +21,7 @@ exports.config = {
             '--whitelisted-ips=*',
             '--disable-features=VizDisplayCompositor', // https://stackoverflow.com/a/55371396/491553
             '--window-size=1280,720',
-            '--no-sandbox',
+            // '--no-sandbox',
             // '--enable-features=NetworkService,NetworkServiceInProcess',
             '--disable-infobars', // https://stackoverflow.com/a/43840128/1689770
             '--disable-dev-shm-usage', // https://stackoverflow.com/a/50725918/1689770
