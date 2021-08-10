@@ -8,7 +8,7 @@ chai.config.truncateThreshold = 0;
 const fenceQuestions = require('./fenceQuestions.js');
 const fenceTasks = require('./fenceTasks.js');
 const fenceProps = require('./fenceProps.js');
-const { Gen3Response, sleepMS } = require('../../../utils/apiUtil');
+const { Gen3Response, sleepMS } = require('../../../utils/apiUtil.js');
 const userMod = require('../../../utils/user.js');
 
 const I = actor();
