@@ -501,6 +501,9 @@ export testedEnv="$testedEnv"
 npx selenium-standalone install --version=4.0.0-alpha-7
 timeout $seleniumTimeout npx selenium-standalone start --version=4.0.0-alpha-7 &
 
+# gen3-qa-in-a-box requires a couple of changes to its webdriver config
+mv gen3.qa.in.a.box.codecept.conf.js codecept.conf.js
+
 if [ "$selectedTest" == "all" ]; then
     # no interactive tests
     export GEN3_INTERACTIVE=false
