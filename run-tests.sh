@@ -500,13 +500,9 @@ export testedEnv="$testedEnv"
 
 #### Gen3 QA in a BOX ############################################################################
 
-# Tweak JAVA_HOME to use jdk11
-export JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
-export PATH="$JAVA_HOME/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-
 # Start selenium process within the ephemeral jenkins pod.
 npx selenium-standalone install --version=4.0.0-alpha-7
-timeout $seleniumTimeout npx selenium-standalone start --version=4.0.0-alpha-7 &> selenium.log &
+timeout $seleniumTimeout npx selenium-standalone start --version=4.0.0-alpha-7 &> output/selenium.log &
 
 # gen3-qa-in-a-box requires a couple of changes to its webdriver config
 mv gen3.qa.in.a.box.codecept.conf.js codecept.conf.js
