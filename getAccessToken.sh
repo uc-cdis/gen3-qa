@@ -20,7 +20,7 @@ fi
 
 api_key="$(jq -r .api_key < "$credentials_json_path")"
 RC1=$?
-target_environment="$(jq -r .api_key < "$credentials_json_path" | awk -F . '{ print $2 }' | base64 --decode 2> /dev/null | jq -r .iss | awk -F/ '{print $3}')"
+target_environment="$(jq -r .api_key < "$credentials_json_path" | jq -R 'split(".") | .[1] | @base64d | fromjson' | jq .iss | awk -F/ '{print $3}')"
 RC2=$?
 if [[ "$RC1$RC2" -ne "00" ]]; then
   echo "ERROR: failed to retrieve a valid url from the api key within credentials.json - got: $target_environment"
