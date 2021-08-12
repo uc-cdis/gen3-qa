@@ -2,12 +2,27 @@ const { event } = require('codeceptjs');
 const request = require('request');
 const Influx = require('influx');
 const fetch = require('node-fetch');
+const os = require('os');
+const StatsD = require('hot-shots');
 // const stringify = require('json-stringify-safe');
 
 const influx = new Influx.InfluxDB({
   host: 'influxdb',
   database: 'ci_metrics',
 });
+
+const testEnvironment = process.env.KUBECTL_NAMESPACE || os.hostname();
+
+if (!process.env.JENKINS_HOME && process.env.RUNNING_LOCAL !== 'true') {
+  const ddClient = new StatsD({
+    host: 'datadog-agent-cluster-agent.datadog',
+    port: 8125,
+    globalTags: { env: testEnvironment },
+    errorHandler: function (error) {
+      console.log("Socket errors caught here: ", error);
+    }
+  });
+}
 
 async function writeMetrics(measurement, test, currentRetry) {
   // test metrics
@@ -62,26 +77,32 @@ async function writeMetrics(measurement, test, currentRetry) {
 
   const tsData = {};
   tsData[measurement] = fieldInfo;
+  metricTags = {
+    repo_name: repoName,
+    pr_num: prName,
+    suite_name: suiteName,
+    test_name: testName,
+    ci_environment: ciEnvironment,
+    selenium_grid_sessions: sessionCount,
+    run_time: duration,
+  }
 
-  // writing metrics
+  // writing metrics to influxdb
   await influx.writePoints(
     [{
       measurement,
-      tags: {
-        repo_name: repoName,
-        pr_num: prName,
-        suite_name: suiteName,
-        test_name: testName,
-        ci_environment: ciEnvironment,
-        selenium_grid_sessions: sessionCount,
-        run_time: duration,
-      },
+      tags: metricTags,
       fields: tsData,
     }],
     { precision: 's' },
   ).catch((err) => {
     console.error(`Error saving data to InfluxDB! ${err}`);
   });
+
+  // writing metrics to DataDog if ddClient is initialized
+  if(ddClient) {
+    increment(`planx.ci.${measurement}`, metricTags);
+  }
 }
 
 module.exports = function () {
