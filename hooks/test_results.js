@@ -40,6 +40,9 @@ async function fetchJenkinsMetrics() {
   },
   (error, response, body) => {
     if (!error && response.statusCode === 200) {
+      console.log(`### ## DEBUG error: ${JSON.stringify(error)}`);
+      console.log(`### ## DEBUG response: ${JSON.stringify(response)}`);
+      console.log(`### ## DEBUG body: ${JSON.stringify(body)}`);
       return body;
     }
     console.log(`error: ${error}`);
