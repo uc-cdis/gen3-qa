@@ -13,15 +13,40 @@ const influx = new Influx.InfluxDB({
 
 const testEnvironment = process.env.KUBECTL_NAMESPACE || os.hostname();
 
+let ddClient;
 if (!process.env.JENKINS_HOME && process.env.RUNNING_LOCAL !== 'true') {
-  const ddClient = new StatsD({
+  ddClient = new StatsD({
     host: 'datadog-agent-cluster-agent.datadog',
     port: 8125,
     globalTags: { env: testEnvironment },
-    errorHandler: function (error) {
-      console.log("Socket errors caught here: ", error);
-    }
+    errorHandler(error) {
+      console.log('Socket errors caught here: ', error);
+    },
   });
+}
+
+async function fetchJenkinsMetrics() {
+  const username = process.env.JENKINS_USERNAME;
+  const password = process.env.JENKINS_USER_API_TOKEN;
+  const url = 'https://jenkins.planx-pla.net/scriptText';
+  const auth = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
+
+  const queueLength = await request({
+    url,
+    body: 'script=println(Hudson.instance.queue.items.length)',
+    headers: {
+      Authorization: auth,
+    },
+  },
+  (error, response, body) => {
+    if (!error && response.statusCode === 200) {
+      return body;
+    }
+    console.log(`error: ${error}`);
+    return null;
+  });
+
+  return queueLength;
 }
 
 async function writeMetrics(measurement, test, currentRetry) {
@@ -62,6 +87,9 @@ async function writeMetrics(measurement, test, currentRetry) {
     }
   }
 
+  // Jenkins metrics
+  const numberOfPRsWaitingInTheQueue = await fetchJenkinsMetrics();
+
   // logs
   console.log('********');
   console.log(`TEST: ${testName}`);
@@ -69,6 +97,7 @@ async function writeMetrics(measurement, test, currentRetry) {
   console.log(`CURRENT RETRY - ${currentRetry}`);
   console.log(`TIMESTAMP: ${new Date()}`);
   console.log(`GRID_SESSION_COUNT: ${sessionCount}`);
+  console.log(`JENKINS_QUEUE_LENGTH: ${numberOfPRsWaitingInTheQueue}`);
   console.log(`TEST_DURATION: ${duration}s`);
   console.log('********');
 
@@ -77,15 +106,16 @@ async function writeMetrics(measurement, test, currentRetry) {
 
   const tsData = {};
   tsData[measurement] = fieldInfo;
-  metricTags = {
+  const metricTags = {
     repo_name: repoName,
     pr_num: prName,
     suite_name: suiteName,
     test_name: testName,
     ci_environment: ciEnvironment,
     selenium_grid_sessions: sessionCount,
+    jenkins_queue_items_length: numberOfPRsWaitingInTheQueue,
     run_time: duration,
-  }
+  };
 
   // writing metrics to influxdb
   await influx.writePoints(
@@ -100,8 +130,8 @@ async function writeMetrics(measurement, test, currentRetry) {
   });
 
   // writing metrics to DataDog if ddClient is initialized
-  if(ddClient) {
-    increment(`planx.ci.${measurement}`, metricTags);
+  if (ddClient) {
+    ddClient.increment(`planx.ci.${measurement}`, metricTags);
   }
 }
 
