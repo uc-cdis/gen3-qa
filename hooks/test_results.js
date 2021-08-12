@@ -97,7 +97,7 @@ async function writeMetrics(measurement, test, currentRetry) {
   console.log(`CURRENT RETRY - ${currentRetry}`);
   console.log(`TIMESTAMP: ${new Date()}`);
   console.log(`GRID_SESSION_COUNT: ${sessionCount}`);
-  console.log(`JENKINS_QUEUE_LENGTH: ${numberOfPRsWaitingInTheQueue}`);
+  console.log(`JENKINS_QUEUE_LENGTH: ${JSON.stringify(numberOfPRsWaitingInTheQueue)}`);
   console.log(`TEST_DURATION: ${duration}s`);
   console.log('********');
 
@@ -113,7 +113,6 @@ async function writeMetrics(measurement, test, currentRetry) {
     test_name: testName,
     ci_environment: ciEnvironment,
     selenium_grid_sessions: sessionCount,
-    jenkins_queue_items_length: numberOfPRsWaitingInTheQueue,
     run_time: duration,
   };
 
