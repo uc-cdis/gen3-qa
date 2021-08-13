@@ -1,5 +1,6 @@
 const { event } = require('codeceptjs');
 const request = require('request');
+const axios = require('axios');
 const Influx = require('influx');
 const fetch = require('node-fetch');
 const os = require('os');
@@ -14,7 +15,8 @@ const influx = new Influx.InfluxDB({
 const testEnvironment = process.env.KUBECTL_NAMESPACE || os.hostname();
 
 let ddClient;
-if (!process.env.JENKINS_HOME && process.env.RUNNING_LOCAL !== 'true') {
+if (process.env.JENKINS_HOME && process.env.RUNNING_LOCAL !== 'true') {
+  console.log('### ## Initializing DataDog Client...');
   ddClient = new StatsD({
     host: 'datadog-agent-cluster-agent.datadog',
     port: 8125,
@@ -26,30 +28,20 @@ if (!process.env.JENKINS_HOME && process.env.RUNNING_LOCAL !== 'true') {
 }
 
 async function fetchJenkinsMetrics() {
-  const username = process.env.JENKINS_USERNAME;
-  const password = process.env.JENKINS_USER_API_TOKEN;
-  const url = 'https://jenkins.planx-pla.net/scriptText';
-  const auth = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
-
-  const queueLength = await request({
-    url,
-    body: 'script=println(Hudson.instance.queue.items.length)',
-    headers: {
-      Authorization: auth,
+  const jenkinsQueueLength = await axios.post(
+    'https://jenkins.planx-pla.net/scriptText',
+    'script=println(Hudson.instance.queue.items.length)',
+    {
+      auth: {
+        username: process.env.JENKINS_USERNAME,
+        password: process.env.JENKINS_USER_API_TOKEN,
+      },
     },
-  },
-  (error, response, body) => {
-    if (!error && response.statusCode === 200) {
-      console.log(`### ## DEBUG error: ${JSON.stringify(error)}`);
-      console.log(`### ## DEBUG response: ${JSON.stringify(response)}`);
-      console.log(`### ## DEBUG body: ${JSON.stringify(body)}`);
-      return body;
-    }
-    console.log(`error: ${error}`);
-    return null;
+  ).then((response) => response.data).catch((error) => {
+    console.log(`error: ${JSON.stringify(error)}`);
   });
 
-  return queueLength;
+  return jenkinsQueueLength;
 }
 
 async function writeMetrics(measurement, test, currentRetry) {
@@ -115,6 +107,7 @@ async function writeMetrics(measurement, test, currentRetry) {
     suite_name: suiteName,
     test_name: testName,
     ci_environment: ciEnvironment,
+    jenkins_queue_items_length: numberOfPRsWaitingInTheQueue,
     selenium_grid_sessions: sessionCount,
     run_time: duration,
   };
