@@ -5,15 +5,44 @@ const { Bash } = require('../../utils/bash.js');
 const studyViewerTasks = require('../../services/portal/studyViewer/studyViewerTasks.js');
 const studyViewerProps = require('../../services/portal/studyViewer/studyViewerProps.js');
 const requestorTasks = require('../../services/apis/requestor/requestorTasks.js');
+const { sleepMS } = require('../../utils/apiUtil.js');
 
 const bash = new Bash();
 
-// logout after each test
-// After(async ({ home }) => {
-//   home.complete.logout();
-// });
-
 // I need a beforeSuite block to run ETL
+BeforeSuite(async ({ I, users }) => {
+  // mutate guppy config to point guppy at jenkins cmc permanent index
+  await bash.runCommand('gen3 mutate-guppy-config-for-study-viewer-test');
+
+  await sleepMS(30000);
+  // polling logic to capture new indicess
+  const nAttempts = 24;
+  let guppyStatusCheckResp = '';
+  for (let i = 0; i < nAttempts; i+=1 ){
+    console.log(`waiting for the new guppy pod with the expected jenkins cmc permanent index - Attempt #${i}...`);
+    guppyStatusCheckResp = await I.sendGetRequest(
+      `https://${process.env.NAMESPACE}.planx-pla.net/guppy/_status`,
+      users.mainAcct.accessTokenHeader,
+    );
+    if (guppyStatusCheckResp.status === 200
+      && (Object.prototype.hasOwnProperty.call(guppyStatusCheckResp.data.indices, 'jenkins_cmc_alias_213'))) {
+      console.log(`${new Date()}: all good, proceed with the test...`);
+      break;
+    } else {
+      console.log(`${new Date()}: The expected jenkins cmc permanent index did not show up on guppy's status payload yet...`);
+      await sleepMS(5000);
+      if (i === nAttempts - 1) {
+        const errMsg = `${new Date()}: The new guppy pod never came up with the expected indices: Details: ${guppyStatusCheckResp.data}`;
+        console.log(errMsg);
+        console.log(`err: ${guppyStatusCheckResp.data}`);
+        throw new Error(`ERROR: ${errMsg}`);
+      }
+    }
+  }
+  // wait a bit for any old pod replicas to go away
+  await sleepMS(30000);
+  // Other arborist policy revoking stuff
+});
 
 // revokes your arborist access
 AfterSuite(async () => {
@@ -36,7 +65,9 @@ AfterSuite(async () => {
 });
 
 // User does not log in and has no access. User see 'Login to Request access' button
-Scenario('User doesnot login and requests the access @studyViewer', async ({ I, users, login }) => {
+Scenario('User doesnot login and requests the access @studyViewer', async ({ 
+  I, users, login 
+}) => {
   studyViewerTasks.goToStudyViewerPage();
   await studyViewerTasks.learnMoreButton();
   await studyViewerTasks.loginToRequestAccess();
@@ -103,7 +134,9 @@ Scenario('User has access to download @studyViewer', async ({
 });
 
 // checking the details of the dataset
-Scenario('Navigation to the detailed dataset page @studyViewer', async ({ home, users, login }) => {
+Scenario('Navigation to the detailed dataset page @studyViewer', async ({ 
+  home, users, login 
+}) => {
   home.do.goToHomepage();
   login.complete.login(users.user0);
   studyViewerTasks.goToStudyViewerPage();
