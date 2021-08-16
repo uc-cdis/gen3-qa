@@ -467,18 +467,18 @@ module.exports = {
       },
       heal: {
         summary: {
-          css: '.discovery-header'
+          css: '.discovery-header',
         },
         cards: {
-          css: '.discovery-studies-container'
+          css: '.discovery-studies-container',
         },
       },
       brh: {
         summary: { 
-          css: '.discovery-header'
+          css: '.discovery-header',
         },
         cards: {
-          css: '.discovery-studies-container'
+          css: '.discovery-studies-container',
         },
       },
     };
