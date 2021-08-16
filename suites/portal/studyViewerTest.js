@@ -1,6 +1,5 @@
-
 /*
-Study Viewer integration tests 
+Study Viewer integration tests
 This test has pre-requisities:
 1. studyViewerConfig to <envs>/portal/gitops.json
 2. studyViewer link under the `button` section
@@ -36,7 +35,7 @@ BeforeSuite(async ({ I, users }) => {
   // polling logic to capture new indicess
   const nAttempts = 24;
   let guppyStatusCheckResp = '';
-  for (let i = 0; i < nAttempts; i+=1 ){
+  for (let i = 0; i < nAttempts; i += 1) {
     console.log(`waiting for the new guppy pod with the expected jenkins cmc permanent index - Attempt #${i}...`);
     guppyStatusCheckResp = await I.sendGetRequest(
       `https://${process.env.NAMESPACE}.planx-pla.net/guppy/_status`,
@@ -83,8 +82,8 @@ AfterSuite(async () => {
 });
 
 // User does not log in and has no access. User see 'Login to Request access' button
-Scenario('User doesnot login and requests the access @studyViewer', async ({ 
-  I, users, login 
+Scenario('User doesnot login and requests the access @studyViewer', async ({
+  I, users, login,
 }) => {
   studyViewerTasks.goToStudyViewerPage();
   await studyViewerTasks.learnMoreButton();
@@ -152,8 +151,8 @@ Scenario('User has access to download @studyViewer', async ({
 });
 
 // checking the details of the dataset
-Scenario('Navigation to the detailed dataset page @studyViewer', async ({ 
-  home, users, login 
+Scenario('Navigation to the detailed dataset page @studyViewer', async ({
+  home, users, login,
 }) => {
   home.do.goToHomepage();
   login.complete.login(users.user0);
