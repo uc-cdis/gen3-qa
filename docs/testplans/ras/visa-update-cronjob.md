@@ -20,7 +20,7 @@ The test comprises the following steps:
 
  1. Login as one of the RAS Staging users (e.g., `UCtestuser128`). *_This login transaction populates a database table and makes this user eligible for continuous passport updates_.
  2. Obtain passport information from `/user/user` (decode the `ga4gh_passport_v1` JWT).
- 3. Run the Visa Update k8s job (`gen3 job run fence-visa-update-cronjob`). *_this should dump new visa info into the database, which will only be applied in the next usersync cycle_.
+ 3. Run the Visa Update k8s job (`gen3 job run fence-visa-update-cronjob`). *_this should dump new visa info into the database, which will only be applied in a subsequent usersync cycle_.
  4. Run the Usersync k8s job (`gen3 job run usersync`).
  5. Assertion: The passport info MUST be updated by the usersync run. Check timestamps, etc.
 
