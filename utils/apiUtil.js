@@ -474,7 +474,7 @@ module.exports = {
         },
       },
       brh: {
-        summary: { 
+        summary: {
           css: '.discovery-header',
         },
         cards: {
