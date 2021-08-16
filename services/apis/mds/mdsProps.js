@@ -1,5 +1,5 @@
 /**
- * manifestService Properties
+ * MDS Properties
  */
 const rootUrl = '/mds';
 
@@ -18,5 +18,6 @@ module.exports = {
     metadata: `${rootUrl}/metadata`,
     metadataIndex: `${rootUrl}/metadata_index`,
     objects: `${rootUrl}/objects`,
+    aggMetadata: `${rootUrl}/aggregate/metadata`,
   },
 };

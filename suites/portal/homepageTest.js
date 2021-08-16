@@ -2,28 +2,10 @@ const fetch = require('node-fetch');
 
 Feature('Homepage').retry(2);
 
-Scenario('login @portal', async ({ home }) => {
-  let sessionCount = 0;
-  if (process.env.RUNNING_IN_PROD_TIER === 'true') {
-    console.log('INFO: Running in prod-tier environment. Ignore selenium-hub metrics.');
-  } else {
-    const resp = await fetch('http://selenium-hub:4444/status');
-    const respJson = await resp.json();
-
-    const { nodes } = respJson.value;
-    if (nodes.length > 0) {
-      nodes.forEach((node) => {
-        node.slots.forEach((slot) => {
-          if (slot.session) {
-            sessionCount += 1;
-          }
-        });
-      });
-    }
-  }
-  console.log(`*** COUNT OF SELENIUM SESSIONS: ${sessionCount} ***`);
+Scenario('login @portal', async ({ I, home }) => {
   home.do.goToHomepage();
   home.complete.login();
+  I.saveScreenshot('Home_page_after_login_for_debugging.png');
   home.ask.seeDetails();
   home.complete.logout();
 });

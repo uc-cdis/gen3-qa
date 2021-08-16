@@ -1,15 +1,55 @@
-const mdsProps = require('./mdsProps.js');
+const { output } = require('codeceptjs');
 
+const mdsProps = require('./mdsProps.js');
+const { Bash } = require('../../../utils/bash.js');
+
+const bash = new Bash();
 const I = actor();
+
 /**
- * manifestService Tasks
+ * MDS Tasks
  */
 module.exports = {
-  createMetadataRecord(accessTokenHeader, guid, record) {
-    I.sendPostRequest(`${mdsProps.endpoints.metadata}/${guid}`, record, accessTokenHeader);
+  async createMetadataRecord(accessTokenHeader, guid, record) {
+    output.print(`Creating metadata record with GUID ${guid}`);
+    const resp = await I.sendPostRequest(`${mdsProps.endpoints.metadata}/${guid}`, record, accessTokenHeader);
+    output.log(resp);
   },
 
-  deleteMetadataRecord(accessTokenHeader, guid) {
-    I.sendDeleteRequest(`${mdsProps.endpoints.metadata}/${guid}`, accessTokenHeader);
+  async editMetadataRecord(accessTokenHeader, guid, updatedRecord) {
+    output.print(`Updating metadata record with GUID ${guid}`);
+    const resp = await I.sendPutRequest(`${mdsProps.endpoints.metadata}/${guid}`, updatedRecord, accessTokenHeader);
+    output.log(resp);
+  },
+
+  async deleteMetadataRecord(accessTokenHeader, guid) {
+    output.print(`Deleting metadata record with GUID ${guid}`);
+    const resp = await I.sendDeleteRequest(`${mdsProps.endpoints.metadata}/${guid}`, accessTokenHeader);
+    output.log(resp);
+  },
+
+  async readMetadataRecord(accessTokenHeader, guid) {
+    const resp = await I.sendGetRequest(`${mdsProps.endpoints.metadata}/${guid}`, accessTokenHeader);
+    output.log(resp);
+    if (resp.status === 200) {
+      return resp.data;
+    }
+    return { status: resp.status };
+  },
+
+  async readAggMetadataRecord(accessTokenHeader, guid) {
+    const resp = await I.sendGetRequest(`${mdsProps.endpoints.aggMetadata}/guid/${guid}`, accessTokenHeader);
+    console.log(resp);
+    if (resp.status === 200) {
+      return resp.data;
+    }
+    return { status: resp.status };
+  },
+
+  reSyncAggregateMetadata() {
+    const cmd = 'python /src/src/mds/populate.py --config /src/configs/heal_config_qa.json --hostname esproxy-service --port 9200';
+    output.print(`Running command on metadata pod: ${cmd}`);
+    const res = bash.runCommand(cmd, 'metadata');
+    output.log(`Result: ${res}`);
   },
 };

@@ -2,7 +2,7 @@
 #
 # Jenkins launch script.
 # Use:
-#   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--selectedTest=selectedTest]
+#   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--seleniumTimeout] [--selectedTest=selectedTest]
 #
 
 set -xe
@@ -18,6 +18,7 @@ Use:
     --service default is service:-none
     --testedEnv default is testedEnv:-none (for cdis-manifest PRs, specifies which environment is being tested, to know which tests are relevant)
     --isGen3Release default is "false"
+    --seleniumTimeout default is 3600
     --selectedTest default is selectedTest:-none
 EOM
 }
@@ -142,6 +143,7 @@ namespaceName="${KUBECTL_NAMESPACE}"
 service="${service:-""}"
 testedEnv="${testedEnv:-""}"
 isGen3Release="${isGen3Release:false}"
+seleniumTimeout="${seleniumTimeout:3600}"
 selectedTest="${selectedTest:-"all"}"
 
 while [[ $# -gt 0 ]]; do
@@ -163,6 +165,9 @@ while [[ $# -gt 0 ]]; do
       ;;
     isGen3Release)
       isGen3Release="$value"
+      ;;
+    seleniumTimeout)
+      seleniumTimeout="$value"
       ;;
     selectedTest)
       selectedTest="$value"
@@ -213,6 +218,7 @@ Running with:
   service=$service
   testedEnv=$testedEnv
   isGen3Release=$isGen3Release
+  seleniumTimeout=$seleniumTimeout
   selectedTest=$selectedTest
 EOM
 
@@ -391,16 +397,17 @@ if [ -z "$checkForPresenceOfMetadataIngestionSowerJob" ]; then
 fi
 
 # Study Viewer test
-runStudyViewerTests=true
-if ! [[ "$service" =~ ^(data-portal|requestor|gen3-qa)$ ]]; then
-  if [[ "$service" =~ ^(cdis-manifest|gitops-qa)$ ]]; then
-    if ! (g3kubectl get pods --no-headers -l app=requestor | grep requestor) > /dev/null 2>&1; then
-      echo "### Study-Viewer is not deployed"
-      runStudyViewerTests=false
+runStudyViewerTests=false
+#run for data-portal/requestor/gen3-qa/gitops-qa/cdis-manifest repo
+if [[ "$service" =~ ^(data-portal|requestor|gen3-qa|cdis-manifest|gitops-qa)$ ]]; then
+  # checks both conditions
+  # 1. if studyViewer is deployed to that env
+  # 2. if requestor is also deployed   
+  if [[ $(curl -s "$portalConfigURL" | jq 'contains({studyViewerConfig})') == "true" ]]; then
+    if (g3kubectl get pods --no-headers -l app=requestor | grep requestor) > /dev/null 2>&1; then
+      echo "### Study-Viewer is deployed"
+      runStudyViewerTests=true
     fi
-  else
-    echo "### Not necessary run Study-Viewer test for repo $service"
-    runStudyViewerTests=false
   fi
 fi
 if [[ "$runStudyViewerTests" == true ]]; then
@@ -465,6 +472,14 @@ runTestsIfServiceVersion "@audit" "audit-service" "1.0.0" "2021.06"
 # the tests assume fence records both successful and unsuccessful events
 runTestsIfServiceVersion "@audit" "fence" "5.1.0" "2021.07"
 
+#
+# Run Agg MDS tests only if the feature is enabled
+#
+usingAggMDS=$(kubectl get secret metadata-g3auto -o json | jq -r '.data["metadata.env"]' | base64 --decode | grep USE_AGG_MDS | cut -d '=' -f2)
+echo $usingAggMDS
+if ! [[ $usingAggMDS == "true" ]]; then
+	donot '@aggMDS'
+fi
 ########################################################################################
 
 testArgs="--reporter mocha-multi"
@@ -481,6 +496,27 @@ if [[ "$testedEnv" == "ci-env-1.planx-pla.net" ]]; then
   export GCLOUD_DYNAMIC_PROJECT="gen3qa-ci-env-1-279903"
 fi
 export testedEnv="$testedEnv"
+
+
+#### Gen3 QA in a BOX ############################################################################
+if [[ "$(hostname)" == *"cdis-github-org"* ]]; then
+  echo "inside an ephemeral gen3-qa-in-a-box pod..."
+
+  # Start selenium process within the ephemeral jenkins pod.
+  npx selenium-standalone install --version=4.0.0-alpha-7
+  timeout $seleniumTimeout npx selenium-standalone start --version=4.0.0-alpha-7 &> selenium.log &
+
+  # gen3-qa-in-a-box requires a couple of changes to its webdriver config
+  set +e
+  mv gen3.qa.in.a.box.codecept.conf.js codecept.conf.js
+  set -e
+
+  # selenium-standalone is in localhost, do not fetch metrics from the selenium-hub
+  sed -i 's/selenium-hub/localhost/' hooks/test_results.js
+else
+  echo "NOT inside an ephemeral gen3-qa-in-a-box pod..."
+fi
+##################################################################################################
 
 if [ "$selectedTest" == "all" ]; then
     # no interactive tests
