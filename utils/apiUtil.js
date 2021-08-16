@@ -449,6 +449,14 @@ module.exports = {
           css: '.covid19-dashboard_counts',
         },
       },
+      brh: {
+        summary: { 
+          css: '.discovery-header'
+        },
+        cards: {
+          css: '.discovery-studies-container'
+        },
+      },
       covid19: {
         summary: {
           css: '.covid19-dashboard_panel',
@@ -466,8 +474,12 @@ module.exports = {
         },
       },
       heal: {
-        summary: { css: '.discovery-header' },
-        cards: { css: '.discovery-studies-container' },
+        summary: {
+          css: '.discovery-header'
+        },
+        cards: {
+          css: '.discovery-studies-container'
+        },
       },
     };
     console.log(`#### hostname:${process.env.testedEnv}`);
