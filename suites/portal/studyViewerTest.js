@@ -53,10 +53,10 @@ BeforeSuite(async ({ I, users }) => {
         const errMsg = `${new Date()}: The new guppy pod never came up with the expected indices: Details: ${guppyStatusCheckResp.data}`;
         console.log(errMsg);
         console.log(`err: ${guppyStatusCheckResp.data}`);
-        // getting guppy pod logs 
+        // getting guppy pod logs
         const guppyPodLogs = await bash.runCommand('g3kubectl logs -l app=guppy');
         console.log(`###### ##### ### DEBUGGING new guppy pod not coming up ok: ${guppyPodLogs}`);
-        // checking if the mutation was correctly done 
+        // checking if the mutation was correctly done
         const checkGuppyConfig = await bash.runCommand('g3kubectl get cm manifest-guppy -o yaml');
         console.log(`###### ##### ### DEBUGGING manifest-guppy: ${checkGuppyConfig}`);
         throw new Error(`ERROR: ${errMsg}`);
