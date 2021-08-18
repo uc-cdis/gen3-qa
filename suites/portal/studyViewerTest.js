@@ -63,8 +63,6 @@ BeforeSuite(async ({ I, users }) => {
       }
     }
   }
-  // wait for guppy pods to be up which points towards jenkins_cmc_permanent index
-  await sleepMS(30000);
 });
 
 // revokes your arborist access
