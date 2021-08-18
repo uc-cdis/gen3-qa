@@ -131,11 +131,11 @@ module.exports = function () {
       request(`https://${process.env.HOSTNAME}/data/config/gitops.json`, { json: true }, (err, res) => {
         if (err) { console.log(err); }
         let areThereAnyExportToPFBButtons = false;
-        if (res.statusCode == 200) {
-          let explorerConfigPropertyName = undefined;
-          if (res.body.hasOwnProperty('dataExplorerConfig')) {
+        if (res.statusCode === 200) {
+          let explorerConfigPropertyName;
+          if (Object.prototype.hasOwnProperty.call(res.body, 'dataExplorerConfig')) {
             explorerConfigPropertyName = 'dataExplorerConfig';
-          } else if (res.body.hasOwnProperty('fileExplorerConfig')) {
+          } else if (Object.prototype.hasOwnProperty.call(res.body, 'fileExplorerConfig')) {
             explorerConfigPropertyName = 'fileExplorerConfig';
           } else {
             console.log('could not find any explorer config...');
@@ -144,7 +144,7 @@ module.exports = function () {
             console.log(`### ## res.body[explorerConfigPropertyName]: ${JSON.stringify(res.body[explorerConfigPropertyName])}`);
             res.body[explorerConfigPropertyName].buttons.forEach((button) => {
               console.log(`## ### BUTTON : ${JSON.stringify(button)}`);
-              if (button.type == 'export-to-pfb') {
+              if (button.type === 'export-to-pfb') {
                 areThereAnyExportToPFBButtons = true;
               }
             });
