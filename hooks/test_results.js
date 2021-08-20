@@ -131,16 +131,24 @@ module.exports = function () {
       request(`https://${process.env.HOSTNAME}/data/config/gitops.json`, { json: true }, (err, res) => {
         if (err) { console.log(err); }
         let areThereAnyExportToPFBButtons = false;
-        if (res.statusCode === 200 && Object.prototype.hasOwnProperty.call(res.body, 'explorerConfig')) {
-          res.body.explorerConfig.forEach((config) => {
-            console.log(`looking for export-to-pfb buttons in config: ${config.tabTitle}`);
-            config.buttons.forEach((button) => {
+        if (res.statusCode === 200) {
+          let explorerConfigPropertyName;
+          if (Object.prototype.hasOwnProperty.call(res.body, 'dataExplorerConfig')) {
+            explorerConfigPropertyName = 'dataExplorerConfig';
+          } else if (Object.prototype.hasOwnProperty.call(res.body, 'fileExplorerConfig')) {
+            explorerConfigPropertyName = 'fileExplorerConfig';
+          } else {
+            console.log('could not find any explorer config...');
+          }
+          if (explorerConfigPropertyName) {
+            console.log(`### ## res.body[explorerConfigPropertyName]: ${JSON.stringify(res.body[explorerConfigPropertyName])}`);
+            res.body[explorerConfigPropertyName].buttons.forEach((button) => {
               console.log(`## ### BUTTON : ${JSON.stringify(button)}`);
               if (button.type === 'export-to-pfb') {
                 areThereAnyExportToPFBButtons = true;
               }
             });
-          });
+          }
         }
         if (!areThereAnyExportToPFBButtons) {
           console.log('Skipping PFB Export test scenarios since its config does not contain any export-to-pfb buttons...');
