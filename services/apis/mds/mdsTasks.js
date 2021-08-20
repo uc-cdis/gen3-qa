@@ -47,7 +47,7 @@ module.exports = {
   },
 
   reSyncAggregateMetadata() {
-    const cmd = 'python /src/src/mds/populate.py --config /src/configs/heal_config_qa.json --hostname esproxy-service --port 9200';
+    const cmd = 'python /src/src/mds/populate.py --config /aggregate_config.json --hostname esproxy-service --port 9200';
     output.print(`Running command on metadata pod: ${cmd}`);
     const res = bash.runCommand(cmd, 'metadata');
     output.log(`Result: ${res}`);
