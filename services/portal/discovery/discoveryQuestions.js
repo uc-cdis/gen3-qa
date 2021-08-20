@@ -8,7 +8,7 @@ module.exports = {
   },
 
   isPageLoaded() {
-    I.seeElement(props.readyCue.locator, 30);
+    I.seeElement(props.readyCue, 30);
   },
 
   isStudyFound(studyId) {
