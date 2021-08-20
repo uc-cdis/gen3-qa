@@ -475,9 +475,8 @@ runTestsIfServiceVersion "@audit" "fence" "5.1.0" "2021.07"
 #
 # Run Agg MDS tests only if the feature is enabled
 #
-usingAggMDS=$(kubectl get configmaps manifest-all -o json | jq -r '.data.json | fromjson.metadata.USE_AGG_MDS')
-echo $usingAggMDS
-if ! [[ $usingAggMDS == "true" ]]; then
+usingAggMDS=$(g3kubectl get cm manifest-metadata -o yaml | yq .data.USE_AGG_MDS)
+if ! [[ $usingAggMDS == \"true\" ]]; then
 	donot '@aggMDS'
 fi
 ########################################################################################
