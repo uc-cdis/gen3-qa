@@ -87,11 +87,16 @@ Scenario('Publish a study, search and export to workspace', async ({
 
   // Resync Agg MDS
   mds.do.reSyncAggregateMetadata();
+  const record = await mds.do.readAggMetadataRecord(
+    users.mainAcct.accessTokenHeader, I.cache.studyId,
+  );
+  expect(record.commons_name).to.equal('HEAL');
 
   // Login and navigate to discovery page
   home.do.goToHomepage();
   home.complete.login(users.mainAcct);
   discovery.do.goToPage();
+  I.saveScreenshot('discoveryPage.png');
 
   // Tag search
   discovery.do.tagSearch('TESTING', 'AUTOTEST Tag');
