@@ -1,5 +1,5 @@
 /*
- PFB Export Test (PXP-????)
+ PFB Export Test (PXP-?)
  This test plan has a few pre-requisites:
  1. The environment must have the file-upload capabilities
     (Ssjdispatcher should be configured)
