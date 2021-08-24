@@ -1,5 +1,6 @@
 /* eslint-disable no-tabs */
 const uuid = require('uuid');
+const { expect } = require('chai');
 
 const I = actor();
 I.cache = {};
