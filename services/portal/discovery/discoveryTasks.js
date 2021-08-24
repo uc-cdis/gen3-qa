@@ -5,6 +5,8 @@ const I = actor();
 module.exports = {
   goToPage() {
     I.amOnPage(props.path);
+    I.wait(5);
+    I.saveScreenshot('discoPage.png');
     I.waitForElement(props.readyCue, 30);
     I.wait(2);
   },
