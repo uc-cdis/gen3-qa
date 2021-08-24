@@ -1,6 +1,7 @@
 /* eslint-disable no-tabs */
 const uuid = require('uuid');
 const { expect } = require('chai');
+const { output } = require('codeceptjs');
 
 const I = actor();
 I.cache = {};
@@ -29,7 +30,7 @@ Scenario('Publish a study, search and export to workspace', async ({
   I.cache.studyId = uuid.v4();
   I.cache.md5sum = '694b1d13b8148756442739fa2cc37fd6'; // pragma: allowlist secret
 
-  // Index tsv manifest file
+  output.print('--- Index TSV manifest');
   home.do.goToHomepage();
   home.complete.login(users.indexingAcct);
   const headerRowVals = ['GUID', 'md5', 'size', 'acl', 'authz', 'urls'];
@@ -40,7 +41,7 @@ Scenario('Publish a study, search and export to workspace', async ({
   indexing.do.indexManifest(users.indexingAcct, I.cache.manifestFileName);
   home.complete.logout(users.indexingAcct);
 
-  // Publish study metadata
+  output.print('--- Publish study metadata');
   const studyMetaData = {
     _guid_type: 'discovery_metadata',
     gen3_discovery: {
@@ -84,22 +85,24 @@ Scenario('Publish a study, search and export to workspace', async ({
       research_focus_area: 'Clinical Research in Pain Management',
     },
   };
-  mds.do.createMetadataRecord(users.mainAcct.accessTokenHeader, I.cache.studyId, studyMetaData);
-
-  // Resync Agg MDS
+  output.print('--- Creating metadata record');
+  await mds.do.createMetadataRecord(
+    users.mainAcct.accessTokenHeader, I.cache.studyId, studyMetaData,
+  );
+  output.print('--- Re-sync aggregate metadata');
   mds.do.reSyncAggregateMetadata();
   const record = await mds.do.readAggMetadataRecord(
     users.mainAcct.accessTokenHeader, I.cache.studyId,
   );
   expect(record.commons_name).to.equal('HEAL');
 
-  // Login and navigate to discovery page
+  output.print('--- Navigate to discovery page');
   home.do.goToHomepage();
   home.complete.login(users.mainAcct);
   discovery.do.goToPage();
   I.saveScreenshot('discoveryPage.png');
 
-  // Tag search
+  output.print('--- Perform tag search');
   discovery.do.tagSearch('TESTING', 'AUTOTEST Tag');
   I.saveScreenshot('clicked_tag.png');
   discovery.ask.isStudyFound(I.cache.studyId);
@@ -111,21 +114,21 @@ Scenario('Publish a study, search and export to workspace', async ({
   // I.saveScreenshot('advanced_search.png');
   // discovery.ask.isStudyFound(I.cache.studyId);
 
-  // Text search
+  output.print('--- Perform text search');
   I.refreshPage();
   I.wait(2);
   discovery.do.textSearch('[AUTOTEST Title]');
   I.saveScreenshot('entered_text.png');
   discovery.ask.isStudyFound(I.cache.studyId);
 
-  // Text search
+  output.print('--- Perform text search');
   I.refreshPage();
   I.wait(2);
   discovery.do.textSearch('[AUTOTEST Summary]');
   I.saveScreenshot('entered_text.png');
   discovery.ask.isStudyFound(I.cache.studyId);
 
-  // Open in workspace
+  output.print('--- Open study in workspace');
   discovery.do.openInWorkspace(I.cache.studyId);
   I.saveScreenshot('open_in_workspace.png');
   I.waitInUrl('/workspace', 20);
