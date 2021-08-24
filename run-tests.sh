@@ -479,6 +479,8 @@ usingAggMDS=$(g3kubectl get cm manifest-metadata -o yaml | yq .data.USE_AGG_MDS)
 if ! [[ $usingAggMDS == \"true\" ]]; then
 	donot '@aggMDS'
 fi
+
+donot '@aggMDS'
 ########################################################################################
 
 testArgs="--reporter mocha-multi"
