@@ -498,7 +498,7 @@ export testedEnv="$testedEnv"
 
 
 #### Gen3 QA in a BOX ############################################################################
-if [[ "$(hostname)" == *"cdis-github-org"* ]] || [[ "$(hostname)" == "planx-ci-pipeline" ]]; then
+if [[ "$(hostname)" == *"cdis-github-org"* ]] || [[ "$(hostname)" == *"planx-ci-pipeline"* ]]; then
   echo "inside an ephemeral gen3-qa-in-a-box pod..."
 
   # Start selenium process within the ephemeral jenkins pod.
