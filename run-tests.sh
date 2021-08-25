@@ -480,7 +480,6 @@ if ! [[ $usingAggMDS == \"true\" ]]; then
 	donot '@aggMDS'
 fi
 
-donot '@aggMDS'
 ########################################################################################
 
 testArgs="--reporter mocha-multi"
