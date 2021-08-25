@@ -481,7 +481,7 @@ if ! [[ $usingAggMDS == \"true\" ]]; then
 fi
 
 # Do not run discovery page tests yet, since the portal config is not done in jenkins envs
-donot @discoveryPage
+donot '@discoveryPage'
 
 ########################################################################################
 
