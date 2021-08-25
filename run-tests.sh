@@ -480,6 +480,9 @@ if ! [[ $usingAggMDS == \"true\" ]]; then
 	donot '@aggMDS'
 fi
 
+# Do not run discovery page tests yet, since the portal config is not done in jenkins envs
+donot @discoveryPage
+
 ########################################################################################
 
 testArgs="--reporter mocha-multi"

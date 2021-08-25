@@ -6,7 +6,7 @@ const { output } = require('codeceptjs');
 const I = actor();
 I.cache = {};
 
-Feature('Discovery page @aggMDS');
+Feature('Discovery page @discoveryPage');
 
 After(({ users, mds }) => {
   if ('studyId' in I.cache) {
@@ -23,7 +23,7 @@ Scenario('User is able to navigate to Discovery page', ({ discovery }) => {
   discovery.ask.isPageLoaded();
 });
 
-Scenario('Publish a study, search and export to workspace @manual', async ({
+Scenario('Publish a study, search and export to workspace', async ({
   mds, users, discovery, files, indexing, home,
 }) => {
   I.cache.did = uuid.v4();
