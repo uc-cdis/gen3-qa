@@ -18,12 +18,12 @@ After(({ users, mds }) => {
   }
 });
 
-Scenario('User is able to navigate to Discovery page @discoveryPage', ({ discovery }) => {
+Scenario('User is able to navigate to Discovery page', ({ discovery }) => {
   discovery.do.goToPage();
   discovery.ask.isPageLoaded();
 });
 
-Scenario('Publish a study, search and export to workspace @discoveryPage', async ({
+Scenario('Publish a study, search and export to workspace', async ({
   mds, users, discovery, files, indexing, home,
 }) => {
   I.cache.did = uuid.v4();
