@@ -481,7 +481,7 @@ usingAggMDS=$(g3kubectl get cm manifest-metadata -o yaml | yq .data.USE_AGG_MDS)
 if ! [[ $usingAggMDS == \"true\" && "$service" =~ ^(cdis-manifest|gitops-qa|gitops-dev|gen3-qa|metadata-service) ]]; then
 	donot '@aggMDS'
 fi
-runTestsIfServiceVersion "@aggMDS" "metadata-service" "master"
+donot '@aggMDS'
 
 # Do not run discovery page tests yet, since the portal config is not done in jenkins envs
 donot '@discoveryPage'
