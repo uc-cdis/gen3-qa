@@ -476,7 +476,7 @@ runTestsIfServiceVersion "@audit" "fence" "5.1.0" "2021.07"
 # Run Agg MDS tests only if the feature is enabled
 #
 usingAggMDS=$(g3kubectl get cm manifest-metadata -o yaml | yq .data.USE_AGG_MDS)
-if ! [[ $usingAggMDS == \"true\" ]]; then
+if ! [[ $usingAggMDS == \"true\" || "$service" =~ ^(cdis-manifest|gitops-qa|gitops-dev|gen3-qa|metadata-service) ]]; then
 	donot '@aggMDS'
 fi
 
