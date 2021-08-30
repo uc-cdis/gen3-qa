@@ -23,7 +23,7 @@ Scenario('User is able to navigate to Discovery page', ({ discovery }) => {
   discovery.ask.isPageLoaded();
 });
 
-Scenario('Publish a study, search and export to workspace', async ({
+Scenario('Publish a study, search and export to workspace @aggMDS', async ({
   mds, users, discovery, files, indexing, home,
 }) => {
   I.cache.did = uuid.v4();
