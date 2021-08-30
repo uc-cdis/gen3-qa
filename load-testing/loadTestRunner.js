@@ -45,7 +45,7 @@ async function runLoadTestScenario() {
   let targetEnvironment = jwtData[Object.keys(jwtData)[1]];
 
   let token = '';
-  if (Object.prototype.hasOwnProperty.call(testDescriptorData, 'override_access_token')) {
+  if (Object.prototype.hasOwnProperty.call(testDescriptorData, 'override_access_token') && testDescriptorData.override_access_token !== 'test') {
     token = testDescriptorData.override_access_token;
     console.log(`Override token: ${token}`);
     const overrideJwtData = parseJwt(testDescriptorData.override_access_token);
