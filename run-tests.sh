@@ -474,12 +474,15 @@ runTestsIfServiceVersion "@audit" "fence" "5.1.0" "2021.07"
 
 #
 # Run Agg MDS tests only if the feature is enabled
+# and service is one of metadata-service, cdis-manifest, gitops-qa, gitops-dev and gen3-qa
+# and if version is 1.5.0
 #
-usingAggMDS=$(kubectl get secret metadata-g3auto -o json | jq -r '.data["metadata.env"]' | base64 --decode | grep USE_AGG_MDS | cut -d '=' -f2)
-echo $usingAggMDS
-if ! [[ $usingAggMDS == "true" ]]; then
+usingAggMDS=$(g3kubectl get cm manifest-metadata -o yaml | yq .data.USE_AGG_MDS)
+if ! [[ $usingAggMDS == \"true\" && "$service" =~ ^(cdis-manifest|gitops-qa|gitops-dev|gen3-qa|metadata-service) ]]; then
 	donot '@aggMDS'
 fi
+runTestsIfServiceVersion "@aggMDS" "metadata" "1.5.0"
+
 ########################################################################################
 
 testArgs="--reporter mocha-multi"
@@ -499,7 +502,7 @@ export testedEnv="$testedEnv"
 
 
 #### Gen3 QA in a BOX ############################################################################
-if [[ "$(hostname)" == *"cdis-github-org"* ]]; then
+if [[ "$(hostname)" == *"cdis-github-org"* ]] || [[ "$(hostname)" == *"planx-ci-pipeline"* ]]; then
   echo "inside an ephemeral gen3-qa-in-a-box pod..."
 
   # Start selenium process within the ephemeral jenkins pod.
