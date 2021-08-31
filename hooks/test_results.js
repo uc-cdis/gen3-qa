@@ -126,9 +126,7 @@ async function writeMetrics(measurement, test, currentRetry) {
 
   // writing metrics to DataDog if ddClient is initialized
   if (ddClient) {
-    const tags = {};
-    tags[`planx.ci.${measurement}`] = JSON.stringify(metricTags);
-    ddClient.event('CI Metric', 'Test Result Hook', tags);
+    ddClient.increment(`planx.ci.${measurement}`, 1, metricTags, undefined);
   }
 }
 
