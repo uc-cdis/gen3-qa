@@ -482,6 +482,8 @@ if ! [[ $usingAggMDS == \"true\" && "$service" =~ ^(cdis-manifest|gitops-qa|gito
 	donot '@aggMDS'
 fi
 runTestsIfServiceVersion "@aggMDS" "metadata" "1.5.0" "2021.10"
+donot '@aggMDS'
+donot '@discoveryPage'
 
 ########################################################################################
 
