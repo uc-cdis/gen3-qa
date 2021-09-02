@@ -124,7 +124,6 @@ Scenario('Use client creds from RAS Test User 1 and auth code to obtain access t
   const userInfoOutputJson = JSON.parse(userInfoOutput);
 
   expect(userInfoOutputJson).to.have.property('ga4gh_passport_v1');
-  expect(userInfoOutputJson.ga4gh_passport_v1).to.not.to.be.empty;
 
   console.log(`access token audience: ${accessTokenJson.aud}`);
   console.log(`access token scope: ${accessTokenJson.scope}`);
