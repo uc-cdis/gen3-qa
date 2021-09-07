@@ -2,7 +2,7 @@ const { Gen3Response } = require('../../../utils/apiUtil');
 /**
  * DRS Properties
  */
-const apiRoot = '//ga4gh/drs/v1/objects';
+const apiRoot = '/ga4gh/drs/v1/objects';
 module.exports = {
   /**
    * DRS endpoints
