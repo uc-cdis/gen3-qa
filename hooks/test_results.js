@@ -113,7 +113,7 @@ module.exports = function () {
     console.log('********');
     console.log(`SUITE: ${suite.title}`);
     if (suite.title === 'DrsAPI') {
-      request(`https://${process.env.HOSTNAME}/index/ga4gh/drs/v1/objects`, { json: true }, (err, res) => {
+      request(`https://${process.env.HOSTNAME}//ga4gh/drs/v1/objects`, { json: true }, (err, res) => {
         if (err) { console.log(err); }
         if (res.statusCode !== 200) {
           console.log('Skipping DRS tests since its endpoints are not enabled on this environment...');
