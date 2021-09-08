@@ -27,7 +27,7 @@ export const options = {
 };
 
 export default function () {
-  const url = `https://${GEN3_HOST}/index/ga4gh/drs/v1/objects/${guids[Math.floor(Math.random() * guids.length)]}/access/${SIGNED_URL_PROTOCOL}`;
+  const url = `https://${GEN3_HOST}/ga4gh/drs/v1/objects/${guids[Math.floor(Math.random() * guids.length)]}/access/${SIGNED_URL_PROTOCOL}`;
   const params = {
     headers: {
       'Content-Type': 'application/json',
