@@ -63,7 +63,8 @@
     "unirest": "^0.6.0",
     "uuid": "^3.4.0",
     "wcag": "latest",
-    "webdriverio": "^6.1.17"
+    "webdriverio": "^6.1.17",
+    "hot-shots": "^8.5.0"
   },
   "scripts": {
     "selenium-install": "selenium-standalone install",
