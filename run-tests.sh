@@ -525,11 +525,6 @@ if [[ "$(hostname)" == *"cdis-github-org"* ]] || [[ "$(hostname)" == *"planx-ci-
   set +e
   mv gen3.qa.in.a.box.codecept.conf.js codecept.conf.js
   set -e
-
-  sleep 3000
-
-  # selenium-standalone is in localhost, do not fetch metrics from the selenium-hub
-  sed -i 's/selenium-hub/localhost/' hooks/test_results.js
 else
   echo "NOT inside an ephemeral gen3-qa-in-a-box pod..."
 fi
