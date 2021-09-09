@@ -49,6 +49,7 @@ async function writeMetrics(measurement, test, currentRetry) {
   const suiteName = test.parent.title.split(' ').join('_');
   const testName = test.title.split(' ').join('_');
   const ciEnvironment = process.env.KUBECTL_NAMESPACE;
+  console.log(`### ### ## # RAW DURATION HERE: ${test.duration}`);
   const duration = test.duration / 1000;
 
   // github metrics
