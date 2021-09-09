@@ -109,7 +109,6 @@ async function writeMetrics(measurement, test, currentRetry) {
     ci_environment: ciEnvironment,
     jenkins_queue_items_length: numberOfPRsWaitingInTheQueue,
     selenium_grid_sessions: sessionCount,
-    run_time: duration,
   };
 
   // writing metrics to influxdb
@@ -126,7 +125,16 @@ async function writeMetrics(measurement, test, currentRetry) {
 
   // writing metrics to DataDog if ddClient is initialized
   if (ddClient) {
-    ddClient.increment(`planx.ci.${measurement}`, 1, metricTags, undefined);
+    // TODO: There are some awkward IFs here but they are supposed to stick around
+    // while InfluxDB + Grafana co-exist with DataDog, once we spend a few months with
+    // with enough historical metrics, we shall refactor and abandon all the InfluxDB-related code
+    if (measurement === 'run_time') {
+      // handle gauge metric unit
+      ddClient.gauge('planx.ci.run_time', duration, metricTags);
+    } else {
+      // handle counter metric unit
+      ddClient.increment(`planx.ci.${measurement}`, 1, metricTags, undefined);
+    }
   }
 }
 
