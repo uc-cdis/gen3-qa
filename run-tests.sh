@@ -240,6 +240,7 @@ runTestsIfServiceVersion "@indexRecordConsentCodes" "sheepdog" "1.1.13"
 runTestsIfServiceVersion "@coreMetadataPage" "portal" "2.20.8"
 runTestsIfServiceVersion "@indexing" "portal" "2.26.0" "2020.05"
 runTestsIfServiceVersion "@cleverSafe" "fence" "4.22.4" "2020.09"
+runTestsIfServiceVersion "@drsNew" "fence" "5.4.0" "2020.10"
 
 # environments that use DCF features
 # we only run Google Data Access tests for cdis-manifest PRs to these
@@ -402,7 +403,7 @@ runStudyViewerTests=false
 if [[ "$service" =~ ^(data-portal|requestor|gen3-qa|cdis-manifest|gitops-qa)$ ]]; then
   # checks both conditions
   # 1. if studyViewer is deployed to that env
-  # 2. if requestor is also deployed   
+  # 2. if requestor is also deployed
   if [[ $(curl -s "$portalConfigURL" | jq 'contains({studyViewerConfig})') == "true" ]]; then
     if (g3kubectl get pods --no-headers -l app=requestor | grep requestor) > /dev/null 2>&1; then
       echo "### Study-Viewer is deployed"

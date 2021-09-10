@@ -73,9 +73,16 @@ Scenario('get drs invalid access id @drs', async ({ drs, fence }) => {
   await fence.ask.responsesEqual(signedUrlRes, drs.props.resInvalidFileProtocol);
 });
 
-Scenario('get drs presigned-url no auth header @drs', async ({ drs, fence }) => {
+// New behavior where GA4GH API responds with a 401 with no access token
+Scenario('get drs presigned-url no auth header @drsNew', async ({ drs, fence }) => {
   const signedUrlRes = await drs.do.getDrsSignedUrlWithoutHeader(files.allowed);
   fence.ask.responsesEqual(signedUrlRes, drs.props.noAccessToken);
+});
+
+// Old behavior where GA4GH API responded with a 403 with no access token
+Scenario('get drs presigned-url no auth header @drs', async ({ drs, fence }) => {
+  const signedUrlRes = await drs.do.getDrsSignedUrlWithoutHeader(files.allowed);
+  fence.ask.responsesEqual(signedUrlRes, drs.props.noAccessTokenOld);
 });
 
 AfterSuite(async ({ indexd }) => {
