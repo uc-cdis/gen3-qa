@@ -509,7 +509,7 @@ if [[ "$(hostname)" == *"cdis-github-org"* ]] || [[ "$(hostname)" == *"planx-ci-
 
   # Start selenium process within the ephemeral jenkins pod.
   npx selenium-standalone install --version=4.0.0-alpha-7 --drivers.chrome.version=92.0.4515.107 --drivers.chrome.baseURL=https://chromedriver.storage.googleapis.com
-  timeout $seleniumTimeout npx selenium-standalone start --version=4.0.0-alpha-7 -- -debug &> selenium.log &
+  timeout $seleniumTimeout npx selenium-standalone start --version=4.0.0-alpha-7 --drivers.chrome.version=92.0.4515.107 -- -debug &> selenium.log &
 
   # gen3-qa-in-a-box requires a couple of changes to its webdriver config
   set +e
