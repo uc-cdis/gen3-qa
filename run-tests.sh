@@ -476,15 +476,25 @@ runTestsIfServiceVersion "@audit" "fence" "5.1.0" "2021.07"
 #
 # Run Agg MDS tests only if the feature is enabled
 # and service is one of metadata-service, cdis-manifest, gitops-qa, gitops-dev and gen3-qa
-# and if version is 1.5.0
+# and if metadata service version is 1.5.0 (semver) / 2021.10 (monthly)
 #
 usingAggMDS=$(g3kubectl get cm manifest-metadata -o yaml | yq .data.USE_AGG_MDS)
-if ! [[ $usingAggMDS == \"true\" && "$service" =~ ^(cdis-manifest|gitops-qa|gitops-dev|gen3-qa|metadata-service) ]]; then
+portalUsingAggMDS=$(gen3 secrets decode portal-config gitops.json | jq '.featureFlags.discoveryUseAggMDS')
+if ! [[ $usingAggMDS == \"true\" && $portalUsingAggMDS == "true" && "$service" =~ ^(cdis-manifest|gitops-qa|gitops-dev|gen3-qa|metadata-service) ]]; then
 	donot '@aggMDS'
 fi
 runTestsIfServiceVersion "@aggMDS" "metadata" "1.5.0" "2021.10"
-donot '@aggMDS'
-donot '@discoveryPage'
+
+#
+# Run Discovery Page tests only if feature flag is enabled
+# and service is one of metadata-service, cdis-manifest, gitops-qa, gitops-dev and gen3-qa
+# and if portal service version is 3.8.1 (semver) / 2021.10 (monthly)
+#
+discoveryFeatureFlagEnabled=$(gen3 secrets decode portal-config gitops.json | jq '.featureFlags.discovery')
+if ! [[ $discoveryFeatureFlagEnabled == "true" && "$service" =~ ^(cdis-manifest|gitops-qa|gitops-dev|gen3-qa|metadata-service) ]]; then
+  donot '@discoveryPage'
+fi
+runTestsIfServiceVersion "@discoveryPage" "portal" "3.8.1" "2021.09"
 
 ########################################################################################
 

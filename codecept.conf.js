@@ -8,7 +8,7 @@ exports.config = {
   helpers: {
     WebDriver: {
       host: 'selenium-hub',
-      url: `https://${process.env.HOSTNAME}`,
+      url: `https://${process.env.NAMESPACE}.planx-pla.net`,
       smartWait: 30000,
       browser: 'chrome',
       // fullPageScreenshots: true,
