@@ -7,7 +7,7 @@ exports.config = {
   output: './output',
   helpers: {
     WebDriver: {
-      url: `https://${process.env.HOSTNAME}`,
+      url: `https://${process.env.NAMESPACE}.planx-pla.net`,
       smartWait: 30000,
       browser: 'chrome',
       // fullPageScreenshots: true,
