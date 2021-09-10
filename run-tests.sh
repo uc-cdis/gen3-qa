@@ -556,8 +556,9 @@ else
   fi
   set -e
   npm 'test' -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
-  sleep(3000)
 fi
+
+sleep 3000
 
 # When zero tests are executed, a results*.xml file is produced containing a tests="0" counter
 # e.g., output/result57f4d8778c4987bda6a1790eaa703782.xml
