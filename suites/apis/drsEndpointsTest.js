@@ -47,6 +47,7 @@ BeforeSuite(async ({ I, indexd }) => {
 
   // initialize cache for inter-Scenario communication
   I.cache = {};
+  I.cache.drsNewScenarioExecuted = false;
 });
 
 Scenario('get drs object @drs', async ({ drs, indexd }) => {
