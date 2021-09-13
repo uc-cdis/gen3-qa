@@ -87,10 +87,10 @@ Scenario('get drs presigned-url no auth header @drsNew', async ({ I, drs, fence 
 // Old behavior where GA4GH API responded with a 403 with no access token
 Scenario('get drs presigned-url no auth header @drs', async ({ I, drs, fence }) => {
   if (I.cache.drsNewScenarioExecuted === true) {
+    console.log('the new Scenario was executed already, just skip the old one.');
+  } else {
     const signedUrlRes = await drs.do.getDrsSignedUrlWithoutHeader(files.allowed);
     fence.ask.responsesEqual(signedUrlRes, drs.props.noAccessTokenOld);
-  } else {
-    console.log('the new Scenario was executed already, just skip the old one.');
   }
 });
 
