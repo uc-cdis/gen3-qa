@@ -75,16 +75,17 @@ Scenario('get drs invalid access id @drs', async ({ drs, fence }) => {
 });
 
 Scenario('get drs presigned-url no auth header @drs', async ({ drs, fence }) => {
-  const version = semver.coerce(await fence.do.getVersion());
+  // the endpoint should return 401 if the version is >= 5.5.0 / 2020.10
   const minSemVer = '5.5.0';
   const minMonthlyRelease = semver.coerce('2020.10');
   const monthlyReleaseCutoff = semver.coerce('2020');
+
+  const version = await fence.do.getVersion();
+  const semVerVersion = semver.coerce(version);
   const expectedResponse = drs.props.noAccessToken;
-  if (!semver.valid(version)) {
-    console.log(`Running new version of DRS test b/c Fence version (${version}) is not a valid semver (assuming it's recent)`);
-  } else if (
-    semver.gte(version, minMonthlyRelease)
-    || (semver.lt(version, monthlyReleaseCutoff) && semver.gte(version, minSemVer))
+  if (
+    semver.gte(semVerVersion, minMonthlyRelease)
+    || (semver.lt(semVerVersion, monthlyReleaseCutoff) && semver.gte(semVerVersion, minSemVer))
   ) {
     console.log(`Running new version of DRS test b/c Fence version (${version}) is greater than 5.5.0/2020.10`);
   } else {
