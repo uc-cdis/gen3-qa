@@ -41,9 +41,12 @@ const files = {
   },
 };
 
-BeforeSuite(async ({ indexd }) => {
+BeforeSuite(async ({ I, indexd }) => {
   const ok = await indexd.do.addFileIndices(Object.values(files));
   expect(ok).to.be.true;
+
+  // initialize cache for inter-Scenario communication
+  I.cache = {};
 });
 
 Scenario('get drs object @drs', async ({ drs, indexd }) => {
@@ -74,15 +77,20 @@ Scenario('get drs invalid access id @drs', async ({ drs, fence }) => {
 });
 
 // New behavior where GA4GH API responds with a 401 with no access token
-Scenario('get drs presigned-url no auth header @drsNew', async ({ drs, fence }) => {
+Scenario('get drs presigned-url no auth header @drsNew', async ({ I, drs, fence }) => {
   const signedUrlRes = await drs.do.getDrsSignedUrlWithoutHeader(files.allowed);
   fence.ask.responsesEqual(signedUrlRes, drs.props.noAccessToken);
+  I.cache.drsNewScenarioExecuted = true;
 });
 
 // Old behavior where GA4GH API responded with a 403 with no access token
-Scenario('get drs presigned-url no auth header @drs', async ({ drs, fence }) => {
-  const signedUrlRes = await drs.do.getDrsSignedUrlWithoutHeader(files.allowed);
-  fence.ask.responsesEqual(signedUrlRes, drs.props.noAccessTokenOld);
+Scenario('get drs presigned-url no auth header @drs', async ({ I, drs, fence }) => {
+  if (I.cache.drsNewScenarioExecuted === true) {
+    const signedUrlRes = await drs.do.getDrsSignedUrlWithoutHeader(files.allowed);
+    fence.ask.responsesEqual(signedUrlRes, drs.props.noAccessTokenOld);
+  } else {
+    console.log('the new Scenario was executed already, just skip the old one.');
+  }
 });
 
 AfterSuite(async ({ indexd }) => {
