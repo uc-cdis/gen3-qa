@@ -1,5 +1,6 @@
 /*eslint-disable */
 const { container } = require('codeceptjs');
+const chai = require('chai');
 const ax = require('axios'); // eslint-disable-line import/no-extraneous-dependencies
 
 const fenceProps = require('./fenceProps.js');
@@ -9,6 +10,7 @@ const { Gen3Response, sleepMS, getCookie, getAccessTokenHeader } = require('../.
 const { Bash, takeLastLine } = require('../../../utils/bash');
 
 const bash = new Bash();
+const { expect } = chai;
 
 const I = actor();
 
