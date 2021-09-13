@@ -83,7 +83,10 @@ async function writeMetrics(measurement, test, currentRetry) {
   }
 
   // Jenkins metrics
-  const numberOfPRsWaitingInTheQueue = await fetchJenkinsMetrics();
+  let numberOfPRsWaitingInTheQueue = 0;
+  if (process.env.JENKINS_HOME && process.env.RUNNING_LOCAL !== 'true') {
+    numberOfPRsWaitingInTheQueue = await fetchJenkinsMetrics();
+  }
 
   // logs
   console.log('********');
