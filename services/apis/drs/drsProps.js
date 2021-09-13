@@ -28,11 +28,6 @@ module.exports = {
     status: 404,
   }),
 
-  noAccessTokenOld: new Gen3Response({
-    request: {},
-    status: 403,
-  }),
-
   noAccessToken: new Gen3Response({
     request: {},
     status: 401,

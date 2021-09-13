@@ -1,5 +1,6 @@
 Feature('DrsAPI');
 
+const semver = require('semver');
 const chai = require('chai');
 
 const { expect } = chai;
@@ -73,16 +74,22 @@ Scenario('get drs invalid access id @drs', async ({ drs, fence }) => {
   await fence.ask.responsesEqual(signedUrlRes, drs.props.resInvalidFileProtocol);
 });
 
-// New behavior where GA4GH API responds with a 401 with no access token
-Scenario('get drs presigned-url no auth header @drsNew', async ({ drs, fence }) => {
-  const signedUrlRes = await drs.do.getDrsSignedUrlWithoutHeader(files.allowed);
-  fence.ask.responsesEqual(signedUrlRes, drs.props.noAccessToken);
-});
-
-// Old behavior where GA4GH API responded with a 403 with no access token
 Scenario('get drs presigned-url no auth header @drs', async ({ drs, fence }) => {
+  const version = await fence.do.getVersion();
+  let expectedResponse = drs.props.noAccessToken;
+  if (!semver.valid(version)) {
+    console.log(`Running new version of DRS test b/c Fence version (${version}) is not a valid semver (assuming it's recent)`);
+  }
+  else if (semver.gt(version, "2020.10") || (semver.lt(version, "2020") && semver.gt(version, "5.5.0"))) {
+    console.log(`Running new version of DRS test b/c Fence version (${version}) is greater than 5.5.0/2020.10`);
+  }
+  else {
+    console.log(`Running old version of DRS test b/c Fence version (${version}) is less than 5.5.0/2020.10`);
+    expectedResponse.status = 403;
+  }
+
   const signedUrlRes = await drs.do.getDrsSignedUrlWithoutHeader(files.allowed);
-  fence.ask.responsesEqual(signedUrlRes, drs.props.noAccessTokenOld);
+  fence.ask.responsesEqual(signedUrlRes, expectedResponse);
 });
 
 AfterSuite(async ({ indexd }) => {
