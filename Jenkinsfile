@@ -1,6 +1,6 @@
 #!groovy
 
-@Library('cdis-jenkins-lib@master') _
+@Library('cdis-jenkins-lib@chore/use-custom-drs-cloud-automation-branch') _
 
 testPipeline {
   // tell the pipeline to not checkout `gen3-qa:master`
