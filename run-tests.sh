@@ -402,7 +402,7 @@ runStudyViewerTests=false
 if [[ "$service" =~ ^(data-portal|requestor|gen3-qa|cdis-manifest|gitops-qa)$ ]]; then
   # checks both conditions
   # 1. if studyViewer is deployed to that env
-  # 2. if requestor is also deployed   
+  # 2. if requestor is also deployed
   if [[ $(curl -s "$portalConfigURL" | jq 'contains({studyViewerConfig})') == "true" ]]; then
     if (g3kubectl get pods --no-headers -l app=requestor | grep requestor) > /dev/null 2>&1; then
       echo "### Study-Viewer is deployed"

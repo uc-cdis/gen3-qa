@@ -89,6 +89,7 @@ module.exports = {
    */
   endpoints: {
     root: rootEndpoint,
+    version: `${rootEndpoint}/_version`,
     getFile: `${rootEndpoint}/data/download`,
     googleCredentials: `${rootEndpoint}/credentials/google/`,
     createAPIKey: `${rootEndpoint}/credentials/api/`,
