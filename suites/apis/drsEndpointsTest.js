@@ -81,7 +81,9 @@ Scenario('get drs presigned-url no auth header @drs', async ({ drs, fence }) => 
   const monthlyReleaseCutoff = semver.coerce('2020');
 
   const version = await fence.do.getVersion();
+  console.log(`### ## version: ${version}`);
   const semVerVersion = semver.coerce(version);
+  console.log(`### ## semVerVersion: ${semVerVersion}`);
   const expectedResponse = drs.props.noAccessToken;
   if (
     semver.gte(semVerVersion, minMonthlyRelease)
