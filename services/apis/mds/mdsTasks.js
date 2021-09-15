@@ -47,9 +47,6 @@ module.exports = {
   },
 
   reSyncAggregateMetadata() {
-    const cmd = 'python /src/src/mds/populate.py --config /aggregate_config.json --hostname esproxy-service --port 9200';
-    output.print(`Running command on metadata pod: ${cmd}`);
-    const res = bash.runCommand(cmd, 'metadata');
-    output.log(`Result: ${res}`);
+    bash.runJob('metadata-aggregate-sync');
   },
 };
