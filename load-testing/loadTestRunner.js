@@ -59,7 +59,7 @@ async function runLoadTestScenario() {
         console.log(ACCESS_TOKEN);
         return ACCESS_TOKEN;
       }).catch((reason) => {
-        console.log(`Failed: ${reason.status} - ${reason.statusText}`);
+        console.log(`Failed to get access token from API Key in ${targetEnvironment}. Response: ${reason.status} - ${reason.statusText}`);
         process.exit(1);
       });
   }
@@ -78,23 +78,74 @@ async function runLoadTestScenario() {
 
   // Expand load test args based on special flags
   // TODO: Move the custom args parsing to a separate utils script
-  let listOfDIDs = null;
+  let listOfDIDs = [];
   if (customArgs === 'random-guids') {
-    listOfDIDs = await fetchDIDList(targetEnvironment, testDescriptorData.indexd_record_acl)
-      .then(async (records) => {
-        const dids = [];
-        await records.forEach((record) => {
-          dids.push(record.did);
-        });
-        return dids;
-      }).catch((reason) => {
-        console.log(`Failed: ${JSON.stringify(reason)}`);
-        process.exit(1);
-      });
+    console.log("attempting to get random GUIDs...")
+
+    let indexdPaginationPageNum = 0;
+    let minimumRecords = 1;
+    let recordChunkSize = 1024;
+
+    if (testDescriptorData.minimum_records !== null) {
+      minimumRecords = testDescriptorData.minimum_records;
+    }
+
+    if (testDescriptorData.record_chunk_size !== null) {
+      recordChunkSize = testDescriptorData.record_chunk_size;
+    }
+
+    // as long as we don't have enough records, continue to loop over provided ACL / Authz
+    // and attempt to bump the page number for indexd's pagination
+    while (listOfDIDs.length < minimumRecords) {
+      console.log(`listOfDIDs.length ${listOfDIDs.length} < minimumRecords ${minimumRecords}... paginate to page ${indexdPaginationPageNum} in indexd`)
+      if (testDescriptorData.indexd_record_authz_list !== null) {
+        console.log(`parsing authz list ${testDescriptorData.indexd_record_authz_list}`)
+        var indexdRecordAuthzListSplit = testDescriptorData.indexd_record_authz_list.split(',');
+
+        for (var authz of indexdRecordAuthzListSplit) {
+          console.log(`Requesting GUIDs for authz ${authz}`)
+          guidsToAdd = await fetchDIDList(targetEnvironment, null, authz, indexdPaginationPageNum, recordChunkSize)
+          .then(async (records) => {
+            const dids = [];
+            await records.forEach((record) => {
+              dids.push(record.did);
+            });
+            return dids;
+          }).catch((reason) => {
+            console.log(`Failed: ${JSON.stringify(reason)}`);
+            process.exit(1);
+          });
+          listOfDIDs.push(...guidsToAdd);
+        }
+        console.log(`found ${listOfDIDs.length} GUIDs`)
+      } else {
+        listOfDIDs = await fetchDIDList(targetEnvironment, testDescriptorData.indexd_record_acl, null, indexdPaginationPageNum, recordChunkSize)
+          .then(async (records) => {
+            const dids = [];
+            await records.forEach((record) => {
+              dids.push(record.did);
+            });
+            return dids;
+          }).catch((reason) => {
+            console.log(`Failed: ${JSON.stringify(reason)}`);
+            process.exit(1);
+          });
+      }
+
+      indexdPaginationPageNum += 1;
+    }
   } else {
     listOfDIDs = testDescriptorData.presigned_url_guids ? testDescriptorData.presigned_url_guids : [''];
   }
-  console.log(listOfDIDs);
+
+  const passportsList = testDescriptorData.passports_list ? testDescriptorData.passports_list : "";
+  loadTestArgs.unshift(`PASSPORTS_LIST=${passportsList}`);
+  loadTestArgs.unshift('-e');
+
+  const numParallelRequests = testDescriptorData.num_parallel_requests ? testDescriptorData.num_parallel_requests : 1;
+  loadTestArgs.unshift(`NUM_PARALLEL_REQUESTS=${numParallelRequests}`);
+  loadTestArgs.unshift('-e');
+
   loadTestArgs.unshift(`GUIDS_LIST=${listOfDIDs.join()}`);
   loadTestArgs.unshift('-e');
 
