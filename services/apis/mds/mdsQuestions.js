@@ -1,0 +1,4 @@
+/**
+ * MDS Questions
+ */
+module.exports = {};

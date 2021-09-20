@@ -39,7 +39,6 @@ function createClient(clientName, userName, clientType, arboristPolicies = null)
   return { client_id: arr[0], client_secret: arr[1] };
 }
 
-
 /**
  * Runs a fence command for delete a client
  * @param {string} clientName - client name
@@ -90,6 +89,7 @@ module.exports = {
    */
   endpoints: {
     root: rootEndpoint,
+    version: `${rootEndpoint}/_version`,
     getFile: `${rootEndpoint}/data/download`,
     googleCredentials: `${rootEndpoint}/credentials/google/`,
     createAPIKey: `${rootEndpoint}/credentials/api/`,
@@ -420,7 +420,6 @@ module.exports = {
       success: false,
     },
   }),
-
 
   resRegisterServiceAccountMissingProjectPrivilege: new Gen3Response({
     request: {},

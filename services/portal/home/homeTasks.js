@@ -10,9 +10,13 @@ module.exports = {
   goToHomepage() {
     I.amOnPage(homeProps.path);
     console.log(`### ## testedEnv:${process.env.testedEnv}`);
-    if (process.env.testedEnv.includes('covid19') || process.env.testedEnv.includes('pandemicresponsecommons')) {
+    if (process.env.testedEnv.includes('covid19') || process.env.testedEnv.includes('pandemicresponsecommons') || process.env.testedEnv.includes('midrc')) {
       I.refreshPage();
     }
+    // wait 2 sec to let the page fully loaded
+    I.wait(2);
+    I.captureBrowserLog();
+    I.saveScreenshot('Home_page_for_debugging.png');
     portal.seeProp(homeProps.ready_cue, 60);
   },
 
@@ -41,5 +45,11 @@ module.exports = {
    */
   logout() {
     portal.clickProp(homeProps.logoutButton);
+  },
+
+  logoutThroughDropdown() {
+    I.waitForElement({ css: '.g3-icon--user-circle' }, 15);
+    I.click('.g3-icon--user-circle');
+    portal.clickProp({ locator: { xpath: '//a[contains(text(), \'Logout\')]' } });
   },
 };

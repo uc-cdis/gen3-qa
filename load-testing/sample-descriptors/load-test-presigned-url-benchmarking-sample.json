@@ -1,0 +1,27 @@
+{
+  "objective": "Compare performance between monthly releases",
+  "details": {
+    "name": "qa-dcp.planx-plan.net",
+    "UWSGI_PROCESSES": 1,
+    "fence_autoscaler": {
+      "min": 10,
+      "max": 15,
+      "targetCpu": 40
+    },
+    "nginx_rate_limit": "6r/s"
+  },
+  "service": "fence",
+  "load_test_scenario": "presigned-url",
+  "presigned_url_guids": ["8733de39-270c-489b-969a-eb75ed435597", "00037250-f2e5-47e2-863c-5f225c7f79e8"],
+  "indexd_record_acl": "phs000178",
+  "override_access_token": "test",
+  "virtual_users": [
+    { "duration": "1s", "target": 1 },
+    { "duration": "60s", "target": 10 },
+    { "duration": "60s", "target": 20 },
+    { "duration": "60s", "target": 30 },
+    { "duration": "60s", "target": 40 },
+    { "duration": "60s", "target": 50 },
+    { "duration": "30s", "target": 1 }
+  ]
+}

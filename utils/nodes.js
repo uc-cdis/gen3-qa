@@ -1,3 +1,4 @@
+/*eslint-disable */
 /**
  * Util providing nodes (graph data) access from local files to submit, delete, sort, etc
  * @module nodesUtil
@@ -145,7 +146,7 @@ const nodePathToProject = function (startNodeName, allNodes) {
 const getPathWithFileNode = function (allNodes) {
   const allNodesClone = cloneNodes(allNodes);
   const fileNodeName = Object.keys(allNodesClone).find(
-    (nodeName) => allNodesClone[nodeName].category === 'data_file',
+    (nodeName) => allNodesClone[nodeName].category.includes('_file'),
   );
   const file = allNodesClone[fileNodeName].clone();
   delete allNodesClone[fileNodeName];
@@ -182,7 +183,7 @@ module.exports = {
   },
 
   async getNodeFromURL(dataUrl) {
-    const fileContents = await this.downloadFile(dataUrl);
+    const fileContents = await module.exports.downloadFile(dataUrl);
     const nodeObj = JSON.parse(JSON.stringify(fileContents));
     const node = new Node({});
     node.data = nodeObj;
@@ -228,7 +229,7 @@ module.exports = {
    * @returns {Node}
    */
   getFirstNode() {
-    return this.ithNodeInPath(0);
+    return module.exports.ithNodeInPath(0);
   },
 
   /**
@@ -236,7 +237,7 @@ module.exports = {
    * @returns {Node}
    */
   getSecondNode() {
-    return this.ithNodeInPath(1);
+    return module.exports.ithNodeInPath(1);
   },
 
   /**
@@ -244,7 +245,7 @@ module.exports = {
    * @returns {Node}
    */
   getLastNode() {
-    return this.ithNodeInPath(this.toFileAsList.length - 1);
+    return module.exports.ithNodeInPath(module.exports.toFileAsList.length - 1);
   },
 
   /**
@@ -263,7 +264,7 @@ module.exports = {
         `Node index out of range. Asked for ${i} but max index is ${nodesList.length}.`,
       );
     }
-    return this.sortNodes(Object.values(allNodes))[i];
+    return module.exports.sortNodes(Object.values(allNodes))[i];
   },
 
   /**
@@ -287,9 +288,9 @@ module.exports = {
       throw Error(dataMissingError);
     }
     pathAndFile = getPathWithFileNode(allNodes);
-    this.pathWithFile = pathAndFile;
-    this.toFileAsList = Object.values(pathAndFile.path);
-    this.fileNode = pathAndFile.file;
+    module.exports.pathWithFile = pathAndFile;
+    module.exports.toFileAsList = Object.values(pathAndFile.path);
+    module.exports.fileNode = pathAndFile.file;
   },
 
   async generateAndAddCoremetadataNode(sheepdog) {
@@ -311,11 +312,12 @@ module.exports = {
    * link metadata to an indexd file via sheepdog,
    * after submitting metadata for the parent nodes
    * /!\ this function does not include a check for success or
-   * failure of the data_file node's submission
+   * failure of the file node's submission
    */
   async submitGraphAndFileMetadata(sheepdog, fileGuid = null, fileSize = null, fileMd5 = null, submitter_id = null, consent_codes = null) {
     // submit metadata with object id via sheepdog
-    const metadata = this.getFileNode().clone();
+    const metadata = module.exports.getFileNode().clone();
+    console.log(`${new Date()}: fail to submit metadata for this file`);
     if (fileGuid) {
       metadata.data.object_id = fileGuid;
     }
@@ -336,18 +338,28 @@ module.exports = {
       metadata.data.consent_codes = consent_codes;
     }
 
+    console.log(`### ## DEBUG HERE`);
     // assuming all data files can be submitted with a single link to a
     // core_metadata_collection: add it, and remove other links
-    const cmcSubmitterID = await this.generateAndAddCoremetadataNode(sheepdog);
+    const cmcSubmitterID = await module.exports.generateAndAddCoremetadataNode(sheepdog);
+    console.log(`metadata.data: ${JSON.stringify(metadata.data)}`);
+    console.log(`metadata.data property names: ${Object.getOwnPropertyNames(metadata.data)}`);
     for (const prop in metadata.data) {
-      if (metadata.data.hasOwnProperty(prop) && metadata.data[prop].hasOwnProperty('submitter_id')) {
-        delete metadata.data[prop];
+      console.log(`metadata.data prop: ${JSON.stringify(prop)}`);
+      try {
+        if (metadata.data.hasOwnProperty(prop) && metadata.data[prop].hasOwnProperty('submitter_id')) {
+          delete metadata.data[prop];
+        }
+      } catch (err) {
+        console.error(`WARN: Failed to check for the presence of the submitter_id property in metadata block ${prop}`, err);
+        console.error(`Here is the full metadata obj: ${JSON.stringify(metadata)}`);
       }
     }
     metadata.data.core_metadata_collections = {
       submitter_id: cmcSubmitterID,
     };
 
+    console.log(`${new Date()}: about to add metadata node`);
     await sheepdog.do.addNode(metadata); // submit, but don't check for success
 
     // the result of the submission is stored in metadata.addRes by addNode()

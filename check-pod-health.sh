@@ -13,9 +13,11 @@ sheepdog="${commons_url}/api/_status"
 peregrine="${commons_url}/peregrine/_status"
 portal="${commons_url}/"
 fence="${commons_url}/user/jwt/keys"
-selenium="selenium-hub:4444/wd/hub/status"
+selenium="selenium-hub:4444/status"
 if [ -n $1 ] && [ "$1" == "dataguids.org" ]; then
   health_endpoints=( $indexd $portal $selenium )
+elif ! (g3kubectl get pods --no-headers -l app=portal | grep portal) > /dev/null 2>&1; then
+  health_endpoints=( $sheepdog $peregrine $fence $selenium )
 else
   health_endpoints=( $sheepdog $peregrine $portal $fence $selenium )
 fi

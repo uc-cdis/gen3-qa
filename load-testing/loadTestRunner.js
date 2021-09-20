@@ -1,7 +1,7 @@
 const { spawnSync } = require('child_process');
 const fs = require('fs');
 const dummyjson = require('dummy-json');
-const { getJWTData, getAccessTokenFromApiKey } = require('../utils/apiUtil.js');
+const { getJWTData, parseJwt, getAccessTokenFromApiKey } = require('../utils/apiUtil.js');
 const { fetchDIDList } = require('./indexd/indexdLTUtils.js');
 
 const args = process.argv.slice(2);
@@ -42,11 +42,17 @@ async function runLoadTestScenario() {
   const loadTestScenario = testDescriptorData.load_test_scenario;
   const jwtData = await getJWTData(pathToCredentialsJson);
   const apiKey = jwtData[Object.keys(jwtData)[0]];
-  const targetEnvironment = jwtData[Object.keys(jwtData)[1]];
+  let targetEnvironment = jwtData[Object.keys(jwtData)[1]];
 
   let token = '';
-  if (Object.prototype.hasOwnProperty.call(testDescriptorData, 'override_access_token')) {
+  if (Object.prototype.hasOwnProperty.call(testDescriptorData, 'override_access_token') && testDescriptorData.override_access_token !== 'test') {
     token = testDescriptorData.override_access_token;
+    console.log(`Override token: ${token}`);
+    const overrideJwtData = parseJwt(testDescriptorData.override_access_token);
+    targetEnvironment = overrideJwtData.iss;
+    console.log(`Target environment from override token: ${targetEnvironment}`);
+    targetEnvironment = targetEnvironment.replace(/(^\w+:|^)\/\//, '').replace('/user', '');
+    console.log(`Sanitized target environment from override token: ${targetEnvironment}`);
   } else {
     token = await getAccessTokenFromApiKey(apiKey, targetEnvironment)
       .then((ACCESS_TOKEN) => {
@@ -65,7 +71,7 @@ async function runLoadTestScenario() {
     influxDBHost = 'http://localhost:8086/db0';
   }
   // Set fixed list of args for the load test run
-  const loadTestArgs = ['-e', `GEN3_HOST=${targetEnvironment}`, '-e', `ACCESS_TOKEN=${token}`, '-e', `VIRTUAL_USERS="${JSON.stringify(testDescriptorData.virtual_users)}"`, '--out', `influxdb=${influxDBHost}`, '--out', 'json=result.json', `load-testing/${targetService}/${loadTestScenario}.js`];
+  const loadTestArgs = ['-e', `GEN3_HOST=${targetEnvironment}`, '-e', `ACCESS_TOKEN=${token}`, '-e', `VIRTUAL_USERS="${JSON.stringify(testDescriptorData.virtual_users)}"`, '--out', `influxdb=${influxDBHost}`, '--summary-export=result.json', `load-testing/${targetService}/${loadTestScenario}.js`];
 
   // for additional debugging include the arg below
   // '--http-debug="full"'];
@@ -90,6 +96,11 @@ async function runLoadTestScenario() {
   }
   console.log(listOfDIDs);
   loadTestArgs.unshift(`GUIDS_LIST=${listOfDIDs.join()}`);
+  loadTestArgs.unshift('-e');
+
+  const presignedUrlProtocol = testDescriptorData.presigned_url_protocol ? testDescriptorData.presigned_url_protocol : '';
+  console.log(`## presignedUrlProtocol: ${presignedUrlProtocol}`);
+  loadTestArgs.unshift(`SIGNED_URL_PROTOCOL=${presignedUrlProtocol}`);
   loadTestArgs.unshift('-e');
 
   // TODO: Move this to a separate utils function
@@ -159,9 +170,6 @@ async function runLoadTestScenario() {
     loadTestArgs.unshift(`NUM_OF_JSONS="${testDescriptorData.num_of_jsons}"`);
     loadTestArgs.unshift('-e');
 
-    loadTestArgs.unshift(`API_KEY="${apiKey}"`);
-    loadTestArgs.unshift('-e');
-
     generateLib('uuid');
   }
 
@@ -177,6 +185,10 @@ async function runLoadTestScenario() {
       console.log(`browserify ${browserifyArgs}`);
     },
   );
+
+  // Always make the apiKey available for long-running tests
+  loadTestArgs.unshift(`API_KEY="${apiKey}"`);
+  loadTestArgs.unshift('-e');
 
   // The first arg should always be 'run'
   loadTestArgs.unshift('run');

@@ -10,7 +10,6 @@ const {
 const http = require('k6/http'); // eslint-disable-line import/no-unresolved
 const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresolved
 
-
 const {
 //  NUM_OF_RECORDS,
   GEN3_HOST,
@@ -55,7 +54,7 @@ export default function () {
     derived_parent_subject_id: '5c41ec1d49',
     derived_topmed_subject_id: '2fb4aae615',
     '*studies': {
-      submitter_id: 'study_5057ec2ada',
+      submitter_id: 'study_3fbd48dc63',
     },
     '*consent_codes': [],
     project_id: `${program}-${project}`,
