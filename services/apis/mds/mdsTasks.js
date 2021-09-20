@@ -2,6 +2,7 @@ const { output } = require('codeceptjs');
 
 const mdsProps = require('./mdsProps.js');
 const { Bash } = require('../../../utils/bash.js');
+const { checkPod } = require('../../../utils/apiUtil.js');
 
 const bash = new Bash();
 const I = actor();
@@ -46,7 +47,8 @@ module.exports = {
     return { status: resp.status };
   },
 
-  reSyncAggregateMetadata() {
+  async reSyncAggregateMetadata() {
     bash.runJob('metadata-aggregate-sync');
+    await checkPod(I, 'metadata-aggregate-sync', 'gen3job,job-name=metadata-aggregate-sync', { nAttempts: 30, ignoreFailure: false, keepSessionAlive: false });
   },
 };
