@@ -20,7 +20,7 @@ class SshK8s extends Base {
    * @returns {*}
    */
   runCommand( // eslint-disable-line class-methods-use-this
-    cmd,
+    _cmd,
     service = undefined,
     cleanResult = null,
   ) {
@@ -29,6 +29,11 @@ class SshK8s extends Base {
     const commonsUser = userFromNamespace(namespace);
     const kubeconfigPath = process.env.vpc_name === undefined ? 'Gen3Secrets' : process.env.vpc_name;
     const kubeconfigDeclaration = process.env.RUNNING_LOCAL === 'true' ? `export KUBECONFIG=/home/${process.env.NAMESPACE}/${kubeconfigPath}/kubeconfig;` : '';
+
+    // single quotes in the command must be escaped, because the command
+    // is run inside single quotes; see below: shh [...] '[...] cmd'
+    const cmd = _cmd.replace(/'/g, '\'"\'"\'');
+
     if (service === undefined) {
       return cleanResult(execSync(`ssh ${commonsUser}@cdistest_dev.csoc 'export GEN3_HOME=$HOME/cloud-automation && source "$GEN3_HOME/gen3/gen3setup.sh"; source ~/.bashrc; ${kubeconfigDeclaration} ${cmd}'`,
         { shell: '/bin/bash' }).toString('utf8'));

@@ -40,6 +40,14 @@ To obtain the output of the dispatched job, issue a `HTTP GET` request against t
 % curl -s -X GET 'https://${GEN3_HOSTNAME}/job/output?UID=592f7076-ba54-11ea-9918-0ecfa8696edf' --header 'Content-Type: application/json' --header "Authorization: Bearer ${ACCESS_TOKEN}"
 ```
 
+*UPDATE:*
+About the deletion endpoint: There is a recently-introduced behavior (`HTTP DELETE mds/objects/{guid}` -> introduced in PR https://github.com/uc-cdis/metadata-service/pull/20) that not only deletes the MDS entry from the database but it also deletes the underlying Indexd record. Therefore, to accommodate this flow, the test uploads a dummy file and creates a new MDS entry to later instrument the DELETION endpoint:
+```
+  const uploadTmpFile = await bash.runCommand(`
+    echo "hello mds" > mds-test.file && aws s3 cp ./mds-test.file s3://cdis-presigned-url-test/mds-test.file
+  `);
+``` 
+
 ## Test Plan
 
 The initial coverage comprises the following scenarios:
@@ -62,6 +70,8 @@ Once the mock data is obtained, the ingestion process will create metadata-servi
 - Scenario #2: Dispatch exact match get-dbgap-metadata job with mock dbgap xml, utilize resulting TSV to dispatch the ingest-metadata-manifest sower job and verify metadata ingestion
 
 - Scenario #3: Dispatch partial match get-dbgap-metadata job with mock dbgap xml, utilize resulting TSV to dispatch the ingest-metadata-manifest sower job and verify metadata ingestion
+
+- Scenario #4: Create a new mds entry and then issue http delete against mds/objects/{guid} 
 
 ### Negative tests
 

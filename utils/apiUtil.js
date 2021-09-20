@@ -177,8 +177,13 @@ module.exports = {
       // TODO - introduce support for getting token from environment variable
       //     or with API key when running in LOCAL_AGAINST_REMOTE mode ...
       const fenceCmd = `fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account,google_credentials --type access_token --exp ${expiration} --username ${username}`;
-      const accessToken = bash.runCommand(fenceCmd, 'fence', takeLastLine);
       try {
+        if (process.env.RUNNING_LOCAL === 'true') {
+          process.env.KUBECTL_NAMESPACE = process.env.NAMESPACE;
+        }
+        console.log(`### THE KUBECTL_NAMESPACE: ${process.env.KUBECTL_NAMESPACE}`);
+        const accessToken = bash.runCommand(fenceCmd, 'fence', takeLastLine);
+        console.log(`### THE ACCESS TOKEN: ${accessToken}`);
         const decodedToken = module.exports.parseJwt(accessToken);
         // console.log(`decodedToken: ${JSON.stringify(decodedToken)}`);
         const nameFromToken = decodedToken.context.user.name;
@@ -318,15 +323,23 @@ module.exports = {
   async smartWait(checkFunc, checkArgs, timeout, errorMessage, startWait = null) {
     let waitTime = (startWait * 1000) || 50; // start by waiting 50 ms
     let waited = 0; // keep track of how many ms have passed
+    let firstIteration = true;
     while (waited < timeout * 1000) {
+      if (firstIteration) {
+        firstIteration = false;
+      } else {
+        // if not done, keep waiting
+        await module.exports.sleepMS(waitTime);
+        waited += waitTime;
+        waitTime *= 2; // wait longer every time
+      }
+
       // check if the task is done
       const done = await checkFunc(...checkArgs);
-      if (done) return;
-
-      // if not done, keep waiting
-      await module.exports.sleepMS(waitTime);
-      waited += waitTime;
-      waitTime *= 2; // wait longer every time
+      if (done) {
+        console.log(`'smartWait' done waiting after ${waited / 1000} seconds`);
+        return;
+      }
     }
     throw new Error(errorMessage);
   },
@@ -378,8 +391,13 @@ module.exports = {
         if (params.keepSessionAlive) {
           I.refreshPage();
         }
-
+        if (process.env.RUNNING_LOCAL === 'true') {
+          process.env.KUBECTL_NAMESPACE = process.env.NAMESPACE;
+        }
+        console.log(`### THE KUBECTL_NAMESPACE: ${process.env.KUBECTL_NAMESPACE}`);
         const singleQuote = process.env.RUNNING_LOCAL === 'true' ? "\'\\'\'" : "'"; // eslint-disable-line quotes,no-useless-escape
+        const podNameDebug = await bash.runCommand('echo "$KUBECTL_NAMESPACE"');
+        console.log(`#### ### ## podNameDebug: ${podNameDebug}`);
         const podName = await bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=${labelName} -o jsonpath="{.items[*].metadata.name}" | awk ${singleQuote}{print $NF}${singleQuote}`);
         console.log(`latest pod found: ${podName}`);
         if (!podFound) {
@@ -393,14 +411,19 @@ module.exports = {
           if (checkIfContainerSucceeded === 'Succeeded') {
             console.log(`The container from pod ${podName} is ready! Proceed with the assertion checks..`);
             break;
+          } else if (checkIfContainerSucceeded === 'Failed') {
+            if (params.ignoreFailure === true) {
+              console.log(`The container from pod ${podName} failed as expected! Just ignore as this is part of a negative test.`);
+              break;
+            } else {
+              // The pod failed 4 realz
+              throw new Error(`THE POD FAILED ON ATTEMPT ${i}. OMG!`);
+            }
           }
         }
         if (i === params.nAttempts) {
-          if (params.ignoreFailure === true) {
-            break;
-          } else {
-            throw new Error(`Max number of attempts reached: ${i}`);
-          }
+          // We have reached the max number of attempts. This test has failed
+          throw new Error(`Max number of attempts reached: ${i}`);
         }
       } catch (e) {
         throw new Error(`Failed to obtain a successful phase check from the ${jobName} job on attempt ${i}: ${e.message}`);
@@ -434,7 +457,7 @@ module.exports = {
           css: '.covid19-dashboard_counts',
         },
       },
-      accessclinical: {
+      niaid: {
         summary: {
           css: '.index-page__introduction',
         },
@@ -442,12 +465,20 @@ module.exports = {
           css: '.g3-button',
         },
       },
-      'qa-niaid': {
+      heal: {
         summary: {
-          css: '.index-page__introduction',
+          css: '.discovery-header',
         },
         cards: {
-          css: '.g3-button',
+          css: '.discovery-studies-container',
+        },
+      },
+      brh: {
+        summary: {
+          css: '.discovery-header',
+        },
+        cards: {
+          css: '.discovery-studies-container',
         },
       },
     };

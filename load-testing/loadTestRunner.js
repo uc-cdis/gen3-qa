@@ -45,7 +45,7 @@ async function runLoadTestScenario() {
   let targetEnvironment = jwtData[Object.keys(jwtData)[1]];
 
   let token = '';
-  if (Object.prototype.hasOwnProperty.call(testDescriptorData, 'override_access_token')) {
+  if (Object.prototype.hasOwnProperty.call(testDescriptorData, 'override_access_token') && testDescriptorData.override_access_token !== 'test') {
     token = testDescriptorData.override_access_token;
     console.log(`Override token: ${token}`);
     const overrideJwtData = parseJwt(testDescriptorData.override_access_token);
@@ -96,6 +96,11 @@ async function runLoadTestScenario() {
   }
   console.log(listOfDIDs);
   loadTestArgs.unshift(`GUIDS_LIST=${listOfDIDs.join()}`);
+  loadTestArgs.unshift('-e');
+
+  const presignedUrlProtocol = testDescriptorData.presigned_url_protocol ? testDescriptorData.presigned_url_protocol : '';
+  console.log(`## presignedUrlProtocol: ${presignedUrlProtocol}`);
+  loadTestArgs.unshift(`SIGNED_URL_PROTOCOL=${presignedUrlProtocol}`);
   loadTestArgs.unshift('-e');
 
   // TODO: Move this to a separate utils function
@@ -165,9 +170,6 @@ async function runLoadTestScenario() {
     loadTestArgs.unshift(`NUM_OF_JSONS="${testDescriptorData.num_of_jsons}"`);
     loadTestArgs.unshift('-e');
 
-    loadTestArgs.unshift(`API_KEY="${apiKey}"`);
-    loadTestArgs.unshift('-e');
-
     generateLib('uuid');
   }
 
@@ -183,6 +185,10 @@ async function runLoadTestScenario() {
       console.log(`browserify ${browserifyArgs}`);
     },
   );
+
+  // Always make the apiKey available for long-running tests
+  loadTestArgs.unshift(`API_KEY="${apiKey}"`);
+  loadTestArgs.unshift('-e');
 
   // The first arg should always be 'run'
   loadTestArgs.unshift('run');

@@ -26,6 +26,6 @@
     To do that, manually or automatically get GUID from each host which is listed in [DIST config](https://github.com/uc-cdis/cdis-manifest/blob/master/dataguids.org/manifest.json#L33). (Note: this might not test the prefixes since the first GUID you find will not necessarily contain a prefix. it will only test the resolution.)
 
 2. Test GUID without prefixes
-3. Test DRS endpoints - check DRS endpoints by given any random GUID such as https://dataguids.org/index/ga4gh/drs/v1/objects/dg.4503/00e6cfa9-a183-42f6-bb44-b70347106bbe
+3. Test DRS endpoints - check DRS endpoints by given any random GUID such as https://dataguids.org/ga4gh/drs/v1/objects/dg.4503/00e6cfa9-a183-42f6-bb44-b70347106bbe
 4. Test bundles - Test GUID which has bundle form (Note: none of the production commons use bundles right now. If we want to check it, we could go to /bundle for each Commons, and if there are existing bundles, try to resolve a random one with http://dataguids.org/ )
 5. Negative test - When user input invalid GUID, the expected output is “Data GUID &lt;user input> not found.”
