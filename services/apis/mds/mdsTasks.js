@@ -2,6 +2,7 @@ const { output } = require('codeceptjs');
 
 const mdsProps = require('./mdsProps.js');
 const { Bash } = require('../../../utils/bash.js');
+const { checkPod } = require('../../../utils/apiUtil.js');
 
 const bash = new Bash();
 const I = actor();
@@ -46,10 +47,8 @@ module.exports = {
     return { status: resp.status };
   },
 
-  reSyncAggregateMetadata() {
-    const cmd = 'python /src/src/mds/populate.py --config /aggregate_config.json --hostname esproxy-service --port 9200';
-    output.print(`Running command on metadata pod: ${cmd}`);
-    const res = bash.runCommand(cmd, 'metadata');
-    output.log(`Result: ${res}`);
+  async reSyncAggregateMetadata() {
+    bash.runJob('metadata-aggregate-sync');
+    await checkPod(I, 'metadata-aggregate-sync', 'gen3job,job-name=metadata-aggregate-sync', { nAttempts: 30, ignoreFailure: false, keepSessionAlive: false });
   },
 };
