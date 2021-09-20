@@ -28,7 +28,7 @@ export const options = {
     http_req_duration: ['avg<3000', 'p(95)<15000'],
     'failed requests': ['rate<0.1'],
   },
-  duration: '45m',
+  duration: '2h',
   noConnectionReuse: true,
   iterations: 1
 };
