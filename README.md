@@ -1,6 +1,6 @@
 # TL;DR
 
-gen3 integration tests - run by https://jenkins.planx-pla.net/ via a `Jenkinsfile` pipeline in each github repo
+gen3 integration tests - run by https://jenkins.planx-pla.net/ via a `Jenkinsfile` pipeline in each github repo.
 
 ## Basic test run
 
@@ -149,24 +149,6 @@ In setup, these values will be read and exported to environment variables before
 
 ## Local
 After cloning this repo, get the required packages by running `npm install`.
-### Selenium
-To automate web browser actions, CodeceptJS requires a Selenium webserver. You have two options here: Docker or npm. Note that for both methods, you can visit `localhost:4444/status` to see current Selenium session/check that the server is running.
-#### Docker ([link](https://github.com/SeleniumHQ/docker-selenium))
-If you have docker, you can just run the preconfigured container
-```
-docker run -d -p 4444:4444 --name=selenium --rm -v /dev/shm:/dev/shm selenium/standalone-chrome
-```
-To kill the server just kill the container.
-#### npm ([link](https://www.npmjs.com/package/selenium-standalone))
-If you'd rather not fool with docker, you can run the server yourself with an npm package.
-If you already ran `npm install`, the package selenium-standalone should have been installed. You'll also need to install the webdriver, just run `npm run selenium-install`.
-
-You'll need the Java SDK, version 8, to use Selenium so make sure you have that installed as well (check output of `javac -version`, e.g. javac 1.8.0_171 means I have version 8.0_171)
-
-Once this is done, you can run `npm run selenium-start`, and the server will start running on port 4444 by default.
-
-You can kill the server with `npm run selenium-kill`
-
 
 # Test Development
 ## Running Tests

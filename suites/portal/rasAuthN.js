@@ -29,6 +29,12 @@ const bash = new Bash();
 const I = actor();
 
 const rasAuthLogin = async (username, password) => {
+  // check these if you run into errors:
+  // - process.env.RAS_TEST_USER_1_USERNAME
+  // - process.env.RAS_TEST_USER_1_PASSWORD
+  expect(username, '"rasAuthLogin" needs "username" to proceed').to.not.be.empty;
+  expect(password, '"rasAuthLogin" needs "password" to proceed').to.not.be.empty;
+
   const { clientID } = registerRasClient(username);
   const authUrl = '/user/oauth2/authorize?'
     + 'response_type=code'

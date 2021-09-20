@@ -1,8 +1,11 @@
+const fetch = require('node-fetch');
+
 Feature('Homepage').retry(2);
 
-Scenario('login @portal', ({ I, home }) => {
+Scenario('login @portal', async ({ I, home }) => {
   home.do.goToHomepage();
   home.complete.login();
+  I.saveScreenshot('Home_page_after_login_for_debugging.png');
   home.ask.seeDetails();
   home.complete.logout();
 });
