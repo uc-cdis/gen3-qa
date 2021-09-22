@@ -9,7 +9,10 @@ const {
 } = require('k6/metrics'); // eslint-disable-line import/no-unresolved
 
 const {
-  GUIDS_LIST,
+  TARGET_ENV,
+  AUTHZ_LIST,
+  MINIMUM_RECORDS,
+  RECORD_CHUNK_SIZE,
   GEN3_HOST,
   ACCESS_TOKEN,
   PASSPORTS_LIST,
@@ -17,8 +20,7 @@ const {
   NUM_PARALLEL_REQUESTS,
 } = __ENV; // eslint-disable-line no-undef
 
-// __ENV.GUIDS_LIST should contain either a list of GUIDs from load-test-descriptor.json
-const guids = GUIDS_LIST.split(',');
+const authz_list = AUTHZ_LIST.split(',');
 
 const myFailRate = new Rate('failed requests');
 
@@ -53,45 +55,100 @@ export default function() {
         'Content-Type': 'application/json'
       },
     };
-    body = {"passports": PASSPORTS_LIST.split(',')}
+    body = {
+      "passports": PASSPORTS_LIST.split(',')
+    }
     console.log(`Body for DRS requests: ${JSON.stringify(body)}`)
   }
 
+  console.log("attempting to get random GUIDs...")
+
+  let indexdPaginationPageNum = 0;
+  let minimumRecords = 1;
+  let recordChunkSize = 1024;
+
+  if (MINIMUM_RECORDS !== null) {
+    minimumRecords = MINIMUM_RECORDS;
+  }
+
+  if (RECORD_CHUNK_SIZE !== null) {
+    recordChunkSize = RECORD_CHUNK_SIZE;
+  }
+
+  let listOfDIDs = [];
+  // as long as we don't have enough records, continue to loop over provided ACL / Authz
+  // and attempt to bump the page number for indexd's pagination
+  while (listOfDIDs.length < minimumRecords) {
+    console.log(`listOfDIDs.length ${listOfDIDs.length} < minimumRecords ${minimumRecords}... paginate to page ${indexdPaginationPageNum} in indexd`)
+    console.log(`parsing authz list ${AUTHZ_LIST}`)
+    var indexdRecordAuthzListSplit = AUTHZ_LIST.split(',');
+
+    for (var authz of indexdRecordAuthzListSplit) {
+      console.log(`Requesting GUIDs for authz ${authz} from ${TARGET_ENV}`)
+      let url = `https://${TARGET_ENV}/index/index?authz=${authz}&limit=${recordChunkSize}&page=${indexdPaginationPageNum}`;
+      console.log(`fetching guids from ${url}`)
+      let resp = http.get(url, {
+        'content-type': 'application/json',
+        accept: 'application/json',
+      }, {});
+
+      let body = JSON.parse(resp.body);
+      for (var record of body.records) {
+        listOfDIDs.push(record.did);
+      }
+    }
+    console.log(`found ${listOfDIDs.length} GUIDs`)
+  }
+
+  indexdPaginationPageNum += 1;
+
   group('Sending GA4GH DRS API Requests request', () => {
     group('http get', () => {
-      let batchRequests = [];
-      let batchFailed = false;
+      // let batchRequests = [];
+      let batchRequests = {};
+      let retryRequired = false;
+      let failedRequests = {};
 
-      for (let i = 0; i < guids.length; i++) {
-        for (let k = i; batchRequests.length < NUM_PARALLEL_REQUESTS && k < guids.length; k++) {
-          var url = `https://${GEN3_HOST}/ga4gh/drs/v1/objects/${guids[k]}/access/${SIGNED_URL_PROTOCOL}`;
+      for (let i = 0; i < listOfDIDs.length; i++) {
+        for (let k = i; Object.keys(batchRequests).length < NUM_PARALLEL_REQUESTS && k < listOfDIDs.length; k++) {
+          var url = `https://${GEN3_HOST}/ga4gh/drs/v1/objects/${listOfDIDs[k]}/access/${SIGNED_URL_PROTOCOL}`;
 
-          batchRequests.push(['GET', url, body, params]);
+          console.log(`Adding request to batch: ${url}`);
+          // batchRequests.push(['GET', url, body, params]);
+          batchRequests[`${listOfDIDs[k]}`] = {method: 'GET', url: url, body: body, params: params};
           i = k;
         }
 
         // now we have a batch of requests ready
+        console.log(`Prepared full batch of ${Object.keys(batchRequests).length} requests.`);
         var failedRequestBatches = 0;
         for (var retries = maxRetries; retries > 0; retries--) {
-          console.log(`Requesting data access for: ${batchRequests}`);
+
+          console.log(`  Sending ${Object.keys(batchRequests).length} batched request(s)...`);
 
           // batch in k6 sends requests "in parallel over multiple TCP connections"
           let responses = http.batch(batchRequests);
 
-          for (let j = 0; j < responses.length; j++) {
-            check(responses[j], {
+          for (const guid in responses) {
+            check(responses[guid], {
               'is status 200': (r) => r.status === 200,
             });
-            myFailRate.add(responses[j].status !== 200);
+            myFailRate.add(responses[guid].status !== 200);
 
-            if (responses[j].status != 200) {
-              batchFailed = true;
+            // remove successful requests
+            if (responses[guid].status === 200) {
+              delete batchRequests[guid]
+            }
+
+            if (responses[guid].status != 200) {
+              console.log(`    Failed request for ${guid} - ${responses[guid].status}:${responses[guid].body}`)
+              retryRequired = true;
             }
           }
 
-          // if any fail, retry the whole batch to simplify logic here
-          if (batchFailed) {
-            console.log(`Got some failed responses in batch. Will retry.`);
+          // if any fail, retry
+          if (retryRequired) {
+            console.log(`    Got ${Object.keys(batchRequests).length} failed response(s) in batch. Will retry.`);
             console.log(`      ${retries} retries left...`);
 
             failedRequestBatches += 1;
@@ -99,15 +156,20 @@ export default function() {
             // crude backoff logic (wait n+1 seconds until trying again where n is the number
             // of failed requests in a row)
             sleep(failedRequestBatches + 1);
+
+            // reset batch for next one
+            retryRequired = false;
           } else {
             // all successful, we don't need to retry
+            console.log(`Successfully completed full batch of requests.`)
             break;
           }
         }
 
         // reset batch for next one
-        batchFailed = false;
-        batchRequests = [];
+        retryRequired = false;
+        batchRequests = {};
+        failedRequests = {};
       }
     });
   });

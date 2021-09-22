@@ -13,7 +13,7 @@
     },
     "load_test_scenario": "drs-performance",
     "presigned_url_protocol": "s3",
-    "indexd_record_authz_list": "/programs/DEV/projects/test,/programs/DEV/projects/test2,/programs/DEV/projects/test3",
+    "indexd_record_authz_list": "/programs/DEV/projects/test1,/programs/DEV/projects/test2,/programs/DEV/projects/test3",
     "minimum_records": 10000,
     "record_chunk_size": 1024,
     "num_parallel_requests": 5,
