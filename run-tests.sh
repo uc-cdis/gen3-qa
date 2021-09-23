@@ -277,7 +277,6 @@ donot '@prjsBucketAccess'
 if [ "$testedEnv" == "dataguids.org" ]; then
   # disable bootstrap script from codeceptjs
   sed -i '/bootstrap\:/d' codecept.conf.js
-  sed -i '/bootstrap\:/d' gen3.qa.in.a.box.codecept.conf.js
 fi
 
 # if [[ "$testedEnv" == *"heal"* ]]; then
@@ -521,12 +520,6 @@ if [[ "$(hostname)" == *"cdis-github-org"* ]] || [[ "$(hostname)" == *"planx-ci-
   # Start selenium process within the ephemeral jenkins pod.
   npx selenium-standalone install --version=4.0.0-alpha-7 --drivers.chrome.version=92.0.4515.107 --drivers.chrome.baseURL=https://chromedriver.storage.googleapis.com
   timeout $seleniumTimeout npx selenium-standalone start --version=4.0.0-alpha-7 --drivers.chrome.version=92.0.4515.107 &> selenium.log &
- 
-
-  # gen3-qa-in-a-box requires a couple of changes to its webdriver config
-  set +e
-  mv gen3.qa.in.a.box.codecept.conf.js codecept.conf.js
-  set -e
 else
   echo "NOT inside an ephemeral gen3-qa-in-a-box pod..."
 fi
