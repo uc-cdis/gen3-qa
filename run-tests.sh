@@ -277,6 +277,7 @@ donot '@prjsBucketAccess'
 if [ "$testedEnv" == "dataguids.org" ]; then
   # disable bootstrap script from codeceptjs
   sed -i '/bootstrap\:/d' codecept.conf.js
+  sed -i '/bootstrap\:/d' gen3.qa.in.a.box.codecept.conf.js
 fi
 
 # if [[ "$testedEnv" == *"heal"* ]]; then
@@ -482,7 +483,7 @@ portalUsingAggMDS=$(gen3 secrets decode portal-config gitops.json | jq '.feature
 if ! [[ $usingAggMDS == \"true\" && $portalUsingAggMDS == "true" && "$service" =~ ^(cdis-manifest|gitops-qa|gitops-dev|gen3-qa|metadata-service) ]]; then
 	donot '@aggMDS'
 fi
-runTestsIfServiceVersion "@aggMDS" "metadata" "1.5.0" "2021.10"
+runTestsIfServiceVersion "@aggMDS" "metadata" "1.6.0" "2021.10"
 
 #
 # Run Discovery Page tests only if feature flag is enabled

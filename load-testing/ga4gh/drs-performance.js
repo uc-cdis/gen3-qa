@@ -1,3 +1,35 @@
+/*
+Test to simulate a client/user attempting to get x number of signed URLs
+given a list of studies (in the form of `authz` resources).
+
+In other words, we can answer the question "How long does it take to get
+10,000 signed URLs across 3 studies in Gen3?"
+
+The test is not designed with parallelized users
+(there is only 1 virtual user),
+as it's meant to simulate a single person trying to
+get all the data they care about.
+
+**We are assuming the client/user is parallelizing their requests**.
+We accomplish that with k6's `batch` support for requests.
+
+**We also assume the client/user is retrying failed requests**
+(like the rate limiting 503s) with some simple backoff logic
+(for each batch of requests, if any failed, keep retrying the
+failed requests up to 5 times with increasing sleep time in between).
+
+Due to the potential high number of GUIDs that could be requested,
+we are not able to use the existing
+`GUIDS_LIST` that other similar load tests use
+(as it exceeded the max size of commands in linux -
+it gets passed to a k6 process as a command line arg).
+To circumvent this, the logic of paginating and obtaining the GUIDs
+is built into this test.
+
+There is sufficient flexibility for adjusting num GUIDs,
+num parallel requests, pagination size, authz resources, etc.
+*/
+
 const {
   check,
   group,
