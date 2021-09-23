@@ -21,7 +21,7 @@ failed requests up to 5 times with increasing sleep time in between).
 Due to the potential high number of GUIDs that could be requested,
 we are not able to use the existing
 `GUIDS_LIST` that other similar load tests use
-(as it exceeded the max size of commands in linux - 
+(as it exceeded the max size of commands in linux -
 it gets passed to a k6 process as a command line arg).
 To circumvent this, the logic of paginating and obtaining the GUIDs
 is built into this test.
