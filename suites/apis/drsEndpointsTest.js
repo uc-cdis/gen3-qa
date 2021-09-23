@@ -77,12 +77,13 @@ Scenario('get drs invalid access id @drs', async ({ drs, fence }) => {
 Scenario('get drs presigned-url no auth header @drs', async ({ drs, fence }) => {
   // the endpoint should return 401 if the version is >= 5.5.0 / 2021.10
   const minSemVer = '5.5.0';
-  const minMonthlyRelease = semver.coerce('2021.10');
-  const monthlyReleaseCutoff = semver.coerce('2020');
+  // We need two dots here to achieve proper comparison later with other monthly versions
+  const minMonthlyRelease = semver.coerce('2021.10.0', { loose: true });
+  const monthlyReleaseCutoff = semver.coerce('2021', { loose: true });
 
   const version = await fence.do.getVersion();
   console.log(`### ## version: ${version}`);
-  const semVerVersion = semver.coerce(version);
+  const semVerVersion = semver.coerce(version, { loose: true });
   console.log(`### ## semVerVersion: ${semVerVersion}`);
   const expectedResponse = drs.props.noAccessToken;
   if (
