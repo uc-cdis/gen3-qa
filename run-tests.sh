@@ -288,7 +288,7 @@ fi
 #
 # Google Data Access tests are only required for some envs
 #
-if [[ "$isGen3Release" != "true" && "$service" != "gen3-qa" && "$service" != "fence" && !("$service" == "cdis-manifest" && $envsRequireGoogle =~ (^| )$testedEnv($| )) ]]; then
+if [[ "$isGen3Release" != "true" && "$service" != "gen3-qa" && !("$service" == "cdis-manifest" && $envsRequireGoogle =~ (^| )$testedEnv($| )) ]]; then
   # run all tests except for those that require google configuration
   echo "INFO: disabling Google Data Access tests for $service"
   donot '@reqGoogle'
