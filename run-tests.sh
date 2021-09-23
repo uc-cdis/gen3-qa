@@ -277,6 +277,7 @@ donot '@prjsBucketAccess'
 if [ "$testedEnv" == "dataguids.org" ]; then
   # disable bootstrap script from codeceptjs
   sed -i '/bootstrap\:/d' codecept.conf.js
+  sed -i '/bootstrap\:/d' gen3.qa.in.a.box.codecept.conf.js
 fi
 
 # if [[ "$testedEnv" == *"heal"* ]]; then
