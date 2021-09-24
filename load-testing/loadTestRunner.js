@@ -112,7 +112,7 @@ async function runLoadTestScenario() {
 
   const indexdRecordAuthzList = (
     testDescriptorData.indexd_record_authz_list
-    ? testDescriptorData.indexd_record_authz_list : 1);
+      ? testDescriptorData.indexd_record_authz_list : 1);
   loadTestArgs.unshift(`AUTHZ_LIST=${indexdRecordAuthzList}`);
   loadTestArgs.unshift('-e');
 
