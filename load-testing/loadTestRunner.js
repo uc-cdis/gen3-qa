@@ -63,15 +63,23 @@ async function runLoadTestScenario() {
         process.exit(1);
       });
   }
-
   let influxDBHost = '';
   if (process.env.RUNNING_LOCAL === 'false') {
     influxDBHost = 'http://influxdb:8086/loadtests_metrics';
   } else {
     influxDBHost = 'http://localhost:8086/db0';
   }
+
+  k6output = `influxdb=${influxDBHost}`;
+  if (process.env.USE_DATADOG === 'true') {
+    k6output = 'statsd';
+  }
+
   // Set fixed list of args for the load test run
-  const loadTestArgs = ['-e', `GEN3_HOST=${targetEnvironment}`, '-e', `ACCESS_TOKEN=${token}`, '-e', `VIRTUAL_USERS="${JSON.stringify(testDescriptorData.virtual_users)}"`, '--out', 'statsd', '--summary-export=result.json', `load-testing/${targetService}/${loadTestScenario}.js`];
+  const loadTestArgs = ['-e', `GEN3_HOST=${targetEnvironment}`, '-e', `ACCESS_TOKEN=${token}`, '-e', `VIRTUAL_USERS="${JSON.stringify(testDescriptorData.virtual_users)}"`,
+  '--out', `${k6output}`, '--summary-export=result.json',
+  `load-testing/${targetService}/${loadTestScenario}.js`];
+
 
   // for additional debugging include the arg below
   // '--http-debug="full"'];
