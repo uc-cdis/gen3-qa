@@ -42,10 +42,13 @@ docker-compose up -d
 
 Run the Datadog agent and then set the `USE_DATADOG=true` env var.
 
+Set the Datadog API Key `DATADOG_API_KEY=foobar` as an env var. # pragma: allowlist secret
+
 Example of running the agent (kills any previous `datadog` containers):
 
 ```bash
   export USE_DATADOG=true
+  export DATADOG_API_KEY=foobar                 # pragma: allowlist secret
   export K6_STATSD_ENABLE_TAGS=true
   sudo docker stop datadog || true
   sudo docker rm datadog || true
