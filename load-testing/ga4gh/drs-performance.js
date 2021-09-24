@@ -52,8 +52,6 @@ const {
   NUM_PARALLEL_REQUESTS,
 } = __ENV; // eslint-disable-line no-undef
 
-const authz_list = AUTHZ_LIST.split(',');
-
 const myFailRate = new Rate('failed requests');
 
 export const options = {
@@ -134,10 +132,8 @@ export default function () {
 
   group('Sending GA4GH DRS API Requests request', () => {
     group('http get', () => {
-      // let batchRequests = [];
       let batchRequests = {};
       let retryRequired = false;
-      let failedRequests = {};
 
       for (let i = 0; i < listOfDIDs.length; i++) {
         for (let k = i; Object.keys(batchRequests).length < NUM_PARALLEL_REQUESTS && k < listOfDIDs.length; k++) {
@@ -201,7 +197,6 @@ export default function () {
         // reset batch for next one
         retryRequired = false;
         batchRequests = {};
-        failedRequests = {};
       }
     });
   });

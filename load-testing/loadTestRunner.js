@@ -71,7 +71,7 @@ async function runLoadTestScenario() {
     influxDBHost = 'http://localhost:8086/db0';
   }
   // Set fixed list of args for the load test run
-  const loadTestArgs = ['-e', `GEN3_HOST=${targetEnvironment}`, '-e', `ACCESS_TOKEN=${token}`, '-e', `VIRTUAL_USERS="${JSON.stringify(testDescriptorData.virtual_users)}"`, '--out', `influxdb=${influxDBHost}`, '--summary-export=result.json', `load-testing/${targetService}/${loadTestScenario}.js`];
+  const loadTestArgs = ['-e', `GEN3_HOST=${targetEnvironment}`, '-e', `ACCESS_TOKEN=${token}`, '-e', `VIRTUAL_USERS="${JSON.stringify(testDescriptorData.virtual_users)}"`, '--out', 'datadog', '--summary-export=result.json', `load-testing/${targetService}/${loadTestScenario}.js`];
 
   // for additional debugging include the arg below
   // '--http-debug="full"'];
