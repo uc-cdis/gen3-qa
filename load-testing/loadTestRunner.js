@@ -111,18 +111,18 @@ async function runLoadTestScenario() {
   loadTestArgs.unshift('-e');
 
   const indexdRecordAuthzList = (
-      testDescriptorData.indexd_record_authz_list ?
-      testDescriptorData.indexd_record_authz_list : 1);
+    testDescriptorData.indexd_record_authz_list
+    ? testDescriptorData.indexd_record_authz_list : 1);
   loadTestArgs.unshift(`AUTHZ_LIST=${indexdRecordAuthzList}`);
   loadTestArgs.unshift('-e');
 
-  const minRecords = (testDescriptorData.minimum_records ?
-    testDescriptorData.minimum_records : 1);
+  const minRecords = (testDescriptorData.minimum_records
+    ? testDescriptorData.minimum_records : 1);
   loadTestArgs.unshift(`MINIMUM_RECORDS=${minRecords}`);
   loadTestArgs.unshift('-e');
 
-  const recordChunkSize = (testDescriptorData.record_chunk_size ?
-    testDescriptorData.record_chunk_size : 1);
+  const recordChunkSize = (testDescriptorData.record_chunk_size
+    ? testDescriptorData.record_chunk_size : 1);
   loadTestArgs.unshift(`RECORD_CHUNK_SIZE=${recordChunkSize}`);
   loadTestArgs.unshift('-e');
 
