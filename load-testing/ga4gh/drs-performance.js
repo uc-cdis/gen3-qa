@@ -175,7 +175,7 @@ export default function () {
                 retryRequired = true;
               }
             } else {
-              console.log("ERROR: Response does not contain guid")
+              console.log('ERROR: Response does not contain guid');
             }
           }
 
