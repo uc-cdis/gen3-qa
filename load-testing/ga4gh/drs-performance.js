@@ -135,8 +135,10 @@ export default function () {
       let batchRequests = {};
       let retryRequired = false;
 
-      for (let i = 0; i < listOfDIDs.length; i++) {
-        for (let k = i; Object.keys(batchRequests).length < NUM_PARALLEL_REQUESTS && k < listOfDIDs.length; k++) {
+      for (let i = 0; i < listOfDIDs.length; i += 1) {
+        for (let k = i;
+             Object.keys(batchRequests).length < NUM_PARALLEL_REQUESTS && k < listOfDIDs.length;
+             k += 1) {
           const url = `https://${GEN3_HOST}/ga4gh/drs/v1/objects/${listOfDIDs[k]}/access/${SIGNED_URL_PROTOCOL}`;
 
           console.log(`Adding request to batch: ${url}`);
@@ -167,7 +169,7 @@ export default function () {
               delete batchRequests[guid];
             }
 
-            if (responses[guid].status != 200) {
+            if (responses[guid].status !== 200) {
               console.log(`    Failed request for ${guid} - ${responses[guid].status}:${responses[guid].body}`);
               retryRequired = true;
             }

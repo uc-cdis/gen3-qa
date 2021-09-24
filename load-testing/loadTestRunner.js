@@ -70,15 +70,15 @@ async function runLoadTestScenario() {
     influxDBHost = 'http://localhost:8086/db0';
   }
 
-  k6output = `influxdb=${influxDBHost}`;
+  let k6output = `influxdb=${influxDBHost}`;
   if (process.env.USE_DATADOG === 'true') {
     k6output = 'statsd';
   }
 
   // Set fixed list of args for the load test run
   const loadTestArgs = ['-e', `GEN3_HOST=${targetEnvironment}`, '-e', `ACCESS_TOKEN=${token}`, '-e', `VIRTUAL_USERS="${JSON.stringify(testDescriptorData.virtual_users)}"`,
-  '--out', `${k6output}`, '--summary-export=result.json',
-  `load-testing/${targetService}/${loadTestScenario}.js`];
+    '--out', `${k6output}`, '--summary-export=result.json',
+    `load-testing/${targetService}/${loadTestScenario}.js`];
 
 
   // for additional debugging include the arg below
@@ -103,22 +103,26 @@ async function runLoadTestScenario() {
     listOfDIDs = testDescriptorData.presigned_url_guids ? testDescriptorData.presigned_url_guids : [''];
   }
 
-  const passportsList = testDescriptorData.passports_list ? testDescriptorData.passports_list : "";
+  const passportsList = testDescriptorData.passports_list ? testDescriptorData.passports_list : '';
   loadTestArgs.unshift(`PASSPORTS_LIST=${passportsList}`);
   loadTestArgs.unshift('-e');
 
   loadTestArgs.unshift(`TARGET_ENV=${targetEnvironment}`);
   loadTestArgs.unshift('-e');
 
-  const indexdRecordAuthzList = testDescriptorData.indexd_record_authz_list ? testDescriptorData.indexd_record_authz_list : 1;
+  const indexdRecordAuthzList = (
+      testDescriptorData.indexd_record_authz_list ?
+      testDescriptorData.indexd_record_authz_list : 1);
   loadTestArgs.unshift(`AUTHZ_LIST=${indexdRecordAuthzList}`);
   loadTestArgs.unshift('-e');
 
-  const minRecords = testDescriptorData.minimum_records ? testDescriptorData.minimum_records : 1;
+  const minRecords = (testDescriptorData.minimum_records ?
+    testDescriptorData.minimum_records : 1);
   loadTestArgs.unshift(`MINIMUM_RECORDS=${minRecords}`);
   loadTestArgs.unshift('-e');
 
-  const recordChunkSize = testDescriptorData.record_chunk_size ? testDescriptorData.record_chunk_size : 1;
+  const recordChunkSize = (testDescriptorData.record_chunk_size ?
+    testDescriptorData.record_chunk_size : 1);
   loadTestArgs.unshift(`RECORD_CHUNK_SIZE=${recordChunkSize}`);
   loadTestArgs.unshift('-e');
 
