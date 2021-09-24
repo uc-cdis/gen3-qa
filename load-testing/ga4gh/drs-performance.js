@@ -159,7 +159,7 @@ export default function () {
           const responses = http.batch(batchRequests);
 
           for (const guid in responses) {
-            if (responses.hasOwnProperty(guid)) {
+            if (Object.prototype.hasOwnProperty.call(responses, guid)) {
               check(responses[guid], {
                 'is status 200': (r) => r.status === 200,
               });
@@ -174,6 +174,8 @@ export default function () {
                 console.log(`    Failed request for ${guid} - ${responses[guid].status}:${responses[guid].body}`);
                 retryRequired = true;
               }
+            } else {
+              console.log("ERROR: Response does not contain guid")
             }
           }
 
