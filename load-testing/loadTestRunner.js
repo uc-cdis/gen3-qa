@@ -126,7 +126,8 @@ async function runLoadTestScenario() {
   loadTestArgs.unshift(`RECORD_CHUNK_SIZE=${recordChunkSize}`);
   loadTestArgs.unshift('-e');
 
-  const numParallelRequests = testDescriptorData.num_parallel_requests ? testDescriptorData.num_parallel_requests : 1;
+  const numParallelRequests = (testDescriptorData.num_parallel_requests
+    ? testDescriptorData.num_parallel_requests : 1);
   loadTestArgs.unshift(`NUM_PARALLEL_REQUESTS=${numParallelRequests}`);
   loadTestArgs.unshift('-e');
 

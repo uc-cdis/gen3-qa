@@ -159,19 +159,21 @@ export default function () {
           const responses = http.batch(batchRequests);
 
           for (const guid in responses) {
-            check(responses[guid], {
-              'is status 200': (r) => r.status === 200,
-            });
-            myFailRate.add(responses[guid].status !== 200);
+            if (responses.hasOwnProperty(guid)) {
+              check(responses[guid], {
+                'is status 200': (r) => r.status === 200,
+              });
+              myFailRate.add(responses[guid].status !== 200);
 
-            // remove successful requests
-            if (responses[guid].status === 200) {
-              delete batchRequests[guid];
-            }
+              // remove successful requests
+              if (responses[guid].status === 200) {
+                delete batchRequests[guid];
+              }
 
-            if (responses[guid].status !== 200) {
-              console.log(`    Failed request for ${guid} - ${responses[guid].status}:${responses[guid].body}`);
-              retryRequired = true;
+              if (responses[guid].status !== 200) {
+                console.log(`    Failed request for ${guid} - ${responses[guid].status}:${responses[guid].body}`);
+                retryRequired = true;
+              }
             }
           }
 
