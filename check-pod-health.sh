@@ -23,8 +23,7 @@ else
   health_endpoints=( $sheepdog $peregrine $portal $fence )
 fi
 
-if [[ "$(hostname)" == *"cdis-github-org"* ]] || [[ "$(hostn
-ame)" == *"planx-ci-pipeline"* ]]; then
+if [[ "$(hostname)" == *"cdis-github-org"* ]] || [[ "$(hostname)" == *"planx-ci-pipeline"* ]]; then
   echo "do not include $selenium in the health check."
 else
   health_endpoints+=($selenium)
