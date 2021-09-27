@@ -1,6 +1,6 @@
 # k6 Load Testing
 
-QA team is moving towards making efforts to execute load testing suite for the microservices such as Fence and IndexD (for start). The team is using a stack of k6 + Grafana + Influxdb to execute and report the load test script execution. 
+QA team is moving towards making efforts to execute load testing suite for the microservices such as Fence and IndexD (for start). The team is using a stack of k6 + Grafana + Influxdb to execute and report the load test script execution.
 
 ## Installation
 
@@ -28,6 +28,8 @@ sudo apt-get install k6
 
 ## What we use for visualization?
 
+### Grafana + InfluxDB
+
 To have a nice visualization of load testing, run local Grafana and InfluxDB:
 
 In `grafana/` folder:
@@ -35,6 +37,25 @@ In `grafana/` folder:
 ```
 docker-compose up -d
 ```
+
+### Datadog
+
+Run the Datadog agent and then set the `USE_DATADOG=true` env var.
+
+Set the Datadog API Key `DATADOG_API_KEY=foobar` as an env var. # pragma: allowlist secret
+
+Example of running the agent (kills any previous `datadog` containers):
+
+```bash
+  export USE_DATADOG=true
+  export DATADOG_API_KEY=foobar                 # pragma: allowlist secret
+  export K6_STATSD_ENABLE_TAGS=true
+  sudo docker stop datadog || true
+  sudo docker rm datadog || true
+  sudo DOCKER_CONTENT_TRUST=1 docker run -d     --name datadog     -v /var/run/docker.sock:/var/run/docker.sock:ro     -v /proc/:/host/proc/:ro     -v /sys/fs/cgroup/:/host/sys/fs/cgroup:ro     -e DD_SITE="datadoghq.com"    -e DD_API_KEY=$DATADOG_API_KEY     -e DD_DOGSTATSD_NON_LOCAL_TRAFFIC=1     -p 8125:8125/udp     datadog/agent:latest
+```
+
+> NOTE: locally the above should work, but depending on other envs you may have to mess with another env var for k6 like: `export K6_STATSD_ADDR=datadog-agent-cluster-agent.datadog:8125`
 
 ## How to run load testing scripts with K6?
 
@@ -47,13 +68,13 @@ docker-compose up -d
 
 * The Load test runner script is located at the load-testing/ folder.
     On terminal, from this location run:
-	
+
 	`node load-testing/loadTestRunner.js <path to the credentials.json file> <path to load-test-descriptor.json>`
-	
+
     e.g., `node load-testing/loadTestRunner.js /Users/$USER/.gen3/credentials.json load-testing/sample-descriptors/load-test-descriptor.json`
-	
+
 	_optional argument:_ random-guids -> If an indexd record url is provided in `load-test-descriptor`, a set of GUIDs will be dynamically retrieved from the target environment and the requests will target random records (Note: For `fence/presigned-url` scenario only).
-	
+
 	e.g., `node load-testing/loadTestRunner.js /Users/$USER/.gen3/credentials.json load-testing/load-test-descriptor.json random-guids`
 
 ### load testing descriptors
