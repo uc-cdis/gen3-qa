@@ -20,8 +20,9 @@ function writeMetricWithResult() {
   else
     measure="fail_count"
   fi
-  
-  curl -i -XPOST "http://influxdb:8086/write?db=ci_metrics" --data-binary "${measure},test_name=data_simulator,repo_name=$(echo $JOB_NAME | cut -d/ -f 2),pr_num=$(echo $BRANCH_NAME | cut -d- -f 2) ${measure}=1"
+
+  # allow failure in case influxdb not in use
+  curl -i -XPOST "http://influxdb:8086/write?db=ci_metrics" --data-binary "${measure},test_name=data_simulator,repo_name=$(echo $JOB_NAME | cut -d/ -f 2),pr_num=$(echo $BRANCH_NAME | cut -d- -f 2) ${measure}=1" || true
 }
 
 namespace="${1:-${KUBECTL_NAMESPACE:-default}}"
@@ -90,9 +91,9 @@ if [ -f ./pyproject.toml ]; then
   echo "Found pyproject.toml, using poetry to install data simulator"
   # put poetry in the path
   export PATH="/var/jenkins_home/.local/bin:$PATH"
-  poetry config virtualenvs.path "${WORKSPACE}/datasimvirtenv" --local  
+  poetry config virtualenvs.path "${WORKSPACE}/datasimvirtenv" --local
   poetry env use python3.8
-  # install data-simulator  
+  # install data-simulator
   # retry in case of any connectivity failures
   for attempt in {1..3}; do
     yes | poetry cache clear --all pypi
