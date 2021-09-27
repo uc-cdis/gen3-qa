@@ -21,6 +21,8 @@ module.exports = {
   },
 
   seeUserLoggedInOnDropdown(username) {
+    I.wait(2);
+    I.saveScreenshot('waitingForUserCircleIcon.png')
     I.waitForElement({ css: '.g3-icon--user-circle' }, 15);
     I.saveScreenshot('Clicking_on_dropdown_at_top_bar.png');
     I.click('.g3-icon--user-circle');
