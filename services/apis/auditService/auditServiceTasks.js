@@ -66,7 +66,7 @@ async function waitForFenceToRoll() {
       console.log(res);
       let ready = false;
       try {
-        ready = res.includes('4/4');
+        ready = res.includes('1/1');
       } catch (err) {
         console.error(`Unable to parse output. Error: ${err}. Output:`);
         console.error(res);
