@@ -57,6 +57,7 @@ exports.config = {
     browserLogHelper: {
       require: './helpers/browserLogHelper.js',
     },
+    FileSystem: {}
   },
   include: {
     // General Utils
