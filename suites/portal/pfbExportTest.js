@@ -389,7 +389,7 @@ Scenario('Install the latest pypfb CLI version and make sure we can parse the av
 
   await bash.runCommand(`cp ./test_export_${I.cache.UNIQUE_NUM}.avro output/test_export_${I.cache.UNIQUE_NUM}.avro.log`);
   const pfbParsingResult = await bash.runCommand(`source pfb_test/bin/activate && ${I.cache.WORKSPACE}/gen3-qa/pfb_test/bin/pfb show -i ./test_export_${I.cache.UNIQUE_NUM}.avro | jq .`);
-  // console.log(`${new Date()}: pfbParsingResult = ${pfbParsingResult}`);
+  console.log(`${new Date()}: pfbParsingResult = ${pfbParsingResult}`);
   const pfbConvertedToJSON = JSON.parse(`[${pfbParsingResult.replace(/\}\{/g, '},{')}]`);
   // console.log(`${new Date()}: pfbConvertedToJSON = ${JSON.stringify(pfbConvertedToJSON)}`);
 
@@ -410,4 +410,4 @@ Scenario('Install the latest pypfb CLI version and make sure we can parse the av
     expect(itDDNodesSet.next().value).to.equal('study');
   }
   // TODO: Refine cohort later and make sure the selected projects show up in the PFB file
-});
+}).retry(1);
