@@ -387,7 +387,7 @@ Scenario('Install the latest pypfb CLI version and make sure we can parse the av
   const pyPfbInstallationOutput = await bash.runCommand(`python3.8 -m venv pfb_test && source pfb_test/bin/activate && pip install pypfb && ${I.cache.WORKSPACE}/gen3-qa/pfb_test/bin/pfb`);
   console.log(`${new Date()}: pyPfbInstallationOutput = ${pyPfbInstallationOutput}`);
 
-  // await bash.runCommand(`cat ./test_export_${I.cache.UNIQUE_NUM}.avro`);
+  await bash.runCommand(`cp ./test_export_${I.cache.UNIQUE_NUM}.avro output/test_export_${I.cache.UNIQUE_NUM}.avro.log`);
   const pfbParsingResult = await bash.runCommand(`source pfb_test/bin/activate && ${I.cache.WORKSPACE}/gen3-qa/pfb_test/bin/pfb show -i ./test_export_${I.cache.UNIQUE_NUM}.avro | jq .`);
   // console.log(`${new Date()}: pfbParsingResult = ${pfbParsingResult}`);
   const pfbConvertedToJSON = JSON.parse(`[${pfbParsingResult.replace(/\}\{/g, '},{')}]`);
