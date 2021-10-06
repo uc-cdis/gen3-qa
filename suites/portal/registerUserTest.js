@@ -54,7 +54,7 @@ Scenario('register to get access to download data @registerUser',
     I.saveScreenshot('expolerPageAfterRegisted1.png');
     I.waitForClickable('//button[contains(text(),"Download Case Metadata")]', 5);
     I.click('//button[contains(text(),"Download Case Metadata")]');
-    I.seeFileNameMatching('MIDRC_case_metadata');
+    //TODO: check download url
   });
 
 Scenario('registered user should have access to download data @registerUser',
@@ -65,5 +65,5 @@ Scenario('registered user should have access to download data @registerUser',
     I.saveScreenshot('expolerPageAfterRegisted2.png');
     I.waitForClickable('//button[contains(text(),"Download Case Metadata")]', 5);
     I.click('//button[contains(text(),"Download Case Metadata")]');
-    I.seeFileNameMatching('MIDRC_case_metadata');
+    //TODO: check download url
   });
