@@ -399,7 +399,7 @@ Scenario('Install the latest pypfb CLI version and make sure we can parse the av
   const ddNodesSet = new Set();
   for (const node in pfbConvertedToJSON) { // eslint-disable-line guard-for-in
     // console.log(`node name: ${pfbConvertedToJSON[node].name}`);
-    await ddNodesSet.add(pfbConvertedToJSON[node].name);
+    ddNodesSet.add(pfbConvertedToJSON[node].name);
   }
   const itDDNodesSet = ddNodesSet.values();
   expect(itDDNodesSet.next().value).to.equal('program');
