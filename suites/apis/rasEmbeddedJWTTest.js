@@ -13,6 +13,8 @@
 */
 Feature('DRS access with RAS passport');
 
+const HTTP_MOCKING_ENABLED = true;
+
 const TARGET_ENVIRONMENT = `${process.env.NAMESPACE}.planx-pla.net`;
 
 // temporary until feature is implemented
@@ -50,17 +52,19 @@ BeforeSuite(async ({ I, indexd }) => {
     ok, 'unable to add files to indexd as part of the RAS M3 integration test setup',
   ).to.be.true;
 
-  console.log(`### ## Mocking response for request against: https://${TARGET_ENVIRONMENT}/ga4gh/drs/v1/objects/${indexedFiles.drsEmbeddedPassportDataAccessTestFile1.did}/access/s3`);
-  const scope = nock(`https://${TARGET_ENVIRONMENT}`)
-    .post(`/ga4gh/drs/v1/objects/${indexedFiles.drsEmbeddedPassportDataAccessTestFile1.did}/access/s3`)
-    .reply(200, { url: 'https://some-bucket-name-datacommons.s3.amazonaws.com/some-file.v1.vcf.gz?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AAAAAAAAAA%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20211007T162114Z&X-Amz-Expires=3600&X-Amz-Security-Token=BLABLABLA&X-Amz-SignedHeaders=host&user_id=1234&username=bob%40uchicago.edu&X-Amz-Signature=abcd1234' });
+  if (HTTP_MOCKING_ENABLED) {
+    console.log(`### ## Mocking response for request against: https://${TARGET_ENVIRONMENT}/ga4gh/drs/v1/objects/${indexedFiles.drsEmbeddedPassportDataAccessTestFile1.did}/access/s3`);
+    const scope = nock(`https://${TARGET_ENVIRONMENT}`)
+      .post(`/ga4gh/drs/v1/objects/${indexedFiles.drsEmbeddedPassportDataAccessTestFile1.did}/access/s3`)
+      .reply(200, { url: 'https://some-bucket-name-datacommons.s3.amazonaws.com/some-file.v1.vcf.gz?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AAAAAAAAAA%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20211007T162114Z&X-Amz-Expires=3600&X-Amz-Security-Token=BLABLABLA&X-Amz-SignedHeaders=host&user_id=1234&username=bob%40uchicago.edu&X-Amz-Signature=abcd1234' });
 
-  const scope2 = nock('https://some-bucket-name-datacommons.s3.amazonaws.com')
-    .get(/.*/)
-    .reply(200, 'test\n');
+    const scope2 = nock('https://some-bucket-name-datacommons.s3.amazonaws.com')
+      .get(/.*/)
+      .reply(200, 'test\n');
 
-  I.cache.scope = scope;
-  I.cache.scope2 = scope2;
+    I.cache.scope = scope;
+    I.cache.scope2 = scope2;
+  }
 });
 
 Scenario('Send DRS request with a single RAS ga4gh passport and confirm the access is authorized @RASJWT4DRS', async ({ I }) => {
