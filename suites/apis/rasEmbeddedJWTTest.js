@@ -20,7 +20,12 @@ const TARGET_ENVIRONMENT = `${process.env.NAMESPACE}.planx-pla.net`;
 // temporary until feature is implemented
 const nock = require('nock');
 
+const { registerRasClient } = require('../../utils/rasAuthN');
+const { parseJwt, sleepMS } = require('../../utils/apiUtil.js');
 const { expect } = require('chai');
+const { Bash, takeLastLine } = require('../../utils/bash.js');
+
+const bash = new Bash();
 
 const expectedContentsOfTheTestFile = 'test\n'; // eslint-disable-line no-unused-vars
 
@@ -65,6 +70,68 @@ BeforeSuite(async ({ I, indexd }) => {
     I.cache.scope = scope;
     I.cache.scope2 = scope2;
   }
+  if (process.env.RAS_TEST_USER_1_USERNAME === undefined) {
+    throw new Error('ERROR: There is no username defined for RAS Test User 1. Please declare the "RAS_TEST_USER_1_USERNAME" environment variable and try again. Aborting test...');
+  } else if (process.env.RAS_TEST_USER_1_PASSWORD === undefined) {
+    throw new Error('ERROR: There is no password defined for RAS Test User 1. Please declare the "RAS_TEST_USER_1_PASSWORD" environment variable and try again. Aborting test...');
+  }
+
+  // Deleting registered clients for idempotent local runs
+  const deleteClientCmd1 = 'fence-create --arborist http://arborist-service/ client-delete --client ras-user1-test-client';
+  const deleteClientForRASUser1 = bash.runCommand(deleteClientCmd1, 'fence', takeLastLine);
+  console.log(`deleteClientForRASUser1: ${deleteClientForRASUser1}`);
+});
+
+Scenario('Register a fence client for RAS Test User 1 with the ga4gh_passport_v1 scope @RASJWT4DRS', async ({ I }) => {
+  const { clientID, secretID } = registerRasClient(process.env.RAS_TEST_USER_1_USERNAME);
+  I.cache.rasUser1ClientId = clientID;
+  I.cache.rasUser1SecretId = secretID;
+});
+
+Scenario('Visit Auth URL as RAS Test User 1 and click on I Accept button @RASJWT4DRS', async ({ I }) => {
+  I.amOnPage(`/user/oauth2/authorize?response_type=code&client_id=${I.cache.rasUser1ClientId}&redirect_uri=https://${process.env.HOSTNAME}/user&scope=openid+user+data+google_credentials+ga4gh_passport_v1&idp=ras`);
+  await sleepMS(5000);
+  I.saveScreenshot('NIH_Login_Page_user2.png');
+
+  I.fillField('USER', process.env.RAS_TEST_USER_1_USERNAME);
+  I.fillField('PASSWORD', process.env.RAS_TEST_USER_1_PASSWORD);
+  I.click({ xpath: 'xpath: //button[contains(text(), \'Sign in\')]' });
+
+  await sleepMS(3000);
+  const postNIHLoginURL = await I.grabCurrentUrl();
+  if (postNIHLoginURL === 'https://stsstg.nih.gov/auth/oauth/v2/authorize/consent') {
+    I.click({ xpath: 'xpath: //input[@value=\'Grant\']' });
+  }
+
+  I.saveScreenshot('I_authorize_page_user1.png');
+  I.waitForElement({ css: '.auth-list' }, 10);
+
+  await I.click({ xpath: 'xpath: //button[contains(text(), \'Yes, I authorize.\')]' });
+
+  await sleepMS(5000);
+  const urlWithCode = await I.grabCurrentUrl();
+  console.log(`the code: ${urlWithCode}`);
+
+  const theCode = urlWithCode.split('=')[1];
+  expect(theCode).to.not.to.be.empty;
+  I.cache.rasUser1AuthCode = theCode;
+});
+
+Scenario('Obtain the passport for RAS Test User 1 @RASJWT4DRS', async ({ I }) => {
+  const obtainTokensCmd = `curl --user "${I.cache.rasUser1ClientId}:${I.cache.rasUser1SecretId}" -X POST "https://${process.env.HOSTNAME}/user/oauth2/token?grant_type=authorization_code&code=${I.cache.rasUser1AuthCode}&redirect_uri=https://${process.env.HOSTNAME}/user"`;
+  const obtainTokensForRASUser1 = bash.runCommand(obtainTokensCmd);
+  console.log(`obtainTokensForRASUser1: ${JSON.stringify(obtainTokensForRASUser1)}`);
+
+  const tokens = JSON.parse(obtainTokensForRASUser1);
+
+  // decode JWT / Access Token
+  const accessTokenJson = parseJwt(tokens.access_token);
+
+  // TODO: Add assertions here to make sure the tokens are ok
+
+  const obtainPassportCmd = `curl --request GET 'https://stsstg.nih.gov/openid/connect/v1.1/userinfo' --header "Authorization: Bearer ${tokens.access_token}"`;
+  const obtainPassportForRASUser1 = bash.runCommand(obtainPassportCmd);
+  console.log(`obtainPassportForRASUser1: ${JSON.stringify(obtainPassportForRASUser1)}`);
 });
 
 Scenario('Send DRS request with a single RAS ga4gh passport and confirm the access is authorized @RASJWT4DRS', async ({ I }) => {
