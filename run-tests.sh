@@ -417,6 +417,8 @@ else
   echo "Disabling study-viewer test"
   donot "@studyViewer"
 fi
+if [ "$testedEnv" == "qa-ibd.planx-pla.net"] ||  ["$testedEnv" == "ibdgc.datacommons.io" ] ; then
+  donot "@studyViewer"
 
 # landing page buttons
 if [[ $(curl -s "$portalConfigURL" | jq '.components | contains({buttons}) | not') == "true" ]] || [[ ! -z "$testedEnv" ]]; then
