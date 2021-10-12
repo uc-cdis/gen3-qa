@@ -417,8 +417,11 @@ else
   echo "Disabling study-viewer test"
   donot "@studyViewer"
 fi
+# donot run studyViewer tests on IBD commons, as jenkins envs are not configured with the indices
+# that supports study
 if [ "$testedEnv" == "qa-ibd.planx-pla.net" ] ||  [ "$testedEnv" == "ibdgc.datacommons.io" ] ; then
   donot "@studyViewer"
+fi
 
 # landing page buttons
 if [[ $(curl -s "$portalConfigURL" | jq '.components | contains({buttons}) | not') == "true" ]] || [[ ! -z "$testedEnv" ]]; then
