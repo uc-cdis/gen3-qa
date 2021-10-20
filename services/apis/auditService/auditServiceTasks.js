@@ -63,9 +63,9 @@ async function waitForFenceToRoll() {
     for (const service of ['fence', 'presigned-url-fence']) {
       // get the number of pods of this service
       // the podsNumberString is the number of the pods + 1 (header)
-      let podsNumberString = await bash.runCommand(`g3kubectl get pods -l app=${service} | wc -l`);
-      let podsNumber = parseInt(podsNumberString);
-      for (let i = 1; i < podsNumber; i++){
+      const podsNumberString = await bash.runCommand(`g3kubectl get pods -l app=${service} | wc -l`);
+      const podsNumber = parseInt(podsNumberString, 10);
+      for (let i = 1; i < podsNumber; i += 1) {
         const res = await bash.runCommand(`g3kubectl get pods -l app=${service} | tail -${i}`);
         console.log(`the result of the ${i} pod of ${service} is\n${res}`);
         let ready = false;
