@@ -1,0 +1,19 @@
+{
+    "objective": "Test metadata service with filter queries against a large database",
+    "details": {
+      "name": "qa-dcp.planx-pla.net"
+    },
+    "service": "metadata-service",
+    "load_test_scenario": "create-and-delete",
+    "skip_json_creation": false,
+    "hbs_templates": [
+      "load-testing/metadata-service/templates/template-simple.hbs"
+    ],
+    "num_of_jsons": 500,
+    "filter": "dbgap.study_subject_id",
+    "virtual_users": [
+      { "duration": "5s", "target": 1 },
+      { "duration": "60s", "target": 10 },
+      { "duration": "300s", "target": 100 }
+    ]
+  }
