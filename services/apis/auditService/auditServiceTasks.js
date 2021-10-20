@@ -61,18 +61,23 @@ async function waitForFenceToRoll() {
      * @returns {boolean}
      */
     for (const service of ['fence', 'presigned-url-fence']) {
-      // get the status of the most recently started pod
-      const res = await bash.runCommand(`g3kubectl get pods -l app=${service} --sort-by=.metadata.creationTimestamp | sed -n '2 p'`);
-      console.log(`the pod check result of ${service} is\n${res}`);
-      let ready = false;
-      try {
-        ready = res.includes('1/1');
-      } catch (err) {
-        console.error(`Unable to parse output. Error: ${err}. Output:`);
-        console.error(res);
-      }
-      if (!ready) {
-        return false;
+      // get the number of pods of this service
+      // the podsNumberString is the number of the pods + 1 (header)
+      let podsNumberString = await bash.runCommand(`g3kubectl get pods -l app=${service} | wc -l`);
+      let podsNumber = parseInt(podsNumberString);
+      for (let i = 1; i < podsNumber; i++){
+        const res = await bash.runCommand(`g3kubectl get pods -l app=${service} | tail -${i}`);
+        console.log(`the result of the ${i} pod of ${service} is\n${res}`);
+        let ready = false;
+        try {
+          ready = res.includes('1/1');
+        } catch (err) {
+          console.error(`Unable to parse output. Error: ${err}. Output:`);
+          console.error(res);
+        }
+        if (!ready) {
+          return false;
+        }
       }
     }
     return true;
