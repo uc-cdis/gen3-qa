@@ -20,6 +20,13 @@ module.exports = {
     portal.seeProp(homeProps.ready_cue, 60);
   },
 
+  systemUseMsg() {
+    I.amOnPage(homeProps.path);
+    I.wait(5);
+    I.saveScreenshot('SystemUser_debugging.png');
+    I.click(homeProps.systemUseAcceptButton.locator);
+  },
+
   /**
    * Logs into windmill. Uses the "dev_login" cookie to tell fence
    * which username to use when mocking the login.
