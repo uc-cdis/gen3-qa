@@ -5,9 +5,12 @@ const { getHomePageDetails } = require('../../../utils/apiUtil');
  */
 module.exports = {
   path: '/login',
-
-  // xpath for the system use message pope up box
-  // xpath: '//div[contains(text(),"Data Use Agreement for Academic and Institutional Users")]//ancestor::div[@class, "popup__box"]',
+  
+  systemUsePopUp : {
+    locator: {
+      xpath: '//div[contains(text(),"Data Use Agreement for Academic and Institutional Users")]//ancestor::div[@class, "popup__box"]',
+    }
+  },
 
   systemUseAcceptButton: {
     locator: {

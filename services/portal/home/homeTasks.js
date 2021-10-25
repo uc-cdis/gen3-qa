@@ -24,7 +24,7 @@ module.exports = {
     I.amOnPage(homeProps.path);
     I.wait(5);
     I.saveScreenshot('SystemUser_debugging.png');
-    if (I.seeElement(homeProps.systemUseAcceptButton.locator)) {
+    if (I.seeElement(homeProps.systemUsePopUp.locator)) {
       I.click(homeProps.systemUseAcceptButton.locator);
     }
   },
