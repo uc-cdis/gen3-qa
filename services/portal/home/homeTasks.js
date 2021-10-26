@@ -26,8 +26,8 @@ module.exports = {
     I.saveScreenshot('SystemUser_debugging.png');
     const popUpExists = I.seeElement(homeProps.systemUsePopUp.locator);
     if (popUpExists) {
-        I.click(homeProps.systemUseAcceptButton.locator);
-    }    
+      I.click(homeProps.systemUseAcceptButton.locator);
+    }
   },
 
   /**

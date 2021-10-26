@@ -9,13 +9,13 @@ module.exports = {
   systemUsePopUp: {
     locator: {
       xpath: '//div[contains(text(),"Data Use Agreement for Academic and Institutional Users")]//ancestor::div[contains(@class, "popup__box")]',
-    }
+    },
   },
 
   systemUseAcceptButton: {
     locator: {
       xpath: '//button[contains(text(), \'Accept\')]',
-    }
+    },
   },
 
   ready_cue: {
