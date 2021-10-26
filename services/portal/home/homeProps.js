@@ -8,7 +8,7 @@ module.exports = {
 
   systemUsePopUp: {
     locator: {
-      xpath: 'xapth: //div[contains(text(),"Data Use Agreement for Academic and Institutional Users")]//ancestor::div[@class, "popup__box"]',
+      xpath: 'xpath: //div[contains(text(),"Data Use Agreement for Academic and Institutional Users")]//ancestor::div[@class, "popup__box"]',
     },
   },
 
