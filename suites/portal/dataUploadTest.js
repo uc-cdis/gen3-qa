@@ -101,8 +101,8 @@ BeforeSuite(async ({
   submitterID = newSubmitterID;
 });
 
-Before(({ home }) => {
-  home.complete.login();
+Before(async ({ home }) => {
+  await home.complete.login();
 });
 
 Scenario('Map uploaded files in windmill submission page @dataUpload @portal', async ({

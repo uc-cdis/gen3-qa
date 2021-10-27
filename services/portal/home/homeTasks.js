@@ -34,18 +34,10 @@ module.exports = {
    * which username to use when mocking the login.
    * /!\ remember to logout after logging in or following tests will fail!
    */
-  login(username) {
+  async login(username) {
     this.goToHomepage();
+    await this.systemUseMsg();
     I.setCookie({ name: 'dev_login', value: username });
-    portal.clickProp(homeProps.googleLoginButton);
-  },
-
-  // This should become default once all Commons move to the version of portal
-  // with Login button on top bar
-  topBarLogin(username) {
-    this.goToHomepage();
-    I.setCookie({ name: 'dev_login', value: username });
-    portal.clickProp(homeProps.loginButton);
     portal.clickProp(homeProps.googleLoginButton);
   },
 
