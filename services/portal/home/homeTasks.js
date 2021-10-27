@@ -20,12 +20,11 @@ module.exports = {
     portal.seeProp(homeProps.ready_cue, 60);
   },
 
-  systemUseMsg() {
-    I.amOnPage(homeProps.path);
-    I.wait(5);
-    I.saveScreenshot('SystemUser_debugging.png');
-    const popUpExists = I.seeElement(homeProps.systemUsePopUp.locator);
-    if (popUpExists) {
+  async systemUseMsg() {
+    I.saveScreenshot('SystemUseMessage.png');
+    const numberOfElements = await I.grabNumberOfVisibleElements(homeProps.systemUsePopUp.locator);
+    console.log(`### numberOfElements:${numberOfElements}`);
+    if (numberOfElements > 0) {
       I.click(homeProps.systemUseAcceptButton.locator);
     }
   },
