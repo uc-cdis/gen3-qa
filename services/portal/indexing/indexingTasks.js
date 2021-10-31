@@ -10,7 +10,7 @@ module.exports = {
     I.amOnPage(indexingProps.path);
     I.captureBrowserLog();
     I.saveScreenshot('indexing.png');
-    I.waitForElement(indexingProps.readyCue, 10);
+    I.waitForElement(indexingProps.readyCue, 30);
   },
 
   async indexManifest(user, manifestFileName) {
