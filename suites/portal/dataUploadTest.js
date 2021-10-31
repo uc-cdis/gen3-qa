@@ -1,6 +1,6 @@
 Feature('DataUploadTest');
 
-const { interactive, ifInteractive } = require('../../utils/interactive');
+// const { interactive, ifInteractive } = require('../../utils/interactive');
 const { checkPod, sleepMS } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash');
 
@@ -165,4 +165,3 @@ AfterSuite(async ({
     files.deleteFile(fileName);
   });
 });
-
