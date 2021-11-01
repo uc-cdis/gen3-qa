@@ -90,7 +90,7 @@ Scenario('Publish a study, search and export to workspace @aggMDS', async ({
     users.mainAcct.accessTokenHeader, I.cache.studyId, studyMetaData,
   );
   output.print('--- Re-sync aggregate metadata');
-  mds.do.reSyncAggregateMetadata();
+  await mds.do.reSyncAggregateMetadata();
   const record = await mds.do.readAggMetadataRecord(
     users.mainAcct.accessTokenHeader, I.cache.studyId,
   );
