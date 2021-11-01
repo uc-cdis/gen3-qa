@@ -62,16 +62,16 @@ async function waitForFenceToRoll() {
      */
     for (const service of ['fence', 'presigned-url-fence']) {
       // get the status of the most recently started pod
-      const res = await bash.runCommand(`g3kubectl get pods -l app=${service} --sort-by=.metadata.creationTimestamp | tail -1`);
+      const res = await bash.runCommand(`g3kubectl get pods -l app=${service} --sort-by=.metadata.creationTimestamp`);
       console.log(res);
-      let ready = false;
+      let notReady = true;
       try {
-        ready = res.includes('1/1');
+        notReady = res.includes('0/1') || res.includes('Terminating');
       } catch (err) {
         console.error(`Unable to parse output. Error: ${err}. Output:`);
         console.error(res);
       }
-      if (!ready) {
+      if (notReady) {
         return false;
       }
     }
