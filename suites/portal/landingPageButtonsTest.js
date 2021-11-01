@@ -15,7 +15,7 @@ const { sleepMS } = require('../../utils/apiUtil.js');
 // Login and navigate to the landing page to instrument buttons and assert they are working
 Scenario('Navigate to the landing page and click on buttons @landing', async ({ I, home }) => {
   home.do.goToHomepage();
-  home.complete.login();
+  await home.complete.login();
 
   const buttons = [
     {

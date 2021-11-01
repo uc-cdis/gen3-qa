@@ -136,7 +136,7 @@ Scenario('Audit: homepage login events @audit', async ({ home, auditService }) =
 
   // user logs in
   home.do.goToHomepage();
-  home.complete.login(user.mainAcct);
+  await home.complete.login(user.mainAcct);
   home.ask.seeDetails();
   home.complete.logout();
 
