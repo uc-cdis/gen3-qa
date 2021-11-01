@@ -1,7 +1,7 @@
 Feature('ExportToWorkspaceTest');
 
-Before(({ home }) => {
-  home.complete.login();
+Before(async ({ home }) => {
+  await home.complete.login();
 });
 
 /* Click on the Workspace Tab on the Homepage to redirect user to the Jupyter Notebook page.

@@ -1,6 +1,6 @@
 Feature('DataUploadTest');
 
-const { interactive, ifInteractive } = require('../../utils/interactive');
+// const { interactive, ifInteractive } = require('../../utils/interactive');
 const { checkPod, sleepMS } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash');
 
@@ -101,8 +101,8 @@ BeforeSuite(async ({
   submitterID = newSubmitterID;
 });
 
-Before(({ home }) => {
-  home.complete.login();
+Before(async ({ home }) => {
+  await home.complete.login();
 });
 
 Scenario('Map uploaded files in windmill submission page @dataUpload @portal', async ({
@@ -165,4 +165,3 @@ AfterSuite(async ({
     files.deleteFile(fileName);
   });
 });
-

@@ -6,19 +6,8 @@ const user = require('../../../utils/user.js');
  * home sequences
  */
 module.exports = {
-  login(userAcct = user.mainAcct) {
-    homeTasks.login(userAcct.username);
-    homeQuestions.haveAccessToken();
-    // Custom flow for envs with useProfileDropdown enabled
-    if (process.env.testedEnv.includes('midrc') || process.env.testedEnv.includes('jenkins-brain')) {
-      homeQuestions.seeUserLoggedInOnDropdown(userAcct.username);
-    } else {
-      homeQuestions.seeUserLoggedIn(userAcct.username);
-    }
-  },
-
-  topBarLogin(userAcct = user.mainAcct) {
-    homeTasks.topBarLogin(userAcct.username);
+  async login(userAcct = user.mainAcct) {
+    await homeTasks.login(userAcct.username);
     homeQuestions.haveAccessToken();
     // Custom flow for envs with useProfileDropdown enabled
     if (process.env.testedEnv.includes('midrc') || process.env.testedEnv.includes('jenkins-brain')) {
