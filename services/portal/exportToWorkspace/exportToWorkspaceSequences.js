@@ -28,9 +28,9 @@ module.exports = {
   },
 
   /* The 'Click Workspace tab when logged out and logged in' test sequence */
-  checkClickWorkspaceTabWithLogoutAndLogin() {
+  async checkClickWorkspaceTabWithLogoutAndLogin() {
     // exportToWorkspaceTasks.logoutAndGetToWorkspace(home);
-    // exportToWorkspaceTasks.loginAndGetToWorkspace(home);
+    // await exportToWorkspaceTasks.loginAndGetToWorkspace(home);
   },
 
   /* The 'Check export to workspace success message toaster' test sequence */
