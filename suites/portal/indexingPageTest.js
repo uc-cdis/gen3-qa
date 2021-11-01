@@ -58,7 +58,7 @@ Scenario('Navigate to the indexing page and upload a test manifest @indexing', a
   I, indexing, home, users,
 }) => {
   home.do.goToHomepage();
-  home.complete.login(users.indexingAcct);
+  await home.complete.login(users.indexingAcct);
   indexing.do.goToIndexingPage();
   I.waitForElement({ css: '.indexing-page' }, 10);
   I.click('.index-flow-form'); // after clicking open window file upload dialog
