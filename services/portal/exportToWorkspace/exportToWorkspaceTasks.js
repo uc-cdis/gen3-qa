@@ -126,7 +126,7 @@ module.exports = {
   },
 
   /* Attempt to get to 'Workspace' page when user has logged out */
-  logoutAndGetToWorkspace(home) {
+  async logoutAndGetToWorkspace(home) {
     console.log('Log out current user');
     await home.complete.logout();
     console.log('Try to get to workspace');
