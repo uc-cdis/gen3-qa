@@ -49,7 +49,7 @@ module.exports = {
     await this.systemUseMsg();
   },
 
-  logoutThroughDropdown() {
+  async logoutThroughDropdown() {
     I.waitForElement({ css: '.g3-icon--user-circle' }, 15);
     I.click('.g3-icon--user-circle');
     portal.clickProp({ locator: { xpath: '//a[contains(text(), \'Logout\')]' } });
