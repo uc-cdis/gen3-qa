@@ -6,5 +6,5 @@ Scenario('login @portal', async ({ I, home }) => {
   await home.complete.login();
   I.saveScreenshot('Home_page_after_login_for_debugging.png');
   home.ask.seeDetails();
-  home.complete.logout();
+  await home.complete.logout();
 });

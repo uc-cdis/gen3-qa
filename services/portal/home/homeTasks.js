@@ -44,13 +44,15 @@ module.exports = {
   /**
    * Logs out of windmill
    */
-  logout() {
+  async logout() {
     portal.clickProp(homeProps.logoutButton);
+    await this.systemUseMsg();
   },
 
   logoutThroughDropdown() {
     I.waitForElement({ css: '.g3-icon--user-circle' }, 15);
     I.click('.g3-icon--user-circle');
     portal.clickProp({ locator: { xpath: '//a[contains(text(), \'Logout\')]' } });
+    await this.systemUseMsg();
   },
 };

@@ -30,5 +30,5 @@ Scenario('Export default manifest, mount it and check manifest name @exportToWor
 
 After(async ({ portalExportToWorkspace, home }) => {
   await portalExportToWorkspace.do.terminateWorkspaceHatcheryAndExit();
-  home.complete.logout();
+  await home.complete.logout();
 });

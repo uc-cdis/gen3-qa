@@ -20,9 +20,9 @@ module.exports = {
   logout(userAcct = user.mainAcct) {
     // Custom flow for envs with useProfileDropdown enabled
     if (process.env.testedEnv.includes('midrc') || process.env.testedEnv.includes('jenkins-brain')) {
-      homeTasks.logoutThroughDropdown();
+      await homeTasks.logoutThroughDropdown();
     } else {
-      homeTasks.logout();
+      await homeTasks.logout();
     }
     homeQuestions.isLoggedOut(userAcct.username);
   },
