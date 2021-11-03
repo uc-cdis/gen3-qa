@@ -31,7 +31,7 @@ and the file explorer depends on Guppy and ES now.
 */
 
 After(async ({ home }) => {
-  home.complete.logout();
+  await home.complete.logout();
 });
 
 AfterSuite(async ({ sheepdog }) => {

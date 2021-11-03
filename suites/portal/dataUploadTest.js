@@ -148,8 +148,8 @@ Scenario('Cannot see files uploaded by other users @dataUpload @portal', async (
   await portalDataUpload.complete.checkUnmappedFilesAreNotInFileMappingPage(I, [fileObj]);
 });
 
-After(({ home }) => {
-  home.complete.logout();
+After(async ({ home }) => {
+  await home.complete.logout();
 });
 
 AfterSuite(async ({
