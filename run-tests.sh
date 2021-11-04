@@ -325,6 +325,14 @@ else
   echo "INFO: enabling Centralized Auth tests for $service"
 fi
 
+# Only run register user tests in midrc
+if ! [[ "$service" =~ ^(cdis-manifest|gitops-qa|gen3-qa) && $testedEnv == *"midrc"*]]; then
+  echo "INFO: disabling Register User tests for $service"
+  donot '@registerUser'
+else
+  echo "INFO: enabling Register User tests for $service"
+fi
+
 # Focus on GUI tests for data-portal
 if [[ "$service" == "data-portal" ]]; then
   echo "INFO: disabling tests involving RESTful APIs & Gen3 CLI / Batch operations for $service"
