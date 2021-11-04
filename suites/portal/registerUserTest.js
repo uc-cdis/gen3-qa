@@ -44,8 +44,6 @@ Scenario('register to get access to download data @registerUser',
     I.fillField('#firstname', 'Cdis');
     I.fillField('#lastname', 'Test');
     I.fillField('#organization', 'Uchiago');
-    I.click('//a[contains(text(),\'Terms and Conditions.\')]');
-    I.click('//input[@id=\'checkbox\']');
     I.click('//button[contains(text(),\'Register\')]');
 
     // after complete register
