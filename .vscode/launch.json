@@ -19,12 +19,12 @@
                 "run",
                 "--verbose",
                 "--grep",
-                "Publish a study, search and export to workspace"
+                "Navigate to the indexing page and upload a test manifest @indexing"
             ],
             "env": {
                 "RUNNING_LOCAL": "true",
                 "GEN3_SKIP_PROJ_SETUP": "true",
-                "NAMESPACE": "qa-heal"
+                "NAMESPACE": "qa-midrc"
             },
         }
     ]

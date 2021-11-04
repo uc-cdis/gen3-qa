@@ -313,6 +313,8 @@ else
   # donot '@rasAuthN'
   runTestsIfServiceVersion "@rasAuthN" "fence" "4.22.1" "2020.09"
   echo "INFO: enabling RAS AuthN Integration tests for $service"
+  donot '@rasAuthN'
+  # Disabling RAS tests temporarily because of RAS authentication issues
 fi
 
 # TODO: eventually enable for all services, but need arborist and fence updates first
@@ -423,6 +425,11 @@ if [[ "$runStudyViewerTests" == true ]]; then
   echo "Enabling study-viewer test"
 else
   echo "Disabling study-viewer test"
+  donot "@studyViewer"
+fi
+# donot run studyViewer tests on IBD commons, as jenkins envs are not configured with the indices
+# that supports study
+if [ "$testedEnv" == "qa-ibd.planx-pla.net" ] ||  [ "$testedEnv" == "ibdgc.datacommons.io" ] ; then
   donot "@studyViewer"
 fi
 
