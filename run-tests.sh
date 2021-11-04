@@ -328,7 +328,7 @@ else
 fi
 
 # Only run register user tests in midrc
-if ! [[ "$service" =~ ^(cdis-manifest|gitops-qa|gen3-qa) && $testedEnv == *"midrc"*]]; then
+if [[ !( "$service" =~ ^(cdis-manifest|gitops-qa|gen3-qa) && $testedEnv == *"midrc"* )]]; then
   echo "INFO: disabling Register User tests for $service"
   donot '@registerUser'
 else
