@@ -7,7 +7,7 @@ module.exports = {
     css: '.ant-pagination-next[title="Next Page"]',
   },
   txtDiscoverySearch: {
-    xpath: '//div[@class="discovery-search-container"]/span/input[@type="text"]',
+    xpath: '//div[contains(@class,"discovery-search-container")]/span/input[@type="text"]',
   },
   btnAdvancedSearch: {
     xpath: '//button[span[text()="ADVANCED SEARCH"]]',

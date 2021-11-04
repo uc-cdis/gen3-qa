@@ -12,9 +12,9 @@ BeforeSuite(async ({ nodes, sheepdog }) => {
   await sheepdog.complete.addNode(validFile);
 });
 
-Before(({ home }) => {
+Before(async ({ home }) => {
   I.saveScreenshot('coremetadata_page_login.png');
-  home.complete.login();
+  await home.complete.login();
 });
 
 Scenario('test core metadata page @coreMetadataPage @portal', async ({ portalCoreMetadataPage, pidgin, users }) => {
@@ -31,7 +31,7 @@ and the file explorer depends on Guppy and ES now.
 */
 
 After(async ({ home }) => {
-  home.complete.logout();
+  await home.complete.logout();
 });
 
 AfterSuite(async ({ sheepdog }) => {

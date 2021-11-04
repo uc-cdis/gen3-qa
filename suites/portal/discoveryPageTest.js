@@ -32,7 +32,7 @@ Scenario('Publish a study, search and export to workspace @aggMDS', async ({
 
   output.print('--- Index TSV manifest');
   home.do.goToHomepage();
-  home.complete.login(users.indexingAcct);
+  await home.complete.login(users.indexingAcct);
   const headerRowVals = ['GUID', 'md5', 'size', 'acl', 'authz', 'urls'];
   const dataRowVals = [`${I.cache.did}`, `${I.cache.md5sum}`, '16', '', '/programs/QA', 's3://cdis-presigned-url-test/testdata/discovery_test.csv'];
   const tsvManifestContents = [headerRowVals.join('\t'), dataRowVals.join('\t')].join('\n');
@@ -90,7 +90,7 @@ Scenario('Publish a study, search and export to workspace @aggMDS', async ({
     users.mainAcct.accessTokenHeader, I.cache.studyId, studyMetaData,
   );
   output.print('--- Re-sync aggregate metadata');
-  mds.do.reSyncAggregateMetadata();
+  await mds.do.reSyncAggregateMetadata();
   const record = await mds.do.readAggMetadataRecord(
     users.mainAcct.accessTokenHeader, I.cache.studyId,
   );
@@ -98,7 +98,7 @@ Scenario('Publish a study, search and export to workspace @aggMDS', async ({
 
   output.print('--- Navigate to discovery page');
   home.do.goToHomepage();
-  home.complete.login(users.mainAcct);
+  await home.complete.login(users.mainAcct);
   discovery.do.goToPage();
   I.saveScreenshot('discoveryPage.png');
 

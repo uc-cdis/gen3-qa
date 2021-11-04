@@ -10,7 +10,7 @@ I.cache = {};
 After(async ({ users, mds }) => {
   if ('studyId' in I.cache) {
     await mds.do.deleteMetadataRecord(users.mainAcct.accessTokenHeader, I.cache.studyId);
-    mds.do.reSyncAggregateMetadata();
+    await mds.do.reSyncAggregateMetadata();
   }
 });
 
@@ -59,7 +59,7 @@ Scenario('Create, edit and delete aggregate metadata record', async ({ mds, user
     users.mainAcct.accessTokenHeader, I.cache.studyId, studyMetaData,
   );
   output.print('Re-sync Aggregate Metadata');
-  mds.do.reSyncAggregateMetadata();
+  await mds.do.reSyncAggregateMetadata();
   const record = await mds.do.readAggMetadataRecord(
     users.mainAcct.accessTokenHeader, I.cache.studyId,
   );
@@ -72,7 +72,7 @@ Scenario('Create, edit and delete aggregate metadata record', async ({ mds, user
     users.mainAcct.accessTokenHeader, I.cache.studyId, studyMetaData,
   );
   output.print('Re-sync Aggregate Metadata');
-  mds.do.reSyncAggregateMetadata();
+  await mds.do.reSyncAggregateMetadata();
   const updatedRecord = await mds.do.readAggMetadataRecord(
     users.mainAcct.accessTokenHeader, I.cache.studyId,
   );
@@ -83,7 +83,7 @@ Scenario('Create, edit and delete aggregate metadata record', async ({ mds, user
     users.mainAcct.accessTokenHeader, I.cache.studyId,
   );
   output.print('Re-sync Aggregate Metadata');
-  mds.do.reSyncAggregateMetadata();
+  await mds.do.reSyncAggregateMetadata();
   const deletedRecord = await mds.do.readAggMetadataRecord(
     users.mainAcct.accessTokenHeader, I.cache.studyId,
   );

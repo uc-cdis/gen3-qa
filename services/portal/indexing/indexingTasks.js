@@ -8,7 +8,9 @@ const I = actor();
 module.exports = {
   goToIndexingPage() {
     I.amOnPage(indexingProps.path);
-    I.waitForElement(indexingProps.readyCue, 10);
+    I.captureBrowserLog();
+    I.saveScreenshot('indexing.png');
+    I.waitForElement(indexingProps.readyCue, 30);
   },
 
   async indexManifest(user, manifestFileName) {

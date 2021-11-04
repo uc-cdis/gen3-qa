@@ -20,36 +20,39 @@ module.exports = {
     portal.seeProp(homeProps.ready_cue, 60);
   },
 
+  async systemUseMsg() {
+    I.saveScreenshot('SystemUseMessage.png');
+    const numberOfElements = await I.grabNumberOfVisibleElements(homeProps.systemUsePopUp.locator);
+    console.log(`### numberOfElements:${numberOfElements}`);
+    if (numberOfElements > 0) {
+      I.click(homeProps.systemUseAcceptButton.locator);
+    }
+  },
+
   /**
    * Logs into windmill. Uses the "dev_login" cookie to tell fence
    * which username to use when mocking the login.
    * /!\ remember to logout after logging in or following tests will fail!
    */
-  login(username) {
+  async login(username) {
     this.goToHomepage();
+    await this.systemUseMsg();
     I.setCookie({ name: 'dev_login', value: username });
-    portal.clickProp(homeProps.googleLoginButton);
-  },
-
-  // This should become default once all Commons move to the version of portal
-  // with Login button on top bar
-  topBarLogin(username) {
-    this.goToHomepage();
-    I.setCookie({ name: 'dev_login', value: username });
-    portal.clickProp(homeProps.loginButton);
     portal.clickProp(homeProps.googleLoginButton);
   },
 
   /**
    * Logs out of windmill
    */
-  logout() {
+  async logout() {
     portal.clickProp(homeProps.logoutButton);
+    await this.systemUseMsg();
   },
 
-  logoutThroughDropdown() {
+  async logoutThroughDropdown() {
     I.waitForElement({ css: '.g3-icon--user-circle' }, 15);
     I.click('.g3-icon--user-circle');
     portal.clickProp({ locator: { xpath: '//a[contains(text(), \'Logout\')]' } });
+    await this.systemUseMsg();
   },
 };
