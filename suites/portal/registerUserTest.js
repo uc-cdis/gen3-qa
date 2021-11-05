@@ -19,11 +19,13 @@ SCENARIOS
 *    they are able to download data
 */
 
-const I = actor();
-I.cache = {};
-I.cache.tabs = [];
+BeforeSuite(({ I }) => {
+  // init I.cache
+  I.cache = {};
+  I.cache.tabs = [];
+});
 
-async function getAlltabs(I){
+async function getAlltabs(I) {
   // get all tabs which have available data, only do it once
   I.useWebDriverTo('check property of the download button', async ({ browser }) => {
     browser.setWindowSize(1920, 1080);
@@ -35,37 +37,29 @@ async function getAlltabs(I){
   I.click('//button[contains(text(), \'Accept\')]');
   // get the number of tabs
   const numOfTbas = await I.grabNumberOfVisibleElements('//button[@role="tab"]');
-  for (let i = 1; i < numOfTbas + 1; i++) {
+  for (let i = 1; i < numOfTbas + 1; i += 1) {
     I.waitForClickable(`//button[@role="tab"][position()=${i}]`);
     const tabName = await I.grabTextFrom(`//button[@role="tab"][position()=${i}]`);
     I.click(`//button[@role="tab"][position()=${i}]`);
     I.wait(2);
     I.saveScreenshot(`CheckButtonInTab${i}.png`);
-    /*let btPending = 'true';
-      I.useWebDriverTo('check property of the download button', async (Webdriver) => {
-        const button = await Webdriver._locate('//button[contains(text(),"Login to download")][position()=1]');
-        btPending = await button[0].getAttribute('isPending');
-        console.log(`### ##In tab ${tabName}, the download is pending: ${btPending}`)
-    });*/
-    btPending = await tryTo(() => I.waitForElement('//button[contains(text(),"Login to download") and @class="explorer-button-group__download-button g3-button g3-button--disabled"]', 2));
-    //I.seeElement('//button[contains(text(),"Login to download")][position()=1]');
-    //btPending = await I.grabAttributeFrom('//button[contains(text(),"Login to download")][position()=1]', 'isPending');
-    if(!btPending){
+    const disabledbt = '//button[contains(text(),"Login to download") '
+                      + 'and @class="explorer-button-group__download-button g3-button g3-button--disabled"]';
+    const btPending = await tryTo(() => I.waitForElement(disabledbt, 2)); // eslint-disable-line
+    if (!btPending) {
       console.log(`### ##Data in ${tabName} is available to download!`);
       I.cache.tabs.push(`//button[@role="tab"][position()=${i}]`);
-    }
-    else{
+    } else {
       console.log(`### ##The download button is disabled. The data number of ${tabName} should be 0`);
       I.seeElement('//div[@class="count-box__number--align-center special-number" and text()="0"]');
     }
   }
 }
 
-
 Scenario('redirect to login page from the download button @registerUser',
   async ({ I }) => {
     await getAlltabs(I);
-    for (let i = 0; i < I.cache.tabs.length; i++){
+    for (let i = 0; i < I.cache.tabs.length; i += 1) {
       // Click the tab
       const tab = I.cache.tabs[i];
       I.waitForClickable(tab, 5);
@@ -73,6 +67,7 @@ Scenario('redirect to login page from the download button @registerUser',
       // Click the button
       I.waitForClickable('//button[contains(text(),"Login to download")][position()=1]', 5);
       I.click('//button[contains(text(),"Login to download")][position()=1]');
+      I.wait(1);
       I.seeCurrentUrlEquals('/login');
       // go back to explore page
       I.amOnPage('/explorer');
@@ -87,7 +82,7 @@ Scenario('redirect to register page after login @registerUser',
     I.seeCurrentUrlEquals('/user/register/');
   });
 
-  Scenario('register to get access to download data @registerUser',
+Scenario('register to get access to download data @registerUser',
   async ({ I, home, users }) => {
     await home.do.login(users.mainAcct.username);
     I.seeCurrentUrlEquals('/user/register/');
@@ -102,7 +97,7 @@ Scenario('redirect to register page after login @registerUser',
     I.amOnPage('/explorer');
     I.wait(5);
     I.saveScreenshot('expolerPageAfterRegisted1.png');
-    for (let i = 0; i < I.cache.tabs.length; i++){
+    for (let i = 0; i < I.cache.tabs.length; i += 1) {
       // Click the tab
       const tab = I.cache.tabs[i];
       I.waitForClickable(tab, 5);
@@ -120,7 +115,7 @@ Scenario('registered user should have access to download data @registerUser',
     I.amOnPage('/explorer');
     I.wait(5);
     I.saveScreenshot('expolerPageAfterRegisted2.png');
-    for (let i = 0; i < I.cache.tabs.length; i++){
+    for (let i = 0; i < I.cache.tabs.length; i += 1) {
       // Click the tab
       const tab = I.cache.tabs[i];
       I.waitForClickable(tab, 5);
