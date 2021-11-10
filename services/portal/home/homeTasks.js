@@ -22,11 +22,9 @@ module.exports = {
 
   async systemUseMsg() {
     I.saveScreenshot('SystemUseMessage.png');
-    const numberOfElementsInMirc = await I.grabNumberOfVisibleElements(homeProps.systemUsePopUp.locatorForMidrc);
-    console.log(`### numberOfElements:${numberOfElementsInMirc}`);
-    const numberOfElementsInVA = await I.grabNumberOfVisibleElements(homeProps.systemUsePopUp.locatorForVA);
-    console.log(`### numberOfElements:${numberOfElementsInVA}`);
-    if (numberOfElementsInMirc + numberOfElementsInVA > 0) {
+    const numberOfElements = await I.grabNumberOfVisibleElements(homeProps.systemUsePopUp.locator);
+    console.log(`### numberOfElements:${numberOfElements}`);
+    if (numberOfElements > 0) {
       I.click(homeProps.systemUseAcceptButton.locator);
     }
   },
