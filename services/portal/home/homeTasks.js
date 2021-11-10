@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const homeProps = require('./homeProps.js');
 const portal = require('../../../utils/portal.js');
 
