@@ -6,12 +6,6 @@ const { getHomePageDetails } = require('../../../utils/apiUtil');
 module.exports = {
   path: '/login',
 
-  systemUsePopUp: {
-    locator: {
-      xpath: '//div[contains(text(),"Data Use Agreement for Academic and Institutional Users")]//ancestor::div[contains(@class, "popup__box")]',
-    },
-  },
-
   systemUseAcceptButton: {
     locator: {
       xpath: '//button[contains(text(), \'Accept\')]',

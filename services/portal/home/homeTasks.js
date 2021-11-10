@@ -1,6 +1,9 @@
+/* eslint-disable max-len */
 const homeProps = require('./homeProps.js');
 const portal = require('../../../utils/portal.js');
+const { Bash } = require('../../../utils/bash.js');
 
+const bash = new Bash();
 const I = actor();
 
 /**
@@ -22,10 +25,14 @@ module.exports = {
 
   async systemUseMsg() {
     I.saveScreenshot('SystemUseMessage.png');
-    const numberOfElements = await I.grabNumberOfVisibleElements(homeProps.systemUsePopUp.locator);
-    console.log(`### numberOfElements:${numberOfElements}`);
-    if (numberOfElements > 0) {
-      I.click(homeProps.systemUseAcceptButton.locator);
+    const title = await bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.components.systemUse.systemUseTitle\'');
+    console.log(title);
+    if (title !== null && title !== '') {
+      const numberOfElements = await I.grabNumberOfVisibleElements(`//div[contains(text(), ${title})]//ancestor::div[contains(@class, "popup__box")]`);
+      console.log(`### numberOfElements:${numberOfElements}`);
+      if (numberOfElements > 0) {
+        I.click(homeProps.systemUseAcceptButton.locator);
+      }
     }
   },
 
