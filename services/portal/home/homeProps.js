@@ -7,8 +7,11 @@ module.exports = {
   path: '/login',
 
   systemUsePopUp: {
-    locator: {
-      xpath: '//button[contains(text(), \'Accept\')]//ancestor::div[contains(@class, "popup__box")]',
+    locatorForMidrc: {
+      xpath: '//div[contains(text(),"Data Use Agreement for Academic and Institutional Users")]//ancestor::div[contains(@class, "popup__box")]',
+    },
+    locatorForVA: {
+      xpath: '//div[contains(text(),"VA systems are intended for Academic and Institutional Users")]//ancestor::div[contains(@class, "popup__box")]',
     },
   },
 
