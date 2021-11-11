@@ -57,7 +57,7 @@ Scenario('Register Google Service Account Success @reqGoogle @first', async ({ f
     googleProject.serviceAccountEmail,
   );
   fence.ask.responsesEqual(deleteRes, fence.props.resDeleteServiceAccountSuccess);
-}).retry(3);
+}).retry(2);
 
 //
 // Google Project validity
@@ -76,7 +76,7 @@ Scenario('Register SA with a user that hasn’t linked their Google Account @req
     ['test'],
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountNotLinked);
-}).retry(3);
+}).retry(2);
 
 Scenario('Register SA with a user that has linked their Google Account @reqGoogle', async ({ fence, users }) => {
   // Link to a google account, but an account that is not a member of the
@@ -104,7 +104,7 @@ Scenario('Register SA with a user that has linked their Google Account @reqGoogl
     ['test'],
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountNotLinked);
-}).retry(3);
+}).retry(2);
 
 Scenario('Register SA from Google Project that has a parent org @reqGoogle', async ({ fence, users }) => {
   // Try to register a service account in Google project that has a parent organization.
@@ -152,7 +152,7 @@ Scenario('Register SA from Google Project that doesn’t have fence’s monitori
   );
   console.log(`registerRes: ${stringify(registerRes)}`);
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountFenceNoAccess);
-}).retry(3);
+}).retry(2);
 
 Scenario('Register SA from Google Project with invalid members @reqGoogle', async ({ fence, users, google }) => {
   // Register a google project service account that has a member that's an invalid type
@@ -180,7 +180,7 @@ Scenario('Register SA from Google Project with invalid members @reqGoogle', asyn
     ['test'],
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidMemberType);
-}).retry(3);
+}).retry(2);
 
 //
 // Service Account validity
@@ -211,7 +211,7 @@ Scenario('Register SA in a Google Project that is NOT from that Project @reqGoog
     ['test'],
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountWrongProject);
-}).retry(3);
+}).retry(2);
 
 
 Scenario('Register SA that looks like its from the Google Project but doesnt actually exist @reqGoogle', async ({ fence, users }) => {
@@ -239,7 +239,7 @@ Scenario('Register SA that looks like its from the Google Project but doesnt act
     ['test'],
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInaccessibleServiceAcct);
-}).retry(3);
+}).retry(2);
 
 
 Scenario('Register allowed Google-Managed SA @reqGoogle', async ({ fence, users }) => {
@@ -263,7 +263,7 @@ Scenario('Register allowed Google-Managed SA @reqGoogle', async ({ fence, users 
     ['test'],
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountSuccess);
-}).retry(3);
+}).retry(2);
 
 Scenario('Register SA of invalid type @reqGoogle', async ({ fence, users }) => {
   // Register a google managed service account that is not allowed
@@ -286,7 +286,7 @@ Scenario('Register SA of invalid type @reqGoogle', async ({ fence, users }) => {
     ['test'],
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidServiceAcctGAPIAcct);
-}).retry(3);
+}).retry(2);
 
 Scenario('Register SA that has a key generated @reqGoogle', async ({ fence, users }) => {
   // Register a service account that has a key generated
@@ -309,7 +309,7 @@ Scenario('Register SA that has a key generated @reqGoogle', async ({ fence, user
     ['test'],
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidServiceAcctWithKey);
-}).retry(3);
+}).retry(2);
 
 
 //
@@ -337,7 +337,7 @@ Scenario('Register SA for invalid data access @reqGoogle', async ({ fence, users
     ['FakeProject'],
   );
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountInvalidProject);
-}).retry(3);
+}).retry(2);
 
 Scenario('Register SA for data access when requesting user does not have privilege @reqGoogle', async ({ fence, users }) => {
   // Register service account for a data access the user does not have access to
@@ -363,7 +363,7 @@ Scenario('Register SA for data access when requesting user does not have privile
     registerRes,
     fence.props.resRegisterServiceAccountMissingProjectPrivilege,
   );
-}).retry(3);
+}).retry(2);
 
 Scenario('Register SA for data access where one Project member does not have privilege @reqGoogle', async ({ fence, users, google }) => {
   const googleProject = fence.props.googleProjectA;
@@ -409,7 +409,7 @@ Scenario('Register SA for data access where one Project member does not have pri
     registerRes,
     fence.props.resRegisterServiceAccountMissingProjectPrivilege,
   );
-}).retry(3);
+}).retry(2);
 
 //
 // Delete Service Account tests
@@ -449,7 +449,7 @@ Scenario('Attempt delete Registered SA for Google Project when user isnt on the 
     googleProject.serviceAccountEmail,
   );
   fence.ask.responsesEqual(actuallyDeleteRes, fence.props.resDeleteServiceAccountSuccess);
-}).retry(3);
+}).retry(2);
 
 Scenario('Attempt delete an SA that doesnt exist @reqGoogle', async ({ fence, users }) => {
   // Delete a service account that doesn't exist
@@ -466,7 +466,7 @@ Scenario('Attempt delete an SA that doesnt exist @reqGoogle', async ({ fence, us
     'notARealServiceAccount@fake.com',
   );
   fence.ask.responsesEqual(deleteRes, fence.props.resDeleteServiceAccountNotRegistered);
-}).retry(3);
+}).retry(2);
 
 
 Scenario('Delete a SA that was successfully registered before but was deleted from Google @reqGoogle', async ({ fence, users, google }) => {
@@ -504,7 +504,7 @@ Scenario('Delete a SA that was successfully registered before but was deleted fr
     googleProject.serviceAccountEmail,
   );
   fence.ask.responsesEqual(deleteRes, fence.props.resDeleteServiceAccountSuccess);
-}).retry(3);
+}).retry(2);
 
 //
 // Service Account expiration tests
@@ -575,4 +575,4 @@ Scenario('Service Account registration expiration test @reqGoogle', async ({ fen
 
   chai.expect(user0CannotAccessQAAfterExpired,
     'User should NOT have bucket access after expiration').to.be.true;
-}).retry(3);
+}).retry(2);

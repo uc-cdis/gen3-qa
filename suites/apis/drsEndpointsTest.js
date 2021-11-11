@@ -54,12 +54,12 @@ Scenario('get drs object @drs', async ({ drs, indexd }) => {
   console.log(Date());
   const drsObject = await drs.do.getDrsObject(files.allowed);
   await drs.complete.checkFile(drsObject);
-}).retry(3);
+}).retry(1);
 
 Scenario('get drs no record found @drs', async ({ drs }) => {
   const drsObject = await drs.do.getDrsObject(files.not_allowed);
   await drs.complete.checkRecordExists(drsObject);
-}).retry(3);
+}).retry(1);
 
 Scenario('get drs presigned-url @drs', async ({ drs, fence }) => {
   const signedUrlRes = await drs.do.getDrsSignedUrl(files.allowed);
@@ -67,7 +67,7 @@ Scenario('get drs presigned-url @drs', async ({ drs, fence }) => {
     signedUrlRes,
     'Hi Zac!\ncdis-data-client uploaded this!\n',
   );
-}).retry(3);
+}).retry(1);
 
 Scenario('get drs invalid access id @drs', async ({ drs, fence }) => {
   const signedUrlRes = await drs.do.createSignedUrl(files.invalid_protocol);
@@ -98,7 +98,7 @@ Scenario('get drs presigned-url no auth header @drs', async ({ drs, fence }) => 
 
   const signedUrlRes = await drs.do.getDrsSignedUrlWithoutHeader(files.allowed);
   fence.ask.responsesEqual(signedUrlRes, expectedResponse);
-}).retry(3);
+}).retry(1);
 
 AfterSuite(async ({ indexd }) => {
   await indexd.do.deleteFileIndices(Object.values(files));
