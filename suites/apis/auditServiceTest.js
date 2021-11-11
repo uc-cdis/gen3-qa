@@ -127,7 +127,7 @@ Scenario('Audit: download presigned URL events @audit', async ({ fence, auditSer
     params,
     expectedResults,
   );
-});
+}).retry(3);
 
 Scenario('Audit: homepage login events @audit', async ({ home, auditService }) => {
   const timestamp = Math.floor(Date.now() / 1000); // epoch timestamp
@@ -156,7 +156,7 @@ Scenario('Audit: homepage login events @audit', async ({ home, auditService }) =
     params,
     expectedResults,
   );
-});
+}).retry(3);
 
 Scenario('Audit: OIDC login events @audit @rasAuthN', async ({ I, auditService }) => {
   const timestamp = Math.floor(Date.now() / 1000); // epoch timestamp
@@ -199,7 +199,7 @@ Scenario('Audit: OIDC login events @audit @rasAuthN', async ({ I, auditService }
     params,
     expectedResults,
   );
-});
+}).retry(3);
 
 Scenario('Audit: unauthorized log query @audit', async ({ auditService }) => {
   const timestamp = Math.floor(Date.now() / 1000); // epoch timestamp
@@ -219,4 +219,4 @@ Scenario('Audit: unauthorized log query @audit', async ({ auditService }) => {
   // `auxAcct2` has access to query login audit logs, not presigned_url
   await auditService.do.query('presigned_url', user.auxAcct2.accessTokenHeader, params, 403);
   await auditService.do.query('login', user.auxAcct2.accessTokenHeader, params, 200);
-});
+}).retry(3);

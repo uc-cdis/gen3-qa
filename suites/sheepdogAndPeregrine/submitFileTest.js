@@ -45,7 +45,7 @@ Scenario('submit and delete file @reqData', async ({ sheepdog, indexd }) => {
   await indexd.complete.checkFile(files.validFile);
   await sheepdog.complete.deleteNode(files.validFile);
   await indexd.complete.deleteFile(files.validFile);
-}).retry(2);
+}).retry(3);
 Scenario('submit file with URL @reqData', async ({ sheepdog, indexd }) => {
   // add url and submit
   files.validFile.data.urls = testUrl;
@@ -53,7 +53,7 @@ Scenario('submit file with URL @reqData', async ({ sheepdog, indexd }) => {
   await indexd.complete.checkFile(files.validFile);
   await sheepdog.complete.deleteNode(files.validFile);
   await indexd.complete.deleteFile(files.validFile);
-}).retry(2);
+}).retry(3);
 Scenario('submit file then update with URL @reqData', async ({ sheepdog, indexd }) => {
   // submit basic file without url
   await sheepdog.complete.addNode(files.validFile);
@@ -65,7 +65,7 @@ Scenario('submit file then update with URL @reqData', async ({ sheepdog, indexd 
   // delete from sheepdog and indexd
   await sheepdog.complete.deleteNode(files.validFile);
   await indexd.complete.deleteFile(files.validFile);
-}).retry(2);
+}).retry(3);
 
 // Pauline & Ted: the 2 tests below fail because of a bug in sheepdog (see PXP-1994)
 
