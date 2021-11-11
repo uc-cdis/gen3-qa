@@ -47,7 +47,7 @@ BeforeSuite(async ({ auditService, indexd }) => {
   // index the files we get presigned URLs for
   const ok = await indexd.do.addFileIndices(Object.values(files));
   expect(ok, 'Unable to index files').to.be.true;
-});
+}).retry(1);
 
 AfterSuite(async ({ auditService }) => {
   await auditService.do.configureFenceAuditLogging(false); // disable
