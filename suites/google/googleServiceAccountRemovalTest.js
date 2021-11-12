@@ -126,7 +126,7 @@ Scenario('SA removal job test: no access removal when SA is valid @reqGoogle', a
 
   expect(user0AccessQAResAfter,
     'User should have bucket access after clean up job').to.have.property('id');
-}).retry(3);
+}).retry(5);
 
 Scenario('SA removal job test: user does not exist in fence @reqGoogle', async ({
   fence, users, google, files,
@@ -182,7 +182,7 @@ Scenario('SA removal job test: user does not exist in fence @reqGoogle', async (
     user0CannotAccessQAAfter,
     'User should NOT have bucket access after clean up job',
   ).to.be.true;
-}).retry(3);
+}).retry(5);
 
 Scenario('SA removal job test: user does not have access to data @reqGoogle', async ({
   fence, users, google, files,
@@ -240,7 +240,7 @@ Scenario('SA removal job test: user does not have access to data @reqGoogle', as
 
   expect(user0CannotAccessQAAfter,
     'User should NOT have bucket access after clean up job').to.be.true;
-}).retry(3);
+}).retry(5);
 
 Scenario('SA removal job test: SA has external access @reqGoogle', async ({
   fence, users, google, files,
@@ -302,7 +302,7 @@ Scenario('SA removal job test: SA has external access @reqGoogle', async ({
 
   expect(user0CannotAccessQAAfter,
     'User should NOT have bucket access after clean up job').to.be.true;
-}).retry(3);
+}).retry(5);
 
 // We run this test last because if the roles update at the end fails,
 // the following tests would fail.
@@ -411,4 +411,4 @@ Scenario('SA removal job test: monitor SA does not have access @reqGoogle', asyn
       `Failed to update monitor SA roles in Google project ${googleProject.id} (owner ${googleProject.owner}). Next tests may fail. Will try to add them again at the end of this test suite.\n`,
     ).to.not.have.property('code');
   }
-}).retry(3);
+}).retry(5);
