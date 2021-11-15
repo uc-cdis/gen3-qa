@@ -19,11 +19,13 @@ SCENARIOS
 *    they are able to download data
 */
 
-BeforeSuite(({ I }) => {
-  // init I.cache
-  I.cache = {};
-  I.cache.tabs = [];
-});
+const chai = require('chai');
+
+const { expect } = chai;
+const { Bash } = require('../../utils/bash.js');
+
+const bash = new Bash();
+const { smartWait } = require('../../utils/apiUtil');
 
 async function getAlltabs(I) {
   // get all tabs which have available data, only do it once
@@ -55,6 +57,90 @@ async function getAlltabs(I) {
     }
   }
 }
+
+async function waitForFenceAndPortalToRoll() {
+  const isFenceReady = async function () {
+    /**
+     * Return true if both fence and presigned-url-fence pods are ready,
+     * false otherwise.
+     * @returns {boolean}
+     */
+    for (const service of ['fence', 'presigned-url-fence', 'portal']) {
+      // get the status of the most recently started pod
+      const res = await bash.runCommand(`g3kubectl get pods -l app=${service} --sort-by=.metadata.creationTimestamp`);
+      console.log(res);
+      let notReady = true;
+      try {
+        notReady = res.includes('0/1') || res.includes('Terminating');
+      } catch (err) {
+        console.error(`Unable to parse output. Error: ${err}. Output:`);
+        console.error(res);
+      }
+      if (notReady) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  console.log('Waiting for pods to be ready');
+  const timeout = 420; // wait up to 7 min
+  await smartWait(
+    isFenceReady,
+    [],
+    timeout,
+    `Fence and presigned-url-fence pods are not ready after ${timeout} seconds`, // error message
+    1, // initial number of seconds to wait
+  );
+}
+
+// Enable REGISTER_USERS_ON config
+BeforeSuite(async ({ I }) => {
+  // init I.cache
+  I.cache = {};
+  I.cache.tabs = [];
+  // change fence config and re-roll fence
+  console.log('Adding REGISTER_USERS_ON config to fence config');
+  // dump the current secret in a temp file.
+  // remove the first and last lines ("-------- fence-config.yaml:" and
+  // "--------") because they are added again when we edit the secret, and
+  // duplicates cause errors.
+  await bash.runCommand('gen3 secrets decode fence-config > fence_config_tmp.yaml; sed -i \'1d;$d\' fence_config_tmp.yaml');
+  // add the config we need at the bottom of the file
+  await bash.runCommand(`cat - >> "fence_config_tmp.yaml" <<EOM
+REGISTER_USERS_ON: true
+REGISTERED_USERS_GROUP: 'data_uploaders'
+EOM`);
+
+  // update the secret
+  const res = bash.runCommand('g3kubectl get secret fence-config -o json | jq --arg new_config "$(cat fence_config_tmp.yaml | base64)" \'.data["fence-config.yaml"]=$new_config\' | g3kubectl apply -f -');
+  console.log(res);
+  expect(res, 'Unable to update fence-config secret').to.have.string('secret/fence-config configured');
+
+  // roll Fence
+  await bash.runCommand('rm fence_config_tmp.yaml; gen3 roll fence; gen3 kube-setup-portal');
+
+  // wait for the pods to roll
+  await waitForFenceAndPortalToRoll();
+});
+
+// Delete REGISTER_USERS_ON config
+AfterSuite(async () => {
+  console.log('Deleting REGISTER_USERS_ON config to fence config');
+  await bash.runCommand('gen3 secrets decode fence-config > fence_config_tmp.yaml; sed -i \'1d;$d\' fence_config_tmp.yaml');
+  // delete last two lines
+  await bash.runCommand('sed -i \'$d\' fence_config_tmp.yaml ; sed -i \'$d\' fence_config_tmp.yaml');
+  // update the secret
+  const res = bash.runCommand('g3kubectl get secret fence-config -o json | jq --arg new_config "$(cat fence_config_tmp.yaml | base64)" \'.data["fence-config.yaml"]=$new_config\' | g3kubectl apply -f -');
+  console.log(res);
+  expect(res, 'Unable to update fence-config secret').to.have.string('secret/fence-config configured');
+
+  // roll Fence
+  await bash.runCommand('rm fence_config_tmp.yaml; gen3 roll fence; gen3 kube-setup-portal');
+
+  // wait for the pods to roll
+  await waitForFenceAndPortalToRoll();
+});
 
 Scenario('redirect to login page from the download button @registerUser',
   async ({ I }) => {
