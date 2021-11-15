@@ -84,7 +84,7 @@ async function waitForFenceAndPortalToRoll() {
   };
 
   console.log('Waiting for pods to be ready');
-  const timeout = 360; // wait up to 6 min
+  const timeout = 420; // wait up to 7 min
   await smartWait(
     isFenceReady,
     [],
@@ -112,6 +112,24 @@ REGISTER_USERS_ON: true
 REGISTERED_USERS_GROUP: 'data_uploaders'
 EOM`);
 
+  // update the secret
+  const res = bash.runCommand('g3kubectl get secret fence-config -o json | jq --arg new_config "$(cat fence_config_tmp.yaml | base64)" \'.data["fence-config.yaml"]=$new_config\' | g3kubectl apply -f -');
+  console.log(res);
+  expect(res, 'Unable to update fence-config secret').to.have.string('secret/fence-config configured');
+
+  // roll Fence
+  await bash.runCommand('rm fence_config_tmp.yaml; gen3 roll fence; gen3 kube-setup-portal');
+
+  // wait for the pods to roll
+  await waitForFenceAndPortalToRoll();
+});
+
+// Delete REGISTER_USERS_ON config
+AfterSuite(async () => {
+  console.log('Deleting REGISTER_USERS_ON config to fence config');
+  await bash.runCommand('gen3 secrets decode fence-config > fence_config_tmp.yaml; sed -i \'1d;$d\' fence_config_tmp.yaml');
+  // delete last two lines
+  await bash.runCommand('sed -i \'$d\' fence_config_tmp.yaml ; sed -i \'$d\' fence_config_tmp.yaml');
   // update the secret
   const res = bash.runCommand('g3kubectl get secret fence-config -o json | jq --arg new_config "$(cat fence_config_tmp.yaml | base64)" \'.data["fence-config.yaml"]=$new_config\' | g3kubectl apply -f -');
   console.log(res);
@@ -192,6 +210,5 @@ Scenario('registered user should have access to download data @registerUser',
       I.waitForClickable('//button[contains(text(),"Download")][position()=1]', 5);
       I.click('//button[contains(text(),"Download")][position()=1]');
       // TODO: check download url
-      I.wait(3000);
     }
   });
