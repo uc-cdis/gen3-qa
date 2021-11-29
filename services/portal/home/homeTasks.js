@@ -25,7 +25,7 @@ module.exports = {
 
   async systemUseMsg() {
     I.saveScreenshot('SystemUseMessage.png');
-    const title = await bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.components.systemUse.systemUseTitle\'');
+    const title = await bash.runCommand('gen3 secrets decode portal-config gitops.json | jq '.components.systemUse."systemUseTitle"');
     console.log(title);
     if (title !== null && title !== '') {
       const numberOfElements = await I.grabNumberOfVisibleElements(`//div[contains(text(), ${title})]//ancestor::div[contains(@class, "popup__box")]`);
