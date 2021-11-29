@@ -36,6 +36,17 @@ dryrun() {
   fi
 }
 
+# Check if a service in the manifest
+ifServiceDeployed() {
+  local command
+  local response
+
+  command="g3kubectl get configmap manifest-versions -o json | jq -r .data.json | jq -r "'".[\"$1\"]"'""
+  response=$(eval "$command")
+
+  echo $response
+}
+
 # Takes one argument, being service name
 getServiceVersion() {
   local command
@@ -240,6 +251,13 @@ runTestsIfServiceVersion "@indexRecordConsentCodes" "sheepdog" "1.1.13"
 runTestsIfServiceVersion "@coreMetadataPage" "portal" "2.20.8"
 runTestsIfServiceVersion "@indexing" "portal" "2.26.0" "2020.05"
 runTestsIfServiceVersion "@cleverSafe" "fence" "4.22.4" "2020.09"
+
+# disable tests if the service is not deployed
+export isIndexdDeployed=$(ifServiceDeployed "indexd")
+if [ -z "$isIndexdDeployed" ] || [ "$isIndexdDeployed" = "null" ];then
+  echo "indexd is not deployed.Skip all tests required indexd.."
+  donot '@requires-indexd'
+fi
 
 # environments that use DCF features
 # we only run Google Data Access tests for cdis-manifest PRs to these
