@@ -13,7 +13,9 @@ module.exports = {
 
   seeDetails() {
     portal.seeProp(homeProps.summary, 10, 1);
-    portal.seeProp(homeProps.cards, 10);
+    // since all the commons do not have cards on the homepage
+    // we will ignore the check
+    // portal.seeProp(homeProps.cards, 10);
   },
 
   seeUserLoggedIn(username) {
