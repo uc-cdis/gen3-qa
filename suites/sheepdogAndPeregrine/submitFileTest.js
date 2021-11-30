@@ -1,4 +1,4 @@
-Feature('SubmitFileTest');
+Feature('SubmitFileTest @requires-indexd');
 
 // Used to construct valid and invalid file nodes
 let baseFileNode;
