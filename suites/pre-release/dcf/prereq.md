@@ -37,11 +37,4 @@
 4. And then publish the report to that page (make sure you're logged in on https://qa.planx-pla.net/) -> `
 gen3-qa [master●●] % ./publish-test-reports.sh output dcf_release_release_2021Q2`
 5. ssh into qaplanetv1 and `cd reports/` to confirm the reports are pushed
-6. after confirmation, do the following ->
-```
-gen3_qa_report_folder="<whatever the filename in qaplanetv1 is>"
-report_url_path="QA/2021/Q2/06/${gen3_qa_report_folder}"
-```
-7. Now we need to push the reports
-`gen3 dashboard publish secure ./reports/$gen3_qa_report_folder $report_url_path`
-8. Go to https://qa.planx-pla.net/dashboard/Secure/QA/2021/Q2/06/<filename>/index.html
+6. Go to https://qa.planx-pla.net/dashboard/Secure/QA/2021/Q2/06/<filename>/index.html
