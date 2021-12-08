@@ -16,6 +16,22 @@ module.exports = {
     return reqID;
   },
 
+  //TODO: Add an async function to `createRequestFromPolicyID`
+  async createRequestFromPolicyID(user, policyID) {
+    console.log(`### creating request for a policy id: ${policyID}`);
+    const getResponse = await I.sendPostRequest(
+      `${studyViewerProps.endpoint.requestEndPoint}/${requestID}`,
+      {
+        'username': user.username,
+        'policyID':policyID
+      },
+      user.accessTokenHeader,
+    );
+    const responseData = getResponse.data;
+    console.log(`### responseData: ${JSON.stringify(responseData)}`);
+    return responseData;
+  },
+
   // get the request ID status
   async getRequestStatus(requestID) {
     console.log(`### put request id: ${requestID}`);
