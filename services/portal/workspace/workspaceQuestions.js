@@ -10,8 +10,4 @@ module.exports = {
   isPageLoaded() {
     I.seeElement(props.readyCue, 30);
   },
-
-  isStudyFound(studyId) {
-    I.seeElement(props.studyLocator(studyId));
-  },
 };

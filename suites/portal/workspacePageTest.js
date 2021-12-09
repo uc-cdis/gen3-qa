@@ -1,5 +1,9 @@
 const { expect } = require('chai');
 const { interactive, ifInteractive } = require('../../utils/interactive.js');
+// const { output } = require('codeceptjs');
+
+const I = actor();
+I.cache = {};
 
 Feature('Workspace page');
 
@@ -49,3 +53,14 @@ Scenario('Gen3 SDK integration @manual', ifInteractive(
     expect(result.didPass, result.details).to.be.true;
   },
 ));
+
+Scenario('Launch a workspace @wip', async ({ home, workspace, users }) => {
+  // Login
+  home.do.goToHomepage();
+  await home.complete.login(users.indexingAcct);
+  // Launch workspace
+  workspace.do.goToPage();
+  workspace.do.launchWorkspace('(Generic, Limited Gen3-licensed) Stata Notebook');
+  I.waitForElement(workspace.props.iframeWorkspace);
+  I.saveScreenshot('workspace.png');
+});
