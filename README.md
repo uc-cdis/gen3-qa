@@ -9,12 +9,12 @@ gen3 integration tests - run by https://jenkins.planx-pla.net/ via a `Jenkinsfil
 For using linux/amd64 selenium images:
 ```
 # start test infra
-docker-compose -f docker-compose-test-infra.yaml up -d
+docker compose -f docker-compose-test-infra.yaml up -d
 ```
 
 For using arm64 selenium images:
 ```
-docker-compose -f docker-compose-test-infra-arm64.yaml up -d
+docker compose -f docker-compose-test-infra-arm64.yaml up -d
 ```
 
 ### Initial setup of influxdb and grafana (only needed on a new containers)
