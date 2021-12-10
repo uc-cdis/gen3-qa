@@ -1,0 +1,43 @@
+version: '2'
+services:
+  influxdb:
+    image: influxdb:1.8.4
+    ports:
+      - '8086:8086'
+    volumes:
+      - influxdb-storage:/var/lib/influxdb
+    environment:
+      - INFLUXDB_DB=ci_metrics
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - '3000:3000'
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana-provisioning/:/etc/grafana/provisioning
+    depends_on:
+      - influxdb
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+  hub:
+    image: seleniarm/hub:4.0.0-20211111
+    container_name: selenium-hub
+    ports:
+      - '4444:4444'
+      - '4442:4442'
+      - '4443:4443'
+  chrome:
+    image: seleniarm/node-chromium:4.0.0-20211111
+    container_name: node-chrome
+    volumes:
+      - /dev/shm:/dev/shm
+    depends_on:
+      - hub
+    environment:
+      SE_EVENT_BUS_HOST: hub
+      SE_EVENT_BUS_PUBLISH_PORT: 4442
+      SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
+volumes:
+  influxdb-storage:
+  grafana-storage:
