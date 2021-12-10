@@ -237,7 +237,7 @@ Scenario('Mutate etl-mapping config and run ETL to create new indices in elastic
   await bash.runJob('etl', '', false);
   await checkPod(I, 'etl', 'gen3job,job-name=etl', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: true });
   await sleepMS(10000);
-}).retry(2);
+});
 
 Scenario('Mutate manifest-guppy config and roll guppy so the recently-submitted dataset will be available on the Explorer page @pfbExport', async ({ I, users }) => {
   console.log('### mutate the manifest-guppy k8s config map');
