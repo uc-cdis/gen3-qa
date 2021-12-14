@@ -447,7 +447,7 @@ else
 fi
 # run studyViewer tests only on NIAID commons
 if [ "$testedEnv" == "qa-niaid.planx-pla.net" ] ||  [ "$testedEnv" == "accessclinicaldata.niaid.nih.gov" ] ; then
-  runStudyViewerTests=false
+  runStudyViewerTests=true
   echo "Enabling study-viewer test"
 fi
 
