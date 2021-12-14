@@ -445,10 +445,10 @@ else
   echo "Disabling study-viewer test"
   donot "@studyViewer"
 fi
-# donot run studyViewer tests on IBD commons, as jenkins envs are not configured with the indices
-# that supports study
-if [ "$testedEnv" == "qa-ibd.planx-pla.net" ] ||  [ "$testedEnv" == "ibdgc.datacommons.io" ] ; then
-  donot "@studyViewer"
+# run studyViewer tests only on NIAID commons
+if [ "$testedEnv" == "qa-niaid.planx-pla.net" ] ||  [ "$testedEnv" == "accessclinicaldata.niaid.nih.gov" ] ; then
+  runStudyViewerTests=false
+  echo "Enabling study-viewer test"
 fi
 
 # landing page buttons
