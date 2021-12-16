@@ -559,6 +559,7 @@ if [[ "$(hostname)" == *"cdis-github-org"* ]] || [[ "$(hostname)" == *"planx-ci-
   # gen3-qa-in-a-box requires a couple of changes to its webdriver config
   set +e
   mv gen3.qa.in.a.box.codecept.conf.js codecept.conf.js
+  cat codecept.conf.js
   set -e
 else
   echo "NOT inside an ephemeral gen3-qa-in-a-box pod..."
