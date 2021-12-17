@@ -16,19 +16,19 @@ module.exports = {
     return reqID;
   },
 
-  async createRequestFromPolicyID(user, policyID, revoke=false) {
+  async createRequestFromPolicyID(user, policyID, revoke = false) {
     console.log(`### creating request for a policy id: ${policyID}`);
-    const endPoint = revoke ? `${studyViewerProps.endpoint.requestEndPoint}?revoke` : `${studyViewerProps.endpoint.requestEndPoint}`; 
+    const endPoint = revoke ? `${studyViewerProps.endpoint.requestEndPoint}?revoke` : `${studyViewerProps.endpoint.requestEndPoint}`;
     const getResponse = await I.sendPostRequest(
       endPoint,
       {
-        'username': user.username,
-        'policy_id':policyID
+        username: user.username,
+        policy_id: policyID,
       },
       user.accessTokenHeader,
     );
     const responseData = getResponse.data;
-    responseData.status_code = getResponse.status
+    responseData.status_code = getResponse.status;
     console.log(`### responseData: ${JSON.stringify(responseData)}`);
     return responseData;
   },
