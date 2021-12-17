@@ -16,25 +16,26 @@ module.exports = {
     return reqID;
   },
 
-  //TODO: Add an async function to `createRequestFromPolicyID`
-  async createRequestFromPolicyID(user, policyID) {
+  async createRequestFromPolicyID(user, policyID, revoke=false) {
     console.log(`### creating request for a policy id: ${policyID}`);
+    const endPoint = revoke ? `${studyViewerProps.endpoint.requestEndPoint}?revoke` : `${studyViewerProps.endpoint.requestEndPoint}`; 
     const getResponse = await I.sendPostRequest(
-      `${studyViewerProps.endpoint.requestEndPoint}/${requestID}`,
+      endPoint,
       {
         'username': user.username,
-        'policyID':policyID
+        'policy_id':policyID
       },
       user.accessTokenHeader,
     );
     const responseData = getResponse.data;
+    responseData.status_code = getResponse.status
     console.log(`### responseData: ${JSON.stringify(responseData)}`);
     return responseData;
   },
 
   // get the request ID status
   async getRequestStatus(requestID) {
-    console.log(`### put request id: ${requestID}`);
+    console.log(`### get request id: ${requestID}`);
     const getResponse = await I.sendGetRequest(
       `${studyViewerProps.endpoint.requestEndPoint}/${requestID}`,
       users.mainAcct.accessTokenHeader,
