@@ -7,7 +7,7 @@ exports.config = {
   output: './output',
   helpers: {
     WebDriver: {
-      host: 'seleniarm-hub',
+      host: 'selenium-hub',
       url: `https://${process.env.NAMESPACE}.planx-pla.net`,
       smartWait: 30000,
       browser: 'chrome',
