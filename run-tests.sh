@@ -552,7 +552,7 @@ if [[ "$(hostname)" == *"cdis-github-org"* ]] || [[ "$(hostname)" == *"planx-ci-
   echo "inside an ephemeral gen3-qa-in-a-box pod..."
   
   # Start selenium process within the ephemeral jenkins pod.
-  npx selenium-standalone install --version=4.1.0 --drivers.chrome.version=93.0.4577.63 --drivers.chrome.baseURL=https://chromedriver.storage.googleapis.com
+  npx selenium-standalone install --version=4.1.0 --drivers.chrome.version=96.0.4664.45 --drivers.chrome.baseURL=https://chromedriver.storage.googleapis.com
   timeout $seleniumTimeout npx selenium-standalone start --singleDriverStart=chrome --version=4.1.0 --drivers.chrome.version=96.0.4664.45 &> selenium.log &
  
 
