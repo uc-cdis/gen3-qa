@@ -8,7 +8,8 @@ Feature('RequestorAPI');
     For this test, we need a 2nd user that has access to update statuses in Requestor; 
     this is already set up since it’s also needed for the existing Study Viewer tests.
     
-*   The user has access. Create a “revoke” access request. Update the access request status. The user should not have access anymore.
+*   The user has access. Create a “revoke” access request. Update the access request status. 
+    The user should not have access anymore.
 
  */
 
@@ -29,7 +30,7 @@ Before(async ({
 Scenario('User requests access for a policy that does not exist in Arborist @requestor', async ({
     users,
 }) => {
-    response = await requestorTasks.createRequestFromPolicyID(users.user0, 'random-policy');
+    let response = await requestorTasks.createRequestFromPolicyID(users.user0, 'random-policy');
     expect(response).to.have.property('status_code', 400);
 });
 
@@ -39,12 +40,12 @@ Scenario('User does not have access request for a policy and requests for access
 }) => {
     
     // Check that the user does not have access to policy 'programs.jnkns-read-storage'.
-    userInfo = await fence.do.getUserInfo(users.user0.accessToken);
+    let userInfo = await fence.do.getUserInfo(users.user0.accessToken);
     expect(userInfo.data.authz).to.have.property("/programs/jnkns");
     expect(userInfo.data.authz["/programs/jnkns"]).to.deep.to.not.include({ method: 'read-storage', service: '*' })
     
     // Create a request for a policy that is present in Arborist
-    response = await requestorTasks.createRequestFromPolicyID(users.user0, 'programs.jnkns-read-storage');
+    let response = await requestorTasks.createRequestFromPolicyID(users.user0, 'programs.jnkns-read-storage');
     expect(response).to.have.property('status_code', 201);
     
     // Check if the access is created -- It shouldn't since it is not signed yet
@@ -67,12 +68,12 @@ Scenario('User has access to a policy and tries to revoke access. @requestor', a
 }) => {
     
     // Check that the user has access to policy 'programs.jnkns-read-storage'.
-    userInfo = await fence.do.getUserInfo(users.user0.accessToken);
+    let userInfo = await fence.do.getUserInfo(users.user0.accessToken);
     expect(userInfo.data.authz).to.have.property("/programs/jnkns");
     expect(userInfo.data.authz["/programs/jnkns"]).to.deep.to.include({ method: 'read-storage', service: '*' })
 
     // Create a request to 'revoke' a policy that is present in Arborist
-    response = await requestorTasks.createRequestFromPolicyID(users.user0, 'programs.jnkns-read-storage', revoke=true);
+    let response = await requestorTasks.createRequestFromPolicyID(users.user0, 'programs.jnkns-read-storage', true);
 
     // Check if the access is revoked -- It shouldn't since it is not signed yet
     userInfo = await fence.do.getUserInfo(users.user0.accessToken);
