@@ -565,8 +565,6 @@ else
 fi
 ##################################################################################################
 
-curl http://localhost:4444/status
-
 if [ "$selectedTest" == "all" ]; then
     # no interactive tests
     export GEN3_INTERACTIVE=false
