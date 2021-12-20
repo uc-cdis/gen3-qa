@@ -428,27 +428,16 @@ fi
 # Study Viewer test
 runStudyViewerTests=false
 #run for data-portal/requestor/gen3-qa/gitops-qa/cdis-manifest repo
-if [[ "$service" =~ ^(data-portal|requestor|gen3-qa|cdis-manifest|gitops-qa)$ ]]; then
-  # checks both conditions
-  # 1. if studyViewer is deployed to that env
-  # 2. if requestor is also deployed
+if [[ ! ("$service" =~ ^(data-portal|requestor|gen3-qa)$ || $testedEnv == *"niaid"*) ]]; then
+  echo "Disabling study-viewer test"
+  donot "@studyViewer"
+else
   if [[ $(curl -s "$portalConfigURL" | jq 'contains({studyViewerConfig})') == "true" ]]; then
     if (g3kubectl get pods --no-headers -l app=requestor | grep requestor) > /dev/null 2>&1; then
       echo "### Study-Viewer is deployed"
       runStudyViewerTests=true
     fi
   fi
-fi
-if [[ "$runStudyViewerTests" == true ]]; then
-  echo "Enabling study-viewer test"
-else
-  echo "Disabling study-viewer test"
-  donot "@studyViewer"
-fi
-# donot run studyViewer tests on IBD commons, as jenkins envs are not configured with the indices
-# that supports study
-if [ "$testedEnv" == "qa-ibd.planx-pla.net" ] ||  [ "$testedEnv" == "ibdgc.datacommons.io" ] ; then
-  donot "@studyViewer"
 fi
 
 # landing page buttons
