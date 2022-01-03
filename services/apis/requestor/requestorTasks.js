@@ -15,17 +15,22 @@ module.exports = {
     console.log(`### request id: ${reqID}`);
     return reqID;
   },
-
-  async createRequestFromPolicyID(user, policyID, revoke = false) {
+  // /**
+  //  * @param {string} adminUserTokenHeader - headers for user authorized in Requestor
+  //  * @param {string} username - username to grant/revoke access for
+  //  * @param {string} policyID - policyID of the policy to request/revoke access
+  //  * @param {boolean} revoke - set to true to create a revoke request
+  //  */
+  async createRequestForPolicyID(adminUserTokenHeader, username, policyID, revoke = false) {
     console.log(`### creating request for a policy id: ${policyID}`);
     const endPoint = revoke ? `${studyViewerProps.endpoint.requestEndPoint}?revoke` : `${studyViewerProps.endpoint.requestEndPoint}`;
     const getResponse = await I.sendPostRequest(
       endPoint,
       {
-        username: user.username,
+        username,
         policy_id: policyID,
       },
-      user.accessTokenHeader,
+      adminUserTokenHeader,
     );
     const responseData = getResponse.data;
     responseData.status_code = getResponse.status;
