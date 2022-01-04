@@ -15,12 +15,12 @@ module.exports = {
     console.log(`### request id: ${reqID}`);
     return reqID;
   },
-  // /**
-  //  * @param {string} adminUserTokenHeader - headers for user authorized in Requestor
-  //  * @param {string} username - username to grant/revoke access for
-  //  * @param {string} policyID - policyID of the policy to request/revoke access
-  //  * @param {boolean} revoke - set to true to create a revoke request
-  //  */
+  /**
+   * @param {string} adminUserTokenHeader - headers for user authorized in Requestor
+   * @param {string} username - username to grant/revoke access for
+   * @param {string} policyID - policyID of the policy to request/revoke access
+   * @param {boolean} revoke - set to true to create a revoke request
+   */
   async createRequestForPolicyID(adminUserTokenHeader, username, policyID, revoke = false) {
     console.log(`### creating request for a policy id: ${policyID}`);
     const endPoint = revoke ? `${studyViewerProps.endpoint.requestEndPoint}?revoke` : `${studyViewerProps.endpoint.requestEndPoint}`;

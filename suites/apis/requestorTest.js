@@ -56,6 +56,7 @@ Scenario('User requests access for a policy followed by sending a Revoke request
 
   // Check if the access is revoked -- It shouldn't since it is not signed yet
   userInfo = await fence.do.getUserInfo(user0AccessToken);
+  expect(userInfo.data.authz).to.have.property('/programs/requestor_integration_test');
   expect(userInfo.data.authz['/programs/requestor_integration_test']).to.deep.to.include({ method: 'access', service: 'jupyterhub' });
 
   // Create a PUT request to sign the previous request using an authenticated user
@@ -68,7 +69,7 @@ Scenario('User requests access for a policy followed by sending a Revoke request
 
 // Create a revoke request for a policy that exists in Arborist
 // but user does not have access to=> 400 error
-Scenario('Send a revoke request for a policy the user does not @requestor', async ({
+Scenario('Send a revoke request for a policy the user does not have @requestor', async ({
   users, fence,
 }) => {
   // Check that the user does not have access to policy 'requestor_integration_test'.
