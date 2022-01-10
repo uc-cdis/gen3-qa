@@ -31,7 +31,9 @@ Scenario('User requests access for a policy followed by sending a Revoke request
 }) => {
   // Check that the user does not have access to policy 'requestor_integration_test'.
   let userInfo = await fence.do.getUserInfo(users.user0.accessToken);
-  expect(userInfo.data.authz).to.not.have.property('/programs/requestor_integration_test');
+  if (userInfo.data.authz.hasAttribute('/programs/requestor_integration_test')) {
+    expect(userInfo.data.authz['/programs/requestor_integration_test']).to.deep.to.not.include({ method: 'access', service: 'jupyterhub' });
+  }
 
   const { accessTokenHeader } = users.mainAcct;
   // Create a request for a policy that is present in Arborist
@@ -40,7 +42,9 @@ Scenario('User requests access for a policy followed by sending a Revoke request
 
   // Check if the access is created -- It shouldn't since it is not signed yet
   userInfo = await fence.do.getUserInfo(users.user0.accessToken);
-  expect(userInfo.data.authz).to.not.have.property('/programs/requestor_integration_test');
+  if (userInfo.data.authz.hasAttribute('/programs/requestor_integration_test')) {
+    expect(userInfo.data.authz['/programs/requestor_integration_test']).to.deep.to.not.include({ method: 'access', service: 'jupyterhub' });
+  }
 
   // Create a PUT request to sign the previous request using an authenticated user
   await requestorTasks.signedRequest(createResponse.request_id);
@@ -64,7 +68,9 @@ Scenario('User requests access for a policy followed by sending a Revoke request
 
   // Verify if access is revoked from the user
   userInfo = await fence.do.getUserInfo(user0AccessToken);
-  expect(userInfo.data.authz).to.not.have.property('/programs/requestor_integration_test');
+  if (userInfo.data.authz.hasAttribute('/programs/requestor_integration_test')) {
+    expect(userInfo.data.authz['/programs/requestor_integration_test']).to.deep.to.not.include({ method: 'access', service: 'jupyterhub' });
+  }
 });
 
 // Create a revoke request for a policy that exists in Arborist
@@ -74,7 +80,9 @@ Scenario('Send a revoke request for a policy the user does not have @requestor',
 }) => {
   // Check that the user does not have access to policy 'requestor_integration_test'.
   const userInfo = await fence.do.getUserInfo(users.user1.accessToken);
-  expect(userInfo.data.authz).to.not.have.property('/programs/requestor_integration_test');
+  if (userInfo.data.authz.hasAttribute('/programs/requestor_integration_test')) {
+    expect(userInfo.data.authz['/programs/requestor_integration_test']).to.deep.to.not.include({ method: 'access', service: 'jupyterhub' });
+  }
 
   // Create a request to 'revoke' a policy to which user does not have access to
   const revokeResponse = await requestorTasks.createRequestForPolicyID(users.mainAcct.accessTokenHeader, users.user1.username, 'requestor_integration_test', true);
