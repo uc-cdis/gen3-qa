@@ -1,8 +1,7 @@
 Feature('Dataguid.org');
 
-const chai = require('chai');
-const { expect } = chai;
 const { Bash } = require('../../utils/bash.js');
+
 const bash = new Bash();
 
 let testURL = '';
@@ -16,22 +15,22 @@ const nonexistentGuids = new DataTable(['nguids']);
 nonexistentGuids.add(['dg.ABCD/0000b4b4-2af4-42e2-9bfa-6fd11e5fb97a']); // adding guids with wrong prefix
 nonexistentGuids.add(['0000b456-3r56-1dr3-0rt4-6fd11e5fb97a']); // adding non-existent guids
 
-async function getAllHost(){
-  console.log("###Getting all hosts from manifest.json")
-  await bash.runCommand(`g3kubectl get configmap manifest-all -o json | jq .data.json > manifest.json`);
-  await bash.runCommand(`echo -e $(cat manifest.json) | sed 's/\\\\//g' | sed '1s/^.//' | sed '$s/.$//' > dataguidmanifest.json`);
-  const res = await bash.runCommand(`cat dataguidmanifest.json | jq -r '.indexd.dist[] | select(.type == "indexd") | .host'`);
+async function getAllHost() {
+  console.log('###Getting all hosts from manifest.json');
+  await bash.runCommand('g3kubectl get configmap manifest-all -o json | jq .data.json > manifest.json');
+  await bash.runCommand('echo -e $(cat manifest.json) | sed \'s/\\\\//g\' | sed \'1s/^.//\' | sed \'$s/.$//\' > dataguidmanifest.json');
+  const res = await bash.runCommand('cat dataguidmanifest.json | jq -r \'.indexd.dist[] | select(.type == "indexd") | .host\'');
   console.log(res);
-  const hosts = res.match(/https:[\/\-\.\w]+\/index\//g);
+  const hosts = res.match(/https:[\/\-\.\w]+\/index\//g); // eslint-disable-line
   console.log(hosts);
 
   await bash.runCommand('rm manifest.json; rm dataguidmanifest.json');
-  return hosts
+  return hosts;
 }
 
-async function getFirstGuidFromHost(host, I){
+async function getFirstGuidFromHost(host, I) {
   const guid = await I.sendGetRequest(`${host}index?limit=1`)
-  .then((res) => res.data.records[0].did);
+    .then((res) => res.data.records[0].did);
   console.log(guid);
 
   return guid;
@@ -47,8 +46,6 @@ BeforeSuite(async ({ I }) => {
     I.cache.correctGuids.push(guid);
   }
 });
-
-
 
 // Test resolving guids
 Scenario('Resolve guids with different prefixes or without prefix @dataguids', ({ I }) => {
