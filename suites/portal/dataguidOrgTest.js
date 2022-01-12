@@ -77,8 +77,8 @@ Data(nonexistentGuids).Scenario('Negativetest resolving for non-exitent guids @d
   I.amOnPage(testURL);
   I.fillField('#guidval', current.nguids);
   I.forceClick('#resolveit');
-  I.waitForText(`Data GUID "${current.nguids}" not found.`, 3, '#resolverresult');
-}).retry(1);
+  I.waitForText(`Data GUID "${current.nguids}" not found.`, 30, '#resolverresult');
+}).retry(2);
 
 // Nagative DRS endpoint test
 Data(nonexistentGuids).Scenario('Negativetest DRSendpoint with non-existent guids @dataguids', ({ I, current }) => {
