@@ -18,7 +18,7 @@
     - RAS_TEST_USER_2_USERNAME
     - RAS_TEST_USER_2_PASSWORD
 */
-Feature('RASAuthN');
+Feature('RASAuthN @requires-fence');
 
 const { expect } = require('chai');
 const { sleepMS, parseJwt } = require('../../utils/apiUtil.js');

@@ -6,7 +6,7 @@ const { expect } = chai;
 const apiUtil = require('../../utils/apiUtil.js');
 
 
-Feature('OAuth2 flow');
+Feature('OAuth2 flow @requires-fence');
 
 
 Scenario('Authorization code flow: Test that fails to generate code due to no user consent @reqGoogle', async ({ fence }) => {

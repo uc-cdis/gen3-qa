@@ -1,5 +1,5 @@
 /*eslint-disable */
-Feature('CentralizedAuth');
+Feature('CentralizedAuth @requires-fence');
 /*
 Test sponsor use cases for Gen3 Centralized Authorization with new authorization system:
 

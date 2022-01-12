@@ -1,4 +1,4 @@
-Feature('AuditServiceAPI');
+Feature('AuditServiceAPI @requires-audit');
 
 /**
  * Because it can take a bit of time for audit logs to be processed, we test

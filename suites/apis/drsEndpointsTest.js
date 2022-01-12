@@ -1,4 +1,4 @@
-Feature('DrsAPI');
+Feature('DrsAPI @requires-fence');
 
 const semver = require('semver');
 const chai = require('chai');
@@ -88,7 +88,7 @@ Scenario('get drs presigned-url no auth header @drs', async ({ drs, fence }) => 
   const expectedResponse = drs.props.noAccessToken;
   if (
     semver.gte(semVerVersion, minMonthlyRelease)
-    || (semver.lt(semVerVersion, monthlyReleaseCutoff) && semver.gte(semVerVersion, minSemVer))
+    || (semver.lt(semVerVersion, monthly=ReleaseCutoff) && semver.gte(semVerVersion, minSemVer))
   ) {
     console.log(`Running new version of DRS test b/c Fence version (${version}) is greater than 5.5.0/2021.10`);
   } else {

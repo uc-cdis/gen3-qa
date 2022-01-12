@@ -1,5 +1,5 @@
 /*eslint-disable */
-Feature('dbgapSyncing').retry(2);
+Feature('dbgapSyncing @requires-fence').retry(2);
 /*
 Test running usersync job and pulling files from a fake dbgap sftp server (populated
 with fake telemetry / user access files). Ensure users can download files they should
