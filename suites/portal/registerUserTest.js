@@ -48,7 +48,7 @@ async function getAlltabs(I) {
     const disabledbt = '//*[@class="g3-dropdown-button__wrapper g3-dropdown-button__wrapper--disabled "]';
     const btPending = await tryTo(() => I.waitForElement(disabledbt, 2)); // eslint-disable-line
     if (!btPending) {
-      I.waitForClickable('//button[contains(text(),"Login to download")');
+      I.waitForClickable('//button[contains(text(),"Login to download")]');
       console.log(`### ##Data in ${tabName} is available to download!`);
       I.cache.tabs.push(`//button[@role="tab"][position()=${i}]`);
     } else {
