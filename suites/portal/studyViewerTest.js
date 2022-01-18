@@ -15,7 +15,7 @@ This test has pre-requisities:
 6. add requestor service to the manifest.json block
 */
 
-Feature('Study Viewer');
+Feature('Study Viewer @requires-portal');
 
 const { expect } = require('chai');
 const { Bash } = require('../../utils/bash.js');
