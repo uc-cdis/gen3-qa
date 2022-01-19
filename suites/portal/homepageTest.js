@@ -1,4 +1,4 @@
-Feature('Homepage').retry(2);
+Feature('Homepage @requires-portal').retry(2);
 
 Scenario('login @portal', async ({ I, home }) => {
   home.do.goToHomepage();

@@ -1,4 +1,4 @@
-Feature('PresignedUrlAPI @requires-indexd');
+Feature('PresignedUrlAPI @requires-indexd @requires-fence');
 
 const chai = require('chai');
 

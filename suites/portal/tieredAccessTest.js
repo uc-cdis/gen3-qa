@@ -1,4 +1,4 @@
-Feature('Tiered Access');
+Feature('Tiered Access @requires-portal');
 
 const { interactive, ifInteractive } = require('../../utils/interactive.js');
 
