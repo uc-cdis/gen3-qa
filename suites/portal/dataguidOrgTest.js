@@ -1,4 +1,4 @@
-Feature('Dataguid.org');
+Feature('Dataguid.org @requires-portal');
 
 let testURL = '';
 if (process.env.RUNNING_LOCAL === 'true') {

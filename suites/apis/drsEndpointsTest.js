@@ -1,4 +1,4 @@
-Feature('DrsAPI');
+Feature('DrsAPI @requires-fence');
 
 const semver = require('semver');
 const chai = require('chai');

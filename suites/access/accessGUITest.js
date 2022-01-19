@@ -12,7 +12,7 @@
       e.g., export SUPER_ADMINS='admin.userX@uchicago.edu'
     - ADMIN: Added through the Access GUI.
 */
-Feature('Access GUI');
+Feature('Access GUI @requires-portal @requires-fence');
 
 const { expect } = require('chai');
 const stringify = require('json-stringify-safe');

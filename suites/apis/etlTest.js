@@ -1,4 +1,4 @@
-Feature('ETL');
+Feature('ETL @requires-tube');
 
 const { Bash } = require('../../utils/bash.js');
 const { checkPod } = require('../../utils/apiUtil.js');

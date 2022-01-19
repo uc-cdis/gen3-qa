@@ -2,7 +2,7 @@ const profile = require('../../services/portal/profile/service.js');
 
 const I = actor();
 
-Feature('Login');
+Feature('Login @requires-portal');
 
 Scenario('Login redirects to requested page', async ({ login }) => {
   profile.do.goToPage(); // Navigating to /profile without loggin in redirects to /login

@@ -1,4 +1,4 @@
-Feature('UserTokenAPI');
+Feature('UserTokenAPI @requires-fence');
 
 Scenario('test create APIKey success', async ({ fence, users }) => {
   const scope = ['data', 'user'];
