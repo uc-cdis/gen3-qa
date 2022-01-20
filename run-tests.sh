@@ -255,11 +255,20 @@ runTestsIfServiceVersion "@requestor" "requestor" "1.5.0" "2022.02"
 runTestsIfServiceVersion "@requestor" "arborist" "3.2.0" "2021.12"
 
 # disable tests if the service is not deployed
-export isIndexdDeployed=$(ifServiceDeployed "indexd")
-if [ -z "$isIndexdDeployed" ] || [ "$isIndexdDeployed" = "null" ];then
-  echo "indexd is not deployed.Skip all tests required indexd.."
-  donot '@requires-indexd'
-fi
+# export isIndexdDeployed=$(ifServiceDeployed "indexd")
+# if [ -z "$isIndexdDeployed" ] || [ "$isIndexdDeployed" = "null" ];then
+#   echo "indexd is not deployed.Skip all tests required indexd.."
+#   donot '@requires-indexd'
+# fi
+listVar="arborist fence guppy indexd manifestservice pelican peregrine pidgin portal sheepdog sower tube mariner audit requestor"
+for svc_name in $listVar; do
+    export isServiceDeployed=$(ifServiceDeployed $svc_name)
+    if [ -z "$isServiceDeployed" ] || [ "$isServiceDeployed" = "null" ]; then
+      echo "$svc_name is not deployed.Skip all tests requiring $svc_name.."
+      echo "@requires-$svc_name"
+      donot "@requires-$svc_name"
+    fi
+done
 
 # environments that use DCF features
 # we only run Google Data Access tests for cdis-manifest PRs to these

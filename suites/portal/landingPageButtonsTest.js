@@ -7,7 +7,7 @@
   3. Access Data (redirects user to /query)
   4. Analyze Data (redirects user to /workspace)
 */
-Feature('Landing page buttons');
+Feature('Landing page buttons @requires-portal');
 
 const { expect } = require('chai');
 const { sleepMS } = require('../../utils/apiUtil.js');
