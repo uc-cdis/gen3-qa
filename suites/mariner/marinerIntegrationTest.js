@@ -1,4 +1,4 @@
-Feature('Mariner');
+Feature('Mariner @requires-mariner');
 
 /*
 OVERVIEW

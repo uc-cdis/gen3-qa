@@ -1,4 +1,4 @@
-Feature('ExportToWorkspaceTest');
+Feature('ExportToWorkspaceTest @requires-portal');
 
 Before(async ({ home }) => {
   await home.complete.login();
