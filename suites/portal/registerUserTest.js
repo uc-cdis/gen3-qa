@@ -48,7 +48,7 @@ async function getAlltabs(I) {
     const disabledbt = '//*[@class="g3-dropdown-button__wrapper g3-dropdown-button__wrapper--disabled "]';
     const btPending = await tryTo(() => I.waitForElement(disabledbt, 2)); // eslint-disable-line
     if (!btPending) {
-      I.waitForClickable('//button[contains(text(),"Login to download")');
+      I.waitForClickable('//button[contains(text(),"Login to download")]');
       console.log(`### ##Data in ${tabName} is available to download!`);
       I.cache.tabs.push(`//button[@role="tab"][position()=${i}]`);
     } else {
@@ -128,8 +128,8 @@ EOM`);
 AfterSuite(async () => {
   console.log('Deleting REGISTER_USERS_ON config to fence config');
   await bash.runCommand('gen3 secrets decode fence-config > fence_config_tmp.yaml; sed -i \'1d;$d\' fence_config_tmp.yaml');
-  // delete last two lines
-  await bash.runCommand('sed -i \'$d\' fence_config_tmp.yaml ; sed -i \'$d\' fence_config_tmp.yaml');
+  // delete lines contained the register user config
+  await bash.runCommand('sed -i \'/REGISTER_USERS_ON/d\' fence_config_tmp.yaml; sed -i \'/REGISTERED_USERS_GROUP/d\' fence_config_tmp.yaml');
   // update the secret
   const res = bash.runCommand('g3kubectl get secret fence-config -o json | jq --arg new_config "$(cat fence_config_tmp.yaml | base64)" \'.data["fence-config.yaml"]=$new_config\' | g3kubectl apply -f -');
   console.log(res);
