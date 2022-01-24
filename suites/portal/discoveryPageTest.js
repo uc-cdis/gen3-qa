@@ -6,7 +6,7 @@ const { output } = require('codeceptjs');
 const I = actor();
 I.cache = {};
 
-Feature('Discovery page @discoveryPage');
+Feature('Discovery page @discoveryPage @requires-portal');
 
 After(({ users, mds }) => {
   if ('studyId' in I.cache) {
@@ -131,5 +131,5 @@ Scenario('Publish a study, search and export to workspace @aggMDS', async ({
   output.print('--- Open study in workspace');
   discovery.do.openInWorkspace(I.cache.studyId);
   I.saveScreenshot('open_in_workspace.png');
-  I.waitInUrl('/workspace', 20);
+  I.waitInUrl('/workspace', 60);
 }).tag('@discoveryPage', '@e2eTest');
