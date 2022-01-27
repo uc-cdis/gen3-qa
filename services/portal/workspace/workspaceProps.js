@@ -5,7 +5,7 @@ module.exports = {
   readyCue: {
     css: '.workspace__options',
   },
-  // /*
+  // Launch button
   getLaunchButton: (name) => ({
     xpath: `//h3[text()="${name}")]/parent::div[@class="workspace__option"]/button[text()="Launch")]`,
   }),

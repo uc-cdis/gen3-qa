@@ -1,4 +1,5 @@
 const { expect } = require('chai');
+const { sleepMS } = require('../../utils/apiUtil.js');
 const { interactive, ifInteractive } = require('../../utils/interactive.js');
 // const { output } = require('codeceptjs');
 
@@ -57,8 +58,9 @@ Scenario('Gen3 SDK integration @manual', ifInteractive(
 Scenario('Launch a workspace @wip', async ({ home, workspace, users }) => {
   // Login
   home.do.goToHomepage();
-  await home.complete.login(users.indexingAcct);
+  await home.complete.login(users.mainAccount);
   // Launch workspace
+  await sleepMS(10000);
   workspace.do.goToPage();
   workspace.do.launchWorkspace('(Generic, Limited Gen3-licensed) Stata Notebook');
   I.waitForElement(workspace.props.iframeWorkspace);
