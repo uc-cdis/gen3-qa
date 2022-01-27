@@ -29,7 +29,7 @@ const bash = new Bash();
 // I need a beforeSuite block to run ETL
 BeforeSuite(async ({ I, users }) => {
   // mutate guppy config to point guppy at jenkins cmc permanent index
-  await bash.runCommand('gen3 mutate-guppy-config-for-study-viewer-test');
+  // await bash.runCommand('gen3 mutate-guppy-config-for-study-viewer-test');
 
   await sleepMS(30000);
   // polling logic to capture new indicess
