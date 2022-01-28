@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 const { interactive, ifInteractive } = require('../../utils/interactive.js');
 
-Feature('Redirect invalid urls to 404 page');
+Feature('Redirect invalid urls to 404 page @requires-portal');
 
 Scenario('Valid urls are not redirected to 404 page @manual', ifInteractive(
   async () => {

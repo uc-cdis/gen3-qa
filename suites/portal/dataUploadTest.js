@@ -1,4 +1,4 @@
-Feature('DataUploadTest');
+Feature('DataUploadTest @requires-portal');
 
 // const { interactive, ifInteractive } = require('../../utils/interactive');
 const { checkPod, sleepMS } = require('../../utils/apiUtil.js');

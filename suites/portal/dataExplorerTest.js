@@ -1,4 +1,4 @@
-Feature('Data Explorer');
+Feature('Data Explorer @requires-portal');
 
 const chai = require('chai');
 const { interactive, ifInteractive } = require('../../utils/interactive.js');
