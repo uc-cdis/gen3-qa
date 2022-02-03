@@ -18,7 +18,7 @@ let ddClient;
 if (process.env.JENKINS_HOME && process.env.RUNNING_LOCAL !== 'true') {
   console.log('### ## Initializing DataDog Client...');
   ddClient = new StatsD({
-    host: 'datadog-agent-cluster-agent.datadog',
+    host: 'datadog-cluster-agent.datadog',
     port: 8125,
     globalTags: { env: testEnvironment },
     errorHandler(error) {
