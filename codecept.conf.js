@@ -13,7 +13,7 @@ exports.config = {
       browser: 'chrome',
       // fullPageScreenshots: true,
       disableScreenshots: true,
-      /* desiredCapabilities: {
+      desiredCapabilities: {
         chromeOptions: {
           args: [
             '--headless', // for dev, you can comment this line to open actual chrome for easier test
@@ -28,7 +28,7 @@ exports.config = {
             '--disable-browser-side-navigation', // https://stackoverflow.com/a/49123152/1689770
           ],
         },
-      }, */
+      },
       restart: true, // restart browser for every test
       timeouts: {
         script: 6000,
@@ -89,7 +89,6 @@ exports.config = {
     portalExportToWorkspace: './services/portal/exportToWorkspace/exportToWorkspaceService.js',
     portalCoreMetadataPage: './services/portal/coreMetadataPage/coreMetadataPageService.js',
     discovery: './services/portal/discovery/discoveryService.js',
-    workspace: './services/portal/workspace/workspaceService.js',
   },
   mocha: {
     reporterOptions: {
