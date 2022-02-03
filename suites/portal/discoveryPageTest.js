@@ -54,17 +54,19 @@ Scenario('Publish a study, search and export to workspace @aggMDS', async ({
       authz: ['/programs/QA'],
       sites: 3,
       summary: '[AUTOTEST Summary] The BACPAC Research Program, Data Integration, Algorithm Development, and Operations Management Center (DAC) will bring cohesion to research performed by the participating Mechanistic Research Centers, Technology Research Sites, and Phase 2 Clinical Trials Centers. DAC Investigators will share their vision and provide scientific leadership and organizational support to the BACPAC Consortium. The research plan consists of supporting design and conduct of clinical trials with precision interventions that focus on identifying the best treatments for individual patients. The DAC will enhance collaboration and research progress with experienced leadership, innovative design and analysis methodologies, comprehensive research operations support, a state-of-the-art data management and integration system, and superior administrative support. This integrated structure will set the stage for technology assessments, solicitation of patient input and utilities, and the evaluation of high-impact interventions through the innovative design and sound execution of clinical trials, leading to effective personalized treatment approaches for patients with chronic lower back pain.',
+      study_description_summary: '[AUTOTEST Summary] The BACPAC Research Program, Data Integration, Algorithm Development, and Operations Management Center (DAC) will bring cohesion to research performed by the participating Mechanistic Research Centers, Technology Research Sites, and Phase 2 Clinical Trials Centers. DAC Investigators will share their vision and provide scientific leadership and organizational support to the BACPAC Consortium. The research plan consists of supporting design and conduct of clinical trials with precision interventions that focus on identifying the best treatments for individual patients. The DAC will enhance collaboration and research progress with experienced leadership, innovative design and analysis methodologies, comprehensive research operations support, a state-of-the-art data management and integration system, and superior administrative support. This integrated structure will set the stage for technology assessments, solicitation of patient input and utilities, and the evaluation of high-impact interventions through the innovative design and sound execution of clinical trials, leading to effective personalized treatment approaches for patients with chronic lower back pain.',
       location: 'Chapel Hill, Nc',
       subjects: 150,
       __manifest: [
         {
-          md5sum: `${I.cache.md5sum}`, // pragma: allowlist secret
+          md5sum: `${I.cache.md5sum}`,
           file_name: 'discovery_test.csv',
           file_size: 16,
-          object_id: '08648ec8-1443-491c-b4b2-db82b0d21954', // `${I.cache.did}`,
+          object_id: `${I.cache.did}`,
         },
       ],
       study_name: 'BACPAC Research Consortium',
+      study_name_title: 'BACPAC Research Consortium',
       study_type: 'Other',
       institutions: 'University Of North Carolina Chapel Hill',
       year_awarded: 2019,
