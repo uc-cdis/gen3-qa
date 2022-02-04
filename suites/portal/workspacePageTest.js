@@ -60,7 +60,6 @@ Scenario('Launch a workspace @wip', async ({ home, workspace, users }) => {
   home.do.goToHomepage();
   await home.complete.login(users.mainAccount);
   // Launch workspace
-  await sleepMS(10000);
   workspace.do.goToPage();
   workspace.do.launchWorkspace('(Generic, Limited Gen3-licensed) Stata Notebook');
   I.waitForElement(workspace.props.iframeWorkspace);

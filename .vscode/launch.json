@@ -19,12 +19,12 @@
                 "run",
                 "--verbose",
                 "--grep",
-                "@wip"
+                "@discoveryPage"
             ],
             "env": {
                 "RUNNING_LOCAL": "true",
                 "GEN3_SKIP_PROJ_SETUP": "true",
-                "NAMESPACE": "qa-heal"
+                "NAMESPACE": "hara"
             },
         }
     ]

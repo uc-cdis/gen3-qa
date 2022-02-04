@@ -89,6 +89,7 @@ exports.config = {
     portalExportToWorkspace: './services/portal/exportToWorkspace/exportToWorkspaceService.js',
     portalCoreMetadataPage: './services/portal/coreMetadataPage/coreMetadataPageService.js',
     discovery: './services/portal/discovery/discoveryService.js',
+    workspace: './services/portal/workspace/workspaceService.js',
   },
   mocha: {
     reporterOptions: {
