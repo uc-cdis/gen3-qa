@@ -19,7 +19,7 @@
                 "run",
                 "--verbose",
                 "--grep",
-                "@discoveryPage"
+                "@wip"
             ],
             "env": {
                 "RUNNING_LOCAL": "true",
