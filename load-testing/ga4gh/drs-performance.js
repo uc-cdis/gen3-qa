@@ -68,9 +68,9 @@ export const options = {
   iterations: 1,
   tlsAuth: [
     {
-      domains: [MTLS_DOMAIN],
-      cert: open(MTLS_CERT),
-      key: open(MTLS_KEY),
+      domains: [ `${MTLS_DOMAIN}`],
+      cert: open(`${MTLS_CERT}`),
+      key: open(`${MTLS_KEY}`),
     },
   ],
 };
