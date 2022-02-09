@@ -34,6 +34,7 @@ const {
   check,
   group,
   sleep,
+  open,
 } = require('k6'); // eslint-disable-line import/no-unresolved
 const http = require('k6/http'); // eslint-disable-line import/no-unresolved
 const {
@@ -68,7 +69,7 @@ export const options = {
   iterations: 1,
   tlsAuth: [
     {
-      domains: [ `${MTLS_DOMAIN}`],
+      domains: [`${MTLS_DOMAIN}`],
       cert: open(`${MTLS_CERT}`),
       key: open(`${MTLS_KEY}`),
     },
