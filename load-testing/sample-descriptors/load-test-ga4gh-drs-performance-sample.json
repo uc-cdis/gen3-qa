@@ -21,5 +21,8 @@
     "override_access_token": "test",
     "GEN3_HOST": "avantol.planx-plan.net",
     "ACCESS_TOKEN": "",
-    "SIGNED_URL_PROTOCOL": "s3"
+    "SIGNED_URL_PROTOCOL": "s3",
+    "MTLS_DOMAIN": "test",
+    "MTLS_CERT": "test",
+    "MTLS_KEY": "test",
 }

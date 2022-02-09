@@ -50,6 +50,9 @@ const {
   PASSPORTS_LIST,
   SIGNED_URL_PROTOCOL,
   NUM_PARALLEL_REQUESTS,
+  MTLS_DOMAIN,
+  MTLS_CERT,
+  MTLS_KEY,
 } = __ENV; // eslint-disable-line no-undef
 
 const myFailRate = new Rate('failed requests');
@@ -63,6 +66,13 @@ export const options = {
   duration: '2h',
   noConnectionReuse: true,
   iterations: 1,
+  tlsAuth: [
+    {
+      domains: [MTLS_DOMAIN],
+      cert: open(MTLS_CERT),
+      key: open(MTLS_KEY),
+    },
+  ],
 };
 
 export default function () {
