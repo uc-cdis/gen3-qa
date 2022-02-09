@@ -18,7 +18,7 @@
     - RAS_TEST_USER_1_USERNAME
     - RAS_TEST_USER_1_PASSWORD
 */
-Feature('RASAuthN - Negative Tests @requires-portal');
+Feature('RASAuthN - Negative Tests @requires-portal @requires-fence');
 
 const { expect } = require('chai');
 const { sleepMS } = require('../../utils/apiUtil.js');
