@@ -52,6 +52,7 @@ BeforeSuite(async ({ I }) => {
   // cloud-automation/blob/master/kube/services/jobs/gentestdata-job.yaml
   // if this is running against an Anvil DD, sequencing must be used
   // TODO: Look into reusing the leafNode logic from jenkins-simulate-data.sh
+  // eslint-disable-next-line no-nested-ternary
   const targetMappingNode = I.cache.testedEnv.includes('anvil') ? 'sequencing' : I.cache.testedEnv.includes('vpodc') ? 'unaligned_reads_file' : 'submitted_unaligned_reads';
 
   I.cache.targetMappingNode = targetMappingNode;
