@@ -34,7 +34,6 @@ const {
   check,
   group,
   sleep,
-  open,
 } = require('k6'); // eslint-disable-line import/no-unresolved
 const http = require('k6/http'); // eslint-disable-line import/no-unresolved
 const {
@@ -58,7 +57,7 @@ const {
 
 const myFailRate = new Rate('failed requests');
 
-export const options = {
+let rawOptions = {
   rps: 90000,
   thresholds: {
     http_req_duration: ['avg<3000', 'p(95)<15000'],
@@ -66,15 +65,22 @@ export const options = {
   },
   duration: '2h',
   noConnectionReuse: true,
-  iterations: 1,
-  tlsAuth: [
-    {
-      domains: [`${MTLS_DOMAIN}`],
-      cert: open(`${MTLS_CERT}`),
-      key: open(`${MTLS_KEY}`),
-    },
-  ],
+  iterations: 1
 };
+
+if (`${MTLS_DOMAIN}` !== "test") {
+  console.log(`Enabling Mutual TLS with the follow configuration:\n` +
+    `MTLS_DOMAIN: ${MTLS_DOMAIN}\nMTLS_CERT: ${MTLS_CERT}\nMTLS_KEY: ${MTLS_KEY}`)
+  rawOptions['tlsAuth'] = [
+      {
+        domains: [`${MTLS_DOMAIN}`],
+        cert: open(MTLS_CERT),
+        key: open(MTLS_KEY),
+      },
+    ]
+}
+
+export const options = rawOptions;
 
 export default function () {
   const maxRetries = 5;
