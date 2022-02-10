@@ -125,7 +125,7 @@ module.exports = {
         /*eslint-disable */
         while (linkedType._links.length > 0) {
           const linkedTypeInstance = linkedType._links.pop();
-          await deleteByIdRecursively(program, project, linkedTypeInstance.id);
+          await deleteByIdRecursively(linkedTypeInstance.id, program, project);
         }
         /*eslint-disable */
       }
