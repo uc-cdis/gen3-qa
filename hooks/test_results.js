@@ -81,13 +81,19 @@ async function writeMetrics(measurement, test) {
 
     dogapi.initialize(options);
 
-    dogapi.metric.send('planx.ci.run_time', 100);
+    dogapi.metric.send('planx.ci.run_time', 100, metricTagsDD, (err, results) => {
+      console.dir(results);
+    });
     if (measurement === 'run_time') {
       // handle gauge metric unit
-      dogapi.metric.send('planx.ci.run_time', test.duration / 1000, metricTagsDD);
+      dogapi.metric.send('planx.ci.run_time', test.duration / 1000, metricTagsDD, (err, results) => {
+        console.dir(results);
+      });
     } else {
       // handle counter metric unit
-      dogapi.metric.send(`planx.ci.${measurement}`, 1, metricTagsDD);
+      dogapi.metric.send(`planx.ci.${measurement}`, 1, metricTagsDD, (err, results) => {
+        console.dir(results);
+      });
     }
   }
 }
