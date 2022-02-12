@@ -2,9 +2,8 @@ const { event } = require('codeceptjs');
 const request = require('request');
 const axios = require('axios');
 const Influx = require('influx');
-const fetch = require('node-fetch');
 const os = require('os');
-const StatsD = require('hot-shots');
+const dogapi = require('dogapi');
 // const stringify = require('json-stringify-safe');
 // testing
 const influx = new Influx.InfluxDB({
@@ -13,19 +12,6 @@ const influx = new Influx.InfluxDB({
 });
 
 const testEnvironment = process.env.KUBECTL_NAMESPACE || os.hostname();
-
-let ddClient;
-if (process.env.JENKINS_HOME && process.env.RUNNING_LOCAL !== 'true') {
-  console.log('### ## Initializing DataDog Client...');
-  ddClient = new StatsD({
-    host: 'datadog-cluster-agent.datadog',
-    port: 8125,
-    globalTags: { env: testEnvironment },
-    errorHandler(error) {
-      console.log('Socket errors caught here: ', error);
-    },
-  });
-}
 
 async function fetchJenkinsMetrics() {
   const jenkinsQueueLength = await axios.post(
@@ -40,17 +26,10 @@ async function fetchJenkinsMetrics() {
   ).then((response) => response.data).catch((error) => {
     console.log(`error: ${JSON.stringify(error)}`);
   });
-
   return jenkinsQueueLength;
 }
 
-async function writeMetrics(measurement, test, currentRetry) {
-  // test metrics
-  const suiteName = test.parent.title.split(' ').join('_');
-  const testName = test.title.split(' ').join('_');
-  const ciEnvironment = process.env.KUBECTL_NAMESPACE;
-  const duration = test.duration / 1000;
-
+async function writeMetrics(measurement, test) {
   // github metrics
   let prName = '';
   let repoName = '';
@@ -58,28 +37,7 @@ async function writeMetrics(measurement, test, currentRetry) {
     prName = process.env.BRANCH_NAME.split('-')[1]; // eslint-disable-line prefer-destructuring
     repoName = process.env.JOB_NAME.split('/')[1]; // eslint-disable-line prefer-destructuring
   } catch {
-    prName = 'UNDEFINED';
-    repoName = 'UNDEFINED';
-  }
-
-  // selenium metrics
-  let sessionCount = 0;
-  if (process.env.RUNNING_IN_PROD_TIER === 'true') {
-    console.log('INFO: Running in prod-tier environment. Ignore selenium-hub metrics.');
-  } else {
-    const resp = await fetch('http://selenium-hub:4444/status');
-    const respJson = await resp.json();
-
-    const { nodes } = respJson.value;
-    if (nodes.length > 0) {
-      nodes.forEach((node) => {
-        node.slots.forEach((slot) => {
-          if (slot.session) {
-            sessionCount += 1;
-          }
-        });
-      });
-    }
+    console.log('No PR number and repo name found. Running local?');
   }
 
   // Jenkins metrics
@@ -88,33 +46,20 @@ async function writeMetrics(measurement, test, currentRetry) {
     numberOfPRsWaitingInTheQueue = await fetchJenkinsMetrics();
   }
 
-  // logs
-  console.log('********');
-  console.log(`TEST: ${testName}`);
-  console.log(`RESULT: ${test.state}`);
-  console.log(`CURRENT RETRY - ${currentRetry}`);
-  console.log(`TIMESTAMP: ${new Date()}`);
-  console.log(`GRID_SESSION_COUNT: ${sessionCount}`);
-  console.log(`JENKINS_QUEUE_LENGTH: ${JSON.stringify(numberOfPRsWaitingInTheQueue)}`);
-  console.log(`TEST_DURATION: ${duration}s`);
-  console.log('********');
-
   // define information to write into time-series db
-  const fieldInfo = measurement === 'run_time' ? duration : 1;
+  const fieldInfo = measurement === 'run_time' ? test.duration / 1000 : 1;
 
+  // writing metrics to influxdb
   const tsData = {};
   tsData[measurement] = fieldInfo;
   const metricTags = {
     repo_name: repoName,
     pr_num: prName,
-    suite_name: suiteName,
-    test_name: testName,
-    ci_environment: ciEnvironment,
+    suite_name: test.parent.title.split(' ').join('_'),
+    test_name: test.title.split(' ').join('_'),
+    ci_environment: testEnvironment,
     jenkins_queue_items_length: numberOfPRsWaitingInTheQueue,
-    selenium_grid_sessions: sessionCount,
   };
-
-  // writing metrics to influxdb
   await influx.writePoints(
     [{
       measurement,
@@ -126,23 +71,39 @@ async function writeMetrics(measurement, test, currentRetry) {
     console.error(`Error saving data to InfluxDB! ${err}`);
   });
 
-  // writing metrics to DataDog if ddClient is initialized
-  if (ddClient) {
-    // TODO: There are some awkward IFs here but they are supposed to stick around
-    // while InfluxDB + Grafana co-exist with DataDog, once we spend a few months with
-    // with enough historical metrics, we shall refactor and abandon all the InfluxDB-related code
+  // writing metrics to DataDog if running in Jenkins
+  if (process.env.JENKINS_HOME && process.env.RUNNING_LOCAL !== 'true') {
+    const metricTagsDD = Object.keys(metricTags).map((key) => `${key}:${metricTags.key}`);
+    const options = {
+      api_key: process.env.DD_API_KEY,
+      app_key: process.env.DD_APP_KEY,
+    };
+
+    dogapi.initialize(options);
+
+    dogapi.metric.send('planx.ci.run_time', 100);
     if (measurement === 'run_time') {
       // handle gauge metric unit
-      ddClient.gauge('planx.ci.run_time', duration, metricTags);
+      dogapi.metric.send('planx.ci.run_time', test.duration / 1000, metricTagsDD);
     } else {
       // handle counter metric unit
-      ddClient.increment(`planx.ci.${measurement}`, 1, metricTags, undefined);
+      dogapi.metric.send(`planx.ci.${measurement}`, 1, metricTagsDD);
     }
   }
 }
 
-module.exports = function () {
+module.exports = async function () {
   event.dispatcher.on(event.test.after, async (test) => {
+    // logs
+    console.log('********');
+    console.log(`TEST: ${test.name}`);
+    console.log(`RESULT: ${test.state}`);
+    // eslint-disable-next-line no-underscore-dangle
+    console.log(`CURRENT RETRY - ${test._currentRetry}`);
+    console.log(`TIMESTAMP: ${new Date()}`);
+    console.log(`JENKINS_QUEUE_LENGTH: ${JSON.stringify(await fetchJenkinsMetrics())}`);
+    console.log(`TEST_DURATION: ${test.duration / 1000}s`);
+    console.log('********');
     // console.log(stringify(test));
     const testResult = test.state;
     // eslint-disable-next-line no-underscore-dangle
