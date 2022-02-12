@@ -6,7 +6,7 @@ const fetch = require('node-fetch');
 const os = require('os');
 const StatsD = require('hot-shots');
 // const stringify = require('json-stringify-safe');
-
+// testing
 const influx = new Influx.InfluxDB({
   host: 'influxdb',
   database: 'ci_metrics',
