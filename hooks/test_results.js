@@ -4,8 +4,7 @@ const axios = require('axios');
 const Influx = require('influx');
 const os = require('os');
 const dogapi = require('dogapi');
-// const stringify = require('json-stringify-safe');
-// testing
+
 const influx = new Influx.InfluxDB({
   host: 'influxdb',
   database: 'ci_metrics',
