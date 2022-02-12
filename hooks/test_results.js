@@ -73,7 +73,7 @@ async function writeMetrics(measurement, test) {
 
   // writing metrics to DataDog if running in Jenkins
   if (process.env.JENKINS_HOME && process.env.RUNNING_LOCAL !== 'true') {
-    const metricTagsDD = Object.keys(metricTags).map((key) => `${key}:${metricTags.key}`);
+    const metricTagsDD = Object.keys(metricTags).map((key) => `"${key}:${metricTags.key}"`);
     const options = {
       api_key: process.env.DD_API_KEY,
       app_key: process.env.DD_APP_KEY,
