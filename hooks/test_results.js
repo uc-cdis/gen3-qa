@@ -70,7 +70,7 @@ async function writeMetrics(measurement, test) {
     console.error(`Error saving data to InfluxDB! ${err}`);
   });
 
-  // writing metrics to DataDog if running in Jenkins
+  // writing metrics to DataDog if running in Jenkins.
   if (process.env.JENKINS_HOME && process.env.RUNNING_LOCAL !== 'true') {
     const metricTagsDD = Object.keys(metricTags).map((key) => `"${key}:${metricTags.key}"`);
     const options = {
