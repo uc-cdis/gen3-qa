@@ -22,7 +22,7 @@
     "GEN3_HOST": "avantol.planx-plan.net",
     "ACCESS_TOKEN": "",
     "SIGNED_URL_PROTOCOL": "s3",
-    "MTLS_DOMAIN": "test",
-    "MTLS_CERT": "test",
-    "MTLS_KEY": "test"
+    "MTLS_DOMAIN": "qa-dcp.planx-pla.net",
+    "MTLS_CERT": "mtls.crt",
+    "MTLS_KEY": "mtls.key"
 }
