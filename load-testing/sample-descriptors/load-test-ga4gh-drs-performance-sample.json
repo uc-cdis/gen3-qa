@@ -2,7 +2,7 @@
     "objective": "GA4GH DRS API Performance Test",
     "service": "ga4gh",
     "details": {
-      "name": "qa-dcp.planx-plan.net",
+      "name": "qa-dcp.planx-pla.net",
       "UWSGI_PROCESSES": 1,
       "fence_autoscaler": {
         "min": 10,
