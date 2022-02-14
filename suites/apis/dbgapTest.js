@@ -1,5 +1,5 @@
 /*eslint-disable */
-Feature('dbgapSyncing').retry(2);
+Feature('dbgapSyncing @requires-fence @requires-indexd').retry(2);
 /*
 Test running usersync job and pulling files from a fake dbgap sftp server (populated
 with fake telemetry / user access files). Ensure users can download files they should
@@ -242,7 +242,7 @@ Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try crea
     fence.ask.assertStatusCode(fenceUploadRes, 401,
       `User ${users.mainAcct.username} should not be able to upload for dbgap `
       + 'project phs000178, even though they have read access.');
-  });
+}).retry(1);
 
 Scenario('dbGaP + user.yaml Sync: ensure combined access @dbgapSyncing @reqGoogle',
   async ({ fence, users }) => {
@@ -278,7 +278,7 @@ Scenario('dbGaP + user.yaml Sync: ensure combined access @dbgapSyncing @reqGoogl
     chai.expect(QAFileContents,
       `User ${users.mainAcct.username} with access could NOT create s3 signed urls `
       + 'and read file for a record in authorized program QA').to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-  });
+}).retry(1);
 
 Scenario('dbGaP + user.yaml Sync (from prev test): ensure user without dbGap access cannot create/update/delete dbGaP indexd records @dbgapSyncing @reqGoogle',
   async ({ fence, indexd, users }) => {
@@ -347,7 +347,7 @@ Scenario('dbGaP + user.yaml Sync (from prev test): ensure user without dbGap acc
       new_dbgap_records.fooBarFile,
       msg = 'should have gotten unauthorized for deleting dbgap record',
     );
-  });
+}).retry(1);
 
 Scenario('dbGaP + user.yaml Sync (from prev test): ensure users with dbGap access cannot create/update/delete dbGaP indexd records @dbgapSyncing @reqGoogle',
   async ({ fence, indexd, users }) => {
@@ -416,4 +416,4 @@ Scenario('dbGaP + user.yaml Sync (from prev test): ensure users with dbGap acces
       new_dbgap_records.fooBarFile,
       msg = 'should have gotten unauthorized for deleting dbgap record',
     );
-  });
+}).retry(1);

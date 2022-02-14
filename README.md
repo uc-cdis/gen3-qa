@@ -2,13 +2,26 @@
 
 gen3 integration tests - run by https://jenkins.planx-pla.net/ via a `Jenkinsfile` pipeline in each github repo.
 
-## Basic test run
+## Prerequisites (may not need to install on MAC):
 
+* docker-compose (see https://docs.docker.com/compose/install/)
+* gnupg2 pass
+```
+sudo apt install gnupg2 pass
+```
+
+## Basic test run
 ### Start test infra (influxdb, grafana, selenium)
 
+For using linux/amd64 selenium images:
 ```
 # start test infra
 docker-compose -f docker-compose-test-infra.yaml up -d
+```
+
+For using arm64 selenium images:
+```
+docker-compose -f docker-compose-test-infra-arm64.yaml up -d
 ```
 
 ### Initial setup of influxdb and grafana (only needed on a new containers)

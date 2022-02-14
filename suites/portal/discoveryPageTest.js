@@ -6,7 +6,7 @@ const { output } = require('codeceptjs');
 const I = actor();
 I.cache = {};
 
-Feature('Discovery page @discoveryPage');
+Feature('Discovery page @discoveryPage @requires-portal');
 
 After(({ users, mds }) => {
   if ('studyId' in I.cache) {
@@ -32,7 +32,7 @@ Scenario('Publish a study, search and export to workspace @aggMDS', async ({
 
   output.print('--- Index TSV manifest');
   home.do.goToHomepage();
-  home.complete.login(users.indexingAcct);
+  await home.complete.login(users.indexingAcct);
   const headerRowVals = ['GUID', 'md5', 'size', 'acl', 'authz', 'urls'];
   const dataRowVals = [`${I.cache.did}`, `${I.cache.md5sum}`, '16', '', '/programs/QA', 's3://cdis-presigned-url-test/testdata/discovery_test.csv'];
   const tsvManifestContents = [headerRowVals.join('\t'), dataRowVals.join('\t')].join('\n');
@@ -54,17 +54,19 @@ Scenario('Publish a study, search and export to workspace @aggMDS', async ({
       authz: ['/programs/QA'],
       sites: 3,
       summary: '[AUTOTEST Summary] The BACPAC Research Program, Data Integration, Algorithm Development, and Operations Management Center (DAC) will bring cohesion to research performed by the participating Mechanistic Research Centers, Technology Research Sites, and Phase 2 Clinical Trials Centers. DAC Investigators will share their vision and provide scientific leadership and organizational support to the BACPAC Consortium. The research plan consists of supporting design and conduct of clinical trials with precision interventions that focus on identifying the best treatments for individual patients. The DAC will enhance collaboration and research progress with experienced leadership, innovative design and analysis methodologies, comprehensive research operations support, a state-of-the-art data management and integration system, and superior administrative support. This integrated structure will set the stage for technology assessments, solicitation of patient input and utilities, and the evaluation of high-impact interventions through the innovative design and sound execution of clinical trials, leading to effective personalized treatment approaches for patients with chronic lower back pain.',
+      study_description_summary: '[AUTOTEST Summary] The BACPAC Research Program, Data Integration, Algorithm Development, and Operations Management Center (DAC) will bring cohesion to research performed by the participating Mechanistic Research Centers, Technology Research Sites, and Phase 2 Clinical Trials Centers. DAC Investigators will share their vision and provide scientific leadership and organizational support to the BACPAC Consortium. The research plan consists of supporting design and conduct of clinical trials with precision interventions that focus on identifying the best treatments for individual patients. The DAC will enhance collaboration and research progress with experienced leadership, innovative design and analysis methodologies, comprehensive research operations support, a state-of-the-art data management and integration system, and superior administrative support. This integrated structure will set the stage for technology assessments, solicitation of patient input and utilities, and the evaluation of high-impact interventions through the innovative design and sound execution of clinical trials, leading to effective personalized treatment approaches for patients with chronic lower back pain.',
       location: 'Chapel Hill, Nc',
       subjects: 150,
       __manifest: [
         {
-          md5sum: `${I.cache.md5sum}`, // pragma: allowlist secret
+          md5sum: `${I.cache.md5sum}`,
           file_name: 'discovery_test.csv',
           file_size: 16,
-          object_id: '08648ec8-1443-491c-b4b2-db82b0d21954', // `${I.cache.did}`,
+          object_id: `${I.cache.did}`,
         },
       ],
       study_name: 'BACPAC Research Consortium',
+      study_name_title: 'BACPAC Research Consortium',
       study_type: 'Other',
       institutions: 'University Of North Carolina Chapel Hill',
       year_awarded: 2019,
@@ -90,7 +92,7 @@ Scenario('Publish a study, search and export to workspace @aggMDS', async ({
     users.mainAcct.accessTokenHeader, I.cache.studyId, studyMetaData,
   );
   output.print('--- Re-sync aggregate metadata');
-  mds.do.reSyncAggregateMetadata();
+  await mds.do.reSyncAggregateMetadata();
   const record = await mds.do.readAggMetadataRecord(
     users.mainAcct.accessTokenHeader, I.cache.studyId,
   );
@@ -98,7 +100,7 @@ Scenario('Publish a study, search and export to workspace @aggMDS', async ({
 
   output.print('--- Navigate to discovery page');
   home.do.goToHomepage();
-  home.complete.login(users.mainAcct);
+  await home.complete.login(users.mainAcct);
   discovery.do.goToPage();
   I.saveScreenshot('discoveryPage.png');
 
@@ -131,5 +133,5 @@ Scenario('Publish a study, search and export to workspace @aggMDS', async ({
   output.print('--- Open study in workspace');
   discovery.do.openInWorkspace(I.cache.studyId);
   I.saveScreenshot('open_in_workspace.png');
-  I.waitInUrl('/workspace', 20);
+  I.waitInUrl('/workspace', 60);
 }).tag('@discoveryPage', '@e2eTest');

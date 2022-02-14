@@ -5,7 +5,7 @@
     (Ssjdispatcher should be configured)
  2. The environment must be configured with sower-jobs (To run pelican-export)
 */
-Feature('PFB Export');
+Feature('PFB Export @requires-portal');
 
 const axios = require('axios');
 const path = require('path');
@@ -52,7 +52,8 @@ BeforeSuite(async ({ I }) => {
   // cloud-automation/blob/master/kube/services/jobs/gentestdata-job.yaml
   // if this is running against an Anvil DD, sequencing must be used
   // TODO: Look into reusing the leafNode logic from jenkins-simulate-data.sh
-  const targetMappingNode = I.cache.testedEnv.includes('anvil') ? 'sequencing' : 'submitted_unaligned_reads';
+  // eslint-disable-next-line no-nested-ternary
+  const targetMappingNode = I.cache.testedEnv.includes('anvil') ? 'sequencing' : I.cache.testedEnv.includes('vpodc') ? 'unaligned_reads_file' : 'submitted_unaligned_reads';
 
   I.cache.targetMappingNode = targetMappingNode;
 
@@ -91,7 +92,7 @@ Scenario('Submit dummy data to the Gen3 Commons environment @pfbExport', async (
   // make sure the query return results
   console.log(`query response: ${JSON.stringify(queryResponse.data)}`);
   expect(queryResponse).to.have.property('status', 200);
-});
+}).retry(2);
 
 Scenario('Upload a file through the gen3-client CLI @pfbExport', async ({
   I, fence, users,
@@ -223,7 +224,7 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @pfb
   I.saveScreenshot('checkUploadedFileIsMapped.png');
   I.seeElement('//p[text()="1 files mapped successfully!"]');
   // TODO: check if file number in DEV-test project was increased by one
-});
+}).retry(2);
 
 Scenario('Mutate etl-mapping config and run ETL to create new indices in elastic search @pfbExport', async ({ I }) => {
   console.log('### mutate the etl-mapping k8s config map');
@@ -284,7 +285,7 @@ Scenario('Mutate manifest-guppy config and roll guppy so the recently-submitted 
   //  `${I.cache.prNumber}.${I.cache.repoName}.${process.env.NAMESPACE}_etl`,
   //  `${I.cache.prNumber}.${I.cache.repoName}.${process.env.NAMESPACE}_file`,
   // );
-});
+}).retry(2);
 
 Scenario('Visit the Explorer page, select a cohort, export to PFB and download the .avro file @pfbExport', async ({
   I, login, users,
@@ -381,15 +382,15 @@ Scenario('Visit the Explorer page, select a cohort, export to PFB and download t
     const scpCmd = spawnSync('scp', scpArgs, { stdio: 'pipe' });
     console.log(`${new Date()}: scp output => ${scpCmd.output.toString()}`);
   }
-});
+}).retry(2);
 
 Scenario('Install the latest pypfb CLI version and make sure we can parse the avro file @pfbExport', async ({ I }) => {
   const pyPfbInstallationOutput = await bash.runCommand(`python3.8 -m venv pfb_test && source pfb_test/bin/activate && pip install pypfb && ${I.cache.WORKSPACE}/gen3-qa/pfb_test/bin/pfb`);
   console.log(`${new Date()}: pyPfbInstallationOutput = ${pyPfbInstallationOutput}`);
 
-  // await bash.runCommand(`cat ./test_export_${I.cache.UNIQUE_NUM}.avro`);
+  await bash.runCommand(`cp ./test_export_${I.cache.UNIQUE_NUM}.avro output/test_export_${I.cache.UNIQUE_NUM}.avro.log`);
   const pfbParsingResult = await bash.runCommand(`source pfb_test/bin/activate && ${I.cache.WORKSPACE}/gen3-qa/pfb_test/bin/pfb show -i ./test_export_${I.cache.UNIQUE_NUM}.avro | jq .`);
-  // console.log(`${new Date()}: pfbParsingResult = ${pfbParsingResult}`);
+  console.log(`${new Date()}: pfbParsingResult = ${pfbParsingResult}`);
   const pfbConvertedToJSON = JSON.parse(`[${pfbParsingResult.replace(/\}\{/g, '},{')}]`);
   // console.log(`${new Date()}: pfbConvertedToJSON = ${JSON.stringify(pfbConvertedToJSON)}`);
 
@@ -399,7 +400,7 @@ Scenario('Install the latest pypfb CLI version and make sure we can parse the av
   const ddNodesSet = new Set();
   for (const node in pfbConvertedToJSON) { // eslint-disable-line guard-for-in
     // console.log(`node name: ${pfbConvertedToJSON[node].name}`);
-    await ddNodesSet.add(pfbConvertedToJSON[node].name);
+    ddNodesSet.add(pfbConvertedToJSON[node].name);
   }
   const itDDNodesSet = ddNodesSet.values();
   expect(itDDNodesSet.next().value).to.equal('program');
@@ -410,4 +411,4 @@ Scenario('Install the latest pypfb CLI version and make sure we can parse the av
     expect(itDDNodesSet.next().value).to.equal('study');
   }
   // TODO: Refine cohort later and make sure the selected projects show up in the PFB file
-});
+}).retry(2);

@@ -1,4 +1,4 @@
-Feature('AuditServiceAPI');
+Feature('AuditServiceAPI @requires-audit @requires-fence');
 
 /**
  * Because it can take a bit of time for audit logs to be processed, we test
@@ -89,7 +89,7 @@ Scenario('Audit: download presigned URL events @audit', async ({ fence, auditSer
     status_code: 401,
   });
 
-  // fail to request a presigned URL to download a file that does not exit
+  // fail to request a presigned URL to download a file that does not exist
   signedUrlRes = await fence.do.createSignedUrl(
     '123', // fake GUID
     [],
@@ -127,7 +127,7 @@ Scenario('Audit: download presigned URL events @audit', async ({ fence, auditSer
     params,
     expectedResults,
   );
-});
+}).retry(1);
 
 Scenario('Audit: homepage login events @audit', async ({ home, auditService }) => {
   const timestamp = Math.floor(Date.now() / 1000); // epoch timestamp
@@ -136,9 +136,9 @@ Scenario('Audit: homepage login events @audit', async ({ home, auditService }) =
 
   // user logs in
   home.do.goToHomepage();
-  home.complete.login(user.mainAcct);
+  await home.complete.login(user.mainAcct);
   home.ask.seeDetails();
-  home.complete.logout();
+  await home.complete.logout();
 
   expectedResults.push({
     username: user.mainAcct.username,
@@ -156,7 +156,7 @@ Scenario('Audit: homepage login events @audit', async ({ home, auditService }) =
     params,
     expectedResults,
   );
-});
+}).retry(1);
 
 Scenario('Audit: OIDC login events @audit @rasAuthN', async ({ I, auditService }) => {
   const timestamp = Math.floor(Date.now() / 1000); // epoch timestamp
@@ -199,7 +199,7 @@ Scenario('Audit: OIDC login events @audit @rasAuthN', async ({ I, auditService }
     params,
     expectedResults,
   );
-});
+}).retry(1);
 
 Scenario('Audit: unauthorized log query @audit', async ({ auditService }) => {
   const timestamp = Math.floor(Date.now() / 1000); // epoch timestamp
@@ -219,4 +219,4 @@ Scenario('Audit: unauthorized log query @audit', async ({ auditService }) => {
   // `auxAcct2` has access to query login audit logs, not presigned_url
   await auditService.do.query('presigned_url', user.auxAcct2.accessTokenHeader, params, 403);
   await auditService.do.query('login', user.auxAcct2.accessTokenHeader, params, 200);
-});
+}).retry(1);

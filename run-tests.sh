@@ -36,6 +36,17 @@ dryrun() {
   fi
 }
 
+# Check if a service in the manifest
+ifServiceDeployed() {
+  local command
+  local response
+
+  command="g3kubectl get configmap manifest-versions -o json | jq -r .data.json | jq -r "'".[\"$1\"]"'""
+  response=$(eval "$command")
+
+  echo $response
+}
+
 # Takes one argument, being service name
 getServiceVersion() {
   local command
@@ -240,6 +251,24 @@ runTestsIfServiceVersion "@indexRecordConsentCodes" "sheepdog" "1.1.13"
 runTestsIfServiceVersion "@coreMetadataPage" "portal" "2.20.8"
 runTestsIfServiceVersion "@indexing" "portal" "2.26.0" "2020.05"
 runTestsIfServiceVersion "@cleverSafe" "fence" "4.22.4" "2020.09"
+runTestsIfServiceVersion "@requestor" "requestor" "1.5.0" "2022.02"
+runTestsIfServiceVersion "@requestor" "arborist" "3.2.0" "2021.12"
+
+# disable tests if the service is not deployed
+# export isIndexdDeployed=$(ifServiceDeployed "indexd")
+# if [ -z "$isIndexdDeployed" ] || [ "$isIndexdDeployed" = "null" ];then
+#   echo "indexd is not deployed.Skip all tests required indexd.."
+#   donot '@requires-indexd'
+# fi
+listVar="arborist fence guppy indexd manifestservice pelican peregrine pidgin portal sheepdog sower tube mariner audit requestor"
+for svc_name in $listVar; do
+    export isServiceDeployed=$(ifServiceDeployed $svc_name)
+    if [ -z "$isServiceDeployed" ] || [ "$isServiceDeployed" = "null" ]; then
+      echo "$svc_name is not deployed.Skip all tests requiring $svc_name.."
+      echo "@requires-$svc_name"
+      donot "@requires-$svc_name"
+    fi
+done
 
 # environments that use DCF features
 # we only run Google Data Access tests for cdis-manifest PRs to these
@@ -313,6 +342,8 @@ else
   # donot '@rasAuthN'
   runTestsIfServiceVersion "@rasAuthN" "fence" "4.22.1" "2020.09"
   echo "INFO: enabling RAS AuthN Integration tests for $service"
+  donot '@rasAuthN'
+  # Disabling RAS tests temporarily because of RAS authentication issues
 fi
 
 # TODO: eventually enable for all services, but need arborist and fence updates first
@@ -323,6 +354,14 @@ if [[ "$service" == "cdis-manifest" ]]; then
   donot '@indexdJWT'
 else
   echo "INFO: enabling Centralized Auth tests for $service"
+fi
+
+# Only run register user tests in midrc
+if [[ !( "$service" =~ ^(cdis-manifest|gitops-qa|gen3-qa) && $testedEnv == *"midrc"* )]]; then
+  echo "INFO: disabling Register User tests for $service"
+  donot '@registerUser'
+else
+  echo "INFO: enabling Register User tests for $service"
 fi
 
 # Focus on GUI tests for data-portal
@@ -400,22 +439,16 @@ fi
 # Study Viewer test
 runStudyViewerTests=false
 #run for data-portal/requestor/gen3-qa/gitops-qa/cdis-manifest repo
-if [[ "$service" =~ ^(data-portal|requestor|gen3-qa|cdis-manifest|gitops-qa)$ ]]; then
-  # checks both conditions
-  # 1. if studyViewer is deployed to that env
-  # 2. if requestor is also deployed
+if [[ ! ("$service" =~ ^(data-portal|requestor|gen3-qa)$ || $testedEnv == *"niaid"*) ]]; then
+  echo "Disabling study-viewer test"
+  donot "@studyViewer"
+else
   if [[ $(curl -s "$portalConfigURL" | jq 'contains({studyViewerConfig})') == "true" ]]; then
     if (g3kubectl get pods --no-headers -l app=requestor | grep requestor) > /dev/null 2>&1; then
       echo "### Study-Viewer is deployed"
       runStudyViewerTests=true
     fi
   fi
-fi
-if [[ "$runStudyViewerTests" == true ]]; then
-  echo "Enabling study-viewer test"
-else
-  echo "Disabling study-viewer test"
-  donot "@studyViewer"
 fi
 
 # landing page buttons
@@ -519,13 +552,13 @@ if [[ "$(hostname)" == *"cdis-github-org"* ]] || [[ "$(hostname)" == *"planx-ci-
   echo "inside an ephemeral gen3-qa-in-a-box pod..."
   
   # Start selenium process within the ephemeral jenkins pod.
-  npx selenium-standalone install --version=4.0.0-alpha-7 --drivers.chrome.version=92.0.4515.107 --drivers.chrome.baseURL=https://chromedriver.storage.googleapis.com
-  timeout $seleniumTimeout npx selenium-standalone start --version=4.0.0-alpha-7 --drivers.chrome.version=92.0.4515.107 &> selenium.log &
+  npx selenium-standalone install --version=4.0.0-alpha-7 --drivers.chrome.version=96.0.4664.45 --drivers.chrome.baseURL=https://chromedriver.storage.googleapis.com
+  timeout $seleniumTimeout npx selenium-standalone start --version=4.0.0-alpha-7 --drivers.chrome.version=96.0.4664.45 &> selenium.log &
  
-
   # gen3-qa-in-a-box requires a couple of changes to its webdriver config
   set +e
   mv gen3.qa.in.a.box.codecept.conf.js codecept.conf.js
+  cat codecept.conf.js
   set -e
 else
   echo "NOT inside an ephemeral gen3-qa-in-a-box pod..."

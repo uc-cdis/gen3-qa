@@ -15,7 +15,7 @@ This test has pre-requisities:
 6. add requestor service to the manifest.json block
 */
 
-Feature('Study Viewer');
+Feature('Study Viewer @requires-portal @requires-requestor');
 
 const { expect } = require('chai');
 const { Bash } = require('../../utils/bash.js');
@@ -25,6 +25,12 @@ const requestorTasks = require('../../services/apis/requestor/requestorTasks.js'
 const { sleepMS } = require('../../utils/apiUtil.js');
 
 const bash = new Bash();
+
+// create fake data for all the nodes in the dictionary via data-simulator
+// look at the data-dictionary how it creates data for case / study - creates 10 sample
+// problem -> make data-simulator create data for all the cmc index
+// main.py data-simulator L113
+// jenkins-simulate.sh L116 gen3-qa repo
 
 // I need a beforeSuite block to run ETL
 BeforeSuite(async ({ I, users }) => {

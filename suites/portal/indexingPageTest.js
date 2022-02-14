@@ -6,7 +6,7 @@
     within the sower config block (manifest-indexing & indexd-manifest)
  3. The Indexing GUI is only available in data-portal >= 2.24.9
 */
-Feature('Indexing GUI');
+Feature('Indexing GUI @requires-portal @requires-sower');
 
 const { expect } = require('chai');
 const { checkPod, sleepMS } = require('../../utils/apiUtil.js');
@@ -58,7 +58,7 @@ Scenario('Navigate to the indexing page and upload a test manifest @indexing', a
   I, indexing, home, users,
 }) => {
   home.do.goToHomepage();
-  home.complete.login(users.indexingAcct);
+  await home.complete.login(users.indexingAcct);
   indexing.do.goToIndexingPage();
   I.waitForElement({ css: '.indexing-page' }, 10);
   I.click('.index-flow-form'); // after clicking open window file upload dialog
@@ -94,7 +94,7 @@ Scenario('Navigate to the indexing page and download a full indexd manifest @ind
   I, indexing, home, users,
 }) => {
   home.do.goToHomepage();
-  home.complete.login(users.indexingAcct);
+  await home.complete.login(users.indexingAcct);
   indexing.do.goToIndexingPage();
   I.waitForElement({ css: '.indexing-page' }, 10);
   I.click({ xpath: 'xpath: //button[contains(text(), \'Download\')]' });
@@ -128,7 +128,7 @@ Scenario('Navigate to the indexing page and upload an invalid manifest @indexing
   I, indexing, home, users,
 }) => {
   home.do.goToHomepage();
-  home.complete.login(users.indexingAcct);
+  await home.complete.login(users.indexingAcct);
   indexing.do.goToIndexingPage();
   I.waitForElement({ css: '.indexing-page' }, 10);
   I.click('.index-flow-form'); // after clicking open window file upload dialog
