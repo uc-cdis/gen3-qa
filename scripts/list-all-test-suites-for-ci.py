@@ -22,6 +22,7 @@ test_suites_that_cant_run_in_parallel = [
     "test-portal-404pageTest",                         # manual (executable test)
     "test-apis-dcfDataReplicationTest",                # manual (executable test)
     "test-portal-exportPfbToWorkspaceTest",            # manual (executable test)
+    "test-portal-studyViewerExportToWorkspaceTest",    # manual (executable test)
     "test-portal-homepageChartNodesExecutableTestPlan",# manual (executable test)
     "test-portal-profilePageTest",                     # manual (executable test)
     "test-portal-terraExportWarningTestPlan",          # manual (executable test)
