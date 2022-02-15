@@ -61,28 +61,9 @@ async function fetchDIDLists(I) {
         continue;
       }
       else {
-        // ok200files.push(recordResp.data['records'][0].did);
-        // console.log(recordResp.data['records'][0].urls);
         ok200files[recordResp.data['records'][0].did] = { urls: recordResp.data['records'][0].urls };
-        // console.log(theFiles);
       };
     };
-    
-
-    // adding record DIDs to their corresponding ACL key
-    // ( I.cache.records is created in BeforeSuite() )
-    // I.cache.records.forEach((record) => {
-    //   console.log('ACLs for ' + record['did'] + ' - ' + record['acl']);
-    //   // Filtering accessible DIDs by checking if the record acl is in the project access list
-    //   // console.log(`Record: ${JSON.stringify(record)}`);
-    //   // console.log('### ACL = ' + record.acl);
-    //   const accessibleDid = record.acl.filter(
-    //     (acl) => record.hasOwnProperty(acl) || record.acl === '*', // eslint-disable-line no-prototype-builtins
-    //   );
-    //   // Put DIDs urls and md5 hash into their respective lists (200 or 401)
-    //   const theFiles = accessibleDid.length > 0 ? ok200files : unauthorized401files;
-    //   theFiles[record.did] = { urls: record.urls, md5: record.md5 };
-    // });
 
     console.log(`http 200 files: ${JSON.stringify(ok200files)}`);
     console.log(`http 401 files: ${JSON.stringify(unauthorized401files)}`);
@@ -110,7 +91,8 @@ function performPreSignedURLTest(cloudProvider, typeOfTest) {
       if (typeOfTest == 'positive') {
         // AWS: s3:// | Google: gs://
         const preSignedURLPrefix = cloudProvider === 'AWS S3' ? 's3://' : 'gs://';
-  
+        
+        // filter the urls based on type of tests
         for (let key in ok200files) {
           ok200files[key].urls.forEach((url) => {
             if (url.startsWith(preSignedURLPrefix)) filteredDIDs.push(key, url);
@@ -168,15 +150,15 @@ BeforeSuite(async ({ I }) => {
   I.cache.records = httpResp.body.records;
 });
 
-// // Scenario #1 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
-// performPreSignedURLTest('Google Storage', 'negative');
+// Scenario #1 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
+performPreSignedURLTest('Google Storage', 'negative');
 
 // // Scenario #2 - Controlled Access Data - Google PreSignedURL test against DID the user can access
 performPreSignedURLTest('Google Storage', 'positive');
 
-// // Scenario #3 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
-// performPreSignedURLTest('AWS S3', 'negative');
+// Scenario #3 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
+performPreSignedURLTest('AWS S3', 'negative');
 
 // Scenario #4 - Controlled Access Data - Google PreSignedURL test against DID the user can access
-// performPreSignedURLTest('AWS S3', 'positive');
+performPreSignedURLTest('AWS S3', 'positive');
 
