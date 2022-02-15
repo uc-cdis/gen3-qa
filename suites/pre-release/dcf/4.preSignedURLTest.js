@@ -44,26 +44,24 @@ async function fetchDIDLists(I) {
     let ok200files = {}; // eslint-disable-line prefer-const
     // initialize dict of blocked DIDs
     let unauthorized401files = ['000008fc-6bdf-459e-b5a5-12345678']; // eslint-disable-line prefer-const
-    
-    let authorized200Project = ['*'];
 
-    for (i in projectAccessList) {
-      authorized200Project.push(i)
-    };
+    const authorized200Project = ['*'];
+
+    for (const i in projectAccessList) { // eslint-disable-line guard-for-in
+      authorized200Project.push(i);
+    }
     console.log(`Authorized project : ${JSON.stringify(authorized200Project)}`);
 
-    for (let project of authorized200Project) {
+    for (const project of authorized200Project) {
       const recordResp = await I.sendGetRequest(
         `https://${TARGET_ENVIRONMENT}/index/index?acl=${project}&limit=1`,
-      )
-      if ((recordResp.data['records'].length) == 0) {
-        console.log("No Record/DID");
-        continue;
+      );
+      if ((recordResp.data.records.length) === 0) {
+        console.log('No Record/DID');
+      } else {
+        ok200files[recordResp.data.records[0].did] = { urls: recordResp.data.records[0].urls };
       }
-      else {
-        ok200files[recordResp.data['records'][0].did] = { urls: recordResp.data['records'][0].urls };
-      };
-    };
+    }
 
     console.log(`http 200 files: ${JSON.stringify(ok200files)}`);
     console.log(`http 401 files: ${JSON.stringify(unauthorized401files)}`);
@@ -88,21 +86,20 @@ function performPreSignedURLTest(cloudProvider, typeOfTest) {
       // positive: _200files | negative: _401files
       // const listOfDIDs = typeOfTest === 'positive' ? ok200files : unauthorized401files;
       let filteredDIDs = [];
-      if (typeOfTest == 'positive') {
+      if (typeOfTest === 'positive') {
         // AWS: s3:// | Google: gs://
         const preSignedURLPrefix = cloudProvider === 'AWS S3' ? 's3://' : 'gs://';
-        
+
         // filter the urls based on type of tests
-        for (let key in ok200files) {
-          ok200files[key].urls.forEach((url) => {
+        for (const key in ok200files) { // eslint-disable-line guard-for-in
+          ok200files[key].urls.forEach((url) => { // eslint-disable-line no-loop-func
             if (url.startsWith(preSignedURLPrefix)) filteredDIDs.push(key, url);
           });
-        } 
-      }
-      else {
+        }
+      } else {
         filteredDIDs = unauthorized401files;
-      };
-      
+      }
+
       console.log('-------');
       console.log(filteredDIDs);
 
@@ -141,7 +138,7 @@ BeforeSuite(async ({ I }) => {
   I.cache = {};
   I.TARGET_ENVIRONMENT = TARGET_ENVIRONMENT;
   // Fetching public list of DIDs
-  // cache the indexd response if feasible - should be good solution for 
+  // cache the indexd response if feasible - should be good solution for
   // decreasing the execution time as the records arent changed
   const httpResp = await I.sendGetRequest(
     `https://${TARGET_ENVIRONMENT}/index/index`,
@@ -153,7 +150,7 @@ BeforeSuite(async ({ I }) => {
 // Scenario #1 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
 performPreSignedURLTest('Google Storage', 'negative');
 
-// // Scenario #2 - Controlled Access Data - Google PreSignedURL test against DID the user can access
+// Scenario #2 - Controlled Access Data - Google PreSignedURL test against DID the user can access
 performPreSignedURLTest('Google Storage', 'positive');
 
 // Scenario #3 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
@@ -161,4 +158,3 @@ performPreSignedURLTest('AWS S3', 'negative');
 
 // Scenario #4 - Controlled Access Data - Google PreSignedURL test against DID the user can access
 performPreSignedURLTest('AWS S3', 'positive');
-

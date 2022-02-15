@@ -44,7 +44,7 @@ async function collectUserInput(I) {
 function performSvcAcctRegistrationTest(typeOfTest, testInstructions) {
   Scenario(`Register Google IAM Service Account: ${typeOfTest} @manual`, ifInteractive(
     async ({ I, fence }) => {
-      console.log("## NOTE - Please link Google account from customer GCP account to your NIH user before providing ACCESS_TOKEN")
+      console.log('## NOTE - Please link Google account from customer GCP account to your NIH user before providing ACCESS_TOKEN');
       await collectUserInput(I);
       // console.log('access token: ' + I.cache.ACCESS_TOKEN);
       const httpResp = await fence.do.registerGoogleServiceAccount(
