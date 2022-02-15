@@ -44,6 +44,7 @@ async function collectUserInput(I) {
 function performSvcAcctRegistrationTest(typeOfTest, testInstructions) {
   Scenario(`Register Google IAM Service Account: ${typeOfTest} @manual`, ifInteractive(
     async ({ I, fence }) => {
+      console.log("## NOTE - Please link Google account from customer GCP account to your NIH user before providing ACCESS_TOKEN")
       await collectUserInput(I);
       // console.log('access token: ' + I.cache.ACCESS_TOKEN);
       const httpResp = await fence.do.registerGoogleServiceAccount(
@@ -54,6 +55,7 @@ function performSvcAcctRegistrationTest(typeOfTest, testInstructions) {
         typeOfTest === 'dryRunRegistration',
       );
       const result = await interactive(`
+              NOTE : LOGOUT AND LOGIN BACK TO GET NEW ACCESS_TOKEN FOR THIS TEST 
               1. [Automated] Send a HTTP POST request with the NIH user's ACCESS TOKEN to register a service account:
               HTTP POST request to: https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.registerGoogleServiceAccount}${typeOfTest !== 'dryRunRegistration' ? '' : '/_dry_run'}
               Manual verification:
