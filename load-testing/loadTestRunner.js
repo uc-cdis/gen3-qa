@@ -103,6 +103,16 @@ async function runLoadTestScenario() {
     listOfDIDs = testDescriptorData.presigned_url_guids ? testDescriptorData.presigned_url_guids : [''];
   }
 
+  const mtlsDomain = testDescriptorData.MTLS_DOMAIN ? testDescriptorData.MTLS_DOMAIN : '';
+  loadTestArgs.unshift(`MTLS_DOMAIN=${mtlsDomain}`);
+  loadTestArgs.unshift('-e');
+  const mtlsCert = testDescriptorData.MTLS_CERT ? testDescriptorData.MTLS_CERT : '';
+  loadTestArgs.unshift(`MTLS_CERT=${mtlsCert}`);
+  loadTestArgs.unshift('-e');
+  const mtlsKey = testDescriptorData.MTLS_KEY ? testDescriptorData.MTLS_KEY : '';
+  loadTestArgs.unshift(`MTLS_KEY=${mtlsKey}`);
+  loadTestArgs.unshift('-e');
+
   const passportsList = testDescriptorData.passports_list ? testDescriptorData.passports_list : '';
   loadTestArgs.unshift(`PASSPORTS_LIST=${passportsList}`);
   loadTestArgs.unshift('-e');
