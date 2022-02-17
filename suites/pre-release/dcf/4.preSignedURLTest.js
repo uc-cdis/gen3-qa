@@ -14,6 +14,22 @@ const {
 // Test elaborated for nci-crdc but it can be reused in other projects
 const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'nci-crdc-staging.datacommons.io';
 
+// 1. create a file to be uploaded to indexd (done)
+// 2. upload the record to indexd - beforeSuite (done)
+// 3. get the Guid Id for the files 
+// 4. try to create presignedurl
+// 5. delete the record from indexd - afterSuite (done)
+
+const files = {
+  file1: {
+    filename: 'invalid_test_file1',
+    link: 's3://cdis-presigned-url-test/testdata',
+    md5: '',
+    acl: ['phs000bad'],
+    size: 9,
+  },
+};
+
 function assembleCustomHeaders(ACCESS_TOKEN) {
   // Add ACCESS_TOKEN to custom headers
   return {
@@ -39,12 +55,13 @@ async function fetchDIDLists(I) {
     ).then((res) => new Gen3Response(res));
 
     const projectAccessList = httpResp.body.project_access;
-
+    
     // initialize dict of accessible DIDs
     let ok200files = {}; // eslint-disable-line prefer-const
     // initialize dict of blocked DIDs
-    let unauthorized401files = ['000008fc-6bdf-459e-b5a5-12345678']; // eslint-disable-line prefer-const
+    let unauthorized401files = {}; // eslint-disable-line prefer-const
 
+    // assemble 200 authorized ids
     const authorized200Project = ['*'];
 
     for (const i in projectAccessList) { // eslint-disable-line guard-for-in
@@ -53,15 +70,21 @@ async function fetchDIDLists(I) {
     console.log(`Authorized project : ${JSON.stringify(authorized200Project)}`);
 
     for (const project of authorized200Project) {
-      const recordResp = await I.sendGetRequest(
+      const record200Resp = await I.sendGetRequest(
         `https://${TARGET_ENVIRONMENT}/index/index?acl=${project}&limit=1`,
       );
-      if ((recordResp.data.records.length) === 0) {
+      if ((record200Resp.data.records.length) === 0) {
         console.log('No Record/DID');
       } else {
-        ok200files[recordResp.data.records[0].did] = { urls: recordResp.data.records[0].urls };
+        ok200files[record200Resp.data.records[0].did] = { urls: record200Resp.data.records[0].urls };
       }
     }
+
+    // assemble 401 unauthorized ids
+    const record401Resp = await I.sendGetRequest(
+      `https://${TARGET_ENVIRONMENT}/index/index?acl=phs000bad`,
+    );
+    unauthorized401files[record401Resp.data.records[0].did] = { urls: record401Resp.data.records[0].urls}
 
     console.log(`http 200 files: ${JSON.stringify(ok200files)}`);
     console.log(`http 401 files: ${JSON.stringify(unauthorized401files)}`);
@@ -133,7 +156,7 @@ function performPreSignedURLTest(cloudProvider, typeOfTest) {
   ));
 }
 
-BeforeSuite(async ({ I }) => {
+BeforeSuite(async ({ I, indexd }) => {
   console.log('Setting up dependencies...');
   I.cache = {};
   I.TARGET_ENVIRONMENT = TARGET_ENVIRONMENT;
@@ -145,6 +168,13 @@ BeforeSuite(async ({ I }) => {
   ).then((res) => new Gen3Response(res));
 
   I.cache.records = httpResp.body.records;
+
+  const ok = await indexd.do.addFileIndices(Object.values(files));
+  expect(ok).to.be.true;
+});
+
+AfterSuite(async ({ indexd }) => {
+  await indexd.do.deleteFileIndices(Object.values(files));
 });
 
 // Scenario #1 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
