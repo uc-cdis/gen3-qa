@@ -11,6 +11,7 @@ const {
   Gen3Response, requestUserInput,
 } = require('../../../utils/apiUtil');
 
+
 // Test elaborated for nci-crdc but it can be reused in other projects
 const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'nci-crdc-staging.datacommons.io';
 
@@ -21,11 +22,12 @@ const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'nci-crdc-stagin
 // 5. delete the record from indexd - afterSuite (done)
 
 const files = {
-  file1: {
-    filename: 'invalid_test_file1',
-    link: 's3://cdis-presigned-url-test/testdata',
-    md5: '',
-    acl: ['phs000bad'],
+  phs000BadFile1: {
+    file_name: 'invalid_test_file1',
+    urls: [ 's3://cdis-presigned-url-test/testdata' ],
+    form: 'object',
+    hashes: { md5: 'b93da58abe894cab4682b1260e4e085b' }, // pragma: allowlist secret
+    acl: [ 'phs000bad' ],
     size: 9,
   },
 };
@@ -41,10 +43,6 @@ function assembleCustomHeaders(ACCESS_TOKEN) {
 
 // TODO: Consolidate some of the common scenarios across other executable tests to avoid duplicates
 // e.g., The "fetchDIDLists()" function is also included in suites/apis/dataStageOIDCFlowTest.js
-
-// solution
-// TODO: Verify better approach to find DIDs for positive and negative tests based
-// on the "/index?acl=<acl>" API call
 
 async function fetchDIDLists(I) {
   // Only assemble the didList if the list hasn't been initialized
@@ -80,11 +78,12 @@ async function fetchDIDLists(I) {
       }
     }
 
+    // manual way
     // assemble 401 unauthorized ids
-    const record401Resp = await I.sendGetRequest(
-      `https://${TARGET_ENVIRONMENT}/index/index?acl=phs000bad`,
-    );
-    unauthorized401files[record401Resp.data.records[0].did] = { urls: record401Resp.data.records[0].urls}
+    // const record401Resp = await I.sendGetRequest(
+    //   `https://${TARGET_ENVIRONMENT}/index/index?acl=phs000bad`,
+    // );
+    // unauthorized401files[record401Resp.data.records[0].did] = { urls: record401Resp.data.records[0].urls}
 
     console.log(`http 200 files: ${JSON.stringify(ok200files)}`);
     console.log(`http 401 files: ${JSON.stringify(unauthorized401files)}`);
@@ -101,27 +100,28 @@ async function fetchDIDLists(I) {
 function performPreSignedURLTest(cloudProvider, typeOfTest) {
   Scenario(`Perform ${cloudProvider} PreSigned URL ${typeOfTest} test against DID@manual`, ifInteractive(
     async ({ I, fence }) => {
-      if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
+      let filteredDIDs = [];
+      if (I.cache.ACCESS_TOKEN) {
+
       // Obtain project access list to determine which files(DIDs) the user can access
       // two lists: http 200 files and http 401 files
-      const { ok200files, unauthorized401files } = await fetchDIDLists(I);
+        const { ok200files, unauthorized401files } = await fetchDIDLists(I);
 
       // positive: _200files | negative: _401files
-      // const listOfDIDs = typeOfTest === 'positive' ? ok200files : unauthorized401files;
-      let filteredDIDs = [];
-      if (typeOfTest === 'positive') {
+        if (typeOfTest === 'positive') {
         // AWS: s3:// | Google: gs://
         const preSignedURLPrefix = cloudProvider === 'AWS S3' ? 's3://' : 'gs://';
 
         // filter the urls based on type of tests
-        for (const key in ok200files) { // eslint-disable-line guard-for-in
-          ok200files[key].urls.forEach((url) => { // eslint-disable-line no-loop-func
-            if (url.startsWith(preSignedURLPrefix)) filteredDIDs.push(key, url);
-          });
+          for (const key in ok200files) { // eslint-disable-line guard-for-in
+            ok200files[key].urls.forEach((url) => { // eslint-disable-line no-loop-func
+              if (url.startsWith(preSignedURLPrefix)) filteredDIDs.push(key, url);
+            });
+          }
+        } else {
+          filteredDIDs = unauthorized401files;
         }
-      } else {
-        filteredDIDs = unauthorized401files;
-      }
+      };
 
       console.log('-------');
       console.log(filteredDIDs);
@@ -156,7 +156,7 @@ function performPreSignedURLTest(cloudProvider, typeOfTest) {
   ));
 }
 
-BeforeSuite(async ({ I, indexd }) => {
+BeforeSuite(async ({ I }) => {
   console.log('Setting up dependencies...');
   I.cache = {};
   I.TARGET_ENVIRONMENT = TARGET_ENVIRONMENT;
@@ -168,23 +168,45 @@ BeforeSuite(async ({ I, indexd }) => {
   ).then((res) => new Gen3Response(res));
 
   I.cache.records = httpResp.body.records;
-
-  const ok = await indexd.do.addFileIndices(Object.values(files));
-  expect(ok).to.be.true;
+  
+  console.log('Getting user ACCESS_TOKEN: ');
+  I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
 });
 
-AfterSuite(async ({ indexd }) => {
-  await indexd.do.deleteFileIndices(Object.values(files));
+Before(async ({ I }) => {
+    console.log('Uploading ...');
+    // upload const files to indexd
+    const uploadResp = await I.sendPostRequest(
+      `https://${TARGET_ENVIRONMENT}/index/index`,
+      files.phs000BadFile1,
+      { Authorization: I.cache.ACCESS_TOKEN }
+    )
+    console.log(uploadResp);
+    // get the GUID for the recently upload record
+    I.cache.GUID = uploadResp.data.record.did;
+    console.log(I.cache.GUID);
+    I.cache.URL = uploadResp.data.record.urls;
+    console.log(I.cache.URL);
+    I.cache.REV = upload.data.record.rev;
+    console.log(I.cache.REV);
 });
 
-// Scenario #1 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
-performPreSignedURLTest('Google Storage', 'negative');
+After(async ({ I }) => {  
+  console.log('Deleting indexd record ... ');
+  const deleteFiles = I.sendDeleteRequest(
+    `https://${TARGET_ENVIRONMENT}/index/index/${I.cache.GUID}?rev=${I.cache.REV}`,
+    I.cache.ACCESS_TOKEN
+  )
+});
 
-// Scenario #2 - Controlled Access Data - Google PreSignedURL test against DID the user can access
-performPreSignedURLTest('Google Storage', 'positive');
+// // Scenario #1 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
+// performPreSignedURLTest('Google Storage', 'negative');
+
+// // Scenario #2 - Controlled Access Data - Google PreSignedURL test against DID the user can access
+// performPreSignedURLTest('Google Storage', 'positive');
 
 // Scenario #3 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
 performPreSignedURLTest('AWS S3', 'negative');
 
-// Scenario #4 - Controlled Access Data - Google PreSignedURL test against DID the user can access
-performPreSignedURLTest('AWS S3', 'positive');
+// // Scenario #4 - Controlled Access Data - Google PreSignedURL test against DID the user can access
+// performPreSignedURLTest('AWS S3', 'positive');
