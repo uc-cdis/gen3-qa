@@ -41,10 +41,12 @@ async function writeMetrics(measurement, test) {
 
   // Jenkins metrics
   let numberOfPRsWaitingInTheQueue = 0;
+  console.log(`### process.env.JENKINS_HOME: ${process.env.JENKINS_HOME}`);
   if (process.env.JENKINS_HOME && process.env.RUNNING_LOCAL !== 'true') {
     numberOfPRsWaitingInTheQueue = await fetchJenkinsMetrics();
+    console.log(`###### numberOfPRsWaitingInTheQueue: ${numberOfPRsWaitingInTheQueue}`);
   }
-
+  console.log(`### numberOfPRsWaitingInTheQueue: ${numberOfPRsWaitingInTheQueue}`);
   // define information to write into time-series db
   const fieldInfo = measurement === 'run_time' ? test.duration / 1000 : 1;
 
