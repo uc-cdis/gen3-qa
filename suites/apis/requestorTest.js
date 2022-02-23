@@ -1,4 +1,4 @@
-Feature('RequestorAPI');
+Feature('RequestorAPI @requires-requestor');
 
 /**
   This set of integration tests test the flow of requestor service

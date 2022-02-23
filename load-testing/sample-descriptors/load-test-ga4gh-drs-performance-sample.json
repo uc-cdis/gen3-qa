@@ -2,7 +2,7 @@
     "objective": "GA4GH DRS API Performance Test",
     "service": "ga4gh",
     "details": {
-      "name": "qa-dcp.planx-plan.net",
+      "name": "qa-dcp.planx-pla.net",
       "UWSGI_PROCESSES": 1,
       "fence_autoscaler": {
         "min": 10,
@@ -21,5 +21,8 @@
     "override_access_token": "test",
     "GEN3_HOST": "avantol.planx-plan.net",
     "ACCESS_TOKEN": "",
-    "SIGNED_URL_PROTOCOL": "s3"
+    "SIGNED_URL_PROTOCOL": "s3",
+    "MTLS_DOMAIN": "qa-dcp.planx-pla.net",
+    "MTLS_CERT": "mtls.crt",
+    "MTLS_KEY": "mtls.key"
 }
