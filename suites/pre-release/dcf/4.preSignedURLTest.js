@@ -186,13 +186,13 @@ After(async ({ I }) => {
 });
 
 // Scenario #1 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
-// performPreSignedURLTest('Google Storage', 'negative');
+performPreSignedURLTest('Google Storage', 'negative');
 
 // Scenario #2 - Controlled Access Data - Google PreSignedURL test against DID the user can access
 performPreSignedURLTest('Google Storage', 'positive');
 
 // Scenario #3 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
-// performPreSignedURLTest('AWS S3', 'negative');
+performPreSignedURLTest('AWS S3', 'negative');
 
 // Scenario #4 - Controlled Access Data - Google PreSignedURL test against DID the user can access
 performPreSignedURLTest('AWS S3', 'positive');
