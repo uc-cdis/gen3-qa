@@ -30,8 +30,8 @@ async function fetchJenkinsMetrics() {
 
 async function writeMetrics(measurement, test) {
   // github metrics
-  let prName = '';
-  let repoName = '';
+  let prName = 'UNDEFINED';
+  let repoName = 'UNDEFINED';
   try {
     prName = process.env.BRANCH_NAME.split('-')[1]; // eslint-disable-line prefer-destructuring
     repoName = process.env.JOB_NAME.split('/')[1]; // eslint-disable-line prefer-destructuring
@@ -103,7 +103,9 @@ module.exports = async function () {
     // eslint-disable-next-line no-underscore-dangle
     console.log(`CURRENT RETRY - ${test._currentRetry}`);
     console.log(`TIMESTAMP: ${new Date()}`);
-    console.log(`JENKINS_QUEUE_LENGTH: ${JSON.stringify(await fetchJenkinsMetrics())}`);
+    if (process.env.JENKINS_HOME && process.env.RUNNING_LOCAL !== 'true') {
+      console.log(`JENKINS_QUEUE_LENGTH: ${JSON.stringify(await fetchJenkinsMetrics())}`);
+    }
     console.log(`TEST_DURATION: ${test.duration / 1000}s`);
     console.log('********');
     // console.log(stringify(test));

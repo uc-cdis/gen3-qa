@@ -260,7 +260,7 @@ runTestsIfServiceVersion "@requestor" "arborist" "3.2.0" "2021.12"
 #   echo "indexd is not deployed.Skip all tests required indexd.."
 #   donot '@requires-indexd'
 # fi
-listVar="arborist fence guppy indexd manifestservice pelican peregrine pidgin portal sheepdog sower tube mariner audit requestor"
+listVar="arborist fence guppy indexd manifestservice metadata pelican peregrine pidgin portal sheepdog sower tube mariner audit requestor"
 for svc_name in $listVar; do
     export isServiceDeployed=$(ifServiceDeployed $svc_name)
     if [ -z "$isServiceDeployed" ] || [ "$isServiceDeployed" = "null" ]; then

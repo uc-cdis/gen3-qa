@@ -16,7 +16,7 @@ module.exports = {
   },
 
   // Create a new Python 3 notebook, run a command and capture the output
-  async runCommandinPythonNotebook(command) {
+  async runCommandinPythonNotebook(command, expectedOutput = null) {
     I.switchTo('iframe');
     // Click on the New button in Jupyter notebook
     I.click(props.jupyterNbNewButton);
@@ -29,7 +29,12 @@ module.exports = {
     I.type(command);
     I.click(props.jupyterNbRunButton);
     // Capture the output
-    const output = await I.grabTextFrom(props.jupyterNbOutput);
+    let output = null;
+    if (expectedOutput === null) {
+      I.dontSeeElement(props.jupyterNbOutput, 5);
+    } else {
+      output = await I.grabTextFrom(props.jupyterNbOutput);
+    }
     I.saveScreenshot('workspace.tasks.runCommandinPythonNotebook.png');
     I.switchTo();
     return output;
