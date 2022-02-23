@@ -11,19 +11,18 @@ const {
   Gen3Response, requestUserInput,
 } = require('../../../utils/apiUtil');
 
-
 // Test elaborated for nci-crdc but it can be reused in other projects
 const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'nci-crdc-staging.datacommons.io';
 
-let filteredDIDs = {};
+const filteredDIDs = {};
 
 const files = {
   phs000BadFile1: {
     file_name: 'invalid_test_file1',
-    urls: [ 's3://cdis-presigned-url-test/testdata', 'gs://cdis-presigned-url-test/testdata' ],
+    urls: ['s3://cdis-presigned-url-test/testdata', 'gs://cdis-presigned-url-test/testdata'],
     form: 'object',
     hashes: { md5: 'b93da58abe894cab4682b1260e4e085b' }, // pragma: allowlist secret
-    acl: [ 'phs000bad' ],
+    acl: ['phs000bad'],
     size: 9,
   },
 };
@@ -49,7 +48,7 @@ async function fetchDIDLists(I) {
     ).then((res) => new Gen3Response(res));
 
     const projectAccessList = httpResp.body.project_access;
-    
+
     // initialize dict of accessible DIDs
     let ok200files = {}; // eslint-disable-line prefer-const
     // initialize dict of blocked DIDs
@@ -69,7 +68,9 @@ async function fetchDIDLists(I) {
       if ((record200Resp.data.records.length) === 0) {
         console.log('No Record/DID');
       } else {
-        ok200files[record200Resp.data.records[0].did] = { urls: record200Resp.data.records[0].urls };
+        ok200files[record200Resp.data.records[0].did] = {
+          urls: record200Resp.data.records[0].urls,
+        };
       }
     }
 
@@ -77,7 +78,7 @@ async function fetchDIDLists(I) {
     const record401Resp = await I.sendGetRequest(
       `https://${TARGET_ENVIRONMENT}/index/index/${I.cache.GUID}`,
     );
-    unauthorized401files[record401Resp.data.did] = { urls: record401Resp.data.urls}
+    unauthorized401files[record401Resp.data.did] = { urls: record401Resp.data.urls };
 
     console.log(`http 200 files: ${JSON.stringify(ok200files)}`);
     console.log(`http 401 files: ${JSON.stringify(unauthorized401files)}`);
@@ -94,26 +95,24 @@ async function fetchDIDLists(I) {
 function performPreSignedURLTest(cloudProvider, typeOfTest) {
   Scenario(`Perform ${cloudProvider} PreSigned URL ${typeOfTest} test against DID@manual`, ifInteractive(
     async ({ I, fence }) => {
-      
       if (I.cache.ACCESS_TOKEN) {
-
       // Obtain project access list to determine which files(DIDs) the user can access
-      // two lists: http 200 files and http 401 files
+        // two lists: http 200 files and http 401 files
         const { ok200files, unauthorized401files } = await fetchDIDLists(I);
 
         const listOfDIDs = typeOfTest === 'positive' ? ok200files : unauthorized401files;
         console.log('####');
         console.log(`The Selected List of DIDs : ${JSON.stringify(listOfDIDs)}`);
-        
+
         // AWS: s3:// | Google: gs://
         const preSignedURLPrefix = cloudProvider === 'AWS S3' ? 's3://' : 'gs://';
-        
+
         for (const key in listOfDIDs) { // eslint-disable-line guard-for-in
           listOfDIDs[key].urls.forEach((url) => { // eslint-disable-line no-loop-func
-            if (url.startsWith(preSignedURLPrefix)) filteredDIDs[key]=url;
+            if (url.startsWith(preSignedURLPrefix)) filteredDIDs[key] = url;
           });
         }
-      };
+      }
 
       console.log('####');
       console.log(filteredDIDs);
@@ -158,41 +157,42 @@ BeforeSuite(async ({ I }) => {
   // ).then((res) => new Gen3Response(res));
 
   // I.cache.records = httpResp.body.records;
-  
+
   console.log('Getting user ACCESS_TOKEN: ');
   I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
 });
 
 Before(async ({ I }) => {
-    console.log('Uploading ...');
-    // upload const files to indexd
-    const uploadResp = await I.sendPostRequest(
-      `https://${TARGET_ENVIRONMENT}/index/index`,
-      files.phs000BadFile1,
-      assembleCustomHeaders(I.cache.ACCESS_TOKEN)
-    )
-    console.log(`The Upload Record : ${JSON.stringify(uploadResp.data)}`);
-    // get the GUID for the recently upload record
-    I.cache.GUID = uploadResp.data.did;
-    I.cache.REV = uploadResp.data.rev;
+  console.log('Uploading ...');
+  // upload const files to indexd
+  const uploadResp = await I.sendPostRequest(
+    `https://${TARGET_ENVIRONMENT}/index/index`,
+    files.phs000BadFile1,
+    assembleCustomHeaders(I.cache.ACCESS_TOKEN),
+  );
+  console.log(`The Upload Record : ${JSON.stringify(uploadResp.data)}`);
+  // get the GUID for the recently upload record
+  I.cache.GUID = uploadResp.data.did;
+  I.cache.REV = uploadResp.data.rev;
 });
 
-After(async ({ I }) => {  
+After(async ({ I }) => {
   console.log('Deleting indexd record ... ');
   const deleteFiles = await I.sendDeleteRequest(
     `https://${TARGET_ENVIRONMENT}/index/index/${I.cache.GUID}?rev=${I.cache.REV}`,
-    assembleCustomHeaders(I.cache.ACCESS_TOKEN)
-  )
+    assembleCustomHeaders(I.cache.ACCESS_TOKEN),
+  );
+  console.log(deleteFiles.status);
 });
 
 // Scenario #1 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
-performPreSignedURLTest('Google Storage', 'negative');
+// performPreSignedURLTest('Google Storage', 'negative');
 
 // Scenario #2 - Controlled Access Data - Google PreSignedURL test against DID the user can access
 performPreSignedURLTest('Google Storage', 'positive');
 
 // Scenario #3 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
-performPreSignedURLTest('AWS S3', 'negative');
+// performPreSignedURLTest('AWS S3', 'negative');
 
 // Scenario #4 - Controlled Access Data - Google PreSignedURL test against DID the user can access
 performPreSignedURLTest('AWS S3', 'positive');
