@@ -270,10 +270,17 @@ Scenario('Mutate manifest-guppy config and roll guppy so the recently-submitted 
       console.log(`${new Date()}: The new indices did not show up on guppy's status payload yet...`);
       await sleepMS(5000);
       if (i === nAttempts - 1) {
-        console.log(`${new Date()}: The new guppy pod never came up with the new indices.`);
-        // TODO: Capture logs from guppy pod that failed to come up
-        // fail fast (there is no point in running the remaining scenarios)
-        throw new Error('The new guppy pod never came up with the new indices');
+        // TODO: fail fast (there is no point in running the remaining scenarios)
+        const errMsg = `${new Date()}: The new guppy pod never came up with the expected indices: Details: ${guppyStatusCheckResp.data}`;
+        console.log(errMsg);
+        console.log(`err: ${guppyStatusCheckResp.data}`);
+        // getting guppy pod logs
+        const guppyPodLogs = await bash.runCommand('g3kubectl logs -l app=guppy');
+        console.log(`###### ##### ### DEBUGGING new guppy pod not coming up ok: ${guppyPodLogs}`);
+        // checking if the mutation was correctly done
+        const checkGuppyConfig = await bash.runCommand('g3kubectl get cm manifest-guppy -o yaml');
+        console.log(`###### ##### ### DEBUGGING manifest-guppy: ${checkGuppyConfig}`);
+        throw new Error(`ERROR: ${errMsg}`);
       }
     }
   }
