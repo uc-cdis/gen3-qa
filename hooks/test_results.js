@@ -22,7 +22,10 @@ async function fetchJenkinsMetrics() {
         password: process.env.JENKINS_USER_API_TOKEN,
       },
     },
-  ).then((response) => response.data).catch((error) => {
+  ).then((response) => {
+    console.dir(response);
+    return response.data
+  }).catch((error) => {
     console.log(`error: ${JSON.stringify(error)}`);
   });
   return jenkinsQueueLength;
