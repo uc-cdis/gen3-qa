@@ -395,10 +395,9 @@ module.exports = {
           process.env.KUBECTL_NAMESPACE = process.env.NAMESPACE;
         }
         console.log(`### THE KUBECTL_NAMESPACE: ${process.env.KUBECTL_NAMESPACE}`);
-        const singleQuote = process.env.RUNNING_LOCAL === 'true' ? "\'\\'\'" : "'"; // eslint-disable-line quotes,no-useless-escape
         const podNameDebug = await bash.runCommand('echo "$KUBECTL_NAMESPACE"');
         console.log(`#### ### ## podNameDebug: ${podNameDebug}`);
-        const podName = await bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=${labelName} -o jsonpath="{.items[*].metadata.name}" | awk ${singleQuote}{print $NF}${singleQuote}`);
+        const podName = await bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=${labelName} -o jsonpath="{.items[*].metadata.name}" | awk "{print $NF}"`);
         console.log(`latest pod found: ${podName}`);
         if (!podFound) {
           if (podName.includes(jobName)) {

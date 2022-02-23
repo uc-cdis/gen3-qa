@@ -19,12 +19,12 @@
                 "run",
                 "--verbose",
                 "--grep",
-                "Navigate to the indexing page and upload a test manifest @indexing"
+                "@wip"
             ],
             "env": {
                 "RUNNING_LOCAL": "true",
                 "GEN3_SKIP_PROJ_SETUP": "true",
-                "NAMESPACE": "qa-midrc"
+                "NAMESPACE": "hara"
             },
         }
     ]

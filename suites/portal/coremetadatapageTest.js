@@ -1,4 +1,4 @@
-Feature('CoreMetadataPageTest @requires-indexd @requires-portal');
+Feature('CoreMetadataPageTest @requires-indexd @requires-portal @requires-pidgin');
 
 const I = actor();
 
