@@ -40,9 +40,11 @@ async function writeMetrics(measurement, test) {
   }
 
   // Jenkins metrics
-  let numberOfPRsWaitingInTheQueue = 0;
+  let numberOfPRsWaitingInTheQueue;
   if (process.env.JENKINS_HOME && process.env.RUNNING_LOCAL !== 'true') {
     numberOfPRsWaitingInTheQueue = await fetchJenkinsMetrics();
+  } else {
+    numberOfPRsWaitingInTheQueue = 0;
   }
 
   // define information to write into time-series db
@@ -98,7 +100,7 @@ module.exports = async function () {
   event.dispatcher.on(event.test.after, async (test) => {
     // logs
     console.log('********');
-    console.log(`TEST: ${test.name}`);
+    console.log(`TEST: ${test.title}`);
     console.log(`RESULT: ${test.state}`);
     // eslint-disable-next-line no-underscore-dangle
     console.log(`CURRENT RETRY - ${test._currentRetry}`);
