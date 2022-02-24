@@ -18,7 +18,7 @@ async function fetchJenkinsMetrics() {
     {
       params: {
         script: 'println(Hudson.instance.queue.items.length)',
-      }
+      },
     },
     {
       auth: {
@@ -28,7 +28,7 @@ async function fetchJenkinsMetrics() {
     },
   ).then((response) => {
     console.dir(response);
-    return response.data
+    return response.data;
   }).catch((error) => {
     console.log(`error: ${JSON.stringify(error)}`);
   });
