@@ -14,8 +14,7 @@ const testEnvironment = process.env.KUBECTL_NAMESPACE || os.hostname();
 
 async function fetchJenkinsMetrics() {
   const jenkinsQueueLength = await axios.post(
-    'https://jenkins.planx-pla.net/scriptText',
-    'script=println(Hudson.instance.queue.items.length)',
+    'https://jenkins.planx-pla.net/scriptText?script=println(Hudson.instance.queue.items.length)',
     {
       auth: {
         username: process.env.JENKINS_USERNAME,
