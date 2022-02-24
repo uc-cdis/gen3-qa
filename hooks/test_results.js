@@ -30,8 +30,8 @@ async function fetchJenkinsMetrics() {
 
 async function writeMetrics(measurement, test) {
   // github metrics
-  let prName = 'UNDEFINED';
-  let repoName = 'UNDEFINED';
+  let prName = '';
+  let repoName = '';
   try {
     prName = process.env.BRANCH_NAME.split('-')[1]; // eslint-disable-line prefer-destructuring
     repoName = process.env.JOB_NAME.split('/')[1]; // eslint-disable-line prefer-destructuring
@@ -40,12 +40,11 @@ async function writeMetrics(measurement, test) {
   }
 
   // Jenkins metrics
-  let numberOfPRsWaitingInTheQueue;
+  let numberOfPRsWaitingInTheQueue = 0;
   if (process.env.JENKINS_HOME && process.env.RUNNING_LOCAL !== 'true') {
     numberOfPRsWaitingInTheQueue = await fetchJenkinsMetrics();
-  } else {
-    numberOfPRsWaitingInTheQueue = 0;
   }
+
   // define information to write into time-series db
   const fieldInfo = measurement === 'run_time' ? test.duration / 1000 : 1;
 
@@ -99,14 +98,12 @@ module.exports = async function () {
   event.dispatcher.on(event.test.after, async (test) => {
     // logs
     console.log('********');
-    console.log(`TEST: ${test.title}`);
+    console.log(`TEST: ${test.name}`);
     console.log(`RESULT: ${test.state}`);
     // eslint-disable-next-line no-underscore-dangle
     console.log(`CURRENT RETRY - ${test._currentRetry}`);
     console.log(`TIMESTAMP: ${new Date()}`);
-    if (process.env.JENKINS_HOME && process.env.RUNNING_LOCAL !== 'true') {
-      console.log(`JENKINS_QUEUE_LENGTH: ${JSON.stringify(await fetchJenkinsMetrics())}`);
-    }
+    console.log(`JENKINS_QUEUE_LENGTH: ${JSON.stringify(await fetchJenkinsMetrics())}`);
     console.log(`TEST_DURATION: ${test.duration / 1000}s`);
     console.log('********');
     // console.log(stringify(test));
