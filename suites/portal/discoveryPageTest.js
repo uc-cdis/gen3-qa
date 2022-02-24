@@ -6,7 +6,7 @@ const { output } = require('codeceptjs');
 const I = actor();
 I.cache = {};
 
-Feature('Discovery page @discoveryPage @requires-portal');
+Feature('Discovery page @discoveryPage @requires-portal @requires-metadata');
 
 After(({ users, mds }) => {
   if ('studyId' in I.cache) {
@@ -23,8 +23,8 @@ Scenario('User is able to navigate to Discovery page', ({ discovery }) => {
   discovery.ask.isPageLoaded();
 });
 
-Scenario('Publish a study, search and export to workspace @aggMDS', async ({
-  mds, users, discovery, files, indexing, home,
+Scenario('Publish a study, search and export to workspace @aggMDS @requires-hatchery', async ({
+  mds, users, discovery, files, indexing, home, workspace,
 }) => {
   I.cache.did = uuid.v4();
   I.cache.studyId = uuid.v4();
@@ -39,6 +39,7 @@ Scenario('Publish a study, search and export to workspace @aggMDS', async ({
   I.cache.manifestFileName = Date.now();
   await files.createTmpFile(`${I.cache.manifestFileName}.tsv`, tsvManifestContents);
   indexing.do.indexManifest(users.indexingAcct, I.cache.manifestFileName);
+  I.saveScreenshot('1_indexed_tsv_manifest.png');
   home.complete.logout(users.indexingAcct);
 
   output.print('--- Publish study metadata');
@@ -63,6 +64,7 @@ Scenario('Publish a study, search and export to workspace @aggMDS', async ({
           file_name: 'discovery_test.csv',
           file_size: 16,
           object_id: `${I.cache.did}`,
+          commons_url: `${process.env.HOSTNAME}`,
         },
       ],
       study_name: 'BACPAC Research Consortium',
@@ -106,32 +108,37 @@ Scenario('Publish a study, search and export to workspace @aggMDS', async ({
 
   output.print('--- Perform tag search');
   discovery.do.tagSearch('TESTING', 'AUTOTEST Tag');
-  I.saveScreenshot('clicked_tag.png');
+  I.saveScreenshot('2_clicked_tag.png');
   discovery.ask.isStudyFound(I.cache.studyId);
 
   // Advanced search
   // I.refreshPage();
   // I.wait(2);
   // discovery.do.advancedSearch(['AUTOTEST Filter']);
-  // I.saveScreenshot('advanced_search.png');
+  // I.saveScreenshot('3_advanced_search.png');
   // discovery.ask.isStudyFound(I.cache.studyId);
 
   output.print('--- Perform text search');
   I.refreshPage();
   I.wait(2);
   discovery.do.textSearch('[AUTOTEST Title]');
-  I.saveScreenshot('entered_text.png');
+  I.saveScreenshot('4_entered_text.png');
   discovery.ask.isStudyFound(I.cache.studyId);
 
   output.print('--- Perform text search');
   I.refreshPage();
   I.wait(2);
   discovery.do.textSearch('[AUTOTEST Summary]');
-  I.saveScreenshot('entered_text.png');
+  I.saveScreenshot('5_entered_text.png');
   discovery.ask.isStudyFound(I.cache.studyId);
 
   output.print('--- Open study in workspace');
   discovery.do.openInWorkspace(I.cache.studyId);
-  I.saveScreenshot('open_in_workspace.png');
+  I.saveScreenshot('6_open_in_workspace.png');
   I.waitInUrl('/workspace', 60);
-}).tag('@discoveryPage', '@e2eTest');
+  await workspace.do.launchWorkspace('(Tutorial) Bacpac Synthetic Data Analysis Notebook');
+
+  output.print('--- Run `gen3 drs-pull object` in a new Python3 notebook');
+  await workspace.do.runCommandinPythonNotebook(`!gen3 drs-pull object --object_id ${I.cache.did}`);
+  I.saveScreenshot('7_run_drs_pull_in_notebook.png');
+}).tag('@discoveryPage', '@e2e');

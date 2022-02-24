@@ -30,8 +30,8 @@ async function fetchJenkinsMetrics() {
 
 async function writeMetrics(measurement, test) {
   // github metrics
-  let prName = '';
-  let repoName = '';
+  let prName = 'UNDEFINED';
+  let repoName = 'UNDEFINED';
   try {
     prName = process.env.BRANCH_NAME.split('-')[1]; // eslint-disable-line prefer-destructuring
     repoName = process.env.JOB_NAME.split('/')[1]; // eslint-disable-line prefer-destructuring
@@ -40,10 +40,10 @@ async function writeMetrics(measurement, test) {
   }
 
   // Jenkins metrics
-  let numberOfPRsWaitingInTheQueue = 0;
-  if (process.env.JENKINS_HOME && process.env.RUNNING_LOCAL !== 'true') {
-    numberOfPRsWaitingInTheQueue = await fetchJenkinsMetrics();
-  }
+  // let numberOfPRsWaitingInTheQueue = 0;
+  // if (process.env.JENKINS_HOME && process.env.RUNNING_LOCAL !== 'true') {
+  //   numberOfPRsWaitingInTheQueue = await fetchJenkinsMetrics();
+  // }
 
   // define information to write into time-series db
   const fieldInfo = measurement === 'run_time' ? test.duration / 1000 : 1;
@@ -57,7 +57,7 @@ async function writeMetrics(measurement, test) {
     suite_name: test.parent.title.split(' ').join('_'),
     test_name: test.title.split(' ').join('_'),
     ci_environment: testEnvironment,
-    jenkins_queue_items_length: numberOfPRsWaitingInTheQueue,
+    // jenkins_queue_items_length: numberOfPRsWaitingInTheQueue,
   };
   await influx.writePoints(
     [{
@@ -98,12 +98,12 @@ module.exports = async function () {
   event.dispatcher.on(event.test.after, async (test) => {
     // logs
     console.log('********');
-    console.log(`TEST: ${test.name}`);
+    console.log(`TEST: ${test.title}`);
     console.log(`RESULT: ${test.state}`);
     // eslint-disable-next-line no-underscore-dangle
     console.log(`CURRENT RETRY - ${test._currentRetry}`);
     console.log(`TIMESTAMP: ${new Date()}`);
-    console.log(`JENKINS_QUEUE_LENGTH: ${JSON.stringify(await fetchJenkinsMetrics())}`);
+    // console.log(`JENKINS_QUEUE_LENGTH: ${JSON.stringify(await fetchJenkinsMetrics())}`);
     console.log(`TEST_DURATION: ${test.duration / 1000}s`);
     console.log('********');
     // console.log(stringify(test));
