@@ -1,4 +1,7 @@
 const props = require('./workspaceProps.js');
+const { Bash } = require('../../../utils/bash.js');
+
+const bash = new Bash();
 
 const I = actor();
 
@@ -9,14 +12,16 @@ module.exports = {
     I.waitForElement(props.readyCue, 30);
   },
   // Launch a workspace
-  launchWorkspace(workspaceName) {
+  async launchWorkspace(workspaceName) {
+    const res = await bash.runCommand('gen3 ec2 asg-set-capacity jupyter +10');
+    console.dir(res);
     I.click(props.getLaunchButton(workspaceName));
     I.waitForElement(props.iframeWorkspace, 600);
     I.saveScreenshot('workspace.tasks.launchWorkspace.png');
   },
 
   // Create a new Python 3 notebook, run a command and capture the output
-  async runCommandinPythonNotebook(command) {
+  async runCommandinPythonNotebook(command, expectedOutput = null) {
     I.switchTo('iframe');
     // Click on the New button in Jupyter notebook
     I.click(props.jupyterNbNewButton);
@@ -29,7 +34,12 @@ module.exports = {
     I.type(command);
     I.click(props.jupyterNbRunButton);
     // Capture the output
-    const output = await I.grabTextFrom(props.jupyterNbOutput);
+    let output = null;
+    if (expectedOutput === null) {
+      I.dontSeeElement(props.jupyterNbOutput, 5);
+    } else {
+      output = await I.grabTextFrom(props.jupyterNbOutput);
+    }
     I.saveScreenshot('workspace.tasks.runCommandinPythonNotebook.png');
     I.switchTo();
     return output;
