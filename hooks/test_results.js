@@ -15,21 +15,14 @@ const testEnvironment = process.env.KUBECTL_NAMESPACE || os.hostname();
 async function fetchJenkinsMetrics() {
   const jenkinsQueueLength = await axios.post(
     'https://jenkins.planx-pla.net/scriptText',
-    {
-      params: {
-        script: 'println(Hudson.instance.queue.items.length)',
-      },
-    },
+    'script=println(Hudson.instance.queue.items.length)',
     {
       auth: {
         username: process.env.JENKINS_USERNAME,
         password: process.env.JENKINS_USER_API_TOKEN,
       },
     },
-  ).then((response) => {
-    console.dir(response);
-    return response.data;
-  }).catch((error) => {
+  ).then((response) => response.data).catch((error) => {
     console.log(`error: ${JSON.stringify(error)}`);
   });
   return jenkinsQueueLength;
