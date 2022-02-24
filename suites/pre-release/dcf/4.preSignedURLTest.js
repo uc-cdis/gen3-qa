@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 // Feature # 4 in the sequence of testing
 // This test plan has a few pre-requisites: Check prereq.md for more details.
 Feature('4. PreSigned URLs - DCF Staging testing for release sign off - PXP-3836');
@@ -13,8 +14,6 @@ const {
 
 // Test elaborated for nci-crdc but it can be reused in other projects
 const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'nci-crdc-staging.datacommons.io';
-
-const filteredDIDs = {};
 
 const files = {
   phs000BadFile1: {
@@ -95,6 +94,7 @@ async function fetchDIDLists(I) {
 function performPreSignedURLTest(cloudProvider, typeOfTest) {
   Scenario(`Perform ${cloudProvider} PreSigned URL ${typeOfTest} test against DID@manual`, ifInteractive(
     async ({ I, fence }) => {
+      const filteredDIDs = {};
       if (I.cache.ACCESS_TOKEN) {
       // Obtain project access list to determine which files(DIDs) the user can access
         // two lists: http 200 files and http 401 files
@@ -173,6 +173,7 @@ Before(async ({ I }) => {
   console.log(`The Upload Record : ${JSON.stringify(uploadResp.data)}`);
   // get the GUID for the recently upload record
   I.cache.GUID = uploadResp.data.did;
+  console.log(`### GUID of new upload file : ${I.cache.GUID}`);
   I.cache.REV = uploadResp.data.rev;
 });
 
@@ -185,11 +186,11 @@ After(async ({ I }) => {
   console.log(deleteFiles.status);
 });
 
-// Scenario #1 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
-performPreSignedURLTest('Google Storage', 'negative');
+// // Scenario #1 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
+// performPreSignedURLTest('Google Storage', 'negative');
 
-// Scenario #2 - Controlled Access Data - Google PreSignedURL test against DID the user can access
-performPreSignedURLTest('Google Storage', 'positive');
+// // Scenario #2 - Controlled Access Data - Google PreSignedURL test against DID the user can access
+// performPreSignedURLTest('Google Storage', 'positive');
 
 // Scenario #3 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
 performPreSignedURLTest('AWS S3', 'negative');
