@@ -1,4 +1,7 @@
 const props = require('./workspaceProps.js');
+const { Bash } = require('../../../utils/bash.js');
+
+const bash = new Bash();
 
 const I = actor();
 
@@ -9,7 +12,9 @@ module.exports = {
     I.waitForElement(props.readyCue, 30);
   },
   // Launch a workspace
-  launchWorkspace(workspaceName) {
+  async launchWorkspace(workspaceName) {
+    const res = await bash.runCommand('gen3 ec2 asg-set-capacity jupyter +3');
+    console.dir(res);
     I.click(props.getLaunchButton(workspaceName));
     I.waitForElement(props.iframeWorkspace, 600);
     I.saveScreenshot('workspace.tasks.launchWorkspace.png');
