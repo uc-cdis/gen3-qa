@@ -5,7 +5,7 @@ Pre-requisites for executing the tests:
     dummy-one@planx-pla.net has access to workspace
     dummy-one@planx-pla.net has access to a study (NIAID-ACTT in QA-NCT)
 */
-Feature('Export to Workspace from Study Viewer @requires-portal');
+Feature('Export to Workspace from Study Viewer @requires-portal @requires-hatchery');
 
 const { expect } = require('chai');
 const { interactive, ifInteractive } = require('../../utils/interactive.js');
