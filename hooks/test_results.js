@@ -15,14 +15,21 @@ const testEnvironment = process.env.KUBECTL_NAMESPACE || os.hostname();
 async function fetchJenkinsMetrics() {
   const jenkinsQueueLength = await axios.post(
     'https://jenkins.planx-pla.net/scriptText',
-    'script=println(Hudson.instance.queue.items.length)',
+    {
+      params: {
+        script: 'println(Hudson.instance.queue.items.length)',
+      },
+    },
     {
       auth: {
         username: process.env.JENKINS_USERNAME,
         password: process.env.JENKINS_USER_API_TOKEN,
       },
     },
-  ).then((response) => response.data).catch((error) => {
+  ).then((response) => {
+    console.dir(response);
+    return response.data;
+  }).catch((error) => {
     console.log(`error: ${JSON.stringify(error)}`);
   });
   return jenkinsQueueLength;
@@ -46,7 +53,6 @@ async function writeMetrics(measurement, test) {
   } else {
     numberOfPRsWaitingInTheQueue = 0;
   }
-
   // define information to write into time-series db
   const fieldInfo = measurement === 'run_time' ? test.duration / 1000 : 1;
 
