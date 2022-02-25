@@ -6,7 +6,7 @@ const { output } = require('codeceptjs');
 const I = actor();
 I.cache = {};
 
-Feature('Discovery page @discoveryPage @requires-portal @requires-metadata');
+Feature('Discovery page @discoveryPage @requires-portal @requires-metadata @requires-indexd');
 
 After(({ users, mds }) => {
   if ('studyId' in I.cache) {
