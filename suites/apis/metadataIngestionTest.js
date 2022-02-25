@@ -6,7 +6,7 @@
     within the sower config block (ingest-metadata-manifest & get-dbgap-metadata)
  3. Metadata Service (mds) must also be deployed
 */
-Feature('Metadata Ingestion @requires-sower @requires-mds @requires-indexd');
+Feature('Metadata Ingestion @requires-sower @requires-metadata @requires-indexd');
 
 const { expect } = require('chai');
 const { checkPod, sleepMS } = require('../../utils/apiUtil.js');
