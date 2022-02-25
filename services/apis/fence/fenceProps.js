@@ -95,7 +95,7 @@ module.exports = {
     createAPIKey: `${rootEndpoint}/credentials/api/`,
     deleteAPIKey: `${rootEndpoint}/credentials/api/cdis`,
     getAccessToken: `${rootEndpoint}/credentials/api/access_token`,
-    linkGoogle: `${rootEndpoint}/link/google?redirect=.`,
+    linkGoogle: `${rootEndpoint}/link/google?redirect=/login`,
     deleteGoogleLink: `${rootEndpoint}/link/google`,
     extendGoogleLink: `${rootEndpoint}/link/google`,
     registerGoogleServiceAccount: `${rootEndpoint}/google/service_accounts`,
