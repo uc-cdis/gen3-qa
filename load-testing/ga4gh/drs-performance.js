@@ -103,8 +103,8 @@ export default function () {
     requestBody = {
       passports: PASSPORTS_LIST.split(','),
     };
-    console.log(`Body for DRS requests: ${JSON.stringify(requestBody)}`);
   }
+  console.log(`Body for DRS requests: ${JSON.stringify(requestBody)}`);
 
   console.log('attempting to get random GUIDs...');
 
@@ -158,10 +158,13 @@ export default function () {
           k += 1) {
           const url = `https://${GEN3_HOST}/ga4gh/drs/v1/objects/${listOfDIDs[k]}/access/${SIGNED_URL_PROTOCOL}`;
 
-          console.log(`Adding request to batch: ${url}`);
+          console.log(`Adding request to batch: ${url} with body: ${requestBody}`);
           // batchRequests.push(['GET', url, requestBody, params]);
           batchRequests[`${listOfDIDs[k]}`] = {
-            method: 'GET', url, requestBody, params,
+            method: 'GET',
+            url: url,
+            body: requestBody,
+            params: params,
           };
           i = k;
         }
