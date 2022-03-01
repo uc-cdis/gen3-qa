@@ -91,7 +91,7 @@ export default function () {
       Authorization: `Bearer ${ACCESS_TOKEN}`,
     },
   };
-  let body = null;
+  let requestBody = null;
 
   if (PASSPORTS_LIST !== undefined && PASSPORTS_LIST !== null && PASSPORTS_LIST !== '') {
     console.log(`Passport list supplied: ${PASSPORTS_LIST}. Enabling GA4GH Passport flow to POST list of passports rather than use a Gen3 Access Token.`);
@@ -100,10 +100,10 @@ export default function () {
         'Content-Type': 'application/json',
       },
     };
-    body = {
+    requestBody = {
       passports: PASSPORTS_LIST.split(','),
     };
-    console.log(`Body for DRS requests: ${JSON.stringify(body)}`);
+    console.log(`Body for DRS requests: ${JSON.stringify(requestBody)}`);
   }
 
   console.log('attempting to get random GUIDs...');
@@ -159,9 +159,9 @@ export default function () {
           const url = `https://${GEN3_HOST}/ga4gh/drs/v1/objects/${listOfDIDs[k]}/access/${SIGNED_URL_PROTOCOL}`;
 
           console.log(`Adding request to batch: ${url}`);
-          // batchRequests.push(['GET', url, body, params]);
+          // batchRequests.push(['GET', url, requestBody, params]);
           batchRequests[`${listOfDIDs[k]}`] = {
-            method: 'GET', url, body, params,
+            method: 'GET', url, requestBody, params,
           };
           i = k;
         }
