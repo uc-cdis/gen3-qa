@@ -137,7 +137,7 @@ export default function () {
         accept: 'application/json',
       }, {});
 
-      body = JSON.parse(resp.body);
+      let body = JSON.parse(resp.body);
       for (const record of body.records) {
         listOfDIDs.push(record.did);
       }
