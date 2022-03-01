@@ -85,6 +85,8 @@ export const options = rawOptions;
 export default function () {
   const maxRetries = 5;
 
+  let method = 'GET';
+
   let params = {
     headers: {
       'Content-Type': 'application/json',
@@ -95,6 +97,7 @@ export default function () {
 
   if (PASSPORTS_LIST !== undefined && PASSPORTS_LIST !== null && PASSPORTS_LIST !== '') {
     console.log(`Passport list supplied: ${PASSPORTS_LIST}. Enabling GA4GH Passport flow to POST list of passports rather than use a Gen3 Access Token.`);
+    method = 'POST';
     params = {
       headers: {
         'Content-Type': 'application/json',
@@ -158,10 +161,10 @@ export default function () {
           k += 1) {
           const url = `https://${GEN3_HOST}/ga4gh/drs/v1/objects/${listOfDIDs[k]}/access/${SIGNED_URL_PROTOCOL}`;
 
-          console.log(`Adding request to batch: ${url} with body: ${requestBody}`);
+          console.log(`Adding request to batch: ${url}`);
           // batchRequests.push(['GET', url, requestBody, params]);
           batchRequests[`${listOfDIDs[k]}`] = {
-            method: 'GET',
+            method: method,
             url: url,
             body: requestBody,
             params: params,
