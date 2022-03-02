@@ -43,7 +43,7 @@ BeforeSuite(async ({ I }) => {
   const hosts = await getAllHost();
   for (let i = 0; i < hosts.length; i += 1) {
     // skip hosts not owned by CTDS
-    if (!hosts[i].includes('repo.data.nesi.org.nz') && !hosts[i].includes('data.agdr.org.nz')) { 
+    if (!hosts[i].includes('repo.data.nesi.org.nz') && !hosts[i].includes('data.agdr.org.nz')) {
       const guid = await getFirstGuidFromHost(hosts[i], I);
       I.cache.correctGuids.push(guid);
     }
