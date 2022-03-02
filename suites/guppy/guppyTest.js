@@ -1,4 +1,4 @@
-Feature('Guppy');
+Feature('Guppy @requires-guppy');
 
 const { sleepMS } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');

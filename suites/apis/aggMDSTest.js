@@ -1,4 +1,4 @@
-Feature('Aggregate Metadata Service @aggMDS');
+Feature('Aggregate Metadata Service @aggMDS @requires-mds');
 
 const uuid = require('uuid');
 const { expect } = require('chai');

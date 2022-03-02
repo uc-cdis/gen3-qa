@@ -1,4 +1,4 @@
-Feature('Dataguid.org');
+Feature('Dataguid.org @requires-portal');
 
 const { Bash } = require('../../utils/bash.js');
 

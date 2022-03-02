@@ -1,4 +1,4 @@
-Feature('AuditServiceAPI');
+Feature('AuditServiceAPI @requires-audit @requires-fence');
 
 /**
  * Because it can take a bit of time for audit logs to be processed, we test
@@ -89,7 +89,7 @@ Scenario('Audit: download presigned URL events @audit', async ({ fence, auditSer
     status_code: 401,
   });
 
-  // fail to request a presigned URL to download a file that does not exit
+  // fail to request a presigned URL to download a file that does not exist
   signedUrlRes = await fence.do.createSignedUrl(
     '123', // fake GUID
     [],

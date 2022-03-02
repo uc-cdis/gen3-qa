@@ -1,4 +1,4 @@
-Feature('Register User For Data Downloading');
+Feature('Register User For Data Downloading @requires-portal');
 
 /*
 USER STORIES
@@ -45,10 +45,10 @@ async function getAlltabs(I) {
     I.click(`//button[@role="tab"][position()=${i}]`);
     I.wait(2);
     I.saveScreenshot(`CheckButtonInTab${i}.png`);
-    const disabledbt = '//button[contains(text(),"Login to download") '
-                      + 'and @class="explorer-button-group__download-button g3-button g3-button--disabled"]';
+    const disabledbt = '//*[@class="g3-dropdown-button__wrapper g3-dropdown-button__wrapper--disabled "]';
     const btPending = await tryTo(() => I.waitForElement(disabledbt, 2)); // eslint-disable-line
     if (!btPending) {
+      I.waitForClickable('//button[contains(text(),"Login to download")]');
       console.log(`### ##Data in ${tabName} is available to download!`);
       I.cache.tabs.push(`//button[@role="tab"][position()=${i}]`);
     } else {
@@ -128,8 +128,8 @@ EOM`);
 AfterSuite(async () => {
   console.log('Deleting REGISTER_USERS_ON config to fence config');
   await bash.runCommand('gen3 secrets decode fence-config > fence_config_tmp.yaml; sed -i \'1d;$d\' fence_config_tmp.yaml');
-  // delete last two lines
-  await bash.runCommand('sed -i \'$d\' fence_config_tmp.yaml ; sed -i \'$d\' fence_config_tmp.yaml');
+  // delete lines contained the register user config
+  await bash.runCommand('sed -i \'/REGISTER_USERS_ON/d\' fence_config_tmp.yaml; sed -i \'/REGISTERED_USERS_GROUP/d\' fence_config_tmp.yaml');
   // update the secret
   const res = bash.runCommand('g3kubectl get secret fence-config -o json | jq --arg new_config "$(cat fence_config_tmp.yaml | base64)" \'.data["fence-config.yaml"]=$new_config\' | g3kubectl apply -f -');
   console.log(res);
@@ -153,6 +153,7 @@ Scenario('redirect to login page from the download button @registerUser',
       // Click the button
       I.waitForClickable('//button[contains(text(),"Login to download")][position()=1]', 5);
       I.click('//button[contains(text(),"Login to download")][position()=1]');
+      I.click('//button[@class=" g3-dropdown__item "]');
       I.wait(1);
       I.seeCurrentUrlEquals('/login');
       // go back to explore page
@@ -191,7 +192,8 @@ Scenario('register to get access to download data @registerUser',
       // Click the button
       I.waitForClickable('//button[contains(text(),"Download")][position()=1]', 5);
       I.click('//button[contains(text(),"Download")][position()=1]');
-      // TODO: check download url
+      I.click('//button[@class=" g3-dropdown__item "]');
+      // TODO: check download url and check all three file format
     }
   });
 
@@ -209,6 +211,7 @@ Scenario('registered user should have access to download data @registerUser',
       // Click the button
       I.waitForClickable('//button[contains(text(),"Download")][position()=1]', 5);
       I.click('//button[contains(text(),"Download")][position()=1]');
+      I.click('//button[@class=" g3-dropdown__item "]');
       // TODO: check download url
     }
   });
