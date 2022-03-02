@@ -42,6 +42,8 @@ BeforeSuite(async ({ I }) => {
   I.cache.correctGuids = [];
   const hosts = await getAllHost();
   for (let i = 0; i < hosts.length; i += 1) {
+    //skip hosts not owned by CTDS
+    if(hosts[i].includes("repo.data.nesi.org.nz") || hosts[i].includes("data.agdr.org.nz")) {continue;}
     const guid = await getFirstGuidFromHost(hosts[i], I);
     I.cache.correctGuids.push(guid);
   }
@@ -55,7 +57,7 @@ Scenario('Resolve guids with different prefixes or without prefix @dataguids', (
     I.fillField('#guidval', correctGuid);
     I.scrollIntoView('#resolveit');
     I.forceClick('#resolveit');
-    I.waitForText(correctGuid, 2, '#resolverresult');
+    I.waitForText(correctGuid, 30, '#resolverresult');
     I.see(`"id": "${correctGuid}"`);
   }
 });
@@ -81,4 +83,4 @@ Data(nonexistentGuids).Scenario('Negativetest resolving for non-exitent guids @d
 Data(nonexistentGuids).Scenario('Negativetest DRSendpoint with non-existent guids @dataguids', ({ I, current }) => {
   I.amOnPage(`${testURL}/ga4gh/dos/v1/dataobjects/${current.nguids}`);
   I.see('no record found');
-});
+}).retry(2);
