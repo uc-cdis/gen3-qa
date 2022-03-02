@@ -174,7 +174,6 @@ export default function () {
 
         // now we have a batch of requests ready
         console.log(`Prepared full batch of ${Object.keys(batchRequests).length} requests.`);
-        console.log(`    Detailed requests: ${JSON.stringify(batchRequests)}`);
         let failedRequestBatches = 0;
         for (let retries = maxRetries; retries > 0; retries -= 1) {
           console.log(`  Sending ${Object.keys(batchRequests).length} batched request(s)...`);
