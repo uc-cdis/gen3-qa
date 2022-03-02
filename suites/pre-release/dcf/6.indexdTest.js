@@ -11,6 +11,7 @@ const { interactive, ifInteractive } = require('../../../utils/interactive.js');
 const {
   Gen3Response, getAccessTokenHeader, requestUserInput,
 } = require('../../../utils/apiUtil');
+
 let httpStatus;
 
 // Test elaborated for nci-crdc but it can be reused in other projects
@@ -39,7 +40,7 @@ Scenario('Get public data record @manual', ifInteractive(
     );
     console.log(httpResp);
     if ((httpResp.length) !== 0) {
-      httpStatus = 200
+      httpStatus = 200;
     }
     const result = await interactive(`
               1. [Automated] Send a HTTP GET request to retrieve the IndexD record data from GUID [${guid}].
