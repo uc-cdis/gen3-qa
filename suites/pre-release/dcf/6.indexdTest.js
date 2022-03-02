@@ -11,6 +11,7 @@ const { interactive, ifInteractive } = require('../../../utils/interactive.js');
 const {
   Gen3Response, getAccessTokenHeader, requestUserInput,
 } = require('../../../utils/apiUtil');
+let httpStatus;
 
 // Test elaborated for nci-crdc but it can be reused in other projects
 const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'nci-crdc-staging.datacommons.io';
@@ -36,13 +37,16 @@ Scenario('Get public data record @manual', ifInteractive(
       { did: guid },
       { accessTokenHeader: getAccessTokenHeader(I.cache.ACCESS_TOKEN) },
     );
-
+    console.log(httpResp);
+    if ((httpResp.length) !== 0) {
+      httpStatus = 200
+    }
     const result = await interactive(`
               1. [Automated] Send a HTTP GET request to retrieve the IndexD record data from GUID [${guid}].
               HTTP GET request to: https://${TARGET_ENVIRONMENT}${indexdProps.endpoints.get}/${guid}
 
               Manual verification:
-                Response status: ${httpResp.status} // Expect a HTTP 200
+                Response status: ${httpStatus} // Expect a HTTP 200
                 Response data: ${JSON.stringify(httpResp)}
               // Expect response containing the index record details
             `);
