@@ -186,14 +186,14 @@ After(async ({ I }) => {
   console.log(deleteFiles.status);
 });
 
-// // Scenario #1 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
-// performPreSignedURLTest('Google Storage', 'negative');
+// Scenario #1 - Controlled Access Data - Google PreSignedURL test against DID the user can access
+performPreSignedURLTest('AWS S3', 'positive');
 
-// // Scenario #2 - Controlled Access Data - Google PreSignedURL test against DID the user can access
-// performPreSignedURLTest('Google Storage', 'positive');
-
-// Scenario #3 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
+// Scenario #2 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
 performPreSignedURLTest('AWS S3', 'negative');
 
-// Scenario #4 - Controlled Access Data - Google PreSignedURL test against DID the user can access
-performPreSignedURLTest('AWS S3', 'positive');
+// Scenario #3 - Controlled Access Data - Google PreSignedURL test against DID the user can access
+performPreSignedURLTest('Google Storage', 'positive');
+
+// Scenario #4 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
+performPreSignedURLTest('Google Storage', 'negative');
