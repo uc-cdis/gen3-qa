@@ -197,9 +197,3 @@ performPreSignedURLTest('Google Storage', 'positive');
 
 // Scenario #4 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
 performPreSignedURLTest('Google Storage', 'negative');
-
-
-
-
-
-
