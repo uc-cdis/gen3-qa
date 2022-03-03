@@ -135,7 +135,7 @@ Scenario('Publish a study, search and export to workspace @aggMDS @requires-hatc
   output.print('--- Open study in workspace');
   discovery.do.openInWorkspace(I.cache.studyId);
   I.saveScreenshot('6_open_in_workspace.png');
-  I.waitInUrl('/workspace', 60);
+  I.waitInUrl('/workspace', 120);
   await workspace.do.launchWorkspace('(Tutorial) Bacpac Synthetic Data Analysis Notebook');
 
   output.print('--- Run `gen3 drs-pull object` in a new Python3 notebook');
