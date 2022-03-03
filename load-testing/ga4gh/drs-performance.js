@@ -50,11 +50,14 @@ const {
   PASSPORTS_LIST,
   SIGNED_URL_PROTOCOL,
   NUM_PARALLEL_REQUESTS,
+  MTLS_DOMAIN,
+  MTLS_CERT,
+  MTLS_KEY,
 } = __ENV; // eslint-disable-line no-undef
 
 const myFailRate = new Rate('failed requests');
 
-export const options = {
+let rawOptions = { // eslint-disable-line prefer-const
   rps: 90000,
   thresholds: {
     http_req_duration: ['avg<3000', 'p(95)<15000'],
@@ -64,6 +67,20 @@ export const options = {
   noConnectionReuse: true,
   iterations: 1,
 };
+
+if (`${MTLS_DOMAIN}` !== 'test') {
+  console.log('Enabling Mutual TLS with the follow configuration:\n'
+    + `MTLS_DOMAIN: ${MTLS_DOMAIN}\nMTLS_CERT: ${MTLS_CERT}\nMTLS_KEY: ${MTLS_KEY}`); // eslint-disable-line
+  rawOptions.tlsAuth = [
+    {
+      domains: [`${MTLS_DOMAIN}`],
+      cert: open(MTLS_CERT), // eslint-disable-line no-restricted-globals
+      key: open(MTLS_KEY), // eslint-disable-line no-restricted-globals
+    },
+  ];
+}
+
+export const options = rawOptions;
 
 export default function () {
   const maxRetries = 5;
