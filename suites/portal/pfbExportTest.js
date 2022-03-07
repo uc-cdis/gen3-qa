@@ -391,7 +391,11 @@ Scenario('Visit the Explorer page, select a cohort, export to PFB and download t
   }
 }).retry(2);
 
-Scenario('Install the latest pypfb CLI version and make sure we can parse the avro file @pfbExport', async ({ I }) => {
+Scenario('Install the latest pypfb CLI version and make sure we can parse the avro file @pfbExport', async ({ I, files }) => {
+  // this file we need is created by the previous test, so fail this test if
+  // the previous test did not create it
+  expect(files.fileExists(`./test_export_${I.cache.UNIQUE_NUM}.avro`), 'A "test_export_<unique number>.avro" file should have been created by previous test').to.be.true;
+
   const pyPfbInstallationOutput = await bash.runCommand(`python3.8 -m venv pfb_test && source pfb_test/bin/activate && pip install pypfb && ${I.cache.WORKSPACE}/gen3-qa/pfb_test/bin/pfb`);
   console.log(`${new Date()}: pyPfbInstallationOutput = ${pyPfbInstallationOutput}`);
 
