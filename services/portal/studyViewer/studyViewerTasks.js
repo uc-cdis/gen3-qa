@@ -38,6 +38,7 @@ module.exports = {
     await I.seeElement(studyViewerProps.activeDivClass);
     await I.seeElement(studyViewerProps.learnMoreButtonXPath);
     I.click(studyViewerProps.learnMoreButtonXPath);
+    I.wait(5);
     await I.seeElement(studyViewerProps.datasetDivClass);
   },
 
