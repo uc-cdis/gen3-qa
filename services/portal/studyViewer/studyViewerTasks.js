@@ -62,7 +62,7 @@ module.exports = {
     I.seeElement(studyViewerProps.downloadButtonXPath);
     I.saveScreenshot('before_click_download.png');
     I.click(studyViewerProps.downloadButtonXPath);
-     I.waitForVisible(studyViewerProps.modalDivClass, 5);
+    I.waitForVisible(studyViewerProps.modalDivClass, 5);
     I.saveScreenshot('click_download.png');
     I.seeElement(studyViewerProps.modalDownloadButton);
     I.click(studyViewerProps.modalDownloadButton);
