@@ -30,39 +30,39 @@ module.exports = {
   },
 
   // testing `Learn More` button
-  async learnMoreButton() {
-    await I.seeElement(studyViewerProps.dataset1detailedButtonXPath);
+  learnMoreButton() {
+    I.seeElement(studyViewerProps.dataset1detailedButtonXPath);
     I.saveScreenshot('before_click.png');
     I.click(studyViewerProps.dataset1detailedButtonXPath);
     I.saveScreenshot('after_click.png');
-    await I.seeElement(studyViewerProps.activeDivClass);
-    await I.seeElement(studyViewerProps.learnMoreButtonXPath);
+    I.seeElement(studyViewerProps.activeDivClass);
+    I.seeElement(studyViewerProps.learnMoreButtonXPath);
     I.click(studyViewerProps.learnMoreButtonXPath);
-    await I.seeElement(studyViewerProps.datasetDivClass);
+    I.seeElement(studyViewerProps.datasetDivClass);
   },
 
   // testing multiple datasets
-  async multipleStudyViewer() {
-    await this.learnMoreButton();
-    await I.seeElement(studyViewerProps.backButton);
+  multipleStudyViewer() {
+    this.learnMoreButton();
+    I.seeElement(studyViewerProps.backButton);
     I.saveScreenshot('back_button.png');
     I.click(studyViewerProps.backButton);
-    await I.seeElement(studyViewerProps.dataset2detailedButtonXPath);
+    I.seeElement(studyViewerProps.dataset2detailedButtonXPath);
     I.click(studyViewerProps.dataset2detailedButtonXPath);
-    await I.seeElement(studyViewerProps.activeDivClass);
+    I.seeElement(studyViewerProps.activeDivClass);
     I.saveScreenshot('expand_dataset_studyViewer.png');
-    await I.seeElement(studyViewerProps.learnMoreButtonXPath);
+    I.seeElement(studyViewerProps.learnMoreButtonXPath);
     I.click(studyViewerProps.learnMoreButtonXPath);
     I.amOnPage(studyViewerProps.dataset2Path);
-    await I.seeElement(studyViewerProps.studyViewerRelPath);
+    I.seeElement(studyViewerProps.studyViewerRelPath);
   },
 
   // click download button on dataset page
   async clickDownload() {
-    await I.seeElement(studyViewerProps.downloadButtonXPath);
+    I.seeElement(studyViewerProps.downloadButtonXPath);
     I.saveScreenshot('before_click_download.png');
     I.click(studyViewerProps.downloadButtonXPath);
-    await I.waitForVisible(studyViewerProps.modalDivClass, 5);
+     I.waitForVisible(studyViewerProps.modalDivClass, 5);
     I.saveScreenshot('click_download.png');
     I.seeElement(studyViewerProps.modalDownloadButton);
     I.click(studyViewerProps.modalDownloadButton);
