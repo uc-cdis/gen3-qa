@@ -19,13 +19,13 @@ module.exports = {
   //   I.waitForVisible(studyViewerProps.datasetDivClass, 5);
   // },
 
-  async clickRequestAccess() {
-    await I.seeElement(studyViewerProps.requestAccessButtonXPath);
+  clickRequestAccess() {
+    I.seeElement(studyViewerProps.requestAccessButtonXPath);
     I.click(studyViewerProps.requestAccessButtonXPath);
   },
 
-  async loginToRequestAccess() {
-    await I.seeElement(studyViewerProps.loginRAButtonXPath);
+  loginToRequestAccess() {
+    I.seeElement(studyViewerProps.loginRAButtonXPath);
     I.click(studyViewerProps.loginRAButtonXPath);
   },
 
