@@ -103,6 +103,7 @@ Scenario('User doesnot login and requests the access @studyViewer', async ({
   await I.saveScreenshot('login.png');
   login.complete.login(users.user0);
   studyViewerTasks.goToStudyViewerPage();
+  I.wait(10);
   await studyViewerTasks.learnMoreButton();
   await I.waitForElement(studyViewerProps.requestAccessButtonXPath, 10);
 });
