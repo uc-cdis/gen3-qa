@@ -58,7 +58,7 @@ module.exports = {
   },
 
   // click download button on dataset page
-  async clickDownload() {
+  clickDownload() {
     I.seeElement(studyViewerProps.downloadButtonXPath);
     I.saveScreenshot('before_click_download.png');
     I.click(studyViewerProps.downloadButtonXPath);
