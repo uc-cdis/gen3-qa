@@ -19,55 +19,50 @@ module.exports = {
   //   I.waitForVisible(studyViewerProps.datasetDivClass, 5);
   // },
 
-  clickRequestAccess() {
-    I.seeElement(studyViewerProps.requestAccessButtonXPath);
+  async clickRequestAccess() {
+    await I.seeElement(studyViewerProps.requestAccessButtonXPath);
     I.click(studyViewerProps.requestAccessButtonXPath);
   },
 
-  loginToRequestAccess() {
-    I.seeElement(studyViewerProps.loginRAButtonXPath);
+  async loginToRequestAccess() {
+    await I.seeElement(studyViewerProps.loginRAButtonXPath);
     I.click(studyViewerProps.loginRAButtonXPath);
   },
 
   // testing `Learn More` button
-  learnMoreButton() {
-    I.seeElement(studyViewerProps.dataset1detailedButtonXPath);
+  async learnMoreButton() {
+    await I.seeElement(studyViewerProps.dataset1detailedButtonXPath);
     I.saveScreenshot('before_click.png');
     I.click(studyViewerProps.dataset1detailedButtonXPath);
     I.saveScreenshot('after_click.png');
-    I.seeElement(studyViewerProps.activeDivClass);
-    I.seeElement(studyViewerProps.learnMoreButtonXPath);
+    await I.seeElement(studyViewerProps.activeDivClass);
+    await I.seeElement(studyViewerProps.learnMoreButtonXPath);
     I.click(studyViewerProps.learnMoreButtonXPath);
-<<<<<<< HEAD
     await I.seeElement(studyViewerProps.datasetDivClass);
-=======
-    I.wait(5);
-    I.seeElement(studyViewerProps.datasetDivClass);
->>>>>>> efdfcf305e8e40ac51bf18789527a302650ee3d5
   },
 
   // testing multiple datasets
-  multipleStudyViewer() {
-    this.learnMoreButton();
-    I.seeElement(studyViewerProps.backButton);
+  async multipleStudyViewer() {
+    await this.learnMoreButton();
+    await I.seeElement(studyViewerProps.backButton);
     I.saveScreenshot('back_button.png');
     I.click(studyViewerProps.backButton);
-    I.seeElement(studyViewerProps.dataset2detailedButtonXPath);
+    await I.seeElement(studyViewerProps.dataset2detailedButtonXPath);
     I.click(studyViewerProps.dataset2detailedButtonXPath);
-    I.seeElement(studyViewerProps.activeDivClass);
+    await I.seeElement(studyViewerProps.activeDivClass);
     I.saveScreenshot('expand_dataset_studyViewer.png');
-    I.seeElement(studyViewerProps.learnMoreButtonXPath);
+    await I.seeElement(studyViewerProps.learnMoreButtonXPath);
     I.click(studyViewerProps.learnMoreButtonXPath);
     I.amOnPage(studyViewerProps.dataset2Path);
-    I.seeElement(studyViewerProps.studyViewerRelPath);
+    await I.seeElement(studyViewerProps.studyViewerRelPath);
   },
 
   // click download button on dataset page
-  clickDownload() {
-    I.seeElement(studyViewerProps.downloadButtonXPath);
+  async clickDownload() {
+    await I.seeElement(studyViewerProps.downloadButtonXPath);
     I.saveScreenshot('before_click_download.png');
     I.click(studyViewerProps.downloadButtonXPath);
-    I.waitForVisible(studyViewerProps.modalDivClass, 5);
+    await I.waitForVisible(studyViewerProps.modalDivClass, 5);
     I.saveScreenshot('click_download.png');
     I.seeElement(studyViewerProps.modalDownloadButton);
     I.click(studyViewerProps.modalDownloadButton);
