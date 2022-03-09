@@ -11,7 +11,6 @@ const { interactive, ifInteractive } = require('../../../utils/interactive.js');
 const {
   Gen3Response, requestUserInput,
 } = require('../../../utils/apiUtil');
-const apiUtil = require('../../../utils/apiUtil');
 
 // Test elaborated for nci-crdc but it can be reused in other projects
 const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'nci-crdc-staging.datacommons.io';
@@ -185,7 +184,7 @@ After(async ({ I }) => {
     `https://${TARGET_ENVIRONMENT}/index/index/${I.cache.GUID}?rev=${I.cache.REV}`,
     assembleCustomHeaders(I.cache.ACCESS_TOKEN),
   );
-  if (deleteFiles.status == 200) {
+  if (deleteFiles.status === 200) {
     console.log(`The uploaded indexd record ${I.cache.GUID} is deleted`);
   }
   delete I.cache.GUID;

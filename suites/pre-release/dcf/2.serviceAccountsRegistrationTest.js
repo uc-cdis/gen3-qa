@@ -99,14 +99,14 @@ BeforeSuite(async ({ I }) => {
 });
 
 AfterSuite(async ({ I, fence }) => {
-  console.log("Unlinking the Google user from NIH ...")
+  console.log('Unlinking the Google user from NIH ...');
   I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
-  
+
   const unlinkResp = await fence.do.unlinkGoogleAcct(
     { accessTokenHeader: getAccessTokenHeader(I.cache.ACCESS_TOKEN) },
   );
-  if ( unlinkResp.status == 200) {
-    console.log("The link has been deleted");
+  if (unlinkResp.status === 200) {
+    console.log('The link has been deleted');
   }
 });
 
