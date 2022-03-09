@@ -28,7 +28,7 @@ function assembleCustomHeaders(ACCESS_TOKEN) {
 function findNonce(idToken) {
   const data = idToken.split('.'); // [0] headers, [1] payload, [2] whatever
   const payload = data[1];
-  const padding = '='.repeat((4 - payload.length) % 4);
+  const padding = '='.repeat((payload.length - 4) % 4);
   const decodedData = Buffer.from((payload + padding), 'base64').toString();
   // If the decoded data doesn't contain a nonce, that means the refresh token has expired
   const nonceStr = JSON.parse(decodedData).nonce; // output: test-nounce-<number>
@@ -44,6 +44,7 @@ BeforeSuite(async ({ I }) => {
   I.cache = {};
   // random number to be used in one occasion (it must be unique for every iteration)
   I.cache.NONCE = Date.now();
+  console.log(` #### Nonce to use : ${I.cache.NONCE}`);
 });
 
 // Scenario #1 - Testing OIDC flow with NIH credentials
