@@ -140,7 +140,7 @@ export default function () {
         accept: 'application/json',
       }, {});
 
-      let body = JSON.parse(resp.body);
+      const body = JSON.parse(resp.body);
       for (const record of body.records) {
         listOfDIDs.push(record.did);
       }
