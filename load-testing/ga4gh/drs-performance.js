@@ -164,10 +164,10 @@ export default function () {
           console.log(`Adding request to batch: ${url}`);
           // batchRequests.push(['GET', url, requestBody, params]);
           batchRequests[`${listOfDIDs[k]}`] = {
-            method: method,
-            url: url,
+            method,
+            url,
             body: JSON.stringify(requestBody),
-            params: params,
+            params,
           };
           i = k;
         }
