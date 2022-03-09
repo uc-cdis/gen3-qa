@@ -106,7 +106,7 @@ AfterSuite(async ({ I, fence }) => {
     { accessTokenHeader: getAccessTokenHeader(I.cache.ACCESS_TOKEN) },
   );
   if ( unlinkResp.status == 200) {
-    console.log("The link has been deleted")
+    console.log("The link has been deleted");
   }
 });
 

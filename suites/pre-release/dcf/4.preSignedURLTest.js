@@ -186,7 +186,7 @@ After(async ({ I }) => {
     assembleCustomHeaders(I.cache.ACCESS_TOKEN),
   );
   if (deleteFiles.status == 200) {
-    console.log(`The uploaded indexd record ${I.cache.GUID} is deleted`)
+    console.log(`The uploaded indexd record ${I.cache.GUID} is deleted`);
   }
   delete I.cache.GUID;
   delete I.didList;
