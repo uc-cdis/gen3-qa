@@ -6,7 +6,7 @@ const { output } = require('codeceptjs');
 const I = actor();
 I.cache = {};
 
-Feature('Discovery page @discoveryPage @requires-portal @requires-metadata @requires-indexd');
+Feature('Discovery page @discoveryPage @requires-portal @requires-metadata @requires-indexd @aggMDS');
 
 After(({ users, mds }) => {
   if ('studyId' in I.cache) {
@@ -23,7 +23,7 @@ Scenario('User is able to navigate to Discovery page', ({ discovery }) => {
   discovery.ask.isPageLoaded();
 });
 
-Scenario('Publish a study, search and export to workspace @aggMDS @requires-hatchery', async ({
+Scenario('Publish a study, search and export to workspace @requires-hatchery', async ({
   mds, users, discovery, files, indexing, home, workspace,
 }) => {
   I.cache.did = uuid.v4();
