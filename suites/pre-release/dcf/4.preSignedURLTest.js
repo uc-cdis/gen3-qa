@@ -73,6 +73,7 @@ async function fetchDIDLists(I) {
       }
     }
 
+    console.log(`GUID selected: ${I.cache.GUID}`);
     // assemble 401 unauthorized ids
     const record401Resp = await I.sendGetRequest(
       `https://${TARGET_ENVIRONMENT}/index/index/${I.cache.GUID}`,
@@ -96,7 +97,7 @@ function performPreSignedURLTest(cloudProvider, typeOfTest) {
     async ({ I, fence }) => {
       const filteredDIDs = {};
       if (I.cache.ACCESS_TOKEN) {
-      // Obtain project access list to determine which files(DIDs) the user can access
+        // Obtain project access list to determine which files(DIDs) the user can access
         // two lists: http 200 files and http 401 files
         const { ok200files, unauthorized401files } = await fetchDIDLists(I);
 
@@ -183,7 +184,11 @@ After(async ({ I }) => {
     `https://${TARGET_ENVIRONMENT}/index/index/${I.cache.GUID}?rev=${I.cache.REV}`,
     assembleCustomHeaders(I.cache.ACCESS_TOKEN),
   );
-  console.log(deleteFiles.status);
+  if (deleteFiles.status === 200) {
+    console.log(`The uploaded indexd record ${I.cache.GUID} is deleted`);
+  }
+  delete I.cache.GUID;
+  delete I.didList;
 });
 
 // Scenario #1 - Controlled Access Data - Google PreSignedURL test against DID the user can access
