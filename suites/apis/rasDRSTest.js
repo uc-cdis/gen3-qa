@@ -29,7 +29,7 @@ BeforeSuite(async ({ I }) => {
   const getIndexRecord = await I.sendGetRequest(
     `https://${TARGET_ENVIRONMENT}/index/index?authz=${authZ}`,
   );
-  I.cache.indexdRecord = getIndexRecord.body.records;
+  I.cache.indexdRecord = getIndexRecord.body.records.did;
 });
 
 // step 1 getting the clientID and clientSecret from the fence config of the env
@@ -41,7 +41,7 @@ Scenario('Get the clientID and clientSecret', async ({ I }) => {
 });
 
 Scenario('Visit the URL and consent', async ({ I }) => {
-  I.amOnPage(`https://${rasServerURL}/user/oauth2/authorize?response_type=code&client_id=${I.cache.clientID}&redirect_uri=https://${TARGET_ENVIRONMENT}/user/login/ras/callback&scope=openid+user+data+google_credentials+ga4gh_passport_v1&idp=ras`);
+  I.amOnPage(`https://${rasServerURL}/oauth2/authorize?response_type=code&client_id=${I.cache.clientID}&redirect_uri=https://${TARGET_ENVIRONMENT}/user/login/ras/callback&scope=openid+user+data+google_credentials+ga4gh_passport_v1&idp=ras`);
   // GET auth/oauth/v2/authorize to get the rasAuthCode
   await sleepMS(3000);
   I.saveScreenshot('NIHLogin_Page.png');
