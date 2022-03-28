@@ -19,11 +19,11 @@ module.exports = {
     });
 
     aliases.forEach((alias) => {
-      if (etl.do.existAlias(alias)) {
-        const index = etl.do.getIndexFromAlias(alias);
+      if (this.existAlias(alias)) {
+        const index = this.getIndexFromAlias(alias);
         console.log(`deleting all index versions associated with alias ${alias}`);
-        etl.do.deleteAllIndexVersions(index);
-        expect(etl.do.existAlias(alias), 'Fails to delete alias').to.equal(false);
+        this.deleteAllIndexVersions(index);
+        expect(this.existAlias(alias), 'Fails to delete alias').to.equal(false);
       }
     });
   },
