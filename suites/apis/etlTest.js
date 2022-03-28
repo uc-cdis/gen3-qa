@@ -1,15 +1,26 @@
 Feature('ETL @requires-tube');
 
+const { expect } = require('chai');
+
 const { Bash } = require('../../utils/bash.js');
 const { checkPod } = require('../../utils/apiUtil.js');
 
 const bash = new Bash();
+let aliases = [];
 
 BeforeSuite(async ({ etl }) => {
-  etl.props.aliases.forEach(async (alias) => {
-    const index = etl.do.getIndexFromAlias(alias);
-    if (index !== 'error') {
-      etl.do.deleteIndices(index);
+  const etlMappingNames = bash.runCommand(`g3kubectl get cm etl-mapping -o jsonpath='{.data.etlMapping\\.yaml}' | yq '.mappings[].name' | xargs`).split(" ");
+
+  etlMappingNames.forEach((etlMappingName) => {
+    aliases.push(etlMappingName, `${etlMappingName}-array-config`);
+  });
+
+  aliases.forEach((alias) => {
+    if (etl.do.existAlias(alias)) {
+      console.warn(`WARNING: alias ${alias} exists prior to running ETL tests`);
+      const index = etl.do.getIndexFromAlias(alias);
+      console.log(`deleting all index versions associated with alias ${alias}`);
+      etl.do.deleteAllIndexVersions(index);
       expect(etl.do.existAlias(alias), 'Fails to delete alias').to.equal(false);
     }
   });
@@ -31,11 +42,14 @@ Scenario('run ETL second time @etl', async ({ I, sheepdog }) => {
 });
 
 AfterSuite(async ({ etl }) => {
-  etl.props.aliases.forEach((alias) => {
+  console.log("cleaning up indices created by ETL runs");
+  aliases.forEach((alias) => {
     if (etl.do.existAlias(alias)) {
+      console.log(`deleting all index versions associated with alias ${alias}`);
       const index = etl.do.getIndexFromAlias(alias);
-      console.error(index);
       etl.ask.hasVersionIncreased(index, 0);
+      etl.do.deleteAllIndexVersions(index);
+      expect(etl.do.existAlias(alias), 'Fails to delete alias').to.equal(false);
     }
   });
 });
