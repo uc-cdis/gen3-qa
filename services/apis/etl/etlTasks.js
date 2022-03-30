@@ -64,7 +64,7 @@ module.exports = {
   deleteAllIndexVersions(index) {
     const match = index.match(RegExp('(.*)_([0-9]+)$'));
     const prefix = match[1];
-    let number = Number.parseInt(match[2]);
+    let number = Number.parseInt(match[2], 10);
     for (; number >= 0; number -= 1) {
       const indexToDelete = `${prefix}_${number}`;
       if (!this.deleteIndices(`${indexToDelete}`)) {
