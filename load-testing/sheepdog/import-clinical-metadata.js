@@ -55,6 +55,7 @@ export default function () {
     derived_topmed_subject_id: '2fb4aae615',
     '*studies': {
       submitter_id: 'study_3fbd48dc63',
+      participant_id: 'study_3fbd48dc63',
     },
     '*consent_codes': [],
     project_id: `${program}-${project}`,
