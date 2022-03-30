@@ -6,10 +6,10 @@ const { Bash } = require('../../utils/bash.js');
 const { checkPod } = require('../../utils/apiUtil.js');
 
 const bash = new Bash();
-let aliases = [];
+const aliases = [];
 
 BeforeSuite(async ({ etl }) => {
-  const etlMappingNames = bash.runCommand(`g3kubectl get cm etl-mapping -o jsonpath='{.data.etlMapping\\.yaml}' | yq '.mappings[].name' | xargs`).split(" ");
+  const etlMappingNames = bash.runCommand('g3kubectl get cm etl-mapping -o jsonpath=\'{.data.etlMapping\\.yaml}\' | yq \'.mappings[].name\' | xargs').split(' ');
 
   etlMappingNames.forEach((etlMappingName) => {
     aliases.push(etlMappingName, `${etlMappingName}-array-config`);
@@ -42,7 +42,7 @@ Scenario('run ETL second time @etl', async ({ I, sheepdog }) => {
 });
 
 AfterSuite(async ({ etl }) => {
-  console.log("cleaning up indices created by ETL runs");
+  console.log('cleaning up indices created by ETL runs');
   aliases.forEach((alias) => {
     if (etl.do.existAlias(alias)) {
       console.log(`deleting all index versions associated with alias ${alias}`);

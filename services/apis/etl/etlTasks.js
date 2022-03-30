@@ -11,9 +11,9 @@ const bash = new Bash();
 module.exports = {
   // TODO docstring
   cleanUpIndices() {
-    const etlMappingNames = bash.runCommand(`g3kubectl get cm etl-mapping -o jsonpath='{.data.etlMapping\\.yaml}' | yq '.mappings[].name' | xargs`).split(" ");
+    const etlMappingNames = bash.runCommand('g3kubectl get cm etl-mapping -o jsonpath=\'{.data.etlMapping\\.yaml}\' | yq \'.mappings[].name\' | xargs').split(' ');
 
-    let aliases = [];
+    const aliases = [];
     etlMappingNames.forEach((etlMappingName) => {
       aliases.push(etlMappingName, `${etlMappingName}-array-config`);
     });
@@ -40,12 +40,11 @@ module.exports = {
         if (res.includes('"acknowledged":true')) {
           console.log(`index ${index} was successfully deleted`);
           return true;
-        } else {
-          // warn here instead of error because deleteAllIndexVersions
-          // iteratively deletes older versions of an index until there are no
-          // more versions left to delete (i.e. not a problem in that case)
-          console.warn(`WARNING: index ${index} could not be deleted:\n${res}`);
         }
+        // warn here instead of error because deleteAllIndexVersions
+        // iteratively deletes older versions of an index until there are no
+        // more versions left to delete (i.e. not a problem in that case)
+        console.warn(`WARNING: index ${index} could not be deleted:\n${res}`);
       } else {
         console.error(`ERROR: ignoring deleteIndices on invalid index key: ${index}`);
       }
@@ -61,8 +60,8 @@ module.exports = {
     const match = index.match(RegExp('(.*)_([0-9]+)$'));
     const prefix = match[1];
     let number = Number.parseInt(match[2]);
-    for (; number >=0; number--) {
-      let indexToDelete = `${prefix}_${number}`;
+    for (; number >= 0; number -= 1) {
+      const indexToDelete = `${prefix}_${number}`;
       if (!this.deleteIndices(`${indexToDelete}`)) {
         break;
       }
