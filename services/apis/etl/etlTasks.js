@@ -9,7 +9,9 @@ const bash = new Bash();
  * ETL Tasks
  */
 module.exports = {
-  // TODO docstring
+  /**
+     * Clean up indices created from an ETL run
+     */
   cleanUpIndices() {
     const etlMappingNames = bash.runCommand('g3kubectl get cm etl-mapping -o jsonpath=\'{.data.etlMapping\\.yaml}\' | yq \'.mappings[].name\' | xargs').split(' ');
 
@@ -55,7 +57,10 @@ module.exports = {
     return false;
   },
 
-  // TODO docstring
+  /**
+     * Delete the current and all previous versions of an index
+     * @param {string} index - current index to delete
+     */
   deleteAllIndexVersions(index) {
     const match = index.match(RegExp('(.*)_([0-9]+)$'));
     const prefix = match[1];
