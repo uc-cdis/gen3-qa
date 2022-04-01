@@ -21,15 +21,19 @@ module.exports = {
    * @param {string} policyID - policyID of the policy to request/revoke access
    * @param {boolean} revoke - set to true to create a revoke request
    */
-  async createRequestForPolicyID(adminUserTokenHeader, username, policyID, revoke = false) {
-    console.log(`### creating request for a policy id: ${policyID}`);
+  async createRequestForPolicyID(adminUserTokenHeader, username, policyID, revoke = false, policy_status = null) {
+    console.log(`### creating request for a policy id: ${policyID} with revoke set as ${revoke}`);
     const endPoint = revoke ? `${requestorProps.endpoint.requestEndPoint}?revoke` : `${requestorProps.endpoint.requestEndPoint}`;
+    const data = {
+      username,
+      policy_id: policyID,
+    };
+    if(policy_status){
+      data["status"] = policy_status;
+    }
     const getResponse = await I.sendPostRequest(
       endPoint,
-      {
-        username,
-        policy_id: policyID,
-      },
+      data,
       adminUserTokenHeader,
     );
     const responseData = getResponse.data;

@@ -52,7 +52,7 @@ Scenario('User requests access for a policy followed by sending a Revoke request
   expect(userInfo.data.authz['/requestor_integration_test']).to.deep.to.include({ method: 'access', service: 'jupyterhub' });
 
   // Create a request to 'revoke' a policy that is present in Arborist
-  const revokeResponse = await requestorTasks.createRequestForPolicyID(accessTokenHeader, users.user0.username, 'requestor_integration_test', true);
+  const revokeResponse = await requestorTasks.createRequestForPolicyID(accessTokenHeader, users.user0.username, 'requestor_integration_test', revoke=true);
 
   // Check if the access is revoked -- It shouldn't since it is not signed yet
   userInfo = await fence.do.getUserInfo(user0AccessToken);
@@ -77,6 +77,33 @@ Scenario('Send a revoke request for a policy the user does not have @requestor',
   expect(userInfo.data.authz).to.not.have.property('/requestor_integration_test');
 
   // Create a request to 'revoke' a policy to which user does not have access to
-  const revokeResponse = await requestorTasks.createRequestForPolicyID(users.mainAcct.accessTokenHeader, users.user1.username, 'requestor_integration_test', true);
+  const revokeResponse = await requestorTasks.createRequestForPolicyID(users.mainAcct.accessTokenHeader, users.user1.username, 'requestor_integration_test', revoke=true);
   expect(revokeResponse).to.have.property('status_code', 400);
+});
+
+
+Scenario('User requests access for a policy with a signed status (and revoke it later) @requestor', async ({
+  users, fence,
+}) => {
+  // Check that the user does not have access to policy 'requestor_integration_test'.
+  let userInfo = await fence.do.getUserInfo(users.user0.accessToken);
+  expect(userInfo.data.authz).to.not.have.property('/requestor_integration_test');
+
+  const { accessTokenHeader } = users.mainAcct;
+  // Create a request for a policy that is present in Arborist
+  const createResponse = await requestorTasks.createRequestForPolicyID(accessTokenHeader, users.user0.username, 'requestor_integration_test', revoke=false, policy_status = "SIGNED");
+  expect(createResponse).to.have.property('status_code', 201);
+
+  const user0AccessToken = users.user0.accessToken;
+  // Verify if access is given to the user -- There should be
+  userInfo = await fence.do.getUserInfo(user0AccessToken);
+  expect(userInfo.data.authz).to.have.property('/requestor_integration_test');
+  expect(userInfo.data.authz['/requestor_integration_test']).to.deep.to.include({ method: 'access', service: 'jupyterhub' });
+
+  // Create a request to 'revoke' a policy that is present in Arborist
+  await requestorTasks.createRequestForPolicyID(accessTokenHeader, users.user0.username, 'requestor_integration_test', revoke=true, policy_status = "SIGNED");
+
+  // Verify if access is revoked from the user
+  userInfo = await fence.do.getUserInfo(user0AccessToken);
+  expect(userInfo.data.authz).to.not.have.property('/requestor_integration_test');
 });
