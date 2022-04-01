@@ -1,7 +1,5 @@
 Feature('ETL @requires-tube');
 
-const { expect } = require('chai');
-
 const { Bash } = require('../../utils/bash.js');
 const { checkPod } = require('../../utils/apiUtil.js');
 

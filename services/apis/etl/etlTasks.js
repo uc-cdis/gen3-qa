@@ -25,7 +25,6 @@ module.exports = {
         const index = this.getIndexFromAlias(alias);
         console.log(`deleting all index versions associated with alias ${alias}`);
         this.deleteAllIndexVersions(index);
-        expect(this.existAlias(alias), 'Fails to delete alias').to.equal(false);
       }
     });
   },
