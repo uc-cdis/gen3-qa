@@ -22,17 +22,17 @@ const scope = 'openid profile email ga4gh_passport_v1';
 const authZ = '/programs/phs000298.c1';
 
 // TODO working on the post a indexd record before the suite
-const indexdFile = {
-  fileToUpload: {
-    acl: [],
-    authz: ['/programs/phs000298.c1'],
-    filename: 'ras_test_file',
-    hashes: { md5: '587efb5d96f695710a8df9c0dbb96eb0' }, // pragma: allowlist secret
-    size: 15,
-    form: null,
-    urls: ['s3://cdis-presigned-url-test/testdata', 'gs://cdis-presigned-url-test/testdata'],
-  },
-};
+// const indexdFile = {
+//   fileToUpload: {
+//     acl: [],
+//     authz: ['/programs/phs000298.c1'],
+//     filename: 'ras_test_file',
+//     hashes: { md5: '587efb5d96f695710a8df9c0dbb96eb0' }, // pragma: allowlist secret
+//     size: 15,
+//     form: null,
+//     urls: ['s3://cdis-presigned-url-test/testdata', 'gs://cdis-presigned-url-test/testdata'],
+//   },
+// };
 
 BeforeSuite(async ({ I }) => {
   console.log('Setting up .. ');
