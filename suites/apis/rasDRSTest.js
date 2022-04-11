@@ -3,8 +3,8 @@ Feature('DRS RAS');
 
 const { expect } = require('chai');
 // const { URL } = require('url');
-const { Bash } = require('../../utils/bash');
 const queryString = require('query-string');
+const { Bash } = require('../../utils/bash');
 const { sleepMS } = require('../../utils/apiUtil.js');
 
 const bash = new Bash();
@@ -43,7 +43,7 @@ function assembleCustomHeaders(ACCESS_TOKEN) {
   };
 }
 
-BeforeSuite(async ({ I, users }) => {
+BeforeSuite(async ({ I }) => {
   console.log('Setting up .. ');
   I.cache = {};
 
@@ -65,7 +65,7 @@ BeforeSuite(async ({ I, users }) => {
   I.cache.clientSecret = process.env.secretID;
 
   // getting the access_token for the test user
-  I.cache.ACCESS_TOKEN= await bash.runCommand('gen3 api access-token atharvar@uchicago.edu');
+  I.cache.ACCESS_TOKEN = await bash.runCommand('gen3 api access-token cdis.autotest@gmail.com');
   console.log(`Access_Token: ${I.cache.ACCESS_TOKEN}`);
   // upload new indexdFile
   const uploadResp = await I.sendPostRequest(
@@ -83,16 +83,16 @@ BeforeSuite(async ({ I, users }) => {
   console.log(`Indexd Record DID: ${I.cache.indexdRecord}`);
 });
 
-AfterSuite(async ({I}) => {
+AfterSuite(async ({ I }) => {
   // revoke the access for the next run
-  console.log("Revoking the access ..");
+  console.log('Revoking the access ..');
   const revokeData = queryString.stringify({
     token_type_hint: 'access_token',
     token: `${I.cache.rasToken}`,
     client_id: `${I.cache.clientID}`,
     client_secret: `${I.cache.clientSecret}`,
     scope: `${scope}`,
-});
+  });
 
   const revokeReq = await I.sendPostRequest(
     `https://${rasServerURL}/auth/oauth/v2/token/revoke`,
@@ -111,11 +111,11 @@ AfterSuite(async ({I}) => {
     `https://${TARGET_ENVIRONMENT}/index/index/${I.cache.indexdRecord}?rev=${I.cache.indexdRev}`,
     {
       Authorization: `Bearer ${I.cache.ACCESS_TOKEN}`,
-    }
-  )
-  if (deleteRecordReq.status === 200){
+    },
+  );
+  if (deleteRecordReq.status === 200) {
     console.log('Indexd record is deleted');
-  } 
+  }
 });
 
 async function getTokens(I) {
@@ -143,53 +143,53 @@ async function getTokens(I) {
   // getting tokens from the authCode
   console.log('Retrieving Access Token and Refresh Token ... ');
   const data = queryString.stringify({
-      grant_type: 'authorization_code',
-      code: `${I.cache.rasAuthCode}`,
-      client_id: `${I.cache.clientID}`,
-      client_secret: `${I.cache.clientSecret}`,
-      scope: `${scope}`,
-      redirect_uri: 'https://qa-dcp.planx-pla.net/user/login/ras/callback',
+    grant_type: 'authorization_code',
+    code: `${I.cache.rasAuthCode}`,
+    client_id: `${I.cache.clientID}`,
+    client_secret: `${I.cache.clientSecret}`,
+    scope: `${scope}`,
+    redirect_uri: 'https://qa-dcp.planx-pla.net/user/login/ras/callback',
   });
 
   const getRASToken = await I.sendPostRequest(
-      rasAuthURL,
-      data,
-      {
-          'Content-Type': 'application/x-www-form-urlencoded',
-      },
+    rasAuthURL,
+    data,
+    {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
   );
-  
+
   // you should get RAS tokens (id, access, refresh)
   // but you need only access_token and refresh_token for this test
   const accessToken = getRASToken.data.access_token;
-  I.cache.refreshToken = getRASToken.data.refresh_token
-  
+  I.cache.refreshToken = getRASToken.data.refresh_token;
+
   // adding access_token to cache for revoking the access at end of the test
   I.cache.rasToken = accessToken;
- 
-  return accessToken
+
+  return accessToken;
 }
 
 async function getPassport(I, token) {
   // const accessToken = await getTokens(I);
   // GET /openid/connect/v1.1/userinfo passport for the RAS user with RAS Access token
   const getPassportReq = await I.sendGetRequest(
-      `https://${rasServerURL}/openid/connect/v1.1/userinfo`,
-      {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-      },
+    `https://${rasServerURL}/openid/connect/v1.1/userinfo`,
+    {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
   );
   // you should get a passport with visa as the response
-  passportBody = getPassportReq.data.passport_jwt_v11;
+  const passportBody = getPassportReq.data.passport_jwt_v11;
   console.log(`Passport JWT: ${passportBody}`);
   return passportBody;
-};
+}
 
 // Scenario 1 ->
 Scenario('Send DRS request - Single Passport Single VISA', async ({ I }) => {
   const accessToken = await getTokens(I);
-  const passport =  await getPassport(I, accessToken);
+  const passport = await getPassport(I, accessToken);
   // sending DRS request with passport in body
   const drsAccessReq = await I.sendPostRequest(
     `https://${ga4ghURL}/${I.cache.indexdRecord}/access/s3`,
@@ -230,8 +230,8 @@ Scenario('Get Access Token from Refresh Token', async ({ I }) => {
   );
   const refreshedAccessToken = tokenFromRefresh.data.access_token;
   // and send subsequent /userinfo call and also a presigned url call with the passport
-  const newPassport = await getPassport(I,refreshedAccessToken);
-  
+  const newPassport = await getPassport(I, refreshedAccessToken);
+
   // preSignedURL request with new passport
   const newDrsAccessReq = await I.sendPostRequest(
     `https://${ga4ghURL}/${I.cache.indexdRecord}/access/s3`,
@@ -239,12 +239,10 @@ Scenario('Get Access Token from Refresh Token', async ({ I }) => {
       passports: [`${newPassport}`],
     },
   );
-  
+
   expect(newDrsAccessReq).to.have.property('status', 200);
   const newPreSignedURLReq = await I.sendGetRequest(newDrsAccessReq.data.url);
-  expect(newPreSignedURLReq).to.not.be.empty
+  expect(newPreSignedURLReq).to.not.be.empty;
 });
 
-// Scenario('Consent Management', async ({ I }) => {
-// // TODO
-// });
+// scenario for consent management
