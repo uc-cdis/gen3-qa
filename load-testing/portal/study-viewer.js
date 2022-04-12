@@ -11,6 +11,11 @@ const {
 } = __ENV; // eslint-disable-line no-undef
 
 export const options = {
+  tags: {
+    scenario: 'Portal - Study Viewer',
+    release: process.env.RELEASE_VERSION,
+    test_run_id: (new Date()).toISOString().slice(0, 16),
+  },
   stages: JSON.parse(VIRTUAL_USERS.slice(1, -1)),
   thresholds: {
     http_req_duration: ['avg<250'],

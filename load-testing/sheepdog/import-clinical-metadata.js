@@ -20,6 +20,11 @@ const {
 const myFailRate = new Rate('failed requests');
 
 export const options = {
+  tags: {
+    scenario: 'Sheepdog - Import clinical metadata',
+    release: process.env.RELEASE_VERSION,
+    test_run_id: (new Date()).toISOString().slice(0, 16),
+  },
   stages: JSON.parse(VIRTUAL_USERS.slice(1, -1)),
   thresholds: {
     http_req_duration: ['avg<3000', 'p(95)<15000'],

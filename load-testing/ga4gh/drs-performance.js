@@ -58,6 +58,11 @@ const {
 const myFailRate = new Rate('failed requests');
 
 let rawOptions = { // eslint-disable-line prefer-const
+  tags: {
+    scenario: 'DRS Performace',
+    release: process.env.RELEASE_VERSION,
+    test_run_id: (new Date()).toISOString().slice(0, 16),
+  },
   rps: 90000,
   thresholds: {
     http_req_duration: ['avg<3000', 'p(95)<15000'],

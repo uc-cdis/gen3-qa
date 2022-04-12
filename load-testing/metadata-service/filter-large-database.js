@@ -25,6 +25,11 @@ for (let i = 1; i <= numOfJsons; i += 1) {
 }
 
 export const options = {
+  tags: {
+    scenario: 'MDS - Filter large database',
+    release: process.env.RELEASE_VERSION,
+    test_run_id: (new Date()).toISOString().slice(0, 16),
+  },
   stages: JSON.parse(VIRTUAL_USERS.slice(1, -1)),
   thresholds: {
     http_req_duration: ['avg<1000', 'p(95)<2000'],

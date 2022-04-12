@@ -17,6 +17,11 @@ const guids = GUIDS_LIST.split(',');
 const myFailRate = new Rate('failed requests');
 
 export const options = {
+  tags: {
+    scenario: 'Indexd - DRS Endpoint',
+    release: process.env.RELEASE_VERSION,
+    test_run_id: (new Date()).toISOString().slice(0, 16),
+  },
   rps: 90000,
   stages: JSON.parse(VIRTUAL_USERS.slice(1, -1)),
   thresholds: {

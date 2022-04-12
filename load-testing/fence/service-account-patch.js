@@ -16,6 +16,11 @@ const googleProjects = GOOGLE_PROJECTS_LIST.split(',');
 const myFailRate = new Rate('failed requests');
 
 export const options = {
+  tags: {
+    scenario: 'Fence - Patch service account',
+    release: process.env.RELEASE_VERSION,
+    test_run_id: (new Date()).toISOString().slice(0, 16),
+  },
   stages: JSON.parse(VIRTUAL_USERS.slice(1, -1)),
   thresholds: {
     http_req_duration: ['avg<3000', 'p(95)<15000'],
