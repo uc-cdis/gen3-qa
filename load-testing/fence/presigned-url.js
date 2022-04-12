@@ -1,6 +1,7 @@
 const { check, group, sleep } = require('k6'); // eslint-disable-line import/no-unresolved
 const http = require('k6/http'); // eslint-disable-line import/no-unresolved
 const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresolved
+const { env } = require('process'); // eslint-disable-line import/no-unresolved
 
 const {
   GUIDS_LIST,
@@ -15,7 +16,7 @@ const guids = GUIDS_LIST.split(',');
 
 const myFailRate = new Rate('failed requests');
 
-const REL_VER = process.env.RELEASE_VERSION;
+const REL_VER = env.RELEASE_VERSION;
 
 export const options = {
   tags: {
