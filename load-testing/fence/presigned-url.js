@@ -1,10 +1,10 @@
 const { check, group, sleep } = require('k6'); // eslint-disable-line import/no-unresolved
 const http = require('k6/http'); // eslint-disable-line import/no-unresolved
 const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresolved
-const { env } = require('process'); // eslint-disable-line import/no-unresolved
 
 const {
   GUIDS_LIST,
+  RELEASE_VERSION,
   GEN3_HOST,
   ACCESS_TOKEN,
   VIRTUAL_USERS,
@@ -16,12 +16,10 @@ const guids = GUIDS_LIST.split(',');
 
 const myFailRate = new Rate('failed requests');
 
-const REL_VER = env.RELEASE_VERSION;
-
 export const options = {
   tags: {
     scenario: 'Fence - Presigned URL',
-    release: REL_VER,
+    release: RELEASE_VERSION,
     test_run_id: (new Date()).toISOString().slice(0, 16),
   },
   rps: 90000,
