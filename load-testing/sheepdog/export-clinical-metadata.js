@@ -3,6 +3,7 @@ const http = require('k6/http'); // eslint-disable-line import/no-unresolved
 const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresolved
 
 const {
+  RELEASE_VERSION,
   GEN3_HOST,
   ACCESS_TOKEN,
   VIRTUAL_USERS,
@@ -13,7 +14,7 @@ const myFailRate = new Rate('failed requests');
 export const options = {
   tags: {
     scenario: 'Sheepdog - Export clinical metadata',
-    release: process.env.RELEASE_VERSION,
+    release: RELEASE_VERSION,
     test_run_id: (new Date()).toISOString().slice(0, 16),
   },
   stages: JSON.parse(VIRTUAL_USERS.slice(1, -1)),

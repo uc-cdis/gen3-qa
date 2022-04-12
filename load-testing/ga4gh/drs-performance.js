@@ -45,6 +45,7 @@ const {
   AUTHZ_LIST,
   MINIMUM_RECORDS,
   RECORD_CHUNK_SIZE,
+  RELEASE_VERSION,
   GEN3_HOST,
   ACCESS_TOKEN,
   PASSPORTS_LIST,
@@ -60,7 +61,7 @@ const myFailRate = new Rate('failed requests');
 let rawOptions = { // eslint-disable-line prefer-const
   tags: {
     scenario: 'DRS Performace',
-    release: process.env.RELEASE_VERSION,
+    release: RELEASE_VERSION,
     test_run_id: (new Date()).toISOString().slice(0, 16),
   },
   rps: 90000,

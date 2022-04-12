@@ -7,6 +7,7 @@ const {
   GOOGLE_PROJECTS_LIST,
   //  GOOGLE_PROJECT_ID, // only required when the account is being registered, not patched
   GEN3_HOST,
+  RELEASE_VERSION,
   ACCESS_TOKEN,
   VIRTUAL_USERS,
 } = __ENV; // eslint-disable-line no-undef
@@ -18,7 +19,7 @@ const myFailRate = new Rate('failed requests');
 export const options = {
   tags: {
     scenario: 'Fence - Patch service account',
-    release: process.env.RELEASE_VERSION,
+    release: RELEASE_VERSION,
     test_run_id: (new Date()).toISOString().slice(0, 16),
   },
   stages: JSON.parse(VIRTUAL_USERS.slice(1, -1)),

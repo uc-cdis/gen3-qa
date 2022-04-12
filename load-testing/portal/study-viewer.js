@@ -6,6 +6,7 @@ const myFailRate = new Rate('failed requests');
 
 const {
   ACCESS_TOKEN,
+  RELEASE_VERSION,
   GEN3_HOST,
   VIRTUAL_USERS,
 } = __ENV; // eslint-disable-line no-undef
@@ -13,7 +14,7 @@ const {
 export const options = {
   tags: {
     scenario: 'Portal - Study Viewer',
-    release: process.env.RELEASE_VERSION,
+    release: RELEASE_VERSION,
     test_run_id: (new Date()).toISOString().slice(0, 16),
   },
   stages: JSON.parse(VIRTUAL_USERS.slice(1, -1)),
