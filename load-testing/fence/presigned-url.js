@@ -15,10 +15,12 @@ const guids = GUIDS_LIST.split(',');
 
 const myFailRate = new Rate('failed requests');
 
+const REL_VER = process.env.RELEASE_VERSION;
+
 export const options = {
   tags: {
     scenario: 'Fence - Presigned URL',
-    release: process.env.RELEASE_VERSION,
+    release: REL_VER,
     test_run_id: (new Date()).toISOString().slice(0, 16),
   },
   rps: 90000,
