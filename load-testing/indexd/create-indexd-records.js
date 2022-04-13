@@ -14,6 +14,7 @@ const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresol
 let { ACCESS_TOKEN } = __ENV; // eslint-disable-line no-undef
 
 const {
+  RELEASE_VERSION,
   GEN3_HOST,
   API_KEY,
   VIRTUAL_USERS,
@@ -22,6 +23,11 @@ const {
 const myFailRate = new Rate('failed requests');
 
 export const options = {
+  tags: {
+    scenario: 'Indexd - Create records',
+    release: RELEASE_VERSION,
+    test_run_id: (new Date()).toISOString().slice(0, 16),
+  },
   stages: JSON.parse(VIRTUAL_USERS.slice(1, -1)),
   thresholds: {
     http_req_duration: ['avg<3000', 'p(95)<15000'],

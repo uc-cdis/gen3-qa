@@ -10,6 +10,7 @@ let { ACCESS_TOKEN } = __ENV; // eslint-disable-line no-undef
 const {
   NUM_OF_JSONS,
   API_KEY,
+  RELEASE_VERSION,
   GEN3_HOST,
   VIRTUAL_USERS,
 } = __ENV; // eslint-disable-line no-undef
@@ -25,6 +26,11 @@ for (let i = 1; i <= numOfJsons; i += 1) {
 }
 
 export const options = {
+  tags: {
+    scenario: 'MDS - Filter large database',
+    release: RELEASE_VERSION,
+    test_run_id: (new Date()).toISOString().slice(0, 16),
+  },
   stages: JSON.parse(VIRTUAL_USERS.slice(1, -1)),
   thresholds: {
     http_req_duration: ['avg<1000', 'p(95)<2000'],
