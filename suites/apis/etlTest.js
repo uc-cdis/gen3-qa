@@ -1,5 +1,7 @@
 Feature('ETL @requires-tube');
 
+const { expect } = require('chai');
+
 const { Bash } = require('../../utils/bash.js');
 const { checkPod } = require('../../utils/apiUtil.js');
 
@@ -12,8 +14,9 @@ BeforeSuite(async ({ etl }) => {
   etl.do.cleanUpIndices();
 });
 
-Scenario('run ETL first time @etl', async ({ I }) => {
+Scenario('run ETL first time @etl', async ({ I, sheepdog }) => {
   console.log(`${new Date()}: Before run ETL first time`);
+  await sheepdog.do.runGenTestData(1);
   await bash.runJob('etl', '', false);
   await checkPod(I, 'etl', 'gen3job,job-name=etl', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: false });
   console.log(`${new Date()}: After run ETL first time`);
@@ -26,16 +29,11 @@ Scenario('run ETL second time @etl', async ({ I, sheepdog, etl }) => {
   await checkPod(I, 'etl', 'gen3job,job-name=etl', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: false });
   console.log(`${new Date()}: After run ETL second time`);
 
-  const etlMappingNames = bash.runCommand('g3kubectl get cm etl-mapping -o jsonpath=\'{.data.etlMapping\\.yaml}\' | yq \'.mappings[].name\' | xargs').split(' ');
-  const aliases = [];
-  etlMappingNames.forEach((etlMappingName) => {
-    aliases.push(etlMappingName, `${etlMappingName}-array-config`);
-  });
+  const aliases = bash.runCommand('g3kubectl get cm etl-mapping -o jsonpath=\'{.data.etlMapping\\.yaml}\' | yq \'.mappings[].name\' | xargs').split(' ');
   aliases.forEach((alias) => {
-    if (etl.do.existAlias(alias)) {
-      const index = etl.do.getIndexFromAlias(alias);
-      etl.ask.hasVersionIncreased(index, 0);
-    }
+    expect(etl.do.existAlias(alias), `alias ${alias} does not exist`).to.equal(true);
+    const index = etl.do.getIndexFromAlias(alias);
+    etl.ask.hasVersionIncreased(index, 0);
   });
 });
 
