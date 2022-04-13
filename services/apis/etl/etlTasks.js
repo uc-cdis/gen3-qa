@@ -23,8 +23,12 @@ module.exports = {
     aliases.forEach((alias) => {
       if (this.existAlias(alias)) {
         const index = this.getIndexFromAlias(alias);
-        console.log(`deleting all index versions associated with alias ${alias}`);
-        this.deleteAllIndexVersions(index);
+        if (index === '') {
+          console.warn(`WARNING: could not get index for alias ${alias}, meaning index versions associated with ${alias} could not be deleted`);
+        } else {
+          console.log(`deleting all index versions associated with alias ${alias}`);
+          this.deleteAllIndexVersions(index);
+        }
       }
     });
   },
@@ -101,7 +105,7 @@ module.exports = {
       return Object.keys(JSON.parse(res))[0];
     } catch (ex) {
       // do not freak out if esproxy-service is not running
-      return [];
+      return '';
     }
   },
 
