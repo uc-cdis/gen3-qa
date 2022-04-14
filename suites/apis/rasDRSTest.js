@@ -66,7 +66,7 @@ BeforeSuite(async ({ I }) => {
 
   // getting the access_token for the test user
   // test user -> cdis.autotest@gmail.com
-  I.cache.ACCESS_TOKEN = await bash.runCommand('gen3 api access-token atharvar@uchicago.edu');
+  I.cache.ACCESS_TOKEN = await bash.runCommand('gen3 api access-token cdis.autotest@gmail.com');
   console.log(`Access_Token: ${I.cache.ACCESS_TOKEN}`);
   // upload new indexdFile
   const uploadResp = await I.sendPostRequest(
