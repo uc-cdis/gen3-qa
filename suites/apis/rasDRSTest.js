@@ -5,7 +5,7 @@ const { expect } = require('chai');
 // const { URL } = require('url');
 const queryString = require('query-string');
 const { Bash } = require('../../utils/bash');
-const { sleepMS } = require('../../utils/apiUtil.js');
+const { sleepMS, parseJwt } = require('../../utils/apiUtil.js');
 
 const bash = new Bash();
 
@@ -18,8 +18,6 @@ const rasServerURL = 'stsstg.nih.gov';
 // RAS token url
 const rasAuthURL = `https://${rasServerURL}/auth/oauth/v2/token`;
 const scope = 'openid profile email ga4gh_passport_v1';
-// // hardcoded for testing purposes
-// const authZ = '/programs/phs000710.c99';
 
 // post a indexd record before the suite
 const indexdFile = {
@@ -44,7 +42,7 @@ function assembleCustomHeaders(ACCESS_TOKEN) {
 }
 
 BeforeSuite(async ({ I }) => {
-  console.log('Setting up .. ');
+  console.log('### Setting up .. ');
   I.cache = {};
 
   // check if the RAS user and password is defined as the env variable or in Jenkins creds
@@ -53,6 +51,8 @@ BeforeSuite(async ({ I }) => {
   } else if (process.env.RAS_TEST_USER_1_PASSWORD === undefined) {
     throw new Error('ERROR: There is no password defined for RAS Test User 1. Please declare the "RAS_TEST_USER_1_PASSWORD" environment variable and try again. Aborting test...');
   }
+
+  // parameterizing the ras accounts
 
   if (process.env.clientID === undefined) {
     throw new Error('ERROR: ClientID is not defined. Please declare the "clientID" environment variable and try again. Aborting test...');
@@ -65,7 +65,8 @@ BeforeSuite(async ({ I }) => {
   I.cache.clientSecret = process.env.secretID;
 
   // getting the access_token for the test user
-  I.cache.ACCESS_TOKEN = await bash.runCommand('gen3 api access-token cdis.autotest@gmail.com');
+  // test user -> cdis.autotest@gmail.com
+  I.cache.ACCESS_TOKEN = await bash.runCommand('gen3 api access-token atharvar@uchicago.edu');
   console.log(`Access_Token: ${I.cache.ACCESS_TOKEN}`);
   // upload new indexdFile
   const uploadResp = await I.sendPostRequest(
@@ -73,22 +74,37 @@ BeforeSuite(async ({ I }) => {
     indexdFile.fileToUpload,
     assembleCustomHeaders(I.cache.ACCESS_TOKEN),
   );
-  // // if the authz resource path is hardcoded, you run this to fetch the did of file with hardcoded authz path
-  // // get indexd record for presignedurl request
-  // const getIndexRecord = await I.sendGetRequest(
-  //   `https://${TARGET_ENVIRONMENT}/index/index?authz=${authZ}`,
-  // );
   I.cache.indexdRecord = uploadResp.data.did;
   I.cache.indexdRev = uploadResp.data.rev;
-  console.log(`Indexd Record DID: ${I.cache.indexdRecord}`);
+  console.log(`### Indexd Record DID: ${I.cache.indexdRecord}`);
 });
 
 AfterSuite(async ({ I }) => {
+  // logout from the sessionC
+  console.log('Logging out ..')
+  const logoutData = queryString.stringify({
+    id_token: `${I.cache.idToken}`,
+    client_id: `${I.cache.clientID}`,
+    client_secret: `${I.cache.clientSecret}`,
+  });
+  const logoutSession = await I.sendPostRequest(
+    `https://${rasServerURL}/connect/session/logout`,
+    logoutData,
+    {
+      'Content-length': 'application/x-www-form-urlencoded',
+    },
+  );
+  if (logoutSession.status === 200) {
+      console.log(`The user ${process.env.RAS_TEST_USER_1_USERNAME} has been logged out`);
+  } else {
+      console.log(`The user ${process.env.RAS_TEST_USER_1_USERNAME} is still logged in`);
+  };
+
   // revoke the access for the next run
   console.log('Revoking the access ..');
   const revokeData = queryString.stringify({
     token_type_hint: 'access_token',
-    token: `${I.cache.rasToken}`,
+    token: `${I.cache.accessToken}`,
     client_id: `${I.cache.clientID}`,
     client_secret: `${I.cache.clientSecret}`,
     scope: `${scope}`,
@@ -102,7 +118,7 @@ AfterSuite(async ({ I }) => {
     },
   );
   if (revokeReq.status === 200) {
-    console.log('The access has been revoked');
+    console.log('### The access has been revoked');
   }
 
   // deleting the indexd record that was created in BeforeSuite
@@ -114,20 +130,35 @@ AfterSuite(async ({ I }) => {
     },
   );
   if (deleteRecordReq.status === 200) {
-    console.log('Indexd record is deleted');
+    console.log('### Indexd record is deleted');
   }
 });
 
+function hasScope(passport) {
+  const parsedPassportJwt = parseJwt(passport);
+  const ga4ghJWT = parsedPassportJwt.ga4gh_passport_v1[0];
+  const ga4ghParseJWT = parseJwt(ga4ghJWT);
+  const scope = ga4ghParseJWT.scope;
+  expect(scope).to.equal('openid ga4gh_passport_v1', '###Scope is not correct');
+  return true;
+} 
+
 async function getTokens(I) {
   console.log('Getting the Auth Code ...');
-  I.amOnPage(`https://${rasServerURL}/auth/oauth/v2/authorize?response_type=code&client_id=${I.cache.clientID}&redirect_uri=https://qa-dcp.planx-pla.net/user/login/ras/callback&scope=${scope}&idp=ras`);
+  // &prompt=consent
+  I.amOnPage(`https://${rasServerURL}/auth/oauth/v2/authorize?response_type=code&client_id=${I.cache.clientID}&prompt=consent&redirect_uri=http://localhost:8080/user/login/ras/callback&scope=${scope}&idp=ras`);
   // GET auth/oauth/v2/authorize to get the rasAuthCode
   await sleepMS(3000);
-  I.saveScreenshot('NIHLogin_Page.png');
+  I.saveScreenshot('rasLogin_Page.png');
   // fill in the RAS user creds
   I.fillField('USER', process.env.RAS_TEST_USER_1_USERNAME);
   I.fillField('PASSWORD', process.env.RAS_TEST_USER_1_PASSWORD);
   I.click({ xpath: 'xpath: //button[contains(text(), \'Sign in\')]' });
+  I.wait(5);
+  // TODO -> consent page
+
+  I.saveScreenshot('AfterSignIn.png');
+  
   await sleepMS(3000);
 
   // after signing, the url will consist of Auth Code
@@ -138,7 +169,7 @@ async function getTokens(I) {
   // check if the authCode isnt empty
   expect(authCode).to.not.to.be.empty;
   I.cache.rasAuthCode = authCode;
-  console.log(`Auth Code = ${I.cache.rasAuthCode}`);
+  console.log(`### Auth Code = ${I.cache.rasAuthCode}`);
 
   // getting tokens from the authCode
   console.log('Retrieving Access Token and Refresh Token ... ');
@@ -148,7 +179,7 @@ async function getTokens(I) {
     client_id: `${I.cache.clientID}`,
     client_secret: `${I.cache.clientSecret}`,
     scope: `${scope}`,
-    redirect_uri: 'https://qa-dcp.planx-pla.net/user/login/ras/callback',
+    redirect_uri: 'http://localhost:8080/user/login/ras/callback',
   });
 
   const getRASToken = await I.sendPostRequest(
@@ -161,13 +192,11 @@ async function getTokens(I) {
 
   // you should get RAS tokens (id, access, refresh)
   // but you need only access_token and refresh_token for this test
-  const accessToken = getRASToken.data.access_token;
+  I.cache.idToken = getRASToken.data.id_token
+  I.cache.accessToken = getRASToken.data.access_token;
   I.cache.refreshToken = getRASToken.data.refresh_token;
 
-  // adding access_token to cache for revoking the access at end of the test
-  I.cache.rasToken = accessToken;
-
-  return accessToken;
+  return I.cache.accessToken;
 }
 
 async function getPassport(I, token) {
@@ -182,7 +211,13 @@ async function getPassport(I, token) {
   );
   // you should get a passport with visa as the response
   const passportBody = getPassportReq.data.passport_jwt_v11;
-  console.log(`Passport JWT: ${passportBody}`);
+  // console.log(`### Passport JWT: ${passportBody}`);
+  
+  // checking the validate scope of passport
+  hasScope(passportBody);
+  if (hasScope(passportBody)) {
+    console.log('### The Scope is correct');
+  }
   return passportBody;
 }
 
@@ -209,6 +244,7 @@ Scenario('Send DRS request - Single Passport Single VISA', async ({ I }) => {
   expect(preSignedURLReq).to.not.be.empty;
 });
 
+// Scenario 2 -> 
 Scenario('Get Access Token from Refresh Token', async ({ I }) => {
   console.log('checking the expiration of the token');
   // get new access token from the refresh token
@@ -229,6 +265,7 @@ Scenario('Get Access Token from Refresh Token', async ({ I }) => {
     },
   );
   const refreshedAccessToken = tokenFromRefresh.data.access_token;
+  
   // and send subsequent /userinfo call and also a presigned url call with the passport
   const newPassport = await getPassport(I, refreshedAccessToken);
 
@@ -244,5 +281,3 @@ Scenario('Get Access Token from Refresh Token', async ({ I }) => {
   const newPreSignedURLReq = await I.sendGetRequest(newDrsAccessReq.data.url);
   expect(newPreSignedURLReq).to.not.be.empty;
 });
-
-// scenario for consent management
