@@ -261,7 +261,7 @@ runTestsIfServiceVersion "@requestor" "arborist" "3.2.0" "2021.12"
 #   donot '@requires-indexd'
 # fi
 
-listVar="arborist fence guppy indexd manifestservice metadata pelican peregrine pidgin portal sheepdog sower tube mariner audit requestor hatchery"
+listVar="arborist fence guppy indexd manifestservice metadata pelican peregrine pidgin portal sheepdog sower tube audit requestor hatchery"
 
 for svc_name in $listVar; do
     export isServiceDeployed=$(ifServiceDeployed $svc_name)
@@ -275,9 +275,6 @@ done
 # environments that use DCF features
 # we only run Google Data Access tests for cdis-manifest PRs to these
 envsRequireGoogle="dcp.bionimbus.org internalstaging.theanvil.io staging.theanvil.io gen3.theanvil.io preprod.gen3.biodatacatalyst.nhlbi.nih.gov staging.gen3.biodatacatalyst.nhlbi.nih.gov  gen3.biodatacatalyst.nhlbi.nih.gov nci-crdc-staging.datacommons.io nci-crdc.datacommons.io"
-
-# Do not run mariner before setting up the jenkins envs
-donot '@mariner'
 
 #
 # DataClientCLI tests require a fix to avoid parallel test runs
