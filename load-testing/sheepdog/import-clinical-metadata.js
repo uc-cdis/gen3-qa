@@ -59,8 +59,9 @@ export default function () {
     amputation_type: '6f9b1f1084',
     derived_parent_subject_id: '5c41ec1d49',
     derived_topmed_subject_id: '2fb4aae615',
+    participant_id: 'study_9ad93324ff',
     '*studies': {
-      submitter_id: 'study_3fbd48dc63',
+      submitter_id: 'study_9ad93324ff',
     },
     '*consent_codes': [],
     project_id: `${program}-${project}`,
