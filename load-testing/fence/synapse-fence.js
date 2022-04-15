@@ -2,7 +2,16 @@
 import { check } from 'k6';
 import http from 'k6/http';
 
+const {
+  RELEASE_VERSION,
+} = __ENV; // eslint-disable-line no-undef
+
 export const options = {
+  tags: {
+    scenario: 'Fence - Synapse login',
+    release: RELEASE_VERSION,
+    test_run_id: (new Date()).toISOString().slice(0, 16),
+  },
   // //under what conditions a test is considered as successful or not based on maetric data
   thresholds: {
     http_req_duration: ['avg<250'],

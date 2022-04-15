@@ -14,6 +14,7 @@ const { spawnSync } = require('child_process');
 const { expect } = require('chai');
 const { checkPod, sleepMS } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
+const { cleanUpIndices } = require('../../services/apis/etl/etlTasks.js');
 
 const bash = new Bash();
 
@@ -67,6 +68,9 @@ BeforeSuite(async ({ I }) => {
 
 AfterSuite(async () => {
   console.log('Reverting artifacts back to their original state...');
+
+  console.log('Cleaning up indices created from ETL run');
+  cleanUpIndices();
 
   // Restore original etl-mapping and manifest-guppy configmaps (for idempotency)
   console.log('Running kube-setup-guppy to restore any configmaps that have been mutated. This can take a couple of mins...');
