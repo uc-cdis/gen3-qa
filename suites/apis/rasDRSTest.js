@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-Feature('DRS RAS');
+Feature('DRS RAS @requires-fence @requires-indexd');
 
 const { expect } = require('chai');
 // const { URL } = require('url');
@@ -152,11 +152,14 @@ async function getTokens(I) {
   I.saveScreenshot('rasLogin_Page.png');
   // fill in the RAS user creds
   I.fillField('USER', process.env.RAS_TEST_USER_1_USERNAME);
-  I.fillField('PASSWORD', process.env.RAS_TEST_USER_1_PASSWORD);
+  I.fillField('PASSWORD', secret(process.env.RAS_TEST_USER_1_PASSWORD));
+  I.waitForElement({ xpath: 'xpath: //button[contains(text(), \'Sign in\')]' }, 10);
   I.click({ xpath: 'xpath: //button[contains(text(), \'Sign in\')]' });
-  I.wait(5);
   // TODO -> consent page
+  // /auth/oauth/v2/authorize/consent - we can make a request to /consent endpoint and it returns HTML page
+  // for the request we need - action(grant/deny), sessionID and sessionData in reqBody
 
+  // you should see the consent page in the following screenshot
   I.saveScreenshot('AfterSignIn.png');
   
   await sleepMS(3000);
@@ -222,7 +225,7 @@ async function getPassport(I, token) {
 }
 
 // Scenario 1 ->
-Scenario('Send DRS request - Single Passport Single VISA', async ({ I }) => {
+Scenario('Send DRS request - Single Passport Single VISA @rasDRS', async ({ I }) => {
   const accessToken = await getTokens(I);
   const passport = await getPassport(I, accessToken);
   // sending DRS request with passport in body
@@ -245,7 +248,7 @@ Scenario('Send DRS request - Single Passport Single VISA', async ({ I }) => {
 });
 
 // Scenario 2 -> 
-Scenario('Get Access Token from Refresh Token', async ({ I }) => {
+Scenario('Get Access Token from Refresh Token @rasDRS', async ({ I }) => {
   console.log('checking the expiration of the token');
   // get new access token from the refresh token
   // and make /userinfo call with the new access tokens
