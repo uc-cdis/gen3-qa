@@ -172,7 +172,7 @@ async function runLoadTestScenario() {
     loadTestArgs.unshift(`BASIC_AUTH="${basicAuth}"`);
     loadTestArgs.unshift('-e');
 
-    generateLib('uuid');
+    await generateLib('uuid');
   }
 
   // TODO: Move this to a separate utils function
@@ -215,7 +215,7 @@ async function runLoadTestScenario() {
     loadTestArgs.unshift(`NUM_OF_JSONS="${testDescriptorData.num_of_jsons}"`);
     loadTestArgs.unshift('-e');
 
-    generateLib('uuid');
+    await generateLib('uuid');
   }
 
   const browserifyArgs = ['node_modules/uuid/index.js', '-s', 'uuid'];
