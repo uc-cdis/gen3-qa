@@ -20,7 +20,7 @@ module.exports = async function () {
       }
 
       const updateCronjob = bash.runCommand('g3kubectl get cronjobs');
-      console.log(`${updateCronjob}`)
+      console.log(`${updateCronjob}`);
       if (!(updateCronjob.includes('fence-visa-update') && updateCronjob.includes('fence-cleanup-expired-ga4gh-info'))) {
         console.log('Skipping the test since cronjobs is not deployed to the env.');
         suite.test.forEach((test) => {

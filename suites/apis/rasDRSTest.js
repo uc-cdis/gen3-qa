@@ -66,7 +66,7 @@ BeforeSuite(async ({ I }) => {
 
   // getting the access_token for the test user
   // test user -> cdis.autotest@gmail.com
-  I.cache.ACCESS_TOKEN = await bash.runCommand('gen3 api access-token cdis.autotest@gmail.com');
+  I.cache.ACCESS_TOKEN = await bash.runCommand('gen3 api access-token atharvar@uchicago.edu');
   console.log(`Access_Token: ${I.cache.ACCESS_TOKEN}`);
   // upload new indexdFile
   const uploadResp = await I.sendPostRequest(
@@ -81,7 +81,7 @@ BeforeSuite(async ({ I }) => {
 
 AfterSuite(async ({ I }) => {
   // logout from the sessionC
-  console.log('Logging out ..')
+  console.log('Logging out ..');
   const logoutData = queryString.stringify({
     id_token: `${I.cache.idToken}`,
     client_id: `${I.cache.clientID}`,
@@ -95,10 +95,10 @@ AfterSuite(async ({ I }) => {
     },
   );
   if (logoutSession.status === 200) {
-      console.log(`The user ${process.env.RAS_TEST_USER_1_USERNAME} has been logged out`);
+    console.log(`The user ${process.env.RAS_TEST_USER_1_USERNAME} has been logged out`);
   } else {
-      console.log(`The user ${process.env.RAS_TEST_USER_1_USERNAME} is still logged in`);
-  };
+    console.log(`The user ${process.env.RAS_TEST_USER_1_USERNAME} is still logged in`);
+  }
 
   // revoke the access for the next run
   console.log('Revoking the access ..');
@@ -138,10 +138,10 @@ function hasScope(passport) {
   const parsedPassportJwt = parseJwt(passport);
   const ga4ghJWT = parsedPassportJwt.ga4gh_passport_v1[0];
   const ga4ghParseJWT = parseJwt(ga4ghJWT);
-  const scope = ga4ghParseJWT.scope;
+  const { scope } = ga4ghParseJWT; // eslint-disable-line no-shadow
   expect(scope).to.equal('openid ga4gh_passport_v1', '###Scope is not correct');
   return true;
-} 
+}
 
 async function getTokens(I) {
   console.log('Getting the Auth Code ...');
@@ -161,7 +161,7 @@ async function getTokens(I) {
 
   // you should see the consent page in the following screenshot
   I.saveScreenshot('AfterSignIn.png');
-  
+
   await sleepMS(3000);
 
   // after signing, the url will consist of Auth Code
@@ -195,7 +195,7 @@ async function getTokens(I) {
 
   // you should get RAS tokens (id, access, refresh)
   // but you need only access_token and refresh_token for this test
-  I.cache.idToken = getRASToken.data.id_token
+  I.cache.idToken = getRASToken.data.id_token;
   I.cache.accessToken = getRASToken.data.access_token;
   I.cache.refreshToken = getRASToken.data.refresh_token;
 
@@ -215,7 +215,7 @@ async function getPassport(I, token) {
   // you should get a passport with visa as the response
   const passportBody = getPassportReq.data.passport_jwt_v11;
   // console.log(`### Passport JWT: ${passportBody}`);
-  
+
   // checking the validate scope of passport
   hasScope(passportBody);
   if (hasScope(passportBody)) {
@@ -247,7 +247,7 @@ Scenario('Send DRS request - Single Passport Single VISA @rasDRS', async ({ I })
   expect(preSignedURLReq).to.not.be.empty;
 });
 
-// Scenario 2 -> 
+// Scenario 2 ->
 Scenario('Get Access Token from Refresh Token @rasDRS', async ({ I }) => {
   console.log('checking the expiration of the token');
   // get new access token from the refresh token
@@ -268,7 +268,7 @@ Scenario('Get Access Token from Refresh Token @rasDRS', async ({ I }) => {
     },
   );
   const refreshedAccessToken = tokenFromRefresh.data.access_token;
-  
+
   // and send subsequent /userinfo call and also a presigned url call with the passport
   const newPassport = await getPassport(I, refreshedAccessToken);
 
