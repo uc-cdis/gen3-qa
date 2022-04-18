@@ -19,20 +19,10 @@ module.exports = async function () {
         });
       }
 
-      const updateCronjob = bash.Command('g3kubectl get cronjob fence-visa-update > /dev/null 2>&1');
-      if (!(updateCronjob)) {
-        console.log('Skipping the test since cronjob is not deployed to the env.');
-        suite.test.forEach((test) => {
-          test.run = function skip() { // eslint-disable-line func-names
-            console.log(`Ignoring test - ${test.title}`);
-            this.skip();
-          };
-        });
-      }
-
-      const cleanupCronjob = bash.Command('g3kubectl get cronjob fence-cleanup-expired-ga4gh-info > /dev/null 2>&1');
-      if (!(cleanupCronjob)) {
-        console.log('Skipping the test since cronjob is not deployed to the env.');
+      const updateCronjob = bash.runCommand('g3kubectl get cronjobs');
+      console.log(`${updateCronjob}`)
+      if (!(updateCronjob.includes('fence-visa-update') && updateCronjob.includes('fence-cleanup-expired-ga4gh-info'))) {
+        console.log('Skipping the test since cronjobs is not deployed to the env.');
         suite.test.forEach((test) => {
           test.run = function skip() { // eslint-disable-line func-names
             console.log(`Ignoring test - ${test.title}`);
