@@ -76,10 +76,9 @@ async function runLoadTestScenario() {
   }
 
   // Set fixed list of args for the load test run
-  const loadTestArgs = ['-e', `GEN3_HOST=${targetEnvironment}`, '-e', `ACCESS_TOKEN=${token}`, '-e', `VIRTUAL_USERS="${JSON.stringify(testDescriptorData.virtual_users)}"`,
+  const loadTestArgs = ['-e', `RELEASE_VERSION=${process.env.RELEASE_VERSION}`, '-e', `GEN3_HOST=${targetEnvironment}`, '-e', `ACCESS_TOKEN=${token}`, '-e', `VIRTUAL_USERS="${JSON.stringify(testDescriptorData.virtual_users)}"`,
     '--out', `${k6output}`, '--summary-export=result.json',
     `load-testing/${targetService}/${loadTestScenario}.js`];
-
 
   // for additional debugging include the arg below
   // '--http-debug="full"'];
