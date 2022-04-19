@@ -18,7 +18,7 @@ const myFailRate = new Rate('failed requests');
 
 export const options = {
   tags: {
-    scenario: 'Fence - Patch service account',
+    test_scenario: 'Fence - Patch service account',
     release: RELEASE_VERSION,
     test_run_id: (new Date()).toISOString().slice(0, 16),
   },

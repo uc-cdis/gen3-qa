@@ -17,7 +17,7 @@ const myFailRate = new Rate('failed requests');
 
 export const options = {
   tags: {
-    scenario: 'MDS - Create and query',
+    test_scenario: 'MDS - Create and query',
     release: RELEASE_VERSION,
     test_run_id: (new Date()).toISOString().slice(0, 16),
   },

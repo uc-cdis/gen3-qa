@@ -13,7 +13,7 @@ const myFailRate = new Rate('failed requests');
 
 export const options = {
   tags: {
-    scenario: 'Audit service - Presigned URL',
+    test_scenario: 'Audit service - Presigned URL',
     release: RELEASE_VERSION,
     test_run_id: (new Date()).toISOString().slice(0, 16),
   },
