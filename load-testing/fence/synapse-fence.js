@@ -8,7 +8,7 @@ const {
 
 export const options = {
   tags: {
-    scenario: 'Fence - Synapse login',
+    test_scenario: 'Fence - Synapse login',
     release: RELEASE_VERSION,
     test_run_id: (new Date()).toISOString().slice(0, 16),
   },

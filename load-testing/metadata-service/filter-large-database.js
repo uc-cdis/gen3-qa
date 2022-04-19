@@ -27,7 +27,7 @@ for (let i = 1; i <= numOfJsons; i += 1) {
 
 export const options = {
   tags: {
-    scenario: 'MDS - Filter large database',
+    test_scenario: 'MDS - Filter large database',
     release: RELEASE_VERSION,
     test_run_id: (new Date()).toISOString().slice(0, 16),
   },

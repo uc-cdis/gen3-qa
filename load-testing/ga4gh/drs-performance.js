@@ -60,7 +60,7 @@ const myFailRate = new Rate('failed requests');
 
 let rawOptions = { // eslint-disable-line prefer-const
   tags: {
-    scenario: 'DRS Performace',
+    test_scenario: 'DRS Performace',
     release: RELEASE_VERSION,
     test_run_id: (new Date()).toISOString().slice(0, 16),
   },

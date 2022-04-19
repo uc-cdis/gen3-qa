@@ -13,7 +13,7 @@ const myFailRate = new Rate('failed requests');
 
 export const options = {
   tags: {
-    scenario: 'Sheepdog - Export clinical metadata',
+    test_scenario: 'Sheepdog - Export clinical metadata',
     release: RELEASE_VERSION,
     test_run_id: (new Date()).toISOString().slice(0, 16),
   },
