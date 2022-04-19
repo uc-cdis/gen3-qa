@@ -22,19 +22,16 @@ Scenario('run ETL first time @etl', async ({ I }) => {
   console.log(`${new Date()}: After run ETL first time`);
 });
 
-Scenario('run ETL second time @etl', async ({ I, sheepdog }) => {
+Scenario('run ETL second time @etl', async ({ I, sheepdog, etl }) => {
   console.log(`${new Date()}: Before run ETL second time`);
   await sheepdog.do.runGenTestData(1);
   await bash.runJob('etl', '', false);
   await checkPod(I, 'etl', 'gen3job,job-name=etl', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: false });
   console.log(`${new Date()}: After run ETL second time`);
-});
-
-AfterSuite(async ({ etl }) => {
   etl.props.aliases.forEach((alias) => {
     if (etl.do.existAlias(alias)) {
       const index = etl.do.getIndexFromAlias(alias);
-      console.error(index);
+      console.dir(index);
       etl.ask.hasVersionIncreased(index, 0);
     }
   });
