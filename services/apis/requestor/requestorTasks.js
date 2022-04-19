@@ -22,7 +22,7 @@ module.exports = {
    * @param {boolean} revoke - set to true to create a revoke request
    */
   async createRequestForPolicyID(
-    adminUserTokenHeader, username, policyID, revoke = false, policyStatus = null,
+    adminUserTokenHeader, username, policyID, revoke = false, requestStatus = null,
   ) {
     console.log(`### creating request for a policy id: ${policyID} with revoke set as ${revoke}`);
     const endPoint = revoke ? `${requestorProps.endpoint.requestEndPoint}?revoke` : `${requestorProps.endpoint.requestEndPoint}`;
@@ -30,8 +30,8 @@ module.exports = {
       username,
       policy_id: policyID,
     };
-    if (policyStatus) {
-      data.status = policyStatus;
+    if (requestStatus) {
+      data.status = requestStatus;
     }
     const getResponse = await I.sendPostRequest(
       endPoint,
