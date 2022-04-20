@@ -10,5 +10,4 @@ module.exports = {
     root: apiRoot,
     alias: `${apiRoot}/_alias`,
   },
-  aliases: [`etl_${process.env.NAMESPACE}`, `file_${process.env.NAMESPACE}`, `${process.env.NAMESPACE}_etl`, `${process.env.NAMESPACE}_file`],
 };

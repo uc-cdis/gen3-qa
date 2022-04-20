@@ -10,7 +10,6 @@ test_suites_that_cant_run_in_parallel = [
     "test-batch-GoogleBucketManifestGenerationTest",   # @donot
     "test-batch-S3BucketManifestGenerationTest",       # @donot
     "test-portal-dataguidOrgTest",                     # @donot
-    "test-mariner-marinerIntegrationTest",             # @donot
     "test-suites-fail",                                # special suite to force failures for invalid test labels
     "test-portal-roleBasedUITest",                     # manual (executable test)
     "test-portal-limitedFilePFBExportTestPlan",        # manual (executable test)

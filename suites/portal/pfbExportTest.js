@@ -65,8 +65,11 @@ BeforeSuite(async ({ I }) => {
   await bash.runCommand(`find . -name "test_export_*" -exec rm {} \\\; -exec echo "deleted {}" \\\;`); // eslint-disable-line quotes,no-useless-escape
 });
 
-AfterSuite(async () => {
+AfterSuite(async ({ etl }) => {
   console.log('Reverting artifacts back to their original state...');
+
+  console.log('Cleaning up indices created from ETL run');
+  etl.do.cleanUpIndices();
 
   // Restore original etl-mapping and manifest-guppy configmaps (for idempotency)
   console.log('Running kube-setup-guppy to restore any configmaps that have been mutated. This can take a couple of mins...');

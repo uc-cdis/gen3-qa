@@ -15,24 +15,6 @@ const pathToCredentialsJson = args[0];
 const testDescriptorFile = args[1];
 const customArgs = args[2];
 
-async function generateLib(libName) {
-  // generate libs
-  spawnSync('which', ['browserify'], { stdio: 'inherit' });
-
-  const browserifyArgs = [`node_modules/${libName}/index.js`, '-s', libName];
-  console.log('generating js files for node libs...');
-  const browserifyCmd = spawnSync('browserify', browserifyArgs, { stdio: 'pipe' });
-  fs.writeFileSync(
-    `load-testing/libs/${libName}.js`,
-    browserifyCmd.output.toString().slice(1, -1),
-    { encoding: 'utf8', flag: 'w' },
-    (err) => {
-      if (err) console.log(err);
-      console.log(`browserify ${browserifyArgs}`);
-    },
-  );
-}
-
 async function runLoadTestScenario() {
   let testDescriptorData = fs.readFileSync(testDescriptorFile, 'utf8');
   testDescriptorData = JSON.parse(testDescriptorData.trim());
@@ -76,10 +58,9 @@ async function runLoadTestScenario() {
   }
 
   // Set fixed list of args for the load test run
-  const loadTestArgs = ['-e', `GEN3_HOST=${targetEnvironment}`, '-e', `ACCESS_TOKEN=${token}`, '-e', `VIRTUAL_USERS="${JSON.stringify(testDescriptorData.virtual_users)}"`,
+  const loadTestArgs = ['-e', `RELEASE_VERSION=${process.env.RELEASE_VERSION}`, '-e', `GEN3_HOST=${targetEnvironment}`, '-e', `ACCESS_TOKEN=${token}`, '-e', `VIRTUAL_USERS="${JSON.stringify(testDescriptorData.virtual_users)}"`,
     '--out', `${k6output}`, '--summary-export=result.json',
     `load-testing/${targetService}/${loadTestScenario}.js`];
-
 
   // for additional debugging include the arg below
   // '--http-debug="full"'];
@@ -172,8 +153,6 @@ async function runLoadTestScenario() {
       ? Buffer.from(`${testDescriptorData.basic_auth.username}:${testDescriptorData.basic_auth.password}`).toString('base64') : '';
     loadTestArgs.unshift(`BASIC_AUTH="${basicAuth}"`);
     loadTestArgs.unshift('-e');
-
-    generateLib('uuid');
   }
 
   // TODO: Move this to a separate utils function
@@ -215,8 +194,6 @@ async function runLoadTestScenario() {
     }
     loadTestArgs.unshift(`NUM_OF_JSONS="${testDescriptorData.num_of_jsons}"`);
     loadTestArgs.unshift('-e');
-
-    generateLib('uuid');
   }
 
   const browserifyArgs = ['node_modules/uuid/index.js', '-s', 'uuid'];

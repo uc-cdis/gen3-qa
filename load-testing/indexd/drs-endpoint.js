@@ -4,6 +4,7 @@ const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresol
 
 const {
   GUIDS_LIST,
+  RELEASE_VERSION,
   GEN3_HOST,
   ACCESS_TOKEN,
   VIRTUAL_USERS,
@@ -17,6 +18,11 @@ const guids = GUIDS_LIST.split(',');
 const myFailRate = new Rate('failed requests');
 
 export const options = {
+  tags: {
+    test_scenario: 'Indexd - DRS Endpoint',
+    release: RELEASE_VERSION,
+    test_run_id: (new Date()).toISOString().slice(0, 16),
+  },
   rps: 90000,
   stages: JSON.parse(VIRTUAL_USERS.slice(1, -1)),
   thresholds: {

@@ -4,6 +4,7 @@ const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresol
 
 const {
   ACCESS_TOKEN,
+  RELEASE_VERSION,
   GEN3_HOST,
   VIRTUAL_USERS,
 } = __ENV; // eslint-disable-line no-undef
@@ -11,6 +12,11 @@ const {
 const myFailRate = new Rate('failed requests');
 
 export const options = {
+  tags: {
+    test_scenario: 'Audit service - Presigned URL',
+    release: RELEASE_VERSION,
+    test_run_id: (new Date()).toISOString().slice(0, 16),
+  },
   stages: JSON.parse(VIRTUAL_USERS.slice(1, -1)),
   thresholds: {
     http_req_duration: ['avg<1000', 'p(95)<2000'],

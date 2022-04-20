@@ -12,6 +12,7 @@ const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresol
 
 const {
 //  NUM_OF_RECORDS,
+  RELEASE_VERSION,
   GEN3_HOST,
   ACCESS_TOKEN,
   VIRTUAL_USERS,
@@ -20,6 +21,11 @@ const {
 const myFailRate = new Rate('failed requests');
 
 export const options = {
+  tags: {
+    test_scenario: 'Sheepdog - Import clinical metadata',
+    release: RELEASE_VERSION,
+    test_run_id: (new Date()).toISOString().slice(0, 16),
+  },
   stages: JSON.parse(VIRTUAL_USERS.slice(1, -1)),
   thresholds: {
     http_req_duration: ['avg<3000', 'p(95)<15000'],
@@ -53,8 +59,9 @@ export default function () {
     amputation_type: '6f9b1f1084',
     derived_parent_subject_id: '5c41ec1d49',
     derived_topmed_subject_id: '2fb4aae615',
+    participant_id: 'study_9ad93324ff',
     '*studies': {
-      submitter_id: 'study_3fbd48dc63',
+      submitter_id: 'study_9ad93324ff',
     },
     '*consent_codes': [],
     project_id: `${program}-${project}`,
