@@ -11,7 +11,8 @@ const {
 const myFailRate = new Rate('failed requests');
 
 console.log('Running scenario - dicom-server-metadata');
-
+console.log(VIRTUAL_USERS);
+console.log(JSON.parse(VIRTUAL_USERS.slice(1, -1)));
 export const options = {
   tags: {
     scenario: 'Dicom Server - Metadata',
@@ -27,6 +28,7 @@ export const options = {
 };
 
 export function setup() {
+  console.log('Setting up...');
   const METADATA_URLS = [];
   const DICOM_SERVER_URL = `https://${TARGET_ENVIRONMENT}/dicom-server`;
   const studies = http.get(`${DICOM_SERVER_URL}/studies`).json();
@@ -44,6 +46,7 @@ export function setup() {
 }
 
 export default function (data) {
+  console.log('Running scenario...');
   let currentUrlNumber = 0;
   group('Fetch series metadata', () => {
     const res = http.get(data[currentUrlNumber], { tags: { name: 'Dicom Series Metadata' } });
