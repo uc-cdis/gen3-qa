@@ -28,6 +28,7 @@ export function setup() {
   const METADATA_URLS = [];
   const DICOM_SERVER_URL = `https://${TARGET_ENVIRONMENT}/dicom-server`;
   const studies = http.get(`${DICOM_SERVER_URL}/studies`).json();
+  console.log(studies);
   studies.forEach((study) => {
     const res = http.get(`${DICOM_SERVER_URL}/studies/${study.id}`).json();
     const studyInstanceUid = res.MainDicomTags.StudyInstanceUID;
@@ -36,6 +37,7 @@ export function setup() {
       METADATA_URLS.append(`${DICOM_SERVER_URL}/dicom-web/${studyInstanceUid}/series/${seriesId}/metadata`);
     });
   });
+  console.log(METADATA_URLS);
   return METADATA_URLS;
 }
 
