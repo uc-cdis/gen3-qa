@@ -10,6 +10,8 @@ const {
 
 const myFailRate = new Rate('failed requests');
 
+console.log('Running scenario - dicom-server-metadata');
+
 export const options = {
   tags: {
     scenario: 'Dicom Server - Metadata',
