@@ -81,7 +81,7 @@ Scenario('Send a revoke request for a policy the user does not have @requestor',
   expect(revokeResponse).to.have.property('status_code', 400);
 });
 
-Scenario('User requests access for a policy with a signed status (and revoke it later) @requestor-new', async ({
+Scenario('User requests access for a policy with a signed status (and revoke it later) @requestorNew', async ({
   users, fence,
 }) => {
   // Check that the user does not have access to policy 'requestor_integration_test'.
