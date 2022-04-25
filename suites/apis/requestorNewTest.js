@@ -2,7 +2,7 @@ Feature('RequestorNewAPI @requires-requestorNew');
 
 /**
   This set of integration tests are the extension to the existing
-  requetorTest suite. They test the flow of new features included
+  requestorTest suite. They test the flow of new features included
   in requestor service after version 1.5.1. The whole purpose of this
   new suite is to overcome the limitation of `runTestsIfServiceVersion`
   to only filter out at the test-suite level.
