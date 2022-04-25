@@ -3,6 +3,7 @@ const http = require('k6/http'); // eslint-disable-line import/no-unresolved
 const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresolved
 
 const {
+  GEN3_HOST,
   RELEASE_VERSION,
   TARGET_ENVIRONMENT,
   VIRTUAL_USERS,
@@ -12,14 +13,19 @@ const myFailRate = new Rate('failed requests');
 
 console.log('Running scenario - dicom-server-metadata');
 console.log(VIRTUAL_USERS);
-console.log(JSON.parse(VIRTUAL_USERS.slice(1, -1)));
+// console.log(JSON.parse(VIRTUAL_USERS.slice(1, -1)));
 export const options = {
   tags: {
     scenario: 'Dicom Server - Metadata',
     release: RELEASE_VERSION,
     test_run_id: (new Date()).toISOString().slice(0, 16),
   },
-  stages: JSON.parse(VIRTUAL_USERS.slice(1, -1)),
+  stages: [
+    { duration: '10s', target: 10 },
+    { duration: '10s', target: 50 },
+    { duration: '10s', target: 100 },
+    { duration: '10s', target: 150 },
+  ],
   thresholds: {
     http_req_duration: ['avg<3000', 'p(95)<15000'],
     'failed requests': ['rate<0.1'],
@@ -30,15 +36,26 @@ export const options = {
 export function setup() {
   console.log('Setting up...');
   const METADATA_URLS = [];
-  const DICOM_SERVER_URL = `https://${TARGET_ENVIRONMENT}/dicom-server`;
-  const studies = http.get(`${DICOM_SERVER_URL}/studies`).json();
-  console.log(studies);
+  const DICOM_SERVER_URL = `https://${GEN3_HOST}/dicom-server`;
+  const studies = JSON.parse(http.get(`${DICOM_SERVER_URL}/studies`).body);
+  // console.log(studies);
+  let studyUrl = '';
   studies.forEach((study) => {
-    const res = http.get(`${DICOM_SERVER_URL}/studies/${study.id}`).json();
+    console.log(study);
+    studyUrl = `${DICOM_SERVER_URL}/studies/${study}`;
+    const res = JSON.parse(http.get(studyUrl).body);
+    // console.log(studyUrl);
     const studyInstanceUid = res.MainDicomTags.StudyInstanceUID;
+    console.log(studyInstanceUid);
     const seriesIds = res.Series;
+    console.log(seriesIds);
     seriesIds.forEach((seriesId) => {
-      METADATA_URLS.append(`${DICOM_SERVER_URL}/dicom-web/${studyInstanceUid}/series/${seriesId}/metadata`);
+      // console.log(seriesId);
+      const seriesUrl = `${DICOM_SERVER_URL}/series/${seriesId}`;
+      const seriesInstanceUid = JSON.parse(http.get(seriesUrl).body).MainDicomTags.SeriesInstanceUID;
+      const metadataUrl = `${DICOM_SERVER_URL}/dicom-web/${studyInstanceUid}/series/${seriesInstanceUid}`;
+      console.log(metadataUrl);
+      METADATA_URLS.push(metadataUrl);
     });
   });
   console.log(METADATA_URLS);
@@ -49,7 +66,11 @@ export default function (data) {
   console.log('Running scenario...');
   let currentUrlNumber = 0;
   group('Fetch series metadata', () => {
-    const res = http.get(data[currentUrlNumber], { tags: { name: 'Dicom Series Metadata' } });
+    const res = http.get(data[currentUrlNumber],
+      {
+        Accept: 'multipart/related; type="application/dicom"; transfer-syntax=*',
+      });
+    console.log(JSON.stringify(res));
     if (currentUrlNumber === data.length - 1) {
       currentUrlNumber = 0;
     } else {
