@@ -15,7 +15,7 @@ module.exports = {
   },
 
   async SelectVariables() {
-    // TODO: select multiple variables 
+    // TODO: select multiple variables
     I.seeElement(GWASProps.SelectConceptTitle);
     I.click(GWASProps.SelectFirstCheckboxInput);
     I.click(GWASProps.SelectSecondCheckboxInput);
@@ -51,7 +51,7 @@ module.exports = {
     I.seeElement(GWASProps.JobDeletePopup);
     I.click(GWASProps.JobDeleteYes);
   },
- 
+
   async CheckJobStatus() {
     I.seeElement(GWASProps.JobStatusesButton);
     I.click(GWASProps.JobStatusesButton);

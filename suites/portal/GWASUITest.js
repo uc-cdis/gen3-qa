@@ -1,23 +1,20 @@
 Feature('GWAS UI @requires-portal @requires-argo-wrapper @requires-cohort-middleware');
 
 const { expect } = require('chai');
-const { Bash } = require('../../utils/bash.js');
 const GWASTasks = require('../../services/portal/GWAS/GWASTasks.js');
 const GWASProps = require('../../services/portal/GWAS/GWASProps.js');
 const GWASQuestions = require('../../services/portal/GWAS/GWASQuestions.js');
 
-const bash = new Bash();
-
 async function getExistingJobNumbers(I) {
   await GWASTasks.CheckJobStatus();
-  let numOfElements = await I.grabNumberOfVisibleElements(GWASProps.JobIDs);
+  const numOfElements = await I.grabNumberOfVisibleElements(GWASProps.JobIDs);
   I.click(GWASProps.JobStatusesButton);
   return numOfElements;
 }
 
 async function getExistingSuccessfulJobNumbers(I) {
   await GWASTasks.CheckJobStatus();
-  let numOfElements = await I.grabNumberOfVisibleElements(GWASProps.JobComplete);
+  const numOfElements = await I.grabNumberOfVisibleElements(GWASProps.JobComplete);
   I.click(GWASProps.JobStatusesButton);
   return numOfElements;
 }
@@ -27,10 +24,10 @@ Scenario('GWAS submit workflow', async ({
 }) => {
   home.do.goToHomepage();
   login.complete.login(users.mainAcct);
-  
+
   GWASTasks.goToGWASPage();
-  let jobNumber = getExistingJobNumbers(I);
-  let successfulJobNumber = getExistingSuccessfulJobNumbers(I);
+  const jobNumber = getExistingJobNumbers(I);
+  const successfulJobNumber = getExistingSuccessfulJobNumbers(I);
 
   await GWASTasks.selectCohort();
   await GWASTasks.ClickNextButton();
@@ -43,7 +40,7 @@ Scenario('GWAS submit workflow', async ({
   await GWASTasks.SubmitJob();
   await GWASTasks.ClickNextButton();
   await GWASTasks.CheckJobStatus();
-  
+
   await GWASQuestions.isJobStart(jobNumber);
   I.saveScreenshot('GWAS_page_check_job_status_waitForStart.png');
   I.wait(5);
@@ -57,7 +54,7 @@ Scenario('GWAS delete workflow after completing job', async ({
   home.do.goToHomepage();
   login.complete.login(users.mainAcct);
   GWASTasks.goToGWASPage();
-  let jobNumber = getExistingJobNumbers(I);
+  const jobNumber = getExistingJobNumbers(I);
   expect(jobNumber).to.be.at.least(1);
 
   await GWASTasks.DeleteJob();
@@ -71,7 +68,8 @@ Scenario('GWAS delete workflow while processing job', async ({
 }) => {
   home.do.goToHomepage();
   login.complete.login(users.mainAcct);
-  
+  const jobNumber = getExistingJobNumbers(I);
+
   GWASTasks.goToGWASPage();
 
   await GWASTasks.selectCohort();
@@ -85,7 +83,7 @@ Scenario('GWAS delete workflow while processing job', async ({
   await GWASTasks.SubmitJob();
   await GWASTasks.ClickNextButton();
   await GWASTasks.CheckJobStatus();
-  
+
   await GWASQuestions.isJobStart(jobNumber);
   I.seeElement(GWASProps.JobProcessing);
   await GWASTasks.DeleteJob();
@@ -98,7 +96,7 @@ Scenario('GWAS previous button', async ({
 }) => {
   home.do.goToHomepage();
   login.complete.login(users.mainAcct);
-  
+
   GWASTasks.goToGWASPage();
 
   await GWASTasks.selectCohort();
@@ -110,4 +108,3 @@ Scenario('GWAS previous button', async ({
   await GWASTasks.ClickNextButton();
   I.seeElement(GWASProps.SelectPhenotypeTitle);
 });
-
