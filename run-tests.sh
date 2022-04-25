@@ -252,8 +252,8 @@ runTestsIfServiceVersion "@coreMetadataPage" "portal" "2.20.8"
 runTestsIfServiceVersion "@indexing" "portal" "2.26.0" "2020.05"
 runTestsIfServiceVersion "@cleverSafe" "fence" "4.22.4" "2020.09"
 runTestsIfServiceVersion "@requestor" "requestor" "1.5.0" "2022.02"
-runTestsIfServiceVersion "@requestorNew" "requestor" "1.5.1" "2022.05"
 runTestsIfServiceVersion "@requestor" "arborist" "3.2.0" "2021.12"
+runTestsIfServiceVersion "@requestorNew" "requestor" "1.5.1" "2022.06"
 
 # disable tests if the service is not deployed
 # export isIndexdDeployed=$(ifServiceDeployed "indexd")
