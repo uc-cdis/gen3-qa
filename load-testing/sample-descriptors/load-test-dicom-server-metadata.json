@@ -4,11 +4,5 @@
     "name": "qa-midrc.planx-plan.net"
   },
   "service": "dicom-server",
-  "load_test_scenario": "metadata",
-  "virtual_users": [
-    { "duration": "10s", "target": 10 },
-    { "duration": "10s", "target": 50 },
-    { "duration": "10s",  "target": 100 },
-    { "duration": "10s", "target": 150 }
-  ]
+  "load_test_scenario": "metadata"
 }
