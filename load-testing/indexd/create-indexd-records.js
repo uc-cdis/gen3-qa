@@ -24,7 +24,7 @@ const myFailRate = new Rate('failed requests');
 
 export const options = {
   tags: {
-    scenario: 'Indexd - Create records',
+    test_scenario: 'Indexd - Create records',
     release: RELEASE_VERSION,
     test_run_id: (new Date()).toISOString().slice(0, 16),
   },

@@ -13,7 +13,7 @@ const {
 
 export const options = {
   tags: {
-    scenario: 'Portal - Study Viewer',
+    test_scenario: 'Portal - Study Viewer',
     release: RELEASE_VERSION,
     test_run_id: (new Date()).toISOString().slice(0, 16),
   },
