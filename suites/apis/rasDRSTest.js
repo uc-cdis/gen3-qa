@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-Feature('DRS RAS @requires-fence @requires-indexd');
+Feature('DRS RAS visa @requires-fence @requires-indexd');
 
 const { expect } = require('chai');
 // const { URL } = require('url');
