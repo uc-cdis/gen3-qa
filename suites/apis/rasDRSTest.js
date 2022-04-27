@@ -161,8 +161,7 @@ async function getTokens(I) {
 
   // you should see the consent page in the following screenshot
   I.saveScreenshot('AfterSignIn.png');
-
-  await sleepMS(3000);
+  I.seeInCurrentURL('code');
 
   // after signing, the url will consist of Auth Code
   const authCodeURL = await I.grabCurrentUrl();
