@@ -51,7 +51,7 @@ async function runLoadTestScenario() {
   // Set fixed list of args for the load test run
   const loadTestArgs = ['-e', `TARGET_ENVIRONMENT=${process.env.TARGET_ENVIRONMENT}`,
     '-e', `RELEASE_VERSION=${process.env.RELEASE_VERSION}`, '-e', `GEN3_HOST=${targetEnvironment}`,
-    '-e', `ACCESS_TOKEN=${token}`, '-e', `VU_COUNT='${process.env.VU_COUNT}'`, '-e', `DURATION='${process.env.DURATION}'`,
+    '-e', `ACCESS_TOKEN=${token}`, '-e', `VU_COUNT=${process.env.VU_COUNT}`, '-e', `DURATION=${process.env.DURATION}`,
     '--out', `${k6output}`, '--summary-export=result.json',
     `load-testing/${targetService}/${loadTestScenario}.js`];
 
