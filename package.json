@@ -78,6 +78,7 @@
     "create-service": "node scripts/create_service.js"
   },
   "dependencies": {
+    "npm-upgrade": "^3.1.0",
     "query-string": "^7.1.1"
   }
 }
