@@ -5,7 +5,7 @@
     (Ssjdispatcher should be configured)
  2. The environment must be configured with sower-jobs (To run pelican-export)
 */
-Feature('PFB Export @requires-portal');
+Feature('PFB Export @requires-portal @e2e');
 
 const axios = require('axios');
 const path = require('path');

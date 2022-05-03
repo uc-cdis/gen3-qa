@@ -1,4 +1,4 @@
-Feature('Register User For Data Downloading @requires-portal');
+Feature('Register User For Data Downloading @requires-portal @e2e');
 
 /*
 USER STORIES
