@@ -113,6 +113,7 @@ exports.config = {
   bootstrap: require('./test_setup.js'), // eslint-disable-line global-require
   hooks: [
     require('./hooks/test_results.js'), // eslint-disable-line global-require
+    require('./hooks/test_conditions.js'), //eslint-disable-line global-require
   ],
   tests: './suites/**/*.js',
   gherkin: {
