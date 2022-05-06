@@ -1,3 +1,4 @@
+/* eslint-disable codeceptjs/no-skipped-tests */
 Feature('GWAS UI @requires-portal @requires-argo-wrapper @requires-cohort-middleware');
 
 const { Bash } = require('../../utils/bash.js');
