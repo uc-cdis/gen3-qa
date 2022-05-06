@@ -12,7 +12,8 @@ module.exports = async function () {
       const drsEnabled = bash.runCommand('gen3 secrets decode fence-config fence-config.yaml | yq .GA4GH_PASSPORTS_TO_DRS_ENABLED');
       if (drsEnabled !== true) {
         console.log('Skipping the RAS DRS tests since required configuration is not in fence-config.yaml');
-        suite.test.forEach((test) => {
+        console.dir(suite.tests);
+        suite.tests.forEach((test) => {
           test.run = function skip() { // eslint-disable-line func-names
             console.log(`Ignoring test - ${test.title}`);
             this.skip();
@@ -24,7 +25,7 @@ module.exports = async function () {
       console.log(`${updateCronjob}`);
       if (!(updateCronjob.includes('fence-visa-update') && updateCronjob.includes('fence-cleanup-expired-ga4gh-info'))) {
         console.log('Skipping the test since cronjobs is not deployed to the env.');
-        suite.test.forEach((test) => {
+        suite.tests.forEach((test) => {
           test.run = function skip() { // eslint-disable-line func-names
             console.log(`Ignoring test - ${test.title}`);
             this.skip();
