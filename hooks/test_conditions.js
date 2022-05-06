@@ -5,8 +5,9 @@ const bash = new Bash();
 
 module.exports = async function () {
   event.dispatcher.on(event.suite.before, (suite) => {
+    console.log('Checking test_conditions');
     console.log('*******');
-    console.log(`SUITE:${suite.title}`);
+    console.log(`SUITE: ${suite.title}`);
     if (suite.title === 'DRS RAS visa @requires-fence @requires-indexd') {
       const drsEnabled = bash.runCommand('gen3 secrets decode fence-config fence-config.yaml | yq .GA4GH_PASSPORTS_TO_DRS_ENABLED');
       if (drsEnabled !== true) {
