@@ -302,6 +302,9 @@ donot '@dataguids'
 # Do not run prjsBucketAccess (for prod-execution only)
 donot '@prjsBucketAccess'
 
+echo "INFO: disabling RAS DRS test as jenkins env is not configured"
+donot '@rasDRS'
+
 # For dataguids.org PRs, skip all fence-related bootstrapping oprations
 # as the environment does not have fence
 if [ "$testedEnv" == "dataguids.org" ]; then
