@@ -8,56 +8,57 @@ const GWASTasks = require('./GWASTasks.js');
 const GWASProps = require('./GWASProps.js');
 
 module.exports = {
-  async isJobStart(jobNumber) {
+  async isJobStart(jobId) {
     let refreshed = 0; // keep track of how many refreshes
+    let InProgressxpath = `//li[.//h4[contains(text(),"${jobId}")]]//span[text()="In Progress"]`;
     while (refreshed < 3) {
       if (refreshed > 0) {
         I.refreshPage();
         await GWASTasks.CheckJobStatus();
       }
-      const jobNumberAfterSubmit = await I.grabNumberOfVisibleElements(GWASProps.JobIDs);
-      if (jobNumberAfterSubmit <= jobNumber) {
+      let InProgressSpan = await tryTo(() => I.waitForElement(InProgressxpath, 2)); // eslint-disable-line
+      if (!InProgressSpan) {
         refreshed += 1;
       } else {
         break;
       }
     }
-    I.seeElement(GWASProps.JobStarted);
+    I.seeElement(InProgressxpath);
   },
 
-  async isJobComplete(successfulJobNumber) {
+  async isJobComplete(jobId) {
     let refreshed = 0; // keep track of how many refreshes
+    let Completexpath = `//li[.//h4[contains(text(),"${jobId}")]]//span[text()="Completed"]`;
     while (refreshed < 3) {
       if (refreshed > 0) {
         I.refreshPage();
         await GWASTasks.CheckJobStatus();
       }
-      const successfulJobNumberAfterSubmit = await I.grabNumberOfVisibleElements(GWASProps.JobComplete);
-      if (successfulJobNumberAfterSubmit <= successfulJobNumber) {
+      let completeSpan = await tryTo(() => I.waitForElement(Completexpath, 2)); // eslint-disable-line
+      if (!completeSpan) {
         refreshed += 1;
       } else {
         break;
       }
     }
-    I.seeElement(GWASProps.JobComplete);
-    I.seeElement(GWASProps.JobFinished);
+    I.seeElement(GWASProps.Completexpath);
   },
 
-  async isJobDelete(jobNumber) {
+  async isJobCancel() {
     let refreshed = 0; // keep track of how many refreshes
-    let jobNumberAfterDelete = -1;
+    let Cancelxpath = `//li[.//h4[contains(text(),"${jobId}")]]//span[text()="Cancelled"]`;
     while (refreshed < 3) {
       if (refreshed > 0) {
         I.refreshPage();
         await GWASTasks.CheckJobStatus();
       }
-      jobNumberAfterDelete = await I.grabNumberOfVisibleElements(GWASProps.JobIDs);
-      if (jobNumberAfterDelete >= jobNumber) {
+      let completeSpan = await tryTo(() => I.waitForElement(Cancelxpath, 2)); // eslint-disable-line
+      if (!completeSpan) {
         refreshed += 1;
       } else {
         break;
       }
     }
-    expect(jobNumberAfterDelete).to.equal(jobNumber - 1);
+    I.seeElement(GWASProps.Cancelxpath);
   },
 };

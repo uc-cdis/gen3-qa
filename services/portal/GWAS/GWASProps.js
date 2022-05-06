@@ -15,7 +15,7 @@ module.exports = {
   JobStatusesButton: '//*[contains(text(),"Statuses")]',
   JobIDs: '//h4[contains(text(),"Run ID")]',
   JobComplete: '//span[contains(text(),"Completed")]',
-  JobProcessing: '//span[contains(text(),"Processing")]',
+  JobInProgress: '//span[contains(text(),"Progress")]',
   JobCanceling: '//span[contains(text(),"Cancelling")]',
   JobStarted: '//div[contains(text(),"Started at")]',
   JobFinished: '//div[contains(text(),"finished at")]',
