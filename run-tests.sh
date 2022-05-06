@@ -263,7 +263,7 @@ runTestsIfServiceVersion "@requestorNew" "arborist" "3.2.0" "2021.12"
 #   donot '@requires-indexd'
 # fi
 
-listVar="arborist fence guppy indexd manifestservice metadata pelican peregrine pidgin portal sheepdog sower tube audit requestor hatchery"
+listVar="arborist fence guppy indexd manifestservice metadata pelican peregrine pidgin portal sheepdog sower tube audit requestor hatchery argo-wrapper cohort-middleware"
 
 for svc_name in $listVar; do
     export isServiceDeployed=$(ifServiceDeployed $svc_name)
