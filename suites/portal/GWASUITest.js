@@ -21,7 +21,7 @@ Scenario('GWAS submit workflow', async ({
   I, home, users, login,
 }) => {
   home.do.goToHomepage();
-  login.complete.login(users.mainAcct);
+  await home.complete.login(users.mainAcct);
 
   GWASTasks.goToGWASPage();
 
@@ -52,7 +52,7 @@ xScenario('GWAS delete workflow while processing job', async ({
   I, home, users, login,
 }) => {
   home.do.goToHomepage();
-  login.complete.login(users.mainAcct);
+  await home.complete.login(users.mainAcct);
 
   GWASTasks.goToGWASPage();
 
@@ -84,7 +84,7 @@ Scenario('GWAS previous button and next button', async ({
   I, home, users, login,
 }) => {
   home.do.goToHomepage();
-  login.complete.login(users.mainAcct);
+  await home.complete.login(users.mainAcct);
 
   GWASTasks.goToGWASPage();
 
@@ -102,7 +102,7 @@ Scenario('Unauthorize to workflow', async ({
   I, home, users, login,
 }) => {
   home.do.goToHomepage();
-  login.complete.login(users.auxAcct1);
+  await home.complete.login(users.mainAcct);
 
   GWASTasks.goToGWASPage();
 
