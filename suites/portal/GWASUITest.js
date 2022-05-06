@@ -9,10 +9,10 @@ const GWASProps = require('../../services/portal/GWAS/GWASProps.js');
 const GWASQuestions = require('../../services/portal/GWAS/GWASQuestions.js');
 
 async function getRunId() {
-  const res = await bash.runCommand(`argo -n argo list | sed -n '2 p'`);
+  const res = await bash.runCommand('argo -n argo list | sed -n \'2 p\'');
   console.log(res);
-  //argo-wrapper-workflow-xxxx   Succeeded             1m    40s        0
-  const runId = res.split(" ")[0];
+  // argo-wrapper-workflow-xxxx   Succeeded             1m    40s        0
+  const runId = res.split(' ')[0];
   return runId;
 }
 
@@ -33,10 +33,10 @@ Scenario('GWAS submit workflow', async ({
   await GWASTasks.setParameters();
   await GWASTasks.ClickNextButton();
   await GWASTasks.SubmitJob();
- 
+
   I.wait(1);
-  let runId = await getRunId();
- 
+  const runId = await getRunId();
+
   await GWASTasks.CheckJobStatus();
 
   await GWASQuestions.isJobStart(runId);
@@ -47,7 +47,7 @@ Scenario('GWAS submit workflow', async ({
 });
 
 // TODO: will change delete to cancel in future
-xScenario('GWAS delete workflow while processing job', async ({
+Scenario('GWAS delete workflow while processing job', async ({
   I, home, users, login,
 }) => {
   home.do.goToHomepage();
@@ -67,8 +67,8 @@ xScenario('GWAS delete workflow while processing job', async ({
   await GWASTasks.CheckJobStatus();
 
   I.wait(1);
-  let runId = await getRunId();
- 
+  const runId = await getRunId();
+
   await GWASTasks.CheckJobStatus();
 
   await GWASQuestions.isJobStart(runId);
@@ -105,6 +105,6 @@ Scenario('Unauthorize to workflow', async ({
 
   GWASTasks.goToGWASPage();
 
-  I.dontSeeElement(GWASProps.JobStatusesButton); 
+  I.dontSeeElement(GWASProps.JobStatusesButton);
   // TODO: add message for unauthorized user
 });
