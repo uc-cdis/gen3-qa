@@ -47,7 +47,7 @@ Scenario('GWAS submit workflow', async ({
 });
 
 // TODO: will change delete to cancel in future
-Scenario('GWAS delete workflow while processing job', async ({
+xScenario('GWAS delete workflow while processing job', async ({
   I, home, users, login,
 }) => {
   home.do.goToHomepage();
