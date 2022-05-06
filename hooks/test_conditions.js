@@ -7,7 +7,7 @@ module.exports = async function () {
   event.dispatcher.on(event.suite.before, (suite) => {
     console.log('*******');
     console.log(`SUITE:${suite.title}`);
-    if (suite.title === 'DRS RAS') {
+    if (suite.title === 'DRS RAS visa @requires-fence @requires-indexd') {
       const drsEnabled = bash.runCommand('gen3 secrets decode fence-config fence-config.yaml | yq .GA4GH_PASSPORTS_TO_DRS_ENABLED');
       if (drsEnabled !== true) {
         console.log('Skipping the RAS DRS tests since required configuration is not in fence-config.yaml');
