@@ -18,7 +18,7 @@ async function getRunId() {
 }
 
 Scenario('GWAS submit workflow', async ({
-  I, home, users, 
+  I, home, users,
 }) => {
   home.do.goToHomepage();
   await home.complete.login(users.mainAcct);
