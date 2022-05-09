@@ -14,7 +14,7 @@ module.exports = {
     I.click(GWASProps.SelectFirstRadioInput);
   },
 
-  async SelectVariables() {
+  async selectVariables() {
     // TODO: select multiple variables
     I.seeElement(GWASProps.SelectConceptTitle);
     I.click(GWASProps.SelectFirstCheckboxInput);
@@ -31,28 +31,28 @@ module.exports = {
     // TODO: add test parameters
   },
 
-  async ClickNextButton() {
+  async clickNextButton() {
     I.click(GWASProps.NextSpan);
   },
 
-  async ClickPreviousButton() {
+  async clickPreviousButton() {
     I.seeElement(GWASProps.PreviousSpan);
     I.click(GWASProps.PreviousSpan);
   },
 
-  async SubmitJob() {
+  async submitJob() {
     I.seeElement(GWASProps.SubmitButton);
     I.click(GWASProps.SubmitButton);
   },
 
-  async DeleteJob() {
+  async deleteJob() {
     I.seeElement(GWASProps.JobDeleteButton);
     I.click(GWASProps.JobDeleteButton);
     I.seeElement(GWASProps.JobDeletePopup);
     I.click(GWASProps.JobDeleteYes);
   },
 
-  async CheckJobStatus() {
+  async checkJobStatus() {
     I.seeElement(GWASProps.JobStatusesButton);
     I.click(GWASProps.JobStatusesButton);
   },

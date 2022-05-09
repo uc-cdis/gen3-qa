@@ -26,14 +26,14 @@ Scenario('GWAS submit workflow', async ({
   GWASTasks.goToGWASPage();
 
   await GWASTasks.selectCohort();
-  await GWASTasks.ClickNextButton();
-  await GWASTasks.SelectVariables();
-  await GWASTasks.ClickNextButton();
+  await GWASTasks.clickNextButton();
+  await GWASTasks.selectVariables();
+  await GWASTasks.clickNextButton();
   await GWASTasks.selectPhenotype();
-  await GWASTasks.ClickNextButton();
+  await GWASTasks.clickNextButton();
   await GWASTasks.setParameters();
-  await GWASTasks.ClickNextButton();
-  await GWASTasks.SubmitJob();
+  await GWASTasks.clickNextButton();
+  await GWASTasks.submitJob();
 
   I.wait(1);
   const runId = await getRunId();
@@ -57,14 +57,14 @@ xScenario('GWAS delete workflow while processing job', async ({
   GWASTasks.goToGWASPage();
 
   await GWASTasks.selectCohort();
-  await GWASTasks.ClickNextButton();
-  await GWASTasks.SelectVariables();
-  await GWASTasks.ClickNextButton();
+  await GWASTasks.clickNextButton();
+  await GWASTasks.selectVariables();
+  await GWASTasks.clickNextButton();
   await GWASTasks.selectPhenotype();
-  await GWASTasks.ClickNextButton();
+  await GWASTasks.clickNextButton();
   await GWASTasks.setParameters();
-  await GWASTasks.ClickNextButton();
-  await GWASTasks.SubmitJob();
+  await GWASTasks.clickNextButton();
+  await GWASTasks.submitJob();
   await GWASTasks.CheckJobStatus();
 
   I.wait(1);
@@ -89,12 +89,12 @@ Scenario('GWAS previous button and next button', async ({
   GWASTasks.goToGWASPage();
 
   await GWASTasks.selectCohort();
-  await GWASTasks.ClickNextButton();
-  await GWASTasks.SelectVariables();
-  await GWASTasks.ClickPreviousButton();
+  await GWASTasks.clickNextButton();
+  await GWASTasks.selectVariables();
+  await GWASTasks.clickPreviousButton();
   I.seeElement(GWASProps.SelectCohortTitle);
-  await GWASTasks.ClickNextButton();
-  await GWASTasks.ClickNextButton();
+  await GWASTasks.clickNextButton();
+  await GWASTasks.clickNextButton();
   I.seeElement(GWASProps.SelectPhenotypeTitle);
 });
 
