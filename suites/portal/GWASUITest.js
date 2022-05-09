@@ -18,7 +18,7 @@ async function getRunId() {
 }
 
 Scenario('GWAS submit workflow', async ({
-  I, home, users, login,
+  I, home, users, 
 }) => {
   home.do.goToHomepage();
   await home.complete.login(users.mainAcct);
@@ -49,7 +49,7 @@ Scenario('GWAS submit workflow', async ({
 
 // TODO: will change delete to cancel in future
 xScenario('GWAS delete workflow while processing job', async ({
-  I, home, users, login,
+  I, home, users,
 }) => {
   home.do.goToHomepage();
   await home.complete.login(users.mainAcct);
@@ -81,7 +81,7 @@ xScenario('GWAS delete workflow while processing job', async ({
 });
 
 Scenario('GWAS previous button and next button', async ({
-  I, home, users, login,
+  I, home, users,
 }) => {
   home.do.goToHomepage();
   await home.complete.login(users.mainAcct);
@@ -99,7 +99,7 @@ Scenario('GWAS previous button and next button', async ({
 });
 
 Scenario('Unauthorize to workflow', async ({
-  I, home, users, login,
+  I, home, users,
 }) => {
   home.do.goToHomepage();
   await home.complete.login(users.mainAcct);
