@@ -102,7 +102,7 @@ Scenario('Unauthorize to workflow', async ({
   I, home, users,
 }) => {
   home.do.goToHomepage();
-  await home.complete.login(users.mainAcct);
+  await home.complete.login(users.auxAcct1);
 
   GWASTasks.goToGWASPage();
 
