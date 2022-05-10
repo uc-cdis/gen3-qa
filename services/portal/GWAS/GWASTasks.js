@@ -32,6 +32,7 @@ module.exports = {
   },
 
   async clickNextButton() {
+    I.seeElement(GWASProps.NextSpan);
     I.click(GWASProps.NextSpan);
   },
 
