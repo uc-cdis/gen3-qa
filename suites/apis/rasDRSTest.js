@@ -44,7 +44,23 @@ BeforeSuite(async ({ I }) => {
   console.log('### Setting up .. ');
   I.cache = {};
 
-  // check if the RAS user and password is defined as the env variable or in Jenkins creds
+  // getting the access_token for the test user
+  // test user -> cdis.autotest@gmail.com
+  I.cache.ACCESS_TOKEN = await bash.runCommand('gen3 api access-token cdis.autotest@gmail.com');
+  console.log(`Access_Token: ${I.cache.ACCESS_TOKEN}`);
+  // upload new indexdFile
+  const uploadResp = await I.sendPostRequest(
+    `https://${TARGET_ENVIRONMENT}/index/index`,
+    indexdFile.fileToUpload,
+    assembleCustomHeaders(I.cache.ACCESS_TOKEN),
+  );
+  I.cache.indexdRecord = uploadResp.data.did;
+  I.cache.indexdRev = uploadResp.data.rev;
+  console.log(`### Indexd Record DID: ${I.cache.indexdRecord}`);
+});
+
+Before(async ({ I }) => {
+  //check if the RAS user creds and client creds are defined
   if (process.env.RAS_TEST_USER_1_USERNAME === undefined) {
     throw new Error('ERROR: There is no username defined for RAS Test User 1. Please declare the "RAS_TEST_USER_1_USERNAME" environment variable and try again. Aborting test...');
   } else if (process.env.RAS_TEST_USER_1_PASSWORD === undefined) {
@@ -62,21 +78,7 @@ BeforeSuite(async ({ I }) => {
   // adding clientID and secretID to the cache
   I.cache.clientID = process.env.clientID;
   I.cache.clientSecret = process.env.secretID;
-
-  // getting the access_token for the test user
-  // test user -> cdis.autotest@gmail.com
-  I.cache.ACCESS_TOKEN = await bash.runCommand('gen3 api access-token cdis.autotest@gmail.com');
-  console.log(`Access_Token: ${I.cache.ACCESS_TOKEN}`);
-  // upload new indexdFile
-  const uploadResp = await I.sendPostRequest(
-    `https://${TARGET_ENVIRONMENT}/index/index`,
-    indexdFile.fileToUpload,
-    assembleCustomHeaders(I.cache.ACCESS_TOKEN),
-  );
-  I.cache.indexdRecord = uploadResp.data.did;
-  I.cache.indexdRev = uploadResp.data.rev;
-  console.log(`### Indexd Record DID: ${I.cache.indexdRecord}`);
-});
+})
 
 AfterSuite(async ({ I }) => {
   // logout from the session
