@@ -122,20 +122,19 @@ function hasScope(passport) {
   const { scope } = ga4ghParseJWT; // eslint-disable-line no-shadow
   expect(scope).to.equal('openid ga4gh_passport_v1', '###Scope is not correct');
   return true;
-};
+}
 
 // check if the creds requried for the test are defined as env variables
-function validateCreds(testCreds) {
+function validateCreds(I, testCreds) {
   testCreds.forEach((creds) => {
     if (process.env[creds] === '' || process.env[creds] === undefined) {
-      throw new Error (`Missing required environement variable '${creds}'`);
+      throw new Error(`Missing required environement variable '${creds}'`);
     }
-  
+  });
   // adding the clientID and secretID to the cache
   I.cache.clientID = process.env.clientID;
   I.cache.clientSecret = process.env.secretID;
-  })
-};
+}
 
 async function getTokens(I) {
   console.log('Getting the Auth Code ...');
@@ -219,7 +218,7 @@ async function getPassport(I, token) {
 
 // Scenario 1 ->
 Scenario('Send DRS request - Single Passport Single VISA @rasDRS', async ({ I }) => {
-  validateCreds(RAS_TEST_USER_1_USERNAME,RAS_TEST_USER_1_PASSWORD, clientID, secretID);
+  validateCreds(RAS_TEST_USER_1_USERNAME, RAS_TEST_USER_1_PASSWORD, clientID, secretID); // eslint-disable-line no-undef
   const accessToken = await getTokens(I);
   const passport = await getPassport(I, accessToken);
   // sending DRS request with passport in body
@@ -243,7 +242,7 @@ Scenario('Send DRS request - Single Passport Single VISA @rasDRS', async ({ I })
 
 // Scenario 2 ->
 Scenario('Get Access Token from Refresh Token @rasDRS', async ({ I }) => {
-  validateCreds(RAS_TEST_USER_1_USERNAME,RAS_TEST_USER_1_PASSWORD, clientID, secretID);
+  validateCreds(RAS_TEST_USER_1_USERNAME, RAS_TEST_USER_1_PASSWORD, clientID, secretID); // eslint-disable-line no-undef
   console.log('checking the expiration of the token');
   // get new access token from the refresh token
   // and make /userinfo call with the new access tokens
