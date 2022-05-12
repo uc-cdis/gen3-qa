@@ -59,7 +59,7 @@ async function getAlltabs(I) {
 }
 
 async function waitForFenceAndPortalToRoll() {
-  const isFenceReady = async function () {
+  const isPodReady = async function () {
     /**
      * Return true if both fence and presigned-url-fence pods are ready,
      * false otherwise.
@@ -67,7 +67,7 @@ async function waitForFenceAndPortalToRoll() {
      */
     for (const service of ['fence', 'presigned-url-fence', 'portal']) {
       // get the status of the most recently started pod
-      const res = await bash.runCommand(`g3kubectl get pods -l app=${service} --sort-by=.metadata.creationTimestamp`);
+      const res = await bash.runCommand(`g3kubectl get pods -l app=${service} --sort-by=.metadata.creationTimestamp | sed -n '2 p'`);
       console.log(res);
       let notReady = true;
       try {
@@ -77,6 +77,7 @@ async function waitForFenceAndPortalToRoll() {
         console.error(res);
       }
       if (notReady) {
+        console.log(`${service} is not ready`);
         return false;
       }
     }
@@ -86,10 +87,10 @@ async function waitForFenceAndPortalToRoll() {
   console.log('Waiting for pods to be ready');
   const timeout = 420; // wait up to 7 min
   await smartWait(
-    isFenceReady,
+    isPodReady,
     [],
     timeout,
-    `Fence and presigned-url-fence pods are not ready after ${timeout} seconds`, // error message
+    `Fence, presigned-url-fence, or portal pods are not ready after ${timeout} seconds`, // error message
     1, // initial number of seconds to wait
   );
 }
