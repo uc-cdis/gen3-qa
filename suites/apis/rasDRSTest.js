@@ -44,25 +44,6 @@ BeforeSuite(async ({ I }) => {
   console.log('### Setting up .. ');
   I.cache = {};
 
-  // check if the RAS user and password is defined as the env variable or in Jenkins creds
-  if (process.env.RAS_TEST_USER_1_USERNAME === undefined) {
-    throw new Error('ERROR: There is no username defined for RAS Test User 1. Please declare the "RAS_TEST_USER_1_USERNAME" environment variable and try again. Aborting test...');
-  } else if (process.env.RAS_TEST_USER_1_PASSWORD === undefined) {
-    throw new Error('ERROR: There is no password defined for RAS Test User 1. Please declare the "RAS_TEST_USER_1_PASSWORD" environment variable and try again. Aborting test...');
-  }
-
-  // parameterizing the ras accounts
-
-  if (process.env.clientID === undefined) {
-    throw new Error('ERROR: ClientID is not defined. Please declare the "clientID" environment variable and try again. Aborting test...');
-  } else if (process.env.secretID === undefined) {
-    throw new Error('ERROR: SecretID is not defined. Please declare the "secretID" environment variable and try again. Aborting test...');
-  }
-
-  // adding clientID and secretID to the cache
-  I.cache.clientID = process.env.clientID;
-  I.cache.clientSecret = process.env.secretID;
-
   // getting the access_token for the test user
   // test user -> cdis.autotest@gmail.com
   I.cache.ACCESS_TOKEN = await bash.runCommand('gen3 api access-token cdis.autotest@gmail.com');
@@ -133,6 +114,7 @@ AfterSuite(async ({ I }) => {
   }
 });
 
+// checks if the scope is correct or not
 function hasScope(passport) {
   const parsedPassportJwt = parseJwt(passport);
   const ga4ghJWT = parsedPassportJwt.ga4gh_passport_v1[0];
@@ -140,6 +122,18 @@ function hasScope(passport) {
   const { scope } = ga4ghParseJWT; // eslint-disable-line no-shadow
   expect(scope).to.equal('openid ga4gh_passport_v1', '###Scope is not correct');
   return true;
+}
+
+// check if the creds requried for the test are defined as env variables
+function validateCreds(I, testCreds) {
+  testCreds.forEach((creds) => {
+    if (process.env[creds] === '' || process.env[creds] === undefined) {
+      throw new Error(`Missing required environement variable '${creds}'`);
+    }
+  });
+  // adding the clientID and secretID to the cache
+  I.cache.clientID = process.env.clientID;
+  I.cache.clientSecret = process.env.secretID;
 }
 
 async function getTokens(I) {
@@ -224,6 +218,7 @@ async function getPassport(I, token) {
 
 // Scenario 1 ->
 Scenario('Send DRS request - Single Passport Single VISA @rasDRS', async ({ I }) => {
+  validateCreds(RAS_TEST_USER_1_USERNAME, RAS_TEST_USER_1_PASSWORD, clientID, secretID); // eslint-disable-line no-undef
   const accessToken = await getTokens(I);
   const passport = await getPassport(I, accessToken);
   // sending DRS request with passport in body
@@ -247,6 +242,7 @@ Scenario('Send DRS request - Single Passport Single VISA @rasDRS', async ({ I })
 
 // Scenario 2 ->
 Scenario('Get Access Token from Refresh Token @rasDRS', async ({ I }) => {
+  validateCreds(RAS_TEST_USER_1_USERNAME, RAS_TEST_USER_1_PASSWORD, clientID, secretID); // eslint-disable-line no-undef
   console.log('checking the expiration of the token');
   // get new access token from the refresh token
   // and make /userinfo call with the new access tokens
