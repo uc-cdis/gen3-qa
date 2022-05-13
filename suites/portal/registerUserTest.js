@@ -67,7 +67,8 @@ async function waitForFenceAndPortalToRoll() {
      */
     for (const service of ['fence', 'presigned-url-fence', 'portal']) {
       // get the status of the most recently started pod
-      const res = await bash.runCommand(`g3kubectl get pods -l app=${service} --sort-by=.metadata.creationTimestamp | sed -n '2 p'`);
+      const res = await bash.runCommand(`g3kubectl get pods -l app=${service} --sort-by=.metadata.creationTimestamp | sed -n '1!p'`);
+      console.log('############');
       console.log(res);
       let notReady = true;
       try {
