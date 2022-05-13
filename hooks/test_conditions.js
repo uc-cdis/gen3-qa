@@ -31,5 +31,19 @@ module.exports = async function () {
         });
       }
     }
+
+    if (suite.title === 'Register User For Data Downloading') {
+      const loginForDownload = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.explorerConfig[1].loginForDownload\'');
+      const haveDropdown = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.explorerConfig[0].guppyConfig.dropdowns\'');
+      if (!loginForDownload || loginForDownload !== 'true' || !haveDropdown || haveDropdown === 'null') {
+        console.log('Skipping the Register User For Data Downloading tests since required configuration is not in gitops.json');
+        suite.test.forEach((test) => {
+          test.run = function skip() { // eslint-disable-line func-names
+            console.log(`Ignoring test - ${test.title}`);
+            this.skip();
+          };
+        });
+      }
+    }
   });
 };
