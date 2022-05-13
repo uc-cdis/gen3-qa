@@ -32,7 +32,7 @@ module.exports = async function () {
       }
     }
 
-    if (suite.title === 'Register User For Data Downloading') {
+    if (suite.title === 'Register User For Data Downloading @requires-portal') {
       const loginForDownload = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.explorerConfig[1].loginForDownload\'');
       const haveDropdown = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.explorerConfig[0].guppyConfig.dropdowns\'');
       if (!loginForDownload || loginForDownload !== 'true' || !haveDropdown || haveDropdown === 'null') {
