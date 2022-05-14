@@ -1,6 +1,6 @@
 const { sleep } = require('k6'); // eslint-disable-line import/no-unresolved
 const http = require('k6/http'); // eslint-disable-line import/no-unresolved
-const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresolved
+// const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresolved
 const { launcher } = require('k6/x/browser'); // eslint-disable-line import/no-unresolved
 
 const {
