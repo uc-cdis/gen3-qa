@@ -1,6 +1,7 @@
-const { check, group, sleep } = require('k6'); // eslint-disable-line import/no-unresolved
+const { sleep } = require('k6'); // eslint-disable-line import/no-unresolved
 const http = require('k6/http'); // eslint-disable-line import/no-unresolved
 const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresolved
+const { launcher } = require('k6/x/browser'); // eslint-disable-line import/no-unresolved
 
 const {
   GEN3_HOST,
@@ -10,7 +11,6 @@ const {
   ACCESS_TOKEN,
 } = __ENV; // eslint-disable-line no-undef
 
-const myFailRate = new Rate('failed requests');
 console.log('Running scenario - dicom-server-metadata');
 export const options = {
   tags: {
@@ -28,9 +28,10 @@ export const options = {
 
 export function setup() {
   console.log('Setting up...');
-  const METADATA_URLS = [];
+  const VIEWER_STUDY_URLS = [];
   const DICOM_SERVER_URL = `https://${GEN3_HOST}/dicom-server`;
-  const studies = JSON.parse(http.get(`${DICOM_SERVER_URL}/studies`, { Authorization: `Bearer ${ACCESS_TOKEN}` }).body);
+  const DICOM_VIEWER_URL = `https://${GEN3_HOST}/dicom-viewer/viewer`;
+  const studies = JSON.parse(http.get(`${DICOM_SERVER_URL}/studies`).body);
   // console.log(studies);
   let studyUrl = '';
   studies.forEach((study) => {
@@ -40,37 +41,23 @@ export function setup() {
     // console.log(studyUrl);
     const studyInstanceUid = res.MainDicomTags.StudyInstanceUID;
     // console.log(studyInstanceUid);
-    const seriesIds = res.Series;
-    // console.log(seriesIds);
-    seriesIds.forEach((seriesId) => {
-      // console.log(seriesId);
-      const seriesUrl = `${DICOM_SERVER_URL}/series/${seriesId}`;
-      const seriesInstanceUid = JSON.parse(http.get(seriesUrl, { Authorization: `Bearer ${ACCESS_TOKEN}` }).body).MainDicomTags.SeriesInstanceUID;
-      const metadataUrl = `${DICOM_SERVER_URL}/dicom-web/studies/${studyInstanceUid}/series/${seriesInstanceUid}/metadata`;
-      // console.log(metadataUrl);
-      METADATA_URLS.push(metadataUrl);
-    });
+    const viewerStudyUrl = `${DICOM_VIEWER_URL}/${studyInstanceUid}`;
+    // console.log(viewerStudyUrl);
+    VIEWER_STUDY_URLS.push(viewerStudyUrl);
   });
-  console.log(METADATA_URLS);
-  return METADATA_URLS;
+  console.log(VIEWER_STUDY_URLS);
+  return VIEWER_STUDY_URLS;
 }
 
 export default function (data) {
   console.log('Running scenario...');
   const url = data[Math.floor(Math.random() * data.length)];
-  group('Fetch series metadata', () => {
-    const res = http.get(url,
-      {
-        Accept: 'application/dicom+json',
-        'Accept-Encoding': 'gzip, deflate, br',
-      });
-    myFailRate.add(res.status !== 200);
-    if (res.status !== 200) {
-      console.log(`Errored on ${url} with status ${res.status}`);
-    }
-    check(res, {
-      'is status 200': (r) => r.status === 200,
-    });
-    sleep(0.1);
-  });
+  const browser = launcher.launch('chromium', { headless: true });
+  const context = browser.newContext();
+  const page = context.newPage();
+  page.goto(url);
+  page.screenshot({ path: `${url.split('/')[5]}` });
+  page.close();
+  browser.close();
+  sleep(0.1);
 }
