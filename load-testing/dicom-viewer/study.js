@@ -1,7 +1,9 @@
-const { sleep } = require('k6'); // eslint-disable-line import/no-unresolved
-const http = require('k6/http'); // eslint-disable-line import/no-unresolved
+// eslint-disable-line import/no-unresolved
 // const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresolved
-const { launcher } = require('k6/x/browser'); // eslint-disable-line import/no-unresolved
+import http from 'k6/http';
+import launcher from 'k6/x/browser';
+
+const { sleep } = require('k6'); // eslint-disable-line import/no-unresolved
 
 const {
   GEN3_HOST,
@@ -38,6 +40,7 @@ export function setup() {
     },
   };
   const resp = http.get(`${DICOM_SERVER_URL}/studies`, params);
+  console.log(resp);
   console.log(JSON.stringify(resp.body));
   const studies = JSON.parse(resp.body);
   // console.log(studies);
