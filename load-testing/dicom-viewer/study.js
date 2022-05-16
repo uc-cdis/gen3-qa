@@ -38,6 +38,7 @@ export function setup() {
     },
   };
   const resp = http.get(`${DICOM_SERVER_URL}/studies`, params);
+  console.log(JSON.stringify(resp.body));
   const studies = JSON.parse(resp.body);
   // console.log(studies);
   let studyUrl = '';
