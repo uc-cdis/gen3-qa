@@ -451,9 +451,10 @@ fi
 #     if (g3kubectl get pods --no-headers -l app=requestor | grep requestor) > /dev/null 2>&1; then
 #       echo "### Study-Viewer is deployed"
 #       runStudyViewerTests=true
-#     fi
+#     fißßßß
 #   fi
 # fi
+# disabling the studyViewer test for debugging
 donot '@studyViewer'
 
 # landing page buttons
