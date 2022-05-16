@@ -15,14 +15,14 @@ const {
 console.log('Running scenario - dicom-server-metadata');
 export const options = {
   tags: {
-    scenario: 'Dicom Server - Metadata',
+    scenario: 'Dicom Viewer - Study',
     release: RELEASE_VERSION,
     test_run_id: (new Date()).toISOString().slice(0, 16),
   },
   stages: [
-    { duration: '30s', target: VU_COUNT },
+    { duration: '1s', target: VU_COUNT },
     { duration: `${DURATION}s`, target: VU_COUNT },
-    { duration: '30s', target: 0 },
+    { duration: '1s', target: 0 },
   ],
   noConnectionReuse: true,
 };
