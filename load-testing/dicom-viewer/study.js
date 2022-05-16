@@ -1,7 +1,6 @@
-// eslint-disable-line import/no-unresolved
 // const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresolved
-import http from 'k6/http';
-import launcher from 'k6/x/browser';
+import http from 'k6/http'; // eslint-disable-line import/no-unresolved
+import launcher from 'k6/x/browser'; // eslint-disable-line import/no-unresolved
 
 const { sleep } = require('k6'); // eslint-disable-line import/no-unresolved
 
