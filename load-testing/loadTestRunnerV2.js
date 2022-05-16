@@ -75,7 +75,7 @@ async function runLoadTestScenario() {
   // The first arg should always be 'run'
   loadTestArgs.unshift('run');
   console.log(`running: k6 ${loadTestArgs}`);
-  spawnSync('k6', loadTestArgs, { stdio: 'inherit' });
+  spawnSync('xk6-browser', loadTestArgs, { stdio: 'inherit' });
 }
 
 runLoadTestScenario();
