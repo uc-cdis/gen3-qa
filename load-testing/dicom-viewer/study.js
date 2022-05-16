@@ -65,7 +65,8 @@ export default function (data) {
   const browser = launcher.launch('chromium', { headless: true });
   const context = browser.newContext();
   const page = context.newPage();
-  page.goto(url);
+  console.log(`*** ${url} ***`);
+  page.goto(url, { waitUntil: 'networkidle' });
   page.screenshot({ path: `${url.split('/')[5]}` });
   page.close();
   browser.close();
