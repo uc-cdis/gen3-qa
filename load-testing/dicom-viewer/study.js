@@ -62,13 +62,16 @@ export function setup() {
 export default function (data) {
   console.log('Running scenario...');
   const url = data[Math.floor(Math.random() * data.length)];
-  const browser = launcher.launch('chromium', { headless: true });
+  const browser = launcher.launch('chromium', { headless: false });
   const context = browser.newContext();
+  context.setDefaultTimeout(120000);
   const page = context.newPage();
+  // Url of the study used in the scenario
   console.log(`*** ${url} ***`);
-  page.goto(url, { waitUntil: 'networkidle' });
+  page.goto(url);
+  // Wait for the progess bar on the first series to reach 100%
+  page.waitForSelector('//div[@class="study-browser"]//div[@class="ImageThumbnail"][1]//div[@class="image-thumbnail-progress-bar"]/div[@class="image-thumbnail-progress-bar-inner"][contains(@style, "width: 100%;")]');
   page.screenshot({ path: `./screenshots/${url.split('/')[5]}.png` });
   page.close();
   browser.close();
-  sleep(5);
 }
