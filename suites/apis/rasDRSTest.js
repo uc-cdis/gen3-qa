@@ -36,7 +36,7 @@ function assembleCustomHeaders(ACCESS_TOKEN) {
 
 // retrieve the access token for the user
 // and then upload a new indexd record to the TARGET_ENVIRONMENT
-BeforeSuite(async ({ I }) => {
+BeforeSuite(async ({ I, ras }) => {
   console.log('### Setting up .. ');
   I.cache = {};
 
@@ -57,7 +57,7 @@ BeforeSuite(async ({ I }) => {
 
 // after suite cleans up the indexd record, revokes the access
 // and also logouts the RAS user
-AfterSuite(async ({ I }) => {
+AfterSuite(async ({ I, ras }) => {
   // logout from the session
   console.log('Logging out ..');
   const logoutData = queryString.stringify({
@@ -125,7 +125,7 @@ function validateCreds(I, testCreds) {
 }
 
 // Scenario 1 ->
-Scenario('Send DRS request - Single Passport Single VISA @rasDRS', async ({ I }) => {
+Scenario('Send DRS request - Single Passport Single VISA @rasDRS', async ({ I, ras }) => {
   // below is will return clientID, secretID
   validateCreds(RAS_TEST_USER_1_USERNAME, RAS_TEST_USER_1_PASSWORD, clientID, secretID); // eslint-disable-line no-undef
   // below will return accessToken, refreshToken, idToken
@@ -161,7 +161,7 @@ Scenario('Send DRS request - Single Passport Single VISA @rasDRS', async ({ I })
 });
 
 // Scenario 2 ->
-Scenario('Get Access Token from Refresh Token @rasDRS', async ({ I }) => {
+Scenario('Get Access Token from Refresh Token @rasDRS', async ({ I, ras }) => {
   validateCreds(RAS_TEST_USER_1_USERNAME, RAS_TEST_USER_1_PASSWORD, clientID, secretID); // eslint-disable-line no-undef
   const refreshedAccessToken = await ras.do.getTokenFromRefreshToken(I.cache.refreshToken, I.cache.clientID, I.cache.secretID, scope);
 
