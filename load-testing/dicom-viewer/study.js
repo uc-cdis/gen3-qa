@@ -70,5 +70,5 @@ export default function (data) {
   page.screenshot({ path: `./screenshots/${url.split('/')[5]}.png` });
   page.close();
   browser.close();
-  sleep(0.1);
+  sleep(5);
 }
