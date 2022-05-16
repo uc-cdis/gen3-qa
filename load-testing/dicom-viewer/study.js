@@ -62,7 +62,7 @@ export function setup() {
 export default function (data) {
   console.log('Running scenario...');
   const url = data[Math.floor(Math.random() * data.length)];
-  const browser = launcher.launch('chromium', { headless: false });
+  const browser = launcher.launch('chromium', { headless: true });
   const context = browser.newContext();
   context.setDefaultTimeout(120000);
   const page = context.newPage();
