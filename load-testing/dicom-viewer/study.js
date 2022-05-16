@@ -30,7 +30,10 @@ export function setup() {
   console.log('Setting up...');
   const VIEWER_STUDY_URLS = [];
   const DICOM_SERVER_URL = `https://${GEN3_HOST}/dicom-server`;
+  console.log(DICOM_SERVER_URL);
   const DICOM_VIEWER_URL = `https://${GEN3_HOST}/dicom-viewer/viewer`;
+  console.log(DICOM_VIEWER_URL);
+  console.log(`${DICOM_SERVER_URL}/studies`);
   const studies = JSON.parse(http.get(`${DICOM_SERVER_URL}/studies`, { Authorization: `Bearer ${ACCESS_TOKEN}` }).body);
   // console.log(studies);
   let studyUrl = '';
