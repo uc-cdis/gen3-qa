@@ -67,7 +67,7 @@ export default function (data) {
   const page = context.newPage();
   console.log(`*** ${url} ***`);
   page.goto(url, { waitUntil: 'networkidle' });
-  page.screenshot({ path: `./screenshots/${url.split('/')[5]}` });
+  page.screenshot({ path: `./screenshots/${url.split('/')[5]}.png` });
   page.close();
   browser.close();
   sleep(0.1);
