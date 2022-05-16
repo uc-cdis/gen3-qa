@@ -31,13 +31,21 @@ export function setup() {
   const VIEWER_STUDY_URLS = [];
   const DICOM_SERVER_URL = `https://${GEN3_HOST}/dicom-server`;
   const DICOM_VIEWER_URL = `https://${GEN3_HOST}/dicom-viewer/viewer`;
-  const studies = JSON.parse(http.get(`${DICOM_SERVER_URL}/studies`, JSON.stringify({ Authorization: `Bearer ${ACCESS_TOKEN}` })).body);
+  const params = {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${ACCESS_TOKEN}`,
+    },
+  };
+  const resp = http.get(`${DICOM_SERVER_URL}/studies`, params);
+  console.dir(resp);
+  const studies = JSON.parse(resp.body);
   // console.log(studies);
   let studyUrl = '';
   studies.forEach((study) => {
     // console.log(study);
     studyUrl = `${DICOM_SERVER_URL}/studies/${study}`;
-    const res = JSON.parse(http.get(studyUrl, { Authorization: `Bearer ${ACCESS_TOKEN}` }).body);
+    const res = JSON.parse(http.get(studyUrl, params).body);
     // console.log(studyUrl);
     const studyInstanceUid = res.MainDicomTags.StudyInstanceUID;
     // console.log(studyInstanceUid);
