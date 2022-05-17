@@ -8,7 +8,7 @@ const indices = {
   'jenkins-genomel.planx-pla.net': 'clinical_trials',
 };
 
-const studyViewerIndex = indices[`${TARGET_ENVIRONMENT}`];
+const studyViewerIndex = indices[`${JSON.stringify(TARGET_ENVIRONMENT)}`];
 console.log(`### StudyViewer Index : ${studyViewerIndex}`);
 
 module.exports = {
