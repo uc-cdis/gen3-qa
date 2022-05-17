@@ -253,6 +253,8 @@ runTestsIfServiceVersion "@indexing" "portal" "2.26.0" "2020.05"
 runTestsIfServiceVersion "@cleverSafe" "fence" "4.22.4" "2020.09"
 runTestsIfServiceVersion "@requestor" "requestor" "1.5.0" "2022.02"
 runTestsIfServiceVersion "@requestor" "arborist" "3.2.0" "2021.12"
+runTestsIfServiceVersion "@requestorNew" "requestor" "1.5.1" "2022.06"
+runTestsIfServiceVersion "@requestorNew" "arborist" "3.2.0" "2021.12"
 
 # disable tests if the service is not deployed
 # export isIndexdDeployed=$(ifServiceDeployed "indexd")
@@ -299,6 +301,9 @@ donot '@dataguids'
 
 # Do not run prjsBucketAccess (for prod-execution only)
 donot '@prjsBucketAccess'
+
+echo "INFO: disabling RAS DRS test as jenkins env is not configured"
+donot '@rasDRS'
 
 # For dataguids.org PRs, skip all fence-related bootstrapping oprations
 # as the environment does not have fence
@@ -435,20 +440,22 @@ if [ -z "$checkForPresenceOfMetadataIngestionSowerJob" ]; then
   donot '@metadataIngestion'
 fi
 
-# Study Viewer test
-runStudyViewerTests=false
-#run for data-portal/requestor/gen3-qa/gitops-qa/cdis-manifest repo
-if [[ ! ("$service" =~ ^(data-portal|requestor|gen3-qa)$ || $testedEnv == *"niaid"*) ]]; then
-  echo "Disabling study-viewer test"
-  donot "@studyViewer"
-else
-  if [[ $(curl -s "$portalConfigURL" | jq 'contains({studyViewerConfig})') == "true" ]]; then
-    if (g3kubectl get pods --no-headers -l app=requestor | grep requestor) > /dev/null 2>&1; then
-      echo "### Study-Viewer is deployed"
-      runStudyViewerTests=true
-    fi
-  fi
-fi
+# # Study Viewer test
+# runStudyViewerTests=false
+# #run for data-portal/requestor/gen3-qa/gitops-qa/cdis-manifest repo
+# if [[ ! ("$service" =~ ^(data-portal|requestor|gen3-qa)$ || $testedEnv == *"niaid"*) ]]; then
+#   echo "Disabling study-viewer test"
+#   donot "@studyViewer"
+# else
+#   if [[ $(curl -s "$portalConfigURL" | jq 'contains({studyViewerConfig})') == "true" ]]; then
+#     if (g3kubectl get pods --no-headers -l app=requestor | grep requestor) > /dev/null 2>&1; then
+#       echo "### Study-Viewer is deployed"
+#       runStudyViewerTests=true
+#     fißßßß
+#   fi
+# fi
+# disabling the studyViewer test for debugging
+donot '@studyViewer'
 
 # landing page buttons
 if [[ $(curl -s "$portalConfigURL" | jq '.components | contains({buttons}) | not') == "true" ]] || [[ ! -z "$testedEnv" ]]; then
