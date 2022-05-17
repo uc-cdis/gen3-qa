@@ -2,7 +2,7 @@
 import http from 'k6/http'; // eslint-disable-line import/no-unresolved
 import launcher from 'k6/x/browser'; // eslint-disable-line import/no-unresolved
 
-const { sleep } = require('k6'); // eslint-disable-line import/no-unresolved
+// const { sleep } = require('k6'); // eslint-disable-line import/no-unresolved
 
 const {
   GEN3_HOST,
@@ -71,7 +71,7 @@ export default function (data) {
   page.goto(url);
   // Wait for the progess bar on the first series to reach 100%
   page.waitForSelector('//div[@class="study-browser"]//div[@class="ImageThumbnail"][1]//div[@class="image-thumbnail-progress-bar"]/div[@class="image-thumbnail-progress-bar-inner"][contains(@style, "width: 100%;")]');
-  page.screenshot({ path: `./screenshots/${url.split('/')[5]}.png` });
+  // page.screenshot({ path: `./screenshots/${url.split('/')[5]}.png` });
   page.close();
   browser.close();
 }
