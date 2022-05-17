@@ -6,7 +6,7 @@ module.exports = {
 
   goToStudyViewerPage() {
     I.amOnPage(studyViewerProps.dataset1Path); // study-viewer/clinical_trials
-    I.waitForVisible(studyViewerProps.studyViewerDivClass, 5); // .study-viewer
+    I.waitForVisible(studyViewerProps.studyViewerDivClass, 10); // .study-viewer
     I.wait(5);
     I.saveScreenshot('study_viewer_page.png');
   },
