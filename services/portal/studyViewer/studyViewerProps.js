@@ -1,5 +1,18 @@
+const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME;
+
+const indices = {
+  'jenkins-niaid.planx-pla.net': 'clinical_trials',
+  'jenkins-new.planx-pla.net': 'subject',
+  'jenkins-dcp.planx-pla.net': 'subject',
+  'jenkins-blood.planx-pla.net': 'clinical_trials',
+  'jenkins-genomel.planx-pla.net': 'clinical_trials',
+};
+
+const studyViewerIndex = indices[`${TARGET_ENVIRONMENT}`];
+console.log(`### StudyViewer Index : ${studyViewerIndex}`);
+
 module.exports = {
-  dataset1Path: '/study-viewer/clinical_trials/',
+  dataset1Path: `/study-viewer/${studyViewerIndex}`,
   dataset2Path: 'study-viewer/clinical_trials/NCT04401579',
   studyViewerDivClass: '.study-viewer',
   // TODO : improve the selector
