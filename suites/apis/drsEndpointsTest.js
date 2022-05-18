@@ -49,9 +49,11 @@ BeforeSuite(async ({ indexd }) => {
 
 Scenario('get drs object @drs', async ({ drs, indexd }) => {
   const indexdRecord = await indexd.do.getFile(files.allowed);
-  console.log('-------------------indexd record---------------------');
-  console.log(indexdRecord);
-  console.log(Date());
+  if (process.env.DEBUG === 'true') {
+    console.log('-------------------indexd record---------------------');
+    console.log(indexdRecord);
+    console.log(Date());
+  }
   const drsObject = await drs.do.getDrsObject(files.allowed);
   await drs.complete.checkFile(drsObject);
 }).retry(1);
@@ -82,9 +84,13 @@ Scenario('get drs presigned-url no auth header @drs', async ({ drs, fence }) => 
   const monthlyReleaseCutoff = semver.coerce('2021', { loose: true });
 
   const version = await fence.do.getVersion();
-  console.log(`### ## version: ${version}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`### ## version: ${version}`);
+  }
   const semVerVersion = semver.coerce(version, { loose: true });
-  console.log(`### ## semVerVersion: ${semVerVersion}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`### ## semVerVersion: ${semVerVersion}`);
+    if (process.env.DEBUG === 'true') {
   const expectedResponse = drs.props.noAccessToken;
   if (
     semver.gte(semVerVersion, minMonthlyRelease)

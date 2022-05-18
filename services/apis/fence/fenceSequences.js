@@ -41,7 +41,9 @@ module.exports = {
       try {
         console.log(`linking google account ${userAcct.username} - Attempt #${i}`);
         const linkRes = await fenceTasks.linkGoogleAcctMocked(userAcct, expires_in);
-        console.log(`### ## linkRes for [${JSON.stringify(userAcct.username)}]: ${JSON.stringify(linkRes)}`);
+        if (process.env.DEBUG === 'true') {
+          console.log(`### ## linkRes for [${JSON.stringify(userAcct.username)}]: ${JSON.stringify(linkRes)}`);
+        }
         fenceQuestions.mockedLinkSuccess(linkRes);
         return linkRes;
       } catch (e) {
