@@ -90,7 +90,7 @@ Scenario('get drs presigned-url no auth header @drs', async ({ drs, fence }) => 
   const semVerVersion = semver.coerce(version, { loose: true });
   if (process.env.DEBUG === 'true') {
     console.log(`### ## semVerVersion: ${semVerVersion}`);
-    if (process.env.DEBUG === 'true') {
+  }
   const expectedResponse = drs.props.noAccessToken;
   if (
     semver.gte(semVerVersion, minMonthlyRelease)
