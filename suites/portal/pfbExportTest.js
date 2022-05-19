@@ -321,8 +321,9 @@ Scenario('Visit the Explorer page, select a cohort, export to PFB and download t
     I.saveScreenshot('explorationPage.png');
 
     // lots of things can go wrong here, so let's capture browser logs
-    I.captureBrowserLog();
-
+    if (process.env.DEBUG === 'true') {
+      I.captureBrowserLog();
+    }
     I.seeElement('.guppy-explorer', 10);
     // checks if the Filters are present on the left side of Exploration Page
     I.seeElement('//h4[contains(text(),\'Filters\')]', 5);
@@ -359,9 +360,10 @@ Scenario('Visit the Explorer page, select a cohort, export to PFB and download t
   // Click on the Export to PFB button
   I.click('//button[contains(text(),\'Export to PFB\')]');
   I.wait(5);
-  I.captureBrowserLog();
-  I.saveScreenshot('explorationPageWaitingForExportToPfbMsg.png');
-
+  if (process.env.DEBUG === 'true') {
+    I.captureBrowserLog();
+    I.saveScreenshot('explorationPageWaitingForExportToPfbMsg.png');
+  }
   // Check if the footer shows expected msg
   I.seeElement({ xpath: '//div[@class=\'explorer-button-group__toaster-text\']/div[contains(.,\'Please do not navigate away from this page until your export is finished.\')]' }, 60);
 
