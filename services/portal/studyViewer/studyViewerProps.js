@@ -1,21 +1,15 @@
-const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME;
+const { Bash } = require('../../../utils/bash.js');
 
-const indices = {
-  'jenkins-niaid.planx-pla.net': 'clinical_trials',
-  'jenkins-new.planx-pla.net': 'subject',
-  'jenkins-dcp.planx-pla.net': 'subject',
-  'jenkins-blood.planx-pla.net': 'clinical_trials',
-  'jenkins-genomel.planx-pla.net': 'clinical_trials',
-};
+const bash = new Bash();
 
-const studyViewerIndex = indices[`${JSON.stringify(TARGET_ENVIRONMENT)}`];
-console.log(`### StudyViewer Index : ${studyViewerIndex}`);
+console.log('### Fetching the studyViewer index datatype from HOSTNAME');
+const studyViewerIndex = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.studyViewerConfig[].dataType\' | tr -d \'"\'');
+console.log('### StudyViewer Index : ${studyViewerIndex}');
 
 module.exports = {
   dataset1Path: `/study-viewer/${studyViewerIndex}`,
   dataset2Path: 'study-viewer/clinical_trials/NCT04401579',
   studyViewerDivClass: '.study-viewer',
-  // TODO : improve the selector
   studyViewerRelPath: '.study-viewer',
   datasetDivClass: '.study-viewer__title',
   dataset1detailedButtonXPath: '.ant-collapse-header:nth-child(1)',
