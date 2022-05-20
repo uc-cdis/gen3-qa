@@ -4,7 +4,7 @@ const bash = new Bash();
 
 console.log('### Fetching the studyViewer index datatype from HOSTNAME');
 const studyViewerIndex = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.studyViewerConfig[].dataType\' | tr -d \'"\'');
-console.log('### StudyViewer Index : ${studyViewerIndex}');
+console.log(`### StudyViewer Index : ${studyViewerIndex}`);
 
 module.exports = {
   dataset1Path: `/study-viewer/${studyViewerIndex}`,
