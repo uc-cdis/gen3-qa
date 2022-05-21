@@ -189,7 +189,7 @@ while [[ $# -gt 0 ]]; do
       isDryRun=true
       ;;
     debug)
-      DEBUG="$value"
+      debug="$value"
       ;;
     *)
       if [[ -n "$value" && "$value" == "$key" ]]; then
@@ -608,7 +608,7 @@ else
     additionalArgs="--grep @manual --invert"
   fi
   set -e
-  npm 'test' -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
+  DEBUG=$debug npm 'test' -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
 fi
 
 
