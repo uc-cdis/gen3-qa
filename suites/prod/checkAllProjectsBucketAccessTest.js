@@ -77,10 +77,10 @@ async function checkAccess(I, a, indexdQueryParam) {
       // if we expect this check to take longer than 20 minutes
       logger.debug(`preSignedURLResp: ${JSON.stringify(preSignedURLResp.data)}`);
 
-      let httpHeadCheck = {};
+      let httpGetCheck = {};
       try {
-        httpHeadCheck = await axios.head(preSignedURLResp.data.url);
-        // logger.debug(`http HEAD Check for ${aGUID}: ${httpHeadCheck}`);
+        httpGetCheck = await axios.get(preSignedURLResp.data.url);
+        // logger.debug(`http GET Check for ${aGUID}: ${httpGetCheck}`);
       } catch (error) {
         // Error 😨
         if (error.response) {
@@ -90,10 +90,10 @@ async function checkAccess(I, a, indexdQueryParam) {
           logger.error(`Failed to process HTTP HEAD request for GUID ${aGUID}`);
         }
       }
-      if (httpHeadCheck.status === 200) {
+      if (httpGetCheck.status === 200) {
         logger.debug(`Successfully verified the access for ${indexdQueryParam} ${a}!`);
-      } else if (httpHeadCheck.status === 400) {
-        logger.debug(`http.status: ${httpHeadCheck.status} - Successfully verified the access for ${indexdQueryParam} ${a} with message <Bucket is a requester pays bucket but no user project provided>.!`);
+      } else if (httpGetCheck.status === 400) {
+        logger.debug(`http.status: ${httpGetCheck.status} - Successfully verified the access for ${indexdQueryParam} ${a} with message <Bucket is a requester pays bucket but no user project provided>.!`);
       }
     }
   } else {
