@@ -93,7 +93,9 @@ Scenario('Submit dummy data to the Gen3 Commons environment @pfbExport', async (
   );
 
   // make sure the query return results
-  console.log(`query response: ${JSON.stringify(queryResponse.data)}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`query response: ${JSON.stringify(queryResponse.data)}`);
+  }
   expect(queryResponse).to.have.property('status', 200);
 }).retry(2);
 
@@ -106,8 +108,9 @@ Scenario('Upload a file through the gen3-client CLI @pfbExport', async ({
   await bash.runCommand('curl -L https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_linux.zip -o gen3-client.zip');
   await bash.runCommand('unzip -o gen3-client.zip');
   const gen3ClientVersionOutput = await bash.runCommand('./gen3-client --version');
-  console.log(`gen3-client version: ${gen3ClientVersionOutput}`);
-
+  if (process.env.DEBUG === 'true') {
+    console.log(`gen3-client version: ${gen3ClientVersionOutput}`);
+  }
   // obtain an api_key
   const scope = ['data', 'user'];
   const apiKeyRes = await fence.do.createAPIKey(
@@ -136,9 +139,9 @@ Scenario('Upload a file through the gen3-client CLI @pfbExport', async ({
 
   // upload the file
   const uploadOutput = await bash.runCommand(`export HOME="${I.cache.WORKSPACE}" && ./gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=./${ourFileToBeUploaded} 2>&1`);
-
-  console.log(`### ## uploadOutput: ${uploadOutput}`);
-
+  if (process.env.DEBUG === 'true') {
+    console.log(`### ## uploadOutput: ${uploadOutput}`);
+  }
   if (uploadOutput.includes('You don\'t have permission to upload data')) {
     throw new Error('The gen3 CLI upload operation failed. Abort test scenario.');
   }
@@ -213,8 +216,6 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @pfb
     if (isFileMappingFieldSelectionSuccessful) {
       // Select the 1st option
       I.pressKey('Enter');
-    } else {
-      console.log('meh');
     }
   }
   I.waitForVisible('//button[contains(text(),\'Submit\')]', 5);
@@ -235,8 +236,9 @@ Scenario('Mutate etl-mapping config and run ETL to create new indices in elastic
   await bash.runCommand(`gen3 mutate-etl-mapping-config ${I.cache.prNumber} ${I.cache.repoName}`);
 
   const etlMappingConfigMapOutput = await bash.runCommand(`g3kubectl get cm etl-mapping -o jsonpath='{.data.etlMapping\.yaml}'`); // eslint-disable-line quotes, no-useless-escape
-  console.log(`${new Date()}: etlMappingConfigMapOutput = ${etlMappingConfigMapOutput}`);
-
+  if (process.env.DEBUG === 'true') {
+    console.log(`${new Date()}: etlMappingConfigMapOutput = ${etlMappingConfigMapOutput}`);
+  }
   console.log('### running ETL for recently-submitted dataset');
   await bash.runJob('etl', '', false);
   await checkPod(I, 'etl', 'gen3job,job-name=etl', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: true });
@@ -279,10 +281,14 @@ Scenario('Mutate manifest-guppy config and roll guppy so the recently-submitted 
         console.log(`err: ${guppyStatusCheckResp.data}`);
         // getting guppy pod logs
         const guppyPodLogs = await bash.runCommand('g3kubectl logs -l app=guppy');
-        console.log(`###### ##### ### DEBUGGING new guppy pod not coming up ok: ${guppyPodLogs}`);
+        if (process.env.DEBUG === 'true') {
+          console.log(`###### ##### ### DEBUGGING new guppy pod not coming up ok: ${guppyPodLogs}`);
+        }
         // checking if the mutation was correctly done
         const checkGuppyConfig = await bash.runCommand('g3kubectl get cm manifest-guppy -o yaml');
-        console.log(`###### ##### ### DEBUGGING manifest-guppy: ${checkGuppyConfig}`);
+        if (process.env.DEBUG === 'true') {
+          console.log(`###### ##### ### DEBUGGING manifest-guppy: ${checkGuppyConfig}`);
+        }
         throw new Error(`ERROR: ${errMsg}`);
       }
     }
@@ -315,8 +321,9 @@ Scenario('Visit the Explorer page, select a cohort, export to PFB and download t
     I.saveScreenshot('explorationPage.png');
 
     // lots of things can go wrong here, so let's capture browser logs
-    I.captureBrowserLog();
-
+    if (process.env.DEBUG === 'true') {
+      I.captureBrowserLog();
+    }
     I.seeElement('.guppy-explorer', 10);
     // checks if the Filters are present on the left side of Exploration Page
     I.seeElement('//h4[contains(text(),\'Filters\')]', 5);
@@ -353,9 +360,10 @@ Scenario('Visit the Explorer page, select a cohort, export to PFB and download t
   // Click on the Export to PFB button
   I.click('//button[contains(text(),\'Export to PFB\')]');
   I.wait(5);
-  I.captureBrowserLog();
-  I.saveScreenshot('explorationPageWaitingForExportToPfbMsg.png');
-
+  if (process.env.DEBUG === 'true') {
+    I.captureBrowserLog();
+    I.saveScreenshot('explorationPageWaitingForExportToPfbMsg.png');
+  }
   // Check if the footer shows expected msg
   I.seeElement({ xpath: '//div[@class=\'explorer-button-group__toaster-text\']/div[contains(.,\'Please do not navigate away from this page until your export is finished.\')]' }, 60);
 
@@ -390,7 +398,9 @@ Scenario('Visit the Explorer page, select a cohort, export to PFB and download t
     const scpArgs = [`test_export_${I.cache.UNIQUE_NUM}.avro`, `${process.env.NAMESPACE}@cdistest.csoc:/home/${process.env.NAMESPACE}/test_export_${I.cache.UNIQUE_NUM}.avro`];
     console.log('SCPing avro file to admin vm...');
     const scpCmd = spawnSync('scp', scpArgs, { stdio: 'pipe' });
-    console.log(`${new Date()}: scp output => ${scpCmd.output.toString()}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`${new Date()}: scp output => ${scpCmd.output.toString()}`);
+    }
   }
 }).retry(2);
 
@@ -400,11 +410,14 @@ Scenario('Install the latest pypfb CLI version and make sure we can parse the av
   expect(files.fileExists(`./test_export_${I.cache.UNIQUE_NUM}.avro`), 'A "test_export_<unique number>.avro" file should have been created by previous test').to.be.true;
 
   const pyPfbInstallationOutput = await bash.runCommand(`python3.8 -m venv pfb_test && source pfb_test/bin/activate && pip install pypfb && ${I.cache.WORKSPACE}/gen3-qa/pfb_test/bin/pfb`);
-  console.log(`${new Date()}: pyPfbInstallationOutput = ${pyPfbInstallationOutput}`);
-
+  if (process.env.DEBUG === 'true') {
+    console.log(`${new Date()}: pyPfbInstallationOutput = ${pyPfbInstallationOutput}`);
+  }
   await bash.runCommand(`cp ./test_export_${I.cache.UNIQUE_NUM}.avro output/test_export_${I.cache.UNIQUE_NUM}.avro.log`);
   const pfbParsingResult = await bash.runCommand(`source pfb_test/bin/activate && ${I.cache.WORKSPACE}/gen3-qa/pfb_test/bin/pfb show -i ./test_export_${I.cache.UNIQUE_NUM}.avro | jq .`);
-  console.log(`${new Date()}: pfbParsingResult = ${pfbParsingResult}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`${new Date()}: pfbParsingResult = ${pfbParsingResult}`);
+  }
   const pfbConvertedToJSON = JSON.parse(`[${pfbParsingResult.replace(/\}\{/g, '},{')}]`);
   // console.log(`${new Date()}: pfbConvertedToJSON = ${JSON.stringify(pfbConvertedToJSON)}`);
 

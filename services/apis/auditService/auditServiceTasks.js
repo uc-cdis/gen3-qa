@@ -63,7 +63,9 @@ async function waitForFenceToRoll() {
     for (const service of ['fence', 'presigned-url-fence']) {
       // get the status of the most recently started pod
       const res = await bash.runCommand(`g3kubectl get pods -l app=${service} --sort-by=.metadata.creationTimestamp`);
-      console.log(res);
+      if (process.env.DEBUG === 'true') {
+        console.log(res);
+      }
       let notReady = true;
       try {
         notReady = res.includes('0/1') || res.includes('Terminating');
@@ -170,8 +172,10 @@ EOM`);
     // query audit logs
     const json = await module.exports.query(logCategory, userTokenHeader, params);
     const receivedLogs = json.data;
-    console.log('Received logs:');
-    console.log(receivedLogs);
+    if (process.env.DEBUG === 'true') {
+      console.log('Received logs:');
+      console.log(receivedLogs);
+    }
     expect(receivedLogs.length, `Should receive exactly ${nExpectedLogs} audit logs, but received ${receivedLogs.length} logs`).to.equal(nExpectedLogs);
 
     // check that the returned audit logs contain the data we expect.
@@ -179,8 +183,10 @@ EOM`);
     // created, but some older versions might not, and AWS SQS might shuffle
     // the messages, so we can't assume they're in the right order.
     expectedResults.forEach((expectedResult) => {
-      console.log('Checking expected result:');
-      console.log(expectedResult);
+      if (process.env.DEBUG === 'true') {
+        console.log('Checking expected result:');
+        console.log(expectedResult);
+      }
       // check that we received a log that matches the current expected log.
       // found==true if we found a received log for which all the fields match
       // the current expected log, false otherwise.

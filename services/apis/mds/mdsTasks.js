@@ -38,7 +38,9 @@ module.exports = {
   async readAggMetadataRecord(accessTokenHeader, guid) {
     output.print(`Fetching metadata record with GUID ${guid}`);
     const resp = await I.sendGetRequest(`${mdsProps.endpoints.aggMetadata}/guid/${guid}`, accessTokenHeader);
-    console.log(resp);
+    if (process.env.DEBUG === 'true') {
+      console.log(resp);
+    }
     if (resp.status === 200) {
       return resp.data;
     }

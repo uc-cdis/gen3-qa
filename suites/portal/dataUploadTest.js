@@ -47,14 +47,18 @@ const uploadFile = async function (I, dataUpload, indexd, sheepdog, nodes, fileO
     // const jenkinsNamespace = process.env.HOSTNAME.replace('.planx-pla.net', '');
     // const bucketName = `${jenkinsNamespace}-databucket-gen3`;
     const bucketName = bash.runCommand('gen3 secrets decode fence-config fence-config.yaml | yq -r .DATA_UPLOAD_BUCKET');
-    console.log(bucketName);
+    if (process.env.DEBUG === 'true') {
+      console.log(bucketName);
+    }
     for (let i = 1; i <= maxAttempts; i += 1) {
       try {
         console.log(`waiting for file [${fileName}] with guid [${fileGuid}] to show up on ${bucketName}... - attempt ${i}`);
         await sleepMS(10000);
 
         const contentsOfTheBucket = await bash.runCommand(`aws s3 ls s3://${bucketName}/${fileGuid}/`);
-        console.log(`contentsOfTheBucket: ${contentsOfTheBucket}`);
+        if (process.env.DEBUG === 'true') {
+          console.log(`contentsOfTheBucket: ${contentsOfTheBucket}`);
+        }
         if (contentsOfTheBucket.includes(fileName)) {
           console.log(`the file ${fileName} was found! Proceed with the rest of the test...`);
           break;
