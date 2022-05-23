@@ -17,7 +17,7 @@ async function getRunId() {
   return runId;
 }
 
-Scenario('GWAS submit workflow', async ({
+Scenario('GWAS submit workflow @GWASUI', async ({
   I, home, users,
 }) => {
   home.do.goToHomepage();
@@ -48,7 +48,7 @@ Scenario('GWAS submit workflow', async ({
 });
 
 // TODO: will change delete to cancel in future
-xScenario('GWAS delete workflow while processing job', async ({
+xScenario('GWAS delete workflow while processing job @GWASUI', async ({
   I, home, users,
 }) => {
   home.do.goToHomepage();
@@ -80,7 +80,7 @@ xScenario('GWAS delete workflow while processing job', async ({
   I.saveScreenshot('GWAS_page_check_job_status_Cancel.png');
 });
 
-Scenario('GWAS previous button and next button', async ({
+Scenario('GWAS previous button and next button @GWASUI', async ({
   I, home, users,
 }) => {
   home.do.goToHomepage();
@@ -98,7 +98,7 @@ Scenario('GWAS previous button and next button', async ({
   I.seeElement(GWASProps.SelectPhenotypeTitle);
 });
 
-Scenario('Unauthorize to workflow', async ({
+Scenario('Unauthorize to workflow @GWASUI', async ({
   I, home, users,
 }) => {
   home.do.goToHomepage();

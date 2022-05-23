@@ -302,6 +302,9 @@ donot '@dataguids'
 # Do not run prjsBucketAccess (for prod-execution only)
 donot '@prjsBucketAccess'
 
+# run the test until argo works in jenkins envs
+donot '@GWASUI'
+
 # For dataguids.org PRs, skip all fence-related bootstrapping oprations
 # as the environment does not have fence
 if [ "$testedEnv" == "dataguids.org" ]; then
