@@ -24,8 +24,9 @@ function getIndexPassword() {
       indexdUsername: JSON.parse(secret).indexd_client !== undefined ? JSON.parse(secret).indexd_client : 'gdcapi',
       indexdPassword: JSON.parse(secret).indexd_password,
     };
-
-    console.log(`Cached indexd creds: ${JSON.stringify(indexdCache)}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`Cached indexd creds: ${JSON.stringify(indexdCache)}`);
+    }
   }
   return { ...indexdCache };
 }

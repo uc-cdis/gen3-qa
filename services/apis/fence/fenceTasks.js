@@ -108,13 +108,17 @@ module.exports = {
     ) {
       // Note: google freaks out if unexpected headers
       //     are passed with signed url requests
-      console.log(`Fetching signed URL: ${signedUrlRes.body.url}`);
+      if (process.env.DEBUG === 'true') {
+        console.log(`Fetching signed URL: ${signedUrlRes.body.url}`);
+      }
       return ax.get(signedUrlRes.body.url).then(
         (resp) => resp.data,
         (err) => err.response.data || err,
       );
     }
-    console.log(fenceProps.FILE_FROM_URL_ERROR, signedUrlRes);
+    if (process.env.DEBUG === 'true') {
+      console.log(fenceProps.FILE_FROM_URL_ERROR, signedUrlRes);
+    }
     return fenceProps.FILE_FROM_URL_ERROR;
   },
 
@@ -144,8 +148,10 @@ module.exports = {
       accessTokenHeader,
     ).then((res) => {
       if (!res.data || !res.data.access_keys) {
-        console.log('Could not get user google creds:');
-        console.log(res);
+        if (process.env.DEBUG === 'true') {
+          console.log('Could not get user google creds:');
+          console.log(res);
+        }
         return { access_keys: [] };
       }
       return res.data;
@@ -171,7 +177,9 @@ module.exports = {
       const g3res = new Gen3Response(res);
       if (g3res.status !== 200) {
         console.error('Error creating temp google creds');
-        console.log(res);
+        if (process.env.DEBUG === 'true') {
+          console.log(res);
+        }
       }
       return g3res;
     });
@@ -334,7 +342,9 @@ module.exports = {
         if (res.data && res.data.errors) {
           console.log('Failed SA registration:');
           // stringify to print all the nested objects
-          console.log(JSON.stringify(res.data.errors, null, 2));
+          if (process.env.DEBUG === 'true') {
+            console.log(JSON.stringify(res.data.errors, null, 2));
+          }
         } else if (res.error) {
           if (res.error.code === 'ETIMEDOUT') {
             return 'ETIMEDOUT: Google SA registration timed out';
@@ -344,7 +354,9 @@ module.exports = {
           }
 
           console.log('Failed SA registration:');
-          console.log(res.error);
+          if (process.env.DEBUG === 'true') {
+            console.log(res.error);
+          }
         }
         return new Gen3Response(res);
       });
@@ -353,7 +365,9 @@ module.exports = {
       if (typeof postRes === 'string'
       && (postRes.includes('ETIMEDOUT') || postRes.includes('ECONNRESET'))) {
         console.log(`registerGoogleServiceAccount: try ${tries}/${MAX_TRIES}`);
-        console.log(postRes);
+        if (process.env.DEBUG === 'true') {
+          console.log(postRes);
+        }
         tries += 1;
       } else {
         return postRes;
