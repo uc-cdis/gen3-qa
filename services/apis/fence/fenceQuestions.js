@@ -70,12 +70,14 @@ module.exports = {
     // TODO: In some cases the resp contains the property finalURL but its value is undefined.	
     expect(linkRes,
       'response after Google linking doesnt have finalURL prop').to.have.property('finalURL');
-
-    console.log(`when checking mocked Google Linking success, got final URL: ${linkRes.finalURL}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`when checking mocked Google Linking success, got final URL: ${linkRes.finalURL}`);
+    }
     // let the exception bubble up to facilitate retries
     let linkUrl = new URL(linkRes.finalURL);
-    console.log(`parse URL result: ${linkRes.finalURL}`);
-
+    if (process.env.DEBUG === 'true') {
+      console.log(`parse URL result: ${linkRes.finalURL}`);
+    }
     expect(linkUrl.searchParams.get('linked_email'),
       'response after Google linking doesnt include linked_email').to.not.be.null;
 

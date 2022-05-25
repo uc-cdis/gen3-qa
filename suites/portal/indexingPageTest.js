@@ -42,7 +42,9 @@ BeforeSuite(async ({ I, files, indexd }) => {
   );
 
   listOfIndexdRecords.data.records.forEach(async ({ record }) => {
-    console.log(record.did);
+    if (process.env.DEBUG === 'true') {
+      console.log(record.did);
+    }
     await indexd.do.deleteFile({ did: record.did });
   });
 });
@@ -82,7 +84,9 @@ Scenario('Navigate to the indexing page and upload a test manifest @indexing', a
       await sleepMS(5000);
       if (i === nAttempts - 1) {
         const manifestIndexingLogs = bash.runCommand('gen3 job logs manifest-indexing');
-        console.log(`manifest-indexing logs: ${manifestIndexingLogs}`);
+        if (process.env.DEBUG === 'true') {
+          console.log(`manifest-indexing logs: ${manifestIndexingLogs}`);
+        }
         throw new Error(`ERROR: The manifest indexing operation failed. Response: ${JSON.stringify(indexdRecordRes.data)}`);
       }
     }
@@ -108,12 +112,15 @@ Scenario('Navigate to the indexing page and download a full indexd manifest @ind
   await I.click({ xpath: 'xpath: //button[contains(text(), \'Download Manifest\')]' });
   // TODO: Inject the react -> state: { downloadManifestLink } url into an anchor tag
   const manifestDownloadUrl = await I.grabValueFrom({ xpath: 'xpath: //button[contains(text(), \'Download Manifest\')]' });
-  console.log(`### Manifest download url: ${manifestDownloadUrl}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`### Manifest download url: ${manifestDownloadUrl}`);
+  }
   const getManifestRes = await I.sendGetRequest(
     manifestDownloadUrl.toString(),
   );
-  console.log(`### downloadOuput: ${getManifestRes.data}`);
-
+  if (process.env.DEBUG === 'true') {
+    console.log(`### downloadOuput: ${getManifestRes.data}`);
+  }
   const downloadedManifestData = getManifestRes.data;
 
   expect(
@@ -141,7 +148,9 @@ Scenario('Navigate to the indexing page and upload an invalid manifest @indexing
   for (let i = 0; i < nAttempts; i += 1) {
     console.log(`Wait for GUI error message... - attempt ${i}`);
     const statusMsg = await I.grabTextFrom({ xpath: '//div[@class="index-files-popup-text"]/p[1]' }, 10);
-    console.log(`Status: ${statusMsg}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`Status: ${statusMsg}`);
+    }
     await sleepMS(5000);
     if (!statusMsg.includes('Status')) {
       break;
@@ -149,8 +158,9 @@ Scenario('Navigate to the indexing page and upload an invalid manifest @indexing
   }
 
   const manifestIndexingFailureMsg = await I.grabTextFrom({ xpath: '//div[@class="index-files-popup-text"]/descendant::p[2]' });
-  console.log(`html stuff: ${manifestIndexingFailureMsg}`);
-
+  if (process.env.DEBUG === 'true') {
+    console.log(`html stuff: ${manifestIndexingFailureMsg}`);
+  }
   expect(
     manifestIndexingFailureMsg,
   ).to.include(

@@ -1,4 +1,4 @@
-Feature('Register User For Data Downloading @requires-portal');
+Feature('Register User For Data Downloading @requires-portal @e2e');
 
 /*
 USER STORIES
@@ -68,8 +68,10 @@ async function waitForFenceAndPortalToRoll() {
     for (const service of ['fence', 'presigned-url-fence', 'portal']) {
       // get the status of the most recently started pod
       const res = await bash.runCommand(`g3kubectl get pods -l app=${service} --sort-by=.metadata.creationTimestamp | sed -n '1!p'`);
-      console.log('############');
-      console.log(res);
+      if (process.env.DEBUG === 'true') {
+        console.log('############');
+        console.log(res);
+      }
       let notReady = true;
       try {
         notReady = res.includes('0/1') || res.includes('Terminating');
@@ -116,7 +118,9 @@ EOM`);
 
   // update the secret
   const res = bash.runCommand('g3kubectl get secret fence-config -o json | jq --arg new_config "$(cat fence_config_tmp.yaml | base64)" \'.data["fence-config.yaml"]=$new_config\' | g3kubectl apply -f -');
-  console.log(res);
+  if (process.env.DEBUG === 'true') {
+    console.log(res);
+  }
   expect(res, 'Unable to update fence-config secret').to.have.string('secret/fence-config configured');
 
   // roll Fence
@@ -134,7 +138,9 @@ AfterSuite(async () => {
   await bash.runCommand('sed -i \'/REGISTER_USERS_ON/d\' fence_config_tmp.yaml; sed -i \'/REGISTERED_USERS_GROUP/d\' fence_config_tmp.yaml');
   // update the secret
   const res = bash.runCommand('g3kubectl get secret fence-config -o json | jq --arg new_config "$(cat fence_config_tmp.yaml | base64)" \'.data["fence-config.yaml"]=$new_config\' | g3kubectl apply -f -');
-  console.log(res);
+  if (process.env.DEBUG === 'true') {
+    console.log(res);
+  }
   expect(res, 'Unable to update fence-config secret').to.have.string('secret/fence-config configured');
 
   // roll Fence

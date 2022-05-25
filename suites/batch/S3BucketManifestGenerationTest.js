@@ -51,7 +51,9 @@ async function deleteLingeringInfra() {
   `);
 
   if (lingeringInfra.length > 0) {
-    console.log(`Found jobs in this namespace:\n  ${lingeringInfra}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`Found jobs in this namespace:\n  ${lingeringInfra}`);
+    }
     const jobIdsFromPreviousRuns = lingeringInfra.trim().split(' ');
 
     jobIdsFromPreviousRuns.forEach(async (jobId) => {
@@ -75,11 +77,15 @@ BeforeSuite(async ({ I }) => {
   const authzMappingFile = await bash.runCommand(`
     echo -e \"${contentsOfAuthzMapping}\" | tee -a authz_mapping_${I.cache.UNIQUE_NUM}.tsv
   `);
-  console.log(`authzMappingFile: ${authzMappingFile}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`authzMappingFile: ${authzMappingFile}`);
+  }
 });
 
 AfterSuite(async ({ I }) => {
-  console.log(`I.cache: ${JSON.stringify(I.cache)}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`I.cache: ${JSON.stringify(I.cache)}`);
+  }
   await deleteLingeringInfra();
 });
 
@@ -97,8 +103,9 @@ Scenario('Generate bucket manifest from s3 bucket @amazonS3 @batch @bucketManife
   const bucketManifestList = await bash.runCommand(`
     gen3 bucket-manifest --list | xargs -i echo "{} "
   `);
-  console.log(`bucketManifestList: ${bucketManifestList}`);
-
+  if (process.env.DEBUG === 'true') {
+    console.log(`bucketManifestList: ${bucketManifestList}`);
+  }
   if (bucketManifestList.trim().split(' ').length > 1) {
     throw new Error(`ERROR: Found more than one jobId on namespace ${process.env.KUBECTL_NAMESPACE}.`);
   }
@@ -107,17 +114,21 @@ Scenario('Generate bucket manifest from s3 bucket @amazonS3 @batch @bucketManife
   const bucketManifestJobDataRaw = await bash.runCommand(`
     cat paramFile.json
   `);
-  console.log(`bucketManifestJobDataRaw: ${bucketManifestJobDataRaw}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`bucketManifestJobDataRaw: ${bucketManifestJobDataRaw}`);
+  }
   const bucketManifestJobData = JSON.parse(bucketManifestJobDataRaw);
 
   const listContentsOfTempBucketRaw = await bash.runCommand(`
     aws s3 ls s3://${bucketManifestJobData.bucket_name} | grep manifest_
   `);
-  console.log(`listContentsOfTempBucketRaw: ${listContentsOfTempBucketRaw}`);
-
+  if (process.env.DEBUG === 'true') {
+    console.log(`listContentsOfTempBucketRaw: ${listContentsOfTempBucketRaw}`);
+  }
   const listContentsOfTempBucket = listContentsOfTempBucketRaw.split(/\s+/);
-  console.log(`listContentsOfTempBucket: ${listContentsOfTempBucket}`);
-
+  if (process.env.DEBUG === 'true') {
+    console.log(`listContentsOfTempBucket: ${listContentsOfTempBucket}`);
+  }
   // Assertion - The temp bucket has been populated properly
   // e.g., 2020-07-21 02:24:26        184 manifest_bucket-manifest-ci-test_07_21_20_02:24:25.tsv
   expect(listContentsOfTempBucket).to.have.lengthOf(4);
@@ -127,21 +138,27 @@ Scenario('Generate bucket manifest from s3 bucket @amazonS3 @batch @bucketManife
   const downloadManifestFromTempBucket = await bash.runCommand(`
     aws s3 cp s3://${bucketManifestJobData.bucket_name}/${bucketManifestFile} .
   `);
-  console.log(`downloadManifestFromTempBucket: ${downloadManifestFromTempBucket}`);
-
+  if (process.env.DEBUG === 'true') {
+    console.log(`downloadManifestFromTempBucket: ${downloadManifestFromTempBucket}`);
+  }
   // read contents of the manifest
   // replacing EOL (End Of Line) after receiving the one-line string from bash
   let bucketManifestContentsRaw = await bash.runCommand(`
     cat ${bucketManifestFile} | xargs -i echo "{}[EOL]"
   `);
   bucketManifestContentsRaw = bucketManifestContentsRaw.replace(/\[EOL\]/g, '\n');
-  console.log(`bucketManifestContentsRaw: ${bucketManifestContentsRaw}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`bucketManifestContentsRaw: ${bucketManifestContentsRaw}`);
+  }
   let bucketManifestTSV = tsv.parse(bucketManifestContentsRaw);
-  console.log(`bucketManifestTSV: ${JSON.stringify(bucketManifestTSV)}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`bucketManifestTSV: ${JSON.stringify(bucketManifestTSV)}`);
+  }
 
   bucketManifestTSV = bucketManifestTSV.sort((a, b) => a.size - b.size);
-  console.log(`sorted bucketManifestTSV: ${JSON.stringify(bucketManifestTSV)}`);
-
+  if (process.env.DEBUG === 'true') {
+    console.log(`sorted bucketManifestTSV: ${JSON.stringify(bucketManifestTSV)}`);
+  }
   // Final assertions
   const files = ['test_file', 'humongous_file'];
   for (let i = 0; i < files.length; i++) { // eslint-disable-line no-plusplus
