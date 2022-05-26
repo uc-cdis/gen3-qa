@@ -30,7 +30,10 @@ export const options = {
 export function setup() {
   console.log('Setting up...');
   const VIEWER_STUDY_URLS = [];
-  const DICOM_SERVER_URL = `https://${GEN3_HOST}/dicom-server`;
+  var text = fs.readFileSync("./studies.txt").toString('utf-8');
+  VIEWER_STUDY_URLS = text.split("\n");
+  
+  //const DICOM_SERVER_URL = `https://${GEN3_HOST}/dicom-server`;
   const DICOM_VIEWER_URL = `https://${GEN3_HOST}/dicom-viewer/viewer`;
   const params = {
     headers: {
@@ -38,7 +41,7 @@ export function setup() {
       Authorization: `Bearer ${ACCESS_TOKEN}`,
     },
   };
-  const resp = http.get(`${DICOM_SERVER_URL}/studies`, params);
+  /*const resp = http.get(`${DICOM_SERVER_URL}/studies`, params);
   console.log(resp);
   console.log(JSON.stringify(resp.body));
   const studies = JSON.parse(resp.body);
@@ -55,7 +58,7 @@ export function setup() {
     // console.log(viewerStudyUrl);
     VIEWER_STUDY_URLS.push(viewerStudyUrl);
   });
-  console.log(VIEWER_STUDY_URLS);
+  console.log(VIEWER_STUDY_URLS);*/
   return VIEWER_STUDY_URLS;
 }
 
