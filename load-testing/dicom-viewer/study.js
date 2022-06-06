@@ -9,7 +9,7 @@ const {
   RELEASE_VERSION,
   VU_COUNT,
   DURATION,
-  //ACCESS_TOKEN,
+  // ACCESS_TOKEN,
 } = __ENV; // eslint-disable-line no-undef
 
 console.log('Running scenario - dicom-server-metadata');
@@ -35,13 +35,13 @@ export function setup() {
   
   //const DICOM_SERVER_URL = `https://${GEN3_HOST}/dicom-server`;
   const DICOM_VIEWER_URL = `https://${GEN3_HOST}/dicom-viewer/viewer`;
-  /*const params = {
+  /* const params = {
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${ACCESS_TOKEN}`,
     },
-  };*/
-  /*const resp = http.get(`${DICOM_SERVER_URL}/studies`, params);
+  }; */
+  /* const resp = http.get(`${DICOM_SERVER_URL}/studies`, params);
   console.log(resp);
   console.log(JSON.stringify(resp.body));
   const studies = JSON.parse(resp.body);
@@ -58,7 +58,7 @@ export function setup() {
     // console.log(viewerStudyUrl);
     VIEWER_STUDY_URLS.push(viewerStudyUrl);
   });
-  console.log(VIEWER_STUDY_URLS);*/
+  console.log(VIEWER_STUDY_URLS); */
   return VIEWER_STUDY_URLS;
 }
 
