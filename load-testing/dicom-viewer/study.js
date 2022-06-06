@@ -30,10 +30,11 @@ export const options = {
 export function setup() {
   console.log('Setting up...');
   const VIEWER_STUDY_URLS = [];
-  var text = fs.readFileSync("./studies.txt").toString('utf-8');
-  VIEWER_STUDY_URLS = text.split("\n");
+  const fs = require('fs');
+  const text = fs.readFileSync('./studies.txt').toString('utf-8');
+  VIEWER_STUDY_URLS = text.split('\n');
   
-  //const DICOM_SERVER_URL = `https://${GEN3_HOST}/dicom-server`;
+  // const DICOM_SERVER_URL = `https://${GEN3_HOST}/dicom-server`;
   const DICOM_VIEWER_URL = `https://${GEN3_HOST}/dicom-viewer/viewer`;
   /* const params = {
     headers: {
