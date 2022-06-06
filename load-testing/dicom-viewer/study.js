@@ -1,6 +1,7 @@
 // const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresolved
 import http from 'k6/http'; // eslint-disable-line import/no-unresolved
 import launcher from 'k6/x/browser'; // eslint-disable-line import/no-unresolved
+import { readFileSync } from 'fs';
 
 // const { sleep } = require('k6'); // eslint-disable-line import/no-unresolved
 
@@ -30,10 +31,8 @@ export const options = {
 export function setup() {
   console.log('Setting up...');
   const VIEWER_STUDY_URLS = [];
-  const fs = require('fs');
-  const text = fs.readFileSync('./studies.txt').toString('utf-8');
-  VIEWER_STUDY_URLS = text.split('\n');
-  
+  const text = readFileSync('./studies.txt').toString('utf-8');
+  VIEWER_STUDY_URLS.push(text.split('\n'));
   // const DICOM_SERVER_URL = `https://${GEN3_HOST}/dicom-server`;
   const DICOM_VIEWER_URL = `https://${GEN3_HOST}/dicom-viewer/viewer`;
   /* const params = {
