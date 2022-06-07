@@ -1,6 +1,7 @@
 // const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresolved
 import http from 'k6/http'; // eslint-disable-line import/no-unresolved
 import launcher from 'k6/x/browser'; // eslint-disable-line import/no-unresolved
+import { readFileSync } from 'fs';
 
 // const { sleep } = require('k6'); // eslint-disable-line import/no-unresolved
 
@@ -9,7 +10,7 @@ const {
   RELEASE_VERSION,
   VU_COUNT,
   DURATION,
-  ACCESS_TOKEN,
+  // ACCESS_TOKEN,
 } = __ENV; // eslint-disable-line no-undef
 
 console.log('Running scenario - dicom-server-metadata');
@@ -30,15 +31,17 @@ export const options = {
 export function setup() {
   console.log('Setting up...');
   const VIEWER_STUDY_URLS = [];
-  const DICOM_SERVER_URL = `https://${GEN3_HOST}/dicom-server`;
+  const text = readFileSync('./studies.txt').toString('utf-8');
+  VIEWER_STUDY_URLS.push(text.split('\n'));
+  // const DICOM_SERVER_URL = `https://${GEN3_HOST}/dicom-server`;
   const DICOM_VIEWER_URL = `https://${GEN3_HOST}/dicom-viewer/viewer`;
-  const params = {
+  /* const params = {
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${ACCESS_TOKEN}`,
     },
-  };
-  const resp = http.get(`${DICOM_SERVER_URL}/studies`, params);
+  }; */
+  /* const resp = http.get(`${DICOM_SERVER_URL}/studies`, params);
   console.log(resp);
   console.log(JSON.stringify(resp.body));
   const studies = JSON.parse(resp.body);
@@ -55,7 +58,7 @@ export function setup() {
     // console.log(viewerStudyUrl);
     VIEWER_STUDY_URLS.push(viewerStudyUrl);
   });
-  console.log(VIEWER_STUDY_URLS);
+  console.log(VIEWER_STUDY_URLS); */
   return VIEWER_STUDY_URLS;
 }
 
