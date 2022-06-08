@@ -6,7 +6,7 @@ import { readFileSync } from 'fs';
 // const { sleep } = require('k6'); // eslint-disable-line import/no-unresolved
 
 const {
-  GEN3_HOST,
+  // GEN3_HOST,
   RELEASE_VERSION,
   VU_COUNT,
   DURATION,
@@ -34,7 +34,7 @@ export function setup() {
   const text = readFileSync('./studies.txt').toString('utf-8');
   VIEWER_STUDY_URLS.push(text.split('\n'));
   // const DICOM_SERVER_URL = `https://${GEN3_HOST}/dicom-server`;
-  const DICOM_VIEWER_URL = `https://${GEN3_HOST}/dicom-viewer/viewer`;
+  // const DICOM_VIEWER_URL = `https://${GEN3_HOST}/dicom-viewer/viewer`;
   /* const params = {
     headers: {
       'Content-Type': 'application/json',
