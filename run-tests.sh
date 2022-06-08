@@ -557,6 +557,13 @@ if [[ "$testedEnv" == "ci-env-1.planx-pla.net" ]]; then
 fi
 export testedEnv="$testedEnv"
 
+#### FRONTEND_ROOT ####
+frontend_root=$(kubectl get cm manifest-global -o yaml | yq '.data.frontend_root')
+if [[ frontend_root == "gen3ff" ]]; then
+  portal_suffix="/portal"
+else
+  portal_suffix=""
+fi
 
 #### Gen3 QA in a BOX ############################################################################
 if [[ "$(hostname)" == *"cdis-github-org"* ]] || [[ "$(hostname)" == *"planx-ci-pipeline"* ]]; then
@@ -608,9 +615,8 @@ else
     additionalArgs="--grep @manual --invert"
   fi
   set -e
-  DEBUG=$debug npm 'test' -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
+  PORTAL_SUFFIX=$portal_suffix DEBUG=$debug npm test -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
 fi
-
 
 # When zero tests are executed, a results*.xml file is produced containing a tests="0" counter
 # e.g., output/result57f4d8778c4987bda6a1790eaa703782.xml
