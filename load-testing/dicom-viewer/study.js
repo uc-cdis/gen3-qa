@@ -29,9 +29,9 @@ export function setup() {
   console.log('Setting up...');
   const VIEWER_STUDY_URLS = [];
   const text = readFileSync('./studies.txt').toString('utf-8');
-  const textSplit = text.split('\n');
-  textSplit.forEach((entry) => {
-    VIEWER_STUDY_URLS.push(entry);
+  const textSplit = text.split(',');
+  textSplit.forEach(function(obj){
+    VIEWER_STUDY_URLS.push(obj);
   });
   // VIEWER_STUDY_URLS.push(text.split('\n'));
   // const DICOM_SERVER_URL = `https://${GEN3_HOST}/dicom-server`;
