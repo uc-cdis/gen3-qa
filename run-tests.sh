@@ -558,7 +558,7 @@ fi
 export testedEnv="$testedEnv"
 
 #### FRONTEND_ROOT ####
-frontend_root=$(kubectl get cm manifest-global -o yaml | yq '.data.frontend_root')
+frontend_root=$(g3kubectl get configmap manifest-global -o yaml | yq '.data.frontend_root')
 if [[ frontend_root == "gen3ff" ]]; then
   portal_suffix="/portal"
 else
