@@ -71,7 +71,7 @@ async function runLoadTestScenario() {
 
   // Always make the apiKey available for long-running tests
  // loadTestArgs.unshift(`API_KEY="${apiKey}"`);
-  loadTestArgs.unshift('-e');
+  // loadTestArgs.unshift('-e');
 
   // The first arg should always be 'run'
   loadTestArgs.unshift('run');
