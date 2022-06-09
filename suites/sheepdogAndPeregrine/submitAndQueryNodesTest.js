@@ -208,7 +208,9 @@ Scenario('submit data node with consent codes @indexRecordConsentCodes', async (
   );
 
   listOfIndexdRecords.data.records.forEach(async (record) => {
-    console.log(record.did);
+    if (process.env.DEBUG === 'true') {
+      console.log(record.did);
+    }
     await indexd.do.deleteFile({ did: record.did });
   });
 

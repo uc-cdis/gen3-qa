@@ -66,7 +66,9 @@ Before(async () => {
   // Deleting registered clients for idempotent local runs
   const deleteClientCmd1 = 'fence-create --arborist http://arborist-service/ client-delete --client ras-user1-test-client';
   const deleteClientForRASUser1 = bash.runCommand(deleteClientCmd1, 'fence', takeLastLine);
-  console.log(`deleteClientForRASUser1: ${deleteClientForRASUser1}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`deleteClientForRASUser1: ${deleteClientForRASUser1}`);
+  }
 });
 
 Scenario('Provide invalid credentials in NIH Login page @rasAuthN', async () => {
@@ -86,7 +88,9 @@ Scenario('Click on Deny button in RAS Authorization page @rashAuthN @manual', as
   I.saveScreenshot('NIH_Login_3.png');
   await sleepMS(3000);
   const urlWithCode = await I.grabCurrentUrl();
-  console.log(`URL With Code - ${urlWithCode}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`URL With Code - ${urlWithCode}`);
+  }
   expect(urlWithCode).to.contain('error_description=The+resource_owner+denied+access+to+resources',
     'The error message is not as expected');
 });

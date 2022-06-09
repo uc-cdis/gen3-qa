@@ -8,8 +8,10 @@ const I = actor();
 module.exports = {
   goToIndexingPage() {
     I.amOnPage(indexingProps.path);
-    I.captureBrowserLog();
-    I.saveScreenshot('indexing.png');
+    if (process.env.DEBUG === 'true') {
+      I.captureBrowserLog();
+      I.saveScreenshot('indexing.png');
+    }
     I.waitForElement(indexingProps.readyCue, 30);
   },
 

@@ -150,7 +150,9 @@ Scenario('Register SA from Google Project that doesn’t have fence’s monitori
     googleProject,
     ['test'],
   );
-  console.log(`registerRes: ${stringify(registerRes)}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`registerRes: ${stringify(registerRes)}`);
+  }
   fence.ask.responsesEqual(registerRes, fence.props.resRegisterServiceAccountFenceNoAccess);
 }).retry(2);
 
