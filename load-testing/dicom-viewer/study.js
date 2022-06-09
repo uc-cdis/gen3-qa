@@ -28,7 +28,7 @@ export const options = {
 export function setup() {
   console.log('Setting up...');
   const VIEWER_STUDY_URLS = [];
-  const fr = new window.FileReader();
+  const fr = new global.FileReader();
   const text = fr.readAsText('./studies.txt');
   // const text = fs.readFile('./studies.txt');
   const textSplit = text.split('\n');
