@@ -29,7 +29,7 @@ export function setup() {
   console.log('Setting up...');
   const VIEWER_STUDY_URLS = [];
   const text = readFileSync('./studies.txt').toString('utf-8');
-  const textSplit = text.split('\n')
+  const textSplit = text.split('\n');
   textSplit.forEach((entry) => {
     VIEWER_STUDY_URLS.push(entry);
   });
