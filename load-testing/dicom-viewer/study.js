@@ -11,6 +11,7 @@ const {
 } = __ENV; // eslint-disable-line no-undef
 
 console.log('Running scenario - dicom-server-metadata');
+const text = open('./studies.txt');
 export const options = {
   tags: {
     scenario: 'Dicom Viewer - Study',
@@ -30,7 +31,6 @@ export function setup() {
   const VIEWER_STUDY_URLS = [];
   //var fr = new global.FileReader();
   //const text = fr.readAsText('./studies.txt');
-  const text = open('./studies.txt');
   const textSplit = text.split('\n');
   textSplit.forEach(function(obj){
     VIEWER_STUDY_URLS.push(obj);
