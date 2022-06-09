@@ -57,8 +57,8 @@ export function setup() {
     const viewerStudyUrl = `${DICOM_VIEWER_URL}/${studyInstanceUid}`;
     // console.log(viewerStudyUrl);
     VIEWER_STUDY_URLS.push(viewerStudyUrl);
-  });
-  console.log(VIEWER_STUDY_URLS); */
+  }); */
+  console.log(VIEWER_STUDY_URLS); 
   return VIEWER_STUDY_URLS;
 }
 
