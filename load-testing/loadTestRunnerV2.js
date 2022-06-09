@@ -28,7 +28,7 @@ async function runLoadTestScenario() {
     token = testDescriptorData.override_access_token;
     console.log(`Override token: ${token}`);
     const overrideJwtData = parseJwt(testDescriptorData.override_access_token); */
-    let targetEnvironment = targetEnvironment = args[0];
+    let targetEnvironment = args[0];
     console.log(`Target environment from override token: ${targetEnvironment}`);
    // targetEnvironment = targetEnvironment.replace(/(^\w+:|^)\/\//, '').replace('/user', '');
     console.log(`Sanitized target environment from override token: ${targetEnvironment}`);
