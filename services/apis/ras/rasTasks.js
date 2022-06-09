@@ -17,7 +17,7 @@ module.export = {
     I.waitForElement(rasProps.signInButton, 10);
     I.click(rasProps.signInButton);
     // check if reponse url contains 'code'
-    I.seeInCurrentURL('code');
+    I.seeInCurrentUrl('code');
     // now grab the code from the url
     const authCodeURL = await I.grabCurrentUrl();
     const url = new URL(authCodeURL);
