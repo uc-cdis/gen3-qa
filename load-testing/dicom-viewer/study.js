@@ -1,8 +1,6 @@
 // const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresolved // eslint-disable-line import/no-unresolved
-import http from 'k6/http';
 import launcher from 'k6/x/browser'; // eslint-disable-line import/no-unresolved
-import { SharedArray } from 'k6/data';
-// import { readFile } from 'fs';
+import { readFile } from 'fs';
 
 // const { sleep } = require('k6'); // eslint-disable-line import/no-unresolved
 
@@ -30,11 +28,7 @@ export const options = {
 export function setup() {
   console.log('Setting up...');
   const VIEWER_STUDY_URLS = [];
-  const text = new SharedArray('another data name', function () {
-    // Load CSV file and parse it using Papa Parse
-    return papaparse.parse(open('./studies.txt')).toString('utf-8');
-  });
- // const text = fs.readFile('./studies.txt').toString('utf-8');
+  const text = readFile('./studies.txt');
   const textSplit = text.split('\n');
   textSplit.forEach(function(obj){
     VIEWER_STUDY_URLS.push(obj);
