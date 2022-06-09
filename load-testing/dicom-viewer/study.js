@@ -1,6 +1,6 @@
 // const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresolved // eslint-disable-line import/no-unresolved
 import launcher from 'k6/x/browser'; // eslint-disable-line import/no-unresolved
-import { readFileSync } from 'fs';
+import { readFile } from 'fs';
 
 // const { sleep } = require('k6'); // eslint-disable-line import/no-unresolved
 
@@ -28,8 +28,8 @@ export const options = {
 export function setup() {
   console.log('Setting up...');
   const VIEWER_STUDY_URLS = [];
-  const text = readFileSync('./studies.txt').toString('utf-8');
-  const textSplit = text.split(',');
+  const text = readFile('./studies.txt').toString('utf-8');
+  const textSplit = text.split('\n');
   textSplit.forEach(function(obj){
     VIEWER_STUDY_URLS.push(obj);
   });
