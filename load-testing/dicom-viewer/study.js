@@ -1,4 +1,5 @@
 // const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresolved // eslint-disable-line import/no-unresolved
+import http from 'k6/http';
 import launcher from 'k6/x/browser'; // eslint-disable-line import/no-unresolved
 import { readFile } from 'fs';
 
