@@ -28,8 +28,9 @@ export const options = {
 export function setup() {
   console.log('Setting up...');
   const VIEWER_STUDY_URLS = [];
-  const fs = require('fs');
-  const text = fs.readFile('./studies.txt');
+  const fr = new FileReader();
+  const text = fr.readAsText('./studies.txt');
+  // const text = fs.readFile('./studies.txt');
   const textSplit = text.split('\n');
   textSplit.forEach(function(obj){
     VIEWER_STUDY_URLS.push(obj);
