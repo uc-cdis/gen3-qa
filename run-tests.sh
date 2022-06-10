@@ -559,7 +559,7 @@ export testedEnv="$testedEnv"
 
 #### FRONTEND_ROOT ####
 export frontend_root="$(g3kubectl get configmaps manifest-global -o yaml | yq '.data.frontend_root')"
-if [[ "$frontend_root" == \"gen3ff\" ]]; then
+if [[ $frontend_root == \"gen3ff\" ]]; then
   export portal_suffix="/portal"
 else
   export portal_suffix=""
