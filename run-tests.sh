@@ -558,11 +558,11 @@ fi
 export testedEnv="$testedEnv"
 
 #### FRONTEND_ROOT ####
-frontend_root=$(g3kubectl get configmap manifest-global -o yaml | yq '.data.frontend_root')
+export frontend_root="$(g3kubectl get configmaps manifest-global -o yaml | yq '.data.frontend_root')"
 if [[ "$frontend_root" == "gen3ff" ]]; then
-  portal_suffix="/portal"
+  export portal_suffix="/portal"
 else
-  portal_suffix=""
+  export portal_suffix=""
 fi
 
 #### Gen3 QA in a BOX ############################################################################
