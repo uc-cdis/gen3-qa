@@ -13,7 +13,9 @@ const getRevFromResponse = function (res) {
   try {
     return res.data.rev;
   } catch (e) {
-    console.log(`Could not get res.data.rev from response: ${res}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`Could not get res.data.rev from response: ${res}`);
+    }
     return 'ERROR_GETTING_INDEXD';
   }
 };

@@ -28,8 +28,10 @@ module.exports = {
       if (err) {
         throw new Error(err);
       }
-      console.log(`uploadFileToS3 res: ${res.statusCode}`);
-      console.log(`uploadFileToS3 body: ${body.slice(0, 20)}`);
+      if (process.env.DEBUG === 'true') {
+        console.log(`uploadFileToS3 res: ${res.statusCode}`);
+        console.log(`uploadFileToS3 body: ${body.slice(0, 20)}`);
+      }
     }));
   },
 
