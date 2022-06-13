@@ -338,14 +338,17 @@ module.exports = {
       metadata.data.consent_codes = consent_codes;
     }
 
-    console.log(`### ## DEBUG HERE`);
     // assuming all data files can be submitted with a single link to a
     // core_metadata_collection: add it, and remove other links
     const cmcSubmitterID = await module.exports.generateAndAddCoremetadataNode(sheepdog);
-    console.log(`metadata.data: ${JSON.stringify(metadata.data)}`);
-    console.log(`metadata.data property names: ${Object.getOwnPropertyNames(metadata.data)}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`metadata.data: ${JSON.stringify(metadata.data)}`);
+      console.log(`metadata.data property names: ${Object.getOwnPropertyNames(metadata.data)}`);
+    }
     for (const prop in metadata.data) {
-      console.log(`metadata.data prop: ${JSON.stringify(prop)}`);
+      if (process.env.DEBUG === 'true') {
+        console.log(`metadata.data prop: ${JSON.stringify(prop)}`);
+      }
       try {
         if (metadata.data.hasOwnProperty(prop) && metadata.data[prop].hasOwnProperty('submitter_id')) {
           delete metadata.data[prop];

@@ -47,7 +47,9 @@ BeforeSuite(async ({ I }) => {
   // getting the access_token for the test user
   // test user -> cdis.autotest@gmail.com
   I.cache.ACCESS_TOKEN = await bash.runCommand('gen3 api access-token cdis.autotest@gmail.com');
-  console.log(`Access_Token: ${I.cache.ACCESS_TOKEN}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`Access_Token: ${I.cache.ACCESS_TOKEN}`);
+  }
   // upload new indexdFile
   const uploadResp = await I.sendPostRequest(
     `https://${TARGET_ENVIRONMENT}/index/index`,
@@ -56,7 +58,9 @@ BeforeSuite(async ({ I }) => {
   );
   I.cache.indexdRecord = uploadResp.data.did;
   I.cache.indexdRev = uploadResp.data.rev;
-  console.log(`### Indexd Record DID: ${I.cache.indexdRecord}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`### Indexd Record DID: ${I.cache.indexdRecord}`);
+  }
 });
 
 AfterSuite(async ({ I }) => {
@@ -158,13 +162,17 @@ async function getTokens(I) {
 
   // after signing, the url will consist of Auth Code
   const authCodeURL = await I.grabCurrentUrl();
-  console.log(authCodeURL);
+  if (process.env.DEBUG === 'true') {
+    console.log(authCodeURL);
+  }
   const url = new URL(authCodeURL);
   const authCode = url.searchParams.get('code');
   // check if the authCode isnt empty
   expect(authCode).to.not.to.be.empty;
   I.cache.rasAuthCode = authCode;
-  console.log(`### Auth Code = ${I.cache.rasAuthCode}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`### Auth Code = ${I.cache.rasAuthCode}`);
+  }
 
   // getting tokens from the authCode
   console.log('Retrieving Access Token and Refresh Token ... ');

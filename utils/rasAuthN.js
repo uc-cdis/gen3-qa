@@ -23,8 +23,9 @@ exports.registerRasClient = (
     + ` --allowed-scopes ${scopes}`;
 
   const registerClientForRASUser1 = bash.runCommand(registerClientCmd, 'fence', takeLastLine);
-  console.log(`registerClientForRASUser1: ${registerClientForRASUser1}`);
-
+  if (process.env.DEBUG === 'true') {
+    console.log(`registerClientForRASUser1: ${registerClientForRASUser1}`);
+  }
   const re = /\('(.*)',\s'(.*)'\)/;
   const groups = registerClientForRASUser1.match(re);
   expect(groups, `Unable to get client ID and secret from "${registerClientForRASUser1}"`).to.not.to.be.empty;

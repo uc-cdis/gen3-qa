@@ -14,7 +14,6 @@ module.exports = {
     try {
       data = (typeof metadata === 'string') ? JSON.parse(metadata) : metadata;
     } catch (error) {
-      console.log(metadata);
       throw new Error(`Unable to parse the data returned by Pidgin:\n${metadata}`);
     }
 
