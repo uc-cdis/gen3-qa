@@ -1,6 +1,7 @@
 const queryString = require('query-string');
 const { sleepMS } = require('../../../utils/apiUtil.js');
 const rasProps = require('./rasProps.js');
+const rasQuestions = require('./rasQuestions.js');
 
 const I = actor();
 
@@ -53,6 +54,18 @@ module.export = {
     return { accessToken, refreshToken, idToken };
   },
 
+  // check if the creds requried for the test are defined as env variables
+  validateCreds(I, testCreds) {
+    testCreds.forEach((creds) => {
+      if (process.env[creds] === '' || process.env[creds] === undefined) {
+        throw new Error(`Missing required environement variable '${creds}'`);
+      }
+    });
+    // adding the clientID and secretID to the cache
+    I.cache.clientID = process.env.clientID;
+    I.cache.clientSecret = process.env.secretID;
+  },
+
   async getPassport(token) {
     // GET /openid/connect/v1.1/userinfo passport for the RAS user with RAS Access token
     console.log('### Getting Passport from Access Token');
@@ -66,7 +79,10 @@ module.export = {
     // you should get a passport with visa as the response
     const passportBody = getPassportReq.data.passport_jwt_v11;
     // checking the validate scope of passport
-
+    rasQuestions.hasScope(passportBody);
+    if (rasQuestions.hasScope(passportBody)) {
+      console.log('### The scope for Passport is correct');
+    }
     return passportBody;
   },
 

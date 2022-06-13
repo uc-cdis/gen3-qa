@@ -4,7 +4,7 @@ const { parseJwt } = require('../../../utils/apiUtil.js');
 const { expect } = chai;
 
 module.exports = {
-
+  // check if the scope is correct or not
   hasScope(passport) {
     const parsedPassportJwt = parseJwt(passport);
     const ga4ghJWT = parsedPassportJwt.ga4gh_passport_v1[0];
