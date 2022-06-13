@@ -134,7 +134,7 @@ AfterSuite(async ({ indexd }) => {
 });
 
 // user main Acct - cdis.autotest@gmail.com
-Scenario('PresignedUrl with google mainAcct', async ({ fence, users }) => {
+Scenario('PresignedUrl with google mainAcct', async ({ fence, users, nondbgap }) => {
   // checking presigned url before running usersync
   console.log('creating presigned url with mainAcct user for PROJECT-12345 before running usersync.');
   const signedUrlProject12345BeforeUserSync = await fence.do.createSignedUrl(indexdFiles.project12345File, users.mainAcct.accessTokenHeader);
@@ -175,7 +175,7 @@ Scenario('PresignedUrl with google mainAcct', async ({ fence, users }) => {
   nondbgap.do.runUserSync();
 });
 
-Scenario('Presigned Url with RAS user', async ({ fence, users }) => {
+Scenario('Presigned Url with RAS user', async ({ fence, users, nondbgap }) => {
   // carry out the OIDC flow and get the access token for RAS user
   const rasAccessToken = await nondbgap.do.getRasToken();
   // checking presigned url before running usersync
