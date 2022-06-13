@@ -1,0 +1,8 @@
+{
+  "objective": "Dicom server metadata with 50 users",
+  "details": {
+    "name": "qa-midrc.planx-plan.net"
+  },
+  "service": "dicom-server",
+  "load_test_scenario": "metadata"
+}

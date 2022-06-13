@@ -2,7 +2,7 @@
 #
 # Jenkins launch script.
 # Use:
-#   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--seleniumTimeout] [--selectedTest=selectedTest]
+#   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--seleniumTimeout] [--selectedTest=selectedTest] [--debug=debug]
 #
 
 set -xe
@@ -13,13 +13,14 @@ Jenkins test launch script.  Assumes the  GEN3_HOME environment variable
 references a current [cloud-automation](https://github.com/uc-cdis/cloud-automation) folder.
 
 Use:
-  bash run-tests.sh [[--namespace=]KUBECTL_NAMESPACE] [--service=service] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--selectedTest=selectedTest] [--dryrun]
+  bash run-tests.sh [[--namespace=]KUBECTL_NAMESPACE] [--service=service] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--selectedTest=selectedTest] [--dryrun] [--debug=debug]
     --namespace default is KUBECTL_NAMESPACE:-default
     --service default is service:-none
     --testedEnv default is testedEnv:-none (for cdis-manifest PRs, specifies which environment is being tested, to know which tests are relevant)
     --isGen3Release default is "false"
     --seleniumTimeout default is 3600
     --selectedTest default is selectedTest:-none
+    --debug default is "false" (run tests in debug mode if true)
 EOM
 }
 
@@ -156,6 +157,7 @@ testedEnv="${testedEnv:-""}"
 isGen3Release="${isGen3Release:false}"
 seleniumTimeout="${seleniumTimeout:3600}"
 selectedTest="${selectedTest:-"all"}"
+debug="${debug:false}"
 
 while [[ $# -gt 0 ]]; do
   key="$(echo "$1" | sed -e 's/^-*//' | sed -e 's/=.*$//')"
@@ -185,6 +187,9 @@ while [[ $# -gt 0 ]]; do
       ;;
     dryrun)
       isDryRun=true
+      ;;
+    debug)
+      debug="$value"
       ;;
     *)
       if [[ -n "$value" && "$value" == "$key" ]]; then
@@ -440,7 +445,7 @@ if [ -z "$checkForPresenceOfMetadataIngestionSowerJob" ]; then
   donot '@metadataIngestion'
 fi
 
-# Study Viewer test
+# # Study Viewer test
 runStudyViewerTests=false
 #run for data-portal/requestor/gen3-qa/gitops-qa/cdis-manifest repo
 if [[ ! ("$service" =~ ^(data-portal|requestor|gen3-qa)$ || $testedEnv == *"niaid"*) ]]; then
@@ -454,6 +459,8 @@ else
     fi
   fi
 fi
+# disabling the studyViewer test for debugging
+# donot '@studyViewer'
 
 # landing page buttons
 if [[ $(curl -s "$portalConfigURL" | jq '.components | contains({buttons}) | not') == "true" ]] || [[ ! -z "$testedEnv" ]]; then
@@ -601,7 +608,7 @@ else
     additionalArgs="--grep @manual --invert"
   fi
   set -e
-  npm 'test' -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
+  DEBUG=$debug npm 'test' -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
 fi
 
 

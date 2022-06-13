@@ -43,7 +43,9 @@ BeforeSuite(async ({ I, ras }) => {
   // getting the access_token for the test user
   // test user -> cdis.autotest@gmail.com
   I.cache.ACCESS_TOKEN = await bash.runCommand('gen3 api access-token cdis.autotest@gmail.com');
-  console.log(`Access_Token: ${I.cache.ACCESS_TOKEN}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`Access_Token: ${I.cache.ACCESS_TOKEN}`);
+  }
   // upload new indexdFile
   const uploadResp = await I.sendPostRequest(
     `https://${TARGET_ENVIRONMENT}/${ras.props.indexdEndpoint}`,
@@ -52,7 +54,9 @@ BeforeSuite(async ({ I, ras }) => {
   );
   I.cache.indexdRecord = uploadResp.data.did;
   I.cache.indexdRev = uploadResp.data.rev;
-  console.log(`### Indexd Record DID: ${I.cache.indexdRecord}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`### Indexd Record DID: ${I.cache.indexdRecord}`);
+  }
 });
 
 // after suite cleans up the indexd record, revokes the access
@@ -122,6 +126,90 @@ function validateCreds(I, testCreds) {
   // adding the clientID and secretID to the cache
   I.cache.clientID = process.env.clientID;
   I.cache.secretID = process.env.secretID;
+}
+
+async function getTokens(I) {
+  console.log('Getting the Auth Code ...');
+  // &prompt=consent
+  I.amOnPage(`https://${rasServerURL}/auth/oauth/v2/authorize?response_type=code&client_id=${I.cache.clientID}&prompt=consent&redirect_uri=http://localhost:8080/user/login/ras/callback&scope=${scope}&idp=ras`);
+  // GET auth/oauth/v2/authorize to get the rasAuthCode
+  await sleepMS(3000);
+  I.saveScreenshot('rasLogin_Page.png');
+  // fill in the RAS user creds
+  I.fillField('USER', process.env.RAS_TEST_USER_1_USERNAME);
+  I.fillField('PASSWORD', secret(process.env.RAS_TEST_USER_1_PASSWORD));
+  I.waitForElement({ xpath: 'xpath: //button[contains(text(), \'Sign in\')]' }, 10);
+  I.click({ xpath: 'xpath: //button[contains(text(), \'Sign in\')]' });
+  // TODO -> consent page
+  // /auth/oauth/v2/authorize/consent - we can make a request to /consent endpoint and it returns HTML page
+  // for the request we need - action(grant/deny), sessionID and sessionData in reqBody
+
+  // you should see the consent page in the following screenshot
+  I.saveScreenshot('AfterSignIn.png');
+  I.seeInCurrentURL('code');
+
+  // after signing, the url will consist of Auth Code
+  const authCodeURL = await I.grabCurrentUrl();
+  if (process.env.DEBUG === 'true') {
+    console.log(authCodeURL);
+  }
+  const url = new URL(authCodeURL);
+  const authCode = url.searchParams.get('code');
+  // check if the authCode isnt empty
+  expect(authCode).to.not.to.be.empty;
+  I.cache.rasAuthCode = authCode;
+  if (process.env.DEBUG === 'true') {
+    console.log(`### Auth Code = ${I.cache.rasAuthCode}`);
+  }
+
+  // getting tokens from the authCode
+  console.log('Retrieving Access Token and Refresh Token ... ');
+  const data = queryString.stringify({
+    grant_type: 'authorization_code',
+    code: `${I.cache.rasAuthCode}`,
+    client_id: `${I.cache.clientID}`,
+    client_secret: `${I.cache.clientSecret}`,
+    scope: `${scope}`,
+    redirect_uri: 'http://localhost:8080/user/login/ras/callback',
+  });
+
+  const getRASToken = await I.sendPostRequest(
+    rasAuthURL,
+    data,
+    {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  );
+
+  // you should get RAS tokens (id, access, refresh)
+  // but you need only access_token and refresh_token for this test
+  I.cache.idToken = getRASToken.data.id_token;
+  I.cache.accessToken = getRASToken.data.access_token;
+  I.cache.refreshToken = getRASToken.data.refresh_token;
+
+  return I.cache.accessToken;
+}
+
+async function getPassport(I, token) {
+  // const accessToken = await getTokens(I);
+  // GET /openid/connect/v1.1/userinfo passport for the RAS user with RAS Access token
+  const getPassportReq = await I.sendGetRequest(
+    `https://${rasServerURL}/openid/connect/v1.1/userinfo`,
+    {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  );
+  // you should get a passport with visa as the response
+  const passportBody = getPassportReq.data.passport_jwt_v11;
+  // console.log(`### Passport JWT: ${passportBody}`);
+
+  // checking the validate scope of passport
+  hasScope(passportBody);
+  if (hasScope(passportBody)) {
+    console.log('### The Scope is correct');
+  }
+  return passportBody;
 }
 
 // Scenario 1 ->

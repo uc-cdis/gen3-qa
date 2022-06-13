@@ -181,9 +181,13 @@ module.exports = {
         if (process.env.RUNNING_LOCAL === 'true') {
           process.env.KUBECTL_NAMESPACE = process.env.NAMESPACE;
         }
-        console.log(`### THE KUBECTL_NAMESPACE: ${process.env.KUBECTL_NAMESPACE}`);
+        if (process.env.DEBUG === 'true') {
+          console.log(`### THE KUBECTL_NAMESPACE: ${process.env.KUBECTL_NAMESPACE}`);
+        }
         const accessToken = bash.runCommand(fenceCmd, 'fence', takeLastLine);
-        console.log(`### THE ACCESS TOKEN: ${accessToken}`);
+        if (process.env.DEBUG === 'true') {
+          console.log(`### THE ACCESS TOKEN: ${accessToken}`);
+        }
         const decodedToken = module.exports.parseJwt(accessToken);
         // console.log(`decodedToken: ${JSON.stringify(decodedToken)}`);
         const nameFromToken = decodedToken.context.user.name;
@@ -396,7 +400,9 @@ module.exports = {
         }
         console.log(`### THE KUBECTL_NAMESPACE: ${process.env.KUBECTL_NAMESPACE}`);
         const podNameDebug = await bash.runCommand('echo "$KUBECTL_NAMESPACE"');
-        console.log(`#### ### ## podNameDebug: ${podNameDebug}`);
+        if (process.env.DEBUG === 'true') {
+          console.log(`#### ### ## podNameDebug: ${podNameDebug}`);
+        }
         const podName = await bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=${labelName} -o jsonpath="{.items[*].metadata.name}" | awk "{print $NF}"`);
         console.log(`latest pod found: ${podName}`);
         if (!podFound) {

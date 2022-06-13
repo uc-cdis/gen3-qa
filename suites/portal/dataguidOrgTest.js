@@ -9,7 +9,9 @@ if (process.env.RUNNING_LOCAL === 'true') {
   testURL = 'https://dataguids.org';
 } else {
   testURL = `https://${process.env.NAMESPACE}.planx-pla.net`;
-  console.log(`testURL: ${testURL}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`testURL: ${testURL}`);
+  }
 }
 const nonexistentGuids = new DataTable(['nguids']);
 nonexistentGuids.add(['dg.ABCD/0000b4b4-2af4-42e2-9bfa-6fd11e5fb97a']); // adding guids with wrong prefix
@@ -20,9 +22,13 @@ async function getAllHost() {
   await bash.runCommand('g3kubectl get configmap manifest-all -o json | jq .data.json > manifest.json');
   await bash.runCommand('echo -e $(cat manifest.json) | sed \'s/\\\\//g\' | sed \'1s/^.//\' | sed \'$s/.$//\' > dataguidmanifest.json');
   const res = await bash.runCommand('cat dataguidmanifest.json | jq -r \'.indexd.dist[] | select(.type == "indexd") | .host\'');
-  console.log(res);
+  if (process.env.DEBUG === 'true') {
+    console.log(res);
+  }
   const hosts = res.match(/https:[\/\-\.\w]+\/index\//g); // eslint-disable-line
-  console.log(hosts);
+  if (process.env.DEBUG === 'true') {
+    console.log(hosts);
+  }
 
   await bash.runCommand('rm manifest.json; rm dataguidmanifest.json');
   return hosts;
@@ -31,7 +37,9 @@ async function getAllHost() {
 async function getFirstGuidFromHost(host, I) {
   const guid = await I.sendGetRequest(`${host}index?limit=1`)
     .then((res) => res.data.records[0].did);
-  console.log(guid);
+  if (process.env.DEBUG === 'true') {
+    console.log(guid);
+  }
 
   return guid;
 }
