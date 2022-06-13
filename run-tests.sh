@@ -560,9 +560,9 @@ export testedEnv="$testedEnv"
 #### FRONTEND_ROOT ####
 export frontend_root="$(g3kubectl get configmaps manifest-global -o yaml | yq '.data.frontend_root')"
 if [[ $frontend_root == \"gen3ff\" ]]; then
-  export portal_suffix="/portal"
+  export PORTAL_SUFFIX="/portal"
 else
-  export portal_suffix=""
+  export PORTAL_SUFFIX=""
 fi
 
 #### Gen3 QA in a BOX ############################################################################
@@ -615,7 +615,7 @@ else
     additionalArgs="--grep @manual --invert"
   fi
   set -e
-  PORTAL_SUFFIX=$portal_suffix DEBUG=$debug npm test -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
+  DEBUG=$debug npm test -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
 fi
 
 # When zero tests are executed, a results*.xml file is produced containing a tests="0" counter
