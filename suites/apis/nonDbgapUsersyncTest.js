@@ -65,18 +65,11 @@ Test Steps -
 
 Feature('nonDBGap Project Usersync @requires-fence @requires-indexd');
 
-const chai = require('chai');
-const queryString = require('query-string');
-const { Gen3Response, checkPod } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
 
 const bash = new Bash();
 
 const I = actor();
-
-const scope = 'openid profile email ga4gh_passport_v1';
-
-const TARGET_ENVIRONMENT = `${process.env.NAMESPACE}.planx-pla.net`;
 
 const indexdFiles = {
   project12345File: {
@@ -117,130 +110,6 @@ const indexdFiles = {
   },
 };
 
-async function runUserSyncDBGap() {
-  console.log('### Running usersync job with DBGap ...');
-  console.log(`start time: ${Math.floor(Date.now() / 1000)}`);
-  bash.runJob('usersync', args = 'ADD_DBGAP true'); // eslint-disable-line no-undef
-  await checkPod(I, 'usersync', 'gen3job,job-name=usersync');
-  console.log(`end time: ${Math.floor(Date.now() / 1000)}`);
-}
-
-async function runUserSync() {
-  console.log('### Running usersync job ...');
-  console.log(`start time: ${Math.floor(Date.now() / 1000)}`);
-  bash.runJob('usersync');
-  await checkPod(I, 'usersync', 'gen3job,job-name=usersync');
-  console.log(`end time: ${Math.floor(Date.now() / 1000)}`);
-}
-
-async function getRasToken() {
-  console.log('### Getting auth code ...');
-  const authURL = '/user/oauth2/authorize?'
-        + 'response_type=code'
-        + `&client_id=${I.cache.RAS_clientID}`
-        + `&redirect_uri=https://${TARGET_ENVIRONMENT}/user`
-        + `&scope=${scope}`
-        + '&idp=ras';
-  I.amOnPage(authURL);
-  // filling the RAS login form
-  I.fillField('USER', process.env.RAS_TEST_USER_1_USERNAME);
-  I.fillField('PASSWORD', process.env.RAS_TEST_USER_1_PASSWORD);
-  I.waitForElement({ xpath: 'xpath: //button[contains(text(), \'Sign in\')]' });
-  I.click({ xpath: 'xpath: //button[contains(text(), \'Sign in\')]' });
-  I.saveScreenshot('AfterSignIn.png');
-  // checking if the authcode is present in the url after login
-  I.seeInCurrentURL('code');
-  // grabbing the authcode from the url and storing it in the variable
-  const authCodeURL = await I.grabCurrentUrl();
-  const url = new URL(authCodeURL);
-  const authCode = url.searchParams.get('code');
-  // check if the authCode isnt empty
-  expect(authCode).to.not.to.be.empty;
-  const code = authCode;
-  console.log(`Successfully retrieved the code from URL : ${code}`);
-
-  // getting access_token from authCode
-  console.log('Retrieving access_token ...');
-  const data = queryString.stringify({
-    grant_type: 'authorization_code',
-    code: `${code}`,
-    client_id: `${I.cache.RAS_clientID}`,
-    client_secret: `${I.cache.RAS_secretID}`,
-    scope: `${scope}`,
-    redirect_uri: `https://${TARGET_ENVIRONMENT}/user`,
-  });
-    // sending request
-  const getRASToken = await I.sendPostRequest(
-    authURL,
-    data,
-    {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-  );
-  if (getRasToken.status === 200) {
-    console.log('Retrieved access_token');
-    I.cache.RAS_ACCESS_TOKEN = getRASToken.data.access_token;
-  }
-  return I.cache.RAS_ACCESS_TOKEN;
-}
-
-async function checkDbGapAccess(token) {
-  // checking the user access to DbGap projects and try sending presigned url requests
-  let id = null;
-  console.log('### Getting the DBGap project access ...');
-  const userDBGapProjectResp = await I.sendGetRequest(
-    `https://${TARGET_ENVIRONMENT}/user/user`,
-    { Authorization: `bearer ${token}` },
-  ).then((res) => new Gen3Response(res));
-
-  const dbGapProjectAccess = userDBGapProjectResp.body.project_access;
-  const projects = Object.keys(dbGapProjectAccess)[0];
-  const projectId = projects[Math.floor(Math.random() * projects.length)];
-  // get index records for the acl project
-  const indexdRecordDID = await I.sendGetRequest(
-    `https://${TARGET_ENVIRONMENT}/index/index?acl=${projectId}`,
-    { Authorization: `bearer ${token}` },
-  );
-    // select the first indexd record
-  if ((indexdRecordDID.data.records.length) > 0) {
-    id = indexdRecordDID.data.records[0].id;
-  }
-  // return the id
-  return id;
-}
-
-async function presignedURLRequest(fence, project, projectFile, user, token) {
-  console.log(`Creating presigned url with mainAcct user for ${project} after running usersync`);
-  const signedURLs3 = await fence.do.createSignedUrl(projectFile, ['protocol=s3'], token);
-  if (signedURLs3.data.status === 200) {
-    console.log(`The presigned url for ${project} files is created. The S3 url -> ${signedURLs3.data.urls}`);
-  }
-  const signedURLgs = await fence.do.createSignedUrl(projectFile, ['protocol=gs'], token);
-  if (signedURLgs.data.status === 200) {
-    console.log(`The presigned url for ${project} files is created. The GS url -> ${signedURLgs.data.urls}`);
-  }
-
-  let projectFileContents3 = null;
-  let projectFileContentgs = null;
-
-  try {
-    projectFileContents3 = await fence.do.getFileFromSignedUrlRes(signedURLs3);
-  } catch (err) {
-    console.log('Failed to fetch presigned url', err);
-  }
-
-  try {
-    projectFileContentgs = await fence.do.getFileFromSignedUrlRes(signedURLgs);
-  } catch (err) {
-    console.log('Failed to fetch presigned url', err);
-  }
-
-  chai.expect(projectFileContents3, `User ${user} with access can not create s3 signed urls `
-        + `and read the file for ${project}`).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-  chai.expect(projectFileContentgs, `User ${user} with access can not create gs signed urls `
-        + `and read the file for ${project}`).to.equal(fence.props.googleBucketInfo.test.fileContents);
-}
-
 BeforeSuite(async ({ indexd }) => {
   I.cache = {};
   // access token for main.Acct
@@ -279,14 +148,14 @@ Scenario('PresignedUrl with google mainAcct', async ({ fence, users }) => {
   }
 
   // run the usersync wth DBGap = true
-  runUserSyncDBGap();
+  nondbgap.do.runUserSyncDBGap();
 
   // checking presigned url after running usersync
   // project 12345 with mainAcct user
-  presignedURLRequest(fence, 'PROJECT-12345', indexdFiles.project12345File, users.mainAcct.username, users.mainAcct.accessTokenHeader);
+  nondbgap.do.presignedURLRequest(fence, 'PROJECT-12345', indexdFiles.project12345File, users.mainAcct.username, users.mainAcct.accessTokenHeader);
 
   // project 67890 with mainAcct user
-  presignedURLRequest(fence, 'PROJECT-67890', indexdFiles.project67890File, users.mainAcct.username, users.mainAcct.accessTokenHeader);
+  nondbgap.do.presignedURLRequest(fence, 'PROJECT-67890', indexdFiles.project67890File, users.mainAcct.username, users.mainAcct.accessTokenHeader);
 
   // project FAIL_00000 , user shouldnt have access to project files
   const signedURLFail00000 = await fence.do.createSignedUrl(indexdFiles.fail00000File, users.mainAcct.accessTokenHeader);
@@ -296,19 +165,19 @@ Scenario('PresignedUrl with google mainAcct', async ({ fence, users }) => {
 
   // checking if the user still has access to dbGap projects
   console.log(`Checking if the user ${users.mainAcct.username} still has access to dbGap projects`);
-  const dbGapProjectDID = await checkDbGapAccess(users.mainAcct.accessTokenHeader);
+  const dbGapProjectDID = await nondbgap.do.checkDbGapAccess(users.mainAcct.accessTokenHeader);
   const dbGpProjectAccess = await fence.do.createSignedUrl(dbGapProjectDID, users.mainAcct.accessTokenHeader);
   if (dbGpProjectAccess.data.status === 200) {
     console.log(`The presigned url for project 12345 files is created. The URL -> ${dbGpProjectAccess.data.urls}`);
   }
 
   // running usersync job after the test
-  runUserSync();
+  nondbgap.do.runUserSync();
 });
 
 Scenario('Presigned Url with RAS user', async ({ fence, users }) => {
   // carry out the OIDC flow and get the access token for RAS user
-  const rasAccessToken = await getRasToken();
+  const rasAccessToken = await nondbgap.do.getRasToken();
   // checking presigned url before running usersync
   console.log('creating presigned url with RAS UCtestuser121 user for PROJECT-12345 before running usersync.');
   const signedUrlProject12345BeforeUserSync = await fence.do.createSignedUrl(indexdFiles.project12345File, rasAccessToken);
@@ -322,14 +191,14 @@ Scenario('Presigned Url with RAS user', async ({ fence, users }) => {
   }
 
   // run the usersync with DBGap = true
-  runUserSyncDBGap();
+  nondbgap.do.runUserSyncDBGap();
 
   // checking presigned url after running usersync
   // project 12345 with RAS user
-  presignedURLRequest(fence, 'PROJECT-12345', indexdFiles.project12345File, 'UCtestuser121', rasAccessToken);
+  nondbgap.do.presignedURLRequest(fence, 'PROJECT-12345', indexdFiles.project12345File, 'UCtestuser121', rasAccessToken);
 
   // project 67890 with RAS user
-  presignedURLRequest(fence, 'PROJECT-67890', indexdFiles.project67890File, 'UCtestuser121', rasAccessToken);
+  nondbgap.do.presignedURLRequest(fence, 'PROJECT-67890', indexdFiles.project67890File, 'UCtestuser121', rasAccessToken);
 
   // project FAIL_00000 , user shouldnt have access to project files
   const signedURLFail00000 = await fence.do.createSignedUrl(indexdFiles.fail00000File, rasAccessToken);
@@ -339,12 +208,12 @@ Scenario('Presigned Url with RAS user', async ({ fence, users }) => {
 
   // checking if the user still has access to dbGap projects
   console.log(`Checking if the user ${users.mainAcct.username} still has access to dbGap projects`);
-  const dbGapProjectDID = await checkDbGapAccess(rasAccessToken);
+  const dbGapProjectDID = await nondbgap.do.checkDbGapAccess(rasAccessToken);
   const dbGpProjectAccess = await fence.do.createSignedUrl(dbGapProjectDID, rasAccessToken);
   if (dbGpProjectAccess.data.status === 200) {
     console.log(`The presigned url for project 12345 files is created. The URL -> ${dbGpProjectAccess.data.urls}`);
   }
 
   // running usersync job after the test
-  runUserSync();
+  nondbgap.do.runUserSync();
 });
