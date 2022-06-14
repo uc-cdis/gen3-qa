@@ -82,6 +82,8 @@ BeforeSuite(async ({ I }) => {
   else{
     program = "jnkns";
     project = "jenkins";
+    caseid = "3ff6714264"
+    casesubmitterid = "core_metadata_collection_9f06ab0e9b";
     // TODO: find proper parameters in jenkins
   }
   const submitData = `{
