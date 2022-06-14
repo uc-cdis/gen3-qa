@@ -5,7 +5,7 @@ const rasQuestions = require('./rasQuestions.js');
 
 const I = actor();
 
-module.export = {
+module.exports = {
 
   async getAuthCode(scope) {
     console.log('### Getting the auth token ...');
