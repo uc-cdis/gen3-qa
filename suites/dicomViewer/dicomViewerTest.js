@@ -71,25 +71,29 @@ BeforeSuite(async ({ I }) => {
   // sumbit the file to the graph
   const program;
   const project;
-  const submitData;
+  const caseid;
+  const casesubmitterid;
   if (process.env.RUNNING_LOCAL === 'true' && process.env.NAMESPACE.includes('qa-midrc')){
     program = "DEV";
     project = "DICOM_test";
-    submitData = `{
-      "type": "imaging_study",
-      "cases": [
-        {
-          "id": "1265e15f-d867-42d5-8533-6bce6e97bb4d",
-          "submitter_id": "case1"
-        }
-      ],
-      "submitter_id": "${studyId}"`
+    caseid = "1265e15f-d867-42d5-8533-6bce6e97bb4d";
+    casesubmitterid = "case1";
   }
   else{
     program = "jnkns";
     project = "jenkins";
     // TODO: find proper parameters in jenkins
   }
+  const submitData = `{
+    "type": "imaging_study",
+    "cases": [
+      {
+        "id": "${caseid}",
+        "submitter_id": "${casesubmitterid}"
+      }
+    ],
+    "submitter_id": "${studyId}"
+  }`
   const endpoint = `/api/v0/submission/${program}/${project}/`;
   const res_node = await I.sendPutRequest(
     endpoint,
