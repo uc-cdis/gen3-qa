@@ -129,7 +129,7 @@ AfterSuite(async ({ I, ras }) => {
 Scenario('Send DRS request - Single Passport Single VISA @rasDRS', async ({ I, ras }) => {
   validateCreds(I, envVars);
 
-  const token = await ras.do.getTokensAuthCode(I.cache.clientID, I.cache.secretID, scope);
+  const token = await ras.do.getTokens(I.cache.clientID, I.cache.secretID, scope);
   // adding the values to cache{} for later use in the test
   I.cache.accessToken = token.accessToken;
   I.cache.refreshToken = token.refreshToken;
@@ -168,7 +168,7 @@ Scenario('Get Access Token from Refresh Token @rasDRS', async ({ I, ras }) => {
   });
 
   const tokenFromRefresh = await I.sendPostRequest(
-    rasAuthURL,
+    `${ras.props.rasTokenEndpoint}`,
     refreshData,
     {
       'Content-Type': 'application/x-www-form-urlencoded',

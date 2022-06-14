@@ -27,7 +27,7 @@ module.export = {
     return code;
   },
 
-  async getTokensAuthCode(clientID, secretID, scope) {
+  async getTokens(clientID, secretID, scope) {
     console.log('### Getting RAS Access Token and Refresh Token');
     const authCode = await this.getAuthCode(scope);
     const data = queryString.stringify({
