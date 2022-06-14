@@ -18,14 +18,14 @@ module.exports = {
     I.waitForElement(rasProps.signInButton, 10);
     I.click(rasProps.signInButton);
     // check if reponse url contains 'code'
-    // I.seeInCurrentUrl('code');
+    I.seeInCurrentUrl('code');
     // now grab the code from the url
     const authCodeURL = await I.grabCurrentUrl();
     console.log(authCodeURL);
-    // const url = new URL(authCodeURL);
-    // const code = url.searchParams.get('code');
-    // expect(code).not.to.be.empty;
-    // return code;
+    const url = new URL(authCodeURL);
+    const code = url.searchParams.get('code');
+    expect(code).not.to.be.empty;
+    return code;
   },
 
   async getTokens(clientID, secretID, scope) {
