@@ -37,20 +37,6 @@ function assembleCustomHeaders(ACCESS_TOKEN) {
   };
 }
 
-// check if the creds requried for the test are defined as env variable
-function validateCreds(I, testCreds) {
-  testCreds.forEach((cred) => {
-    if (process.env[cred] === '' || process.env[cred] === undefined) {
-      throw new Error(`WARNING: Env var '${cred}' not defined!`);
-    } else {
-      console.log(`Env var '${cred}' is defined`);
-    }
-  });
-  // adding the clientID and secretID to the cache
-  I.cache.clientID = process.env.clientID;
-  I.cache.secretID = process.env.secretID;
-}
-
 BeforeSuite(async ({ I }) => {
   console.log('### Setting up .. ');
   I.cache = {};
@@ -124,6 +110,20 @@ AfterSuite(async ({ I, ras }) => {
     console.log('### Indexd record is deleted');
   }
 });
+
+// check if the creds requried for the test are defined as env variable
+function validateCreds(I, testCreds) {
+  testCreds.forEach((cred) => {
+    if (process.env[cred] === '' || process.env[cred] === undefined) {
+      throw new Error(`WARNING: Env var '${cred}' not defined!`);
+    } else {
+      console.log(`Env var '${cred}' is defined`);
+    }
+  });
+  // adding the clientID and secretID to the cache
+  I.cache.clientID = process.env.clientID;
+  I.cache.secretID = process.env.secretID;
+}
 
 // Scenario 1 ->
 Scenario('Send DRS request - Single Passport Single VISA @rasDRS', async ({ I, ras }) => {

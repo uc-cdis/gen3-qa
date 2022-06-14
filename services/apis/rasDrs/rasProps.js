@@ -10,5 +10,7 @@ module.exports = {
   rasRedirectURI: 'http://localhost:8080/user/login/ras/callback',
   userInfoEndpoint: `${rasServerURL}/openid/connect/v1.1/userinfo`,
   // XPATH
-  signInButton: '//button[contains(text(), \'Sign in\')',
+  signInButton: '//button[contains(text(), \'Sign in\')]',
+  userField: '#USERNAME',
+  passwordField: '#PASSWORD',
 };

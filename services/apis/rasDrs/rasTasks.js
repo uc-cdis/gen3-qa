@@ -5,26 +5,27 @@ const rasQuestions = require('./rasQuestions.js');
 
 const I = actor();
 
-module.export = {
+module.exports = {
 
   async getAuthCode(scope) {
     console.log('### Getting the auth token ...');
-    I.amOnPage(`${rasProps.rasAuthEndpoint}?response_type=code&client_id=${I.cache.clientID}&prompt=consent&redirect_uri=http://localhost:8080/user/login/ras/callback&scope=${scope}&idp=ras`);
+    I.amOnPage(`${rasProps.rasAuthEndpoint}?response_type=code&client_id=${I.cache.clientID}&redirect_uri=http://localhost:8080/user/login/ras/callback&scope=${scope}&idp=ras`);
     await sleepMS(5000);
     I.saveScreenshot('rasLogin_Page.png');
     // fill the RAS user credentials
-    I.fillField('USER', process.env.RAS_TEST_USER_1_USERNAME);
-    I.fillField('PASSWORD', secret(process.env.RAS_TEST_1_PASSWORD));
+    I.fillField(`${rasProps.userField}`, process.env.RAS_TEST_USER_1_USERNAME);
+    I.fillField(`${rasProps.passwordField}`, secret(process.env.RAS_TEST_1_PASSWORD));
     I.waitForElement(rasProps.signInButton, 10);
     I.click(rasProps.signInButton);
     // check if reponse url contains 'code'
-    I.seeInCurrentUrl('code');
+    // I.seeInCurrentUrl('code');
     // now grab the code from the url
     const authCodeURL = await I.grabCurrentUrl();
-    const url = new URL(authCodeURL);
-    const code = url.searchParams.get('code');
-    expect(code).not.to.be.empty;
-    return code;
+    console.log(authCodeURL);
+    // const url = new URL(authCodeURL);
+    // const code = url.searchParams.get('code');
+    // expect(code).not.to.be.empty;
+    // return code;
   },
 
   async getTokens(clientID, secretID, scope) {
