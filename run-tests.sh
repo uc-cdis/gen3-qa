@@ -615,7 +615,7 @@ else
     additionalArgs="--grep @manual --invert"
   fi
   set -e
-  PORTAL_SUFFIX=$PORTAL_SUFFIX DEBUG=$debug npm test -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
+  DEBUG=$debug npm test -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
 fi
 
 # When zero tests are executed, a results*.xml file is produced containing a tests="0" counter
