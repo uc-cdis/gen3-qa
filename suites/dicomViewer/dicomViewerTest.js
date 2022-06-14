@@ -64,17 +64,17 @@ BeforeSuite(async ({ I }) => {
     });
   console.log(res_server);
   expect(res_server.status).to.equal(200);
-  const dicomId = res_server.data.ID;
+  const studyInstance = res_server.data.ParentStudy;
+  const res_study = await I.sendGetRequest(`dicom-server/studies/${studyInstance}`, users.mainAcct.accessTokenHeader);
+  const studyId = res_study.data.StudyInstanceUID;
   
   // sumbit the file to the graph
   const program;
   const project;
-  const modality;
   const submitData;
   if (process.env.RUNNING_LOCAL === 'true' && process.env.NAMESPACE.includes('qa-midrc')){
     program = "DEV";
     project = "DICOM_test";
-    modality = "AAA"
     submitData = `{
       "type": "imaging_study",
       "cases": [
@@ -83,13 +83,12 @@ BeforeSuite(async ({ I }) => {
           "submitter_id": "case1"
         }
       ],
-      "study_modality": "${modality}",
-      "submitter_id": "${dicomId}"`
+      "submitter_id": "${studyId}"`
   }
   else{
     program = "jnkns";
     project = "jenkins";
-    // TODO: find case id in jenkins
+    // TODO: find proper parameters in jenkins
   }
   const endpoint = `/api/v0/submission/${program}/${project}/`;
   const res_node = await I.sendPutRequest(
@@ -99,7 +98,6 @@ BeforeSuite(async ({ I }) => {
   );
   console.log(res_node);
   expect(res_node.status).to.equal(200);
-  I.cache.modality = modality;
   
   //run etl
   bash.runCommand('gen3 job run etl');
@@ -111,7 +109,6 @@ Scenario('check uploaded dicom file @dicomViewer',
     await home.do.login(users.mainAcct.username);
     I.amOnPage('/explorer');
     I.click('//h3[contains(text(), "Imaging Studies")]');
-    I.click(`//span[contains(text(), "${I.cache.modality}")]/preceding-sibling::input'`)
     I.click('//button[@class="explorer-table-link-button"]');
     I.see('//*[@class="cornerstone-canvas"]');
   });
