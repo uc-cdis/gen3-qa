@@ -69,10 +69,10 @@ BeforeSuite(async ({ I }) => {
   const studyId = res_study.data.StudyInstanceUID;
   
   // sumbit the file to the graph
-  const program;
-  const project;
-  const caseid;
-  const casesubmitterid;
+  const program = "";
+  const project = "";
+  const caseid = "";
+  const casesubmitterid = "";
   if (process.env.RUNNING_LOCAL === 'true' && process.env.NAMESPACE.includes('qa-midrc')){
     program = "DEV";
     project = "DICOM_test";
