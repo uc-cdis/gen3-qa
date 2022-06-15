@@ -62,6 +62,6 @@ Scenario('Navigate to the landing page and click on buttons @landing', async ({ 
       console.log(`Button ${button.text} does not exist on this landing page. Skipping check...`);
     }
     // Go back to the landing page and try to find / click on the buttons again
-    I.amOnPage('/');
+    I.amOnPage('');
   }
 }).retry(1);

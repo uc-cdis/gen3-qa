@@ -32,7 +32,7 @@ async function getAlltabs(I) {
   I.useWebDriverTo('check property of the download button', async ({ browser }) => {
     browser.setWindowSize(1920, 1080);
   });
-  I.amOnPage('/explorer');
+  I.amOnPage('explorer');
   I.wait(5);
   I.saveScreenshot('explorePageDownloadButton.png');
   // click accept for the user agreement
@@ -165,7 +165,7 @@ Scenario('redirect to login page from the download button @registerUser',
       I.wait(1);
       I.seeCurrentUrlEquals('/login');
       // go back to explore page
-      I.amOnPage('/explorer');
+      I.amOnPage('explorer');
     }
   });
 
@@ -189,7 +189,7 @@ Scenario('register to get access to download data @registerUser',
     I.click('//button[contains(text(),\'Register\')]');
 
     // after complete register
-    I.amOnPage('/explorer');
+    I.amOnPage('explorer');
     I.wait(5);
     I.saveScreenshot('expolerPageAfterRegisted1.png');
     for (let i = 0; i < I.cache.tabs.length; i += 1) {
@@ -208,7 +208,7 @@ Scenario('register to get access to download data @registerUser',
 Scenario('registered user should have access to download data @registerUser',
   async ({ I, home, users }) => {
     await home.do.login(users.mainAcct.username);
-    I.amOnPage('/explorer');
+    I.amOnPage('explorer');
     I.wait(5);
     I.saveScreenshot('expolerPageAfterRegisted2.png');
     for (let i = 0; i < I.cache.tabs.length; i += 1) {
