@@ -1,5 +1,4 @@
 /* eslint-disable max-len */
-const config = require('codeceptjs').config.get();
 const homeProps = require('./homeProps.js');
 const portal = require('../../../utils/portal.js');
 const { Bash } = require('../../../utils/bash.js');
@@ -12,9 +11,6 @@ const I = actor();
  */
 module.exports = {
   goToHomepage() {
-    console.log('#### DEBUGGING - CONFIG');
-    console.log(homeProps.path);
-    console.dir(config);
     I.amOnPage(homeProps.path);
     console.log(`### ## testedEnv:${process.env.testedEnv}`);
     if (process.env.testedEnv.includes('covid19') || process.env.testedEnv.includes('pandemicresponsecommons') || process.env.testedEnv.includes('midrc')) {
