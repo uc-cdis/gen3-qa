@@ -407,6 +407,14 @@ if [ -z "$ddHasConsentCodes" ]; then
   donot '@indexRecordConsentCodes'
 fi
 
+#### FRONTEND_ROOT ####
+export frontend_root="$(g3kubectl get configmaps manifest-global -o yaml | yq '.data.frontend_root')"
+if [[ $frontend_root == \"gen3ff\" ]]; then
+  export PORTAL_SUFFIX="/portal"
+else
+  export PORTAL_SUFFIX=""
+fi
+
 #
 # try to read configs of portal
 #
@@ -556,14 +564,6 @@ if [[ "$testedEnv" == "ci-env-1.planx-pla.net" ]]; then
   export GCLOUD_DYNAMIC_PROJECT="gen3qa-ci-env-1-279903"
 fi
 export testedEnv="$testedEnv"
-
-#### FRONTEND_ROOT ####
-export frontend_root="$(g3kubectl get configmaps manifest-global -o yaml | yq '.data.frontend_root')"
-if [[ $frontend_root == \"gen3ff\" ]]; then
-  export PORTAL_SUFFIX="/portal"
-else
-  export PORTAL_SUFFIX=""
-fi
 
 #### Gen3 QA in a BOX ############################################################################
 if [[ "$(hostname)" == *"cdis-github-org"* ]] || [[ "$(hostname)" == *"planx-ci-pipeline"* ]]; then
