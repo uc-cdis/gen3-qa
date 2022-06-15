@@ -88,7 +88,7 @@ async function waitForFenceAndPortalToRoll() {
   };
 
   console.log('Waiting for pods to be ready');
-  const timeout = 420; // wait up to 7 min
+  const timeout = 900; // wait up to 15 min
   await smartWait(
     isPodReady,
     [],
