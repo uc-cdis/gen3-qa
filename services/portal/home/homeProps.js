@@ -4,7 +4,7 @@ const { getHomePageDetails } = require('../../../utils/apiUtil');
  * home Properties
  */
 module.exports = {
-  path: '/login',
+  path: 'login',
 
   systemUseAcceptButton: {
     locator: {
