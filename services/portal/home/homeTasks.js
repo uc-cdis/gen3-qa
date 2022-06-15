@@ -13,6 +13,7 @@ const I = actor();
 module.exports = {
   goToHomepage() {
     console.log('#### DEBUGGING - CONFIG');
+    console.log(homeProps.path);
     console.dir(config);
     I.amOnPage(homeProps.path);
     console.log(`### ## testedEnv:${process.env.testedEnv}`);
