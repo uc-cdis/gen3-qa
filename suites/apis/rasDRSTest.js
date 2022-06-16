@@ -14,19 +14,8 @@ const ga4ghURL = `${TARGET_ENVIRONMENT}/ga4gh/drs/v1/objects`;
 // Ras Server URL
 const scope = 'openid profile email ga4gh_passport_v1';
 const envVars = ['RAS_TEST_USER_1_USERNAME', 'RAS_TEST_USER_1_PASSWORD', 'clientID', 'secretID'];
-
-// post a indexd record before the suite
-const indexdFile = {
-  fileToUpload: {
-    acl: [],
-    authz: ['/programs/phs000710.c99'],
-    file_name: 'ras_test_file',
-    hashes: { md5: '587efb5d96f695710a8df9c0dbb96eb0' }, // pragma: allowlist secret
-    size: 15,
-    form: 'object',
-    urls: ['s3://cdis-presigned-url-test/testdata', 'gs://cdis-presigned-url-test/testdata'],
-  },
-};
+const permissionTestUserShouldHave = 'phs002409.c1';
+const permissionTestUserShouldntHave = 'phs002410.c1';
 
 function assembleCustomHeaders(ACCESS_TOKEN) {
   // Add ACCESS_TOKEN to custom headers
@@ -45,15 +34,28 @@ BeforeSuite(async ({ I }) => {
   // test user -> cdis.autotest@gmail.com
   I.cache.ACCESS_TOKEN = await bash.runCommand('gen3 api access-token atharvar@uchicago.edu');
   console.log(`Access_Token: ${I.cache.ACCESS_TOKEN}`);
-  // upload new indexdFile
-  const uploadResp = await I.sendPostRequest(
-    `https://${TARGET_ENVIRONMENT}/index/index`,
-    indexdFile.fileToUpload,
-    assembleCustomHeaders(I.cache.ACCESS_TOKEN),
-  );
-  I.cache.indexdRecord = uploadResp.data.did;
-  I.cache.indexdRev = uploadResp.data.rev;
-  console.log(`### Indexd Record DID: ${I.cache.indexdRecord}`);
+  // upload new Indexd Records
+  const uploadedRecords = [];
+  for (const permission of [permissionTestUserShouldHave, permissionTestUserShouldntHave]) {
+    const uploadResp = await I.sendPostRequest(
+      `https://${TARGET_ENVIRONMENT}/index/index`,
+      {
+        acl: [],
+        authz: [`/programs/${permission}`],
+        file_name: 'ras_test_file',
+        hashes: { md5: '587efb5d96f695710a8df9c0dbb96eb0' }, // pragma: allowlist secret
+        size: 15,
+        form: 'object',
+        urls: ['s3://cdis-presigned-url-test/testdata', 'gs://cdis-presigned-url-test/testdata'],
+      },
+      assembleCustomHeaders(I.cache.ACCESS_TOKEN),
+    );
+    uploadedRecords.push(uploadResp.data);
+  }
+  [I.cache.accessibleIndexdRecord, I.cache.inaccessibleIndexdRecord] = uploadedRecords;
+  // I.cache.inaccessibleIndexdRecord = uploadedRecords[1];
+  console.log(`### Accessible Indexd Record DID: ${I.cache.accessibleIndexdRecord.did}`);
+  console.log(`### Inaccessible Indexd Record DID: ${I.cache.inaccessibleIndexdRecord.did}`);
 });
 
 AfterSuite(async ({ I, ras }) => {
@@ -62,7 +64,7 @@ AfterSuite(async ({ I, ras }) => {
   const logoutData = queryString.stringify({
     id_token: `${I.cache.idToken}`,
     client_id: `${I.cache.clientID}`,
-    client_secret: `${I.cache.clientSecret}`,
+    client_secret: `${I.cache.secretID}`,
   });
   const logoutSession = await I.sendPostRequest(
     `${ras.props.logoutRasEndpoint}`,
@@ -83,7 +85,7 @@ AfterSuite(async ({ I, ras }) => {
     token_type_hint: 'access_token',
     token: `${I.cache.accessToken}`,
     client_id: `${I.cache.clientID}`,
-    client_secret: `${I.cache.clientSecret}`,
+    client_secret: `${I.cache.secretID}`,
     scope: `${scope}`,
   });
 
@@ -98,16 +100,18 @@ AfterSuite(async ({ I, ras }) => {
     console.log('### The access has been revoked');
   }
 
-  // deleting the indexd record that was created in BeforeSuite
-  console.log('Deleting the indexd record ..');
-  const deleteRecordReq = await I.sendDeleteRequest(
-    `https://${TARGET_ENVIRONMENT}/index/index/${I.cache.indexdRecord}?rev=${I.cache.indexdRev}`,
-    {
-      Authorization: `Bearer ${I.cache.ACCESS_TOKEN}`,
-    },
-  );
-  if (deleteRecordReq.status === 200) {
-    console.log('### Indexd record is deleted');
+  // deleting the indexd records that was created in BeforeSuite
+  console.log('Deleting the indexd records ..');
+  for (const record of [I.cache.accessibleIndexdRecord, I.cache.inaccessibleIndexdRecord]) {
+    const deleteRecordReq = await I.sendDeleteRequest(
+      `https://${TARGET_ENVIRONMENT}/index/index/${record.did}?rev=${record.rev}`,
+      {
+        Authorization: `Bearer ${I.cache.ACCESS_TOKEN}`,
+      },
+    );
+    if (deleteRecordReq.status === 200) {
+      console.log(`### Indexd record ${record.did} is deleted`);
+    }
   }
 });
 
@@ -134,12 +138,12 @@ Scenario('Send DRS request - Single Passport Single VISA @rasDRS', async ({ I, r
   I.cache.accessToken = token.accessToken;
   I.cache.refreshToken = token.refreshToken;
   I.cache.idToken = token.idToken;
-  const passport = await ras.do.getPassport(I.cache.accessToken);
+  I.cache.passport = await ras.do.getPassport(I.cache.accessToken);
   // sending DRS request with passport in body
   const drsAccessReq = await I.sendPostRequest(
-    `https://${ga4ghURL}/${I.cache.indexdRecord}/access/s3`,
+    `https://${ga4ghURL}/${I.cache.accessibleIndexdRecord.did}/access/s3`,
     {
-      passports: [`${passport}`],
+      passports: [`${I.cache.passport}`],
     },
   );
   // verify if the response has status 200
@@ -155,6 +159,17 @@ Scenario('Send DRS request - Single Passport Single VISA @rasDRS', async ({ I, r
 });
 
 // Scenario 2 ->
+Scenario('Send DRS request - Single Passport Single Visa With Incorrect Access @rasDRS', async ({ I }) => {
+  const drsAccessReq = await I.sendPostRequest(
+    `https://${ga4ghURL}/${I.cache.inaccessibleIndexdRecord.did}/access/s3`,
+    {
+      passports: [`${I.cache.passport}`],
+    },
+  );
+  expect(drsAccessReq).to.have.property('status', 401);
+});
+
+// Scenario 3 ->
 Scenario('Get Access Token from Refresh Token @rasDRS', async ({ I, ras }) => {
   validateCreds(I, envVars); // eslint-disable-line no-undef
   // get new access token from the refresh token
@@ -164,7 +179,7 @@ Scenario('Get Access Token from Refresh Token @rasDRS', async ({ I, ras }) => {
     refresh_token: `${I.cache.refreshToken}`,
     scope: `${scope}`,
     client_id: `${I.cache.clientID}`,
-    client_secret: `${I.cache.clientSecret}`,
+    client_secret: `${I.cache.secretID}`,
   });
 
   const tokenFromRefresh = await I.sendPostRequest(
