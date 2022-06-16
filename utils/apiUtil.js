@@ -410,7 +410,7 @@ module.exports = {
 
         // if there's more than 1 pod matching the provided name, the last one
         // is the most recent (`--sort-by=.metadata.creationTimestamp`)
-        const podName = podsNames.split(" ").filter(name => name.startsWith(jobName)).at(-1);
+        const podName = podsNames.split(' ').filter((name) => name.startsWith(jobName)).at(-1);
         console.log(`Found latest pod with name '${jobName}': '${podName}'`);
 
         if (!podFound) {
