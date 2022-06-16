@@ -405,12 +405,13 @@ module.exports = {
         }
 
         // get all pods that match the provided label
-        const podsNames = await bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=${labelName} -o jsonpath="{.items[*].metadata.name}"`);
+        let podsNames = await bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=${labelName} -o jsonpath="{.items[*].metadata.name}"`);
         console.log(`Found pods with label '${labelName}': ${podsNames}`);
 
         // if there's more than 1 pod matching the provided name, the last one
         // is the most recent (`--sort-by=.metadata.creationTimestamp`)
-        const podName = podsNames.split(' ').filter((name) => name.startsWith(jobName)).at(-1);
+        podsNames = podsNames.split(' ').filter((name) => name.startsWith(jobName));
+        const podName = podsNames[podsNames.length - 1];
         console.log(`Found latest pod with name '${jobName}': '${podName}'`);
 
         if (!podFound) {
