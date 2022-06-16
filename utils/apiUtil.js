@@ -398,14 +398,14 @@ module.exports = {
         if (process.env.RUNNING_LOCAL === 'true') {
           process.env.KUBECTL_NAMESPACE = process.env.NAMESPACE;
         }
-        console.log(`### THE KUBECTL_NAMESPACE: ${process.env.KUBECTL_NAMESPACE}`);
-        const podNameDebug = await bash.runCommand('echo "$KUBECTL_NAMESPACE"');
         if (process.env.DEBUG === 'true') {
+          console.log(`### THE KUBECTL_NAMESPACE: ${process.env.KUBECTL_NAMESPACE}`);
+          const podNameDebug = await bash.runCommand('echo "$KUBECTL_NAMESPACE"');
           console.log(`#### ### ## podNameDebug: ${podNameDebug}`);
         }
 
         // get all pods that match the provided label
-        const podsNames = await bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=${labelName} -o jsonpath="{.items[*].metadata.name}" | awk "{print $NF}"`);
+        const podsNames = await bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=${labelName} -o jsonpath="{.items[*].metadata.name}"`);
         console.log(`Found pods with label '${labelName}': ${podsNames}`);
 
         // if there's more than 1 pod matching the provided name, the last one
