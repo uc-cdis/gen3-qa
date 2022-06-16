@@ -6,7 +6,7 @@ const bash = new Bash();
 /**
  * fence Properties
  */
-const rootEndpoint = '/user';
+const rootEndpoint = 'user';
 
 /**
  * Runs a fence command for creating a client
@@ -89,31 +89,31 @@ module.exports = {
    */
   endpoints: {
     root: rootEndpoint,
-    version: `${rootEndpoint}/_version`,
-    getFile: `${rootEndpoint}/data/download`,
-    googleCredentials: `${rootEndpoint}/credentials/google/`,
-    createAPIKey: `${rootEndpoint}/credentials/api/`,
-    deleteAPIKey: `${rootEndpoint}/credentials/api/cdis`,
-    getAccessToken: `${rootEndpoint}/credentials/api/access_token`,
-    linkGoogle: `${rootEndpoint}/link/google?redirect=/login`,
-    deleteGoogleLink: `${rootEndpoint}/link/google`,
-    extendGoogleLink: `${rootEndpoint}/link/google`,
-    registerGoogleServiceAccount: `${rootEndpoint}/google/service_accounts`,
-    updateGoogleServiceAccount: `${rootEndpoint}/google/service_accounts`,
-    deleteGoogleServiceAccount: `${rootEndpoint}/google/service_accounts`,
-    getGoogleServiceAccounts: `${rootEndpoint}/google/service_accounts`,
-    getGoogleSvcAcctMonitor: `${rootEndpoint}/google/service_accounts/monitor`,
-    getGoogleBillingProjects: `${rootEndpoint}/google/billing_projects`,
+    version: `/${rootEndpoint}/_version`,
+    getFile: `/${rootEndpoint}/data/download`,
+    googleCredentials: `/${rootEndpoint}/credentials/google/`,
+    createAPIKey: `/${rootEndpoint}/credentials/api/`,
+    deleteAPIKey: `/${rootEndpoint}/credentials/api/cdis`,
+    getAccessToken: `/${rootEndpoint}/credentials/api/access_token`,
+    linkGoogle: `/${rootEndpoint}/link/google?redirect=/login`,
+    deleteGoogleLink: `/${rootEndpoint}/link/google`,
+    extendGoogleLink: `/${rootEndpoint}/link/google`,
+    registerGoogleServiceAccount: `/${rootEndpoint}/google/service_accounts`,
+    updateGoogleServiceAccount: `/${rootEndpoint}/google/service_accounts`,
+    deleteGoogleServiceAccount: `/${rootEndpoint}/google/service_accounts`,
+    getGoogleServiceAccounts: `/${rootEndpoint}/google/service_accounts`,
+    getGoogleSvcAcctMonitor: `/${rootEndpoint}/google/service_accounts/monitor`,
+    getGoogleBillingProjects: `/${rootEndpoint}/google/billing_projects`,
     authorizeOAuth2Client: `${rootEndpoint}/oauth2/authorize`,
     tokenOAuth2Client: `${rootEndpoint}/oauth2/token`,
-    publicKeysEndpoint: `${rootEndpoint}/jwt/keys`,
-    userEndPoint: `${rootEndpoint}/user`,
-    adminEndPoint: `${rootEndpoint}/admin`,
-    uploadFile: `${rootEndpoint}/data/upload`,
-    deleteFile: `${rootEndpoint}/data`,
-    multipartUploadInit: `${rootEndpoint}/data/multipart/init`,
-    multipartUpload: `${rootEndpoint}/data/multipart/upload`,
-    multipartUploadComplete: `${rootEndpoint}/data/multipart/complete`,
+    publicKeysEndpoint: `/${rootEndpoint}/jwt/keys`,
+    userEndPoint: `/${rootEndpoint}/user`,
+    adminEndPoint: `/${rootEndpoint}/admin`,
+    uploadFile: `/${rootEndpoint}/data/upload`,
+    deleteFile: `/${rootEndpoint}/data`,
+    multipartUploadInit: `/${rootEndpoint}/data/multipart/init`,
+    multipartUpload: `/${rootEndpoint}/data/multipart/upload`,
+    multipartUploadComplete: `/${rootEndpoint}/data/multipart/complete`,
   },
 
   monitorServiceAccount: 'fence-service@dcf-integration.iam.gserviceaccount.com',
