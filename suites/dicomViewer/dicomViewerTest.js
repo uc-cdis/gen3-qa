@@ -46,7 +46,7 @@ async function waitForETL() {
 // Submit a dicom file and run etl
 BeforeSuite(async ({ I }) => {
   // read dicom file
-  filePath = "./testFile.dcm";
+  filePath = "files/testFile.dcm";
   if (!fs.existsSync(filePath)) {
     const msg = `Did not find test dicom file`;
     if (inJenkins) {
