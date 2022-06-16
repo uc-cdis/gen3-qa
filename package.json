@@ -54,7 +54,9 @@
     "node-fetch": "^2.6.7",
     "node-forge": ">=1.0.0",
     "node-ssh": "^7.0.1",
+    "npm-upgrade": "^3.1.0",
     "prettier": "^1.19.1",
+    "query-string": "^7.1.1",
     "request": "^2.88.2",
     "selenium-standalone": "^7.1.0",
     "semver": "^7.3.5",
@@ -75,9 +77,5 @@
     "test": "npx --stack-size=65500 codeceptjs run --plugins allure",
     "grep-test": ". local_run.sh && codeceptjs run --verbose --grep",
     "create-service": "node scripts/create_service.js"
-  },
-  "dependencies": {
-    "npm-upgrade": "^3.1.0",
-    "query-string": "^7.1.1"
   }
 }
