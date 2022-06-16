@@ -388,7 +388,7 @@ module.exports = {
     let podFound = false;
     for (let i = 1; i < params.nAttempts; i += 1) {
       try {
-        console.log(`waiting for ${jobName} job pod... - attempt ${i}`);
+        console.log(`Waiting for ${jobName} job pod... - attempt ${i}`);
         await module.exports.sleepMS(10000);
 
         // refresh page on the underlying chrome browser to force the Selenium session to stay alive
@@ -403,16 +403,24 @@ module.exports = {
         if (process.env.DEBUG === 'true') {
           console.log(`#### ### ## podNameDebug: ${podNameDebug}`);
         }
-        const podName = await bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=${labelName} -o jsonpath="{.items[*].metadata.name}" | awk "{print $NF}"`);
-        console.log(`latest pod found: ${podName}`);
+
+        // get all pods that match the provided label
+        const podsNames = await bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=${labelName} -o jsonpath="{.items[*].metadata.name}" | awk "{print $NF}"`);
+        console.log(`Found pods with label '${labelName}': ${podsNames}`);
+
+        // if there's more than 1 pod matching the provided name, the last one
+        // is the most recent (`--sort-by=.metadata.creationTimestamp`)
+        const podName = podsNames.split(" ").filter(name => name.startsWith(jobName)).at(-1);
+        console.log(`Found latest pod with name '${jobName}': '${podName}'`);
+
         if (!podFound) {
-          if (podName.includes(jobName)) {
-            console.log(`the pod ${podName} was found! Proceed with the container check...`);
+          if (podName && podName.includes(jobName)) {
+            console.log(`The pod ${podName} was found! Proceed with the container check...`);
             podFound = true;
           }
         } else {
           const checkIfContainerSucceeded = bash.runCommand(`g3kubectl get pod ${podName} -o jsonpath='{.status.phase}'`);
-          console.log(`check container status: ${checkIfContainerSucceeded}`);
+          console.log(`Check container status: ${checkIfContainerSucceeded}`);
           if (checkIfContainerSucceeded === 'Succeeded') {
             console.log(`The container from pod ${podName} is ready! Proceed with the assertion checks..`);
             break;
