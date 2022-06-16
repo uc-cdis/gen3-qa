@@ -64,7 +64,7 @@ BeforeSuite(async ({ I, users }) => {
   console.log(resServer);
   expect(resServer.status).to.equal(200);
   const studyInstance = resServer.data.ParentStudy;
-  const resStudy = await I.sendGetRequest(`dicom-server/studies/${studyInstance}`, users.mainAcct.accessTokenHeader);
+  const resStudy = await I.sendGetRequest(`https://${process.env.HOSTNAME}/dicom-server/studies/${studyInstance}`, users.mainAcct.accessTokenHeader);
   const studyId = resStudy.data.StudyInstanceUID;
 
   // sumbit the file to the graph
