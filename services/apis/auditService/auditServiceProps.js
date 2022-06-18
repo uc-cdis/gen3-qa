@@ -1,5 +1,5 @@
 module.exports = {
   endpoints: {
-    query: '/audit/log',
+    query: 'audit/log',
   },
 };

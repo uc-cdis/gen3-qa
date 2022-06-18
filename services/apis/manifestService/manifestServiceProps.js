@@ -1,7 +1,7 @@
 /**
  * manifestService Properties
  */
-const apiRoot = '/manifests/';
+const apiRoot = 'manifests/';
 
 module.exports = {
   endpoints: {

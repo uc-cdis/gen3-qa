@@ -1,7 +1,7 @@
 /**
  * indexd Properties
  */
-const apiRoot = '/index/index';
+const apiRoot = 'index/index';
 module.exports = {
   /**
    * indexd endpoints

@@ -3,6 +3,6 @@
  */
 module.exports = {
   endpoints: {
-    getCoreMetadata: '/coremetadata',
+    getCoreMetadata: 'coremetadata',
   },
 };

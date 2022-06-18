@@ -1,7 +1,7 @@
 /**
  * MDS Properties
  */
-const rootUrl = '/mds';
+const rootUrl = 'mds';
 
 /*
 METADATA: /metadata

@@ -6,7 +6,7 @@
 const { Commons } = require('../../../utils/commons.js');
 const { Gen3Response } = require('../../../utils/apiUtil.js');
 
-const apiRootWithoutProgramProject = '/api/v0/submission';
+const apiRootWithoutProgramProject = 'api/v0/submission';
 const apiRoot = `${apiRootWithoutProgramProject}/${Commons.program.name}/${Commons.project.name}`;
 
 // Base properties for a successful result (add/delete/etc)

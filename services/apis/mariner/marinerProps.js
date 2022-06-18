@@ -2,7 +2,7 @@
  * Mariner Properties
  */
 
-const rootEndPoint = '/ga4gh/wes/v1/runs';
+const rootEndPoint = 'ga4gh/wes/v1/runs';
 
 module.exports = {
   /**
