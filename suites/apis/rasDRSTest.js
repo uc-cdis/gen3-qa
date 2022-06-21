@@ -12,7 +12,7 @@ const TARGET_ENVIRONMENT = `${process.env.NAMESPACE}.planx-pla.net`;
 // RAS endpoints
 const ga4ghURL = `${TARGET_ENVIRONMENT}/ga4gh/drs/v1/objects`;
 // Ras Server URL
-const scope = 'openid profile email ga4gh_passport_v1';
+const scope = 'openid+profile+email+ga4gh_passport_v1';
 const envVars = ['RAS_TEST_USER_1_USERNAME', 'RAS_TEST_USER_1_PASSWORD', 'clientID', 'secretID'];
 
 // post a indexd record before the suite
@@ -43,7 +43,7 @@ BeforeSuite(async ({ I }) => {
 
   // getting the access_token for the test user
   // test user -> cdis.autotest@gmail.com
-  I.cache.ACCESS_TOKEN = await bash.runCommand('gen3 api access-token atharvar@uchicago.edu');
+  I.cache.ACCESS_TOKEN = await bash.runCommand('gen3 api access-token cdis.autotest@gmail.com');
   console.log(`Access_Token: ${I.cache.ACCESS_TOKEN}`);
   // upload new indexdFile
   const uploadResp = await I.sendPostRequest(
