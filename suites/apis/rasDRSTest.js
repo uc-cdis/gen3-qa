@@ -170,6 +170,24 @@ Scenario('Send DRS request - Single Passport Single Visa With Incorrect Access @
 });
 
 // Scenario 3 ->
+Scenario('Send DRS request - Single Invalid Passport @rasDRS', async ({ I }) => {
+  const passportParts = I.cache.passport.split('.');
+  passportParts[2] = 'invalidsignature';
+  I.cache.invalidPassport = passportParts.join('.');
+
+  let drsAccessReq;
+  for (let i = 0; i < 2; i += 1) {
+    drsAccessReq = await I.sendPostRequest(
+      `https://${ga4ghURL}/${I.cache.accessibleIndexdRecord.did}/access/s3`,
+      {
+        passports: [`${I.cache.passport}`],
+      },
+    );
+    expect(drsAccessReq).to.have.property('status', 401);
+  }
+});
+
+// Scenario 4 ->
 Scenario('Get Access Token from Refresh Token @rasDRS', async ({ I, ras }) => {
   validateCreds(I, envVars); // eslint-disable-line no-undef
   // get new access token from the refresh token
