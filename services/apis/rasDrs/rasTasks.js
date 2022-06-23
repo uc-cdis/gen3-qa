@@ -1,3 +1,4 @@
+const { expect } = require('chai');
 const queryString = require('query-string');
 const { sleepMS } = require('../../../utils/apiUtil.js');
 const rasProps = require('./rasProps.js');
@@ -14,7 +15,7 @@ module.exports = {
     I.saveScreenshot('rasLogin_Page.png');
     // fill the RAS user credentials
     I.fillField(`${rasProps.userField}`, process.env.RAS_TEST_USER_1_USERNAME);
-    I.fillField(`${rasProps.passwordField}`, secret(process.env.RAS_TEST_1_PASSWORD));
+    I.fillField(`${rasProps.passwordField}`, secret(process.env.RAS_TEST_USER_1_PASSWORD));
     I.waitForElement(rasProps.signInButton, 10);
     I.click(rasProps.signInButton);
     // check if reponse url contains 'code'

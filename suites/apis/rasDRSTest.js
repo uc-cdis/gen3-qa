@@ -176,11 +176,12 @@ Scenario('Send DRS request - Single Invalid Passport @rasDRS', async ({ I }) => 
   I.cache.invalidPassport = passportParts.join('.');
 
   let drsAccessReq;
+  // POST twice to test that an invalid passport is not cached
   for (let i = 0; i < 2; i += 1) {
     drsAccessReq = await I.sendPostRequest(
       `https://${ga4ghURL}/${I.cache.accessibleIndexdRecord.did}/access/s3`,
       {
-        passports: [`${I.cache.passport}`],
+        passports: [`${I.cache.invalidPassport}`],
       },
     );
     expect(drsAccessReq).to.have.property('status', 401);
@@ -214,7 +215,7 @@ Scenario('Get Access Token from Refresh Token @rasDRS', async ({ I, ras }) => {
 
   // preSignedURL request with new passport
   const newDrsAccessReq = await I.sendPostRequest(
-    `https://${ga4ghURL}/${I.cache.indexdRecord}/access/s3`,
+    `https://${ga4ghURL}/${I.cache.accessibleIndexdRecord.did}/access/s3`,
     {
       passports: [`${newPassport}`],
     },
