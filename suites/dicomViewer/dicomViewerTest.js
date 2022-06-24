@@ -8,42 +8,11 @@ const { expect } = chai;
 const { Bash } = require('../../utils/bash.js');
 
 const bash = new Bash();
-const { smartWait } = require('../../utils/apiUtil');
-
-async function waitForETL() {
-  const isComplete = async function () {
-    const res = await bash.runCommand('kc get pods | grep etl');
-    if (process.env.DEBUG === 'true') {
-      console.log('############');
-      console.log(res);
-    }
-    let complete = false;
-    try {
-      complete = res.includes('Completed');
-    } catch (err) {
-      console.error(`Unable to parse output. Error: ${err}. Output:`);
-      console.error(res);
-    }
-    if (!complete) {
-      console.log('etl not complete');
-      return false;
-    }
-    return true;
-  };
-
-  console.log('Waiting for etl to complete');
-  const timeout = 420; // wait up to 7 min
-  await smartWait(
-    isComplete,
-    [],
-    timeout,
-    `etl not complete after ${timeout} seconds`, // error message
-    2, // initial number of seconds to wait
-  );
-}
 
 // Submit a dicom file and run etl
-BeforeSuite(async ({ I, users }) => {
+BeforeSuite(async ({
+  I, users, sheepdog, peregrine,
+}) => {
   // read dicom file
   const filePath = 'files/testFile.dcm';
   if (!fs.existsSync(filePath)) {
@@ -80,9 +49,16 @@ BeforeSuite(async ({ I, users }) => {
   } else {
     program = 'jnkns';
     project = 'jenkins';
-    caseid = '3ff6714264';
-    casesubmitterid = 'core_metadata_collection_9f06ab0e9b';
-    // TODO: find proper parameters in jenkins
+
+    // generate example data and run etl
+    await sheepdog.do.runGenTestData(1);
+    await bash.runJob('etl');
+
+    // run query to get case id
+    const querystring = '{ case (first: 1, project_id: "jnkns-jenkins") {id, submitter_id}}';
+    const resCase = await peregrine.do.query(querystring, null);
+    caseid = resCase.case[0].id;
+    casesubmitterid = resCase.case[0].submitter_id;
   }
   const submitData = `{
     "type": "imaging_study",
@@ -104,8 +80,7 @@ BeforeSuite(async ({ I, users }) => {
   expect(resNode.status).to.equal(200);
 
   // run etl
-  bash.runCommand('gen3 job run etl');
-  await waitForETL();
+  await bash.runJob('etl');
 });
 
 Scenario('check uploaded dicom file @dicomViewer',
@@ -115,4 +90,5 @@ Scenario('check uploaded dicom file @dicomViewer',
     I.click('//h3[contains(text(), "Imaging Studies")]');
     I.click('//button[@class="explorer-table-link-button"]');
     I.see('//*[@class="cornerstone-canvas"]');
+    I.saveScreenshot('dicom_viewer.png');
   });
