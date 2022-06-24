@@ -138,7 +138,7 @@ Scenario('Send DRS request - Single Valid Passport Single VISA @rasDRS', async (
     I.cache.secretID,
     scope,
     process.env.RAS_TEST_USER_1_USERNAME,
-    process.env.RAS_TEST_USER_1_PASSWORD
+    process.env.RAS_TEST_USER_1_PASSWORD,
   );
   // adding the values to cache{} for later use in the test
   I.cache.accessToken = token.accessToken;
@@ -147,7 +147,8 @@ Scenario('Send DRS request - Single Valid Passport Single VISA @rasDRS', async (
   I.cache.passport = await ras.do.getPassport(I.cache.accessToken);
   let drsAccessReq;
   const accessibleDRSObjectURL = `https://${ga4ghURL}/${I.cache.accessibleIndexdRecord.did}/access/s3`;
-  let startTime, endTime;
+  let startTime;
+  let endTime;
   const postDurations = [];
   // Valid passport -> Data access -> success, try again
   // Expect success and the retry should be faster than the first request
@@ -160,7 +161,7 @@ Scenario('Send DRS request - Single Valid Passport Single VISA @rasDRS', async (
       },
     );
     endTime = performance.now();
-    postDurations.push(endTime-startTime);
+    postDurations.push(endTime - startTime);
     // verify if the response has status 200
     expect(drsAccessReq).to.have.property('status', 200);
 
@@ -184,7 +185,7 @@ Scenario('Send DRS request -  Single Passport Single Visa With No Permissions @r
     I.cache.secretID,
     scope,
     process.env.RAS_TEST_USER_2_USERNAME,
-    process.env.RAS_TEST_USER_2_PASSWORD
+    process.env.RAS_TEST_USER_2_PASSWORD,
   );
   const passportWithNoPermissions = await ras.do.getPassport(token.accessToken);
   // Valid passport -> Data access -> success, try again with DIFFERENT user w/ invalid passport
