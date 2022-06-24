@@ -57,8 +57,8 @@ BeforeSuite(async ({
     // run query to get case id
     const querystring = '{ case (first: 1, project_id: "jnkns-jenkins") {id, submitter_id}}';
     const resCase = await peregrine.do.query(querystring, null);
-    caseid = resCase.case[0].id;
-    casesubmitterid = resCase.case[0].submitter_id;
+    caseid = resCase.data.case[0].id;
+    casesubmitterid = resCase.data.case[0].submitter_id;
   }
   const submitData = `{
     "type": "imaging_study",
