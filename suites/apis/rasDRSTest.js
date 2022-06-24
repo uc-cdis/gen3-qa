@@ -133,7 +133,13 @@ function validateCreds(I, testCreds) {
 Scenario('Send DRS request - Single Valid Passport Single VISA @rasDRS', async ({ I, ras }) => {
   validateCreds(I, envVars);
 
-  const token = await ras.do.getTokens(I.cache.clientID, I.cache.secretID, scope);
+  const token = await ras.do.getTokens(
+    I.cache.clientID,
+    I.cache.secretID,
+    scope,
+    process.env.RAS_TEST_USER_1_USERNAME,
+    process.env.RAS_TEST_USER_1_PASSWORD
+  );
   // adding the values to cache{} for later use in the test
   I.cache.accessToken = token.accessToken;
   I.cache.refreshToken = token.refreshToken;
@@ -143,12 +149,18 @@ Scenario('Send DRS request - Single Valid Passport Single VISA @rasDRS', async (
   const accessibleDRSObjectURL = `https://${ga4ghURL}/${I.cache.accessibleIndexdRecord.did}/access/s3`;
   let startTime, endTime;
   const postDurations = [];
-  // POST DRS request with passport in body. POST twice to test that caching
-  // is working as expected (i.e. second request is faster than first)
-  for (let i = 0; i < 2; i += 1) { startTime = performance.now(); drsAccessReq
-  = await I.sendPostRequest( accessibleDRSObjectURL,{ passports: [`$
-  {I.cache.passport}`], }, ); endTime = performance.now(); postDurations.push
-  (endTime-startTime);
+  // Valid passport -> Data access -> success, try again
+  // Expect success and the retry should be faster than the first request
+  for (let i = 0; i < 2; i += 1) {
+    startTime = performance.now();
+    drsAccessReq = await I.sendPostRequest(
+      accessibleDRSObjectURL,
+      {
+        passports: [`${I.cache.passport}`],
+      },
+    );
+    endTime = performance.now();
+    postDurations.push(endTime-startTime);
     // verify if the response has status 200
     expect(drsAccessReq).to.have.property('status', 200);
 
@@ -166,6 +178,27 @@ Scenario('Send DRS request - Single Valid Passport Single VISA @rasDRS', async (
 });
 
 // Scenario 2 ->
+Scenario('Send DRS request -  Single Passport Single Visa With No Permissions @rasDRS', async ({ I, ras }) => {
+  const token = await ras.do.getTokens(
+    I.cache.clientID,
+    I.cache.secretID,
+    scope,
+    process.env.RAS_TEST_USER_2_USERNAME,
+    process.env.RAS_TEST_USER_2_PASSWORD
+  );
+  const passportWithNoPermissions = await ras.do.getPassport(token.accessToken);
+  // Valid passport -> Data access -> success, try again with DIFFERENT user w/ invalid passport
+  // Expect denied, should not use cached passport for a different user
+  const drsAccessReq = await I.sendPostRequest(
+    `https://${ga4ghURL}/${I.cache.inaccessibleIndexdRecord.did}/access/s3`,
+    {
+      passports: [passportWithNoPermissions],
+    },
+  );
+  expect(drsAccessReq).to.have.property('status', 401);
+});
+
+// Scenario 3 ->
 Scenario('Send DRS request - Single Passport Single Visa With Incorrect Access @rasDRS', async ({ I }) => {
   const drsAccessReq = await I.sendPostRequest(
     `https://${ga4ghURL}/${I.cache.inaccessibleIndexdRecord.did}/access/s3`,
@@ -176,14 +209,15 @@ Scenario('Send DRS request - Single Passport Single Visa With Incorrect Access @
   expect(drsAccessReq).to.have.property('status', 401);
 });
 
-// Scenario 3 ->
+// Scenario 4 ->
 Scenario('Send DRS request - Single Passport With Invalid Signature @rasDRS', async ({ I }) => {
   const passportParts = I.cache.passport.split('.');
   passportParts[2] = 'invalidsignature';
   I.cache.invalidPassport = passportParts.join('.');
 
   let drsAccessReq;
-  // POST twice to test that an invalid passport is not cached
+  // Invalid passport -> Data access -> denied, try again, should be denied
+  // again (e.g. make sure we don’t cache invalid things)
   for (let i = 0; i < 2; i += 1) {
     drsAccessReq = await I.sendPostRequest(
       `https://${ga4ghURL}/${I.cache.accessibleIndexdRecord.did}/access/s3`,
@@ -195,7 +229,7 @@ Scenario('Send DRS request - Single Passport With Invalid Signature @rasDRS', as
   }
 });
 
-// Scenario 4 ->
+// Scenario 5 ->
 Scenario('Get Access Token from Refresh Token @rasDRS', async ({ I, ras }) => {
   validateCreds(I, envVars); // eslint-disable-line no-undef
   // get new access token from the refresh token
