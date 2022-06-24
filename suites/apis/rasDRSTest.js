@@ -130,7 +130,7 @@ function validateCreds(I, testCreds) {
 }
 
 // Scenario 1 ->
-Scenario('Send DRS request - Single Passport Single VISA @rasDRS', async ({ I, ras }) => {
+Scenario('Send DRS request - Single Valid Passport Single VISA @rasDRS', async ({ I, ras }) => {
   validateCreds(I, envVars);
 
   const token = await ras.do.getTokens(I.cache.clientID, I.cache.secretID, scope);
@@ -139,23 +139,30 @@ Scenario('Send DRS request - Single Passport Single VISA @rasDRS', async ({ I, r
   I.cache.refreshToken = token.refreshToken;
   I.cache.idToken = token.idToken;
   I.cache.passport = await ras.do.getPassport(I.cache.accessToken);
-  // sending DRS request with passport in body
-  const drsAccessReq = await I.sendPostRequest(
-    `https://${ga4ghURL}/${I.cache.accessibleIndexdRecord.did}/access/s3`,
-    {
-      passports: [`${I.cache.passport}`],
-    },
-  );
-  // verify if the response has status 200
-  expect(drsAccessReq).to.have.property('status', 200);
+  let drsAccessReq;
+  const accessibleDRSObjectURL = `https://${ga4ghURL}/${I.cache.accessibleIndexdRecord.did}/access/s3`;
+  let startTime, endTime;
+  const postDurations = [];
+  // POST DRS request with passport in body. POST twice to test that caching
+  // is working as expected (i.e. second request is faster than first)
+  for (let i = 0; i < 2; i += 1) { startTime = performance.now(); drsAccessReq
+  = await I.sendPostRequest( accessibleDRSObjectURL,{ passports: [`$
+  {I.cache.passport}`], }, ); endTime = performance.now(); postDurations.push
+  (endTime-startTime);
+    // verify if the response has status 200
+    expect(drsAccessReq).to.have.property('status', 200);
 
-  expect(drsAccessReq.data).to.have.property('url');
-  if (String(drsAccessReq.data).includes('You don\'t have access permission on this file')) {
-    expect.fail('Access Denied');
+    expect(drsAccessReq.data).to.have.property('url');
+    if (String(drsAccessReq.data).includes('You don\'t have access permission on this file')) {
+      expect.fail('Access Denied');
+    }
+
+    const preSignedURLReq = await I.sendGetRequest(drsAccessReq.data.url);
+    expect(preSignedURLReq).to.not.be.empty;
   }
-
-  const preSignedURLReq = await I.sendGetRequest(drsAccessReq.data.url);
-  expect(preSignedURLReq).to.not.be.empty;
+  console.log(`### First POST to ${accessibleDRSObjectURL} took ${postDurations[0]} ms`);
+  console.log(`### Second POST to ${accessibleDRSObjectURL} took ${postDurations[1]} ms`);
+  expect(postDurations[0]).to.be.above(postDurations[1]);
 });
 
 // Scenario 2 ->
@@ -170,7 +177,7 @@ Scenario('Send DRS request - Single Passport Single Visa With Incorrect Access @
 });
 
 // Scenario 3 ->
-Scenario('Send DRS request - Single Invalid Passport @rasDRS', async ({ I }) => {
+Scenario('Send DRS request - Single Passport With Invalid Signature @rasDRS', async ({ I }) => {
   const passportParts = I.cache.passport.split('.');
   passportParts[2] = 'invalidsignature';
   I.cache.invalidPassport = passportParts.join('.');
