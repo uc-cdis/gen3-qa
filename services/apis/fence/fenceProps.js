@@ -7,6 +7,7 @@ const bash = new Bash();
  * fence Properties
  */
 const rootEndpoint = '/user';
+const rootEndpointUi = 'user';
 
 /**
  * Runs a fence command for creating a client
@@ -104,8 +105,8 @@ module.exports = {
     getGoogleServiceAccounts: `${rootEndpoint}/google/service_accounts`,
     getGoogleSvcAcctMonitor: `${rootEndpoint}/google/service_accounts/monitor`,
     getGoogleBillingProjects: `${rootEndpoint}/google/billing_projects`,
-    authorizeOAuth2Client: `${rootEndpoint}/oauth2/authorize`,
-    tokenOAuth2Client: `${rootEndpoint}/oauth2/token`,
+    authorizeOAuth2Client: `${rootEndpointUi}/oauth2/authorize`,
+    tokenOAuth2Client: `${rootEndpointUi}/oauth2/token`,
     publicKeysEndpoint: `${rootEndpoint}/jwt/keys`,
     userEndPoint: `${rootEndpoint}/user`,
     adminEndPoint: `${rootEndpoint}/admin`,
