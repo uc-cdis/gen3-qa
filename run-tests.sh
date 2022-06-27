@@ -460,7 +460,7 @@ else
   fi
 fi
 # disabling the studyViewer test for debugging
-# donot '@studyViewer'
+donot '@studyViewer'
 
 # landing page buttons
 if [[ $(curl -s "$portalConfigURL" | jq '.components | contains({buttons}) | not') == "true" ]] || [[ ! -z "$testedEnv" ]]; then
