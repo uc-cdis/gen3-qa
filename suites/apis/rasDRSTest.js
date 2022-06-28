@@ -4,6 +4,7 @@ Feature('DRS RAS visa @requires-fence @requires-indexd');
 const { expect } = require('chai');
 const queryString = require('query-string');
 const { Bash } = require('../../utils/bash');
+const { performance } = require('perf_hooks');
 
 const bash = new Bash();
 
