@@ -13,6 +13,12 @@ const bash = new Bash();
 BeforeSuite(async ({
   I, users, sheepdog, peregrine,
 }) => {
+  //mutate guppy config
+  bash.runCommand("g3kubectl get configmap manifest-guppy -o yaml > original_guppy_config.yaml");
+  bash.runCommand("g3kubectl delete configmap manifest-guppy");
+  bash.runCommand("g3kubectl apply -f original_guppy_config.yaml");
+  bash.runCommand("gen3 roll guppy");
+
   // read dicom file
   const filePath = 'files/testFile.dcm';
   if (!fs.existsSync(filePath)) {
@@ -88,7 +94,7 @@ Scenario('check uploaded dicom file @dicomViewer',
     await home.do.login(users.mainAcct.username);
     I.amOnPage('/explorer');
     I.click('//h3[contains(text(), "Imaging Studies")]');
-    I.click('//button[@class="explorer-table-link-button"]');
+    I.click('(//button[@class="explorer-table-link-button"])[1]');
     I.see('//*[@class="cornerstone-canvas"]');
     I.saveScreenshot('dicom_viewer.png');
   });
