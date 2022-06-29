@@ -11,6 +11,6 @@ module.exports = {
   userInfoEndpoint: `${rasServerURL}/openid/connect/v1.1/userinfo`,
   // XPATH
   signInButton: '//button[contains(text(), \'Sign in\')]',
-  userField: '#USERNAME',
+  userField: '#USER',
   passwordField: '#PASSWORD',
 };
