@@ -34,8 +34,7 @@ BeforeSuite(async ({
   expect(resServer.status).to.equal(200);
   const studyInstance = resServer.data.ParentStudy;
   const resStudy = await I.sendGetRequest(`https://${process.env.HOSTNAME}/dicom-server/studies/${studyInstance}`, users.mainAcct.accessTokenHeader);
-  const studyId = resStudy.data.MainDicomTags.StudyInstanceUID;
-  I.cache.studyId = studyId;
+  I.cache.studyId= resStudy.data.MainDicomTags.StudyInstanceUID;
   // sumbit the file to the graph
   let program = '';
   let project = '';
@@ -68,7 +67,7 @@ BeforeSuite(async ({
         "submitter_id": "${casesubmitterid}"
       }
     ],
-    "submitter_id": "${studyId}"
+    "submitter_id": "${I.cache.studyId}"
   }`;
   const endpoint = `https://${process.env.HOSTNAME}/api/v0/submission/${program}/${project}/`;
   const resNode = await I.sendPutRequest(
