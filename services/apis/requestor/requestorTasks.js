@@ -6,7 +6,6 @@ const users = require('../../../utils/user');
 const { expect } = chai;
 const I = actor();
 
-
 module.exports = {
 
   async getRequestId() {
