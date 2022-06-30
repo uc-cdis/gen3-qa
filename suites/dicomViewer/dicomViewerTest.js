@@ -1,4 +1,4 @@
-Feature('Dicom Viewer @requires-dicom-viewer @requires-dicom-server @requires-portal');
+Feature('Dicom Viewer @requires-dicom-viewer @requires-dicom-server @requires-portal @requires-guppy');
 
 const fs = require('fs');
 const chai = require('chai');
