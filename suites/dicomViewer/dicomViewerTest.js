@@ -13,12 +13,6 @@ const bash = new Bash();
 BeforeSuite(async ({
   I, users, sheepdog, peregrine,
 }) => {
-  //mutate guppy config
-  bash.runCommand("g3kubectl get configmap manifest-guppy -o yaml > original_guppy_config.yaml");
-  bash.runCommand("g3kubectl delete configmap manifest-guppy");
-  bash.runCommand("g3kubectl apply -f original_guppy_config.yaml");
-  bash.runCommand("gen3 roll guppy");
-
   // read dicom file
   const filePath = 'files/testFile.dcm';
   if (!fs.existsSync(filePath)) {
@@ -41,7 +35,7 @@ BeforeSuite(async ({
   const studyInstance = resServer.data.ParentStudy;
   const resStudy = await I.sendGetRequest(`https://${process.env.HOSTNAME}/dicom-server/studies/${studyInstance}`, users.mainAcct.accessTokenHeader);
   const studyId = resStudy.data.MainDicomTags.StudyInstanceUID;
-
+  I.cache.studyId = studyId;
   // sumbit the file to the graph
   let program = '';
   let project = '';
@@ -94,7 +88,10 @@ Scenario('check uploaded dicom file @dicomViewer',
     await home.do.login(users.mainAcct.username);
     I.amOnPage('/explorer');
     I.click('//h3[contains(text(), "Imaging Studies")]');
-    I.click('(//button[@class="explorer-table-link-button"])[1]');
+    I.saveScreenshot('dicom_viewer_exploration_page.png');
+    const studyLink = `https://${process.env.HOSTNAME}/dicom-viewer/viewer/${I.cache.studyId}`;
+    I.click(`//a[@href="${studyLink}"]//button[@class="explorer-table-link-button"]`);
+    I.wait(2);
+    I.saveScreenshot('dicom_viewer_study_page.png');
     I.see('//*[@class="cornerstone-canvas"]');
-    I.saveScreenshot('dicom_viewer.png');
   });
