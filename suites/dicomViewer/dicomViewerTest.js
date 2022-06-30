@@ -90,10 +90,13 @@ Scenario('check uploaded dicom file @dicomViewer',
     await home.do.login(users.mainAcct.username);
     I.amOnPage('/explorer');
     I.click('//h3[contains(text(), "Imaging Studies")]');
+    I.wait(1);
     I.saveScreenshot('dicom_viewer_exploration_page.png');
     const studyLink = `https://${process.env.HOSTNAME}/dicom-viewer/viewer/${I.cache.studyId}`;
     I.click(`//a[@href="${studyLink}"]//button[@class="explorer-table-link-button"]`);
-    I.wait(2);
+    I.wait(1);
+    I.switchToNextTab();
     I.saveScreenshot('dicom_viewer_study_page.png');
+    I.seeCurrentUrlEquals(studyLink);
     I.see('//*[@class="cornerstone-canvas"]');
   });
