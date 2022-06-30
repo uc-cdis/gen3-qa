@@ -14,7 +14,7 @@ BeforeSuite(async ({
   I, users, sheepdog, peregrine,
 }) => {
   I.cache = {};
-  
+
   // read dicom file
   const filePath = 'files/testFile.dcm';
   if (!fs.existsSync(filePath)) {
