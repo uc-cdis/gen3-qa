@@ -13,6 +13,8 @@ const bash = new Bash();
 BeforeSuite(async ({
   I, users, sheepdog, peregrine,
 }) => {
+  I.cache = {};
+  
   // read dicom file
   const filePath = 'files/testFile.dcm';
   if (!fs.existsSync(filePath)) {
@@ -34,7 +36,8 @@ BeforeSuite(async ({
   expect(resServer.status).to.equal(200);
   const studyInstance = resServer.data.ParentStudy;
   const resStudy = await I.sendGetRequest(`https://${process.env.HOSTNAME}/dicom-server/studies/${studyInstance}`, users.mainAcct.accessTokenHeader);
-  I.cache.studyId= resStudy.data.MainDicomTags.StudyInstanceUID;
+  const studyId = resStudy.data.MainDicomTags.StudyInstanceUID;
+  I.cache.studyId = studyId;
   // sumbit the file to the graph
   let program = '';
   let project = '';
@@ -67,7 +70,7 @@ BeforeSuite(async ({
         "submitter_id": "${casesubmitterid}"
       }
     ],
-    "submitter_id": "${I.cache.studyId}"
+    "submitter_id": "${studyId}"
   }`;
   const endpoint = `https://${process.env.HOSTNAME}/api/v0/submission/${program}/${project}/`;
   const resNode = await I.sendPutRequest(
