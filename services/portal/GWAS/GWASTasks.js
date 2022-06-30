@@ -6,7 +6,18 @@ module.exports = {
 
   goToGWASPage() {
     I.amOnPage(GWASProps.path); // /analysis/vaGWAS
+    I.wait(2);
     I.saveScreenshot('GWAS_page.png');
+  },
+
+  async selectCaseControl() {
+    I.seeElement(GWASProps.CaseControlTitle);
+    I.click(GWASProps.CaseControlInput);
+  },
+
+  async selectQuantitative() {
+    I.seeElement(GWASProps.QuantitativeInput);
+    I.click(GWASProps.QuantitativeInput);
   },
 
   async selectCohort() {
@@ -20,6 +31,19 @@ module.exports = {
     I.click(GWASProps.SelectFirstCheckboxInput);
     I.click(GWASProps.SelectSecondCheckboxInput);
   },
+
+  async selectAncestryGroup() {
+    I.click(GWASProps.SelectGroupsButton);
+    I.click(GWASProps.SelectGrupsDropdown);
+  },
+
+  async enterJobName() {
+    const jobName = `AutomationTest${Date.now()}`;
+    console.log (`the job name is ${jobName}`);
+    I.fillField(GWASProps.EnterJobName, jobName);
+    return jobName;
+  },
+
 
   async selectPhenotype() {
     I.seeElement(GWASProps.SelectPhenotypeTitle);

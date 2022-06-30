@@ -8,10 +8,10 @@ async function checkElement(element) {
   while (refreshed < 3) {
     if (refreshed > 0) {
       I.refreshPage();
-      await GWASTasks.CheckJobStatus();
+      await GWASTasks.checkJobStatus();
     }
-    let InProgressSpan = await tryTo(() => I.waitForElement(element, 2)); // eslint-disable-line
-    if (!InProgressSpan) {
+    let spanShowed = await tryTo(() => I.waitForElement(element, 2)); // eslint-disable-line
+    if (!spanShowed) {
       refreshed += 1;
     } else {
       break;
@@ -21,18 +21,13 @@ async function checkElement(element) {
 }
 
 module.exports = {
-  async isJobStart(jobId) {
-    const InProgressxpath = `//li[.//h4[contains(text(),"${jobId}")]]//span[text()="In Progress"]`;
+  async isJobStart(jobName) {
+    const InProgressxpath = `//li[.//dt[contains(normalize-space(),"${jobName}")]]//span[text()="In Progress"]`;
     await checkElement(InProgressxpath);
   },
 
-  async isJobComplete(jobId) {
-    const Completexpath = `//li[.//h4[contains(text(),"${jobId}")]]//span[text()="Completed"]`;
+  async isJobComplete(jobName) {
+    const Completexpath = `//li[.//dt[contains(normalize-space(),"${jobName}")]]//span[text()="Completed"]`;
     await checkElement(Completexpath);
-  },
-
-  async isJobCancel(jobId) {
-    const Cancelxpath = `//li[.//h4[contains(text(),"${jobId}")]]//span[text()="Cancelled"]`;
-    await checkElement(Cancelxpath);
   },
 };

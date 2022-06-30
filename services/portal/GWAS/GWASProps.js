@@ -2,11 +2,17 @@ module.exports = {
   path: 'analysis/GWASUIApp',
 
   // Xpath:
+  CaseControlTitle: '//div[contains(text(),"Case Control GWAS")]',
+  CaseControlInput: '(//input[@class="ant-checkbox-input"])[1]',
+  QuantitativeInput: '(//input[@class="ant-checkbox-input"])[2]',
   SelectCohortTitle: '//th[contains(text(),"Cohort Name")]',
-  SelectFirstRadioInput: '(//input[@class="ant-radio-input"])[1]',
+  SelectFirstRadioInput: '(//input[@class="ant-radio-input" and not(@disabled)])[1]',
   SelectConceptTitle: '//th[contains(text(),"Concept ID")]',
   SelectFirstCheckboxInput: '(//input[@class="ant-checkbox-input"])[1]',
   SelectSecondCheckboxInput: '(//input[@class="ant-checkbox-input"])[2]',
+  SelectGroupsButton: '//button[@label="Dropdown Button" and contains(text(),"ancestry")]',
+  SelectGrupsDropdown: '(//div[@class=" g3-dropdown__item "])[1]',
+  EnterJobName: '//input[@class="GWASUI-nameInput"]',
   SelectPhenotypeTitle: '//th[contains(text(),"Phenotype")]',
   SetParameterDiv: '//*[@class="GWASUI-mainArea"]',
   NextSpan: '//span[contains(text(),\'Next\')]',
