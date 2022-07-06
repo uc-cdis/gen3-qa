@@ -1,3 +1,4 @@
+const { expect } = require('chai');
 const queryString = require('query-string');
 const { sleepMS } = require('../../../utils/apiUtil.js');
 const rasProps = require('./rasProps.js');
@@ -7,14 +8,16 @@ const I = actor();
 
 module.exports = {
 
-  async getAuthCode(scope) {
+  async getAuthCode(scope, username, password) {
     console.log('### Getting the auth token ...');
     I.amOnPage(`${rasProps.rasAuthEndpoint}?response_type=code&client_id=${I.cache.clientID}&redirect_uri=http://localhost:8080/user/login/ras/callback&scope=${scope}&idp=ras`);
     await sleepMS(5000);
     I.saveScreenshot('rasLogin_Page.png');
     // fill the RAS user credentials
-    I.fillField(`${rasProps.userField}`, process.env.RAS_TEST_USER_1_USERNAME);
-    I.fillField(`${rasProps.passwordField}`, secret(process.env.RAS_TEST_1_PASSWORD));
+    // I.fillField(`${rasProps.userField}`, process.env.RAS_TEST_USER_1_USERNAME);
+    I.fillField(`${rasProps.userField}`, username);
+    // I.fillField(`${rasProps.passwordField}`, secret(process.env.RAS_TEST_USER_1_PASSWORD));
+    I.fillField(`${rasProps.passwordField}`, password);
     I.waitForElement(rasProps.signInButton, 10);
     I.click(rasProps.signInButton);
     // check if reponse url contains 'code'
@@ -28,9 +31,9 @@ module.exports = {
     return code;
   },
 
-  async getTokens(clientID, secretID, scope) {
+  async getTokens(clientID, secretID, scope, username, password) {
     console.log('### Getting RAS Access Token and Refresh Token');
-    const authCode = await this.getAuthCode(scope);
+    const authCode = await this.getAuthCode(scope, username, password);
     const data = queryString.stringify({
       grant_type: 'authorization_code',
       code: `${authCode}`,
