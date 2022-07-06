@@ -106,7 +106,7 @@ module.exports = {
     getGoogleSvcAcctMonitor: `${rootEndpoint}/google/service_accounts/monitor`,
     getGoogleBillingProjects: `${rootEndpoint}/google/billing_projects`,
     authorizeOAuth2Client: `${rootEndpointUi}/oauth2/authorize`,
-    tokenOAuth2Client: `${rootEndpointUi}/oauth2/token`,
+    tokenOAuth2Client: `${rootEndpoint}/oauth2/token`,
     publicKeysEndpoint: `${rootEndpoint}/jwt/keys`,
     userEndPoint: `${rootEndpoint}/user`,
     adminEndPoint: `${rootEndpoint}/admin`,
