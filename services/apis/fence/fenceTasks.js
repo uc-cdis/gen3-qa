@@ -461,7 +461,7 @@ module.exports = {
    * @returns {string}
    */
   async getConsentCode(clientId, responseType, scope, consent = 'ok', expectCode = true) {
-    const fullURL = `${fenceProps.endpoints.authorizeOAuth2Client}?response_type=${responseType}&client_id=${clientId}&redirect_uri=https://${process.env.HOSTNAME}&scope=${scope}`;
+    const fullURL = `https://${process.env.HOSTNAME}${fenceProps.endpoints.authorizeOAuth2Client}?response_type=${responseType}&client_id=${clientId}&redirect_uri=https://${process.env.HOSTNAME}&scope=${scope}`;
     if (process.env.DEBUG === 'true') {
       console.log(fullURL);
     }
@@ -534,7 +534,7 @@ module.exports = {
    * @returns {string}
    */
   async getTokensImplicitFlow(clientId, responseType, scope, consent = 'yes', expectToken = true) {
-    const fullURL = `${fenceProps.endpoints.authorizeOAuth2Client}?response_type=${responseType}&client_id=${clientId}&redirect_uri=https://${process.env.HOSTNAME}&scope=${scope}&nonce=n-0S6_WzA2Mj`;
+    const fullURL = `https://${process.env.HOSTNAME}${fenceProps.endpoints.authorizeOAuth2Client}?response_type=${responseType}&client_id=${clientId}&redirect_uri=https://${process.env.HOSTNAME}&scope=${scope}&nonce=n-0S6_WzA2Mj`;
     console.log(fullURL);
     I.amOnPage(fullURL);
     if (expectToken) {

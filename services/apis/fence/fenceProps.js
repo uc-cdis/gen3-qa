@@ -7,7 +7,6 @@ const bash = new Bash();
  * fence Properties
  */
 const rootEndpoint = '/user';
-const rootEndpointUi = 'user';
 
 /**
  * Runs a fence command for creating a client
