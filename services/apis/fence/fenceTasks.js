@@ -462,7 +462,9 @@ module.exports = {
    */
   async getConsentCode(clientId, responseType, scope, consent = 'ok', expectCode = true) {
     const fullURL = `${fenceProps.endpoints.authorizeOAuth2Client}?response_type=${responseType}&client_id=${clientId}&redirect_uri=https://${process.env.HOSTNAME}&scope=${scope}`;
-    console.log(fullURL)
+    if (process.env.DEBUG === 'true') {
+      console.log(fullURL);
+    }
     I.amOnPage(fullURL);
     if (expectCode) {
       // if (I.seeElement(fenceProps.consentPage.consentBtn.locator)) {
