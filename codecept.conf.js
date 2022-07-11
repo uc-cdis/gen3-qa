@@ -80,6 +80,8 @@ exports.config = {
     mds: './services/apis/mds/mdsService.js',
     auditService: './services/apis/auditService/auditService.js',
     nondbgap: './services/apis/nondbgapUsersync/nonDbgapService.js',
+    ras: './services/apis/rasDrs/rasService.js',
+
     // Pages
     home: './services/portal/home/homeService.js',
     indexing: './services/portal/indexing/indexingService.js',

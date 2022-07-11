@@ -151,10 +151,10 @@ export default function () {
         listOfDIDs.push(record.did);
       }
     }
-    console.log(`found ${listOfDIDs.length} GUIDs`);
+    indexdPaginationPageNum += 1;
   }
 
-  indexdPaginationPageNum += 1;
+  console.log(`found ${listOfDIDs.length} GUIDs in total`);
 
   group('Sending GA4GH DRS API Requests request', () => {
     group('http get', () => {
@@ -168,7 +168,6 @@ export default function () {
           const url = `https://${GEN3_HOST}/ga4gh/drs/v1/objects/${listOfDIDs[k]}/access/${SIGNED_URL_PROTOCOL}`;
 
           console.log(`Adding request to batch: ${url}`);
-          // batchRequests.push(['GET', url, requestBody, params]);
           batchRequests[`${listOfDIDs[k]}`] = {
             method,
             url,
