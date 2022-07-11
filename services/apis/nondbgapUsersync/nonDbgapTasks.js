@@ -1,4 +1,4 @@
-const chai = require('chai');
+const { expect } = require('chai');
 const queryString = require('query-string');
 const { Bash } = require('../../../utils/bash.js');
 const { Gen3Response, checkPod } = require('../../../utils/apiUtil.js');
@@ -107,11 +107,11 @@ module.exports = {
   async presignedURLRequest(fence, project, projectFile, user, token) {
     console.log(`Creating presigned url with mainAcct user for ${project} after running usersync`);
     const signedURLs3 = await fence.do.createSignedUrl(projectFile, ['protocol=s3'], token);
-    if (signedURLs3.data.status === 200) {
+    if (signedURLs3.status === 200) {
       console.log(`The presigned url for ${project} files is created. The S3 url -> ${signedURLs3.data.urls}`);
     }
     const signedURLgs = await fence.do.createSignedUrl(projectFile, ['protocol=gs'], token);
-    if (signedURLgs.data.status === 200) {
+    if (signedURLgs.status === 200) {
       console.log(`The presigned url for ${project} files is created. The GS url -> ${signedURLgs.data.urls}`);
     }
 
@@ -130,9 +130,9 @@ module.exports = {
       console.log('Failed to fetch presigned url', err);
     }
 
-    chai.expect(projectFileContents3, `User ${user} with access can not create s3 signed urls `
+    expect(projectFileContents3, `User ${user} with access can not create s3 signed urls `
               + `and read the file for ${project}`).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-    chai.expect(projectFileContentgs, `User ${user} with access can not create gs signed urls `
+    expect(projectFileContentgs, `User ${user} with access can not create gs signed urls `
               + `and read the file for ${project}`).to.equal(fence.props.googleBucketInfo.test.fileContents);
   },
 
