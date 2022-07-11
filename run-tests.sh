@@ -411,6 +411,7 @@ fi
 export frontend_root="$(g3kubectl get configmaps manifest-global -o yaml | yq '.data.frontend_root')"
 if [[ $frontend_root == \"gen3ff\" ]]; then
   export PORTAL_SUFFIX="/portal"
+  @donot '@centralizedAuth'
 else
   export PORTAL_SUFFIX=""
 fi
