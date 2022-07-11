@@ -1,5 +1,10 @@
 Feature('Dicom Viewer @requires-dicom-viewer @requires-dicom-server @requires-portal @requires-guppy');
 
+/**
+   * Note: this test only works for MIDRC because it needs case and imaging_study nodes 
+   * exist and are linked, also it needs a imaging studies tab in the explorer
+*/
+
 const fs = require('fs');
 const chai = require('chai');
 const { inJenkins } = require('../../utils/commons.js');
@@ -9,19 +14,12 @@ const { Bash } = require('../../utils/bash.js');
 
 const bash = new Bash();
 
-// Submit a dicom file and run etl
-BeforeSuite(async ({
-  I, users, sheepdog, peregrine,
-}) => {
-  I.cache = {};
-
+async function submitDicomFile(I, accessToken) {
   // read dicom file
   const filePath = 'files/testFile.dcm';
   if (!fs.existsSync(filePath)) {
     const msg = 'Did not find test dicom file';
-    if (inJenkins) {
-      throw Error(msg);
-    }
+    throw Error(msg);
   }
   const content = fs.readFileSync(filePath);
 
@@ -30,14 +28,28 @@ BeforeSuite(async ({
   const resServer = await I.sendPostRequest(URL, content,
     {
       'Content-Type': 'application/dicom',
-      Authorization: `bearer ${users.mainAcct.accessToken}`,
+      Authorization: `bearer ${accessToken}`,
     });
   console.log(resServer);
+  return resServer
+}
+
+// Submit a dicom file and run etl before testing
+BeforeSuite(async ({
+  I, users, sheepdog, peregrine,
+}) => {
+  I.cache = {};
+  
+  // submit dicom file to dicom server
+  const resServer = await submitDicomFile(I, users.mainAcct.accessToken);
   expect(resServer.status).to.equal(200);
+  I.cache.fileID = resServer.data.ID;
   const studyInstance = resServer.data.ParentStudy;
   const resStudy = await I.sendGetRequest(`https://${process.env.HOSTNAME}/dicom-server/studies/${studyInstance}`, users.mainAcct.accessTokenHeader);
+  expect(resStudy.status).to.equal(200);
   const studyId = resStudy.data.MainDicomTags.StudyInstanceUID;
   I.cache.studyId = studyId;
+
   // sumbit the file to the graph
   let program = '';
   let project = '';
@@ -100,3 +112,24 @@ Scenario('check uploaded dicom file @dicomViewer',
     I.seeCurrentUrlEquals(studyLink);
     I.seeElement('//*[@class="cornerstone-canvas"]');
   });
+
+  Scenario('unauthorized user cannot POST dicom file @dicomViewer',
+  async ({ I, users }) => {
+    const resServer = await submitDicomFile(I, users.auxAcct1.accessToken);
+    console.log(resServer);
+    expect(resServer.status).to.not.equal(200);
+  }); 
+
+  Scenario('unauthorized user cannot GET dicom file @dicomViewer',
+  async ({ I, users }) => {
+    const resInstanceUnauthorize = await I.sendGetRequest(`https://${process.env.HOSTNAME}/dicom-server/instances/${I.cache.fileID}`, users.auxAcct1.accessTokenHeader);
+    console.log(resInstanceUnauthorize);
+    expect(resInstanceUnauthorize.status).to.not.equal(200);
+  }); 
+
+  Scenario('unauthorized user cannot GET non-exist dicom file @dicomViewer',
+  async ({ I, users }) => {
+    const resNonExistInstance = await I.sendGetRequest(`https://${process.env.HOSTNAME}/dicom-server/instances/${I.cache.fileID}`, users.mainAcct.accessTokenHeader);
+    console.log(resNonExistInstance);
+    expect(resNonExistInstance.status).to.not.equal(200);
+  }); 
