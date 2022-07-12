@@ -19,10 +19,10 @@ module.exports = {
     etlMappingNames.forEach((etlMappingName) => {
       aliases.push(etlMappingName, `${etlMappingName}-array-config`);
     });
-    console.log(`{aliases}`);
+    console.log(`${aliases}`);
 
     aliases.forEach((alias) => {
-      console.log(`{alias}`);
+      console.log(`${alias}`);
       if (this.existAlias(alias)) {
         const index = this.getIndexFromAlias(alias);
         if (index === '') {
