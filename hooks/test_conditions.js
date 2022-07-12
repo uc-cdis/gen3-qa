@@ -6,12 +6,13 @@ const bash = new Bash();
 module.exports = async function () {
   event.dispatcher.on(event.suite.before, (suite) => {
     console.log('*******');
-    console.log(`SUITE:${suite.title}`);
-    if (suite.title === 'DRS RAS') {
+    console.log(`SUITE: ${suite.title}`);
+    if (suite.title === 'DRS RAS visa @requires-fence @requires-indexd') {
       const drsEnabled = bash.runCommand('gen3 secrets decode fence-config fence-config.yaml | yq .GA4GH_PASSPORTS_TO_DRS_ENABLED');
       if (drsEnabled !== true) {
         console.log('Skipping the RAS DRS tests since required configuration is not in fence-config.yaml');
-        suite.test.forEach((test) => {
+        console.dir(suite.tests);
+        suite.tests.forEach((test) => {
           test.run = function skip() { // eslint-disable-line func-names
             console.log(`Ignoring test - ${test.title}`);
             this.skip();
@@ -25,7 +26,8 @@ module.exports = async function () {
       }
       if (!(updateCronjob.includes('fence-visa-update') && updateCronjob.includes('fence-cleanup-expired-ga4gh-info'))) {
         console.log('Skipping the test since cronjobs is not deployed to the env.');
-        suite.test.forEach((test) => {
+        console.dir(suite.tests);
+        suite.tests.forEach((test) => {
           test.run = function skip() { // eslint-disable-line func-names
             console.log(`Ignoring test - ${test.title}`);
             this.skip();
@@ -39,7 +41,8 @@ module.exports = async function () {
       const haveDropdown = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.explorerConfig[0].guppyConfig.dropdowns\'');
       if (!loginForDownload || loginForDownload !== 'true' || !haveDropdown || haveDropdown === 'null') {
         console.log('Skipping the Register User For Data Downloading tests since required configuration is not in gitops.json');
-        suite.test.forEach((test) => {
+        console.dir(suite.tests);
+        suite.tests.forEach((test) => {
           test.run = function skip() { // eslint-disable-line func-names
             console.log(`Ignoring test - ${test.title}`);
             this.skip();
@@ -52,7 +55,8 @@ module.exports = async function () {
       const dbGaPConfig = bash.runCommand('gen3 secrets decode fence-config fence-config.yaml | yq -r \'.dbGaP[] | ."info".study_to_resource_namespaces | ."PROJECT-12345"\'');
       if (!dbGaPConfig) {
         console.log('Skipping nonDBGap project usersync tests since the required configuration is not in fence-config.yaml');
-        suite.test.forEach((test) => {
+        console.dir(suite.tests);
+        suite.tests.forEach((test) => {
           test.run = function skip() { // eslint-disable-line func-names
             console.log(`Ignoring test - ${test.title}`);
             this.skip();
