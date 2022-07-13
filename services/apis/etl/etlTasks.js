@@ -14,15 +14,21 @@ module.exports = {
      */
   cleanUpIndices() {
     const etlMappingNames = bash.runCommand('g3kubectl get cm etl-mapping -o jsonpath=\'{.data.etlMapping\\.yaml}\' | yq \'.mappings[].name\' | xargs').split(' ');
-    console.log(`${etlMappingNames}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`${etlMappingNames}`);
+    }
     const aliases = [];
     etlMappingNames.forEach((etlMappingName) => {
       aliases.push(etlMappingName, `${etlMappingName}-array-config`);
     });
-    console.log(`${aliases}`);
-
+    if (process.env.DEBUG === 'true') {
+      console.log(`${aliases}`);
+    }
+    
     aliases.forEach((alias) => {
-      console.log(`${alias}`);
+      if (process.env.DEBUG === 'true') {
+        console.log(`${alias}`);
+      }
       if (this.existAlias(alias)) {
         const index = this.getIndexFromAlias(alias);
         if (index === '') {
