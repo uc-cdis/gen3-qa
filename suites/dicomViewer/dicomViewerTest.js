@@ -128,7 +128,7 @@ Scenario('unauthorized user cannot GET dicom file @dicomViewer',
 
 Scenario('unauthorized user cannot GET non-exist dicom file @dicomViewer',
   async ({ I, users }) => {
-    nonExistId = '538a3dfd-219a25e0-8443a0b7-d1f512a6-2348ff25';
+    const nonExistId = '538a3dfd-219a25e0-8443a0b7-d1f512a6-2348ff25';
     const resNonExistInstance = await I.sendGetRequest(`https://${process.env.HOSTNAME}/dicom-server/instances/${nonExistId}`, users.mainAcct.accessTokenHeader);
     console.log(resNonExistInstance);
     expect(resNonExistInstance.status).to.not.equal(200);
