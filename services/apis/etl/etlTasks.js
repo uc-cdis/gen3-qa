@@ -2,7 +2,6 @@ const etlProps = require('./etlProps.js');
 const user = require('../../../utils/user.js');
 const { Bash } = require('../../../utils/bash.js');
 
-const I = actor();
 const bash = new Bash();
 
 /**
@@ -24,7 +23,7 @@ module.exports = {
     if (process.env.DEBUG === 'true') {
       console.log(`${aliases}`);
     }
-    
+
     aliases.forEach((alias) => {
       if (process.env.DEBUG === 'true') {
         console.log(`${alias}`);
