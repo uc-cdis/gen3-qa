@@ -21,4 +21,3 @@ Scenario('Login with InCommons Login', async ({ I, home, login }) => {
     I.saveScreenshot('shibbolethPage.png')
 });
 
-Scenario('')
