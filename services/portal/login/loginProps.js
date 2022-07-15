@@ -3,6 +3,8 @@
  */
 module.exports = {
   path: '/login',
+  inCommonsSelection: '//div[contains(@class,"css-yk16xz-control")]',
+  inCommonsLoginButton: '//button[contains(text(),\'InCommon Login\')]',
 
   ready_cue: {
     locator: {
