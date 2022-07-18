@@ -1,6 +1,5 @@
 // this test targets all the login in the env with 
 // InCommons Login and Google Login
-const loginProps = require('../../services/portal/login/loginProps.js');
 
 Feature('InCommons and Google Login @requires-portal @requires-fence');
 
