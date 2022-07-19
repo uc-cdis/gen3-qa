@@ -79,6 +79,7 @@ exports.config = {
     guppy: './services/apis/guppy/guppyService.js',
     mds: './services/apis/mds/mdsService.js',
     auditService: './services/apis/auditService/auditService.js',
+    ras: './services/apis/rasDrs/rasService.js',
 
     // Pages
     home: './services/portal/home/homeService.js',
@@ -113,6 +114,7 @@ exports.config = {
   bootstrap: require('./test_setup.js'), // eslint-disable-line global-require
   hooks: [
     require('./hooks/test_results.js'), // eslint-disable-line global-require
+    require('./hooks/test_conditions.js'), // eslint-disable-line global-require
   ],
   tests: './suites/**/*.js',
   gherkin: {

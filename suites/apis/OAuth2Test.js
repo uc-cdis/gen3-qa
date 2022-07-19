@@ -135,15 +135,19 @@ Scenario('Authorization code flow: Test project access in id token same as proje
   // list of projects the id token gives access to
   tokenClaims = apiUtil.parseJwt(id_token);
   projectsInToken = tokenClaims.context.user.projects;
-  console.log('list of projects the id token gives access to:');
-  console.log(projectsInToken);
+  if (process.env.DEBUG === 'true') {
+    console.log('list of projects the id token gives access to:');
+    console.log(projectsInToken);
+  }
 
   // list of projects the user endpoint shows access to
   userInfoRes = await fence.do.getUserInfo(access_token);
   fence.ask.assertUserInfo(userInfoRes);
   projectsOfUser = userInfoRes.data.project_access;
-  console.log('list of projects the user endpoint shows access to:');
-  console.log(projectsOfUser);
+  if (process.env.DEBUG === 'true') {
+    console.log('list of projects the user endpoint shows access to:');
+    console.log(projectsOfUser);
+  }
 
   // test object equality
   projects = Object.getOwnPropertyNames(projectsInToken);

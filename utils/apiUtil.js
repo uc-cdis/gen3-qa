@@ -181,9 +181,13 @@ module.exports = {
         if (process.env.RUNNING_LOCAL === 'true') {
           process.env.KUBECTL_NAMESPACE = process.env.NAMESPACE;
         }
-        console.log(`### THE KUBECTL_NAMESPACE: ${process.env.KUBECTL_NAMESPACE}`);
+        if (process.env.DEBUG === 'true') {
+          console.log(`### THE KUBECTL_NAMESPACE: ${process.env.KUBECTL_NAMESPACE}`);
+        }
         const accessToken = bash.runCommand(fenceCmd, 'fence', takeLastLine);
-        console.log(`### THE ACCESS TOKEN: ${accessToken}`);
+        if (process.env.DEBUG === 'true') {
+          console.log(`### THE ACCESS TOKEN: ${accessToken}`);
+        }
         const decodedToken = module.exports.parseJwt(accessToken);
         // console.log(`decodedToken: ${JSON.stringify(decodedToken)}`);
         const nameFromToken = decodedToken.context.user.name;
@@ -384,7 +388,7 @@ module.exports = {
     let podFound = false;
     for (let i = 1; i < params.nAttempts; i += 1) {
       try {
-        console.log(`waiting for ${jobName} job pod... - attempt ${i}`);
+        console.log(`Waiting for ${jobName} job pod... - attempt ${i}`);
         await module.exports.sleepMS(10000);
 
         // refresh page on the underlying chrome browser to force the Selenium session to stay alive
@@ -394,19 +398,30 @@ module.exports = {
         if (process.env.RUNNING_LOCAL === 'true') {
           process.env.KUBECTL_NAMESPACE = process.env.NAMESPACE;
         }
-        console.log(`### THE KUBECTL_NAMESPACE: ${process.env.KUBECTL_NAMESPACE}`);
-        const podNameDebug = await bash.runCommand('echo "$KUBECTL_NAMESPACE"');
-        console.log(`#### ### ## podNameDebug: ${podNameDebug}`);
-        const podName = await bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=${labelName} -o jsonpath="{.items[*].metadata.name}" | awk "{print $NF}"`);
-        console.log(`latest pod found: ${podName}`);
+        if (process.env.DEBUG === 'true') {
+          console.log(`### THE KUBECTL_NAMESPACE: ${process.env.KUBECTL_NAMESPACE}`);
+          const podNameDebug = await bash.runCommand('echo "$KUBECTL_NAMESPACE"');
+          console.log(`#### ### ## podNameDebug: ${podNameDebug}`);
+        }
+
+        // get all pods that match the provided label
+        let podsNames = await bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=${labelName} -o jsonpath="{.items[*].metadata.name}"`);
+        console.log(`Found pods with label '${labelName}': ${podsNames}`);
+
+        // if there's more than 1 pod matching the provided name, the last one
+        // is the most recent (`--sort-by=.metadata.creationTimestamp`)
+        podsNames = podsNames.split(' ').filter((name) => name.startsWith(jobName));
+        const podName = podsNames[podsNames.length - 1];
+        console.log(`Found latest pod with name '${jobName}': '${podName}'`);
+
         if (!podFound) {
-          if (podName.includes(jobName)) {
-            console.log(`the pod ${podName} was found! Proceed with the container check...`);
+          if (podName && podName.includes(jobName)) {
+            console.log(`The pod ${podName} was found! Proceed with the container check...`);
             podFound = true;
           }
         } else {
           const checkIfContainerSucceeded = bash.runCommand(`g3kubectl get pod ${podName} -o jsonpath='{.status.phase}'`);
-          console.log(`check container status: ${checkIfContainerSucceeded}`);
+          console.log(`Check container status: ${checkIfContainerSucceeded}`);
           if (checkIfContainerSucceeded === 'Succeeded') {
             console.log(`The container from pod ${podName} is ready! Proceed with the assertion checks..`);
             break;

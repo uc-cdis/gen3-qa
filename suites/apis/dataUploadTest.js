@@ -4,7 +4,7 @@ const homedir = require('os').homedir();
 
 const { inJenkins } = require('../../utils/commons.js');
 
-Feature('Data file upload flow @requires-fence @requires-indexd @requires-sheepdog');
+Feature('Data file upload flow @requires-fence @requires-indexd @requires-sheepdog @e2e');
 
 // ///////////
 // GLOBALS //
