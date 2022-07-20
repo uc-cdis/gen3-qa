@@ -21,7 +21,7 @@ module.exports = {
     });
 
     aliases.forEach((alias) => {
-      deleteIndices(`${alias}_0`);
+      this.deleteIndices(`${alias}_0`);
       if (this.existAlias(alias)) {
         const index = this.getIndexFromAlias(alias);
         if (index === '') {
