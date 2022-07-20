@@ -414,6 +414,7 @@ if [[ $frontend_root == \"gen3ff\" ]]; then
   @donot '@centralizedAuth'
 else
   export PORTAL_SUFFIX=""
+  @donot '@gen3ff'
 fi
 
 #

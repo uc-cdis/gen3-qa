@@ -91,6 +91,7 @@ exports.config = {
     portalCoreMetadataPage: './services/portal/coreMetadataPage/coreMetadataPageService.js',
     discovery: './services/portal/discovery/discoveryService.js',
     workspace: './services/portal/workspace/workspaceService.js',
+    gen3ffLandingPage: './services/portal/gen3ffLandingPage/gen3ffLandingPageService.js',
   },
   mocha: {
     reporterOptions: {
