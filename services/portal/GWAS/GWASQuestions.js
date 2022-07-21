@@ -5,13 +5,14 @@ const GWASTasks = require('./GWASTasks.js');
 
 async function checkElement(element) {
   let refreshed = 0; // keep track of how many refreshes
-  while (refreshed < 3) {
+  while (refreshed < 10) { // 300 seconds
     if (refreshed > 0) {
       I.refreshPage();
       await GWASTasks.checkJobStatus();
     }
     let spanShowed = await tryTo(() => I.waitForElement(element, 2)); // eslint-disable-line
     if (!spanShowed) {
+      I.wait(30);
       refreshed += 1;
     } else {
       break;
