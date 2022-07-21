@@ -16,7 +16,7 @@ module.exports = {
   },
 
   async selectQuantitative() {
-    I.seeElement(GWASProps.QuantitativeInput);
+    I.seeElement(GWASProps.QuantitativeTitle);
     I.click(GWASProps.QuantitativeInput);
   },
 
@@ -30,6 +30,11 @@ module.exports = {
     I.seeElement(GWASProps.SelectConceptTitle);
     I.click(GWASProps.SelectFirstCheckboxInput);
     I.click(GWASProps.SelectSecondCheckboxInput);
+  },
+
+  async selectPhenotypeVariable(){
+    I.seeElement(GWASProps.SelectConceptTitle);
+    I.click(GWASProps.SelectFirstRadioInput);
   },
 
   async selectAncestryGroup() {
@@ -70,11 +75,10 @@ module.exports = {
     I.click(GWASProps.SubmitButton);
   },
 
-  async deleteJob() {
-    I.seeElement(GWASProps.JobDeleteButton);
-    I.click(GWASProps.JobDeleteButton);
-    I.seeElement(GWASProps.JobDeletePopup);
-    I.click(GWASProps.JobDeleteYes);
+  async selectDifferentType() {
+    I.seeElement(GWASProps.selectDifferentType);
+    I.click(GWASProps.selectDifferentType);
+    I.seeElement(GWASProps.AreyousurePopup);
   },
 
   async checkJobStatus() {
