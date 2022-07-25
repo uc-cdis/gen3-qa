@@ -12,9 +12,19 @@ const I = actor();
 module.exports = {
   goToPage() {
     I.amOnPage(props.path);
-    I.wait(5);
-    I.saveScreenshot('gen3ffLandingPage.png');
-    I.waitForElement(props.readyCue, 30);
-    I.wait(2);
+    if (process.env.DEBUG === 'true') {
+      I.wait(5);
+      I.saveScreenshot('gen3ffLandingPage.png');
+    }
+    I.waitForElement(props.readyCue.locator, 30);
+  },
+
+  verifyLandingPageButton(button, expectedUrl) {
+    I.click(`//a[contains(text(), "${button}")]`);
+    if (process.env.DEBUG === 'true') {
+      I.wait(5);
+      I.saveScreenshot(`${button}_page.png`);
+    }
+    I.seeInCurrentUrl(expectedUrl);
   },
 };

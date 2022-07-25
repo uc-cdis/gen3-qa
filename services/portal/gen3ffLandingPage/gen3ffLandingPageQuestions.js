@@ -7,7 +7,7 @@ const I = actor();
  */
 module.exports = {
   isCurrentPage() {
-    I.waitUrlEquals(props.path);
+    I.seeInCurrentUrl(props.path);
   },
 
   isPageLoaded() {

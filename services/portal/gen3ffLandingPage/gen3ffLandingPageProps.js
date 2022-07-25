@@ -3,10 +3,19 @@
  */
 module.exports = {
   path: '/landing',
-
-  ready_cue: {
+  readyCue: {
     locator: {
       css: '.flex-grow',
+    },
+  },
+  exploreDataButton: {
+    locator: {
+      xpath: '//a[contains(text(), "Explore Data")]',
+    },
+  },
+  registerYourStudyButton: {
+    locator: {
+      xpath: '//a[contains(text(), "Register Your Study")]',
     },
   },
 };

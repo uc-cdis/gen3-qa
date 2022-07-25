@@ -411,10 +411,15 @@ fi
 export frontend_root="$(g3kubectl get configmaps manifest-global -o yaml | yq '.data.frontend_root')"
 if [[ $frontend_root == \"gen3ff\" ]]; then
   export PORTAL_SUFFIX="/portal"
-  @donot '@centralizedAuth'
+  donot '@centralizedAuth'
 else
   export PORTAL_SUFFIX=""
-  @donot '@gen3ff'
+  donot '@gen3ff'
+fi
+
+#### GEN3 FF HEAL ####
+if [[ ! $testedEnv == *"heal"* ]]; then
+  donot '@heal'
 fi
 
 #
