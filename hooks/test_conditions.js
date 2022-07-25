@@ -52,7 +52,7 @@ module.exports = async function () {
     }
 
     if (suite.title === 'nonDBGap Project Usersync @requires-fence @requires-indexd') {
-      const dbGaPConfig = bash.runCommand('gen3 secrets decode fence-config fence-config.yaml | yq -r \'.dbGaP[] | ."info".study_to_resource_namespaces | ."PROJECT-12345"\'');
+      const dbGaPConfig = bash.runCommand('gen3 secrets decode fence-config fence-config.yaml | yq -r \'.dbGaP[] | select(."info".username=="qa-dcf") | ."allow_non_dbgap_whitelist"\'');
       if (!dbGaPConfig) {
         console.log('Skipping nonDBGap project usersync tests since the required configuration is not in fence-config.yaml');
         console.dir(suite.tests);

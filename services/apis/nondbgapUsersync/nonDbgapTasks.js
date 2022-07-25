@@ -15,7 +15,8 @@ module.exports = {
   async runUserSyncDBGap() {
     console.log('### Running usersync job with DBGap ...');
     console.log(`start time: ${Math.floor(Date.now() / 1000)}`);
-    bash.runJob('usersync', args = 'ADD_DBGAP true'); // eslint-disable-line no-undef
+    console.log('*** RUN USERSYNC JOB WITH DBGAP = true ***');
+    bash.runJob('usersync', args = 'ADD_DBGAP=true'); // eslint-disable-line no-undef
     await checkPod(I, 'usersync', 'gen3job,job-name=usersync');
     console.log(`end time: ${Math.floor(Date.now() / 1000)}`);
   },
@@ -23,6 +24,7 @@ module.exports = {
   async runUserSync() {
     console.log('### Running usersync job ...');
     console.log(`start time: ${Math.floor(Date.now() / 1000)}`);
+    console.log('*** RUN USERSYNC JOB ***');
     bash.runJob('usersync');
     await checkPod(I, 'usersync', 'gen3job,job-name=usersync');
     console.log(`end time: ${Math.floor(Date.now() / 1000)}`);
@@ -106,6 +108,7 @@ module.exports = {
 
   async presignedURLRequest(fence, project, projectFile, user, token) {
     console.log(`Creating presigned url with mainAcct user for ${project} after running usersync`);
+    console.log(`${token}`);
     const signedURLs3 = await fence.do.createSignedUrl(projectFile, ['protocol=s3'], token);
     if (signedURLs3.status === 200) {
       console.log(`The presigned url for ${project} files is created. The S3 url -> ${signedURLs3.data.urls}`);
@@ -135,5 +138,4 @@ module.exports = {
     expect(projectFileContentgs, `User ${user} with access can not create gs signed urls `
               + `and read the file for ${project}`).to.equal(fence.props.googleBucketInfo.test.fileContents);
   },
-
 };
