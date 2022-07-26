@@ -414,7 +414,7 @@ if [[ $frontend_root == \"gen3ff\" ]]; then
   donot '@centralizedAuth'
 else
   export PORTAL_SUFFIX=""
-  donot '@gen3ff'
+  donot '@requires-frontend-framework'
 fi
 
 #### GEN3 FF HEAL ####

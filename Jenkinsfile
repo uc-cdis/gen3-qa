@@ -1,6 +1,6 @@
 #!groovy
 
-@Library('cdis-jenkins-lib@chore/global_frontend_root') _
+@Library('cdis-jenkins-lib@master') _
 
 testPipeline {
   // tell the pipeline to not checkout `gen3-qa:master`
