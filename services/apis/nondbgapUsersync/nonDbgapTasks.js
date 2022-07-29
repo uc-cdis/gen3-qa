@@ -13,10 +13,10 @@ const scope = 'openid profile email ga4gh_passport_v1';
 
 module.exports = {
   async runUserSyncDBGap() {
-    console.log('### Running usersync job with DBGap ...');
+    console.log('### Running usersync job with DBGaP ...');
     console.log(`start time: ${Math.floor(Date.now() / 1000)}`);
-    console.log('*** RUN USERSYNC JOB WITH DBGAP = true ***');
-    bash.runJob('usersync', args = 'ADD_DBGAP=true'); // eslint-disable-line no-undef
+    console.log('*** RUN USERSYNC JOB WITH DBGAP true ***');
+    bash.runJob('usersync', args = 'ADD_DBGAP true'); // eslint-disable-line no-undef
     await checkPod(I, 'usersync', 'gen3job,job-name=usersync');
     console.log(`end time: ${Math.floor(Date.now() / 1000)}`);
   },
