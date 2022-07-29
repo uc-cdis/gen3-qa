@@ -8,7 +8,7 @@ exports.config = {
   helpers: {
     WebDriver: {
       host: 'selenium-hub',
-      url: `https://${process.env.NAMESPACE}.planx-pla.net`,
+      url: `https://${process.env.NAMESPACE}.planx-pla.net${process.env.PORTAL_SUFFIX}/`,
       smartWait: 30000,
       browser: 'chrome',
       // fullPageScreenshots: true,
@@ -92,6 +92,7 @@ exports.config = {
     portalCoreMetadataPage: './services/portal/coreMetadataPage/coreMetadataPageService.js',
     discovery: './services/portal/discovery/discoveryService.js',
     workspace: './services/portal/workspace/workspaceService.js',
+    gen3ffLandingPage: './services/portal/gen3ffLandingPage/gen3ffLandingPageService.js',
   },
   mocha: {
     reporterOptions: {

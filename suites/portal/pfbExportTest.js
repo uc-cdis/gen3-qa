@@ -172,8 +172,8 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @pfb
   login.complete.login(users.mainAcct);
 
   // Go to submission page
-  I.amOnPage('/submission');
-  I.amOnPage('/submission/files');
+  I.amOnPage('submission');
+  I.amOnPage('submission/files');
 
   // Unmapped files sometimes show up in "Generating... " state.
   // Need to wait a few seconds
@@ -314,7 +314,7 @@ Scenario('Visit the Explorer page, select a cohort, export to PFB and download t
   const navBarButtons = await I.grabTextFromAll({ xpath: 'xpath: //nav[@class=\'nav-bar__nav--items\']//div/a/descendant-or-self::*' });
 
   if (navBarButtons.includes('Exploration')) {
-    I.amOnPage('/explorer');
+    I.amOnPage('explorer');
     console.log('### I am on Exploration Page');
     // exploration Page
     I.wait(5);
@@ -343,7 +343,7 @@ Scenario('Visit the Explorer page, select a cohort, export to PFB and download t
       I.waitForVisible('//button[contains(text(),\'Export to PFB\')]', 10);
     }
   } else if (navBarButtons.includes('Files')) {
-    I.amOnPage('/files');
+    I.amOnPage('files');
     console.log('### I am on Files Page');
     // Files Page
     I.wait(5);
