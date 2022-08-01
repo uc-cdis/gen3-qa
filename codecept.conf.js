@@ -79,6 +79,7 @@ exports.config = {
     guppy: './services/apis/guppy/guppyService.js',
     mds: './services/apis/mds/mdsService.js',
     auditService: './services/apis/auditService/auditService.js',
+    nondbgap: './services/apis/nondbgapUsersync/nonDbgapService.js',
     ras: './services/apis/rasDrs/rasService.js',
 
     // Pages
