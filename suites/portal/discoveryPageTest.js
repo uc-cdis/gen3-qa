@@ -19,6 +19,7 @@ After(({ users, mds }) => {
 });
 
 Scenario('User is able to navigate to Discovery page', ({ discovery }) => {
+  console.log("dummy change, don't merge");
   discovery.do.goToPage();
   discovery.ask.isPageLoaded();
 });
