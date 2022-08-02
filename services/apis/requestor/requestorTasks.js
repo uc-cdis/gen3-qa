@@ -52,6 +52,39 @@ module.exports = {
     return responseData;
   },
 
+  /**
+  * @param {string} adminUserTokenHeader - headers for user authorized in Requestor
+  * @param {string} username - username to grant/revoke access for
+  * @param {array} resourcePaths - resource_paths to request/revoke access
+  * @param {array} roleIds - role_ids to request/revoke access
+  * @param {boolean} revoke - set to true to create a revoke request
+  */
+  async createRequestForResourcePathsAndRoleIds(
+    adminUserTokenHeader, username, resourcePaths, roleIds, revoke = false, requestStatus = null,
+  ) {
+    console.log(`### creating request for a resource_paths: ${resourcePaths} and role_ids ${roleIds} with revoke set as ${revoke}`);
+    const endPoint = revoke ? `${requestorProps.endpoint.requestEndPoint}?revoke` : `${requestorProps.endpoint.requestEndPoint}`;
+    const data = {
+      username,
+      resource_paths: resourcePaths,
+      role_ids: roleIds,
+    };
+    if (requestStatus) {
+      data.status = requestStatus;
+    }
+    const getResponse = await I.sendPostRequest(
+      endPoint,
+      data,
+      adminUserTokenHeader,
+    );
+    const responseData = getResponse.data;
+    responseData.status_code = getResponse.status;
+    if (process.env.DEBUG === 'true') {
+      console.log(`### responseData: ${JSON.stringify(responseData)}`);
+    }
+    return responseData;
+  },
+
   // get the request ID status
   async getRequestStatus(requestID) {
     if (process.env.DEBUG === 'true') {
