@@ -16,9 +16,7 @@ module.exports = {
     const responseData = getResponse.data;
     expect(responseData).to.not.be.empty;
     const reqID = responseData[0].request_id;
-    if (process.env.DEBUG === 'true') {
-      console.log(`### request id: ${reqID}`);
-    }
+    console.log(`### request id: ${reqID}`);
     return reqID;
   },
   /**
@@ -54,21 +52,15 @@ module.exports = {
 
   // get the request ID status
   async getRequestStatus(requestID) {
-    if (process.env.DEBUG === 'true') {
-      console.log(`### get request id: ${requestID}`);
-    }
+    console.log(`### get request id: ${requestID}`);
     const getResponse = await I.sendGetRequest(
       `${requestorProps.endpoint.requestEndPoint}/${requestID}`,
       users.mainAcct.accessTokenHeader,
     );
     const responseData = getResponse.data;
-    if (process.env.DEBUG === 'true') {
-      console.log(`### responseData: ${JSON.stringify(responseData)}`);
-    }
+    console.log(`### responseData: ${JSON.stringify(responseData)}`);
     const reqStatus = responseData.status;
-    if (process.env.DEBUG === 'true') {
-      console.log(`### request status: ${reqStatus}`);
-    }
+    console.log(`### request status: ${reqStatus}`);
     return reqStatus;
   },
 

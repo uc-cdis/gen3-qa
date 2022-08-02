@@ -475,7 +475,10 @@ else
   fi
 fi
 # disabling the studyViewer test for debugging
-donot '@studyViewer'
+donot '@nondbgapUsersyncTest'
+
+# disabling the nondbgap usersync test as the jenkins is configured
+donot '@'
 
 # landing page buttons
 if [[ $(curl -s "$portalConfigURL" | jq '.components | contains({buttons}) | not') == "true" ]] || [[ ! -z "$testedEnv" ]]; then
