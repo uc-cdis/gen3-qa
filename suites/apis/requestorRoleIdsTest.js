@@ -1,11 +1,7 @@
-Feature('RequestorNewAPI @requires-requestorNew');
+Feature('RequestorRoleIdsAPI @requires-requestorRoleIds');
 
 /**
-  This set of integration tests are the extension to the existing
-  requestorTest suite. They test the flow of new features included
-  in requestor service after version 1.5.1. The whole purpose of this
-  new suite is to overcome the limitation of `runTestsIfServiceVersion`
-  to only filter out at the test-suite level.
+  This Scenario tests a request with resource_paths and role_ids
  */
 
 const { expect } = require('chai');
@@ -23,7 +19,7 @@ Scenario('User requests access for resource_paths and role_ids with a signed sta
 }) => {
   // Check that the user does not have access to policy 'requestor_integration_test'.
   let userInfo = await fence.do.getUserInfo(users.user0.accessToken);
-  //expect(userInfo.data.authz).to.not.have.property('/requestor_integration_test');
+  expect(userInfo.data.authz).to.not.have.property('/requestor_integration_test');
 
   const { accessTokenHeader } = users.mainAcct;
   const resourcePaths = ['/requestor_integration_test', 'mds_gateway']
