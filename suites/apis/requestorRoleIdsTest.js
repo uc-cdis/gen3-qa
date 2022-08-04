@@ -19,7 +19,7 @@ Scenario('User requests access for resource_paths and role_ids with a signed sta
 }) => {
   // Check that the user does not have access to policy 'requestor_integration_test'.
   let userInfo = await fence.do.getUserInfo(users.user0.accessToken);
-  expect(userInfo.data.authz).to.not.have.property('/requestor_integration_test');
+  expect(userInfo.data.authz).to.not.have.property('/requestor_integration_test_mds_gateway_workspace_user_mds_user');
 
   const { accessTokenHeader } = users.mainAcct;
   const resourcePaths = ['/requestor_integration_test', 'mds_gateway']
