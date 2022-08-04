@@ -1,10 +1,6 @@
 /* eslint-disable codeceptjs/no-skipped-tests */
 Feature('GWAS UI @requires-portal @requires-argo-wrapper @requires-cohort-middleware');
 
-const { Bash } = require('../../utils/bash.js');
-
-const bash = new Bash();
-// const { expect } = require('chai');
 const GWASTasks = require('../../services/portal/GWAS/GWASTasks.js');
 const GWASProps = require('../../services/portal/GWAS/GWASProps.js');
 const GWASQuestions = require('../../services/portal/GWAS/GWASQuestions.js');
@@ -73,7 +69,7 @@ Scenario('GWAS submit workflow through Quantitative Phenotype GWAS @GWASUI', asy
   await GWASTasks.selectVariables();
   await GWASTasks.clickNextButton();
   // select which variable is your phenotype
-  await GWASTasksselectPhenotypeVariable();
+  await GWASTasks.selectPhenotypeVariable();
   // Add custom dichotomous covariates
   await GWASTasks.clickNextButton();
   // set parameters
@@ -87,40 +83,10 @@ Scenario('GWAS submit workflow through Quantitative Phenotype GWAS @GWASUI', asy
   await GWASTasks.checkJobStatus();
 
   await GWASQuestions.isJobStart(jobName);
-  I.saveScreenshot('GWAS_page_check_job_status_Start.png');
+  I.saveScreenshot('GWAS_page_check_job_status_Start_2.png');
   I.wait(50);
   await GWASQuestions.isJobComplete(jobName);
-  I.saveScreenshot('GWAS_page_check_job_status_Complete.png');
-});
-
-xScenario('GWAS submit workflow through Quantitative Phenotype @GWASUI', async ({
-  I, home, users,
-}) => {
-  home.do.goToHomepage();
-  await home.complete.login(users.mainAcct);
-
-  GWASTasks.goToGWASPage();
-
-  await GWASTasks.selectCohort();
-  await GWASTasks.clickNextButton();
-  await GWASTasks.selectVariables();
-  await GWASTasks.clickNextButton();
-  await GWASTasks.selectPhenotype();
-  await GWASTasks.clickNextButton();
-  await GWASTasks.setParameters();
-  await GWASTasks.clickNextButton();
-  await GWASTasks.submitJob();
-
-  I.wait(1);
-  const runId = await getRunId();
-
-  await GWASTasks.CheckJobStatus();
-
-  await GWASQuestions.isJobStart(runId);
-  I.saveScreenshot('GWAS_page_check_job_status_Start.png');
-  I.wait(50);
-  await GWASQuestions.isJobComplete();
-  I.saveScreenshot('GWAS_page_check_job_status_Complete.png');
+  I.saveScreenshot('GWAS_page_check_job_status_Complete_2.png');
 });
 
 Scenario('GWAS previous button and next button @GWASUI', async ({
@@ -146,7 +112,7 @@ Scenario('GWAS previous button and next button @GWASUI', async ({
   // go to next step, select variables
   await GWASTasks.clickNextButton();
   await GWASTasks.selectVariables();
-  // go back to select cohort step 
+  // go back to select cohort step
   await GWASTasks.clickPreviousButton();
   I.seeElement(GWASProps.SelectCohortTitle);
   await GWASTasks.clickNextButton();
@@ -167,7 +133,7 @@ Scenario('Select different GWAS Type @GWASUI', async ({
   await GWASTasks.selectCohort();
   await GWASTasks.clickNextButton();
   await GWASTasks.selectDifferentType();
-  //select yes to select different type
+  // select yes to select different type
   await I.click(GWASProps.AreyousureYes);
   I.seeElement(GWASProps.CaseControlTitle);
   I.dontSeeElement(GWASProps.NextSpan);
@@ -177,7 +143,7 @@ Scenario('Select different GWAS Type @GWASUI', async ({
   await GWASTasks.clickNextButton();
   await GWASTasks.selectCohort();
   await GWASTasks.selectDifferentType();
-  //select no to select different type
+  // select no to select different type
   await I.click(GWASProps.AreyousureNo);
   I.dontSeeElement(GWASProps.CaseControlTitle);
   I.seeElement(GWASProps.SelectCohortTitle);
@@ -196,4 +162,4 @@ Scenario('Unauthorize to workflow @GWASUI', async ({
   // TODO: add message for unauthorized user
 });
 
-//selete different GWAS TYPE
+// selete different GWAS TYPE
