@@ -35,7 +35,7 @@ Scenario('User requests access for resource_paths and role_ids with a signed sta
   userInfo = await fence.do.getUserInfo(user0AccessToken);
   // The policy_id should be of the format `[resource_paths]_[role_ids]`
   expect(userInfo.data.authz).to.have.property('/requestor_integration_test_mds_gateway_workspace_user_mds_user');
-  expect(userInfo.data.authz['/requestor_integration_test']).to.deep.to.include({ method: 'access', service: 'jupyterhub' });
+  expect(userInfo.data.authz['/requestor_integration_test_mds_gateway_workspace_user_mds_user']).to.deep.to.include({ method: 'access', service: 'jupyterhub' });
 
 
 });
