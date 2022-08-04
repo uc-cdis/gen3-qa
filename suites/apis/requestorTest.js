@@ -10,11 +10,29 @@ Feature('RequestorAPI @requires-requestor');
 const { expect } = require('chai');
 const requestorTasks = require('../../services/apis/requestor/requestorTasks.js');
 
+BeforeSuite(async ({
+  I,
+}) => {
+  I.cache = {};
+  I.cache.requestDidList = [];
+});
+
 Before(async ({
   home, users, login,
 }) => {
   home.do.goToHomepage();
   login.complete.login(users.mainAcct);
+});
+
+AfterSuite(async ({ I }) => {
+  console.log('Deleting all the requests created by this test with user cdis.autotest@gmail.com...');
+  console.log(I.cache.requestDidList);
+  I.cache.requestDidList.forEach(async (request) => {
+    const deleteRequest = await requestorTasks.deleteRequest(request);
+    if (deleteRequest === undefined) {
+      console.log(`Request ${request} is deleted successfully`);
+    }
+  });
 });
 
 // Create an access request for a policy that doesn’t exist in Arborist => 400 error
@@ -27,7 +45,7 @@ Scenario('User requests access for a policy that does not exist in Arborist @req
 });
 
 Scenario('User requests access for a policy followed by sending a Revoke request @requestor', async ({
-  users, fence,
+  I, users, fence,
 }) => {
   // Check that the user does not have access to policy 'requestor_integration_test'.
   let userInfo = await fence.do.getUserInfo(users.user0.accessToken);
@@ -36,6 +54,7 @@ Scenario('User requests access for a policy followed by sending a Revoke request
   const { accessTokenHeader } = users.mainAcct;
   // Create a request for a policy that is present in Arborist
   const createResponse = await requestorTasks.createRequestForPolicyID(accessTokenHeader, users.user0.username, 'requestor_integration_test');
+  I.cache.requestDidList.push(createResponse.request_id);
   expect(createResponse).to.have.property('status_code', 201);
 
   // Check if the access is created -- It shouldn't since it is not signed yet
