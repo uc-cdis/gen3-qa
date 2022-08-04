@@ -42,8 +42,8 @@ Scenario('User requests access for resource_paths and role_ids with a signed sta
   expect(userInfo.data.authz).to.not.have.property('/requestor_integration_test_mds_gateway_workspace_user_mds_user');
 
   const { accessTokenHeader } = users.mainAcct;
-  const resourcePaths = ['/requestor_integration_test', 'mds_gateway']
-  const roleIds = ['workspace_user', 'mds_user']
+  const resourcePaths = ['/requestor_integration_test', 'mds_gateway'];
+  const roleIds = ['workspace_user', 'mds_user'];
   // Create a request for resource_paths + role_ids present in Arborist with a SIGNED status to test
   // if the access is granted at the "create" endpoint
   const createResponse = await requestorTasks.createRequestForResourcePathsAndRoleIds(accessTokenHeader, users.user0.username, resourcePaths, roleIds, false, 'SIGNED');
@@ -57,6 +57,4 @@ Scenario('User requests access for resource_paths and role_ids with a signed sta
   // The policy_id should be of the format `[resource_paths]_[role_ids]`
   expect(userInfo.data.authz).to.have.property('/requestor_integration_test_mds_gateway_workspace_user_mds_user');
   expect(userInfo.data.authz['/requestor_integration_test_mds_gateway_workspace_user_mds_user']).to.deep.to.include({ method: 'access', service: 'jupyterhub' });
-
-
 });
