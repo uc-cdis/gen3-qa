@@ -76,7 +76,7 @@ module.exports = {
   async getPortalConfig(field) {
     const cmd = 'g3kubectl get configmaps manifest-global -o json | jq -r \'.data.portal_app\'';
     const portalApp = bash.runCommand(cmd);
-    const portalConfigURL = `https://${process.env.HOSTNAME}/data/config/${portalApp}.json`;
+    const portalConfigURL = `https://${process.env.HOSTNAME}${process.env.PORTAL_SUFFIX}/data/config/${portalApp}.json`;
     return I.sendGetRequest(portalConfigURL)
       .then((res) => res.data[field]);
   },

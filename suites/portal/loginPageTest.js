@@ -12,7 +12,7 @@ Scenario('Login redirects to requested page', async ({ login }) => {
 }).tag('@loginRedirect');
 
 Scenario('Login redirects to requested page with query params intact', async ({ login }) => {
-  I.amOnPage('/DEV-test/search?node_type=summary_clinical');
+  I.amOnPage('DEV-test/search?node_type=summary_clinical');
   login.ask.isCurrentPage();
   await login.complete.login();
   await I.saveScreenshot('Post_login_page_for_debugging.png');
