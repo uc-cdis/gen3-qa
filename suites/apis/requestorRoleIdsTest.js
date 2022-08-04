@@ -7,6 +7,13 @@ Feature('RequestorRoleIdsAPI @requires-requestorRoleIds');
 const { expect } = require('chai');
 const requestorTasks = require('../../services/apis/requestor/requestorTasks.js');
 
+BeforeSuite(async ({
+  I,
+}) => {
+  I.cache = {};
+  I.cache.requestDidList = [];
+});
+
 Before(async ({
   home, users, login,
 }) => {
@@ -14,8 +21,21 @@ Before(async ({
   login.complete.login(users.mainAcct);
 });
 
-Scenario('User requests access for resource_paths and role_ids with a signed status (and revoke it later) @requestorNew', async ({
-  users, fence,
+AfterSuite(async ({ I }) => {
+  console.log('Deleting all the requests created by this test with user cdis.autotest@gmail.com...');
+  if (process.env.DEBUG === 'true') {
+    console.log(I.cache.requestDidList);
+  }
+  I.cache.requestDidList.forEach(async (request) => {
+    const deleteRequest = await requestorTasks.deleteRequest(request);
+    if (deleteRequest === undefined) {
+      console.log(`Request ${request} is deleted successfully`);
+    }
+  });
+});
+
+Scenario('User requests access for resource_paths and role_ids with a signed status (and revoke it later) @requestorRoleIds @heal', async ({
+  I, users, fence,
 }) => {
   // Check that the user does not have access to policy 'requestor_integration_test'.
   let userInfo = await fence.do.getUserInfo(users.user0.accessToken);
@@ -27,6 +47,7 @@ Scenario('User requests access for resource_paths and role_ids with a signed sta
   // Create a request for resource_paths + role_ids present in Arborist with a SIGNED status to test
   // if the access is granted at the "create" endpoint
   const createResponse = await requestorTasks.createRequestForResourcePathsAndRoleIds(accessTokenHeader, users.user0.username, resourcePaths, roleIds, false, 'SIGNED');
+  I.cache.requestDidList.push(createResponse.request_id);
   expect(createResponse).to.have.property('status_code', 201);
 
   const user0AccessToken = users.user0.accessToken;
