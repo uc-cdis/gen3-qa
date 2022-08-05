@@ -42,7 +42,7 @@ Scenario('User requests access for resource_paths and role_ids with a signed sta
   expect(userInfo.data.authz).to.not.have.property('/requestor_integration_test_mds_gateway_workspace_user_mds_user');
 
   const { accessTokenHeader } = users.mainAcct;
-  const resourcePaths = ['/requestor_integration_test', 'mds_gateway'];
+  const resourcePaths = ['/requestor_integration_test', '/mds_gateway'];
   const roleIds = ['workspace_user', 'mds_user'];
   // Create a request for resource_paths + role_ids present in Arborist with a SIGNED status to test
   // if the access is granted at the "create" endpoint
