@@ -68,5 +68,4 @@ Scenario('User requests access for resource_paths and role_ids with a signed sta
   // Verify if access is revoked from the user
   userInfo = await fence.do.getUserInfo(user0AccessToken);
   expect(userInfo.data.authz).to.not.have.property('/requestor_integration_test');
-
 });
