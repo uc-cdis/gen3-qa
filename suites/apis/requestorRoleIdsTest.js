@@ -37,12 +37,12 @@ AfterSuite(async ({ I }) => {
 Scenario('User requests access for resource_paths and role_ids with a signed status (and revoke it later) @requestorRoleIds @heal', async ({
   I, users, fence,
 }) => {
-  // Check that the user does not have access to policy 'requestor_integration_test'.
+  // Check that the user does not have access to resource '/requestor_integration_test'.
   let userInfo = await fence.do.getUserInfo(users.user0.accessToken);
-  expect(userInfo.data.authz).to.not.have.property('/requestor_integration_test_mds_gateway_workspace_user_mds_user');
+  expect(userInfo.data.authz).to.not.have.property('/requestor_integration_test');
 
   const { accessTokenHeader } = users.mainAcct;
-  const resourcePaths = ['/requestor_integration_test', '/mds_gateway'];
+  const resourcePaths = ['/requestor_integration_test', '/programs/QA/112233'];
   const roleIds = ['workspace_user', 'mds_user'];
   // Create a request for resource_paths + role_ids present in Arborist with a SIGNED status to test
   // if the access is granted at the "create" endpoint
@@ -54,7 +54,19 @@ Scenario('User requests access for resource_paths and role_ids with a signed sta
   // Verify if access is given to the user -- There should be, since
   // the status in the previous step is set to SIGNED
   userInfo = await fence.do.getUserInfo(user0AccessToken);
-  // The policy_id should be of the format `[resource_paths]_[role_ids]`
-  expect(userInfo.data.authz).to.have.property('/requestor_integration_test_mds_gateway_workspace_user_mds_user');
-  expect(userInfo.data.authz['/requestor_integration_test_mds_gateway_workspace_user_mds_user']).to.deep.to.include({ method: 'access', service: 'jupyterhub' });
+  expect(userInfo.data.authz).to.have.property('/requestor_integration_test');
+  expect(userInfo.data.authz['/requestor_integration_test']).to.deep.to.include({ method: 'access', service: 'jupyterhub' });
+  expect(userInfo.data.authz['/requestor_integration_test']).to.deep.to.include({ method: 'access', service: 'mds_gateway' });
+  expect(userInfo.data.authz).to.have.property('/programs/QA/112233');
+  expect(userInfo.data.authz['/programs/QA/112233']).to.deep.to.include({ method: 'access', service: 'jupyterhub' });
+  expect(userInfo.data.authz['/programs/QA/112233']).to.deep.to.include({ method: 'access', service: 'mds_gateway' });
+
+  // Create a request to 'revoke' the new policy that was created
+  const createRevokeResponse = await requestorTasks.createRequestForPolicyID(accessTokenHeader, users.user0.username, createResponse.policy_id, true, 'SIGNED');
+  expect(createRevokeResponse).to.have.property('status_code', 201);
+
+  // Verify if access is revoked from the user
+  userInfo = await fence.do.getUserInfo(user0AccessToken);
+  expect(userInfo.data.authz).to.not.have.property('/requestor_integration_test');
+
 });
