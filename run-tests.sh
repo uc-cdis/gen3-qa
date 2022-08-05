@@ -366,12 +366,15 @@ else
 fi
 
 # Only run register user tests in midrc
-if [[ !( "$service" =~ ^(cdis-manifest|gitops-qa|gen3-qa) && $testedEnv == *"midrc"* )]]; then
-  echo "INFO: disabling Register User tests for $service"
-  donot '@registerUser'
-else
-  echo "INFO: enabling Register User tests for $service"
-fi
+#if [[ !( "$service" =~ ^(cdis-manifest|gitops-qa|gen3-qa) && $testedEnv == *"midrc"* )]]; then
+#  echo "INFO: disabling Register User tests for $service"
+#  donot '@registerUser'
+#else
+#  echo "INFO: enabling Register User tests for $service"
+#fi
+
+donot '@registerUser' 
+donot '@dicomViewer'
 
 # Focus on GUI tests for data-portal
 if [[ "$service" == "data-portal" ]]; then
