@@ -32,7 +32,7 @@ AfterSuite(async ({ I }) => {
   }
   I.cache.requestDidList.forEach(async (request) => {
     const deleteRequest = await requestorTasks.deleteRequest(request);
-    if (deleteRequest === undefined) {
+    if (deleteRequest.status === 200) {
       console.log(`Request ${request} is deleted successfully`);
     }
   });
