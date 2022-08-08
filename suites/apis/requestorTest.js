@@ -14,6 +14,7 @@ BeforeSuite(async ({
   I,
 }) => {
   I.cache = {};
+  // declaring empty array to store the request ids created by the test
   I.cache.requestDidList = [];
 });
 
@@ -31,7 +32,7 @@ AfterSuite(async ({ I }) => {
   }
   I.cache.requestDidList.forEach(async (request) => {
     const deleteRequest = await requestorTasks.deleteRequest(request);
-    if (deleteRequest === undefined) {
+    if (deleteRequest.status === 200) {
       console.log(`Request ${request} is deleted successfully`);
     }
   });

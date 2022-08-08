@@ -48,9 +48,9 @@ Scenario('User requests access for a policy with a signed status (and revoke it 
   const { accessTokenHeader } = users.mainAcct;
   // Create a request for a policy that is present in Arborist with a SIGNED status to test
   // if the access is granted at the "create" endpoint
-  const createResponse = await requestorTasks.createRequestForPolicyID(accessTokenHeader, users.user0.username, 'requestor_integration_test', false, 'SIGNED');
-  I.cache.requestDidList.push(createResponse.request_id);
-  expect(createResponse).to.have.property('status_code', 201);
+  const signedResponse = await requestorTasks.createRequestForPolicyID(accessTokenHeader, users.user0.username, 'requestor_integration_test', false, 'SIGNED');
+  I.cache.requestDidList.push(signedResponse.request_id);
+  expect(signedResponse).to.have.property('status_code', 201);
 
   const user0AccessToken = users.user0.accessToken;
   // Verify if access is given to the user -- There should be, since
@@ -61,8 +61,8 @@ Scenario('User requests access for a policy with a signed status (and revoke it 
 
   // Create a request to 'revoke' a policy that is present in Arborist again
   // with request status set to SIGNED
-  const createResponseSecond = await requestorTasks.createRequestForPolicyID(accessTokenHeader, users.user0.username, 'requestor_integration_test', true, 'SIGNED');
-  I.cache.requestDidList.push(createResponseSecond.request_id);
+  const signedRevokeResponse = await requestorTasks.createRequestForPolicyID(accessTokenHeader, users.user0.username, 'requestor_integration_test', true, 'SIGNED');
+  I.cache.requestDidList.push(signedRevokeResponse.request_id);
 
   // Verify if access is revoked from the user
   userInfo = await fence.do.getUserInfo(user0AccessToken);
