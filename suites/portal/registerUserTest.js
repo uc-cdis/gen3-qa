@@ -174,7 +174,7 @@ Scenario('redirect to register page after login @registerUser',
     await home.do.login(users.mainAcct.username);
     I.wait(3);
     I.saveScreenshot('afterLogin.png');
-    I.seeInCurrentUrl('/user/register/');
+    I.seeCurrentUrlEquals('user/register/');
   });
 
 Scenario('register to get access to download data @registerUser',
