@@ -63,9 +63,13 @@ module.exports = {
       users.mainAcct.accessTokenHeader,
     );
     const responseData = getResponse.data;
-    console.log(`### responseData: ${JSON.stringify(responseData)}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`### responseData: ${JSON.stringify(responseData)}`);
+    }
     const reqStatus = responseData.status;
-    console.log(`### request status: ${reqStatus}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`### request status: ${reqStatus}`);
+    }
     return reqStatus;
   },
 
