@@ -17,7 +17,9 @@ module.exports = {
     const responseData = getResponse.data;
     expect(responseData).to.not.be.empty;
     const reqID = responseData[0].request_id;
-    console.log(`### request id: ${reqID}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`### request id: ${reqID}`);
+    }
     return reqID;
   },
   /**
@@ -53,7 +55,9 @@ module.exports = {
 
   // get the request ID status
   async getRequestStatus(requestID) {
-    console.log(`### get request id: ${requestID}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`### get request id: ${requestID}`);
+    }
     const getResponse = await I.sendGetRequest(
       `${requestorProps.endpoint.requestEndPoint}/${requestID}`,
       users.mainAcct.accessTokenHeader,
@@ -96,7 +100,7 @@ module.exports = {
     if (process.env.DEBUG === 'true') {
       console.log(`### delete request id: ${reqIDDel}`);
     }
-    await I.sendDeleteRequest(
+    return I.sendDeleteRequest(
       `${requestorProps.endpoint.requestEndPoint}/${reqIDDel}`,
       users.mainAcct.accessTokenHeader,
     );

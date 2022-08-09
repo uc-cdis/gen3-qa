@@ -71,8 +71,15 @@ const bash = new Bash();
 //   }
 // });
 
+BeforeSuite(async ({
+  I,
+}) => {
+  I.cache = {};
+  I.cache.requestDidList = [];
+});
+
 // revokes your arborist access
-AfterSuite(async () => {
+AfterSuite(async ({ I }) => {
   console.log('### revoking arborist access');
   // for qa-niaid testing to revoke the arborist access
   // programs.NIAID.projects.ACTT_reader */
@@ -85,27 +92,37 @@ AfterSuite(async () => {
   } else {
     console.log('### revoking access for user0 in jenkins env ...');
     await bash.runCommand(`
-      gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/policy/programs.jnkns.projects.jenkins_reader
+      gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/policy/programs.jnkns.projects.jenkins_accessor
     `);
   }
   console.log('### The access is revoked');
+  console.log('### Deleting the request id created by this test ...');
+  if (process.env.DEBUG === 'true') {
+    console.log(I.cache.requestDidList);
+  }
+  I.cache.requestDidList.forEach(async (request) => {
+    const deleteRequest = await requestorTasks.deleteRequest(request);
+    if (deleteRequest.status === 200) {
+      console.log(`Request ${request} is deleted successfully`);
+    }
+   });
 });
 
-// // User does not log in and has no access. User see 'Login to Request access' button
-// Scenario('User doesnot login and requests the access @studyViewer', async ({
-//   I, users, login,
-// }) => {
-//   studyViewerTasks.goToStudyViewerPage();
-//   await studyViewerTasks.learnMoreButton();
-//   await studyViewerTasks.loginToRequestAccess();
-//   login.ask.isCurrentPage();
-//   I.wait(10);
-//   await I.saveScreenshot('login.png');
-//   login.complete.login(users.user0);
-//   studyViewerTasks.goToStudyViewerPage();
-//   await studyViewerTasks.learnMoreButton();
-//   await I.waitForElement(studyViewerProps.requestAccessButtonXPath, 10);
-// });
+// User does not log in and has no access. User see 'Login to Request access' button
+Scenario('User doesnot login and requests the access @studyViewer', async ({
+  I, users, login,
+}) => {
+  studyViewerTasks.goToStudyViewerPage();
+  await studyViewerTasks.learnMoreButton();
+  await studyViewerTasks.loginToRequestAccess();
+  login.ask.isCurrentPage();
+  I.wait(10);
+  await I.saveScreenshot('login.png');
+  login.complete.login(users.user0);
+  studyViewerTasks.goToStudyViewerPage();
+  await studyViewerTasks.learnMoreButton();
+  await I.waitForElement(studyViewerProps.requestAccessButtonXPath, 10);
+});
 
 // The User logs in the commons and requests access
 // The request is APPROVED and then the request is SIGNED
@@ -120,7 +137,9 @@ Scenario('User logs in and requests the access @studyViewer', async ({
   // request id from requestor db
   I.wait(5);
   const requestID = await requestorTasks.getRequestId();
-  console.log('### ')
+  console.log(I.cache.requestDidList);
+  I.cache.requestDidList.push(requestID);
+  console.log(I.cache.requestDidList);
   await requestorTasks.approvedStatus(requestID);
   I.refreshPage();
   I.wait(5);
@@ -139,53 +158,58 @@ Scenario('User logs in and requests the access @studyViewer', async ({
       reqStatus,
       'Check the requestor logs',
     ).to.equal('SIGNED');
-  }
-  //await requestorTasks.deleteRequest(requestID);
+  };
 });
 
-// // For download feature
-// /* user with access and can download the dataset */
-// Scenario('User has access to download @studyViewer', async ({
-//   home, users, login,
-// }) => {
-//   home.do.goToHomepage();
-//   // auxAcct1 has access granted in user.yaml
-//   login.complete.login(users.auxAcct1);
-//   studyViewerTasks.goToStudyViewerPage();
-//   await studyViewerTasks.learnMoreButton();
-//   if (process.env.NAMESPACE.includes('qa-niaid') || process.env.NAMESPACE.includes('accessclinicaldata')) {
-//     console.log('### The test is running in qa-niaid env, now clicking the Download Button ...');
-//     await studyViewerTasks.clickDownload();
-//   } else {
-//     console.log('### The test is running in Jenkins Environment');
-//     console.log('### The auxAcct1 has download privileges in user.yaml');
-//   }
-// });
+// For download feature
+/* user with access and can download the dataset */
+Scenario('User has access to download @studyViewer', async ({
+  I, home, users, login,
+}) => {
+  home.do.goToHomepage();
+  // user0 has access granted in user.yaml
+  login.complete.login(users.user0);
+  studyViewerTasks.goToStudyViewerPage();
+  await studyViewerTasks.learnMoreButton();
+  // TODO : get the status of the request from the request id and check if SIGNED pass the test in jenkins envs
+  if (process.env.NAMESPACE.includes('qa-niaid') || process.env.NAMESPACE.includes('accessclinicaldata')) {
+    console.log('### The test is running in qa-niaid env, now clicking the Download Button ...');
+    await studyViewerTasks.clickDownload();
+  } else {
+    console.log('### The test is running in Jenkins Environment');
+    console.log('### Checking the request status in requestor ...');
+    const jenkinsStatus = await requestorTasks.getRequestStatus(I.cache.requestDidList);
+    expect(
+      jenkinsStatus,
+      'Check the requestor logs',
+    ).to.equal('SIGNED');
+  };
+});
 
-// // checking the details of the dataset
-// Scenario('Navigation to the detailed dataset page @studyViewer', async ({
-//   home, users, login,
-// }) => {
-//   home.do.goToHomepage();
-//   login.complete.login(users.user0);
-//   studyViewerTasks.goToStudyViewerPage();
-//   await studyViewerTasks.learnMoreButton();
-// });
+// checking the details of the dataset
+Scenario('Navigation to the detailed dataset page @studyViewer', async ({
+  home, users, login,
+}) => {
+  home.do.goToHomepage();
+  login.complete.login(users.user0);
+  studyViewerTasks.goToStudyViewerPage();
+  await studyViewerTasks.learnMoreButton();
+});
 
-// // test multiple datasets
-// Scenario('Multiple dataset @studyViewer', async ({
-//   I, home, users, login,
-// }) => {
-//   home.do.goToHomepage();
-//   login.complete.login(users.user0);
-//   studyViewerTasks.goToStudyViewerPage();
-//   // qa-niaid env is configured with two dataset,
-//   // but jenkins-niaid is configured with one dataset
-//   // so the check below will save the test from failing in jenkins
-//   if (process.env.NAMESPACE.includes('qa-niaid') || process.env.NAMESPACE.includes('accessclinicaldata')) {
-//     I.saveScreenshot('multipleDataset.png');
-//     await studyViewerTasks.multipleStudyViewer();
-//   } else {
-//     console.log('### This environment contains only one dataset for testing');
-//   }
-// });
+// test multiple datasets
+Scenario('Multiple dataset @studyViewer', async ({
+  I, home, users, login,
+}) => {
+  home.do.goToHomepage();
+  login.complete.login(users.user0);
+  studyViewerTasks.goToStudyViewerPage();
+  // qa-niaid env is configured with two dataset,
+  // but jenkins-niaid is configured with one dataset
+  // so the check below will save the test from failing in jenkins
+  if (process.env.NAMESPACE.includes('qa-niaid') || process.env.NAMESPACE.includes('accessclinicaldata')) {
+    I.saveScreenshot('multipleDataset.png');
+    await studyViewerTasks.multipleStudyViewer();
+  } else {
+    console.log('### This environment contains only one dataset for testing');
+  }
+});
