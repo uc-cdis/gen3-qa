@@ -14,6 +14,7 @@ This test has pre-requisities:
 5. in manifest.json global block, add "tier_access_level": "libre"
 6. add requestor service to the manifest.json block
 */
+/* eslint-disable max-len */
 
 Feature('Study Viewer @requires-portal @requires-requestor @e2e');
 
@@ -105,7 +106,7 @@ AfterSuite(async ({ I }) => {
     if (deleteRequest.status === 200) {
       console.log(`Request ${request} is deleted successfully`);
     }
-   });
+  });
 });
 
 // User does not log in and has no access. User see 'Login to Request access' button
@@ -137,9 +138,10 @@ Scenario('User logs in and requests the access @studyViewer', async ({
   // request id from requestor db
   I.wait(5);
   const requestID = await requestorTasks.getRequestId();
-  console.log(I.cache.requestDidList);
   I.cache.requestDidList.push(requestID);
-  console.log(I.cache.requestDidList);
+  if (process.env.DEBUG === 'true') {
+    console.log(I.cache.requestDidList);
+  }
   await requestorTasks.approvedStatus(requestID);
   I.refreshPage();
   I.wait(5);
@@ -158,7 +160,7 @@ Scenario('User logs in and requests the access @studyViewer', async ({
       reqStatus,
       'Check the requestor logs',
     ).to.equal('SIGNED');
-  };
+  }
 });
 
 // For download feature
@@ -183,7 +185,7 @@ Scenario('User has access to download @studyViewer', async ({
       jenkinsStatus,
       'Check the requestor logs',
     ).to.equal('SIGNED');
-  };
+  }
 });
 
 // checking the details of the dataset
