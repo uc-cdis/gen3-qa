@@ -38,6 +38,13 @@ BeforeSuite(async ({
   I, users, sheepdog, peregrine,
 }) => {
   I.cache = {};
+  // mutate guppy config
+  await bash.runCommand(`etlMapping="$(g3kubectl get cm etl-mapping -o jsonpath='{.data.etlMapping\.yaml}')"`);
+  await bash.runCommand(`guppyConfig="$(yq '{indices:[.mappings[]|{index:.name,type:.doc_type}],auth_filter_field:"auth_resource_path",config_index:"midrc_array-config"}' <<< "$etlMapping")"`);
+  await bash.runCommand(`guppyConfig="$(sed "s/midrc_imaging_study/jenkins_midrc_imaging_study_alias/g" <<< "$guppyConfig")"`);
+  await bash.runCommand(`g3kubectl delete configmap manifest-guppy;
+  gen3 gitops configmaps-from-json manifest-guppy "$guppyConfig";
+  gen3 roll guppy`);
 
   // submit dicom file to dicom server
   const resServer = await submitDicomFile(I, users.mainAcct.accessToken);
