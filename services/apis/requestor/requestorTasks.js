@@ -1,6 +1,9 @@
+const chai = require('chai');
+
 const requestorProps = require('./requestorProps.js');
 const users = require('../../../utils/user');
 
+const { expect } = chai;
 const I = actor();
 
 module.exports = {
@@ -11,8 +14,11 @@ module.exports = {
       users.user0.accessTokenHeader,
     );
     const responseData = getResponse.data;
+    expect(responseData).to.not.be.empty;
     const reqID = responseData[0].request_id;
-    console.log(`### request id: ${reqID}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`### request id: ${reqID}`);
+    }
     return reqID;
   },
   /**
@@ -40,27 +46,37 @@ module.exports = {
     );
     const responseData = getResponse.data;
     responseData.status_code = getResponse.status;
-    console.log(`### responseData: ${JSON.stringify(responseData)}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`### responseData: ${JSON.stringify(responseData)}`);
+    }
     return responseData;
   },
 
   // get the request ID status
   async getRequestStatus(requestID) {
-    console.log(`### get request id: ${requestID}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`### get request id: ${requestID}`);
+    }
     const getResponse = await I.sendGetRequest(
       `${requestorProps.endpoint.requestEndPoint}/${requestID}`,
       users.mainAcct.accessTokenHeader,
     );
     const responseData = getResponse.data;
-    console.log(`### responseData: ${JSON.stringify(responseData)}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`### responseData: ${JSON.stringify(responseData)}`);
+    }
     const reqStatus = responseData.status;
-    console.log(`### request status: ${reqStatus}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`### request status: ${reqStatus}`);
+    }
     return reqStatus;
   },
 
   // update to APPROVED status
   async approvedStatus(reqIDPut) {
-    console.log(`### put request id: ${reqIDPut}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`### put request id: ${reqIDPut}`);
+    }
     await I.sendPutRequest(
       `${requestorProps.endpoint.requestEndPoint}/${reqIDPut}`,
       { status: 'APPROVED' },
@@ -71,7 +87,9 @@ module.exports = {
   // update to SIGNED status
   async signedRequest(reqIDPut) {
     // const reqIDPut = await this.getRequestId();
-    console.log(`### put request id: ${reqIDPut}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`### put request id: ${reqIDPut}`);
+    }
     // sending PUT request /requestor/request/${req_id} endpoint
     await I.sendPutRequest(
       `${requestorProps.endpoint.requestEndPoint}/${reqIDPut}`,
@@ -82,7 +100,9 @@ module.exports = {
 
   async deleteRequest(reqIDDel) {
     // const reqIDDel = await this.getRequestId();
-    console.log(`### delete request id: ${reqIDDel}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`### delete request id: ${reqIDDel}`);
+    }
     await I.sendDeleteRequest(
       `${requestorProps.endpoint.requestEndPoint}/${reqIDDel}`,
       users.mainAcct.accessTokenHeader,

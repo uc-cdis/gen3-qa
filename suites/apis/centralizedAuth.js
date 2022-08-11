@@ -572,8 +572,10 @@ Scenario('Client (with access) with user token (with access) can CRUD indexd rec
     const abc_read_response_after_update = await indexd.do.getFileFullRes(
       new_abc_records.fooBarFile, users.mainAcct.accessTokenHeader,
     );
-    console.log(`abc file after update: ${new_abc_records.fooBarFile}`);
-    console.log(`abc file read response after update: ${abc_read_response_after_update}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`abc file after update: ${new_abc_records.fooBarFile}`);
+      console.log(`abc file read response after update: ${abc_read_response_after_update}`);
+    }
     fence.ask.assertStatusCode(
       abc_read_response_after_update, 200,
       msg = 'should have gotten authorized 200 for reading record under `/abc` after updating',
@@ -760,8 +762,10 @@ Scenario('Test that userinfo endpoint contains authorization information (resour
     const userInfoRes = await fence.do.getUserInfo(accessToken);
     fence.ask.assertUserInfo(userInfoRes);
     const resourcesOfUser = userInfoRes.data.resources;
-    console.log('list of resources the user endpoint shows access to:');
-    console.log(resourcesOfUser);
+    if (process.env.DEBUG === 'true') {
+      console.log('list of resources the user endpoint shows access to:');
+      console.log(resourcesOfUser);
+    }
 
     // ensure user has authorization information (resources) in the response
     chai.expect(
@@ -841,8 +845,10 @@ Scenario('Client with user token WITH permission CAN create signed URL for recor
 /** ****************************** OPEN ACCESS DATA *********************************** */
 Scenario('Test open access data with authenticated user @centralizedAuth',
   async ({ fence, indexd, users, files }) => {
-    console.log('Use user2 to create signed URL for open access file');
-    console.log(indexed_files.openAccessFile.did);
+    if (process.env.DEBUG === 'true') {
+      console.log('Use user2 to create signed URL for open access file');
+      console.log(indexed_files.openAccessFile.did);
+    }
     const signedUrlRes = await fence.do.createSignedUrlForUser(
       indexed_files.openAccessFile.did, users.user2.accessTokenHeader,
     );

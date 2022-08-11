@@ -25,8 +25,10 @@ module.exports = {
    */
   fileEquals(res, fileNode) {
     resultSuccess(res);
-    console.log('---------------------------------------------');
-    console.log(fileNode.data);
+    if (process.env.DEBUG === 'true') {
+      console.log('---------------------------------------------');
+      console.log(fileNode.data);
+    }
 
     expect(res).to.nested.include({ 'hashes.md5': fileNode.data.md5sum });
     expect(res).to.have.property('size', fileNode.data.file_size);

@@ -1,8 +1,15 @@
+const { Bash } = require('../../../utils/bash.js');
+
+const bash = new Bash();
+
+console.log('### Fetching the studyViewer index datatype from HOSTNAME');
+const studyViewerIndex = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.studyViewerConfig[].dataType\' | tr -d \'"\'');
+console.log(`### StudyViewer Index : ${studyViewerIndex}`);
+
 module.exports = {
-  dataset1Path: '/study-viewer/clinical_trials/',
+  dataset1Path: `study-viewer/${studyViewerIndex}`,
   dataset2Path: 'study-viewer/clinical_trials/NCT04401579',
   studyViewerDivClass: '.study-viewer',
-  // TODO : improve the selector
   studyViewerRelPath: '.study-viewer',
   datasetDivClass: '.study-viewer__title',
   dataset1detailedButtonXPath: '.ant-collapse-header:nth-child(1)',

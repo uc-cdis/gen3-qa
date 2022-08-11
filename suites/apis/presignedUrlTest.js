@@ -61,7 +61,9 @@ Scenario('get presigned-url with invalid protocol', async ({ fence }) => {
     files.invalid_protocol.did,
     ['protocol=s2'],
   );
-  console.log(`debug: presigned url response: ${signedUrlRes.data}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`debug: presigned url response: ${signedUrlRes.data}`);
+  }
   fence.ask.responsesEqual(signedUrlRes, fence.props.resInvalidFileProtocol);
 });
 

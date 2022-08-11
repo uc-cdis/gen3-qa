@@ -11,7 +11,9 @@ module.exports = {
      by POSTing to the manifestservice endpoint
   */
   async postManifestForUser(userAcct) {
-    console.log(`debug token: ${userAcct.accessToken}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`debug token: ${userAcct.accessToken}`);
+    }
     return I.sendPostRequest(
       `${manifestServiceProps.endpoints.post}`,
       manifestServiceProps.dummyManifestData,

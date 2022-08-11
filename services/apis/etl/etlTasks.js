@@ -21,6 +21,7 @@ module.exports = {
     });
 
     aliases.forEach((alias) => {
+      this.deleteIndices(`${alias}_0`);
       if (this.existAlias(alias)) {
         const index = this.getIndexFromAlias(alias);
         if (index === '') {
@@ -43,7 +44,9 @@ module.exports = {
       if (index) {
         const res = bash.runCommand(`gen3 es port-forward > /dev/null 2>&1 && sleep 5s && curl -X DELETE -s $ESHOST/${index}`);
         if (res.includes('"acknowledged":true')) {
-          console.log(`index ${index} was successfully deleted`);
+          if (process.env.DEBUG === 'true') {
+            console.log(`index ${index} was successfully deleted`);
+          }
           return true;
         }
         // warn here instead of error because deleteAllIndexVersions

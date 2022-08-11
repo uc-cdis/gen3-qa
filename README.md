@@ -16,12 +16,12 @@ sudo apt install gnupg2 pass
 For using linux/amd64 selenium images:
 ```
 # start test infra
-docker-compose -f docker-compose-test-infra.yaml up -d
+docker compose -f docker-compose-test-infra.yaml up -d
 ```
 
 For using arm64 selenium images:
 ```
-docker-compose -f docker-compose-test-infra-arm64.yaml up -d
+docker compose -f docker-compose-test-infra-arm64.yaml up -d
 ```
 
 ### Initial setup of influxdb and grafana (only needed on a new containers)
@@ -45,7 +45,7 @@ More information about Selenium Hub in [`cloud-automation's documentation`](http
 Run a test locally against a dev environment that you can ssh to and run gen3 commands like this:
 
 ```
-RUNNING_LOCAL=true NAMESPACE=yourDevNamespace TEST_DATA_PATH=./testData npm test -- --verbose --grep '@dataClientCLI|@reqGoogle' --invert --reporter mocha-multi suites/.../myTest.js
+RUNNING_LOCAL=true NAMESPACE=yourDevNamespace PORTAL_SUFFIX="" TEST_DATA_PATH=./testData npm test -- --verbose --grep '@dataClientCLI|@reqGoogle' --invert --reporter mocha-multi suites/.../myTest.js
 ```
 
 ### Test an arbitrary gen3 commons

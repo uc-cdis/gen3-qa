@@ -1,4 +1,4 @@
-Feature('Register User For Data Downloading @requires-portal');
+Feature('Register User For Data Downloading @requires-portal @e2e');
 
 /*
 USER STORIES
@@ -32,7 +32,7 @@ async function getAlltabs(I) {
   I.useWebDriverTo('check property of the download button', async ({ browser }) => {
     browser.setWindowSize(1920, 1080);
   });
-  I.amOnPage('/explorer');
+  I.amOnPage('explorer');
   I.wait(5);
   I.saveScreenshot('explorePageDownloadButton.png');
   // click accept for the user agreement
@@ -59,7 +59,7 @@ async function getAlltabs(I) {
 }
 
 async function waitForFenceAndPortalToRoll() {
-  const isFenceReady = async function () {
+  const isPodReady = async function () {
     /**
      * Return true if both fence and presigned-url-fence pods are ready,
      * false otherwise.
@@ -67,8 +67,11 @@ async function waitForFenceAndPortalToRoll() {
      */
     for (const service of ['fence', 'presigned-url-fence', 'portal']) {
       // get the status of the most recently started pod
-      const res = await bash.runCommand(`g3kubectl get pods -l app=${service} --sort-by=.metadata.creationTimestamp`);
-      console.log(res);
+      const res = await bash.runCommand(`g3kubectl get pods -l app=${service} --sort-by=.metadata.creationTimestamp | sed -n '1!p'`);
+      if (process.env.DEBUG === 'true') {
+        console.log('############');
+        console.log(res);
+      }
       let notReady = true;
       try {
         notReady = res.includes('0/1') || res.includes('Terminating');
@@ -77,6 +80,7 @@ async function waitForFenceAndPortalToRoll() {
         console.error(res);
       }
       if (notReady) {
+        console.log(`${service} is not ready`);
         return false;
       }
     }
@@ -84,12 +88,12 @@ async function waitForFenceAndPortalToRoll() {
   };
 
   console.log('Waiting for pods to be ready');
-  const timeout = 420; // wait up to 7 min
+  const timeout = 900; // wait up to 15 min
   await smartWait(
-    isFenceReady,
+    isPodReady,
     [],
     timeout,
-    `Fence and presigned-url-fence pods are not ready after ${timeout} seconds`, // error message
+    `Fence, presigned-url-fence, or portal pods are not ready after ${timeout} seconds`, // error message
     1, // initial number of seconds to wait
   );
 }
@@ -114,7 +118,9 @@ EOM`);
 
   // update the secret
   const res = bash.runCommand('g3kubectl get secret fence-config -o json | jq --arg new_config "$(cat fence_config_tmp.yaml | base64)" \'.data["fence-config.yaml"]=$new_config\' | g3kubectl apply -f -');
-  console.log(res);
+  if (process.env.DEBUG === 'true') {
+    console.log(res);
+  }
   expect(res, 'Unable to update fence-config secret').to.have.string('secret/fence-config configured');
 
   // roll Fence
@@ -132,7 +138,9 @@ AfterSuite(async () => {
   await bash.runCommand('sed -i \'/REGISTER_USERS_ON/d\' fence_config_tmp.yaml; sed -i \'/REGISTERED_USERS_GROUP/d\' fence_config_tmp.yaml');
   // update the secret
   const res = bash.runCommand('g3kubectl get secret fence-config -o json | jq --arg new_config "$(cat fence_config_tmp.yaml | base64)" \'.data["fence-config.yaml"]=$new_config\' | g3kubectl apply -f -');
-  console.log(res);
+  if (process.env.DEBUG === 'true') {
+    console.log(res);
+  }
   expect(res, 'Unable to update fence-config secret').to.have.string('secret/fence-config configured');
 
   // roll Fence
@@ -157,7 +165,7 @@ Scenario('redirect to login page from the download button @registerUser',
       I.wait(1);
       I.seeCurrentUrlEquals('/login');
       // go back to explore page
-      I.amOnPage('/explorer');
+      I.amOnPage('explorer');
     }
   });
 
@@ -166,13 +174,13 @@ Scenario('redirect to register page after login @registerUser',
     await home.do.login(users.mainAcct.username);
     I.wait(3);
     I.saveScreenshot('afterLogin.png');
-    I.seeCurrentUrlEquals('/user/register/');
+    I.seeCurrentUrlEquals('user/register/');
   });
 
 Scenario('register to get access to download data @registerUser',
   async ({ I, home, users }) => {
     await home.do.login(users.mainAcct.username);
-    I.seeCurrentUrlEquals('/user/register/');
+    I.seeCurrentUrlEquals('user/register/');
     I.wait(3);
     I.saveScreenshot('registerPage.png');
     I.fillField('#firstname', 'Cdis');
@@ -181,7 +189,7 @@ Scenario('register to get access to download data @registerUser',
     I.click('//button[contains(text(),\'Register\')]');
 
     // after complete register
-    I.amOnPage('/explorer');
+    I.amOnPage('explorer');
     I.wait(5);
     I.saveScreenshot('expolerPageAfterRegisted1.png');
     for (let i = 0; i < I.cache.tabs.length; i += 1) {
@@ -200,7 +208,7 @@ Scenario('register to get access to download data @registerUser',
 Scenario('registered user should have access to download data @registerUser',
   async ({ I, home, users }) => {
     await home.do.login(users.mainAcct.username);
-    I.amOnPage('/explorer');
+    I.amOnPage('explorer');
     I.wait(5);
     I.saveScreenshot('expolerPageAfterRegisted2.png');
     for (let i = 0; i < I.cache.tabs.length; i += 1) {

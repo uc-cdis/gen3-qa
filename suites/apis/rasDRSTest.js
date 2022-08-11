@@ -3,8 +3,8 @@ Feature('DRS RAS visa @requires-fence @requires-indexd');
 
 const { expect } = require('chai');
 const queryString = require('query-string');
+const { performance } = require('perf_hooks');
 const { Bash } = require('../../utils/bash');
-const { sleepMS, parseJwt } = require('../../utils/apiUtil.js');
 
 const bash = new Bash();
 
@@ -13,23 +13,10 @@ const TARGET_ENVIRONMENT = `${process.env.NAMESPACE}.planx-pla.net`;
 // RAS endpoints
 const ga4ghURL = `${TARGET_ENVIRONMENT}/ga4gh/drs/v1/objects`;
 // Ras Server URL
-const rasServerURL = 'stsstg.nih.gov';
-// RAS token url
-const rasAuthURL = `https://${rasServerURL}/auth/oauth/v2/token`;
 const scope = 'openid profile email ga4gh_passport_v1';
-
-// post a indexd record before the suite
-const indexdFile = {
-  fileToUpload: {
-    acl: [],
-    authz: ['/programs/phs000710.c99'],
-    file_name: 'ras_test_file',
-    hashes: { md5: '587efb5d96f695710a8df9c0dbb96eb0' }, // pragma: allowlist secret
-    size: 15,
-    form: 'object',
-    urls: ['s3://cdis-presigned-url-test/testdata', 'gs://cdis-presigned-url-test/testdata'],
-  },
-};
+const envVars = ['RAS_TEST_USER_1_USERNAME', 'RAS_TEST_USER_1_PASSWORD', 'clientID', 'secretID'];
+const permissionTestUserShouldHave = 'phs002409.c1';
+const permissionTestUserShouldntHave = 'phs002410.c1';
 
 function assembleCustomHeaders(ACCESS_TOKEN) {
   // Add ACCESS_TOKEN to custom headers
@@ -44,50 +31,44 @@ BeforeSuite(async ({ I }) => {
   console.log('### Setting up .. ');
   I.cache = {};
 
-  // check if the RAS user and password is defined as the env variable or in Jenkins creds
-  if (process.env.RAS_TEST_USER_1_USERNAME === undefined) {
-    throw new Error('ERROR: There is no username defined for RAS Test User 1. Please declare the "RAS_TEST_USER_1_USERNAME" environment variable and try again. Aborting test...');
-  } else if (process.env.RAS_TEST_USER_1_PASSWORD === undefined) {
-    throw new Error('ERROR: There is no password defined for RAS Test User 1. Please declare the "RAS_TEST_USER_1_PASSWORD" environment variable and try again. Aborting test...');
-  }
-
-  // parameterizing the ras accounts
-
-  if (process.env.clientID === undefined) {
-    throw new Error('ERROR: ClientID is not defined. Please declare the "clientID" environment variable and try again. Aborting test...');
-  } else if (process.env.secretID === undefined) {
-    throw new Error('ERROR: SecretID is not defined. Please declare the "secretID" environment variable and try again. Aborting test...');
-  }
-
-  // adding clientID and secretID to the cache
-  I.cache.clientID = process.env.clientID;
-  I.cache.clientSecret = process.env.secretID;
-
   // getting the access_token for the test user
   // test user -> cdis.autotest@gmail.com
-  I.cache.ACCESS_TOKEN = await bash.runCommand('gen3 api access-token cdis.autotest@gmail.com');
+  I.cache.ACCESS_TOKEN = await bash.runCommand('gen3 api access-token ctds.indexing.test@gmail.com');
   console.log(`Access_Token: ${I.cache.ACCESS_TOKEN}`);
-  // upload new indexdFile
-  const uploadResp = await I.sendPostRequest(
-    `https://${TARGET_ENVIRONMENT}/index/index`,
-    indexdFile.fileToUpload,
-    assembleCustomHeaders(I.cache.ACCESS_TOKEN),
-  );
-  I.cache.indexdRecord = uploadResp.data.did;
-  I.cache.indexdRev = uploadResp.data.rev;
-  console.log(`### Indexd Record DID: ${I.cache.indexdRecord}`);
+  // upload new Indexd Records
+  const uploadedRecords = [];
+  for (const permission of [permissionTestUserShouldHave, permissionTestUserShouldntHave]) {
+    const uploadResp = await I.sendPostRequest(
+      `https://${TARGET_ENVIRONMENT}/index/index`,
+      {
+        acl: [],
+        authz: [`/programs/${permission}`],
+        file_name: 'ras_test_file',
+        hashes: { md5: '587efb5d96f695710a8df9c0dbb96eb0' }, // pragma: allowlist secret
+        size: 15,
+        form: 'object',
+        urls: ['s3://cdis-presigned-url-test/testdata', 'gs://cdis-presigned-url-test/testdata'],
+      },
+      assembleCustomHeaders(I.cache.ACCESS_TOKEN),
+    );
+    uploadedRecords.push(uploadResp.data);
+  }
+  [I.cache.accessibleIndexdRecord, I.cache.inaccessibleIndexdRecord] = uploadedRecords;
+  // I.cache.inaccessibleIndexdRecord = uploadedRecords[1];
+  console.log(`### Accessible Indexd Record DID: ${I.cache.accessibleIndexdRecord.did}`);
+  console.log(`### Inaccessible Indexd Record DID: ${I.cache.inaccessibleIndexdRecord.did}`);
 });
 
-AfterSuite(async ({ I }) => {
+AfterSuite(async ({ I, ras }) => {
   // logout from the session
   console.log('Logging out ..');
   const logoutData = queryString.stringify({
     id_token: `${I.cache.idToken}`,
     client_id: `${I.cache.clientID}`,
-    client_secret: `${I.cache.clientSecret}`,
+    client_secret: `${I.cache.secretID}`,
   });
   const logoutSession = await I.sendPostRequest(
-    `https://${rasServerURL}/connect/session/logout`,
+    `${ras.props.logoutRasEndpoint}`,
     logoutData,
     {
       'Content-length': 'application/x-www-form-urlencoded',
@@ -105,12 +86,12 @@ AfterSuite(async ({ I }) => {
     token_type_hint: 'access_token',
     token: `${I.cache.accessToken}`,
     client_id: `${I.cache.clientID}`,
-    client_secret: `${I.cache.clientSecret}`,
+    client_secret: `${I.cache.secretID}`,
     scope: `${scope}`,
   });
 
   const revokeReq = await I.sendPostRequest(
-    `https://${rasServerURL}/auth/oauth/v2/token/revoke`,
+    `${ras.props.revokeRasEndpoint}`,
     revokeData,
     {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -120,134 +101,139 @@ AfterSuite(async ({ I }) => {
     console.log('### The access has been revoked');
   }
 
-  // deleting the indexd record that was created in BeforeSuite
-  console.log('Deleting the indexd record ..');
-  const deleteRecordReq = await I.sendDeleteRequest(
-    `https://${TARGET_ENVIRONMENT}/index/index/${I.cache.indexdRecord}?rev=${I.cache.indexdRev}`,
-    {
-      Authorization: `Bearer ${I.cache.ACCESS_TOKEN}`,
-    },
-  );
-  if (deleteRecordReq.status === 200) {
-    console.log('### Indexd record is deleted');
+  // deleting the indexd records that was created in BeforeSuite
+  console.log('Deleting the indexd records ..');
+  for (const record of [I.cache.accessibleIndexdRecord, I.cache.inaccessibleIndexdRecord]) {
+    const deleteRecordReq = await I.sendDeleteRequest(
+      `https://${TARGET_ENVIRONMENT}/index/index/${record.did}?rev=${record.rev}`,
+      {
+        Authorization: `Bearer ${I.cache.ACCESS_TOKEN}`,
+      },
+    );
+    if (deleteRecordReq.status === 200) {
+      console.log(`### Indexd record ${record.did} is deleted`);
+    }
   }
 });
 
-function hasScope(passport) {
-  const parsedPassportJwt = parseJwt(passport);
-  const ga4ghJWT = parsedPassportJwt.ga4gh_passport_v1[0];
-  const ga4ghParseJWT = parseJwt(ga4ghJWT);
-  const { scope } = ga4ghParseJWT; // eslint-disable-line no-shadow
-  expect(scope).to.equal('openid ga4gh_passport_v1', '###Scope is not correct');
-  return true;
-}
-
-async function getTokens(I) {
-  console.log('Getting the Auth Code ...');
-  // &prompt=consent
-  I.amOnPage(`https://${rasServerURL}/auth/oauth/v2/authorize?response_type=code&client_id=${I.cache.clientID}&prompt=consent&redirect_uri=http://localhost:8080/user/login/ras/callback&scope=${scope}&idp=ras`);
-  // GET auth/oauth/v2/authorize to get the rasAuthCode
-  await sleepMS(3000);
-  I.saveScreenshot('rasLogin_Page.png');
-  // fill in the RAS user creds
-  I.fillField('USER', process.env.RAS_TEST_USER_1_USERNAME);
-  I.fillField('PASSWORD', secret(process.env.RAS_TEST_USER_1_PASSWORD));
-  I.waitForElement({ xpath: 'xpath: //button[contains(text(), \'Sign in\')]' }, 10);
-  I.click({ xpath: 'xpath: //button[contains(text(), \'Sign in\')]' });
-  // TODO -> consent page
-  // /auth/oauth/v2/authorize/consent - we can make a request to /consent endpoint and it returns HTML page
-  // for the request we need - action(grant/deny), sessionID and sessionData in reqBody
-
-  // you should see the consent page in the following screenshot
-  I.saveScreenshot('AfterSignIn.png');
-  I.seeInCurrentURL('code');
-
-  // after signing, the url will consist of Auth Code
-  const authCodeURL = await I.grabCurrentUrl();
-  console.log(authCodeURL);
-  const url = new URL(authCodeURL);
-  const authCode = url.searchParams.get('code');
-  // check if the authCode isnt empty
-  expect(authCode).to.not.to.be.empty;
-  I.cache.rasAuthCode = authCode;
-  console.log(`### Auth Code = ${I.cache.rasAuthCode}`);
-
-  // getting tokens from the authCode
-  console.log('Retrieving Access Token and Refresh Token ... ');
-  const data = queryString.stringify({
-    grant_type: 'authorization_code',
-    code: `${I.cache.rasAuthCode}`,
-    client_id: `${I.cache.clientID}`,
-    client_secret: `${I.cache.clientSecret}`,
-    scope: `${scope}`,
-    redirect_uri: 'http://localhost:8080/user/login/ras/callback',
+// check if the creds requried for the test are defined as env variable
+function validateCreds(I, testCreds) {
+  testCreds.forEach((cred) => {
+    if (process.env[cred] === '' || process.env[cred] === undefined) {
+      throw new Error(`WARNING: Env var '${cred}' not defined!`);
+    } else {
+      console.log(`Env var '${cred}' is defined`);
+    }
   });
-
-  const getRASToken = await I.sendPostRequest(
-    rasAuthURL,
-    data,
-    {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-  );
-
-  // you should get RAS tokens (id, access, refresh)
-  // but you need only access_token and refresh_token for this test
-  I.cache.idToken = getRASToken.data.id_token;
-  I.cache.accessToken = getRASToken.data.access_token;
-  I.cache.refreshToken = getRASToken.data.refresh_token;
-
-  return I.cache.accessToken;
-}
-
-async function getPassport(I, token) {
-  // const accessToken = await getTokens(I);
-  // GET /openid/connect/v1.1/userinfo passport for the RAS user with RAS Access token
-  const getPassportReq = await I.sendGetRequest(
-    `https://${rasServerURL}/openid/connect/v1.1/userinfo`,
-    {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-  );
-  // you should get a passport with visa as the response
-  const passportBody = getPassportReq.data.passport_jwt_v11;
-  // console.log(`### Passport JWT: ${passportBody}`);
-
-  // checking the validate scope of passport
-  hasScope(passportBody);
-  if (hasScope(passportBody)) {
-    console.log('### The Scope is correct');
-  }
-  return passportBody;
+  // adding the clientID and secretID to the cache
+  I.cache.clientID = process.env.clientID;
+  I.cache.secretID = process.env.secretID;
 }
 
 // Scenario 1 ->
-Scenario('Send DRS request - Single Passport Single VISA @rasDRS', async ({ I }) => {
-  const accessToken = await getTokens(I);
-  const passport = await getPassport(I, accessToken);
-  // sending DRS request with passport in body
-  const drsAccessReq = await I.sendPostRequest(
-    `https://${ga4ghURL}/${I.cache.indexdRecord}/access/s3`,
-    {
-      passports: [`${passport}`],
-    },
+Scenario('Send DRS request - Single Valid Passport Single VISA @rasDRS', async ({ I, ras }) => {
+  validateCreds(I, envVars);
+
+  const token = await ras.do.getTokens(
+    I.cache.clientID,
+    I.cache.secretID,
+    scope,
+    process.env.RAS_TEST_USER_1_USERNAME,
+    process.env.RAS_TEST_USER_1_PASSWORD,
   );
-  // verify if the response has status 200
-  expect(drsAccessReq).to.have.property('status', 200);
+  // adding the values to cache{} for later use in the test
+  I.cache.accessToken = token.accessToken;
+  I.cache.refreshToken = token.refreshToken;
+  I.cache.idToken = token.idToken;
+  I.cache.passport = await ras.do.getPassport(I.cache.accessToken);
+  let drsAccessReq;
+  const accessibleDRSObjectURL = `https://${ga4ghURL}/${I.cache.accessibleIndexdRecord.did}/access/s3`;
+  let startTime;
+  let endTime;
+  const postDurations = [];
+  // Valid passport -> Data access -> success, try again
+  // Expect success and the retry should be faster than the first request
+  for (let i = 0; i < 2; i += 1) {
+    startTime = performance.now();
+    drsAccessReq = await I.sendPostRequest(
+      accessibleDRSObjectURL,
+      {
+        passports: [`${I.cache.passport}`],
+      },
+    );
+    endTime = performance.now();
+    postDurations.push(endTime - startTime);
+    // verify if the response has status 200
+    expect(drsAccessReq).to.have.property('status', 200);
 
-  expect(drsAccessReq.data).to.have.property('url');
-  if (String(drsAccessReq.data).includes('You don\'t have access permission on this file')) {
-    expect.fail('Access Denied');
+    expect(drsAccessReq.data).to.have.property('url');
+    if (String(drsAccessReq.data).includes('You don\'t have access permission on this file')) {
+      expect.fail('Access Denied');
+    }
+
+    const preSignedURLReq = await I.sendGetRequest(drsAccessReq.data.url);
+    expect(preSignedURLReq).to.not.be.empty;
   }
-
-  const preSignedURLReq = await I.sendGetRequest(drsAccessReq.data.url);
-  expect(preSignedURLReq).to.not.be.empty;
+  console.log(`### First POST to ${accessibleDRSObjectURL} took ${postDurations[0]} ms`);
+  console.log(`### Second POST to ${accessibleDRSObjectURL} took ${postDurations[1]} ms`);
+  expect(postDurations[0]).to.be.above(postDurations[1]);
 });
 
 // Scenario 2 ->
-Scenario('Get Access Token from Refresh Token @rasDRS', async ({ I }) => {
-  console.log('checking the expiration of the token');
+Scenario('Send DRS request -  Single Passport Single Visa With No Permissions @rasDRS', async ({ I, ras }) => {
+  const token = await ras.do.getTokens(
+    I.cache.clientID,
+    I.cache.secretID,
+    scope,
+    process.env.RAS_TEST_USER_2_USERNAME,
+    process.env.RAS_TEST_USER_2_PASSWORD,
+  );
+  const passportWithNoPermissions = await ras.do.getPassport(token.accessToken);
+  // Valid passport -> Data access -> success, try again with DIFFERENT user w/ invalid passport
+  // Expect denied, should not use cached passport for a different user
+  const drsAccessReq = await I.sendPostRequest(
+    `https://${ga4ghURL}/${I.cache.inaccessibleIndexdRecord.did}/access/s3`,
+    {
+      passports: [passportWithNoPermissions],
+    },
+  );
+  expect(drsAccessReq).to.have.property('status', 401);
+});
+
+// Scenario 3 ->
+Scenario('Send DRS request - Single Passport Single Visa With Incorrect Access @rasDRS', async ({ I }) => {
+  const drsAccessReq = await I.sendPostRequest(
+    `https://${ga4ghURL}/${I.cache.inaccessibleIndexdRecord.did}/access/s3`,
+    {
+      passports: [`${I.cache.passport}`],
+    },
+  );
+  expect(drsAccessReq).to.have.property('status', 401);
+});
+
+// Scenario 4 ->
+Scenario('Send DRS request - Single Passport With Invalid Signature @rasDRS', async ({ I }) => {
+  const passportParts = I.cache.passport.split('.');
+  passportParts[2] = 'invalidsignature';
+  I.cache.invalidPassport = passportParts.join('.');
+
+  let drsAccessReq;
+  // Invalid passport -> Data access -> denied, try again, should be denied
+  // again (e.g. make sure we don’t cache invalid things)
+  for (let i = 0; i < 2; i += 1) {
+    drsAccessReq = await I.sendPostRequest(
+      `https://${ga4ghURL}/${I.cache.accessibleIndexdRecord.did}/access/s3`,
+      {
+        passports: [`${I.cache.invalidPassport}`],
+      },
+    );
+    expect(drsAccessReq).to.have.property('status', 401);
+  }
+});
+
+// Scenario 5 ->
+Scenario('Get Access Token from Refresh Token @rasDRS', async ({ I, ras }) => {
+  validateCreds(I, envVars); // eslint-disable-line no-undef
   // get new access token from the refresh token
   // and make /userinfo call with the new access tokens
   const refreshData = queryString.stringify({
@@ -255,11 +241,11 @@ Scenario('Get Access Token from Refresh Token @rasDRS', async ({ I }) => {
     refresh_token: `${I.cache.refreshToken}`,
     scope: `${scope}`,
     client_id: `${I.cache.clientID}`,
-    client_secret: `${I.cache.clientSecret}`,
+    client_secret: `${I.cache.secretID}`,
   });
 
   const tokenFromRefresh = await I.sendPostRequest(
-    rasAuthURL,
+    `${ras.props.rasTokenEndpoint}`,
     refreshData,
     {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -268,11 +254,11 @@ Scenario('Get Access Token from Refresh Token @rasDRS', async ({ I }) => {
   const refreshedAccessToken = tokenFromRefresh.data.access_token;
 
   // and send subsequent /userinfo call and also a presigned url call with the passport
-  const newPassport = await getPassport(I, refreshedAccessToken);
+  const newPassport = await ras.do.getPassport(refreshedAccessToken);
 
   // preSignedURL request with new passport
   const newDrsAccessReq = await I.sendPostRequest(
-    `https://${ga4ghURL}/${I.cache.indexdRecord}/access/s3`,
+    `https://${ga4ghURL}/${I.cache.accessibleIndexdRecord.did}/access/s3`,
     {
       passports: [`${newPassport}`],
     },

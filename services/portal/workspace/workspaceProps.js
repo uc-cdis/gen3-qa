@@ -1,5 +1,5 @@
 module.exports = {
-  path: '/workspace',
+  path: 'workspace',
   readyCue: {
     css: '.workspace__options',
   },
