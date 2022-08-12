@@ -174,13 +174,13 @@ Scenario('redirect to register page after login @registerUser',
     await home.do.login(users.mainAcct.username);
     I.wait(3);
     I.saveScreenshot('afterLogin.png');
-    I.seeCurrentUrlEquals('/user/register/');
+    I.seeCurrentUrlEquals('user/register/');
   });
 
 Scenario('register to get access to download data @registerUser',
   async ({ I, home, users }) => {
     await home.do.login(users.mainAcct.username);
-    I.seeCurrentUrlEquals('/user/register/');
+    I.seeCurrentUrlEquals('user/register/');
     I.wait(3);
     I.saveScreenshot('registerPage.png');
     I.fillField('#firstname', 'Cdis');
