@@ -71,7 +71,13 @@ module.exports = async function () {
       const pfbButton2 = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'contains({explorerConfig: {buttons: [{enabled: true, type: "export-to-pfb"}]}})\'');
       if (pfbButton1 !== 'true' && pfbButton2 !== 'true') {
         console.log('Skipping pfb export tests since the required configuration is not in fence-config.yaml');
-        xFeature(suite.title);
+        console.dir(suite.tests);
+        suite.tests.forEach((test) => {
+          test.run = function skip() { // eslint-disable-line func-names
+            console.log(`Ignoring test - ${test.title}`);
+            this.skip();
+          };
+        });
       }
     }
   });
