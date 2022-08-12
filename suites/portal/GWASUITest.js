@@ -34,7 +34,6 @@ Scenario('GWAS submit workflow through Case Control GWAS @GWASUI', async ({
   // TODO: Check the covariates are correct
   // TODO: handle error when select hare group
   // select parameters (group)
-  I.wait(2);
   await GWASTasks.selectAncestryGroup();
   await GWASTasks.clickNextButton();
   // enter a job name
