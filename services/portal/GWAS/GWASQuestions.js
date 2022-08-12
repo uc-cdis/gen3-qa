@@ -21,11 +21,10 @@ async function checkElement(element) {
   I.seeElement(element);
 }
 
-
 module.exports = {
   async isJobStart(jobName) {
     const InProgressxpath = `//li[.//dt[contains(normalize-space(),"${jobName}")]]//span[text()="In Progress"]`;
-    I.waitForElement(InProgressxpath, 5)
+    I.waitForElement(InProgressxpath, 5);
   },
 
   async isJobComplete(jobName) {
