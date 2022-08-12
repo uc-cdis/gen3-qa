@@ -17,7 +17,7 @@ module.exports = {
     console.dir(res);
     I.waitForElement(props.getLaunchButton(workspaceName), 60);
     I.click(props.getLaunchButton(workspaceName));
-    if(process.env.DEBUG === 'true') {
+    if (process.env.DEBUG === 'true') {
       I.saveScreenshot('launched_workspace.png');
     }
     I.waitForElement(props.iframeWorkspace, 600);
