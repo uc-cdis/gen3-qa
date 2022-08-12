@@ -76,8 +76,9 @@ module.exports = {
   },
 
   async selectDifferentType() {
-    I.seeElement(GWASProps.selectDifferentType);
-    I.click(GWASProps.selectDifferentType);
+    I.seeElement(GWASProps.SelectDifferentType);
+    I.click(GWASProps.SelectDifferentType);
+    I.wait(2);
     I.seeElement(GWASProps.AreyousurePopup);
   },
 
