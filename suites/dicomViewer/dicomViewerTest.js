@@ -38,6 +38,10 @@ BeforeSuite(async ({
   I, users, sheepdog, peregrine,
 }) => {
   I.cache = {};
+  // Restore original etl-mapping and manifest-guppy configmaps (for idempotency)
+  console.log('Running kube-setup-guppy to restore any configmaps that have been mutated. This can take a couple of mins...');
+  await bash.runCommand('gen3 kube-setup-guppy');
+
   // mutate etl Mapping
   await bash.runCommand('g3kubectl get cm etl-mapping -o yaml > etlMapping_tmp.yaml');
   await bash.runCommand('sed -i "s/midrc_imaging_study/jenkins_midrc_imaging_study_alias/g" etlMapping_tmp.yaml ');
