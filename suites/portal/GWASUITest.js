@@ -29,6 +29,8 @@ Scenario('GWAS submit workflow through Case Control GWAS @GWASUI', async ({
   await GWASTasks.clickNextButton();
   // review
   await GWASTasks.clickNextButton();
+  // Add Custom
+  await GWASTasks.clickNextButton();
   // TODO: Check the covariates are correct
   // TODO: handle error when select hare group
   // select parameters (group)
@@ -73,6 +75,9 @@ Scenario('GWAS submit workflow through Quantitative Phenotype GWAS @GWASUI', asy
   // Add custom dichotomous covariates
   await GWASTasks.clickNextButton();
   // set parameters
+  await GWASTasks.clickNextButton();
+  // select parameters (group)
+  await GWASTasks.selectAncestryGroup();
   await GWASTasks.clickNextButton();
   // enter a job name
   const jobName = await GWASTasks.enterJobName();
@@ -133,6 +138,7 @@ Scenario('Select different GWAS Type @GWASUI', async ({
   await GWASTasks.selectCohort();
   await GWASTasks.clickNextButton();
   await GWASTasks.selectDifferentType();
+
   // select yes to select different type
   await I.click(GWASProps.AreyousureYes);
   I.seeElement(GWASProps.CaseControlTitle);

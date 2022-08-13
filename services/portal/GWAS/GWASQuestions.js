@@ -24,7 +24,7 @@ async function checkElement(element) {
 module.exports = {
   async isJobStart(jobName) {
     const InProgressxpath = `//li[.//dt[contains(normalize-space(),"${jobName}")]]//span[text()="In Progress"]`;
-    await checkElement(InProgressxpath);
+    I.waitForElement(InProgressxpath, 5);
   },
 
   async isJobComplete(jobName) {
