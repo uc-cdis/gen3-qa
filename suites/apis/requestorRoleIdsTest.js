@@ -28,7 +28,7 @@ AfterSuite(async ({ I }) => {
   }
   I.cache.requestDidList.forEach(async (request) => {
     const deleteRequest = await requestorTasks.deleteRequest(request);
-    if (deleteRequest === undefined) {
+    if (deleteRequest.status === 200) {
       console.log(`Request ${request} is deleted successfully`);
     }
   });
@@ -59,8 +59,9 @@ Scenario('User requests access for resource_paths and role_ids with a signed sta
   expect(userInfo.data.authz['/requestor_integration_test']).to.deep.to.include({ method: 'access', service: 'mds_gateway' });
 
   // Create a request to 'revoke' the new policy that was created
-  const createRevokeResponse = await requestorTasks.createRequestForPolicyID(accessTokenHeader, users.user0.username, createResponse.policy_id, true, 'SIGNED');
-  expect(createRevokeResponse).to.have.property('status_code', 201);
+  const signedRevokeResponse = await requestorTasks.createRequestForPolicyID(accessTokenHeader, users.user0.username, createResponse.policy_id, true, 'SIGNED');
+  I.cache.requestDidList.push(signedRevokeResponse.request_id);
+  expect(signedRevokeResponse).to.have.property('status_code', 201);
 
   // Verify if access is revoked from the user
   userInfo = await fence.do.getUserInfo(user0AccessToken);
