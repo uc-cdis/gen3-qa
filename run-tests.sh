@@ -308,7 +308,7 @@ donot '@dataguids'
 donot '@prjsBucketAccess'
 
 # run the test until argo works in jenkins envs
-donot '@GWASUI'
+# donot '@GWASUI'
 
 echo "INFO: disabling RAS DRS test as jenkins env is not configured"
 donot '@rasDRS'
