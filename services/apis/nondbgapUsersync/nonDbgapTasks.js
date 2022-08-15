@@ -111,7 +111,7 @@ module.exports = {
   async presignedURLRequestS3(fence, project, projectFile, user, token) {
     let projectFileContents3 = null;
     console.log(`Creating presigned url with ${user} user for ${project} after running usersync`);
-    const signedURLs3 = await fence.do.createSignedUrl(projectFile, args = ['protocol=s3'], token);
+    const signedURLs3 = await fence.do.createSignedUrl(projectFile, ['protocol=s3'], token);
     if (signedURLs3.status !== 200) {
       console.log(`User ${user} with access can not create s3 signed urls and read the file for ${project}`);
     } else {
@@ -124,7 +124,7 @@ module.exports = {
   async presignedURLRequestGs(fence, project, projectFile, user, token) {
     let projectFileContentgs = null;
     console.log(`Creating presigned url with ${user} user for ${project} after running usersync`);
-    const signedURLgs = await fence.do.createSignedUrl(projectFile, args = ['protocol=gs'], token);
+    const signedURLgs = await fence.do.createSignedUrl(projectFile, ['protocol=gs'], token);
     if (signedURLgs.status !== 200) {
       console.log(`User ${user} with access can not create gs signed urls and read the file for ${project}`);
     } else {
