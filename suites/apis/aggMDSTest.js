@@ -7,12 +7,12 @@ const { output } = require('codeceptjs');
 const I = actor();
 I.cache = {};
 
-After(async ({ users, mds }) => {
-  if ('studyId' in I.cache) {
-    await mds.do.deleteMetadataRecord(users.mainAcct.accessTokenHeader, I.cache.studyId);
-    await mds.do.reSyncAggregateMetadata();
-  }
-});
+// After(async ({ users, mds }) => {
+//  if ('studyId' in I.cache) {
+//    await mds.do.deleteMetadataRecord(users.mainAcct.accessTokenHeader, I.cache.studyId);
+//    await mds.do.reSyncAggregateMetadata();
+//  }
+// });
 
 Scenario('Create, edit and delete aggregate metadata record', async ({ mds, users }) => {
   I.cache.studyId = uuid.v4();
