@@ -32,7 +32,7 @@ module.exports = {
     I.click(GWASProps.SelectSecondCheckboxInput);
   },
 
-  async selectPhenotypeVariable(){
+  async selectPhenotypeVariable() {
     I.seeElement(GWASProps.SelectConceptTitle);
     I.click(GWASProps.SelectFirstRadioInput);
   },
@@ -44,11 +44,10 @@ module.exports = {
 
   async enterJobName() {
     const jobName = `AutomationTest${Date.now()}`;
-    console.log (`the job name is ${jobName}`);
+    console.log(`the job name is ${jobName}`);
     I.fillField(GWASProps.EnterJobName, jobName);
     return jobName;
   },
-
 
   async selectPhenotype() {
     I.seeElement(GWASProps.SelectPhenotypeTitle);
