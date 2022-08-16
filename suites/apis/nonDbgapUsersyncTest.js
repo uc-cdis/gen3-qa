@@ -171,17 +171,19 @@ Scenario('PresignedUrl with google mainAcct @nondbgapUsersyncTest', async ({ fen
     console.log('Cannot create presigned urls for project FAIL_00000 file');
   }
 
-  // // checking if the user still has access to dbGap projects
-  // console.log(`Checking if the user ${users.mainAcct.username} still has access to dbGap projects`);
-  // const dbGapProjectDID = await nondbgap.do.checkDbGapAccess(users.mainAcct.accessTokenHeader);
-  // const dbGpProjectAccess = await fence.do.createSignedUrl(dbGapProjectDID, users.mainAcct.accessTokenHeader);
-  // if (dbGpProjectAccess.data.status === 200) {
-  //   console.log(`The presigned url for project 12345 files is created. The URL -> ${dbGpProjectAccess.data.urls}`);
-  // }
+  // checking if the user still has access to dbGap projects
+  console.log(`Checking if the user ${users.mainAcct.username} still has access to dbGap projects`);
+  const dbGapProjectDID = await nondbgap.do.checkDbGapAccess(users.mainAcct.accessTokenHeader);
+  const dbGpProjectAccess = await fence.do.createSignedUrl(dbGapProjectDID, users.mainAcct.accessTokenHeader);
+  if (dbGpProjectAccess.data.status === 200) {
+    console.log(`The presigned url for project 12345 files is created. The URL -> ${dbGpProjectAccess.data.urls}`);
+  }
 
-  // // running usersync job after the test
-  // await nondbgap.do.runUserSync();
+  // running usersync job after the test
+  await nondbgap.do.runUserSync();
 });
+
+// commenting out the RAS scenario below as we arent sure how to handle 2FA auth app from RAS in the test
 
 // Scenario('Presigned Url with RAS user @nondbgapUsersyncTest', async ({ fence, users, nondbgap }) => {
 //   // carry out the OIDC flow and get the access token for RAS user

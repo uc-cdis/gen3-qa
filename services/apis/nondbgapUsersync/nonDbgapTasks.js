@@ -127,7 +127,7 @@ module.exports = {
     console.log(`Creating presigned url with ${user} user for ${project} after running usersync`);
     const signedURLgs = await fence.do.createSignedUrl(projectFile, ['protocol=gs'], token);
     if (signedURLgs.status !== 200) {
-      console.log(`### The request failure status code : ${signedURLs3.status}`);
+      console.log(`### The request failure status code : ${signedURLgs.status}`);
       console.log(`User ${user} with access can not create gs signed urls and read the file for ${project}`);
     } else {
       console.log(`The presigned url for ${project} files is created. The GS url -> ${signedURLgs.data.url}`);
