@@ -1,5 +1,5 @@
 module.exports = {
-  path: '/discovery',
+  path: 'discovery',
   readyCue: {
     css: '.discovery-search',
   },

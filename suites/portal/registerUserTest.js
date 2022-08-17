@@ -32,7 +32,7 @@ async function getAlltabs(I) {
   I.useWebDriverTo('check property of the download button', async ({ browser }) => {
     browser.setWindowSize(1920, 1080);
   });
-  I.amOnPage('/explorer');
+  I.amOnPage('explorer');
   I.wait(5);
   I.saveScreenshot('explorePageDownloadButton.png');
   // click accept for the user agreement
@@ -88,7 +88,7 @@ async function waitForFenceAndPortalToRoll() {
   };
 
   console.log('Waiting for pods to be ready');
-  const timeout = 420; // wait up to 7 min
+  const timeout = 900; // wait up to 15 min
   await smartWait(
     isPodReady,
     [],
@@ -165,7 +165,7 @@ Scenario('redirect to login page from the download button @registerUser',
       I.wait(1);
       I.seeCurrentUrlEquals('/login');
       // go back to explore page
-      I.amOnPage('/explorer');
+      I.amOnPage('explorer');
     }
   });
 
@@ -174,13 +174,13 @@ Scenario('redirect to register page after login @registerUser',
     await home.do.login(users.mainAcct.username);
     I.wait(3);
     I.saveScreenshot('afterLogin.png');
-    I.seeCurrentUrlEquals('/user/register/');
+    I.seeCurrentUrlEquals('user/register/');
   });
 
 Scenario('register to get access to download data @registerUser',
   async ({ I, home, users }) => {
     await home.do.login(users.mainAcct.username);
-    I.seeCurrentUrlEquals('/user/register/');
+    I.seeCurrentUrlEquals('user/register/');
     I.wait(3);
     I.saveScreenshot('registerPage.png');
     I.fillField('#firstname', 'Cdis');
@@ -189,7 +189,7 @@ Scenario('register to get access to download data @registerUser',
     I.click('//button[contains(text(),\'Register\')]');
 
     // after complete register
-    I.amOnPage('/explorer');
+    I.amOnPage('explorer');
     I.wait(5);
     I.saveScreenshot('expolerPageAfterRegisted1.png');
     for (let i = 0; i < I.cache.tabs.length; i += 1) {
@@ -208,7 +208,7 @@ Scenario('register to get access to download data @registerUser',
 Scenario('registered user should have access to download data @registerUser',
   async ({ I, home, users }) => {
     await home.do.login(users.mainAcct.username);
-    I.amOnPage('/explorer');
+    I.amOnPage('explorer');
     I.wait(5);
     I.saveScreenshot('expolerPageAfterRegisted2.png');
     for (let i = 0; i < I.cache.tabs.length; i += 1) {

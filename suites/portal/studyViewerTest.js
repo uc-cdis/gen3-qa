@@ -118,6 +118,7 @@ Scenario('User logs in and requests the access @studyViewer', async ({
   await studyViewerTasks.learnMoreButton();
   await studyViewerTasks.clickRequestAccess();
   // request id from requestor db
+  I.wait(5);
   const requestID = await requestorTasks.getRequestId();
   await requestorTasks.approvedStatus(requestID);
   I.refreshPage();

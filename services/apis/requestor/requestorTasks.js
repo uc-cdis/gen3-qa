@@ -1,6 +1,9 @@
+const chai = require('chai');
+
 const requestorProps = require('./requestorProps.js');
 const users = require('../../../utils/user');
 
+const { expect } = chai;
 const I = actor();
 
 module.exports = {
@@ -11,6 +14,7 @@ module.exports = {
       users.user0.accessTokenHeader,
     );
     const responseData = getResponse.data;
+    expect(responseData).to.not.be.empty;
     const reqID = responseData[0].request_id;
     if (process.env.DEBUG === 'true') {
       console.log(`### request id: ${reqID}`);
@@ -99,7 +103,7 @@ module.exports = {
     if (process.env.DEBUG === 'true') {
       console.log(`### delete request id: ${reqIDDel}`);
     }
-    await I.sendDeleteRequest(
+    return I.sendDeleteRequest(
       `${requestorProps.endpoint.requestEndPoint}/${reqIDDel}`,
       users.mainAcct.accessTokenHeader,
     );

@@ -203,7 +203,7 @@ module.exports = {
     scopes = 'openid+user+data+google_credentials+google_service_account+google_link',
   ) {
     // set user with cookie
-    I.amOnPage('/');
+    I.amOnPage('');
     I.setCookie({ name: 'dev_login', value: user.username });
 
     const urlStr = await fenceTasks.getConsentCode(client.id, 'code', scopes);

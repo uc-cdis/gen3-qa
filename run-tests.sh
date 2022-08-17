@@ -268,7 +268,7 @@ runTestsIfServiceVersion "@requestorNew" "arborist" "3.2.0" "2021.12"
 #   donot '@requires-indexd'
 # fi
 
-listVar="arborist fence guppy indexd manifestservice metadata pelican peregrine pidgin portal sheepdog sower tube audit requestor hatchery"
+listVar="arborist fence guppy indexd manifestservice metadata pelican peregrine pidgin portal sheepdog sower tube audit requestor hatchery argo-wrapper cohort-middleware dicom-viewer dicom-server"
 
 for svc_name in $listVar; do
     export isServiceDeployed=$(ifServiceDeployed $svc_name)
@@ -303,6 +303,9 @@ donot '@batch'
 
 # Do not run dataguids.org test for regular PRs
 donot '@dataguids'
+
+# Do not run the test until update the test
+donot '@GWASUI'
 
 # Do not run prjsBucketAccess (for prod-execution only)
 donot '@prjsBucketAccess'
@@ -366,12 +369,15 @@ else
 fi
 
 # Only run register user tests in midrc
-if [[ !( "$service" =~ ^(cdis-manifest|gitops-qa|gen3-qa) && $testedEnv == *"midrc"* )]]; then
-  echo "INFO: disabling Register User tests for $service"
-  donot '@registerUser'
-else
-  echo "INFO: enabling Register User tests for $service"
-fi
+#if [[ !( "$service" =~ ^(cdis-manifest|gitops-qa|gen3-qa) && $testedEnv == *"midrc"* )]]; then
+#  echo "INFO: disabling Register User tests for $service"
+#  donot '@registerUser'
+#else
+#  echo "INFO: enabling Register User tests for $service"
+#fi
+
+donot '@registerUser' 
+donot '@dicomViewer'
 
 # Focus on GUI tests for data-portal
 if [[ "$service" == "data-portal" ]]; then
@@ -407,12 +413,27 @@ if [ -z "$ddHasConsentCodes" ]; then
   donot '@indexRecordConsentCodes'
 fi
 
+#### FRONTEND_ROOT ####
+export frontend_root="$(g3kubectl get configmaps manifest-global -o yaml | yq '.data.frontend_root')"
+if [[ $frontend_root == \"gen3ff\" ]]; then
+  export PORTAL_SUFFIX="/portal"
+  donot '@centralizedAuth'
+else
+  export PORTAL_SUFFIX=""
+  donot '@requires-frontend-framework'
+fi
+
+#### GEN3 FF HEAL ####
+if [[ ! $testedEnv == *"heal"* ]]; then
+  donot '@heal'
+fi
+
 #
 # try to read configs of portal
 #
 hostname="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.hostname')"
 portalApp="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.portal_app')"
-portalConfigURL="https://${hostname}/data/config/${portalApp}.json"
+portalConfigURL="https://${hostname}${PORTAL_SUFFIX}/data/config/${portalApp}.json"
 portalVersion="$(g3kubectl get configmaps manifest-all -o json | jq -r '.data.json | fromjson.versions.portal')"
 
 # do not run portal related tests for NDE portal
@@ -460,7 +481,10 @@ else
   fi
 fi
 # disabling the studyViewer test for debugging
-# donot '@studyViewer'
+donot '@studyViewer'
+
+# disabling the nondbgap usersync test as the jenkins is configured
+donot '@nondbgapUsersyncTest'
 
 # landing page buttons
 if [[ $(curl -s "$portalConfigURL" | jq '.components | contains({buttons}) | not') == "true" ]] || [[ ! -z "$testedEnv" ]]; then
@@ -557,7 +581,6 @@ if [[ "$testedEnv" == "ci-env-1.planx-pla.net" ]]; then
 fi
 export testedEnv="$testedEnv"
 
-
 #### Gen3 QA in a BOX ############################################################################
 if [[ "$(hostname)" == *"cdis-github-org"* ]] || [[ "$(hostname)" == *"planx-ci-pipeline"* ]]; then
   echo "inside an ephemeral gen3-qa-in-a-box pod..."
@@ -608,9 +631,8 @@ else
     additionalArgs="--grep @manual --invert"
   fi
   set -e
-  DEBUG=$debug npm 'test' -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
+  DEBUG=$debug npm test -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
 fi
-
 
 # When zero tests are executed, a results*.xml file is produced containing a tests="0" counter
 # e.g., output/result57f4d8778c4987bda6a1790eaa703782.xml

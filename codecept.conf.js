@@ -8,7 +8,7 @@ exports.config = {
   helpers: {
     WebDriver: {
       host: 'selenium-hub',
-      url: `https://${process.env.NAMESPACE}.planx-pla.net`,
+      url: `https://${process.env.NAMESPACE}.planx-pla.net${process.env.PORTAL_SUFFIX}/`,
       smartWait: 30000,
       browser: 'chrome',
       // fullPageScreenshots: true,
@@ -79,6 +79,8 @@ exports.config = {
     guppy: './services/apis/guppy/guppyService.js',
     mds: './services/apis/mds/mdsService.js',
     auditService: './services/apis/auditService/auditService.js',
+    nondbgap: './services/apis/nondbgapUsersync/nonDbgapService.js',
+    ras: './services/apis/rasDrs/rasService.js',
 
     // Pages
     home: './services/portal/home/homeService.js',
@@ -90,6 +92,7 @@ exports.config = {
     portalCoreMetadataPage: './services/portal/coreMetadataPage/coreMetadataPageService.js',
     discovery: './services/portal/discovery/discoveryService.js',
     workspace: './services/portal/workspace/workspaceService.js',
+    gen3ffLandingPage: './services/portal/gen3ffLandingPage/gen3ffLandingPageService.js',
   },
   mocha: {
     reporterOptions: {
