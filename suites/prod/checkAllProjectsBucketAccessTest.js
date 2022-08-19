@@ -87,7 +87,7 @@ async function checkAccess(I, a, indexdQueryParam) {
           logger.error(`Failed to obtain a successful access check against GUID ${aGUID} from ${indexdQueryParam} ${a} - Status Code: ${error.response.status}`);
           logger.error(`Details: ${error.response.data}`);
         } else {
-          logger.error(`Failed to process HTTP HEAD request for GUID ${aGUID}`);
+          logger.error(`Failed to process HTTP GET request for GUID ${aGUID}`);
         }
       }
       if (httpGetCheck.status === 200) {
