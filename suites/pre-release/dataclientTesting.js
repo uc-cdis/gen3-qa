@@ -8,9 +8,27 @@
 Feature('Gen3-Client pre-release testing');
 
 const { expect } = require('chai');
+const { sleepMS } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
+const fs = require('fs');
 
 const bash = new Bash();
+
+const I = actor();
+
+// function checkFileExists(filename) {
+//   var xhr = new XMLHttpRequest();
+//   xhr.open('HEAD', filename, false);
+//   xhr.send();
+
+//   if (xhr.status == "404") {
+//     console.log('File not found: ' + filename);
+//     return false;
+//   } else {
+//     console.log('File exists: ' + filename);
+//     return true;
+//   }
+// }
 
 BeforeSuite(async ({ I }) => {
   I.cache = {};
@@ -18,8 +36,9 @@ BeforeSuite(async ({ I }) => {
 });
 
 // AfterSuite(async ({ I }) => {
-//     // delete the index record
+//     // delete the index recordl
 //     // delete the profile created via qa-dcp
+      // delete the uploaded file from qa-dcp
 // })
 
 Scenario('Configure Gen3-Client', async ({ fence, users }) => {
@@ -34,15 +53,11 @@ Scenario('Configure Gen3-Client', async ({ fence, users }) => {
     ['data', 'user'],
     users.mainAcct.accessTokenHeader,
   );
-  const keys = {
-    api_key: apiKey.data.api_key,
-    key_id: apiKey.data.key_id,
-  };
+  const stringfiedKeys = JSON.stringify(apiKey.data).replace(/"/g, '\\"');
 
   // adding the api key to a cred file
   const credsFile = `./${process.env.NAMESPACE}_creds.json`;
-  const stringifiedData = JSON.stringify(keys).replace(/"/g, '\\"');
-  await bash.runCommand(`echo "${stringifiedData}" > ${credsFile}`);
+  await bash.runCommand(`echo "${stringfiedKeys}" > ${credsFile}`);
 
   // configure client in gen3-client
   await bash.runCommand(`./gen3-client configure --profile=${process.env.NAMESPACE} --cred=${credsFile} --apiendpoint=https://${process.env.NAMESPACE}.planx-pla.net`);
@@ -51,6 +66,7 @@ Scenario('Configure Gen3-Client', async ({ fence, users }) => {
 Scenario('Upload via Gen3-client', async ({ I }) => {
   // create a file that can be uploaded
   const fileToBeUploaded = `file_${Date.now()}.txt`;
+  I.cache.FileName = fileToBeUploaded;
 
   // adding content to the file
   await bash.runCommand(`echo "This is a test file" >> ./${fileToBeUploaded}`);
@@ -60,14 +76,36 @@ Scenario('Upload via Gen3-client', async ({ I }) => {
   const regexToFindGUID = /.*GUID(.*)\..*$/;
   const guid = regexToFindGUID.exec(uploadFile)[1].replace(' ', '');
   I.cache.GUID = guid;
+  console.log(guid);
 
   // checking the index/index/{guid} endpoint
   const indexGUID = await I.sendGetRequest(`https://${process.env.NAMESPACE}.planx-pla.net/index/${guid}`);
   expect(indexGUID.data).to.have.property('file_name', fileToBeUploaded);
+
 });
 
-// Scenario('Download via Gen3-client', async({ I }) => {
-//     // download the file
-//     const downloadFile = await bash.runCommand(`./gen3-client download-single --profile=${process.env.NAMESPACE} --guid=${I.cache.GUID}`);
-//     console.log(downloadFile);
-// });
+Scenario('Download via Gen3-client', async({ I }) => {
+  
+  await sleepMS(20000);
+  // download the file
+  const downloadFile = await bash.runCommand(`./gen3-client download-single --profile=${process.env.NAMESPACE} --guid=${I.cache.GUID} --no-prompt`);
+  // have a check to see if the file has been download or not
+  const filePath = `./${I.cache.FileName}`;
+  console.dir(filePath);
+  
+  // if (fs.existsSync(filePath)) {
+  //   console.log('Download is complete. Path :', filePath);
+  // } else {
+  //   console.log('Download is not complete. Path doesnt exists');
+  // }
+
+  // fs.accessSync(filePath, fs.W_OK, (err) => {
+  //   if(err) {
+  //     console.log(err, "Download is not complete");
+  //     return;
+  //   }
+  //   console.log("Download is complete. Path :", filePath);
+  // });
+  await bash.runCommand(`touch ${filePath}`);
+  // checkFileExists(filePath);
+});
