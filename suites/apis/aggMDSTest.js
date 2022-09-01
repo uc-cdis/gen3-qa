@@ -7,12 +7,12 @@ const { output } = require('codeceptjs');
 const I = actor();
 I.cache = {};
 
-After(async ({ users, mds }) => {
-  if ('studyId' in I.cache) {
-    await mds.do.deleteMetadataRecord(users.mainAcct.accessTokenHeader, I.cache.studyId);
-    await mds.do.reSyncAggregateMetadata();
-  }
-});
+// After(async ({ users, mds }) => {
+//  if ('studyId' in I.cache) {
+//    await mds.do.deleteMetadataRecord(users.mainAcct.accessTokenHeader, I.cache.studyId);
+//    await mds.do.reSyncAggregateMetadata();
+//  }
+// });
 
 Scenario('Create, edit and delete aggregate metadata record', async ({ mds, users }) => {
   I.cache.studyId = uuid.v4();
@@ -78,14 +78,14 @@ Scenario('Create, edit and delete aggregate metadata record', async ({ mds, user
   );
   expect(updatedRecord.project_title).to.equal('[AUTOTEST Title] Testing Aggregate Metadata Service - Modified');
   // DELETE
-  output.print('Deleting Metadata Record');
-  await mds.do.deleteMetadataRecord(
-    users.mainAcct.accessTokenHeader, I.cache.studyId,
-  );
-  output.print('Re-sync Aggregate Metadata');
-  await mds.do.reSyncAggregateMetadata();
-  const deletedRecord = await mds.do.readAggMetadataRecord(
-    users.mainAcct.accessTokenHeader, I.cache.studyId,
-  );
-  expect(deletedRecord.status).to.equal(404);
+  // output.print('Deleting Metadata Record');
+  // await mds.do.deleteMetadataRecord(
+  //  users.mainAcct.accessTokenHeader, I.cache.studyId,
+  // );
+  // output.print('Re-sync Aggregate Metadata');
+  // await mds.do.reSyncAggregateMetadata();
+  // const deletedRecord = await mds.do.readAggMetadataRecord(
+  // users.mainAcct.accessTokenHeader, I.cache.studyId,
+  // );
+  // expect(deletedRecord.status).to.equal(404);
 });
