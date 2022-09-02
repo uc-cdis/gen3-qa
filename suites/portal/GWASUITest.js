@@ -41,7 +41,8 @@ Scenario('GWAS submit workflow through Case Control GWAS @GWASUI', async ({
   await GWASTasks.submitJob();
 
   I.wait(1);
-
+  // Navigate to the result tab
+  await GWASTasks.navigateToJobStatus();
   await GWASTasks.checkJobStatus();
 
   await GWASQuestions.isJobStart(jobName);
@@ -84,7 +85,7 @@ Scenario('GWAS submit workflow through Quantitative Phenotype GWAS @GWASUI', asy
   await GWASTasks.submitJob();
 
   I.wait(1);
-
+  await GWASTasks.navigateToJobStatus();
   await GWASTasks.checkJobStatus();
 
   await GWASQuestions.isJobStart(jobName);
@@ -169,3 +170,33 @@ Scenario('Unauthorize to workflow @GWASUI', async ({
 });
 
 // selete different GWAS TYPE
+Scenario('GWAS test out table filtering @GWASUI', async ({
+  I, home, users,
+}) => {
+  home.do.goToHomepage();
+  await home.complete.login(users.mainAcct);
+
+  GWASTasks.goToGWASPage();
+
+  // Case Control
+  await GWASTasks.selectCaseControl();
+  await GWASTasks.selectCohort();
+  await GWASTasks.clickNextButton();
+  // select 2nd cohort and go back to 1st step
+  await GWASTasks.selectCohort();
+  await GWASTasks.clickPreviousButton();
+  // the 1st cohort should be selected
+  I.seeElement(GWASProps.SelectedRadio);
+  // go to the 2nd cohort and it should be selected
+  await GWASTasks.clickNextButton();
+  I.seeElement(GWASProps.SelectedRadio);
+  // go to next step, select variables
+  await GWASTasks.clickNextButton();
+  await GWASTasks.selectVariables();
+  // go back to select cohort step
+  await GWASTasks.clickPreviousButton();
+  I.seeElement(GWASProps.SelectCohortTitle);
+  await GWASTasks.clickNextButton();
+  await GWASTasks.clickNextButton();
+  I.seeElement(GWASProps.SelectConceptTitle);
+});
