@@ -21,6 +21,16 @@ module.exports = {
     }
     return reqID;
   },
+
+  // getting the list of requests in the DB
+  async getRequestList(token) {
+    console.log('Getting list of request for the user');
+    return I.sendGetRequest(
+      `${requestorProps.endpoint.userEndPoint}`,
+      { Authorization: `Bearer ${token}` },
+    );
+  },
+
   /**
    * @param {string} adminUserTokenHeader - headers for user authorized in Requestor
    * @param {string} username - username to grant/revoke access for
