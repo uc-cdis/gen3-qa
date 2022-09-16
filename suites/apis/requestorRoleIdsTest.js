@@ -47,8 +47,8 @@ Scenario('User requests access for resource_paths and role_ids with a signed sta
   // Create a request for resource_paths + role_ids present in Arborist with a SIGNED status to test
   // if the access is granted at the "create" endpoint
   const createResponse = await requestorTasks.createRequestForResourcePathsAndRoleIds(accessTokenHeader, users.user0.username, resourcePaths, roleIds, false, 'SIGNED');
-  I.cache.requestDidList.push(createResponse.request_id);
   expect(createResponse).to.have.property('status_code', 201);
+  I.cache.requestDidList.push(createResponse.request_id);
 
   const user0AccessToken = users.user0.accessToken;
   // Verify if access is given to the user -- There should be, since
@@ -60,8 +60,8 @@ Scenario('User requests access for resource_paths and role_ids with a signed sta
 
   // Create a request to 'revoke' the new policy that was created
   const signedRevokeResponse = await requestorTasks.createRequestForPolicyID(accessTokenHeader, users.user0.username, createResponse.policy_id, true, 'SIGNED');
-  I.cache.requestDidList.push(signedRevokeResponse.request_id);
   expect(signedRevokeResponse).to.have.property('status_code', 201);
+  I.cache.requestDidList.push(signedRevokeResponse.request_id);
 
   // Verify if access is revoked from the user
   userInfo = await fence.do.getUserInfo(user0AccessToken);
