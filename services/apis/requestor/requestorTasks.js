@@ -136,7 +136,7 @@ module.exports = {
     if (process.env.DEBUG === 'true') {
       console.log(`### delete request id: ${reqIDDel}`);
     }
-    await I.sendDeleteRequest(
+    return I.sendDeleteRequest(
       `${requestorProps.endpoint.requestEndPoint}/${reqIDDel}`,
       users.mainAcct.accessTokenHeader,
     );

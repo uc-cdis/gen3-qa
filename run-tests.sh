@@ -268,7 +268,7 @@ runTestsIfServiceVersion "@requestorNew" "arborist" "3.2.0" "2021.12"
 #   donot '@requires-indexd'
 # fi
 
-listVar="arborist fence guppy indexd manifestservice metadata pelican peregrine pidgin portal sheepdog sower tube audit requestor hatchery dicom-viewer dicom-server"
+listVar="arborist fence guppy indexd manifestservice metadata pelican peregrine pidgin portal sheepdog sower tube audit requestor hatchery argo-wrapper cohort-middleware dicom-viewer dicom-server"
 
 for svc_name in $listVar; do
     export isServiceDeployed=$(ifServiceDeployed $svc_name)
@@ -303,6 +303,9 @@ donot '@batch'
 
 # Do not run dataguids.org test for regular PRs
 donot '@dataguids'
+
+# Do not run the test until update the test
+donot '@GWASUI'
 
 # Do not run prjsBucketAccess (for prod-execution only)
 donot '@prjsBucketAccess'

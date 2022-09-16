@@ -15,7 +15,11 @@ module.exports = {
   async launchWorkspace(workspaceName) {
     const res = await bash.runCommand('gen3 ec2 asg-set-capacity jupyter +10');
     console.dir(res);
+    I.waitForElement(props.getLaunchButton(workspaceName), 60);
     I.click(props.getLaunchButton(workspaceName));
+    if (process.env.DEBUG === 'true') {
+      I.saveScreenshot('launched_workspace.png');
+    }
     I.waitForElement(props.iframeWorkspace, 600);
     I.saveScreenshot('workspace.tasks.launchWorkspace.png');
   },
