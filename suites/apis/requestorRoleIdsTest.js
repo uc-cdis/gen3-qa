@@ -46,7 +46,7 @@ Scenario('User requests access for resource_paths and role_ids with a signed sta
   const roleIds = ['workspace_user', 'mds_user'];
   // Create a request for resource_paths + role_ids present in Arborist with a SIGNED status to test
   // if the access is granted at the "create" endpoint
-  const createResponse = await requestorTasks.createRequestForResourcePathsAndRoleIds(accessTokenHeader, users.user0.username, resourcePaths, roleIds, false, 'SIGNED');
+  const createResponse = await requestorTasks.createRequest(accessTokenHeader, users.user0.username, undefined, resourcePaths, roleIds, false, 'SIGNED');
   expect(createResponse).to.have.property('status_code', 201);
   I.cache.requestDidList.push(createResponse.request_id);
 
@@ -59,7 +59,7 @@ Scenario('User requests access for resource_paths and role_ids with a signed sta
   expect(userInfo.data.authz['/requestor_integration_test']).to.deep.to.include({ method: 'access', service: 'mds_gateway' });
 
   // Create a request to 'revoke' the new policy that was created
-  const signedRevokeResponse = await requestorTasks.createRequestForPolicyID(accessTokenHeader, users.user0.username, createResponse.policy_id, true, 'SIGNED');
+  const signedRevokeResponse = await requestorTasks.createRequest(accessTokenHeader, users.user0.username, createResponse.policy_id, undefined, undefined, true, 'SIGNED');
   expect(signedRevokeResponse).to.have.property('status_code', 201);
   I.cache.requestDidList.push(signedRevokeResponse.request_id);
 

@@ -21,57 +21,43 @@ module.exports = {
     }
     return reqID;
   },
-  /**
-   * @param {string} adminUserTokenHeader - headers for user authorized in Requestor
-   * @param {string} username - username to grant/revoke access for
-   * @param {string} policyID - policyID of the policy to request/revoke access
-   * @param {boolean} revoke - set to true to create a revoke request
-   */
-  async createRequestForPolicyID(
-    adminUserTokenHeader, username, policyID, revoke = false, requestStatus = null,
-  ) {
-    console.log(`### creating request for a policy id: ${policyID} with revoke set as ${revoke}`);
-    const endPoint = revoke ? `${requestorProps.endpoint.requestEndPoint}?revoke` : `${requestorProps.endpoint.requestEndPoint}`;
-    const data = {
-      username,
-      policy_id: policyID,
-    };
-    if (requestStatus) {
-      data.status = requestStatus;
-    }
-    const getResponse = await I.sendPostRequest(
-      endPoint,
-      data,
-      adminUserTokenHeader,
-    );
-    const responseData = getResponse.data;
-    responseData.status_code = getResponse.status;
-    if (process.env.DEBUG === 'true') {
-      console.log(`### responseData: ${JSON.stringify(responseData)}`);
-    }
-    return responseData;
-  },
 
   /**
   * @param {string} adminUserTokenHeader - headers for user authorized in Requestor
   * @param {string} username - username to grant/revoke access for
+  * @param {string} policyID - policyID of the policy to request/revoke access
   * @param {array} resourcePaths - resource_paths to request/revoke access
   * @param {array} roleIds - role_ids to request/revoke access
   * @param {boolean} revoke - set to true to create a revoke request
   */
-  async createRequestForResourcePathsAndRoleIds(
-    adminUserTokenHeader, username, resourcePaths, roleIds, revoke = false, requestStatus = null,
+  async createRequest(
+    adminUserTokenHeader, username, policyID, resourcePaths = null, roleIds = null, revoke = false, requestStatus = null,
   ) {
-    console.log(`### creating request for a resource_paths: ${resourcePaths} and role_ids ${roleIds} with revoke set as ${revoke}`);
-    const endPoint = revoke ? `${requestorProps.endpoint.requestEndPoint}?revoke` : `${requestorProps.endpoint.requestEndPoint}`;
-    const data = {
-      username,
-      resource_paths: resourcePaths,
-      role_ids: roleIds,
-    };
+
+    let data = {}
+    // args should include policyID or resourcePaths+roleIds
+    if (policyID && !(resourcePaths) && !(roleIds)) {
+      console.log(`### creating request for a policy id: ${policyID} with revoke set as ${revoke}`);
+      data = {
+        username,
+        policy_id: policyID,
+      };
+    } else if (resourcePaths && roleIds && !(policyID)) {
+      console.log(`### creating request for a resource_paths: ${resourcePaths} and role_ids: ${roleIds} with revoke set as ${revoke}`);
+      data = {
+        username,
+        resource_paths: resourcePaths,
+        role_ids: roleIds,
+      };
+    } else {
+      console.log(`### incorrect args in createRequest: must have policyID or resourcePaths+roleIds`);
+      return null;
+    }
+
     if (requestStatus) {
       data.status = requestStatus;
     }
+    const endPoint = revoke ? `${requestorProps.endpoint.requestEndPoint}?revoke` : `${requestorProps.endpoint.requestEndPoint}`;
     const getResponse = await I.sendPostRequest(
       endPoint,
       data,
