@@ -168,35 +168,3 @@ Scenario('Unauthorize to workflow @GWASUI', async ({
   I.dontSeeElement(GWASProps.JobStatusesButton);
   // TODO: add message for unauthorized user
 });
-
-// selete different GWAS TYPE
-Scenario('GWAS test out table filtering @GWASUI', async ({
-  I, home, users,
-}) => {
-  home.do.goToHomepage();
-  await home.complete.login(users.mainAcct);
-
-  GWASTasks.goToGWASPage();
-
-  // Case Control
-  await GWASTasks.selectCaseControl();
-  await GWASTasks.selectCohort();
-  await GWASTasks.clickNextButton();
-  // select 2nd cohort and go back to 1st step
-  await GWASTasks.selectCohort();
-  await GWASTasks.clickPreviousButton();
-  // the 1st cohort should be selected
-  I.seeElement(GWASProps.SelectedRadio);
-  // go to the 2nd cohort and it should be selected
-  await GWASTasks.clickNextButton();
-  I.seeElement(GWASProps.SelectedRadio);
-  // go to next step, select variables
-  await GWASTasks.clickNextButton();
-  await GWASTasks.selectVariables();
-  // go back to select cohort step
-  await GWASTasks.clickPreviousButton();
-  I.seeElement(GWASProps.SelectCohortTitle);
-  await GWASTasks.clickNextButton();
-  await GWASTasks.clickNextButton();
-  I.seeElement(GWASProps.SelectConceptTitle);
-});
