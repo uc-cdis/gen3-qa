@@ -31,10 +31,11 @@ module.exports = {
   * @param {boolean} revoke - set to true to create a revoke request
   */
   async createRequest(
-    adminUserTokenHeader, username, policyID, resourcePaths = null, roleIds = null, revoke = false, requestStatus = null,
+    adminUserTokenHeader, username, policyID,
+    resourcePaths = null, roleIds = null, revoke = false, requestStatus = null,
   ) {
 
-    let data = {}
+    let data = {};
     // args should include policyID or resourcePaths+roleIds
     if (policyID && !(resourcePaths) && !(roleIds)) {
       console.log(`### creating request for a policy id: ${policyID} with revoke set as ${revoke}`);
@@ -50,7 +51,7 @@ module.exports = {
         role_ids: roleIds,
       };
     } else {
-      console.log(`### incorrect args in createRequest: must have policyID or resourcePaths+roleIds`);
+      console.log('### incorrect args in createRequest: must have policyID or resourcePaths+roleIds');
       return null;
     }
 
