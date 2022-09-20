@@ -36,7 +36,6 @@ module.exports = {
     adminUserTokenHeader, username, policyID,
     resourcePaths = null, roleIds = null, revoke = false, requestStatus = null,
   }) {
-
     let data = {};
     // args should include policyID or resourcePaths+roleIds
     if (policyID && !(resourcePaths) && !(roleIds)) {
@@ -56,7 +55,6 @@ module.exports = {
       console.log('### incorrect args in createRequest: must have policyID or resourcePaths+roleIds');
       return null;
     }
-
     if (requestStatus) {
       data.status = requestStatus;
     }

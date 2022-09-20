@@ -48,14 +48,14 @@ Scenario('User requests access for a policy with a signed status (and revoke it 
   const { accessTokenHeader } = users.mainAcct;
   // Create a request for a policy that is present in Arborist with a SIGNED status to test
   // if the access is granted at the "create" endpoint
-  let request_data = {
+  const requestData = {
     adminUserTokenHeader: accessTokenHeader,
     username: users.user0.username,
     policyID: 'requestor_integration_test',
     revoke: false,
-    requestStatus: 'SIGNED'
-  }
-  const signedResponse = await requestorTasks.createRequest(request_data);
+    requestStatus: 'SIGNED',
+  };
+  const signedResponse = await requestorTasks.createRequest(requestData);
   I.cache.requestDidList.push(signedResponse.request_id);
   expect(signedResponse).to.have.property('status_code', 201);
 
@@ -68,8 +68,8 @@ Scenario('User requests access for a policy with a signed status (and revoke it 
 
   // Create a request to 'revoke' a policy that is present in Arborist again
   // with request status set to SIGNED
-  request_data.revoke = true
-  const signedRevokeResponse = await requestorTasks.createRequest(request_data);
+  requestData.revoke = true;
+  const signedRevokeResponse = await requestorTasks.createRequest(requestData);
   I.cache.requestDidList.push(signedRevokeResponse.request_id);
 
   // Verify if access is revoked from the user
