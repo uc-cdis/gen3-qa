@@ -42,11 +42,17 @@ Scenario('User requests access for resource_paths and role_ids with a signed sta
   expect(userInfo.data.authz).to.not.have.property('/requestor_integration_test');
 
   const { accessTokenHeader } = users.mainAcct;
-  const resourcePaths = ['/requestor_integration_test'];
-  const roleIds = ['workspace_user', 'mds_user'];
   // Create a request for resource_paths + role_ids present in Arborist with a SIGNED status to test
   // if the access is granted at the "create" endpoint
-  const createResponse = await requestorTasks.createRequest(accessTokenHeader, users.user0.username, undefined, resourcePaths, roleIds, false, 'SIGNED');
+  let request_data = {
+    adminUserTokenHeader: accessTokenHeader,
+    username: users.user0.username,
+    resourcePaths: ['/requestor_integration_test'],
+    roleIds: ['workspace_user', 'mds_user'],
+    revoke: false,
+    requestStatus: 'SIGNED'
+  }
+  const createResponse = await requestorTasks.createRequest(request_data);
   expect(createResponse).to.have.property('status_code', 201);
   I.cache.requestDidList.push(createResponse.request_id);
 
@@ -59,7 +65,14 @@ Scenario('User requests access for resource_paths and role_ids with a signed sta
   expect(userInfo.data.authz['/requestor_integration_test']).to.deep.to.include({ method: 'access', service: 'mds_gateway' });
 
   // Create a request to 'revoke' the new policy that was created
-  const signedRevokeResponse = await requestorTasks.createRequest(accessTokenHeader, users.user0.username, createResponse.policy_id, undefined, undefined, true, 'SIGNED');
+  request_data = {
+    adminUserTokenHeader: accessTokenHeader,
+    username: users.user0.username,
+    policyID: createResponse.policy_id,
+    revoke: true,
+    requestStatus: 'SIGNED'
+  }
+  const signedRevokeResponse = await requestorTasks.createRequest(request_data);
   expect(signedRevokeResponse).to.have.property('status_code', 201);
   I.cache.requestDidList.push(signedRevokeResponse.request_id);
 

@@ -23,17 +23,19 @@ module.exports = {
   },
 
   /**
-  * @param {string} adminUserTokenHeader - headers for user authorized in Requestor
-  * @param {string} username - username to grant/revoke access for
-  * @param {string} policyID - policyID of the policy to request/revoke access
-  * @param {array} resourcePaths - resource_paths to request/revoke access
-  * @param {array} roleIds - role_ids to request/revoke access
-  * @param {boolean} revoke - set to true to create a revoke request
+  * @param {Object} data - Pass request data as an object, include policyID or resourcePaths+roleIds
+  * @param {string} data.adminUserTokenHeader - headers for user authorized in Requestor
+  * @param {string} data.username - username to grant/revoke access for
+  * @param {string} [data.policyID] - policyID of the policy to request/revoke access
+  * @param {array} [data.resourcePaths=null] - resource_paths to request/revoke access
+  * @param {array} [data.roleIds=null] - role_ids to request/revoke access
+  * @param {boolean} [data.revoke=false] - set to true to create a revoke request
+  * @param {string} [data.requestStatus=null] - set to 'SIGNED' to approve request
   */
-  async createRequest(
+  async createRequest({
     adminUserTokenHeader, username, policyID,
     resourcePaths = null, roleIds = null, revoke = false, requestStatus = null,
-  ) {
+  }) {
 
     let data = {};
     // args should include policyID or resourcePaths+roleIds

@@ -43,7 +43,12 @@ Scenario('User requests access for a policy that does not exist in Arborist @req
   users,
 }) => {
   const { accessTokenHeader } = users.mainAcct;
-  const response = await requestorTasks.createRequest(accessTokenHeader, users.user0.username, 'random-policy');
+  const request_data = {
+    adminUserTokenHeader: accessTokenHeader,
+    username: users.user0.username,
+    policyID: 'random-policy'
+  }
+  const response = await requestorTasks.createRequest(request_data);
   expect(response).to.have.property('status_code', 400);
 });
 
@@ -56,7 +61,12 @@ Scenario('User requests access for a policy followed by sending a Revoke request
 
   const { accessTokenHeader } = users.mainAcct;
   // Create a request for a policy that is present in Arborist
-  const createResponse = await requestorTasks.createRequestForPolicyID(accessTokenHeader, users.user0.username, 'requestor_integration_test');
+  let request_data = {
+    adminUserTokenHeader: accessTokenHeader,
+    username: users.user0.username,
+    policyID: 'requestor_integration_test'
+  }
+  const createResponse = await requestorTasks.createRequest(request_data);
   I.cache.requestDidList.push(createResponse.request_id);
   expect(createResponse).to.have.property('status_code', 201);
 
@@ -74,7 +84,8 @@ Scenario('User requests access for a policy followed by sending a Revoke request
   expect(userInfo.data.authz['/requestor_integration_test']).to.deep.to.include({ method: 'access', service: 'jupyterhub' });
 
   // Create a request to 'revoke' a policy that is present in Arborist
-  const revokeResponse = await requestorTasks.createRequest(accessTokenHeader, users.user0.username, 'requestor_integration_test', undefined, undefined, true);
+  request_data.revoke = true
+  const revokeResponse = await requestorTasks.createRequest(request_data);
 
   // Check if the access is revoked -- It shouldn't since it is not signed yet
   userInfo = await fence.do.getUserInfo(user0AccessToken);
@@ -99,6 +110,12 @@ Scenario('Send a revoke request for a policy the user does not have @requestor',
   expect(userInfo.data.authz).to.not.have.property('/requestor_integration_test');
 
   // Create a request to 'revoke' a policy to which user does not have access to
-  const revokeResponse = await requestorTasks.createRequest(users.mainAcct.accessTokenHeader, users.user1.username, 'requestor_integration_test', undefined, undefined, true);
+  const request_data = {
+    adminUserTokenHeader: users.mainAcct.accessTokenHeader,
+    username: users.user1.username,
+    policyID: 'requestor_integration_test',
+    revoke: true
+  }
+  const revokeResponse = await requestorTasks.createRequest(request_data);
   expect(revokeResponse).to.have.property('status_code', 400);
 });
