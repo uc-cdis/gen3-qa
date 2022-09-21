@@ -41,8 +41,7 @@ Scenario('GWAS submit workflow through Case Control GWAS @GWASUI', async ({
   await GWASTasks.submitJob();
 
   I.wait(1);
-  // Navigate to the result tab
-  await GWASTasks.navigateToJobStatus();
+
   await GWASTasks.checkJobStatus();
 
   await GWASQuestions.isJobStart(jobName);
@@ -85,7 +84,7 @@ Scenario('GWAS submit workflow through Quantitative Phenotype GWAS @GWASUI', asy
   await GWASTasks.submitJob();
 
   I.wait(1);
-  await GWASTasks.navigateToJobStatus();
+
   await GWASTasks.checkJobStatus();
 
   await GWASQuestions.isJobStart(jobName);
@@ -168,3 +167,5 @@ Scenario('Unauthorize to workflow @GWASUI', async ({
   I.dontSeeElement(GWASProps.JobStatusesButton);
   // TODO: add message for unauthorized user
 });
+
+// selete different GWAS TYPE
