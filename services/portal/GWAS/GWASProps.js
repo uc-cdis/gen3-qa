@@ -2,8 +2,6 @@ module.exports = {
   path: 'analysis/GWASUIApp',
 
   // Xpath:
-  AppsNavigationTab: '//a[contains(text(),"Apps")]',
-  GWASResultTitle: '//h2[contains(text(),"GWAS Results")]',
   CaseControlTitle: '//div[contains(text(),"Case Control GWAS")]',
   CaseControlInput: '(//input[@class="ant-checkbox-input"])[1]',
   QuantitativeTitle: '//div[contains(text(),"Quantitative Phenotype")]',
@@ -35,12 +33,4 @@ module.exports = {
   AreyousureYes: '//span[contains(text(),"Yes")]',
   AreyousureNo: '//span[contains(text(),"No")]',
   DownloadOutputButton: '//span[contains(text(),"download")]',
-  CohortSearchBar: '//div[@class="GWASUI-searchContainer"]',
-  CohortSearchResult: '//td[contains(text(),"medium")]',
-  ConceptSearchBar: '//input[@class="GWASUI-searchInput"]',
-  ConceptSearchResult: '//td[contains(text(),"Attribute10")]',
-  CohortSearchBar1: '(//input[@class="GWASUI-searchInput"])[1]',
-  CohortSearchResult1: '//td[contains(text(),"Large")]',
-  CohortSearchBar2: '(//input[@class="GWASUI-searchInput"])[2]',
-  CohortSearchResult2: '//td[contains(text(),"medium")]',
 };

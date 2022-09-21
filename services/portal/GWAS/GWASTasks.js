@@ -81,35 +81,8 @@ module.exports = {
     I.seeElement(GWASProps.AreyousurePopup);
   },
 
-  async navigateToJobStatus() {
-    I.click(GWASProps.AppsNavigationTab);
-    I.click(GWASProps.GWASResultTitle);
-    I.seeElement(GWASProps.JobStatusesButton);
-  },
-
   async checkJobStatus() {
     I.seeElement(GWASProps.JobStatusesButton);
     I.click(GWASProps.JobStatusesButton);
   },
-
-  async CheckCohortSearch() {
-    I.seeElement(GWASProps.CohortSearchBar);
-    I.fillField(GWASProps.CohortSearchBar, 'medium');
-    const noOfElements = I.grabNumberOfVisibleElements(GWASProps.CohortSearchResult);
-    I.assertGreaterThanOrEqual(2, noOfElements);
-  },
-  async CheckConceptSearch() {
-    I.seeElement(GWASProps.ConceptSearchBar);
-    I.fillField(GWASProps.ConceptSearchBar, 'Attribute10');
-    const noOfElements = I.grabNumberOfVisibleElements(GWASProps.ConceptSearchResult);
-    I.assertGreaterThanOrEqual(1, noOfElements);
-  },
-
-  async CheckConceptSearchOnCustomDich() {
-    I.seeElement(GWASProps.ConceptSearchBar);
-    I.fillField(GWASProps.ConceptSearchBar, 'Attribute10');
-    const noOfElements = I.grabNumberOfVisibleElements(GWASProps.ConceptSearchResult);
-    I.assertGreaterThanOrEqual(1, noOfElements);
-  },
-
 };
