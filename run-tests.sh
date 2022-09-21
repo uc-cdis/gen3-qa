@@ -304,9 +304,6 @@ donot '@batch'
 # Do not run dataguids.org test for regular PRs
 donot '@dataguids'
 
-# Do not run the test until update the test
-donot '@GWASUI'
-
 # Do not run prjsBucketAccess (for prod-execution only)
 donot '@prjsBucketAccess'
 
