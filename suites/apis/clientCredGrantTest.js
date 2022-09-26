@@ -99,7 +99,7 @@ AfterSuite(async ({ I }) => {
   deleteClient();
 });
 
-Scenario('Client Credentials Grant Type', async ({ I, users }) => {
+Scenario('Client Credentials Grant Type interaction with Requestor', async ({ I, users }) => {
   // creating OIDC client for the test
   const { clientID, secretID } = createClient();
   if (process.env.DEBUG === 'true') {
