@@ -74,7 +74,7 @@ AfterSuite(async ({ I, users, fence }) => {
   
 });
 
-Scenario('Client Credentials Grant Type interaction with Requestor', async ({ I, users, fence }) => {
+Scenario('Client Credentials Grant Type interaction with Requestor @clientCreds', async ({ I, users, fence }) => {
   // creating OIDC client for the test
   const { clientID, secretID } = fence.do.createClient(clientName, users.user0, 'client_credentials', arboristPolicies = null);
   console.log(`Client ID: ${clientID}`);
