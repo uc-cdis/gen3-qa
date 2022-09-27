@@ -12,15 +12,13 @@ exist in the Fence DB. So you need to run usersync again during the test, after 
 
 3. get a client access token using the client ID and secret.
 
-4. hit Fence’s /user endpoint and check the access
+4. create an access request in Requestor
 
-5. create an access request in Requestor
+5. list Requestor requests
 
-6. list Requestor requests
+6. update an access request in Requestor
 
-7. update an access request in Requestor
-
-8. AfterSuite - delete the create client in step 1 with `client-delete` command
+7. AfterSuite - delete the create client in step 1 with `client-delete` command
 also delete the requests created in requestor
 */
 
@@ -43,48 +41,18 @@ async function getAccessToken(clientID, secretID) {
   }
   const tokens = JSON.parse(tokenReq);
   const accessToken = tokens.access_token;
-  console.log(`###Access_token : ${accessToken}`);
   if (process.env.DEBUG === 'true') {
     console.log(`###Access_Token : ${accessToken}`);
   }
   return accessToken;
 }
 
-function deleteClient() {
-  const deleteClientCmd = `fence-create client-delete --client ${clientName}`;
-  const deleteClientReq = bash.runCommand(deleteClientCmd, 'fence', takeLastLine);
-  console.log(`Client deleted : ${deleteClientReq}`);
-}
-
-function createClient() {
-  const createClientOIDC = 'fence-create client-create'
-        + ` --client ${clientName}`
-        + ' --grant-types client_credentials';
-
-  const createClientReq = bash.runCommand(createClientOIDC, 'fence', takeLastLine);
-  if (process.env.DEBUG === 'true') {
-    console.dir(`###Client created : ${createClient}`);
-  }
-  const regex = /\('(.*)',\s'(.*)'\)/;
-  const credentials = createClientReq.match(regex);
-  expect(credentials, `Unable to get client credentials "${credentials}"`).to.not.to.be.empty;
-  const clientID = credentials[1];
-  const secretID = credentials[2];
-  expect(clientID).to.not.to.be.empty;
-  expect(secretID).to.not.to.be.empty;
-
-  return {
-    clientID,
-    secretID,
-  };
-}
-
-BeforeSuite(async ({ I }) => {
+BeforeSuite(async ({ I, fence }) => {
   I.cache = {};
-  deleteClient();
+  fence.do.deleteClient(clientName);
 });
 
-AfterSuite(async ({ I }) => {
+AfterSuite(async ({ I, users, fence }) => {
   // deleting the request created
   console.log('Deleting the request from the requestor DB ... ');
   if (process.env.DEBUG === 'true') {
@@ -96,23 +64,34 @@ AfterSuite(async ({ I }) => {
   }
   // delete the client jenkinsClientTester
   console.log('Deleting client created for the test ...');
-  deleteClient();
+  fence.do.deleteClient(clientName);
+
+  // revoking the arborist policy for the user
+  console.log(`Revoking the arborist policy for the user0 ...`);
+  await bash.runCommand(`
+      gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/policy/requestor_integration_test
+  `);
+  
 });
 
-Scenario('Client Credentials Grant Type', async ({ I, users }) => {
+Scenario('Client Credentials Grant Type', async ({ I, users, fence }) => {
   // creating OIDC client for the test
-  const { clientID, secretID } = createClient();
+  const { clientID, secretID } = fence.do.createClient(clientName, users.user0, 'client_credentials', arboristPolicies = null);
+  console.log(`Client ID: ${clientID}`);
+  console.log(`Client Secret: ${secretID}`)
   if (process.env.DEBUG === 'true') {
     console.log(`Client ID: ${clientID}`);
     console.log(`Client Secret: ${secretID}`);
   }
   // running usersync job
+  // the client is added to useryaml and granted access
+  // but if the client doesnt exist in fence db, usersync will not grant access to the client
+  // so during the jenkins run, we need run usersync after the client is created
   await runUserSync();
   await checkPod(I, 'usersync', 'gen3job,job-name=usersync');
   // getting the access_token from clientID and clientSecret
   const clientAccessToken = await getAccessToken(clientID, secretID);
 
-  // create a access request in requestor DB and store the requestID in I.cache
   // create data for request
   const { username } = users.user0;
   const data = {
@@ -126,12 +105,14 @@ Scenario('Client Credentials Grant Type', async ({ I, users }) => {
     data,
     getAccessTokenHeader(clientAccessToken),
   );
+  // check if the request is successful
+  expect(createRequest).to.have.property('status', 201);
+  // check if the createRequest response contains data
   if (process.env.DEBUG === 'true') {
     console.log(createRequest.data);
-    console.log(createRequest.data.request_id);
   }
-  expect(createRequest).to.have.property('status', 201);
-  expect(createRequest.data).to.have.property('request_id');
+  // check if the response data consists of 'request_id'. If expect fails, show data
+  expect(createRequest.data, createRequest.data).to.have.property('request_id');
 
   // cache the requestID in I.cache
   I.cache.requestID = createRequest.data.request_id;
@@ -145,4 +126,9 @@ Scenario('Client Credentials Grant Type', async ({ I, users }) => {
   await requestorTasks.signedRequest(I.cache.requestID);
   const requestStatusSigned = await requestorTasks.getRequestStatus(I.cache.requestID);
   console.log(`Status of the request is:${requestStatusSigned}`);
+
+//   // do not uncomment this code below until PXP - 10229 is done
+//   // getting the list of users access request
+//   const list = await requestorTasks.getRequestList(clientAccessToken);
+//   console.log(list);
 });
