@@ -74,7 +74,7 @@ AfterSuite(async ({ I, users, fence }) => {
   
 });
 
-Scenario('Client Credentials Grant Type', async ({ I, users, fence }) => {
+Scenario('Client Credentials Grant Type interaction with Requestor', async ({ I, users, fence }) => {
   // creating OIDC client for the test
   const { clientID, secretID } = fence.do.createClient(clientName, users.user0, 'client_credentials', arboristPolicies = null);
   console.log(`Client ID: ${clientID}`);
@@ -117,7 +117,7 @@ Scenario('Client Credentials Grant Type', async ({ I, users, fence }) => {
   // cache the requestID in I.cache
   I.cache.requestID = createRequest.data.request_id;
 
-  // list the requests created by clientAccessToken by the request_id
+  // get the request created by clientAccessToken by the request_id
   const requestStatus = await requestorTasks.getRequestStatus(I.cache.requestID);
   console.log(`Status of the request is:${requestStatus}`);
 

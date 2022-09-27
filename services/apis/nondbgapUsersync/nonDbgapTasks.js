@@ -1,3 +1,5 @@
+/* eslint-disable max-len */
+
 const { expect } = require('chai');
 const queryString = require('query-string');
 const { Bash } = require('../../../utils/bash.js');
@@ -106,36 +108,31 @@ module.exports = {
     return id;
   },
 
-  async presignedURLRequest(fence, project, projectFile, user, token) {
-    console.log(`Creating presigned url with mainAcct user for ${project} after running usersync`);
-    console.log(`${token}`);
-    const signedURLs3 = await fence.do.createSignedUrl(projectFile, ['protocol=s3'], token);
-    if (signedURLs3.status === 200) {
-      console.log(`The presigned url for ${project} files is created. The S3 url -> ${signedURLs3.data.urls}`);
-    }
-    const signedURLgs = await fence.do.createSignedUrl(projectFile, ['protocol=gs'], token);
-    if (signedURLgs.status === 200) {
-      console.log(`The presigned url for ${project} files is created. The GS url -> ${signedURLgs.data.urls}`);
-    }
-
+  async presignedURLRequestS3(fence, project, projectFile, user, token) {
     let projectFileContents3 = null;
-    let projectFileContentgs = null;
-
-    try {
+    console.log(`Creating presigned url with ${user} user for ${project} after running usersync`);
+    const signedURLs3 = await fence.do.createSignedUrl(projectFile, ['protocol=s3'], token);
+    if (signedURLs3.status !== 200) {
+      console.log(`### The request failure status code : ${signedURLs3.status}`);
+      console.log(`User ${user} with access can not create s3 signed urls and read the file for ${project}`);
+    } else {
+      console.log(`The presigned url for ${project} files is created. The S3 url -> ${signedURLs3.data.url}`);
       projectFileContents3 = await fence.do.getFileFromSignedUrlRes(signedURLs3);
-    } catch (err) {
-      console.log('Failed to fetch presigned url', err);
+      expect(projectFileContents3).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
     }
+  },
 
-    try {
+  async presignedURLRequestGs(fence, project, projectFile, user, token) {
+    let projectFileContentgs = null;
+    console.log(`Creating presigned url with ${user} user for ${project} after running usersync`);
+    const signedURLgs = await fence.do.createSignedUrl(projectFile, ['protocol=gs'], token);
+    if (signedURLgs.status !== 200) {
+      console.log(`### The request failure status code : ${signedURLgs.status}`);
+      console.log(`User ${user} with access can not create gs signed urls and read the file for ${project}`);
+    } else {
+      console.log(`The presigned url for ${project} files is created. The GS url -> ${signedURLgs.data.url}`);
       projectFileContentgs = await fence.do.getFileFromSignedUrlRes(signedURLgs);
-    } catch (err) {
-      console.log('Failed to fetch presigned url', err);
+      expect(projectFileContentgs).to.equal(fence.props.googleBucketInfo.test.fileContents);
     }
-
-    expect(projectFileContents3, `User ${user} with access can not create s3 signed urls `
-              + `and read the file for ${project}`).to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-    expect(projectFileContentgs, `User ${user} with access can not create gs signed urls `
-              + `and read the file for ${project}`).to.equal(fence.props.googleBucketInfo.test.fileContents);
   },
 };
