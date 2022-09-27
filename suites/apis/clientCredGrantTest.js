@@ -136,7 +136,7 @@ Scenario('Client Credentials Grant Type interaction with Requestor', async ({ I,
   // cache the requestID in I.cache
   I.cache.requestID = createRequest.data.request_id;
 
-  // list the requests created by clientAccessToken by the request_id
+  // get the request created by clientAccessToken by the request_id
   const requestStatus = await requestorTasks.getRequestStatus(I.cache.requestID);
   console.log(`Status of the request is:${requestStatus}`);
 
