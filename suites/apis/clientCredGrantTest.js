@@ -26,7 +26,7 @@ Feature('Client_Credentials Grant Type @requires-fence');
 
 const { expect } = require('chai');
 const { runUserSync, checkPod, getAccessTokenHeader } = require('../../utils/apiUtil.js');
-const { Bash, takeLastLine } = require('../../utils/bash.js');
+const { Bash } = require('../../utils/bash.js');
 const requestorTasks = require('../../services/apis/requestor/requestorTasks.js');
 const requestorProps = require('../../services/apis/requestor/requestorProps.js');
 
@@ -52,7 +52,7 @@ BeforeSuite(async ({ I, fence }) => {
   fence.do.deleteClient(clientName);
 });
 
-AfterSuite(async ({ I, users, fence }) => {
+AfterSuite(async ({ I, fence }) => {
   // deleting the request created
   console.log('Deleting the request from the requestor DB ... ');
   if (process.env.DEBUG === 'true') {
@@ -67,18 +67,17 @@ AfterSuite(async ({ I, users, fence }) => {
   fence.do.deleteClient(clientName);
 
   // revoking the arborist policy for the user
-  console.log(`Revoking the arborist policy for the user0 ...`);
+  console.log('Revoking the arborist policy for the user0 ...');
   await bash.runCommand(`
       gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/policy/requestor_integration_test
   `);
-  
 });
 
 Scenario('Client Credentials Grant Type interaction with Requestor @clientCreds', async ({ I, users, fence }) => {
   // creating OIDC client for the test
-  const { clientID, secretID } = fence.do.createClient(clientName, users.user0, 'client_credentials', arboristPolicies = null);
+  const { clientID, secretID } = fence.do.createClient(clientName, users.user0, 'client_credentials');
   console.log(`Client ID: ${clientID}`);
-  console.log(`Client Secret: ${secretID}`)
+  console.log(`Client Secret: ${secretID}`);
   if (process.env.DEBUG === 'true') {
     console.log(`Client ID: ${clientID}`);
     console.log(`Client Secret: ${secretID}`);
