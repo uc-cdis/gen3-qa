@@ -2,15 +2,13 @@ module.exports = {
   path: 'analysis/GWASUIApp',
 
   // Xpath:
-  AppsNavigationTab: '//a[contains(text(),"Apps")]',
-  GWASResultTitle: '//h2[contains(text(),"GWAS Results")]',
   CaseControlTitle: '//div[contains(text(),"Case Control GWAS")]',
   CaseControlInput: '(//input[@class="ant-checkbox-input"])[1]',
   QuantitativeTitle: '//div[contains(text(),"Quantitative Phenotype")]',
   QuantitativeInput: '(//input[@class="ant-checkbox-input"])[2]',
   SelectCohortTitle: '//th[contains(text(),"Cohort Name")]',
   SelectFirstRadioInput: '(//input[@class="ant-radio-input" and not(@disabled)])[1]',
-  SelectSecondRadioInput: '(//input[@class="ant-radio-input" and not(@disabled)])[1][1]',
+  SelectSecondRadioInput: '(//input[@class="ant-radio-input" and not(@disabled)])[2]',
   SelectedRadio: '(//*[@class="ant-radio ant-radio-checked"])',
   SelectConceptTitle: '//th[contains(text(),"Concept ID")]',
   SelectVariableTitle: '//th[contains(text(),"Variable ID")]',
