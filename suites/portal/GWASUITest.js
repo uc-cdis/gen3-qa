@@ -122,7 +122,6 @@ Scenario('GWAS previous button and next button @GWASUI', async ({
   await GWASTasks.clickPreviousButton();
   I.seeElement(GWASProps.SelectCohortTitle);
   await GWASTasks.clickNextButton();
-  await GWASTasks.clickNextButton();
   I.seeElement(GWASProps.SelectConceptTitle);
 });
 
@@ -180,9 +179,11 @@ Scenario('GWAS test out table filtering @GWASUI', async ({
 
   // Case Control
   await GWASTasks.selectCaseControl();
+  await GWASTasks.CheckCohortSearch();
   await GWASTasks.selectCohort();
   await GWASTasks.clickNextButton();
   // select 2nd cohort and go back to 1st step
+  await GWASTasks.CheckCohortSearch();
   await GWASTasks.selectCohort();
   await GWASTasks.clickPreviousButton();
   // the 1st cohort should be selected
@@ -190,13 +191,88 @@ Scenario('GWAS test out table filtering @GWASUI', async ({
   // go to the 2nd cohort and it should be selected
   await GWASTasks.clickNextButton();
   I.seeElement(GWASProps.SelectedRadio);
-  // go to next step, select variables
+  // go to next step, search and select variables
   await GWASTasks.clickNextButton();
+  await GWASTasks.CheckConceptSearch();
   await GWASTasks.selectVariables();
   // go back to select cohort step
   await GWASTasks.clickPreviousButton();
   I.seeElement(GWASProps.SelectCohortTitle);
+  // go to select next step, do cohort search
   await GWASTasks.clickNextButton();
   await GWASTasks.clickNextButton();
-  I.seeElement(GWASProps.SelectConceptTitle);
+  await GWASTasks.clickNextButton();
+  await GWASTasks.CheckCohortSearchOnCustomDich1();
+  await GWASTasks.CheckCohortSearchOnCustomDich2();
+});
+
+Scenario('Attrition Table in Case Control GWAS @GWASUI', async ({
+  I, home, users,
+}) => {
+  I.useWebDriverTo('set window size', async ({ browser }) => {
+    browser.setWindowSize(1920, 1080);
+  });
+  home.do.goToHomepage();
+  await home.complete.login(users.mainAcct);
+
+  GWASTasks.goToGWASPage();
+
+  await GWASTasks.selectCaseControl();
+  // TODO: check add a new cohort
+  // select 1st cohort
+  await GWASTasks.selectCohort();
+  await GWASTasks.CheckCaseControlCohortAttritiontbl();
+  await GWASTasks.clickNextButton();
+  // select 2nd cohort
+  await GWASTasks.selectCohort();
+  await GWASTasks.CheckCaseControlCohortAttritiontbl();
+  await GWASTasks.clickNextButton();
+  // select variables
+  await GWASTasks.selectVariables();
+  await GWASTasks.CheckCaseControlCohortAttritiontbl();
+  await GWASTasks.clickNextButton();
+  // review
+  await GWASTasks.CheckCaseControlCohortAttritiontbl();
+  await GWASTasks.clickNextButton();
+  // Add Custom
+  await GWASTasks.CheckCaseControlCohortAttritiontbl();
+  await GWASTasks.clickNextButton();
+  // check att table
+  await GWASTasks.CheckCaseControlCohortAttritiontbl();
+  I.saveScreenshot('GWAS_CaseControlAttrition_tbl.png');
+});
+
+Scenario('Attrition Table in Quantitative Phenotype GWAS @GWASUI', async ({
+  I, home, users,
+}) => {
+  I.useWebDriverTo('set window size', async ({ browser }) => {
+    browser.setWindowSize(1920, 1080);
+  });
+  home.do.goToHomepage();
+  await home.complete.login(users.mainAcct);
+
+  GWASTasks.goToGWASPage();
+
+  await GWASTasks.selectQuantitative();
+  // TODO: check add a new cohort
+  // select 1st cohort
+  await GWASTasks.selectCohort();
+  await GWASTasks.CheckCohortAttritiontbl();
+  await GWASTasks.clickNextButton();
+  // select harmonized variables (1st and 2nd)
+  await GWASTasks.selectVariables();
+  await GWASTasks.CheckCohortAttritiontbl();
+  await GWASTasks.clickNextButton();
+  // select which variable is your phenotype
+  await GWASTasks.selectPhenotypeVariable();
+  await GWASTasks.CheckCohortAttritiontbl();
+  // Add custom dichotomous covariates
+  await GWASTasks.clickNextButton();
+  await GWASTasks.CheckCohortAttritiontbl();
+  // set parameters
+  await GWASTasks.clickNextButton();
+  await GWASTasks.CheckCohortAttritiontbl();
+  // check att table
+  await GWASTasks.CheckCohortAttritiontbl();
+  I.saveScreenshot('GWAS_CohortAttrition_tbl.png');
 });
