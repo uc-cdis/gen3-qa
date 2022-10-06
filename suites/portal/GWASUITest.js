@@ -275,5 +275,4 @@ Scenario('Attrition Table in Quantitative Phenotype GWAS @GWASUI', async ({
   // check att table
   await GWASTasks.CheckCohortAttritiontbl();
   I.saveScreenshot('GWAS_CohortAttrition_tbl.png');
-  
 });
