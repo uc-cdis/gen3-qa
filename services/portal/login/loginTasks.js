@@ -12,17 +12,30 @@ module.exports = {
     portal.seeProp(loginProps.ready_cue, 60);
   },
 
+  async systemUseMsg() {
+    I.saveScreenshot('SystemUseMessage.png');
+    const title = await bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.components.systemUse.systemUseTitle\'');
+    console.log(title);
+    if (title !== null && title !== '') {
+      const numberOfElements = await I.grabNumberOfVisibleElements(`//div[contains(text(), ${title})]//ancestor::div[contains(@class, "popup__box")]`);
+      console.log(`### numberOfElements:${numberOfElements}`);
+      if (numberOfElements > 0) {
+        I.click(homeProps.systemUseAcceptButton.locator);
+      }
+    }
+  },
+
   /**
    * Logs into windmill. Uses the "dev_login" cookie to tell fence
    * which username to use when mocking the login.
    * /!\ remember to logout after logging in or following tests will fail!
    */
-  login(username) {
+  async login(username) {
     if (I.seeCurrentUrlEquals(loginProps.path)) {
       console.log('Already on Login Page');
     } else {
       if (process.env.testedEnv.includes('mickey') || process.env.testedEnv.includes('va')) {
-        home.do.systemUseMsg();
+        await this.systemUseMsg();
       }
       this.goToLoginPage();
     }
