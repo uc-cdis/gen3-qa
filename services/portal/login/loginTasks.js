@@ -12,7 +12,7 @@ module.exports = {
     portal.seeProp(loginProps.ready_cue, 60);
   },
 
-  systemUseMsg() {
+  async systemUseMsg() {
     I.saveScreenshot('SystemUseMessage.png');
     const title = await bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.components.systemUse.systemUseTitle\'');
     console.log(title);
@@ -35,7 +35,7 @@ module.exports = {
       console.log('Already on Login Page');
     } else {
       if (process.env.testedEnv.includes('mickey') || process.env.testedEnv.includes('va')) {
-        this.systemUseMsg();
+        await this.systemUseMsg();
       }
       this.goToLoginPage();
     }
