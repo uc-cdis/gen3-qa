@@ -4,6 +4,12 @@
 module.exports = {
   path: 'login',
 
+  systemUseAcceptButton: {
+    locator: {
+      xpath: '//button[contains(text(), \'Accept\')]',
+    },
+  },
+
   ready_cue: {
     locator: {
       css: '.login-page__entries',

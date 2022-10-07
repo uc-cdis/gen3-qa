@@ -1,6 +1,8 @@
 const loginProps = require('./loginProps.js');
 const portal = require('../../../utils/portal.js');
+const { Bash } = require('../../../utils/bash.js');
 
+const bash = new Bash();
 const I = actor();
 
 /**
@@ -20,7 +22,7 @@ module.exports = {
       const numberOfElements = await I.grabNumberOfVisibleElements(`//div[contains(text(), ${title})]//ancestor::div[contains(@class, "popup__box")]`);
       console.log(`### numberOfElements:${numberOfElements}`);
       if (numberOfElements > 0) {
-        I.click(homeProps.systemUseAcceptButton.locator);
+        I.click(loginProps.systemUseAcceptButton.locator);
       }
     }
   },
