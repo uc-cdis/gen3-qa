@@ -22,7 +22,7 @@ module.exports = {
       console.log('Already on Login Page');
     } else {
       if (process.env.testedEnv.includes('mickey') || process.env.testedEnv.includes('va')) {
-        await home.do.systemUseMsg();
+        home.do.systemUseMsg();
       }
       this.goToLoginPage();
     }
