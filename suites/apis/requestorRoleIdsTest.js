@@ -37,9 +37,9 @@ AfterSuite(async ({ I }) => {
 Scenario('User requests access for resource_paths and role_ids with a signed status (and revoke it later) @requestorRoleIds @heal', async ({
   I, users, fence,
 }) => {
-  // Check that the user does not have access to resource '/requestor_integration_test'.
+  // Check that the user does not have already access
   let userInfo = await fence.do.getUserInfo(users.user0.accessToken);
-  expect(userInfo.data.authz).to.not.have.property('/requestor_integration_test');
+  expect(userInfo.data.authz['/requestor_roleids_test']).to.deep.to.not.include({ method: 'access', service: 'mds_gateway' });
 
   const { accessTokenHeader } = users.mainAcct;
   // Create a request for resource_paths + role_ids present in Arborist with a SIGNED status to test
@@ -47,7 +47,7 @@ Scenario('User requests access for resource_paths and role_ids with a signed sta
   let requestData = {
     adminUserTokenHeader: accessTokenHeader,
     username: users.user0.username,
-    resourcePaths: ['/requestor_integration_test'],
+    resourcePaths: ['/requestor_roleids_test'],
     roleIds: ['workspace_user', 'mds_user'],
     revoke: false,
     requestStatus: 'SIGNED',
@@ -60,9 +60,9 @@ Scenario('User requests access for resource_paths and role_ids with a signed sta
   // Verify if access is given to the user -- There should be, since
   // the status in the previous step is set to SIGNED
   userInfo = await fence.do.getUserInfo(user0AccessToken);
-  expect(userInfo.data.authz).to.have.property('/requestor_integration_test');
-  expect(userInfo.data.authz['/requestor_integration_test']).to.deep.to.include({ method: 'access', service: 'jupyterhub' });
-  expect(userInfo.data.authz['/requestor_integration_test']).to.deep.to.include({ method: 'access', service: 'mds_gateway' });
+  expect(userInfo.data.authz).to.have.property('/requestor_roleids_test');
+  expect(userInfo.data.authz['/requestor_roleids_test']).to.deep.to.include({ method: 'access', service: 'jupyterhub' });
+  expect(userInfo.data.authz['/requestor_roleids_test']).to.deep.to.include({ method: 'access', service: 'mds_gateway' });
 
   // Create a request to 'revoke' the new policy that was created
   requestData = {
@@ -76,7 +76,7 @@ Scenario('User requests access for resource_paths and role_ids with a signed sta
   expect(signedRevokeResponse).to.have.property('status_code', 201);
   I.cache.requestDidList.push(signedRevokeResponse.request_id);
 
-  // Verify if access is revoked from the user
+  // Verify if the new policy is revoked from the user
   userInfo = await fence.do.getUserInfo(user0AccessToken);
-  expect(userInfo.data.authz).to.not.have.property('/requestor_integration_test');
+  expect(userInfo.data.authz['/requestor_roleids_test']).to.deep.to.not.include({ method: 'access', service: 'mds_gateway' });
 });
