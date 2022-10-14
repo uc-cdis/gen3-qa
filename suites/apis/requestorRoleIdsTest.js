@@ -76,7 +76,7 @@ Scenario('User requests access for resource_paths and role_ids with a signed sta
   expect(signedRevokeResponse).to.have.property('status_code', 201);
   I.cache.requestDidList.push(signedRevokeResponse.request_id);
 
-  // Verify if the new policy is revoked from the user
+  // Verify if the access is revoked from the user
   userInfo = await fence.do.getUserInfo(user0AccessToken);
   expect(userInfo.data.authz['/requestor_roleids_test']).to.deep.to.not.include({ method: 'access', service: 'mds_gateway' });
 });
