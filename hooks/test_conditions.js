@@ -81,4 +81,20 @@ module.exports = async function () {
       }
     }
   });
+
+  if (suite.title === 'GWAS UI @requires-portal @requires-argo-wrapper @requires-cohort-middleware') {
+    // export to pfb button has different configuration in different environments
+    const VAEnabled = bash.runCommand('gen3 secrets decode versions manifest.json | yq -r \'."argo-wrapper" | ."portal" | ."cohort-middleware"\'');
+    // eslint-disable-next-line eqeqeq
+    if (VAEnabled !== 'true') {
+      console.log('Skipping VA tests since the required configuration is not in manifest.json');
+      console.dir(suite.tests);
+      suite.tests.forEach((test) => {
+        test.run = function skip() { // eslint-disable-line func-names
+          console.log(`Ignoring test - ${test.title}`);
+          this.skip();
+        };
+      });
+    }
+  }
 };
