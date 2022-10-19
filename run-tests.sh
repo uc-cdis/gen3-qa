@@ -260,10 +260,10 @@ runTestsIfServiceVersion "@requestor" "requestor" "1.5.0" "2022.02"
 runTestsIfServiceVersion "@requestor" "arborist" "3.2.0" "2021.12"
 runTestsIfServiceVersion "@requestorNew" "requestor" "1.5.1" "2022.06"
 runTestsIfServiceVersion "@requestorNew" "arborist" "3.2.0" "2021.12"
-runTestsIfServiceVersion "@clientCreds" "arborist" "2022.10"
+runTestsIfServiceVersion "@clientCreds" "arborist" "4.0.0" "2022.10"
 runTestsIfServiceVersion "@clientCreds" "fence" "6.1.0" "2022.10"
-runTestsIfServiceVersion "@clientCreds" "requestor" "2022.10"
-
+runTestsIfServiceVersion "@clientCreds" "requestor" "1.8.0" "2022.10"
+""
 # disable tests if the service is not deployed
 # export isIndexdDeployed=$(ifServiceDeployed "indexd")
 # if [ -z "$isIndexdDeployed" ] || [ "$isIndexdDeployed" = "null" ];then
