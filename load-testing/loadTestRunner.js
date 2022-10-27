@@ -76,6 +76,7 @@ async function runLoadTestScenario() {
           dids.push(record.did);
         });
         return dids;
+        console.log(`### LIST OF DIDS: ${JSON.stringify(dids)}`)
       }).catch((reason) => {
         console.log(`Failed: ${JSON.stringify(reason)}`);
         process.exit(1);
