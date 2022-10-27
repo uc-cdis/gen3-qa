@@ -19,6 +19,7 @@ module.exports = {
       if (indexdRecordACL) {
         url += `?acl=${indexdRecordACL}`;
       }
+      console.log(url);
       ax.request({
         // e.g., url: '/index/index?url=s3://cdis-presigned-url-test/dcp-s3-test-1.txt',
         url,

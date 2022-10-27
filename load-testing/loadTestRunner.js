@@ -73,6 +73,7 @@ async function runLoadTestScenario() {
       .then(async (records) => {
         const dids = [];
         await records.forEach((record) => {
+          console.log(record);
           dids.push(record.did);
         });
         return dids;
