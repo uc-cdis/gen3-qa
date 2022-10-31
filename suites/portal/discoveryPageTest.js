@@ -2,7 +2,9 @@
 const uuid = require('uuid');
 const { expect } = require('chai');
 const { output } = require('codeceptjs');
+const { Bash } = require('../../utils/bash.js');
 
+const bash = new Bash();
 const I = actor();
 I.cache = {};
 
@@ -26,6 +28,9 @@ Scenario('User is able to navigate to Discovery page', ({ discovery }) => {
 Scenario('Publish a study, search and export to workspace @requires-hatchery', async ({
   mds, users, discovery, files, indexing, home, workspace,
 }) => {
+  const UIDFieldName = await bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.discoveryConfig.minimalFieldMapping.uid\'');
+  expect(UIDFieldName).to.be.a('string').that.is.not.empty;
+
   I.cache.did = uuid.v4();
   I.cache.studyId = uuid.v4();
   I.cache.md5sum = '694b1d13b8148756442739fa2cc37fd6'; // pragma: allowlist secret
@@ -75,7 +80,6 @@ Scenario('Publish a study, search and export to workspace @requires-hatchery', a
       investigators: 'Lavange, Lisa',
       project_title: '[AUTOTEST Title] Back Pain Consortium (BACPAC) Research Program Data Integration, Algorithm Development and Operations Management Center',
       protocol_name: 'BACPAC Minimum Dataset Example',
-      project_number: `${I.cache.studyId}`,
       administering_ic: 'NIAMS',
       advSearchFilters: [
         {
@@ -89,6 +93,7 @@ Scenario('Publish a study, search and export to workspace @requires-hatchery', a
       research_focus_area: 'Clinical Research in Pain Management',
     },
   };
+  studyMetaData[`${UIDFieldName}`] = `${I.cache.studyId}`;
   output.print('--- Creating metadata record');
   await mds.do.createMetadataRecord(
     users.mainAcct.accessTokenHeader, I.cache.studyId, studyMetaData,
