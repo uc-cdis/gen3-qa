@@ -30,6 +30,7 @@ Scenario('Publish a study, search and export to workspace @requires-hatchery', a
 }) => {
   const UIDFieldName = await bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.discoveryConfig.minimalFieldMapping.uid\'');
   expect(UIDFieldName).to.be.a('string').that.is.not.empty;
+  output.print(UIDFieldName);
 
   I.cache.did = uuid.v4();
   I.cache.studyId = uuid.v4();
