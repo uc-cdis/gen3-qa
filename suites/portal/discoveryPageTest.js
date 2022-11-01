@@ -93,7 +93,7 @@ Scenario('Publish a study, search and export to workspace @requires-hatchery', a
       research_focus_area: 'Clinical Research in Pain Management',
     },
   };
-  studyMetaData.gen3_discovery[`${UIDFieldName}`] = `${I.cache.studyId}`;
+  studyMetaData.gen3_discovery[UIDFieldName] = `${I.cache.studyId}`;
   output.print('--- Creating metadata record');
   await mds.do.createMetadataRecord(
     users.mainAcct.accessTokenHeader, I.cache.studyId, studyMetaData,
