@@ -25,7 +25,15 @@ Before(async ({
   login.complete.login(users.mainAcct);
 });
 
-AfterSuite(async ({ I }) => {
+AfterSuite(async ({ I, users, fence }) => {
+  console.log('Making sure policy \'requestor_integration_test\' is removed from user cdis.autotest@gmail.com...');
+  const userInfo = await fence.do.getUserInfo(users.user0.accessToken);
+  if (userInfo?.data?.authz && userInfo.data.authz['/requestor_integration_test']) {
+    console.log('Found policy \'requestor_integration_test\' with user cdis.autotest@gmail.com...');
+    const { accessTokenHeader } = users.mainAcct;
+    const signedRevokeResponse = await requestorTasks.createRequestForPolicyID(accessTokenHeader, users.user0.username, 'requestor_integration_test', true, 'SIGNED');
+    I.cache.requestDidList.push(signedRevokeResponse.request_id);
+  }
   console.log('Deleting all the requests created by this test with user cdis.autotest@gmail.com...');
   if (process.env.DEBUG === 'true') {
     console.log(I.cache.requestDidList);
