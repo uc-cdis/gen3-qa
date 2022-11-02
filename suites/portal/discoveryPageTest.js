@@ -28,6 +28,7 @@ Scenario('User is able to navigate to Discovery page', ({ discovery }) => {
 Scenario('Publish a study, search and export to workspace @requires-hatchery', async ({
   mds, users, discovery, files, indexing, home, workspace,
 }) => {
+  // dynamically get UID field name from portal config
   const UIDFieldName = await bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.discoveryConfig.minimalFieldMapping.uid\'').replace(/^"(.*)"$/, '$1');
   expect(UIDFieldName).to.be.a('string').that.is.not.empty;
 
