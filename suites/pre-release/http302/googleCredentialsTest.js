@@ -16,13 +16,6 @@ const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'qa-dcp.planx-pl
 BeforeSuite(async ({ I }) => {
   console.log('Setting up dependencies...');
   I.cache = {};
-  I.TARGET_ENVIRONMENT = TARGET_ENVIRONMENT;
-  // Fetching public list of DIDs
-  const httpResp = await I.sendGetRequest(
-    `https://${TARGET_ENVIRONMENT}/index/index`,
-  );
-
-  I.cache.records = httpResp.data.records;
 });
 
 // Scenario #13 - Temporary Service Account Credentials as User
