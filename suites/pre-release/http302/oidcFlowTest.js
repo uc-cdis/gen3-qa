@@ -1,4 +1,4 @@
-Feature('Testing OIDC flow with Google credentials & NHI');
+Feature('Testing OIDC flow with Google credentials & NIH');
 
 // To be executed with GEN3_SKIP_PROJ_SETUP=true
 // No need to set up program / retrieve access token, etc.
