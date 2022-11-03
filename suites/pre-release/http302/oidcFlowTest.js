@@ -22,7 +22,7 @@ function assembleCustomHeaders(ACCESS_TOKEN) {
 }
 
 // Test elaborated for DataSTAGE but it can be reused in other projects
-const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'qa-dcp.planx-pla.net';
+const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'preprod.gen3.biodatacatalyst.nhlbi.nih.gov';
 
 async function printOIDCFlowInstructionsAndObtainTokens(I, accountType) {
   console.log(`
@@ -59,14 +59,6 @@ BeforeSuite(async ({ I }) => {
   } else if (process.env.TEST_IMPLICIT_ID === undefined) {
     throw new Error(`ERROR: There is no implicit_id defined for this ${TARGET_ENVIRONMENT} Test User. Please declare the "TEST_IMPLICIT_ID" environment variable and try again. Aborting test...`);
   }
-
-  I.TARGET_ENVIRONMENT = TARGET_ENVIRONMENT;
-  // Fetching public list of DIDs
-  const httpResp = await I.sendGetRequest(
-    `https://${TARGET_ENVIRONMENT}/index/index`,
-  );
-
-  I.cache.records = httpResp.data.records;
 });
 
 // Decode JWT token and find the Nonce value
