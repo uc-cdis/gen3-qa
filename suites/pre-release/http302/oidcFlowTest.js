@@ -1,4 +1,4 @@
-Feature('Testing OIDC flow and pre-signed URL to check tokens - PXP-4649');
+Feature('Testing OIDC flow with Google credentials & NHI');
 
 // To be executed with GEN3_SKIP_PROJ_SETUP=true
 // No need to set up program / retrieve access token, etc.
@@ -100,6 +100,7 @@ async function runVerifyNonceScenario(nonceVal) {
   return result;
 }
 
+// Scenario #1 - OIDC Client flow with Google credentials
 Scenario('Initiate the OIDC Client flow with Google credentials to obtain the OAuth authorization code @manual', ifInteractive(
   async ({ I }) => {
     I.cache.NONCE = Date.now();

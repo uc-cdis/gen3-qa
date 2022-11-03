@@ -1,4 +1,4 @@
-Feature('Google Credentials - BDcat testing for release sign off');
+Feature('BDcat Tabs and links testing for release sign off');
 
 // To be executed with GEN3_SKIP_PROJ_SETUP=true
 // No need to set up program / retrieve access token, etc.
