@@ -39,6 +39,47 @@ async function getNoRedirect(url, headers) {
  * fence Tasks
  */
 module.exports = {
+  /**
+ * Runs a fence command for creating a client
+ * @param {string} clientName - client name
+ * @param {string} userName - user name
+ * @param {string} clientType - client type (implicit or basic)
+ * @param {string} arboristPolicies - space-delimited list of arborist policies to give to client
+ * @returns {json}
+ */
+  createClient(clientName, userName, clientType, arboristPolicies = null) {
+    let fenceCmd = 'fence-create';
+
+    // see test_setup.js for the ARBORIST_... global flag setup
+    if (arboristPolicies && process.env.ARBORIST_CLIENT_POLICIES) {
+      fenceCmd = `${fenceCmd} --arborist http://arborist-service/ --policies ${arboristPolicies}`;
+    }
+
+    if (clientType === 'client_credentials') {
+      fenceCmd = `${fenceCmd} client-create --client ${clientName} --grant-types client_credentials`;
+    } else if (clientType === 'implicit') {
+      fenceCmd = `${fenceCmd} client-create --client ${clientName} --user ${userName} --urls https://${process.env.HOSTNAME} --grant-types implicit --public`;
+    }
+
+    console.log(`running: ${fenceCmd}`);
+    const resCmd = bash.runCommand(fenceCmd, 'fence', takeLastLine);
+    console.log(resCmd);
+    const regex = /\('(.*)',\s'(.*)'\)/;
+    const arr = resCmd.match(regex);
+    expect(arr, `Unable to get client credentials "${arr}"`).to.not.to.be.empty;
+    return { clientID: arr[1], secretID: arr[2] };
+  },
+
+/**
+ * Runs a fence command for delete a client
+ * @param {string} clientName - client name
+ */
+  deleteClient(clientName) {
+    const deleteClientCmd = `fence-create client-delete --client ${clientName}`;
+    const deleteClientReq = bash.runCommand(deleteClientCmd, 'fence', takeLastLine);
+    console.log(`Client deleted : ${deleteClientReq}`);
+  },
+
   async getVersion() {
     const response = await I.sendGetRequest(fenceProps.endpoints.version);
     expect(response, 'Can\'t get Fence version').to.have.property('status', 200);
