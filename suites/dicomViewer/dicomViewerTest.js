@@ -133,3 +133,21 @@ Scenario('unauthorized user cannot GET non-exist dicom file @dicomViewer',
     console.log(resNonExistInstance);
     expect(resNonExistInstance.status).to.not.equal(200);
   });
+
+Scenario('check hide dicom viewer button @dicomViewer',
+  async ({ I, home, users }) => {
+    const NoStudy = '1.3.6.1.4.1.14519.5.2.1.99.1071.18861395341021746098180468942302';
+    await home.do.login(users.mainAcct.username);
+    I.amOnPage('/explorer');
+    I.click('//h3[contains(text(), "Imaging Studies")]');
+    I.wait(1);
+    I.saveScreenshot('dicom_viewer_exploration_page.png');
+    const studyLink = `https://${process.env.HOSTNAME}/dicom-viewer/viewer/${NoStudy}`;
+    I.dontSeeElement(`//a[@href="${studyLink}"]//button[@class="explorer-table-link-button"]`);
+    I.seeElement(`//span[@title="${NoStudy}"]`);
+    I.wait(3);
+    I.switchToNextTab();
+    I.saveScreenshot('dicom_viewer_study_page.png');
+    I.seeCurrentUrlEquals(studyLink);
+    I.dontSeeElement('//*[@class="cornerstone-canvas"]');
+  });
