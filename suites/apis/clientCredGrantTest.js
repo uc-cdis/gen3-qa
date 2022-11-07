@@ -46,11 +46,11 @@ async function getAccessToken(clientID, secretID) {
   return accessToken;
 }
 
-BeforeSuite(async ({ I, fence }) => {
+BeforeSuite(async ({ I }) => {
   I.cache = {};
 });
 
-AfterSuite(async ({ I, fence }) => {
+AfterSuite(async ({ I }) => {
   // deleting the request created
   console.log('Deleting the request from the requestor DB ... ');
   if (process.env.DEBUG === 'true') {
@@ -67,7 +67,7 @@ AfterSuite(async ({ I, fence }) => {
       gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/policy/requestor_client_credentials_test`);
 });
 
-Scenario('Client Credentials Grant Type interaction with Requestor @clientCreds', async ({ I, users, fence }) => {
+Scenario('Client Credentials Grant Type interaction with Requestor @clientCreds', async ({ I, users }) => {
   // creating OIDC client for the test
   // const { clientID, secretID } = fence.do.createClient(clientName, users.user0, 'client_credentials');
   const clientGrant = new Client({
@@ -76,7 +76,7 @@ Scenario('Client Credentials Grant Type interaction with Requestor @clientCreds'
     clientType: 'client_credentials',
     arboristPolicies: null,
   });
-  const clientID = clientGrant.id; 
+  const clientID = clientGrant.id;
   const secretID = clientGrant.secret;
   if (process.env.DEBUG === 'true') {
     console.log(`Client ID: ${clientID}`);
