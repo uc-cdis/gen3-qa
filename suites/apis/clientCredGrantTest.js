@@ -74,13 +74,14 @@ AfterSuite(async ({ I, fence }) => {
 Scenario('Client Credentials Grant Type interaction with Requestor @clientCreds', async ({ I, users, fence }) => {
   // creating OIDC client for the test
   // const { clientID, secretID } = fence.do.createClient(clientName, users.user0, 'client_credentials');
-  clientGrant = new Client({
+  const clientGrant = new Client({
     clientName: 'jenkinsClientTester',
     userName: 'users.user0',
     clientType: 'client_credentials',
     arboristPolicies: null,
   });
-  const clientID = clientGrant.id, secretID = clientGrant.secret;
+  const clientID = clientGrant.id; 
+  const secretID = clientGrant.secret;
   console.log(`Client ID: ${clientID}`);
   console.log(`Client Secret: ${secretID}`);
   if (process.env.DEBUG === 'true') {

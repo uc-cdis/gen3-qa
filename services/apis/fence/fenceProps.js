@@ -1,6 +1,7 @@
 const { Gen3Response } = require('../../../utils/apiUtil');
 const { Bash, takeLastLine } = require('../../../utils/bash');
 const { createClient, deleteClient } = require('./fenceTasks');
+const fenceTasks = require('./fenceTasks');
 
 const bash = new Bash();
 
