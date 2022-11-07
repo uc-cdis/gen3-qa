@@ -48,7 +48,6 @@ async function getAccessToken(clientID, secretID) {
 
 BeforeSuite(async ({ I, fence }) => {
   I.cache = {};
-  fence.do.deleteClient(clientName);
 });
 
 AfterSuite(async ({ I, fence }) => {
@@ -61,9 +60,6 @@ AfterSuite(async ({ I, fence }) => {
   if (deleteRequest.status === 200) {
     console.log(`Request ${I.cache.requestID} deleted successfully`);
   }
-  // delete the client jenkinsClientTester
-  console.log('Deleting client created for the test ...');
-  fence.do.deleteClient(clientName);
 
   // revoking the arborist policy for the user
   console.log('Revoking the arborist policy for the user0 ...');
@@ -82,8 +78,6 @@ Scenario('Client Credentials Grant Type interaction with Requestor @clientCreds'
   });
   const clientID = clientGrant.id; 
   const secretID = clientGrant.secret;
-  console.log(`Client ID: ${clientID}`);
-  console.log(`Client Secret: ${secretID}`);
   if (process.env.DEBUG === 'true') {
     console.log(`Client ID: ${clientID}`);
     console.log(`Client Secret: ${secretID}`);
