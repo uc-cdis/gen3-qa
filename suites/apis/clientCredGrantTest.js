@@ -27,12 +27,11 @@ Feature('Client_Credentials Grant Type @requires-fence');
 const { expect } = require('chai');
 const { runUserSync, checkPod, getAccessTokenHeader } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
+const { Client } = require('../../services/apis/fence/fenceProps.js');
 const requestorTasks = require('../../services/apis/requestor/requestorTasks.js');
 const requestorProps = require('../../services/apis/requestor/requestorProps.js');
 
 const bash = new Bash();
-
-const clientName = 'jenkinsClientTester';
 
 async function getAccessToken(clientID, secretID) {
   const tokenReq = bash.runCommand(`curl --user "${clientID}:${secretID}" --request POST "https://${process.env.HOSTNAME}/user/oauth2/token?grant_type=client_credentials" -d scope="openid user"`);
@@ -74,7 +73,14 @@ AfterSuite(async ({ I, fence }) => {
 
 Scenario('Client Credentials Grant Type interaction with Requestor @clientCreds', async ({ I, users, fence }) => {
   // creating OIDC client for the test
-  const { clientID, secretID } = fence.do.createClient(clientName, users.user0, 'client_credentials');
+  // const { clientID, secretID } = fence.do.createClient(clientName, users.user0, 'client_credentials');
+  clientGrant = new Client({
+    clientName: 'jenkinsClientTester',
+    userName: 'users.user0',
+    clientType: 'client_credentials',
+    arboristPolicies: null,
+  });
+  const clientID = clientGrant.id, secretID = clientGrant.secret;
   console.log(`Client ID: ${clientID}`);
   console.log(`Client Secret: ${secretID}`);
   if (process.env.DEBUG === 'true') {
@@ -125,8 +131,8 @@ Scenario('Client Credentials Grant Type interaction with Requestor @clientCreds'
   const requestStatusSigned = await requestorTasks.getRequestStatus(I.cache.requestID);
   console.log(`Status of the request is:${requestStatusSigned}`);
 
-//   // do not uncomment this code below until PXP - 10229 is done
-//   // getting the list of users access request
-//   const list = await requestorTasks.getRequestList(clientAccessToken);
-//   console.log(list);
+  // do not uncomment this code below until PXP - 10229 is done
+  // getting the list of users access request
+  // const list = await requestorTasks.getRequestList(clientAccessToken);
+  // console.log(list);
 });

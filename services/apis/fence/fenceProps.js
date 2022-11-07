@@ -1,5 +1,6 @@
 const { Gen3Response } = require('../../../utils/apiUtil');
 const { Bash, takeLastLine } = require('../../../utils/bash');
+const { createClient, deleteClient } = require('./fenceTasks');
 
 const bash = new Bash();
 
@@ -8,44 +9,46 @@ const bash = new Bash();
  */
 const rootEndpoint = '/user';
 
-/**
- * Runs a fence command for creating a client
- * @param {string} clientName - client name
- * @param {string} userName - user name
- * @param {string} clientType - client type (implicit or basic)
- * @param {string} arboristPolicies - space-delimited list of arborist policies to give to client
- * @returns {json}
- */
-function createClient(clientName, userName, clientType, arboristPolicies = null) {
-  let fenceCmd = 'fence-create';
+// /**
+//  * Runs a fence command for creating a client
+//  * @param {string} clientName - client name
+//  * @param {string} userName - user name
+//  * @param {string} clientType - client type (implicit or basic)
+//  * @param {string} arboristPolicies - space-delimited list of arborist policies to give to client
+//  * @returns {json}
+//  */
+// function createClient(clientName, userName, clientType, arboristPolicies = null) {
+//   let fenceCmd = 'fence-create';
 
-  // see test_setup.js for the ARBORIST_... global flag setup
-  if (arboristPolicies && process.env.ARBORIST_CLIENT_POLICIES) {
-    fenceCmd = `${fenceCmd} --arborist http://arborist-service/`;
-  }
+//   // see test_setup.js for the ARBORIST_... global flag setup
+//   if (arboristPolicies && process.env.ARBORIST_CLIENT_POLICIES) {
+//     fenceCmd = `${fenceCmd} --arborist http://arborist-service/`;
+//   }
 
-  fenceCmd = `${fenceCmd} client-create --client ${clientName} --user ${userName} --urls https://${process.env.HOSTNAME}`;
+//   fenceCmd = `${fenceCmd} client-create --client ${clientName} --user ${userName} --urls https://${process.env.HOSTNAME}`;
 
-  if (clientType === 'implicit') {
-    fenceCmd = `${fenceCmd} --grant-types implicit --public`;
-  }
-  // see test_setup.js for the ARBORIST_... global flag setup
-  if (arboristPolicies && process.env.ARBORIST_CLIENT_POLICIES) {
-    fenceCmd = `${fenceCmd} --policies ${arboristPolicies}`;
-  }
-  console.log(`running: ${fenceCmd}`);
-  const resCmd = bash.runCommand(fenceCmd, 'fence', takeLastLine);
-  const arr = resCmd.replace(/[()']/g, '').split(',').map((val) => val.trim());
-  return { client_id: arr[0], client_secret: arr[1] };
-}
+//   if (clientType === 'client_credentials') {
+//     fenceCmd = `${fenceCmd} client-create --client ${clientName} --grant-types client_credentials`;
+//   } else if (clientType === 'implicit') {
+//     fenceCmd = `${fenceCmd} --grant-types implicit --public`;
+//   }
+//   // see test_setup.js for the ARBORIST_... global flag setup
+//   if (arboristPolicies && process.env.ARBORIST_CLIENT_POLICIES) {
+//     fenceCmd = `${fenceCmd} --policies ${arboristPolicies}`;
+//   }
+//   console.log(`running: ${fenceCmd}`);
+//   const resCmd = bash.runCommand(fenceCmd, 'fence', takeLastLine);
+//   const arr = resCmd.replace(/[()']/g, '').split(',').map((val) => val.trim());
+//   return { client_id: arr[0], client_secret: arr[1] };
+// }
 
-/**
- * Runs a fence command for delete a client
- * @param {string} clientName - client name
- */
-function deleteClient(clientName) {
-  bash.runCommand(`fence-create client-delete --client ${clientName}`, 'fence', takeLastLine);
-}
+// /**
+//  * Runs a fence command for delete a client
+//  * @param {string} clientName - client name
+//  */
+// function deleteClient(clientName) {
+//   bash.runCommand(`fence-create client-delete --client ${clientName}`, 'fence', takeLastLine);
+// }
 
 /**
  * Lazy-load container for fence clients
@@ -60,6 +63,9 @@ class Client {
     this.arboristPolicies = arboristPolicies;
     this._client = null;
   }
+
+  // deleteClient = fenceTasks.deleteClient;
+  // createClient = fenceTasks.createClient;
 
   get client() {
     if (!this._client) {
@@ -87,6 +93,7 @@ module.exports = {
   /**
    * Fence endpoints
    */
+  Client,
   endpoints: {
     root: rootEndpoint,
     version: `${rootEndpoint}/_version`,
