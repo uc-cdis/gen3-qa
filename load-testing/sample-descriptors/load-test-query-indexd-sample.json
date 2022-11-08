@@ -1,0 +1,25 @@
+{
+    "objective": [
+      "querying indexd records"
+    ],
+    "details": {
+      "name": "qa-dcp.planx-pla.net",
+      "indexd_autoscaler": {
+        "min": 1,
+        "max": 1,
+        "targetCpu": 40
+      }
+    },
+    "service": "indexd",
+    "num_of_records": 1000,
+    "presigned_url_guids": ["001d9388-8040-4913-9743-f011eff23481", "00147dc7-8e1c-484f-9c09-dc5a3b1c2837", "001275eb-41a0-4e03-8fa3-4eb24d5f39e8"],
+    "presigned_url_protocol": "s3",
+    "load_test_scenario": "query-indexd-records",
+    "virtual_users": [
+      { "duration": "1s", "target": 1 },
+      { "duration": "1s", "target": 1 },
+      { "duration": "10s", "target": 10 },
+      { "duration": "300s",  "target": 100 },
+      { "duration": "30s", "target": 1 }
+    ]
+}
