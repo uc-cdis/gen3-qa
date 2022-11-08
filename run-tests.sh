@@ -316,6 +316,9 @@ donot '@prjsBucketAccess'
 echo "INFO: disabling RAS DRS test as jenkins env is not configured"
 donot '@rasDRS'
 
+# disabling drsEndpoint tests
+donot @drs
+
 # For dataguids.org PRs, skip all fence-related bootstrapping oprations
 # as the environment does not have fence
 if [ "$testedEnv" == "dataguids.org" ]; then
