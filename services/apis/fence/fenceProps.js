@@ -1,5 +1,6 @@
 const { Gen3Response } = require('../../../utils/apiUtil');
 const { Bash, takeLastLine } = require('../../../utils/bash');
+const { expect } = require('chai');
 
 const bash = new Bash();
 
