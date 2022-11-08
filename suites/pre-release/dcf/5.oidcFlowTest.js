@@ -52,7 +52,7 @@ Scenario('Initiate the OIDC Client flow with NIH credentials to obtain the OAuth
   async ({ I }) => {
     const result = await interactive(`
             1. Using the "client id" provided, paste the following URL into the browser (replacing the CLIENT_ID placeholder accordingly):
-                 https://${TARGET_ENVIRONMENT}/user/oauth2/authorize?redirect_uri=https://${TARGET_ENVIRONMENT}/user&client_id=<CLIENT_ID>&scope=openid+user+data+google_credentials&response_type=code&nonce=test-nonce-${I.cache.NONCE}
+                 https://${TARGET_ENVIRONMENT}/user/oauth2/authorize?redirect_uri=https://${TARGET_ENVIRONMENT}&client_id=<CLIENT_ID>&scope=openid+user+data+google_credentials&response_type=code&nonce=test-nonce-${I.cache.NONCE}
             2. Make sure you are logged in with your NIH Account.
             3. On the Consent page click on the "Yes, I authorize" button.
             4. Once the user is redirected to a new page, copy the value of the "code" parameter that shows up in the URL (this code is valid for 60 seconds).
