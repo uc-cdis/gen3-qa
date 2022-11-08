@@ -1,6 +1,5 @@
 const { Gen3Response } = require('../../../utils/apiUtil');
 const { Bash, takeLastLine } = require('../../../utils/bash');
-const { expect } = require('chai');
 
 const bash = new Bash();
 
@@ -30,14 +29,11 @@ function createClient(clientName, userName, clientType, arboristPolicies = null)
   } else if (clientType === 'implicit') {
     fenceCmd = `${fenceCmd} client-create --client ${clientName} --user ${userName} --urls https://${process.env.HOSTNAME} --grant-types implicit --public`;
   }
-
+  
   console.log(`running: ${fenceCmd}`);
   const resCmd = bash.runCommand(fenceCmd, 'fence', takeLastLine);
-  console.log(resCmd);
-  const regex = /\('(.*)',\s'(.*)'\)/;
-  const arr = resCmd.match(regex);
-  expect(arr, `Unable to get client credentials "${arr}"`).to.not.to.be.empty;
-  return { clientID: arr[1], secretID: arr[2] };
+  const arr = resCmd.replace(/[()']/g, '').split(',').map((val) => val.trim());
+  return { client_id: arr[0], client_secret: arr[1] };
 }
 
 /**
