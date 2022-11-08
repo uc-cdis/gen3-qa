@@ -29,7 +29,7 @@ function createClient(clientName, userName, clientType, arboristPolicies = null)
   } else if (clientType === 'implicit') {
     fenceCmd = `${fenceCmd} client-create --client ${clientName} --user ${userName} --urls https://${process.env.HOSTNAME} --grant-types implicit --public`;
   }
-  
+
   console.log(`running: ${fenceCmd}`);
   const resCmd = bash.runCommand(fenceCmd, 'fence', takeLastLine);
   const arr = resCmd.replace(/[()']/g, '').split(',').map((val) => val.trim());
