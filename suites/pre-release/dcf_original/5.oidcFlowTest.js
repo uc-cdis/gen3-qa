@@ -13,7 +13,7 @@ const {
 } = require('../../../utils/apiUtil');
 
 // Test elaborated for nci-crdc but it can be reused in other projects
-const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'qa-dcp.planx-pla.net';
+const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'nci-crdc-staging.datacommons.io';
 
 function assembleCustomHeaders(ACCESS_TOKEN) {
   // Add ACCESS_TOKEN to custom headers
