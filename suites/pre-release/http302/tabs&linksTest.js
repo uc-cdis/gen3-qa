@@ -12,14 +12,6 @@ const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'preprod.gen3.bi
 BeforeSuite(async ({ I }) => {
   console.log('Setting up dependencies...');
   I.cache = {};
-
-  if (process.env.TEST_CLIENT_ID === undefined) {
-    throw new Error(`ERROR: There is no client_id defined for this ${TARGET_ENVIRONMENT} Test User. Please declare the "TEST_CLIENT_ID" environment variable and try again. Aborting test...`);
-  } else if (process.env.TEST_SECRET_ID === undefined) {
-    throw new Error(`ERROR: There is no secret_id defined for this ${TARGET_ENVIRONMENT} Test User. Please declare the "TEST_SECRET_ID" environment variable and try again. Aborting test...`);
-  } else if (process.env.TEST_IMPLICIT_ID === undefined) {
-    throw new Error(`ERROR: There is no implicit_id defined for this ${TARGET_ENVIRONMENT} Test User. Please declare the "TEST_IMPLICIT_ID" environment variable and try again. Aborting test...`);
-  }
 });
 
 // Scenario #15 - Run GraphQL Query against Peregrine (Graph Model)
