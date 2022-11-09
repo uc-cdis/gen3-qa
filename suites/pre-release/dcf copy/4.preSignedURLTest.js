@@ -92,8 +92,8 @@ async function fetchDIDLists(I) {
   return I.didList;
 }
 
-function performPreSignedURLTest(cloudProvider, typeOfTest) {
-  Scenario(`Perform ${cloudProvider} PreSigned URL ${typeOfTest} test against DID@manual`, ifInteractive(
+function performPreSignedURLTest(cloudProvider, typeOfTest, typeOfCreds) {
+  Scenario(`Perform ${cloudProvider} PreSigned URL ${typeOfTest} test against DID with ${typeOfCreds}  DID@manual`, ifInteractive(
     async ({ I, fence }) => {
       const filteredDIDs = {};
       if (I.cache.ACCESS_TOKEN) {

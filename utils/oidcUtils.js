@@ -7,13 +7,23 @@ const { expect } = require('chai');
 const { execSync } = require('child_process');
 const apiUtil = require('./apiUtil');
 const { interactive, ifInteractive } = require('./interactive.js');
+const fenceProps = require('../services/apis/fence/fenceProps.js');
 const {
-  requestUserInput,
+  requestUserInput, getAccessTokenHeader
 } = require('./apiUtil');
 
+const files = {
+  phs000BadFile1: {
+    file_name: 'invalid_test_file1',
+    urls: ['s3://cdis-presigned-url-test/testdata', 'gs://cdis-presigned-url-test/testdata'],
+    form: 'object',
+    hashes: { md5: 'b93da58abe894cab4682b1260e4e085b' }, // pragma: allowlist secret
+    acl: ['phs000bad'],
+    size: 9,
+  },
+};
 
-
- async function printOIDCFlowInstructionsAndObtainTokens(I, accountType ,TARGET_ENVIRONMENT) {
+async function printOIDCFlowInstructionsAndObtainTokens(I, accountType, TARGET_ENVIRONMENT) {
   console.log(`
             1. Using the "client id" provided, paste the following URL into the browser (replacing the CLIENT_ID placeholder accordingly):
                  https://${TARGET_ENVIRONMENT}/user/oauth2/authorize?redirect_uri=https://${TARGET_ENVIRONMENT}&client_id=${process.env.TEST_CLIENT_ID}&scope=openid+user+data+google_credentials&response_type=code&nonce=test-nonce-${I.cache.NONCE}
@@ -56,6 +66,7 @@ function findNonce(idToken) {
   }
 }
 
+
 async function runVerifyNonceScenario(nonceVal) {
   const idToken = await requestUserInput('Please paste in your ID Token to verify the nonce: ');
   const result = await interactive(`
@@ -76,8 +87,7 @@ function assembleCustomHeaders(ACCESS_TOKEN) {
   };
 }
 
-
-async function fetchDIDLists(I, params = { hardcodedAuthz: null }, TARGET_ENVIRONMENT) {
+async function fetchDIDListsforHttp301(I, params = { hardcodedAuthz: null }, TARGET_ENVIRONMENT) {
   // TODO: Use negate_params to gather authorized (200) and blocked (401) files
   // Only assemble the didList if the list hasn't been initialized
   let projectAccessList = [];
@@ -126,117 +136,59 @@ async function fetchDIDLists(I, params = { hardcodedAuthz: null }, TARGET_ENVIRO
   return I.didList;
 }
 
-// async function fetchDIDLists(I ,TARGET_ENVIRONMENT) {
-//   // Only assemble the didList if the list hasn't been initialized
-//   if (!I.didList) {
-//     const httpResp = await I.sendGetRequest(
-//       `https://${TARGET_ENVIRONMENT}/user/user`,
-//       { Authorization: `bearer ${I.cache.ACCESS_TOKEN}` },
-//     ).then((res) => new Gen3Response(res));
+async function fetchDIDLists(I, TARGET_ENVIRONMENT) {
+  // Only assemble the didList if the list hasn't been initialized
+  if (!I.didList) {
+    const httpResp = await I.sendGetRequest(
+      `https://${TARGET_ENVIRONMENT}/user/user`,
+      { Authorization: `bearer ${I.cache.ACCESS_TOKEN}` },
+    ).then((res) => new Gen3Response(res));
 
-//     const projectAccessList = httpResp.body.project_access;
+    const projectAccessList = httpResp.body.project_access;
 
-//     // initialize dict of accessible DIDs
-//     let ok200files = {}; // eslint-disable-line prefer-const
-//     // initialize dict of blocked DIDs
-//     let unauthorized401files = {}; // eslint-disable-line prefer-const
+    // initialize dict of accessible DIDs
+    let ok200files = {}; // eslint-disable-line prefer-const
+    // initialize dict of blocked DIDs
+    let unauthorized401files = {}; // eslint-disable-line prefer-const
 
-//     // assemble 200 authorized ids
-//     const authorized200Project = ['*'];
-//     for (const i in projectAccessList) { // eslint-disable-line guard-for-in
-//       authorized200Project.push(i);
-//     }
-//     console.log(`Authorized project : ${JSON.stringify(authorized200Project)}`);
+    // assemble 200 authorized ids
+    const authorized200Project = ['*'];
+    for (const i in projectAccessList) { // eslint-disable-line guard-for-in
+      authorized200Project.push(i);
+    }
+    console.log(`Authorized project : ${JSON.stringify(authorized200Project)}`);
 
-//     for (const project of authorized200Project) {
-//       const record200Resp = await I.sendGetRequest(
-//         `https://${TARGET_ENVIRONMENT}/index/index?acl=${project}&limit=1`,
-//       );
-//       if ((record200Resp.data.records.length) === 0) {
-//         console.log('No Record/DID');
-//       } else {
-//         ok200files[record200Resp.data.records[0].did] = {
-//           urls: record200Resp.data.records[0].urls,
-//         };
-//       }
-//     }
+    for (const project of authorized200Project) {
+      const record200Resp = await I.sendGetRequest(
+        `https://${TARGET_ENVIRONMENT}/index/index?acl=${project}&limit=1`,
+      );
+      if ((record200Resp.data.records.length) === 0) {
+        console.log('No Record/DID');
+      } else {
+        ok200files[record200Resp.data.records[0].did] = {
+          urls: record200Resp.data.records[0].urls,
+        };
+      }
+    }
 
-//     console.log(`GUID selected: ${I.cache.GUID}`);
-//     // assemble 401 unauthorized ids
-//     const record401Resp = await I.sendGetRequest(
-//       `https://${TARGET_ENVIRONMENT}/index/index/${I.cache.GUID}`,
-//     );
-//     unauthorized401files[record401Resp.data.did] = { urls: record401Resp.data.urls };
+    console.log(`GUID selected: ${I.cache.GUID}`);
+    // assemble 401 unauthorized ids
+    const record401Resp = await I.sendGetRequest(
+      `https://${TARGET_ENVIRONMENT}/index/index/${I.cache.GUID}`,
+    );
+    unauthorized401files[record401Resp.data.did] = { urls: record401Resp.data.urls };
 
-//     console.log(`http 200 files: ${JSON.stringify(ok200files)}`);
-//     console.log(`http 401 files: ${JSON.stringify(unauthorized401files)}`);
+    console.log(`http 200 files: ${JSON.stringify(ok200files)}`);
+    console.log(`http 401 files: ${JSON.stringify(unauthorized401files)}`);
 
-//     I.didList = {};
-//     I.didList.ok200files = ok200files;
-//     I.didList.unauthorized401files = unauthorized401files;
+    I.didList = {};
+    I.didList.ok200files = ok200files;
+    I.didList.unauthorized401files = unauthorized401files;
 
-//     return I.didList;
-//   }
-//   return I.didList;
-// }
-
-//
-// function performPreSignedURLTest(cloudProvider, typeOfTest, typeOfCreds , TARGET_ENVIRONMENT) {
-//   Scenario(`Perform ${cloudProvider} PreSigned URL ${typeOfTest} test against DID with ${typeOfCreds} credentials @manual`, ifInteractive(
-//     async ({ I }) => {
-//       if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
-//       // Obtain project access list to determine which files(DIDs) the user can access
-//       // two lists: http 200 files and http 401 files
-
-//       const params = TARGET_ENVIRONMENT.includes('theanvil') ? { hardcodedAuthz: '/programs/CF/projects/GTEx' } : {};
-//       const { ok200files, unauthorized401files } = I.didList
-//         ? I.didList
-//         : await fetchDIDLists(I, params,TARGET_ENVIRONMENT);
-//       console.log(`http 200 files: ${JSON.stringify(ok200files)}`);
-//       console.log(`http 401 files: ${JSON.stringify(unauthorized401files)}`);
-
-//       // positive: _200files | negative: _401files
-//       const listOfDIDs = typeOfTest === 'positive' ? ok200files : unauthorized401files;
-//       // AWS: s3:// | Google: gs://
-//       const preSignedURLPrefix = cloudProvider === 'AWS S3' ? 's3://' : 'gs://';
-
-//       console.log(`list_of_DIDs: ${JSON.stringify(listOfDIDs)}`);
-
-//       const filteredDIDs = Object.keys(listOfDIDs).reduce((filtered, key) => {
-//         listOfDIDs[key].urls.forEach((url) => {
-//           if (url.startsWith(preSignedURLPrefix)) filtered[key] = listOfDIDs[key];
-//         });
-//         return filtered;
-//       }, {});
-
-//       // Must have at least one sample to conduct this test
-//       const selectedDid = Object.keys(filteredDIDs)[0];
-//       // PreSignedURL request
-//       const signedUrlRes = await I.sendGetRequest(
-//         `https://${TARGET_ENVIRONMENT}/user/data/download/${selectedDid}`,
-//         { Authorization: `bearer ${I.cache.ACCESS_TOKEN}` },
-//       );
-
-//       // TODO: Run `wget` with PreSignedURL and check if md5 matches the record['md5']
-
-//       const verificationMessage = typeOfTest === 'positive' ? `
-//                   a. The HTTP response code is Ok/200.
-//                   b. The response contain valid URLs to the files stored in AWS S3 or GCP Buckets.` : `
-//                   a. The HTTP response code is 401.
-//                   b. The response contains a Fence error message.`;
-
-//       const result = await interactive(`
-//                 1. [Automated] Selected DID [${selectedDid}] to perform a ${typeOfTest} ${cloudProvider} PreSigned URL test with ${typeOfCreds} credentials.
-//                 2. [Automated] Executed an HTTP GET request (using the ACCESS_TOKEN provided).
-//                 3. Verify if:${verificationMessage}
-//                 Manual verification:
-//                   HTTP Code: ${signedUrlRes.status}
-//                   RESPONSE: ${JSON.stringify(signedUrlRes.data)}
-//         `);
-//       expect(result.didPass, result.details).to.be.true;
-//     },
-//   ));
-// }
+    return I.didList;
+  }
+  return I.didList;
+}
 
 function performPreSignedURLTest(cloudProvider, typeOfTest, typeOfCreds) {
   Scenario(`Perform ${cloudProvider} PreSigned URL ${typeOfTest} test against DID with ${typeOfCreds} credentials DID@manual`, ifInteractive(
@@ -293,6 +245,130 @@ function performPreSignedURLTest(cloudProvider, typeOfTest, typeOfCreds) {
     },
   ));
 }
+function performAdjustExpDateTest(typeOfTest) {
+  Scenario(`Adjust the expiration date of the Google account that has been linked. ${typeOfTest} test @manual`, ifInteractive(
+    async ({ I, fence }) => {
+      if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
+      console.log(`access token: ${I.cache.ACCESS_TOKEN}`);
+
+      // Arbitrarily setting linked Google account to expire in 2 hours
+      const expirationDateInSecs = 10800;
+
+      // set a userAcct obj {} with an "accessTokenHeader" property
+      // to use Gen3-qa's Fence testing API
+      const httpResp = await fence.do.extendGoogleLink(
+        { accessTokenHeader: getAccessTokenHeader(I.cache.ACCESS_TOKEN) },
+        expirationDateInSecs,
+      );
+
+      const { expectedStatus, expectedResponse } = typeOfTest === 'positive'
+        ? { expectedStatus: 200, expectedResponse: 'new "exp" date (should express <current time + 2hs>)' }
+        : { expectedStatus: 404, expectedResponse: '"User does not have a linked Google account." message' };
+
+      const result = await interactive(`
+              1. [Automated] Send a HTTP PATCH request with the NIH user's ACCESS TOKEN to adjust the expiration date of a Google account (?expires_in=<current epoch time + 2 hours>):
+              HTTP PATCH request to: https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.extendGoogleLink}?expires_in=${expirationDateInSecs}
+              Manual verification:
+                Response status: ${httpResp.status} // Expect a HTTP ${expectedStatus}
+                Response data: ${JSON.stringify(httpResp.body) || httpResp.parsedFenceError} // Expect response containing the ${expectedResponse}
+              Converting epoch to timestamp: ${httpResp.status === 200 ? new Date(new Date(0).setUTCSeconds(httpResp.body.exp)).toLocaleString() : 'cannot convert invalid response'}
+      `);
+      expect(result.didPass, result.details).to.be.true;
+    },
+  ));
+}
+
+function linkGoogleAccount() {
+  Scenario('Link Google identity to the NIH user @manual', ifInteractive(
+    async () => {
+      const result = await interactive(`
+              1. Navigate to https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.linkGoogle}
+              2. Provide the credentials of the Google account that owns the "Customer" GCP account
+                 This Google account will be linked to the NIH account within this Gen3 environment.
+      `);
+      expect(result.didPass, result.details).to.be.true;
+    },
+  ));
+}
+
+async function collectUserInput(I) {
+  // Collect all the user input just once and reuse this data in the next scenarios
+  if (!I.cache) {
+    const ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
+    // getAccessTokenFromExecutableTest(I); // Something wrong with the audience here...
+    I.cache = {
+      // set a userAcct obj with an "accessTokenHeader" property
+      // to use Gen3-qa's Fence testing API
+      userAcct: { accessTokenHeader: getAccessTokenHeader(ACCESS_TOKEN) },
+      // set a googleProject obj with "serviceAccountEmail" and "id"
+      // to use Gen3-qa's Fence testing API
+      googleProject: {
+        // e.g., dcf-test-auto-qa@dcf-testing-staging.iam.gserviceaccount.com
+        serviceAccountEmail: await requestUserInput('Please provide the service account email address:', 'dcf-test-auto-qa@dcf-testing-staging.iam.gserviceaccount.com'),
+        // e.g., dcf-testing-staging
+        id: await requestUserInput('Please provide the id of the Google project:', 'dcf-testing-staging'),
+      },
+    };
+    // TODO: Should we allow the user to input
+    // multiple project_access names (ACLs/DbGap prj names) ?
+    // e.g., phs000123
+    const prj = await requestUserInput('Please provide at least one project name to grant project access:', 'phs000178');
+    I.cache.projectAccessList = [prj];
+  }
+}
+
+function performSvcAcctRegistrationTest(typeOfTest, testInstructions) {
+  Scenario(`Register Google IAM Service Account: ${typeOfTest} @manual`, ifInteractive(
+    async ({ I, fence }) => {
+      console.log('## NOTE - Please link Google account from customer GCP account to your NIH user before providing ACCESS_TOKEN');
+      console.log('## To link google account, navigate to https://nci-crdc-staging.datacommons.io/user/link/google?redirect=/login');
+      await collectUserInput(I);
+      // console.log('access token: ' + I.cache.ACCESS_TOKEN);
+      const httpResp = await fence.do.registerGoogleServiceAccount(
+        I.cache.userAcct,
+        typeOfTest !== 'invalidSvcAccount' ? I.cache.googleProject : { serviceAccountEmail: 'whatever@invalid.iam.gserviceaccount.com', id: I.cache.googleProject.id },
+        typeOfTest !== 'invalidPrjAccess' ? I.cache.projectAccessList : ['phs666DoesNotExist'],
+        null,
+        typeOfTest === 'dryRunRegistration',
+      );
+      const result = await interactive(`
+              NOTE : LOGOUT AND LOGIN BACK TO GET NEW ACCESS_TOKEN FOR THIS TEST
+              1. [Automated] Send a HTTP POST request with the NIH user's ACCESS TOKEN to register a service account:
+              HTTP POST request to: https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.registerGoogleServiceAccount}${typeOfTest !== 'dryRunRegistration' ? '' : '/_dry_run'}
+              Manual verification:
+                Response status: ${httpResp.status} // Expect a HTTP ${testInstructions.expectedStatus}
+                Response data: ${JSON.stringify(httpResp.body) || httpResp.parsedFenceError}
+                // Expect ${testInstructions.expectedResponse}
+      `);
+      expect(result.didPass, result.details).to.be.true;
+    },
+  ));
+}
+
+function performSvcAcctUpdateTest(typeOfTest, testInstructions) {
+  Scenario(`Update existing service account. ${typeOfTest} test @manual`, ifInteractive(
+    async ({ I, fence }) => {
+      await collectUserInput(I);
+      // patch existing svc acct to remove project access
+      const httpResp = await fence.do.updateGoogleServiceAccount(
+        I.cache.userAcct,
+        typeOfTest !== 'patchUnregisteredAcc' ? I.cache.googleProject.serviceAccountEmail : 'whatever@invalid.iam.gserviceaccount.com',
+        [],
+        typeOfTest === 'dryRun',
+      );
+      const result = await interactive(`
+              1. [Automated] Send a HTTP PATCH request with the NIH user's ACCESS TOKEN to update the project access for svc acct: ${I.cache.googleProject.serviceAccountEmail}.
+              HTTP PATCH request to: https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.updateGoogleServiceAccount}${typeOfTest !== 'dryRun' ? '' : '/_dry_run'}/${typeOfTest !== 'patchUnregisteredAcc' ? I.cache.googleProject.serviceAccountEmail : 'whatever@invalid.iam.gserviceaccount.com'}
+              Manual verification:
+                Response status: ${httpResp.status} // Expect a HTTP ${testInstructions.expectedStatus}
+                Response data: ${JSON.stringify(httpResp.body) || httpResp.parsedFenceError}
+                // Expect ${testInstructions.expectedResponse}
+            `);
+      expect(result.didPass, result.details).to.be.true;
+    },
+  ));
+}
+
 
 exports.printOIDCFlowInstructionsAndObtainTokens = printOIDCFlowInstructionsAndObtainTokens;
 exports.performPreSignedURLTest = performPreSignedURLTest;
@@ -300,3 +376,9 @@ exports.fetchDIDLists = fetchDIDLists;
 exports.assembleCustomHeaders = assembleCustomHeaders;
 exports.findNonce = findNonce;
 exports.runVerifyNonceScenario = runVerifyNonceScenario;
+exports.performAdjustExpDateTest = performAdjustExpDateTest;
+exports.linkGoogleAccount = linkGoogleAccount;
+exports.collectUserInput = collectUserInput;
+exports.performSvcAcctRegistrationTest = performSvcAcctRegistrationTest;
+exports.performSvcAcctUpdateTest = performSvcAcctUpdateTest;
+exports.files = files;

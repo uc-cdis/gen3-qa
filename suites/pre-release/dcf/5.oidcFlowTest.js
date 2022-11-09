@@ -11,32 +11,11 @@ const { interactive, ifInteractive } = require('../../../utils/interactive.js');
 const {
   Gen3Response, requestUserInput,
 } = require('../../../utils/apiUtil');
+const oidcUtils = require('../../../utils/oidcUtils');
 
 // Test elaborated for nci-crdc but it can be reused in other projects
-const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'qa-dcp.planx-pla.net';
+const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'nci-crdc-staging.datacommons.io';
 
-function assembleCustomHeaders(ACCESS_TOKEN) {
-  // Add ACCESS_TOKEN to custom headers
-  return {
-    Accept: 'application/json',
-    Authorization: `bearer ${ACCESS_TOKEN}`,
-    'Content-Type': 'application/json',
-  };
-}
-
-// Decode JWT token and find the Nonce value
-function findNonce(idToken) {
-  const data = idToken.split('.'); // [0] headers, [1] payload, [2] whatever
-  const payload = data[1];
-  const padding = '='.repeat((payload.length - 4) % 4);
-  const decodedData = Buffer.from((payload + padding), 'base64').toString();
-  // If the decoded data doesn't contain a nonce, that means the refresh token has expired
-  const nonceStr = JSON.parse(decodedData).nonce; // output: test-nounce-<number>
-  if (nonceStr === undefined) {
-    return 'Could not find nonce. Make sure your id_token is not expired.';
-  }
-  return parseInt(nonceStr.split('-')[2], 10);
-}
 
 BeforeSuite(async ({ I }) => {
   console.log('Setting up dependencies...');
@@ -74,8 +53,8 @@ Scenario('Verify if the "ID Token" produced in the previous scenario has the cor
     const result = await interactive(`
             1. [Automated] Compare nonces:
                This is the nonce from the previous scenario: ${I.cache.NONCE}
-               And this is the nonce obtained after decoding your ID Token: ${findNonce(idToken)}
-               Result: ${I.cache.NONCE === findNonce(idToken)}
+               And this is the nonce obtained after decoding your ID Token: ${oidcUtils.findNonce(idToken)}
+               Result: ${I.cache.NONCE === oidcUtils.findNonce(idToken)}
             2. Confirm if the numbers match.
             `);
     expect(result.didPass, result.details).to.be.true;
@@ -95,7 +74,7 @@ Scenario('Perform PreSigned URL test @manual', ifInteractive(
     const signedUrlRes = await fence.do.createSignedUrl(
       records[0].did,
       [],
-      assembleCustomHeaders(I.cache.ACCESS_TOKEN),
+      oidcUtils.assembleCustomHeaders(I.cache.ACCESS_TOKEN),
     );
 
     const result = await interactive(`

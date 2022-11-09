@@ -17,7 +17,7 @@ const {
 } = require('../../../utils/apiUtil');
 
 // Test elaborated for DataSTAGE but it can be reused in other projects
-const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'qa-dcp.planx-pla.net';
+const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'preprod.gen3.biodatacatalyst.nhlbi.nih.gov';
 
 BeforeSuite(async ({ I }) => {
   console.log('Setting up dependencies...');
