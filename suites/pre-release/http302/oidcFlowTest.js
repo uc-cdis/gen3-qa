@@ -3,12 +3,7 @@
 
 Feature('Testing OIDC flow with Google credentials & NIH');
 const { expect } = require('chai');
-// const { execSync } = require('child_process');
-// const fenceProps = require('../../../services/apis/fence/fenceProps.js');
-// import { printOIDCFlowInstructionsAndObtainTokens} from '../../../utils/oidcUtils';
 const { interactive, ifInteractive } = require('../../../utils/interactive.js');
-// const apiUtil = require('../../../utils/apiUtil');
-// const {printOIDCFlowInstructionsAndObtainTokens,} = require('../../../utils/oidcUtils');
 const oidcUtils = require('../../../utils/oidcUtils');
 const {
   Gen3Response,

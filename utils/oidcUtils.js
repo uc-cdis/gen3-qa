@@ -87,54 +87,7 @@ function assembleCustomHeaders(ACCESS_TOKEN) {
   };
 }
 
-async function fetchDIDListsforHttp301(I, params = { hardcodedAuthz: null }, TARGET_ENVIRONMENT) {
-  // TODO: Use negate_params to gather authorized (200) and blocked (401) files
-  // Only assemble the didList if the list hasn't been initialized
-  let projectAccessList = [];
-  let authParam = 'acl';
-  const httpResp = await I.sendGetRequest(
-    `https://${TARGET_ENVIRONMENT}/user/user`,
-    { Authorization: `bearer ${I.cache.ACCESS_TOKEN}` },
-  );
-  // if hardcodedAuthz is set
-  // check if the program/project path is in the /user/user authz output
-  const foundHardcodedAuthzInResponse = Object.keys(httpResp.data.authz).filter((a) => params.hardcodedAuthz === a).join('');
-  console.log(`foundHardcodedAuthzInResponse: ${foundHardcodedAuthzInResponse}`);
-  if (foundHardcodedAuthzInResponse !== '') {
-    console.log('switching the lookup auth param from [acl] to [authz]');
-    authParam = 'authz';
-    projectAccessList = httpResp.data.authz;
-  } else {
-    projectAccessList = httpResp.data.project_access;
-  }
-  // console.log(`projectAccessList: ${projectAccessList}`);
 
-  // initialize dict of accessible DIDs
-  let ok200files = {}; // eslint-disable-line prefer-const
-  // initialize dict of blocked DIDs
-  let unauthorized401files = {}; // eslint-disable-line prefer-const
-
-  // adding record DIDs to their corresponding ACL key
-  // ( I.cache.records is created in BeforeSuite() )
-  I.cache.records.forEach((record) => {
-    // console.log('ACLs for ' + record['did'] + ' - ' + record['acl']);
-    // Filtering accessible DIDs by checking if the record acl is in the project access list
-    const accessibleDid = record[authParam].filter(
-      (acl) => projectAccessList.hasOwnProperty(acl) || record[authParam].includes('*'), // eslint-disable-line no-prototype-builtins
-    );
-
-    // Put DIDs urls and md5 hash into their respective lists (200 or 401)
-    const theFiles = accessibleDid.length > 0 ? ok200files : unauthorized401files;
-    theFiles[record.did] = { urls: record.urls, md5: record.md5 };
-  });
-
-  // the cache
-  I.didList = {};
-  I.didList.ok200files = ok200files;
-  I.didList.unauthorized401files = unauthorized401files;
-
-  return I.didList;
-}
 
 async function fetchDIDLists(I, TARGET_ENVIRONMENT) {
   // Only assemble the didList if the list hasn't been initialized
