@@ -80,5 +80,18 @@ module.exports = async function () {
         });
       }
     }
+    if (suite.title === 'Dicom Viewer @requires-dicom-viewer @requires-dicom-server @requires-portal @requires-guppy') {
+      const DicomViewer = bash.runCommand('gen3 secrets decode versions manifest.json | yq -r \'."dicom-server" | ."portal" | ."dicom-viewer"\'');
+      if (DicomViewer !== 'true') {
+        console.log('Skipping Dicom Viewer tests since the required configuration is not in manifest.json');
+        console.dir(suite.tests);
+        suite.tests.forEach((test) => {
+          test.run = function skip() { // eslint-disable-line func-names
+            console.log(`Ignoring test - ${test.title}`);
+            this.skip();
+          };
+        });
+      }
+    }
   });
 };
