@@ -22,6 +22,15 @@ module.exports = {
     return reqID;
   },
 
+  // getting the list of requests in the DB
+  async getRequestList(token) {
+    console.log('Getting list of user;s acess request ...');
+    return I.sendGetRequest(
+      `${requestorProps.endpoint.requestEndPoint}`,
+      { Authorization: `Bearer ${token}` },
+    );
+  },
+
   /**
   * @param {Object} data - Pass request data as an object, include policyID or resourcePaths+roleIds
   * @param {string} data.adminUserTokenHeader - headers for user authorized in Requestor
