@@ -73,6 +73,10 @@ BeforeSuite(async ({
     caseid = resCase.data.case[0].id;
     casesubmitterid = resCase.data.case[0].submitter_id;
   }
+
+  I.cache.program = program;
+  I.cache.project = project;
+
   const submitData = `{
     "type": "imaging_study",
     "cases": [
@@ -104,7 +108,7 @@ Scenario('check uploaded dicom file @dicomViewer',
     I.wait(1);
     I.saveScreenshot('dicom_viewer_exploration_page.png');
     const studyLink = `https://${process.env.HOSTNAME}/dicom-viewer/viewer/${I.cache.studyId}`;
-    I.click('//span[text()="DEV-DICOM_test"]');
+    I.click(`//span[text()="${I.cache.program}-${I.cache.project}"]`);
     I.click(`//a[@href="${studyLink}"]//button[@class="explorer-table-link-button"]`);
     I.wait(3);
     I.switchToNextTab();
