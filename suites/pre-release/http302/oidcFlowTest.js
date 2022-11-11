@@ -3,12 +3,13 @@
 
 Feature('Testing OIDC flow with Google credentials & NIH');
 const { expect } = require('chai');
+const { execSync } = require('child_process');
 const { interactive, ifInteractive } = require('../../../utils/interactive.js');
 const oidcUtils = require('../../../utils/oidcUtils');
 const {
   Gen3Response,
   requestUserInput,
-  // parseJwt,
+  parseJwt,
 } = require('../../../utils/apiUtil');
 
 // Test elaborated for DataSTAGE but it can be reused in other projects
@@ -26,11 +27,35 @@ BeforeSuite(async ({ I }) => {
     throw new Error(`ERROR: There is no implicit_id defined for this ${TARGET_ENVIRONMENT} Test User. Please declare the "TEST_IMPLICIT_ID" environment variable and try again. Aborting test...`);
   }
 });
+
+async function printOIDCFlowInstructionsAndObtainTokens(I, accountType) {
+  console.log(`
+            1. Using the "client id" provided, paste the following URL into the browser (replacing the CLIENT_ID placeholder accordingly):
+                 https://${TARGET_ENVIRONMENT}/user/oauth2/authorize?redirect_uri=https://${TARGET_ENVIRONMENT}&client_id=${process.env.TEST_CLIENT_ID}&scope=openid+user+data+google_credentials&response_type=code&nonce=test-nonce-${I.cache.NONCE}
+            2. Make sure you are logged in with your ${accountType} Account.
+            3. On the Consent page click on the "Yes, I authorize" button.
+            4. Once the user is redirected to a new page, copy the value of the "code" parameter that shows up in the URL (this code is valid for 60 seconds).
+            5. [Semi-automated] Run the following curl command with basic authentication (replacing the CODE + CLIENT_ID and CLIENT_SECRET placeholders accordingly) to obtain 3 pieces of data:
+               a. Access Token
+               b. ID Token
+               c. Refresh token
+--
+            % curl --user "${process.env.TEST_CLIENT_ID}:${process.env.TEST_SECRET_ID}" -X POST "https://${TARGET_ENVIRONMENT}/user/oauth2/token?grant_type=authorization_code&code=<CODE>&redirect_uri=https://${TARGET_ENVIRONMENT}"
+            `);
+  const theCode = await requestUserInput('Please paste in the code obtained in step #4 stated above: ');
+  const obtainTokensCmd = `curl -s --user "${process.env.TEST_CLIENT_ID}:${process.env.TEST_SECRET_ID}" -X POST "https://${TARGET_ENVIRONMENT}/user/oauth2/token?grant_type=authorization_code&code=${theCode}&redirect_uri=https://${TARGET_ENVIRONMENT}"`;
+  console.log(`running command: ${obtainTokensCmd}`);
+  const obtainTokensCmdOut = await execSync(obtainTokensCmd, { shell: '/bin/sh' }).toString('utf8');
+  console.log(`obtainTokensCmdOut: ${JSON.stringify(obtainTokensCmdOut)}`);
+  const tokens = JSON.parse(obtainTokensCmdOut);
+  const idTokenJson = parseJwt(tokens.id_token);
+  expect(idTokenJson).to.have.property('aud');
+}
 // Scenario #1 - OIDC Client flow with Google credentials
 Scenario('Initiate the OIDC Client flow with Google credentials to obtain the OAuth authorization code @manual', ifInteractive(
   async ({ I }) => {
     I.cache.NONCE = Date.now();
-    const result = await interactive(await oidcUtils.printOIDCFlowInstructionsAndObtainTokens(I, 'Google', TARGET_ENVIRONMENT));
+    const result = await interactive(await printOIDCFlowInstructionsAndObtainTokens(I, 'Google'));
     expect(result.didPass, result.details).to.be.true;
   },
 ));
@@ -78,7 +103,7 @@ Scenario('Initiate the OIDC Client flow with NIH credentials to obtain the OAuth
     console.log('Click on the logout button so you can log back in with your NIH account.');
     // reset access token
     delete I.cache.ACCESS_TOKEN;
-    const result = await interactive(await oidcUtils.printOIDCFlowInstructionsAndObtainTokens(I, 'NIH', TARGET_ENVIRONMENT));
+    const result = await interactive(await printOIDCFlowInstructionsAndObtainTokens(I, 'NIH'));
     expect(result.didPass, result.details).to.be.true;
   },
 ));
