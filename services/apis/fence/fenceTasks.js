@@ -39,6 +39,7 @@ async function getNoRedirect(url, headers) {
  * fence Tasks
  */
 module.exports = {
+
   async getVersion() {
     const response = await I.sendGetRequest(fenceProps.endpoints.version);
     expect(response, 'Can\'t get Fence version').to.have.property('status', 200);
