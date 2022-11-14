@@ -11,27 +11,9 @@ const { interactive, ifInteractive } = require('../../../utils/interactive.js');
 const {
   getAccessTokenHeader, requestUserInput,
 } = require('../../../utils/apiUtil');
-const oidcUtils = require('../../../utils/oidcUtils');
 
 // Test elaborated for nci-crdc but it can be reused in other projects
 const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'nci-crdc-staging.datacommons.io';
-
-BeforeSuite(async ({ I }) => {
-  console.log('Setting up dependencies...');
-  I.TARGET_ENVIRONMENT = TARGET_ENVIRONMENT;
-});
-
-AfterSuite(async ({ I, fence }) => {
-  console.log('Unlinking the Google user from NIH ...');
-  I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
-
-  const unlinkResp = await fence.do.unlinkGoogleAcct(
-    { accessTokenHeader: getAccessTokenHeader(I.cache.ACCESS_TOKEN) },
-  );
-  if (unlinkResp.status === 200) {
-    console.log('The link has been deleted');
-  }
-});
 
 async function collectUserInput(I) {
   // Collect all the user input just once and reuse this data in the next scenarios
@@ -111,6 +93,23 @@ function performSvcAcctUpdateTest(typeOfTest, testInstructions) {
   ));
 }
 
+BeforeSuite(async ({ I }) => {
+  console.log('Setting up dependencies...');
+  I.TARGET_ENVIRONMENT = TARGET_ENVIRONMENT;
+});
+
+AfterSuite(async ({ I, fence }) => {
+  console.log('Unlinking the Google user from NIH ...');
+  I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
+
+  const unlinkResp = await fence.do.unlinkGoogleAcct(
+    { accessTokenHeader: getAccessTokenHeader(I.cache.ACCESS_TOKEN) },
+  );
+  if (unlinkResp.status === 200) {
+    console.log('The link has been deleted');
+  }
+});
+
 // TODO: Use some OOP and polimorphism here instead of declaring these repetitive dict keys
 const svcAcctRegistrationTestsMap = {
   validSvcAccount: {
@@ -144,7 +143,7 @@ for (const [typeOfTest, testInstructions] of Object.entries(svcAcctRegistrationT
 // Scenario #6 - Get details from the service account that has been successfully registered
 Scenario('Get details from registered service account @manual', ifInteractive(
   async ({ I, fence }) => {
-    await oidcUtils.collectUserInput(I);
+    await collectUserInput(I);
 
     const httpResp = await fence.do.getGoogleServiceAccounts(
       I.cache.userAcct,
@@ -224,7 +223,7 @@ Scenario('Get billing GCP projects @manual', ifInteractive(
 // Scenario #12 - Delete Google service account that has been registered in previous steps
 Scenario('Delete existing service account @manual', ifInteractive(
   async ({ I, fence }) => {
-    await oidcUtils.collectUserInput(I);
+    await collectUserInput(I);
     // patch existing svc acct to remove project access
     const httpResp = await fence.do.deleteGoogleServiceAccount(
       I.cache.userAcct,

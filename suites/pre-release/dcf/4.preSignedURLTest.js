@@ -5,6 +5,7 @@ Feature('4. PreSigned URLs - DCF Staging testing for release sign off - PXP-3836
 
 // To be executed with GEN3_SKIP_PROJ_SETUP=true
 // No need to set up program / retrieve access token, etc.
+const { expect } = require('chai');
 const {
   Gen3Response,
   requestUserInput,
@@ -25,49 +26,6 @@ const files = {
     size: 9,
   },
 };
-
-BeforeSuite(async ({ I }) => {
-  console.log('Setting up dependencies...');
-  I.cache = {};
-  I.TARGET_ENVIRONMENT = TARGET_ENVIRONMENT;
-  // // Fetching public list of DIDs
-  // const httpResp = await I.sendGetRequest(
-  //   `https://${TARGET_ENVIRONMENT}/index/index`,
-  // ).then((res) => new Gen3Response(res));
-
-  // I.cache.records = httpResp.body.records;
-
-  console.log('Getting user ACCESS_TOKEN: ');
-  I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
-});
-
-Before(async ({ I }) => {
-  console.log('Uploading ...');
-  // upload const files to indexd
-  const uploadResp = await I.sendPostRequest(
-    `https://${TARGET_ENVIRONMENT}/index/index`,
-    files.phs000BadFile1,
-    oidcUtils.assembleCustomHeaders(I.cache.ACCESS_TOKEN),
-  );
-  console.log(`The Upload Record : ${JSON.stringify(uploadResp.data)}`);
-  // get the GUID for the recently upload record
-  I.cache.GUID = uploadResp.data.did;
-  console.log(`### GUID of new upload file : ${I.cache.GUID}`);
-  I.cache.REV = uploadResp.data.rev;
-});
-
-After(async ({ I }) => {
-  console.log('Deleting indexd record ... ');
-  const deleteFiles = await I.sendDeleteRequest(
-    `https://${TARGET_ENVIRONMENT}/index/index/${I.cache.GUID}?rev=${I.cache.REV}`,
-    oidcUtils.assembleCustomHeaders(I.cache.ACCESS_TOKEN),
-  );
-  if (deleteFiles.status === 200) {
-    console.log(`The uploaded indexd record ${I.cache.GUID} is deleted`);
-  }
-  delete I.cache.GUID;
-  delete I.didList;
-});
 
 async function fetchDIDLists(I) {
   // Only assemble the didList if the list hasn't been initialized
@@ -123,8 +81,8 @@ async function fetchDIDLists(I) {
   return I.didList;
 }
 
-function performPreSignedURLTest(cloudProvider, typeOfTest, typeOfCreds) {
-  Scenario(`Perform ${cloudProvider} PreSigned URL ${typeOfTest} test against DID with ${typeOfCreds} credentials DID@manual`, ifInteractive(
+function performPreSignedURLTest(cloudProvider, typeOfTest) {
+  Scenario(`Perform ${cloudProvider} PreSigned URL ${typeOfTest} test against DID@manual`, ifInteractive(
     async ({ I, fence }) => {
       const filteredDIDs = {};
       if (I.cache.ACCESS_TOKEN) {
@@ -179,14 +137,57 @@ function performPreSignedURLTest(cloudProvider, typeOfTest, typeOfCreds) {
   ));
 }
 
+BeforeSuite(async ({ I }) => {
+  console.log('Setting up dependencies...');
+  I.cache = {};
+  I.TARGET_ENVIRONMENT = TARGET_ENVIRONMENT;
+  // // Fetching public list of DIDs
+  // const httpResp = await I.sendGetRequest(
+  //   `https://${TARGET_ENVIRONMENT}/index/index`,
+  // ).then((res) => new Gen3Response(res));
+
+  // I.cache.records = httpResp.body.records;
+
+  console.log('Getting user ACCESS_TOKEN: ');
+  I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
+});
+
+Before(async ({ I }) => {
+  console.log('Uploading ...');
+  // upload const files to indexd
+  const uploadResp = await I.sendPostRequest(
+    `https://${TARGET_ENVIRONMENT}/index/index`,
+    files.phs000BadFile1,
+    oidcUtils.assembleCustomHeaders(I.cache.ACCESS_TOKEN),
+  );
+  console.log(`The Upload Record : ${JSON.stringify(uploadResp.data)}`);
+  // get the GUID for the recently upload record
+  I.cache.GUID = uploadResp.data.did;
+  console.log(`### GUID of new upload file : ${I.cache.GUID}`);
+  I.cache.REV = uploadResp.data.rev;
+});
+
+After(async ({ I }) => {
+  console.log('Deleting indexd record ... ');
+  const deleteFiles = await I.sendDeleteRequest(
+    `https://${TARGET_ENVIRONMENT}/index/index/${I.cache.GUID}?rev=${I.cache.REV}`,
+    oidcUtils.assembleCustomHeaders(I.cache.ACCESS_TOKEN),
+  );
+  if (deleteFiles.status === 200) {
+    console.log(`The uploaded indexd record ${I.cache.GUID} is deleted`);
+  }
+  delete I.cache.GUID;
+  delete I.didList;
+});
+
 // Scenario #1 - Controlled Access Data - Google PreSignedURL test against DID the user can access
-performPreSignedURLTest('AWS S3', 'positive', 'Google');
+performPreSignedURLTest('AWS S3', 'positive');
 
 // Scenario #2 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
-performPreSignedURLTest('AWS S3', 'negative', 'Google');
+performPreSignedURLTest('AWS S3', 'negative');
 
 // Scenario #3 - Controlled Access Data - Google PreSignedURL test against DID the user can access
-performPreSignedURLTest('Google Storage', 'positive', 'Google');
+performPreSignedURLTest('Google Storage', 'positive');
 
 // Scenario #4 - Controlled Access Data - Google PreSignedURL test against DID the user can't access
-performPreSignedURLTest('Google Storage', 'negative', 'Google');
+performPreSignedURLTest('Google Storage', 'negative');

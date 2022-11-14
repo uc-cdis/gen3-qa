@@ -3,14 +3,10 @@
  * Util providing common function for OIDC flow
  * @module oidcUtils
  */
-const { expect } = require('chai');
-const apiUtil = require('./apiUtil');
 const { interactive } = require('./interactive.js');
-const fenceProps = require('../services/apis/fence/fenceProps.js');
 const {
   requestUserInput,
 } = require('./apiUtil');
-
 
 // Decode JWT token and find the Nonce value
 function findNonce(idToken) {

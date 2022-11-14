@@ -12,12 +12,19 @@ const { requestUserInput, getAccessTokenHeader } = require('../../../utils/apiUt
 // Test elaborated for nci-crdc but it can be reused in other projects
 const TARGET_ENVIRONMENT = process.env.GEN3_COMMONS_HOSTNAME || 'nci-crdc-staging.datacommons.io';
 
-BeforeSuite(async ({ I }) => {
-  console.log('Setting up dependencies...');
-  I.TARGET_ENVIRONMENT = TARGET_ENVIRONMENT;
+function linkGoogleAccount() {
+  Scenario('Link Google identity to the NIH user @manual', ifInteractive(
+    async () => {
+      const result = await interactive(`
+              1. Navigate to https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.linkGoogle}
+              2. Provide the credentials of the Google account that owns the "Customer" GCP account
+                 This Google account will be linked to the NIH account within this Gen3 environment.
+      `);
+      expect(result.didPass, result.details).to.be.true;
+    },
+  ));
+}
 
-  I.cache = {};
-});
 function performAdjustExpDateTest(typeOfTest) {
   Scenario(`Adjust the expiration date of the Google account that has been linked. ${typeOfTest} test @manual`, ifInteractive(
     async ({ I, fence }) => {
@@ -51,18 +58,12 @@ function performAdjustExpDateTest(typeOfTest) {
   ));
 }
 
-function linkGoogleAccount() {
-  Scenario('Link Google identity to the NIH user @manual', ifInteractive(
-    async () => {
-      const result = await interactive(`
-              1. Navigate to https://${TARGET_ENVIRONMENT}${fenceProps.endpoints.linkGoogle}
-              2. Provide the credentials of the Google account that owns the "Customer" GCP account
-                 This Google account will be linked to the NIH account within this Gen3 environment.
-      `);
-      expect(result.didPass, result.details).to.be.true;
-    },
-  ));
-}
+BeforeSuite(async ({ I }) => {
+  console.log('Setting up dependencies...');
+  I.TARGET_ENVIRONMENT = TARGET_ENVIRONMENT;
+
+  I.cache = {};
+});
 
 // Scenario #1 - Verifying NIH access and permissions (project access)
 Scenario(`Login to https://${TARGET_ENVIRONMENT} and check the Project Access list under the Profile page @manual`, ifInteractive(
