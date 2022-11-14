@@ -3,33 +3,35 @@ Feature('Aggregate Metadata Service @aggMDS @requires-metadata');
 const uuid = require('uuid');
 const { expect } = require('chai');
 const { output } = require('codeceptjs');
-const { Bash } = require('../../utils/bash.js');
 const fs = require('fs');
+const { Bash } = require('../../utils/bash.js');
 
 const bash = new Bash();
 const I = actor();
 I.cache = {};
 
-After(async ({ users, mds, I }) => {
- if ('studyId' in I.cache) {
-   await mds.do.deleteMetadataRecord(users.mainAcct.accessTokenHeader, I.cache.studyId);
-   await mds.do.reSyncAggregateMetadata();
- }
+After(async ({ users, mds }) => {
+  if ('studyId' in I.cache) {
+    await mds.do.deleteMetadataRecord(users.mainAcct.accessTokenHeader, I.cache.studyId);
+    await mds.do.reSyncAggregateMetadata();
+  }
 });
 
-let testDataFiles = new DataTable(['studyFilePath']);
+const testDataFiles = new DataTable(['studyFilePath']);
 testDataFiles.add(['test-data/aggMDSTest/study1.json']);
 testDataFiles.add(['test-data/aggMDSTest/study2.json']);
 testDataFiles.add(['test-data/aggMDSTest/study3.json']);
 
-Data(testDataFiles).Scenario('Create, edit and delete aggregate metadata record @wip', async ({ mds, users, I, current }) => {
+Data(testDataFiles).Scenario('Create, edit and delete aggregate metadata record @wip', async ({
+  mds, users, current,
+}) => {
   I.cache.studyId = uuid.v4();
   // dynamically get UID field name from portal config
   const UIDFieldName = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.discoveryConfig.minimalFieldMapping.uid\'').replace(/^"(.*)"$/, '$1');
   expect(UIDFieldName).to.be.a('string').that.is.not.empty;
-  let studyMetadata = JSON.parse(fs.readFileSync(current.studyFilePath));
-  studyMetadata['gen3_discovery'][UIDFieldName] = I.cache.studyId;
-  const project_title = studyMetadata['gen3_discovery']['project_title'];
+  const studyMetadata = JSON.parse(fs.readFileSync(current.studyFilePath));
+  studyMetadata.gen3_discovery[UIDFieldName] = I.cache.studyId;
+  const projectTitle = studyMetadata.gen3_discovery.project_title;
   // CREATE
   output.print('Creating Metadata Record');
   await mds.do.createMetadataRecord(
@@ -41,10 +43,10 @@ Data(testDataFiles).Scenario('Create, edit and delete aggregate metadata record 
     users.mainAcct.accessTokenHeader, I.cache.studyId,
   );
   expect(record.commons_name).to.equal('HEAL');
-  expect(record.project_title).to.equal(studyMetadata['gen3_discovery']['project_title']);
+  expect(record.project_title).to.equal(studyMetadata.gen3_discovery.project_title);
   // EDIT
   output.print('Updating Metadata Record');
-  studyMetadata.gen3_discovery.project_title = `${project_title} - Modified`;
+  studyMetadata.gen3_discovery.project_title = `${projectTitle} - Modified`;
   await mds.do.editMetadataRecord(
     users.mainAcct.accessTokenHeader, I.cache.studyId, studyMetadata,
   );
@@ -53,7 +55,7 @@ Data(testDataFiles).Scenario('Create, edit and delete aggregate metadata record 
   const updatedRecord = await mds.do.readAggMetadataRecord(
     users.mainAcct.accessTokenHeader, I.cache.studyId,
   );
-  expect(updatedRecord.project_title).to.equal(`${project_title} - Modified`);
+  expect(updatedRecord.project_title).to.equal(`${projectTitle} - Modified`);
   // DELETE
   // output.print('Deleting Metadata Record');
   // await mds.do.deleteMetadataRecord(
