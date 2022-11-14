@@ -18,9 +18,9 @@ After(async ({ users, mds, I }) => {
 });
 
 let testDataFiles = new DataTable(['studyFilePath']);
-testDataFiles.add(['files/testData/aggMDSTest/study1.json']);
-testDataFiles.add(['files/testData/aggMDSTest/study2.json']);
-testDataFiles.add(['files/testData/aggMDSTest/study3.json']);
+testDataFiles.add(['test-data/aggMDSTest/study1.json']);
+testDataFiles.add(['test-data/aggMDSTest/study2.json']);
+testDataFiles.add(['test-data/aggMDSTest/study3.json']);
 
 Data(testDataFiles).Scenario('Create, edit and delete aggregate metadata record @wip', async ({ mds, users, I, current }) => {
   I.cache.studyId = uuid.v4();
