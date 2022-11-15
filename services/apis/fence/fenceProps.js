@@ -28,6 +28,8 @@ function createClient(clientName, userName, clientType, arboristPolicies = null)
     fenceCmd = `${fenceCmd} client-create --client ${clientName} --grant-types client_credentials`;
   } else if (clientType === 'implicit') {
     fenceCmd = `${fenceCmd} client-create --client ${clientName} --user ${userName} --urls https://${process.env.HOSTNAME} --grant-types implicit --public`;
+  } else {
+    fenceCmd = `${fenceCmd} client-create --client ${clientName} --user ${userName} --urls https://${process.env.HOSTNAME}`;
   }
 
   console.log(`running: ${fenceCmd}`);
