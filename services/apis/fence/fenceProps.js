@@ -21,13 +21,19 @@ function createClient(clientName, userName, clientType, arboristPolicies = null)
 
   // see test_setup.js for the ARBORIST_... global flag setup
   if (arboristPolicies && process.env.ARBORIST_CLIENT_POLICIES) {
-    fenceCmd = `${fenceCmd} --arborist http://arborist-service/ --policies ${arboristPolicies}`;
+    fenceCmd = `${fenceCmd} --arborist http://arborist-service/`;
   }
 
   if (clientType === 'client_credentials') {
     fenceCmd = `${fenceCmd} client-create --client ${clientName} --grant-types client_credentials`;
   } else if (clientType === 'implicit') {
     fenceCmd = `${fenceCmd} client-create --client ${clientName} --user ${userName} --urls https://${process.env.HOSTNAME} --grant-types implicit --public`;
+  } else {
+    fenceCmd = `${fenceCmd} client-create --client ${clientName} --user ${userName} --urls https://${process.env.HOSTNAME}`;
+  }
+
+  if (arboristPolicies && process.env.ARBORIST_CLIENT_POLICIES) {
+    fenceCmd = `${fenceCmd} --policies ${arboristPolicies}`;
   }
 
   console.log(`running: ${fenceCmd}`);
