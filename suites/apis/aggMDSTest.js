@@ -44,7 +44,7 @@ Data(testDataFiles).Scenario('Create, edit and delete aggregate metadata record 
     users.mainAcct.accessTokenHeader, I.cache.studyId,
   );
   expect(record.commons_name).to.equal('HEAL');
-  expect(record.project_title).to.equal(studyMetadata.gen3_discovery.project_title);
+  expect(record.project_title).to.equal(projectTitle);
   // EDIT
   output.print('Updating Metadata Record');
   studyMetadata.gen3_discovery.project_title = `${projectTitle} - Modified`;
