@@ -10,12 +10,13 @@ const bash = new Bash();
 const I = actor();
 I.cache = {};
 
-After(async ({ users, mds }) => {
-  if ('studyId' in I.cache) {
-    await mds.do.deleteMetadataRecord(users.mainAcct.accessTokenHeader, I.cache.studyId);
-    await mds.do.reSyncAggregateMetadata();
-  }
-});
+// Can uncomment after PXP-10530 gets fixed
+// After(async ({ users, mds }) => {
+//  if ('studyId' in I.cache) {
+//    await mds.do.deleteMetadataRecord(users.mainAcct.accessTokenHeader, I.cache.studyId);
+//    await mds.do.reSyncAggregateMetadata();
+//  }
+// });
 
 const testDataFiles = new DataTable(['studyFilePath']);
 testDataFiles.add(['test-data/aggMDSTest/study1.json']);
@@ -56,6 +57,7 @@ Data(testDataFiles).Scenario('Create, edit and delete aggregate metadata record 
     users.mainAcct.accessTokenHeader, I.cache.studyId,
   );
   expect(updatedRecord.project_title).to.equal(`${projectTitle} - Modified`);
+  // Can uncomment after PXP-10530 gets fixed
   // DELETE
   // output.print('Deleting Metadata Record');
   // await mds.do.deleteMetadataRecord(
