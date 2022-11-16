@@ -1,0 +1,247 @@
+{
+	"_guid_type": "discovery_metadata",
+	"gen3_discovery": {
+		"Data": {
+			"data_type": [],
+			"data_source": [],
+			"data_orientation": [],
+			"subject_data_level_available": [],
+			"subject_data_unit_of_analysis": [],
+			"subject_data_unit_of_collection": [],
+			"subject_geographic_data_level_available": [],
+			"subject_geographic_data_level_collected": [],
+			"subject_data_unit_of_analysis_expected_number": "",
+			"subject_data_unit_of_collection_expected_number": ""
+		},
+		"tags": [
+            {
+				"name": "Novel Medications",
+				"category": "Intervention/Treatment"
+			},
+			{
+				"name": "Medication",
+				"category": "Other"
+			},
+			{
+				"name": "Respiratory Depression",
+				"category": "Other"
+			},
+			{
+				"name": "Opioid Use Disorder",
+				"category": "Substance Use"
+			},
+			{
+				"name": "Craving",
+				"category": "Other"
+			},
+			{
+				"name": "Medication Intervention",
+				"category": "Other"
+			},
+			{
+				"name": "New Formulations Of Existing Interventions",
+				"category": "Other"
+			},
+			{
+				"name": "Relapse",
+				"category": "Other"
+			},
+			{
+				"name": "Overdose",
+				"category": "Substance Use"
+			},
+			{
+				"name": "Chronic Use",
+				"category": "Substance Use"
+			},
+			{
+				"name": "Opioid Use",
+				"category": "Substance Use"
+			},
+			{
+				"name": "Withdrawal",
+				"category": "Substance Use"
+			}
+		],
+		"authz": "",
+		"terms": "<Animals><Anxiety><Biological Products><biotherapeutic agent><biopharmaceutical><Biological Agent><Biologic Products><Biotechnology><Biotech><Brain><Encephalon><Brain Nervous System><Central Nervous System Disorders><CNS disorder><CNS Diseases><Central Nervous System Diseases><Clinical Study><Clinical Research><Clinical Trials><Diamorphine><Diacetylmorphine><Heroin><Hydroxytyramine><Dopamine><Double-Masked Study><Double-Masked Method><Double-Blinded><Double-Blind Study><Double-Blind Method><drug/agent><Pharmaceutic Preparations><Medication><Drugs><Pharmaceutical Preparations><Exhibits><Phentanyl><Fentyl><Fentanest><Duragesic><Actiq><Fentanyl><Future><Goals><Grant><Modern Man><Human><Inpatients><Maintenance><Statex SR><Roxanol><Oramorph SR><Oramorph><Morphia><MSir><MS Contin><Kadian><Infumorph><Morphine><opioid drug abuse><opiate drug abuse><opiate abuse><opioid abuse><opioid detoxification><opioid detox><opiate withdrawal><opioid withdrawal><Overdose><Parents><Patients><Pharmacokinetics><Drug Kinetics><Pharmacology><sham therapy><Sham Treatment><Placebos><Reticuloendothelial System, Serum, Plasma><Plasma Serum><Blood Plasma><Plasma><Positron><Precipitation><Opiate Receptors><Opioid Receptor><Relapse><Researchers><Investigators><Research Personnel><Safety><Hippophaine><Enteramine><5HT><5-Hydroxytryptamine><5-HT><Serotonin><biological signal transduction><Signaling><Signal Transduction Systems><Intracellular Communication and Signaling><Cell Signaling><Cell Communication and Signaling><Signal Transduction><Toxicology><carfentanyl><4-methoxycarbonylfentanyl><4-methoxycarbonyl fentanyl><carfentanil><D1 receptor><Dopamine D1 Receptor><OR><-OR>< opioid receptors><mu opioid receptors><depressive><depression symptom><Emotional Depression><depressive symptoms><base><Acute><Clinical><Phase><Individual><Withdrawal><Opioid><Opiates><Development Plans><Funding><Agonist><Collaborations><Clinical Paths><Serotonin Receptor 5-HT2A><Serotonin 2A Receptor><5-HT2A Receptor><5-HT(2A) Receptor><Therapeutic><programs><Route><Opiate Addiction><opioid dependent><opioid dependence><opioid addiction><Opiate Dependence><receptor><Receptor Protein><radioligand><Heroin Users><Therapeutic Index><novel><Maximum Tolerated Dose><Maximally Tolerated Dose><Maximal Tolerated Dose><Modeling><Adverse event><Adverse Experience><Molecular Interaction><Binding><Pharmacological Substance><Pharmaceuticals><Pharmaceutical Agent><Pharmacologic Substance><Therapeutic Uses><preventing><prevent><small molecule><HTR2A gene><Serotonin 5-HT-2A Receptor><Serotonin 5-HT-2 Receptor Gene><HTR2A><HTR2 Gene><HTR2><5-Hydroxytryptamine Receptor 2A Gene><5-Hydroxytryptamine Receptor 2A><5-Hydroxytryptamine (Serotonin) Receptor 2A Gene><5-HT2A><5-HT-2A Gene><Dose><Affinity><Data><Dose-Limiting><National Institute of Drug Abuse><National Institute on Drug Abuse><NIDA><in vivo><research clinical testing><clinical test><Clinical Testing><Clinical Evaluation><Conduct Clinical Trials><Principal Investigator><Development><developmental><Image><imaging><Pathway interactions><pathway><design><designing><Outcome><innovation><innovative><innovate><volunteer><healthy volunteer><effective therapy><effective treatment><phase 2 study><phase II study><Regimen><prescription opioid><prescription opiate><prescribed opioid><prescribed opiate><opioid medication><opiate medication><licit opioid><opioid use disorder><opiate use disorder><Formulation><molecular drug target><molecular pharmacotherapy target><opioid use><opioid intake><opioid drug use><opioid consumption><opiate use><opiate intake><opiate drug use><opiate consumption><symptom treatment><treat symptom><symptomatic treatment><associated symptom><symptom comorbidity><symptom association><cooccuring symptom><concurrent symptom><comorbid symptom><clinical development><Opioid Antagonist><Opioid receptor antagonist><Opiate receptor antagonist><Opiate Antagonist><illicit opioid><illicit opiate><Opioid agonist><Opioid receptor agonist><Opiate receptor agonist><Opiate agonist><Opioid user><Opioid drug user><Opiate user><first-in-human><first in man>",
+		"is_new": "False",
+		"appl_id": 9999009999,
+		"full_foa": "AAA-ZZ-00-999",
+		"phr_text": "Project Narrative. Intra-Cellular Therapies, Inc. (ITI), has a biotechnology platform that has enabled discovery of innovative. pharmaceutical therapies for CNS disorders based on intracellular signaling. In this project, we propose to. develop a novel, small molecule, ITI-333, as a safe, brain-penetrant drug targeting molecular pathways in the. brain implicated in the development of opioid-use disorders. Here, we present a clinical development plan. designed to advance ITI-333 through human clinical evaluation as a medication for the treatment of opioid. withdrawal and relapse and as an aid for the treatment of co-morbid symptoms of depression and anxiety in. individuals withdrawing from opioids.. PHS 398/2590 (Rev. 06/09) Page Continuation Format Page",
+		"cfda_code": "279",
+		"cong_dist": "NY-12",
+		"is_active": "False",
+		"Study Type": {
+			"study_stage": "",
+			"study_type_design": [],
+			"study_subject_type": [],
+			"study_primary_or_secondary": "",
+			"study_observational_or_experimental": ""
+		},
+		"__manifest": "",
+		"award_type": "1",
+		"budget_end": "2021-06-30T12:06:00Z",
+		"date_added": "2019-01-05T07:01:48Z",
+		"pref_terms": "Acute;Adverse event;Affinity;Agonist;Animals;Anxiety;Binding;Biological Products;Biotechnology;Brain;Central Nervous System Diseases;Clinical;Clinical Paths;Clinical Research;Clinical Trials;Collaborations;Conduct Clinical Trials;Data;Development;Development Plans;Dopamine;Dopamine D1 Receptor;Dose;Dose-Limiting;Double-Blind Method;Drug Kinetics;Exhibits;Fentanyl;Formulation;Funding;Future;Goals;Grant;HTR2A gene;Heroin;Heroin Users;Human;Image;Individual;Inpatients;Maintenance;Maximum Tolerated Dose;Modeling;Morphine;National Institute of Drug Abuse;Opiate Addiction;Opioid;Opioid Antagonist;Opioid Receptor;Opioid agonist;Opioid user;Outcome;Overdose;Parents;Pathway interactions;Patients;Pharmaceutical Preparations;Pharmacologic Substance;Pharmacology;Phase;Placebos;Plasma;Positron;Precipitation;Principal Investigator;Regimen;Relapse;Research Personnel;Route;Safety;Serotonin;Serotonin Receptor 5-HT2A;Signal Transduction;Therapeutic;Therapeutic Index;Therapeutic Uses;Toxicology;Withdrawal;associated symptom;base;carfentanil;clinical development;depressive symptoms;design;effective therapy;first-in-human;healthy volunteer;illicit opioid;in vivo;innovation;molecular drug target;mu opioid receptors;novel;opioid abuse;opioid use;opioid use disorder;opioid withdrawal;phase 2 study;prescription opioid;prevent;programs;radioligand;receptor;research clinical testing;small molecule;symptom treatment;volunteer",
+		"repository": "",
+		"agency_code": "NIH",
+		"arra_funded": "N",
+		"Minimal Info": {
+			"alternative_study_name": "",
+			"alternative_study_description": ""
+		},
+		"award_amount": "3249130",
+		"budget_start": "2019-01-01T12:01:00Z",
+		"institutions": "ICT INC.",
+		"year_awarded": "2019",
+		"abstract_text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Massa eget egestas purus viverra. Rutrum quisque non tellus orci ac auctor augue mauris. Neque convallis a cras semper auctor neque. In hac habitasse platea dictumst. Integer enim neque volutpat ac. Vitae auctor eu augue ut lectus arcu. Morbi enim nunc faucibus a pellentesque. Purus gravida quis blandit turpis. Malesuada bibendum arcu vitae elementum curabitur vitae nunc sed. At erat pellentesque adipiscing commodo elit at imperdiet dui accumsan. Consectetur lorem donec massa sapien. Aliquam nulla facilisi cras fermentum odio eu feugiat pretium nibh. Ullamcorper sit amet risus nullam eget. Netus et malesuada fames ac. Eros in cursus turpis massa tincidunt dui ut ornare. Faucibus vitae aliquet nec ullamcorper sit amet. Mauris a diam maecenas sed enim ut. Eget egestas purus viverra accumsan in nisl nisi. Nibh sed pulvinar proin gravida hendrerit. Placerat in egestas erat imperdiet sed euismod nisi. Dictum fusce ut placerat orci nulla pellentesque dignissim. Nunc non blandit massa enim nec dui nunc mattis. Venenatis urna cursus eget nunc. Proin fermentum leo vel orci porta non pulvinar neque laoreet. Viverra vitae congue eu consequat ac felis. Quis viverra nibh cras pulvinar. Iaculis nunc sed augue lacus viverra vitae congue eu. Tristique risus nec feugiat in. Libero justo laoreet sit amet. Urna porttitor rhoncus dolor purus non. Tristique nulla aliquet enim tortor at auctor urna nunc. Mauris nunc congue nisi vitae suscipit tellus mauris. Id semper risus in hendrerit gravida rutrum. Sed tempus urna et pharetra pharetra massa massa ultricies. Duis ut diam quam nulla porttitor massa id neque. Commodo ullamcorper a lacus vestibulum. Vitae aliquet nec ullamcorper sit amet risus nullam eget felis. Fermentum iaculis eu non diam phasellus vestibulum lorem sed. Maecenas accumsan lacus vel facilisis volutpat est velit egestas dui. Faucibus turpis in eu mi bibendum neque egestas. Dignissim enim sit amet venenatis urna cursus. Urna duis convallis convallis tellus id interdum velit laoreet id. Elit pellentesque habitant morbi tristique senectus et netus. Neque aliquam vestibulum morbi blandit cursus risus at. A iaculis at erat pellentesque adipiscing commodo elit. Convallis tellus id interdum velit laoreet id donec ultrices tincidunt. Elit duis tristique sollicitudin nibh sit amet. Vulputate enim nulla aliquet porttitor. Penatibus et magnis dis parturient montes nascetur. Sed id semper risus in hendrerit. Ullamcorper morbi tincidunt ornare massa eget egestas. Dictum sit amet justo donec enim diam vulputate ut pharetra. Velit aliquet sagittis id consectetur purus ut faucibus. Eu volutpat odio facilisis mauris sit. Sit amet consectetur adipiscing elit pellentesque habitant morbi tristique senectus. Sit amet nisl suscipit adipiscing bibendum est. Sed cras ornare arcu dui. Id consectetur purus ut faucibus pulvinar elementum. Montes nascetur ridiculus mus mauris vitae ultricies leo integer. Duis at tellus at urna condimentum. Eu turpis egestas pretium aenean pharetra magna ac placerat vestibulum. Libero nunc consequat interdum varius sit amet mattis vulputate. Non curabitur gravida arcu ac tortor dignissim convallis aenean et. Id interdum velit laoreet id donec ultrices. Tortor id aliquet lectus proin nibh nisl. Sit amet consectetur adipiscing elit pellentesque habitant morbi tristique senectus.",
+		"activity_code": "UG3",
+		"is_registered": true,
+		"project_title": "Eget arcu dictum varius duis. Rhoncus mattis rhoncus urna neque viverra justo. Ullamcorper malesuada proin libero nunc consequat interdum varius. Proin nibh nisl condimentum id venenatis a condimentum vitae. Pellentesque nec nam aliquam sem et. Felis bibendum ut tristique et egestas quis ipsum.",
+		"subproject_id": "",
+		"covid_response": "",
+		"dataset_1_type": "",
+		"dataset_2_type": "",
+		"dataset_3_type": "",
+		"dataset_4_type": "",
+		"dataset_5_type": "",
+		"contact_pi_name": "Ingram, Camille H.",
+		"dataset_1_title": "",
+		"dataset_2_title": "",
+		"dataset_3_title": "",
+		"dataset_4_title": "",
+		"dataset_5_title": "",
+		"direct_cost_amt": "3134280",
+		"administering_ic": "National Institute on Drug Abuse",
+		"advSearchFilters": [{
+				"key": "Research Focus Area",
+				"value": "Novel Medication Options for Opioid Use Disorder and Overdose"
+			},
+			{
+				"key": "Administering IC(s)",
+				"value": "NIDA"
+			},
+			{
+				"key": "Year Grant Awarded",
+				"value": "2019"
+			}
+		],
+		"core_project_num": "XX3YA047699",
+		"dataset_category": "",
+		"project_end_date": "2022-06-30T12:06:00Z",
+		"Data Availability": {
+			"produce_data": "",
+			"produce_other": "",
+			"data_available": "",
+			"data_restricted": "",
+			"data_release_status": "",
+			"data_collection_status": "",
+			"data_release_start_date": "",
+			"data_release_finish_date": "",
+			"data_collection_start_date": "",
+			"data_collection_finish_date": ""
+		},
+		"Metadata Location": {
+			"other_study_websites": []
+		},
+		"award_notice_date": "2018-12-20T12:12:00Z",
+		"cedar_instance_id": "https://repo.metadatacenter.org/template-instances/62944e42-872a-4ad2-8de2-6fd6edf21787",
+		"data_availability": "not_available",
+		"funding_mechanism": "Non-SBIR/STTR",
+		"indirect_cost_amt": "114850",
+		"mechanism_code_dc": "RP",
+		"clinical_trials_id": "",
+		"investigators_name": "Wheeler, Barclay I; Ingram, Camille H; Dickerson, Barrett",
+		"project_detail_url": "https://project-site.com/project-details/9675407",
+		"project_serial_num": "YA047699",
+		"project_start_date": "2019-01-01T12:01:00Z",
+		"registration_authz": "/study/9675407",
+		"_second_search_flag": "",
+		"dataset_description": "",
+		"registrant_username": "0000-0000-0000-0000",
+		"research_focus_area": "Novel Therapeutic Options for Opioid Use Disorder and Overdose",
+		"spending_categories": "89; 108; 118; 176; 180; 240; 525; 4076; 3951; 817",
+		"agency_ic_admin.code": "DA",
+		"repository_study_ids": [],
+		"agency_ic_fundings.fy": "2019",
+		"dataset_1_description": "",
+		"dataset_2_description": "",
+		"dataset_3_description": "",
+		"dataset_4_description": "",
+		"dataset_5_description": "",
+		"organization.org_city": "NEW YORK",
+		"organization.org_duns": "112765909",
+		"organization.org_fips": "US",
+		"organization.org_ueis": "XX5XXXXXXDK7",
+		"organization.dept_type": "",
+		"organization.org_state": "NY",
+		"organization_type.code": "FP",
+		"organization_type.name": "",
+		"agency_ic_fundings.code": "DA",
+		"agency_ic_fundings.name": "National Institute on Drug Abuse",
+		"full_study_section.name": "Special Emphasis Panel[XXXX XXX-O (01)]",
+		"organization.org_country": "UNITED STATES",
+		"organization.org_zipcode": "100168367",
+		"organization.primary_uei": "XX5XXXXXXDK7",
+		"spending_categories_desc": "Behavioral and Social Science; Biotechnology; Brain Disorders; Clinical Research; Clinical Trials and Supportive Activities; Drug Abuse (NIDA only); Neurosciences; Opioid Misuse and Addiction; Opioids; Substance Abuse",
+		"Study Translational Focus": {
+			"study_translational_focus": "",
+			"study_translational_topic_grouping": []
+		},
+		"organization.org_ipf_code": "80000888",
+		"organization.primary_duns": "112765909",
+		"project_num_split.ic_code": "DA",
+		"study_description_summary": "Vulputate eu scelerisque felis imperdiet proin fermentum leo vel. Risus in hendrerit gravida rutrum quisque non tellus orci. In eu mi bibendum neque egestas congue. Mi in nulla posuere sollicitudin aliquam. Adipiscing diam donec adipiscing tristique risus nec feugiat in. Mi tempus imperdiet nulla malesuada pellentesque elit eget gravida cum. Viverra vitae congue eu consequat.",
+		"organization_type.is_other": "False",
+		"program_officers.full_name": "Sophia K. Brennan",
+		"program_officers.last_name": "Brennan",
+		"Human Subject Applicability": {
+			"age_applicability": [],
+			"gender_applicability": [],
+			"geographic_applicability": [],
+			"geographic_applicability1": [],
+			"sexual_identity_applicability": [],
+			"irb_vulnerability_conditions_applicability": []
+		},
+		"full_study_section.srg_code": "ZDA1",
+		"full_study_section.srg_flex": "",
+		"program_officers.first_name": "Sophia",
+		"agency_ic_admin.abbreviation": "NIDA",
+		"organization.external_org_id": "00000888",
+		"program_officers.middle_name": "L.",
+		"project_num_split.serial_num": "099999",
+		"Human Condition Applicability": {
+			"condition_category": [],
+			"all_other_condition": [],
+			"all_outcome_condition": [],
+			"pain_causal_condition": [],
+			"condition_investigation_stage_or_type": [],
+			"all_treatment_or_study_target_condition": [],
+			"pain_treatment_or_study_target_condition": []
+		},
+		"Human Treatment Applicability": {
+			"treatment_mode": [],
+			"treatment_type": [],
+			"treatment_novelty": [],
+			"treatment_application_level": [],
+			"treatment_investigation_stage_or_type": []
+		},
+		"agency_ic_fundings.total_cost": "3249130.0",
+		"full_study_section.group_code": "01",
+		"principal_investigators.title": "; EXECUTIVE DIRECTOR; ",
+		"project_num_split.suffix_code": "",
+		"project_num_split.support_year": "01",
+		"agency_ic_fundings.abbreviation": "NIDA",
+		"project_num_split.activity_code": "UG3",
+		"full_study_section.sra_flex_code": "O",
+		"project_num_split.appl_type_code": "1",
+		"principal_investigators.last_name": "Wheeler; Ingram; Dickerson",
+		"principal_investigators.first_name": "Barclay; Camille; Barrett",
+		"principal_investigators.profile_id": "9900999; 9009999; 0099999",
+		"principal_investigators.middle_name": "I; H; Barrett",
+		"project_num_split.full_support_year": "01",
+		"principal_investigators.is_contact_pi": "False; True; False",
+		"full_study_section.sra_designator_code": "XXX"
+	}
+}
