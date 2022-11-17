@@ -57,8 +57,8 @@ async function runVerifyNonceScenario(nonceVal) {
   const result = await interactive(`
             1. [Automated] Compare nonces:
                This is the nonce from the previous scenario: ${nonceVal}
-               And this is the nonce obtained after decoding your ID Token: ${findNonce(idToken)}
-               Result: ${nonceVal === findNonce(idToken)}
+               And this is the nonce obtained after decoding your ID Token: ${oidcUtils.findNonce(idToken)}
+               Result: ${nonceVal === oidcUtils.findNonce(idToken)}
             2. Confirm if the numbers match.
         `);
   return result;
@@ -76,7 +76,7 @@ Scenario('Initiate the OIDC Client flow with Google credentials to obtain the OA
 // Scenario #2 - Verify Nonce
 Scenario('Verify if the ID Token produced in the Google-OIDC scenario above has the correct nonce value @manual', ifInteractive(
   async ({ I }) => {
-    const result = await oidcUtils.runVerifyNonceScenario(I.cache.NONCE);
+    const result = await runVerifyNonceScenario(I.cache.NONCE);
     expect(result.didPass, result.details).to.be.true;
   },
 ));
@@ -125,7 +125,7 @@ Scenario('Initiate the OIDC Client flow with NIH credentials to obtain the OAuth
 // Scenario #2 - Verify Nonce
 Scenario('Verify if the ID Token produced in the NIH-OIDC scenario above has the correct nonce value @manual', ifInteractive(
   async ({ I }) => {
-    const result = await oidcUtils.runVerifyNonceScenario(I.cache.NONCE);
+    const result = await runVerifyNonceScenario(I.cache.NONCE);
     expect(result.didPass, result.details).to.be.true;
   },
 ));
