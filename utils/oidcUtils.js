@@ -27,17 +27,6 @@ function findNonce(idToken) {
   }
 }
 
-async function runVerifyNonceScenario(nonceVal) {
-  const idToken = await requestUserInput('Please paste in your ID Token to verify the nonce: ');
-  const result = await interactive(`
-            1. [Automated] Compare nonces:
-               This is the nonce from the previous scenario: ${nonceVal}
-               And this is the nonce obtained after decoding your ID Token: ${findNonce(idToken)}
-               Result: ${nonceVal === findNonce(idToken)}
-            2. Confirm if the numbers match.
-        `);
-  return result;
-}
 
 function assembleCustomHeaders(ACCESS_TOKEN) {
   // Add ACCESS_TOKEN to custom headers
@@ -51,4 +40,3 @@ function assembleCustomHeaders(ACCESS_TOKEN) {
 
 exports.assembleCustomHeaders = assembleCustomHeaders;
 exports.findNonce = findNonce;
-exports.runVerifyNonceScenario = runVerifyNonceScenario;
