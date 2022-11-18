@@ -22,7 +22,7 @@ exist in the Fence DB. So you need to run usersync again during the test, after 
 also delete the requests created in requestor
 */
 
-Feature('Client_Credentials Grant Type @requires-fence');
+Feature('Client_Credentials Grant Type @requires-fence @requires-requestor');
 
 const { expect } = require('chai');
 const { runUserSync, checkPod, getAccessTokenHeader } = require('../../utils/apiUtil.js');
