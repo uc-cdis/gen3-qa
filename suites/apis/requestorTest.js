@@ -19,10 +19,9 @@ BeforeSuite(async ({
 });
 
 Before(async ({
-  home, users, login,
+  home, users,
 }) => {
-  home.do.goToHomepage();
-  login.complete.login(users.mainAcct);
+  home.do.login(users.mainAcct.username);
 });
 
 AfterSuite(async ({ I }) => {
