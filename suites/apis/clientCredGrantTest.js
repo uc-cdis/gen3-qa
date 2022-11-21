@@ -27,12 +27,11 @@ Feature('Client_Credentials Grant Type @requires-fence');
 const { expect } = require('chai');
 const { runUserSync, checkPod, getAccessTokenHeader } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
+const { Client } = require('../../services/apis/fence/fenceProps.js');
 const requestorTasks = require('../../services/apis/requestor/requestorTasks.js');
 const requestorProps = require('../../services/apis/requestor/requestorProps.js');
 
 const bash = new Bash();
-
-const clientName = 'jenkinsClientTester';
 
 async function getAccessToken(clientID, secretID) {
   const tokenReq = bash.runCommand(`curl --user "${clientID}:${secretID}" --request POST "https://${process.env.HOSTNAME}/user/oauth2/token?grant_type=client_credentials" -d scope="openid user"`);
@@ -47,12 +46,11 @@ async function getAccessToken(clientID, secretID) {
   return accessToken;
 }
 
-BeforeSuite(async ({ I, fence }) => {
+BeforeSuite(async ({ I }) => {
   I.cache = {};
-  fence.do.deleteClient(clientName);
 });
 
-AfterSuite(async ({ I, fence }) => {
+AfterSuite(async ({ I }) => {
   // deleting the request created
   console.log('Deleting the request from the requestor DB ... ');
   if (process.env.DEBUG === 'true') {
@@ -62,9 +60,6 @@ AfterSuite(async ({ I, fence }) => {
   if (deleteRequest.status === 200) {
     console.log(`Request ${I.cache.requestID} deleted successfully`);
   }
-  // delete the client jenkinsClientTester
-  console.log('Deleting client created for the test ...');
-  fence.do.deleteClient(clientName);
 
   // revoking the arborist policy for the user
   console.log('Revoking the arborist policy for the user0 ...');
@@ -72,11 +67,17 @@ AfterSuite(async ({ I, fence }) => {
       gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/policy/requestor_client_credentials_test`);
 });
 
-Scenario('Client Credentials Grant Type interaction with Requestor @clientCreds', async ({ I, users, fence }) => {
+Scenario('Client Credentials Grant Type interaction with Requestor @clientCreds', async ({ I, users }) => {
   // creating OIDC client for the test
-  const { clientID, secretID } = fence.do.createClient(clientName, users.user0, 'client_credentials');
-  console.log(`Client ID: ${clientID}`);
-  console.log(`Client Secret: ${secretID}`);
+  // const { clientID, secretID } = fence.do.createClient(clientName, users.user0, 'client_credentials');
+  const clientGrant = new Client({
+    clientName: 'jenkinsClientTester',
+    userName: 'users.user0',
+    clientType: 'client_credentials',
+    arboristPolicies: null,
+  });
+  const clientID = clientGrant.id;
+  const secretID = clientGrant.secret;
   if (process.env.DEBUG === 'true') {
     console.log(`Client ID: ${clientID}`);
     console.log(`Client Secret: ${secretID}`);
@@ -125,8 +126,8 @@ Scenario('Client Credentials Grant Type interaction with Requestor @clientCreds'
   const requestStatusSigned = await requestorTasks.getRequestStatus(I.cache.requestID);
   console.log(`Status of the request is:${requestStatusSigned}`);
 
-//   // do not uncomment this code below until PXP - 10229 is done
-//   // getting the list of users access request
-//   const list = await requestorTasks.getRequestList(clientAccessToken);
-//   console.log(list);
+  // do not uncomment this code below until PXP - 10229 is done
+  // getting the list of users access request
+  // const list = await requestorTasks.getRequestList(clientAccessToken);
+  // console.log(list);
 });
