@@ -24,15 +24,18 @@ function createClient(clientName, userName, clientType, arboristPolicies = null)
     fenceCmd = `${fenceCmd} --arborist http://arborist-service/`;
   }
 
-  fenceCmd = `${fenceCmd} client-create --client ${clientName} --user ${userName} --urls https://${process.env.HOSTNAME}`;
-
-  if (clientType === 'implicit') {
-    fenceCmd = `${fenceCmd} --grant-types implicit --public`;
+  if (clientType === 'client_credentials') {
+    fenceCmd = `${fenceCmd} client-create --client ${clientName} --grant-types client_credentials`;
+  } else if (clientType === 'implicit') {
+    fenceCmd = `${fenceCmd} client-create --client ${clientName} --user ${userName} --urls https://${process.env.HOSTNAME} --grant-types implicit --public`;
+  } else {
+    fenceCmd = `${fenceCmd} client-create --client ${clientName} --user ${userName} --urls https://${process.env.HOSTNAME}`;
   }
-  // see test_setup.js for the ARBORIST_... global flag setup
+
   if (arboristPolicies && process.env.ARBORIST_CLIENT_POLICIES) {
     fenceCmd = `${fenceCmd} --policies ${arboristPolicies}`;
   }
+
   console.log(`running: ${fenceCmd}`);
   const resCmd = bash.runCommand(fenceCmd, 'fence', takeLastLine);
   const arr = resCmd.replace(/[()']/g, '').split(',').map((val) => val.trim());
@@ -44,7 +47,9 @@ function createClient(clientName, userName, clientType, arboristPolicies = null)
  * @param {string} clientName - client name
  */
 function deleteClient(clientName) {
-  bash.runCommand(`fence-create client-delete --client ${clientName}`, 'fence', takeLastLine);
+  const deleteClientCmd = `fence-create client-delete --client ${clientName}`;
+  const deleteClientReq = bash.runCommand(deleteClientCmd, 'fence', takeLastLine);
+  console.log(`Client deleted : ${deleteClientReq}`);
 }
 
 /**
@@ -60,6 +65,9 @@ class Client {
     this.arboristPolicies = arboristPolicies;
     this._client = null;
   }
+
+  // deleteClient = fenceTasks.deleteClient;
+  // createClient = fenceTasks.createClient;
 
   get client() {
     if (!this._client) {
@@ -87,6 +95,7 @@ module.exports = {
   /**
    * Fence endpoints
    */
+  Client,
   endpoints: {
     root: rootEndpoint,
     version: `${rootEndpoint}/_version`,

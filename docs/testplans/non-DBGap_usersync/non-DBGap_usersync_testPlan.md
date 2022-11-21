@@ -34,7 +34,7 @@ dbGaP:
         '_default': ['/']
         'PROJECT-12345': ['']
     allow_non_dbgap_whitelist: true
-    allowed_id_patterns: ["PROJECT-.*"]
+    allowed_id_patterns: ['authentication_file_PROJECT-(\d*).(csv|txt)', 'authentication_file_NCI-(\d*).(csv|txt)']
     protocol: 'sftp'
     decrypt_key: 'KEY'
     parse_consent_code: true

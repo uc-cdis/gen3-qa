@@ -2,7 +2,7 @@
  * Profile Page Properties
  */
 module.exports = {
-  path: '/identity',
+  path: 'identity',
 
   ready_cue: {
     locator: {

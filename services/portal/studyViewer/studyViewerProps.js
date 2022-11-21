@@ -7,7 +7,7 @@ const studyViewerIndex = bash.runCommand('gen3 secrets decode portal-config gito
 console.log(`### StudyViewer Index : ${studyViewerIndex}`);
 
 module.exports = {
-  dataset1Path: `/study-viewer/${studyViewerIndex}`,
+  dataset1Path: `study-viewer/${studyViewerIndex}`,
   dataset2Path: 'study-viewer/clinical_trials/NCT04401579',
   studyViewerDivClass: '.study-viewer',
   studyViewerRelPath: '.study-viewer',

@@ -118,7 +118,7 @@ async function fetchDIDLists(I, params = { hardcodedAuthz: null }) {
     // console.log('ACLs for ' + record['did'] + ' - ' + record['acl']);
     // Filtering accessible DIDs by checking if the record acl is in the project access list
     const accessibleDid = record[authParam].filter(
-      (acl) => projectAccessList.hasOwnProperty(acl) || record[authParam] === '*', // eslint-disable-line no-prototype-builtins
+      (acl) => projectAccessList.hasOwnProperty(acl) || record[authParam].includes('*'), // eslint-disable-line no-prototype-builtins
     );
 
     // Put DIDs urls and md5 hash into their respective lists (200 or 401)

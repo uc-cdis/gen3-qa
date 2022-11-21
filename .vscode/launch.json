@@ -24,7 +24,9 @@
             "env": {
                 "RUNNING_LOCAL": "true",
                 "GEN3_SKIP_PROJ_SETUP": "true",
-                "NAMESPACE": "hara"
+                "NAMESPACE": "qa-heal",
+                // "DEBUG": "true",
+                "PORTAL_SUFFIX": "/portal",
             },
         }
     ]
