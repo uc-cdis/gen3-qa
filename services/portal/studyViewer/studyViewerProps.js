@@ -2,9 +2,13 @@ const { Bash } = require('../../../utils/bash.js');
 
 const bash = new Bash();
 
-console.log('### Fetching the studyViewer index datatype from HOSTNAME');
+if (process.env.DEBUG === 'true') {
+  console.log('### Fetching the studyViewer index datatype from HOSTNAME');
+}
 const studyViewerIndex = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.studyViewerConfig[].dataType\' | tr -d \'"\'');
-console.log(`### StudyViewer Index : ${studyViewerIndex}`);
+if (process.env.DEBUG === 'true') {
+  console.log(`### StudyViewer Index : ${studyViewerIndex}`);
+}
 
 module.exports = {
   dataset1Path: `study-viewer/${studyViewerIndex}`,
