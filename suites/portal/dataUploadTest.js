@@ -165,7 +165,7 @@ AfterSuite(async ({
   // clean up in indexd and S3 (remove the records created by this test suite)
   await indexd.complete.deleteFiles(createdGuids);
   await dataUpload.cleanS3('clean-windmill-data-upload', createdGuids);
-  createdFileNames.forEach(({ fileName }) => {
+  createdFileNames.forEach(async ({ fileName }) => {
     await files.deleteFile(fileName);
   });
 });
