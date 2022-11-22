@@ -48,7 +48,7 @@
     "minimist": ">=1.2.2",
     "mocha-junit-reporter": "^1.23.3",
     "mocha-multi": "^1.1.3",
-    "nconf": "^0.10.0",
+    "nconf": "^0.11.4",
     "nock": "^12.0.3",
     "node-fetch": "^2.6.7",
     "node-forge": ">=1.0.0",
