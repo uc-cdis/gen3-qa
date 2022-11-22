@@ -166,6 +166,6 @@ AfterSuite(async ({
   await indexd.complete.deleteFiles(createdGuids);
   await dataUpload.cleanS3('clean-windmill-data-upload', createdGuids);
   createdFileNames.forEach(({ fileName }) => {
-    files.deleteFile(fileName);
+    await files.deleteFile(fileName);
   });
 });
