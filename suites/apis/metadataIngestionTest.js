@@ -317,6 +317,11 @@ Scenario('create a new mds entry and then issue http delete against mds/objects/
     console.log(`uploadTmpFile: ${uploadTmpFile}`);
   }
 
+  // To test the endpoint, the mds record entry needs to reference an indexd record
+  // So let us create one
+  const ok = await indexd.do.addFileIndices(Object.values(files));
+  expect(ok).to.be.true;
+
   const guidToBeDeleted = files.allowed.did;
 
   const createMdsEntryReq = await I.sendPostRequest(
