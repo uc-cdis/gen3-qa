@@ -17,7 +17,7 @@ Scenario('OIDC Client Expiration @clientExpiration', async ({ I, fence }) => {
     ['jenkinsClientLongExpiration', 30],
   ];
   for (const settings of clientSettings) {
-    [clientName, expiresIn] = settings;
+    const [clientName, expiresIn] = settings;
     console.log(`  Creating client '${clientName}' expiring in ${expiresIn} days`);
     const client = new Client({
       clientName,
@@ -54,8 +54,8 @@ Scenario('OIDC Client Expiration @clientExpiration', async ({ I, fence }) => {
 
   // check that the non-expired clients still work and that the expired one doesn't
   for (const settings of clientSettings) {
-    [clientName, _, clientId, clientSecret] = settings;
-    const expectSuccess = clientName != 'jenkinsClientShortExpiration';
+    const [clientName, _, clientId, clientSecret] = settings;
+    const expectSuccess = clientName !== 'jenkinsClientShortExpiration';
     await fence.do.getAccessTokenWithClientCredentials(clientId, clientSecret, expectSuccess);
   }
 });
