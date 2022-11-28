@@ -182,11 +182,6 @@ BeforeSuite(async ({ I, users, indexd }) => {
     `/mds-admin/metadata/${expectedResults.get_dbgap_metadata.testGUIDForPartialMatch}`,
     users.indexingAcct.accessTokenHeader,
   );
-
-  // To test the deletion endpoint, the mds record entry needs to reference an indexd record
-  // So let us create one
-  const ok = await indexd.do.addFileIndices(Object.values(files));
-  expect(ok).to.be.true;
 });
 
 AfterSuite(async ({ I }) => {
@@ -195,6 +190,14 @@ AfterSuite(async ({ I }) => {
   if (process.env.DEBUG === 'true') {
     console.log(`recreateSowerConfigMap: ${recreateSowerConfigMap}`);
   }
+});
+
+Before(async ({ indexd }) => {
+  console.log('populating indexd records...');
+  // To test the deletion endpoint, the mds record entry needs to reference an indexd record
+  // So let us create one
+  const ok = await indexd.do.addFileIndices(Object.values(files));
+  expect(ok).to.be.true;
 });
 
 // Scenario #1 - Instrument sower HTTP API endpoint to trigger the ingest-metadata-manifest job
