@@ -311,7 +311,7 @@ Scenario('Dispatch partial match get-dbgap-metadata job with mock dbgap xml and 
 }).retry(1);
 
 // Scenario #4 - Instrument the metadata-service DELETE endpoint
-Scenario('create a new mds entry and then issue http delete against mds/objects/{guid} @metadataIngestion', async ({ I, users, indexd }) => {
+Scenario('create a new mds entry and then issue http delete against mds/objects/{guid} @metadataIngestion', async ({ I, users }) => {
   // create a local small file to upload to test bucket.
   const uploadTmpFile = await bash.runCommand(`
     echo "hello mds" > mds-test.file && aws s3 cp ./mds-test.file s3://cdis-presigned-url-test/mds-test.file
@@ -319,11 +319,6 @@ Scenario('create a new mds entry and then issue http delete against mds/objects/
   if (process.env.DEBUG === 'true') {
     console.log(`uploadTmpFile: ${uploadTmpFile}`);
   }
-
-  // To test the endpoint, the mds record entry needs to reference an indexd record
-  // So let us create one
-  const ok = await indexd.do.addFileIndices(Object.values(files));
-  expect(ok).to.be.true;
 
   const guidToBeDeleted = files.allowed.did;
 
