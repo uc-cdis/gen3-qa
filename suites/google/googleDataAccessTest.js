@@ -150,7 +150,7 @@ const googleDataAccessTestSteps = async (I, fence, user, google, files, paramsQA
   ]
 }
 
-BeforeSuite(async ({ indexd, fence, google }) => {
+BeforeSuite(async ({ indexd, fence, google, users }) => {
   try {
     console.log('Adding indexd files used to test signed urls');
     await indexd.do.addFileIndices(Object.values(indexed_files));
