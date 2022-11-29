@@ -20,21 +20,32 @@ After(({ users, mds }) => {
   }
 });
 
-Scenario('User is able to navigate to Discovery page', ({ discovery }) => {
+Scenario('User is able to navigate to Discovery page @requires-portal', ({ discovery }) => {
   discovery.do.goToPage();
   discovery.ask.isPageLoaded();
 });
 
-Scenario('Publish a study, search and export to workspace @requires-hatchery', async ({
-  mds, users, discovery, files, indexing, home, workspace,
+Scenario('Publish a study, search and export to workspace @requires-hatchery @requires-portal', async ({
+  mds, users, discovery, files, indexd, home, workspace,
 }) => {
   // dynamically get UID field name from portal config
   const UIDFieldName = await bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.discoveryConfig.minimalFieldMapping.uid\'').replace(/^"(.*)"$/, '$1');
   expect(UIDFieldName).to.be.a('string').that.is.not.empty;
 
+  output.print('--- Create Indexd Record');
   I.cache.did = uuid.v4();
   I.cache.studyId = uuid.v4();
   I.cache.md5sum = '694b1d13b8148756442739fa2cc37fd6'; // pragma: allowlist secret
+  const indexdRecords = [{
+    filename: 'discovery_test.csv',
+    did: I.cache.did,
+    link: 's3://cdis-presigned-url-test/testdata/discovery_test.csv',
+    md5: I.cache.md5sum,
+    authz: ['/programs/QA'],
+    size: 16,
+  },]
+  
+
 
   output.print('--- Index TSV manifest');
   home.do.goToHomepage();
