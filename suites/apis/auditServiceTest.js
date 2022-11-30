@@ -50,7 +50,11 @@ BeforeSuite(async ({ auditService, indexd }) => {
 });
 
 AfterSuite(async ({ auditService }) => {
-  await auditService.do.configureFenceAuditLogging(false); // disable
+  try {
+      await auditService.do.configureFenceAuditLogging(false); // disable
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 Scenario('Audit: download presigned URL events @audit', async ({ fence, auditService }) => {

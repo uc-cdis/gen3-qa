@@ -88,7 +88,11 @@ AfterSuite(async ({ I }) => {
   if (process.env.DEBUG === 'true') {
     console.log(`I.cache: ${JSON.stringify(I.cache)}`);
   }
-  await deleteLingeringInfra();
+  try {
+    await deleteLingeringInfra();
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 // Scenario #1 - Generate indexd manifest out of a Google Storage bucket
