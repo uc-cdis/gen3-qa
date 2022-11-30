@@ -22,7 +22,7 @@ exist in the Fence DB. So you need to run usersync again during the test, after 
 also delete the requests created in requestor
 */
 
-Feature('Client_Credentials Grant Type @requires-fence');
+Feature('Client_Credentials Grant Type @requires-fence @requires-requestor');
 
 const { expect } = require('chai');
 const { runUserSync, checkPod, getAccessTokenHeader } = require('../../utils/apiUtil.js');
@@ -38,20 +38,24 @@ BeforeSuite(async ({ I }) => {
 });
 
 AfterSuite(async ({ I }) => {
-  // deleting the request created
-  console.log('Deleting the request from the requestor DB ... ');
-  if (process.env.DEBUG === 'true') {
-    console.log(I.cache.requestID);
-  }
-  const deleteRequest = await requestorTasks.deleteRequest(I.cache.requestID);
-  if (deleteRequest.status === 200) {
-    console.log(`Request ${I.cache.requestID} deleted successfully`);
-  }
+  try {
+    // deleting the request created
+    console.log('Deleting the request from the requestor DB ... ');
+    if (process.env.DEBUG === 'true') {
+      console.log(I.cache.requestID);
+    }
+    const deleteRequest = await requestorTasks.deleteRequest(I.cache.requestID);
+    if (deleteRequest.status === 200) {
+      console.log(`Request ${I.cache.requestID} deleted successfully`);
+    }
 
-  // revoking the arborist policy for the user
-  console.log('Revoking the arborist policy for the user0 ...');
-  await bash.runCommand(`
-      gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/policy/requestor_client_credentials_test`);
+    // revoking the arborist policy for the user
+    console.log('Revoking the arborist policy for the user0 ...');
+    await bash.runCommand(`
+        gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/policy/requestor_client_credentials_test`);
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 Scenario('Client Credentials Grant Type interaction with Requestor @clientCreds', async ({ I, users, fence }) => {

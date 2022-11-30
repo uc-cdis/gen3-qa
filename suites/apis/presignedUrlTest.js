@@ -117,5 +117,9 @@ BeforeSuite(async ({ indexd }) => {
 });
 
 AfterSuite(async ({ indexd }) => {
-  await indexd.do.deleteFileIndices(Object.values(files));
+  try {
+    await indexd.do.deleteFileIndices(Object.values(files));
+  } catch (error) {
+    console.err(error);
+  }
 });
