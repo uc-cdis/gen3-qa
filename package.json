@@ -48,7 +48,7 @@
     "minimist": ">=1.2.2",
     "mocha-junit-reporter": "^1.23.3",
     "mocha-multi": "^1.1.3",
-    "nconf": "^0.10.0",
+    "nconf": "^0.12.0",
     "nock": "^12.0.3",
     "node-fetch": "^2.6.7",
     "node-forge": ">=1.0.0",
@@ -62,7 +62,7 @@
     "tsv": "^0.2.0",
     "unirest": "^0.6.0",
     "uuid": "^3.4.0",
-    "wcag": "latest",
+    "wcag": "^0.3.0",
     "webdriverio": "^6.1.17"
   },
   "scripts": {
