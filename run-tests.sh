@@ -589,9 +589,11 @@ if [[ "$(hostname)" == *"cdis-github-org"* ]] || [[ "$(hostname)" == *"planx-ci-
   echo "inside an ephemeral gen3-qa-in-a-box pod..."
   
   # Start selenium process within the ephemeral jenkins pod.
-  npx selenium-standalone install --version=4.0.0-alpha-7 --drivers.chrome.version=96.0.4664.45 --drivers.chrome.baseURL=https://chromedriver.storage.googleapis.com
-  timeout $seleniumTimeout npx selenium-standalone start --version=4.0.0-alpha-7 --drivers.chrome.version=96.0.4664.45 &> selenium.log &
- 
+  # npx selenium-standalone install --version=4.0.0-alpha-7 --drivers.chrome.version=96.0.4664.45 --drivers.chrome.baseURL=https://chromedriver.storage.googleapis.com
+  # timeout $seleniumTimeout npx selenium-standalone start --version=4.0.0-alpha-7 --drivers.chrome.version=96.0.4664.45 &> selenium.log &
+  # npm install selenium-standalone --save-dev
+  timeout $seleniumTimeout npx selenium-standalone install && npx selenium-standalone start &
+
   # gen3-qa-in-a-box requires a couple of changes to its webdriver config
   set +e
   mv gen3.qa.in.a.box.codecept.conf.js codecept.conf.js
