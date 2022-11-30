@@ -66,19 +66,23 @@ async function deleteLingeringInfra() {
 }
 
 BeforeSuite(async ({ I }) => {
-  console.log('deleting infra from previous runs that might\'ve been interrupted...');
-  await deleteLingeringInfra();
+  try {
+    console.log('deleting infra from previous runs that might\'ve been interrupted...');
+    await deleteLingeringInfra();
 
-  console.log('Setting up dependencies...');
-  I.cache = {};
-  I.cache.UNIQUE_NUM = Date.now();
+    console.log('Setting up dependencies...');
+    I.cache = {};
+    I.cache.UNIQUE_NUM = Date.now();
 
-  console.log('creating authz mapping file...');
-  const authzMappingFile = await bash.runCommand(`
-    echo -e \"${contentsOfAuthzMapping}\" | tee -a authz_mapping_${I.cache.UNIQUE_NUM}.tsv
-  `);
-  if (process.env.DEBUG === 'true') {
-    console.log(`authzMappingFile: ${authzMappingFile}`);
+    console.log('creating authz mapping file...');
+    const authzMappingFile = await bash.runCommand(`
+      echo -e \"${contentsOfAuthzMapping}\" | tee -a authz_mapping_${I.cache.UNIQUE_NUM}.tsv
+    `);
+    if (process.env.DEBUG === 'true') {
+      console.log(`authzMappingFile: ${authzMappingFile}`);
+    }
+  } catch (error) {
+    console.err(error);
   }
 });
 
@@ -86,7 +90,11 @@ AfterSuite(async ({ I }) => {
   if (process.env.DEBUG === 'true') {
     console.log(`I.cache: ${JSON.stringify(I.cache)}`);
   }
-  await deleteLingeringInfra();
+  try {
+    await deleteLingeringInfra();
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 // Scenario #1 - Generate indexd manifest out of an s3 bucket

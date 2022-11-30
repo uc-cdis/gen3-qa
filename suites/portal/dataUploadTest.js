@@ -91,18 +91,22 @@ const uploadFile = async function (I, dataUpload, indexd, sheepdog, nodes, fileO
 BeforeSuite(async ({
   sheepdog, nodes, users, indexd,
 }) => {
-  // clean up in sheepdog
-  await sheepdog.complete.findDeleteAllNodes();
+  try {
+    // clean up in sheepdog
+    await sheepdog.complete.findDeleteAllNodes();
 
-  // clean up previous upload files
-  await indexd.do.clearPreviousUploadFiles(users.mainAcct);
-  await indexd.do.clearPreviousUploadFiles(users.auxAcct2);
-  await indexd.do.clearPreviousUploadFiles(users.indexingAcct);
+    // clean up previous upload files
+    await indexd.do.clearPreviousUploadFiles(users.mainAcct);
+    await indexd.do.clearPreviousUploadFiles(users.auxAcct2);
+    await indexd.do.clearPreviousUploadFiles(users.indexingAcct);
 
-  // Add coremetadata node.
-  // FIXME: once windmill allow parent nodes other than core-metadata-collection, remove this
-  const newSubmitterID = await nodes.generateAndAddCoremetadataNode(sheepdog);
-  submitterID = newSubmitterID;
+    // Add coremetadata node.
+    // FIXME: once windmill allow parent nodes other than core-metadata-collection, remove this
+    const newSubmitterID = await nodes.generateAndAddCoremetadataNode(sheepdog);
+    submitterID = newSubmitterID;
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 Before(async ({ home }) => {
@@ -159,13 +163,17 @@ After(async ({ home }) => {
 AfterSuite(async ({
   sheepdog, indexd, files, dataUpload,
 }) => {
-  // clean up in sheepdog
-  await sheepdog.complete.findDeleteAllNodes();
+  try {
+    // clean up in sheepdog
+    await sheepdog.complete.findDeleteAllNodes();
 
-  // clean up in indexd and S3 (remove the records created by this test suite)
-  await indexd.complete.deleteFiles(createdGuids);
-  await dataUpload.cleanS3('clean-windmill-data-upload', createdGuids);
-  createdFileNames.forEach(({ fileName }) => {
-    files.deleteFile(fileName);
-  });
+    // clean up in indexd and S3 (remove the records created by this test suite)
+    await indexd.complete.deleteFiles(createdGuids);
+    await dataUpload.cleanS3('clean-windmill-data-upload', createdGuids);
+    createdFileNames.forEach(async ({ fileName }) => {
+      await files.deleteFile(fileName);
+    });
+  } catch (error) {
+    console.log(error);
+  }
 });

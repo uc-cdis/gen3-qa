@@ -11,7 +11,11 @@ BeforeSuite(async ({ etl }) => {
   // this shouldn't normally be necessary, but just in case any indices didn't
   // get properly cleaned up in a prior run (e.g. es proxy pod or pod running
   // integration tests crashed)
-  etl.do.cleanUpIndices();
+  try {
+    etl.do.cleanUpIndices();
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 Scenario('run ETL first time @etl', async ({ I, sheepdog }) => {
@@ -38,6 +42,10 @@ Scenario('run ETL second time @etl', async ({ I, sheepdog, etl }) => {
 });
 
 AfterSuite(async ({ etl }) => {
-  console.log('cleaning up indices created by ETL runs');
-  etl.do.cleanUpIndices();
+  try {
+    console.log('cleaning up indices created by ETL runs');
+    etl.do.cleanUpIndices();
+  } catch (error) {
+    console.log(error);
+  }
 });
