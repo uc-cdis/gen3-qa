@@ -24,7 +24,7 @@ module.exports = {
 
   // getting the list of requests in the DB
   async getRequestList(token) {
-    console.log('Getting list of user;s acess request ...');
+    console.log('Getting list of users access request ...');
     return I.sendGetRequest(
       `${requestorProps.endpoint.requestEndPoint}`,
       { Authorization: `Bearer ${token}` },
