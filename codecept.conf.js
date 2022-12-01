@@ -132,6 +132,6 @@ exports.config = {
       enabled: true,
     },
   },
-  timeout: 180, // in seconds
+  timeout: 600, // in seconds (10 min)
   name: 'selenium',
 };
