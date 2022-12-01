@@ -185,10 +185,14 @@ BeforeSuite(async ({ I, users, indexd }) => {
 });
 
 AfterSuite(async ({ I }) => {
-  console.log('cleaning up test artifacts...');
-  const recreateSowerConfigMap = bash.runCommand(`g3kubectl delete cm manifest-sower; g3kubectl create configmap manifest-sower --from-file=metadata-ingestion-backup-${I.cache.UNIQUE_NUM}/json; rm -Rf metadata-ingestion-backup-${I.cache.UNIQUE_NUM}; rm -Rf metadata-ingestion-${I.cache.UNIQUE_NUM}`);
-  if (process.env.DEBUG === 'true') {
-    console.log(`recreateSowerConfigMap: ${recreateSowerConfigMap}`);
+  try {
+    console.log('cleaning up test artifacts...');
+    const recreateSowerConfigMap = bash.runCommand(`g3kubectl delete cm manifest-sower; g3kubectl create configmap manifest-sower --from-file=metadata-ingestion-backup-${I.cache.UNIQUE_NUM}/json; rm -Rf metadata-ingestion-backup-${I.cache.UNIQUE_NUM}; rm -Rf metadata-ingestion-${I.cache.UNIQUE_NUM}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`recreateSowerConfigMap: ${recreateSowerConfigMap}`);
+    }
+  } catch (error) {
+    console.log(error);
   }
 });
 
