@@ -340,12 +340,23 @@ Scenario('create a new mds entry and then issue http delete against mds/objects/
     'Creation request did not return a http 201. Check mds logs tarball archived in Jenkins',
   ).to.have.property('status', 201);
 
+  // ---------- DEBUGGING -----------
+  const getRecord = await I.sendGetRequest(
+    `/mds/objects/${guidToBeDeleted}`,
+    users.indexingAcct.accessTokenHeader,
+  );
+  expect(
+    getRecord,
+    'Unable to fetch record created in previous step',
+  ).to.have.property('status', 200);
+  console.dir(getRecord.data);
+  // ----------------------------------
+
   console.log(`Step #4 - send http delete to mds/objects/${guidToBeDeleted} `);
   const deleteReq = await I.sendDeleteRequest(
     `/mds/objects/${guidToBeDeleted}`,
     users.indexingAcct.accessTokenHeader,
   );
-
   expect(
     deleteReq,
     'Deletion request did not return a http 204. Check mds logs tarball archived in Jenkins',
