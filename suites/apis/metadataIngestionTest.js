@@ -321,12 +321,10 @@ xScenario('create a new mds entry and then issue http delete against mds/objects
     console.log(`uploadTmpFile: ${uploadTmpFile}`);
   }
 
-  const guidToBeDeleted = files.allowed.did;
-
   const createMdsEntryReq = await I.sendPostRequest(
-    `/mds/objects/${guidToBeDeleted}`,
+    '/mds/objects/upload',
     {
-      authz: files.allowed.authz,
+      authz: {"version": 0, "resource_paths": files.allowed.authz},
       file_name: files.allowed.filename,
       metadata: expectedResults.ingest_metadata_manifest,
     },
@@ -340,12 +338,15 @@ xScenario('create a new mds entry and then issue http delete against mds/objects
     'Creation request did not return a http 201. Check mds logs tarball archived in Jenkins',
   ).to.have.property('status', 201);
 
-  console.log(`Step #4 - send http delete to mds/objects/${guidToBeDeleted} `);
+  const guidToBeDeleted = createMdsEntryReq.data.guid;
+  expect(guidToBeDeleted, 'Object creation did not return a guid').to.not.be.null;
+  console.log('New record guid:', guidToBeDeleted)
+
+  console.log(`Step #4 - send http delete to mds/objects/${guidToBeDeleted}`);
   const deleteReq = await I.sendDeleteRequest(
     `/mds/objects/${guidToBeDeleted}`,
     users.indexingAcct.accessTokenHeader,
   );
-
   expect(
     deleteReq,
     'Deletion request did not return a http 204. Check mds logs tarball archived in Jenkins',
