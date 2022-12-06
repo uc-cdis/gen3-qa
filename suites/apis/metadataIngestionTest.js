@@ -8,6 +8,7 @@
 */
 Feature('Metadata Ingestion @requires-sower @requires-metadata @requires-indexd');
 
+const { default: axios } = require('axios');
 const { expect } = require('chai');
 const { checkPod, sleepMS } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
@@ -350,18 +351,20 @@ Scenario('create a new mds entry and then issue http delete against mds/objects/
     'Unable to fetch record created in previous step',
   ).to.have.property('status', 200);
   console.dir(getRecord.data);
+
+  const deleteReq = await axios.delete(`/mds/objects/${guidToBeDeleted}`, users.indexingAcct.accessTokenHeader);
+  console.dir(deleteReq.data);
   // ----------------------------------
 
-  console.log(`Step #4 - send http delete to mds/objects/${guidToBeDeleted} `);
+  /* console.log(`Step #4 - send http delete to mds/objects/${guidToBeDeleted} `);
   const deleteReq = await I.sendDeleteRequest(
     `/mds/objects/${guidToBeDeleted}`,
     users.indexingAcct.accessTokenHeader,
   );
-  console.dir(deleteReq.data);
   expect(
     deleteReq,
     'Deletion request did not return a http 204. Check mds logs tarball archived in Jenkins',
-  ).to.have.property('status', 204);
+  ).to.have.property('status', 204); */
 
   // Make sure the GUID no longer exists in the json blobstore
   const httpReq = await I.sendGetRequest(
