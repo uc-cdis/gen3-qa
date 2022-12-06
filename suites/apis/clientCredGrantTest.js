@@ -132,5 +132,11 @@ Scenario('Client Credentials Grant Type interaction with Requestor @clientCreds'
 
   // getting the list of users access request
   const list = await requestorTasks.getRequestList(clientAccessToken);
-  expect(list).to.have.lengthOf.greaterThan(0);
+  if (process.env.DEBUG === 'true') {
+    console.log(list.data);
+  }
+  if (list.data.length > 0) {
+    list.data.forEach(async (obj) => {
+      expect(obj).to.have.property('request_id');
+    })}
 });
