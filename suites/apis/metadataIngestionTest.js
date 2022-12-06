@@ -352,7 +352,20 @@ Scenario('create a new mds entry and then issue http delete against mds/objects/
   ).to.have.property('status', 200);
   console.dir(getRecord.data);
 
-  const deleteReq = await axios.delete(`/mds/objects/${guidToBeDeleted}`, users.indexingAcct.accessTokenHeader);
+  try {
+    console.log("---------- Try deleting first time -----------");
+    const deleteReq = await axios.delete(`/mds/objects/${guidToBeDeleted}`, users.indexingAcct.accessTokenHeader);
+  }
+  catch (error) {
+    console.log(error);
+    try {
+      console.log("---------- Try deleting second time -----------");
+      const deleteReq = await axios.delete(`/mds/objects/${guidToBeDeleted}`, users.indexingAcct.accessTokenHeader);
+    }
+    catch (error) {
+      console.log(error);
+    }
+  }
   console.dir(deleteReq.data);
   // ----------------------------------
 
