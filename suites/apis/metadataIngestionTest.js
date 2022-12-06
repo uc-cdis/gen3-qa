@@ -312,7 +312,7 @@ Scenario('Dispatch partial match get-dbgap-metadata job with mock dbgap xml and 
 }).retry(1);
 
 // Scenario #4 - Instrument the metadata-service DELETE endpoint
-Scenario('create a new mds entry and then issue http delete against mds/objects/{guid} @metadataIngestion', async ({ I, users }) => {
+xScenario('create a new mds entry and then issue http delete against mds/objects/{guid} @metadataIngestion', async ({ I, users }) => {
   // create a local small file to upload to test bucket.
   const uploadTmpFile = await bash.runCommand(`
     echo "hello mds" > mds-test.file && aws s3 cp ./mds-test.file s3://cdis-presigned-url-test/mds-test.file
