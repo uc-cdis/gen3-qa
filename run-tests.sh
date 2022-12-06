@@ -265,6 +265,7 @@ runTestsIfServiceVersion "@requestorRoleIds" "arborist" "3.2.0" "2021.12"
 runTestsIfServiceVersion "@clientCreds" "arborist" "4.0.0" "2022.12"
 runTestsIfServiceVersion "@clientCreds" "fence" "6.1.0" "2022.10"
 runTestsIfServiceVersion "@clientCreds" "requestor" "1.8.0" "2022.12"
+runTestsIfServiceVersion "@clientExpiration" "fence" "7.0.0" "2023.01"
 
 # disable tests if the service is not deployed
 # export isIndexdDeployed=$(ifServiceDeployed "indexd")

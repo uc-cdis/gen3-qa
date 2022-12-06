@@ -33,19 +33,6 @@ const requestorProps = require('../../services/apis/requestor/requestorProps.js'
 
 const bash = new Bash();
 
-async function getAccessToken(clientID, secretID) {
-  const tokenReq = bash.runCommand(`curl --user "${clientID}:${secretID}" --request POST "https://${process.env.HOSTNAME}/user/oauth2/token?grant_type=client_credentials" -d scope="openid user"`);
-  if (process.env.DEBUG === 'true') {
-    console.log(`data : ${tokenReq}`);
-  }
-  const tokens = JSON.parse(tokenReq);
-  const accessToken = tokens.access_token;
-  if (process.env.DEBUG === 'true') {
-    console.log(`###Access_Token : ${accessToken}`);
-  }
-  return accessToken;
-}
-
 BeforeSuite(async ({ I }) => {
   I.cache = {};
 });
@@ -71,7 +58,7 @@ AfterSuite(async ({ I }) => {
   }
 });
 
-Scenario('Client Credentials Grant Type interaction with Requestor @clientCreds', async ({ I, users }) => {
+Scenario('Client Credentials Grant Type interaction with Requestor @clientCreds', async ({ I, users, fence }) => {
   // creating OIDC client for the test
   // const { clientID, secretID } = fence.do.createClient(clientName, users.user0, 'client_credentials');
   const clientGrant = new Client({
@@ -93,7 +80,7 @@ Scenario('Client Credentials Grant Type interaction with Requestor @clientCreds'
   await runUserSync();
   await checkPod(I, 'usersync', 'gen3job,job-name=usersync');
   // getting the access_token from clientID and clientSecret
-  const clientAccessToken = await getAccessToken(clientID, secretID);
+  const clientAccessToken = await fence.do.getAccessTokenWithClientCredentials(clientID, secretID);
 
   // create data for request
   const { username } = users.user0;

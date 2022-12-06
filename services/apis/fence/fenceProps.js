@@ -16,7 +16,7 @@ const rootEndpoint = '/user';
  * @param {string} arboristPolicies - space-delimited list of arborist policies to give to client
  * @returns {json}
  */
-function createClient(clientName, userName, clientType, arboristPolicies = null) {
+function createClient(clientName, userName, clientType, expires_in, arboristPolicies = null) {
   let fenceCmd = 'fence-create';
 
   // see test_setup.js for the ARBORIST_... global flag setup
@@ -34,6 +34,10 @@ function createClient(clientName, userName, clientType, arboristPolicies = null)
 
   if (arboristPolicies && process.env.ARBORIST_CLIENT_POLICIES) {
     fenceCmd = `${fenceCmd} --policies ${arboristPolicies}`;
+  }
+
+  if (expires_in) {
+    fenceCmd = `${fenceCmd} --expires-in ${expires_in}`;
   }
 
   console.log(`running: ${fenceCmd}`);
@@ -57,12 +61,13 @@ function deleteClient(clientName) {
  */
 class Client {
   constructor({
-    clientName, userName, clientType, arboristPolicies,
+    clientName, userName, clientType, arboristPolicies, expires_in,
   }) {
     this.clientName = clientName;
     this.userName = userName;
     this.clientType = clientType;
     this.arboristPolicies = arboristPolicies;
+    this.expires_in = expires_in;
     this._client = null;
   }
 
@@ -76,6 +81,7 @@ class Client {
         this.clientName,
         this.userName,
         this.clientType,
+        this.expires_in,
         this.arboristPolicies,
       );
     }
