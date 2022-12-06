@@ -9,6 +9,7 @@
             "request": "launch",
             "name": "Run Program",
             "program": "${file}",
+            "console": "integratedTerminal",
         },
         {
             "type": "node",
@@ -24,9 +25,9 @@
             "env": {
                 "RUNNING_LOCAL": "true",
                 "GEN3_SKIP_PROJ_SETUP": "true",
-                "NAMESPACE": "qa-heal",
-                // "DEBUG": "true",
-                "PORTAL_SUFFIX": "/portal",
+                "NAMESPACE": "qa-dcp",
+                "DEBUG": "true",
+                "PORTAL_SUFFIX": "",
             },
         }
     ]
