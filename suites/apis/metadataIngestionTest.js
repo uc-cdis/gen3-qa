@@ -357,6 +357,7 @@ Scenario('create a new mds entry and then issue http delete against mds/objects/
     `/mds/objects/${guidToBeDeleted}`,
     users.indexingAcct.accessTokenHeader,
   );
+  console.dir(deleteReq.data);
   expect(
     deleteReq,
     'Deletion request did not return a http 204. Check mds logs tarball archived in Jenkins',
