@@ -20,17 +20,6 @@ Scenario('Unauthenticated user is redirected to Login page @manual', ifInteracti
 Scenario('Connect to external data resources @manual', ifInteractive(
   async () => {
     const result = interactive(`
-              1. Select data resource other than HEAL in discoery page - https://qa-heal.planx-pla.net/discovery - without connecting to it
-              2. Select a study and click "Open in Workspace"
-              3. User is directed to connect to the data resource in Profile page
-          `);
-    expect(result.didPass, result.details).to.be.true;
-  },
-));
-
-Scenario('Connect to external data resources @manual', ifInteractive(
-  async () => {
-    const result = interactive(`
               1. Select data resource other than HEAL in discovery page - https://qa-heal.planx-pla.net/discovery - without connecting to it
               2. Select a study and click "Open in Workspace" button
               3. User is directed to connect to the data resource in Profile page
