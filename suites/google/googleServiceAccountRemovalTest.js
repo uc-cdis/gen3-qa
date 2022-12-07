@@ -30,7 +30,11 @@ BeforeSuite(async ({ google, fence, users }) => {
 });
 
 After(async ({ google, fence, users }) => {
-  await fence.complete.suiteCleanup(google, users);
+  try {
+    await fence.complete.suiteCleanup(google, users);
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 AfterSuite(async ({ google, fence }) => {

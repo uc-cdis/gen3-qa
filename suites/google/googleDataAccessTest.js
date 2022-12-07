@@ -150,23 +150,31 @@ const googleDataAccessTestSteps = async (I, fence, user, google, files, paramsQA
   ]
 }
 
-BeforeSuite(async ({ indexd, fence, google }) => {
-  console.log('Adding indexd files used to test signed urls');
-  await indexd.do.addFileIndices(Object.values(indexed_files));
-  console.log('deleting keys for SA associated with users 0, 1 and user2...');
-  ['user0', 'user1', 'user2'].forEach(async({ user }) => {
-    const getCredsRes = await fence.do.getUserGoogleCreds(users[user].accessTokenHeader);
-    await google.deleteSAKeys(user, getCredsRes.access_keys);
-  });
+BeforeSuite(async ({ indexd, fence, google, users }) => {
+  try {
+    console.log('Adding indexd files used to test signed urls');
+    await indexd.do.addFileIndices(Object.values(indexed_files));
+    console.log('deleting keys for SA associated with users 0, 1 and user2...');
+    ['user0', 'user1', 'user2'].forEach(async({ user }) => {
+      const getCredsRes = await fence.do.getUserGoogleCreds(users[user].accessTokenHeader);
+      await google.deleteSAKeys(user, getCredsRes.access_keys);
+    });
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 AfterSuite(async ({ I, indexd }) => {
-  console.log('Removing indexd files used to test signed urls');
-  await indexd.do.deleteFileIndices(Object.values(indexed_files));
+  try {
+    console.log('Removing indexd files used to test signed urls');
+    await indexd.do.deleteFileIndices(Object.values(indexed_files));
 
-  console.log('Running usersync job');
-  bash.runJob('usersync', args = 'FORCE true');
-  await checkPod(I, 'usersync', 'gen3job,job-name=usersync');
+    console.log('Running usersync job');
+    bash.runJob('usersync', args = 'FORCE true');
+    await checkPod(I, 'usersync', 'gen3job,job-name=usersync');
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 Scenario('Test Google Data Access User0 @reqGoogle @googleDataAccess @manual',

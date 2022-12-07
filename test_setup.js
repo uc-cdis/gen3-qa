@@ -262,7 +262,9 @@ module.exports = async function () {
       console.log(`INFO: Setting testedEnv var to ${process.env.testedEnv}`);
     }
 
-    console.log(`isIncluded('@reqGoogle'): ${await isIncluded('@reqGoogle')}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`isIncluded('@reqGoogle'): ${await isIncluded('@reqGoogle')}`);
+    }
     if (isIncluded('@reqGoogle')) {
       createGoogleTestBuckets();
       await setupGoogleProjectDynamic();

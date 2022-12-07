@@ -130,7 +130,11 @@ BeforeSuite(async ({ indexd }) => {
 AfterSuite(async ({ indexd }) => {
   console.log('#### Deleting the indexd files ...');
   // delete multiple files form indexd
-  await indexd.do.deleteFileIndices(Object.values(indexdFiles));
+  try {
+    await indexd.do.deleteFileIndices(Object.values(indexdFiles));
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 // user main Acct - cdis.autotest@gmail.com

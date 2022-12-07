@@ -47,5 +47,9 @@ BeforeSuite(async ({ nodes, sheepdog }) => {
 });
 
 AfterSuite(async ({ sheepdog }) => {
-  await sheepdog.complete.findDeleteAllNodes();
+  try {
+    await sheepdog.complete.findDeleteAllNodes();
+  } catch (error) {
+    console.log(error);
+  }
 });
