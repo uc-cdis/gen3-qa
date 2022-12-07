@@ -64,6 +64,6 @@ module.exports = {
     if (process.env.DEBUG === 'true') {
       console.log('deleteMetadataObject result:', res);
     }
-    return res.startsWith('HTTP/1.1 200') && res.includes('204');
+    return res.startsWith('HTTP/2 204');
   },
 };
