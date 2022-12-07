@@ -64,6 +64,7 @@ module.exports = {
     if (process.env.DEBUG === 'true') {
       console.log('deleteMetadataObject result:', res);
     }
-    return res.startsWith('HTTP/2 204');
+    // check the status code
+    return res.includes('204');
   },
 };
