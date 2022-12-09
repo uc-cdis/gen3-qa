@@ -136,7 +136,11 @@ Scenario('Client Credentials Grant Type interaction with Requestor @clientCreds'
     console.log(list.data);
   }
   if (list.data.length > 0) {
-    list.data.forEach(async (obj) => {
-      expect(obj).to.have.property('request_id');
-    })}
+    if (process.env.DEBUG === 'true') {
+      console.log(I.cache.requestID);
+    }
+    // filtering to get object with request_id === I.cache.requestID
+    let requestData = list.data.filter(obj => obj.request_id === I.cache.requestID);
+    expect(requestData.length).to.equal(1);
+  }
 });
