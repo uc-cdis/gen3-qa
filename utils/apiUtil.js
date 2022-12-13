@@ -445,6 +445,15 @@ module.exports = {
     }
   },
 
+  // running usersync jobs in the env
+  async runUserSync() {
+    console.log('### Running usersync job ...');
+    console.log(`start time: ${Math.floor(Date.now() / 1000)}`);
+    console.log('*** RUN USERSYNC JOB ***');
+    bash.runJob('usersync');
+    console.log(`end time: ${Math.floor(Date.now() / 1000)}`);
+  },
+
   getHomePageDetails(detail) {
     const detailsMap = {
       '': {

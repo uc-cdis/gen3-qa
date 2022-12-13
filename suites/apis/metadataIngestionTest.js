@@ -190,10 +190,14 @@ BeforeSuite(async ({ I, users, indexd }) => {
 });
 
 AfterSuite(async ({ I }) => {
-  console.log('cleaning up test artifacts...');
-  const recreateSowerConfigMap = bash.runCommand(`g3kubectl delete cm manifest-sower; g3kubectl create configmap manifest-sower --from-file=metadata-ingestion-backup-${I.cache.UNIQUE_NUM}/json; rm -Rf metadata-ingestion-backup-${I.cache.UNIQUE_NUM}; rm -Rf metadata-ingestion-${I.cache.UNIQUE_NUM}`);
-  if (process.env.DEBUG === 'true') {
-    console.log(`recreateSowerConfigMap: ${recreateSowerConfigMap}`);
+  try {
+    console.log('cleaning up test artifacts...');
+    const recreateSowerConfigMap = bash.runCommand(`g3kubectl delete cm manifest-sower; g3kubectl create configmap manifest-sower --from-file=metadata-ingestion-backup-${I.cache.UNIQUE_NUM}/json; rm -Rf metadata-ingestion-backup-${I.cache.UNIQUE_NUM}; rm -Rf metadata-ingestion-${I.cache.UNIQUE_NUM}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`recreateSowerConfigMap: ${recreateSowerConfigMap}`);
+    }
+  } catch (error) {
+    console.log(error);
   }
 });
 
@@ -308,7 +312,7 @@ Scenario('Dispatch partial match get-dbgap-metadata job with mock dbgap xml and 
 }).retry(1);
 
 // Scenario #4 - Instrument the metadata-service DELETE endpoint
-Scenario('create a new mds entry and then issue http delete against mds/objects/{guid} @metadataIngestion', async ({ I, users }) => {
+Scenario('create a new mds entry and then issue http delete against mds/objects/{guid} @metadataIngestion', async ({ I, users, mds }) => {
   // create a local small file to upload to test bucket.
   const uploadTmpFile = await bash.runCommand(`
     echo "hello mds" > mds-test.file && aws s3 cp ./mds-test.file s3://cdis-presigned-url-test/mds-test.file
@@ -336,16 +340,9 @@ Scenario('create a new mds entry and then issue http delete against mds/objects/
     'Creation request did not return a http 201. Check mds logs tarball archived in Jenkins',
   ).to.have.property('status', 201);
 
-  console.log(`Step #4 - send http delete to mds/objects/${guidToBeDeleted} `);
-  const deleteReq = await I.sendDeleteRequest(
-    `/mds/objects/${guidToBeDeleted}`,
-    users.indexingAcct.accessTokenHeader,
-  );
-
-  expect(
-    deleteReq,
-    'Deletion request did not return a http 204. Check mds logs tarball archived in Jenkins',
-  ).to.have.property('status', 204);
+  console.log(`Step #4 - send http delete to mds/objects/${guidToBeDeleted}`);
+  const deleteReq = mds.do.deleteMetadataObject(users.indexingAcct.accessTokenHeader, guidToBeDeleted);
+  expect(deleteReq, 'Deletion request was unsuccessful').to.be.true;
 
   // Make sure the GUID no longer exists in the json blobstore
   const httpReq = await I.sendGetRequest(

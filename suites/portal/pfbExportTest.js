@@ -25,55 +25,61 @@ const bash = new Bash();
 
 BeforeSuite(async ({ I }) => {
   console.log('Preparing environment for the test scenarios...');
+  try {
+    I.cache = {};
 
-  I.cache = {};
+    const testedEnv = process.env.testedEnv || `${process.env.NAMESPACE}.planx-pla.net`;
+    I.cache.testedEnv = testedEnv;
 
-  const testedEnv = process.env.testedEnv || `${process.env.NAMESPACE}.planx-pla.net`;
-  I.cache.testedEnv = testedEnv;
+    const WORKSPACE = process.env.RUNNING_LOCAL === 'true' ? `/home/${process.env.NAMESPACE}` : process.env.WORKSPACE;
+    I.cache.WORKSPACE = WORKSPACE;
 
-  const WORKSPACE = process.env.RUNNING_LOCAL === 'true' ? `/home/${process.env.NAMESPACE}` : process.env.WORKSPACE;
-  I.cache.WORKSPACE = WORKSPACE;
+    const JOB_NAME = process.env.JOB_NAME || 'CDIS_GitHub_Org/myrepo';
+    const BRANCH_NAME = process.env.BRANCH_NAME || 'PR-1234';
 
-  const JOB_NAME = process.env.JOB_NAME || 'CDIS_GitHub_Org/myrepo';
-  const BRANCH_NAME = process.env.BRANCH_NAME || 'PR-1234';
+    let repoName = JOB_NAME.split('/')[1];
+    repoName = repoName.toLowerCase();
+    const prNumber = BRANCH_NAME.split('-')[1];
 
-  let repoName = JOB_NAME.split('/')[1];
-  repoName = repoName.toLowerCase();
-  const prNumber = BRANCH_NAME.split('-')[1];
+    console.log(`${new Date()}: repoName: ${repoName}`);
+    console.log(`${new Date()}: prNumber: ${prNumber}`);
 
-  console.log(`${new Date()}: repoName: ${repoName}`);
-  console.log(`${new Date()}: prNumber: ${prNumber}`);
+    I.cache.repoName = repoName;
+    I.cache.prNumber = prNumber;
 
-  I.cache.repoName = repoName;
-  I.cache.prNumber = prNumber;
+    // handling the targetMappingNode
+    // submitted_unaligned_reads is set by default in pretty much every dictionary
+    // cloud-automation/blob/master/kube/services/jobs/gentestdata-job.yaml
+    // if this is running against an Anvil DD, sequencing must be used
+    // TODO: Look into reusing the leafNode logic from jenkins-simulate-data.sh
+    // eslint-disable-next-line no-nested-ternary
+    const targetMappingNode = I.cache.testedEnv.includes('anvil') ? 'sequencing' : I.cache.testedEnv.includes('vpodc') ? 'unaligned_reads_file' : 'submitted_unaligned_reads';
 
-  // handling the targetMappingNode
-  // submitted_unaligned_reads is set by default in pretty much every dictionary
-  // cloud-automation/blob/master/kube/services/jobs/gentestdata-job.yaml
-  // if this is running against an Anvil DD, sequencing must be used
-  // TODO: Look into reusing the leafNode logic from jenkins-simulate-data.sh
-  // eslint-disable-next-line no-nested-ternary
-  const targetMappingNode = I.cache.testedEnv.includes('anvil') ? 'sequencing' : I.cache.testedEnv.includes('vpodc') ? 'unaligned_reads_file' : 'submitted_unaligned_reads';
+    I.cache.targetMappingNode = targetMappingNode;
 
-  I.cache.targetMappingNode = targetMappingNode;
+    // Restore original etl-mapping and manifest-guppy configmaps (for idempotency)
+    console.log('Running kube-setup-guppy to restore any configmaps that have been mutated. This can take a couple of mins...');
+    await bash.runCommand('gen3 kube-setup-guppy');
 
-  // Restore original etl-mapping and manifest-guppy configmaps (for idempotency)
-  console.log('Running kube-setup-guppy to restore any configmaps that have been mutated. This can take a couple of mins...');
-  await bash.runCommand('gen3 kube-setup-guppy');
-
-  console.log('deleting temp .avro files...');
-  await bash.runCommand(`find . -name "test_export_*" -exec rm {} \\\; -exec echo "deleted {}" \\\;`); // eslint-disable-line quotes,no-useless-escape
+    console.log('deleting temp .avro files...');
+    await bash.runCommand(`find . -name "test_export_*" -exec rm {} \\\; -exec echo "deleted {}" \\\;`); // eslint-disable-line quotes,no-useless-escape
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 AfterSuite(async ({ etl }) => {
   console.log('Reverting artifacts back to their original state...');
+  try {
+    console.log('Cleaning up indices created from ETL run');
+    etl.do.cleanUpIndices();
 
-  console.log('Cleaning up indices created from ETL run');
-  etl.do.cleanUpIndices();
-
-  // Restore original etl-mapping and manifest-guppy configmaps (for idempotency)
-  console.log('Running kube-setup-guppy to restore any configmaps that have been mutated. This can take a couple of mins...');
-  await bash.runCommand('gen3 kube-setup-guppy');
+    // Restore original etl-mapping and manifest-guppy configmaps (for idempotency)
+    console.log('Running kube-setup-guppy to restore any configmaps that have been mutated. This can take a couple of mins...');
+    await bash.runCommand('gen3 kube-setup-guppy');
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 Scenario('Submit dummy data to the Gen3 Commons environment @pfbExport', async ({ I, users }) => {
@@ -409,7 +415,7 @@ Scenario('Install the latest pypfb CLI version and make sure we can parse the av
   // the previous test did not create it
   expect(files.fileExists(`./test_export_${I.cache.UNIQUE_NUM}.avro`), 'A "test_export_<unique number>.avro" file should have been created by previous test').to.be.true;
 
-  const pyPfbInstallationOutput = await bash.runCommand(`python3.8 -m venv pfb_test && source pfb_test/bin/activate && pip install pypfb && ${I.cache.WORKSPACE}/gen3-qa/pfb_test/bin/pfb`);
+  const pyPfbInstallationOutput = await bash.runCommand(`python3.8 -m venv pfb_test && source pfb_test/bin/activate && pip install --upgrade pip && pip install pypfb && ${I.cache.WORKSPACE}/gen3-qa/pfb_test/bin/pfb`);
   if (process.env.DEBUG === 'true') {
     console.log(`${new Date()}: pyPfbInstallationOutput = ${pyPfbInstallationOutput}`);
   }

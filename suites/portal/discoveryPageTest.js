@@ -2,7 +2,9 @@
 const uuid = require('uuid');
 const { expect } = require('chai');
 const { output } = require('codeceptjs');
+const { Bash } = require('../../utils/bash.js');
 
+const bash = new Bash();
 const I = actor();
 I.cache = {};
 
@@ -26,6 +28,10 @@ Scenario('User is able to navigate to Discovery page', ({ discovery }) => {
 Scenario('Publish a study, search and export to workspace @requires-hatchery', async ({
   mds, users, discovery, files, indexing, home, workspace,
 }) => {
+  // dynamically get UID field name from portal config
+  const UIDFieldName = await bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.discoveryConfig.minimalFieldMapping.uid\'').replace(/^"(.*)"$/, '$1');
+  expect(UIDFieldName).to.be.a('string').that.is.not.empty;
+
   I.cache.did = uuid.v4();
   I.cache.studyId = uuid.v4();
   I.cache.md5sum = '694b1d13b8148756442739fa2cc37fd6'; // pragma: allowlist secret
@@ -53,6 +59,7 @@ Scenario('Publish a study, search and export to workspace @requires-hatchery', a
         },
       ],
       authz: ['/programs/QA'],
+      [UIDFieldName]: `${I.cache.studyId}`,
       sites: 3,
       summary: '[AUTOTEST Summary] The BACPAC Research Program, Data Integration, Algorithm Development, and Operations Management Center (DAC) will bring cohesion to research performed by the participating Mechanistic Research Centers, Technology Research Sites, and Phase 2 Clinical Trials Centers. DAC Investigators will share their vision and provide scientific leadership and organizational support to the BACPAC Consortium. The research plan consists of supporting design and conduct of clinical trials with precision interventions that focus on identifying the best treatments for individual patients. The DAC will enhance collaboration and research progress with experienced leadership, innovative design and analysis methodologies, comprehensive research operations support, a state-of-the-art data management and integration system, and superior administrative support. This integrated structure will set the stage for technology assessments, solicitation of patient input and utilities, and the evaluation of high-impact interventions through the innovative design and sound execution of clinical trials, leading to effective personalized treatment approaches for patients with chronic lower back pain.',
       study_description_summary: '[AUTOTEST Summary] The BACPAC Research Program, Data Integration, Algorithm Development, and Operations Management Center (DAC) will bring cohesion to research performed by the participating Mechanistic Research Centers, Technology Research Sites, and Phase 2 Clinical Trials Centers. DAC Investigators will share their vision and provide scientific leadership and organizational support to the BACPAC Consortium. The research plan consists of supporting design and conduct of clinical trials with precision interventions that focus on identifying the best treatments for individual patients. The DAC will enhance collaboration and research progress with experienced leadership, innovative design and analysis methodologies, comprehensive research operations support, a state-of-the-art data management and integration system, and superior administrative support. This integrated structure will set the stage for technology assessments, solicitation of patient input and utilities, and the evaluation of high-impact interventions through the innovative design and sound execution of clinical trials, leading to effective personalized treatment approaches for patients with chronic lower back pain.',
@@ -75,7 +82,6 @@ Scenario('Publish a study, search and export to workspace @requires-hatchery', a
       investigators: 'Lavange, Lisa',
       project_title: '[AUTOTEST Title] Back Pain Consortium (BACPAC) Research Program Data Integration, Algorithm Development and Operations Management Center',
       protocol_name: 'BACPAC Minimum Dataset Example',
-      project_number: `${I.cache.studyId}`,
       administering_ic: 'NIAMS',
       advSearchFilters: [
         {

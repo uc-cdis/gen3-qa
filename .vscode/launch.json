@@ -19,7 +19,7 @@
                 "run",
                 "--verbose",
                 "--grep",
-                "@gen3ff"
+                "@wip"
             ],
             "env": {
                 "RUNNING_LOCAL": "true",

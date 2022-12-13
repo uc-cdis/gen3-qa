@@ -39,6 +39,7 @@ async function getNoRedirect(url, headers) {
  * fence Tasks
  */
 module.exports = {
+
   async getVersion() {
     const response = await I.sendGetRequest(fenceProps.endpoints.version);
     expect(response, 'Can\'t get Fence version').to.have.property('status', 200);
@@ -222,6 +223,25 @@ module.exports = {
       data,
       { 'Content-Type': 'application/json' },
     ).then((res) => new Gen3Response(res));
+  },
+
+  async getAccessTokenWithClientCredentials(clientID, secretID, expectSuccess=true) {
+    const tokenReq = bash.runCommand(`curl --user "${clientID}:${secretID}" --request POST "https://${process.env.HOSTNAME}/user/oauth2/token?grant_type=client_credentials" -d scope="openid user"`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`getAccessTokenWithClientCredentials token response: ${tokenReq}`);
+    }
+    const tokens = JSON.parse(tokenReq);
+    if (expectSuccess) {
+      expect(tokens, `Cannot get access token: ${tokenReq}`).to.have.property('access_token');
+    }
+    else {
+      expect(tokens, 'Should not have been able to get access token').not.to.have.property('access_token');
+    }
+    const accessToken = tokens.access_token;
+    if (process.env.DEBUG === 'true') {
+      console.log(`getAccessTokenWithClientCredentials accessToken: ${accessToken}`);
+    }
+    return accessToken;
   },
 
   /**
