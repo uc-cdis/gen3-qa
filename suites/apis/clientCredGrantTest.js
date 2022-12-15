@@ -117,8 +117,17 @@ Scenario('Client Credentials Grant Type interaction with Requestor @clientCreds'
   const requestStatusSigned = await requestorTasks.getRequestStatus(I.cache.requestID);
   console.log(`Status of the request is:${requestStatusSigned}`);
 
-  // do not uncomment this code below until PXP - 10229 is done
   // getting the list of users access request
-  // const list = await requestorTasks.getRequestList(clientAccessToken);
-  // console.log(list);
+  const list = await requestorTasks.getRequestList(clientAccessToken);
+  if (process.env.DEBUG === 'true') {
+    console.log(list.data);
+  }
+  if (list.data.length > 0) {
+    if (process.env.DEBUG === 'true') {
+      console.log(I.cache.requestID);
+    }
+    // filtering to get object with request_id === I.cache.requestID
+    let requestData = list.data.filter(obj => obj.request_id === I.cache.requestID);
+    expect(requestData.length).to.equal(1);
+  }
 });
