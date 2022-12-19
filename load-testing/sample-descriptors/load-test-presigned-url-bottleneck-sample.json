@@ -12,7 +12,7 @@
   },
   "service": "fence",
   "load_test_scenario": "presigned-url",
-  "presigned_url_guids": ["8733de39-270c-489b-969a-eb75ed435597", "00037250-f2e5-47e2-863c-5f225c7f79e8"],
+  "presigned_url_guids": ["dg.1111/ab86cf3c-79aa-40a2-9ecb-d5690acb596b", "dg.1111/f1cc080c-13d1-4ca1-bbc0-54e9244e81a4"],
   "indexd_record_acl": "phs000178",
   "virtual_users": [
     { "duration": "1s", "target": 1 },
