@@ -45,19 +45,8 @@ Scenario('Publish a study, search and export to workspace @requires-hatchery @re
     size: 16,
   },]
   
-
-
-  output.print('--- Index TSV manifest');
-  home.do.goToHomepage();
-  await home.complete.login(users.indexingAcct);
-  const headerRowVals = ['GUID', 'md5', 'size', 'acl', 'authz', 'urls'];
-  const dataRowVals = [`${I.cache.did}`, `${I.cache.md5sum}`, '16', '', '/programs/QA', 's3://cdis-presigned-url-test/testdata/discovery_test.csv'];
-  const tsvManifestContents = [headerRowVals.join('\t'), dataRowVals.join('\t')].join('\n');
-  I.cache.manifestFileName = Date.now();
-  await files.createTmpFile(`${I.cache.manifestFileName}.tsv`, tsvManifestContents);
-  indexing.do.indexManifest(users.indexingAcct, I.cache.manifestFileName);
-  I.saveScreenshot('1_indexed_tsv_manifest.png');
-  home.complete.logout(users.indexingAcct);
+  const ok = await indexd.do.addFileIndices(indexdRecords);
+  expect(ok, 'Unable to index files').to.be.true;
 
   output.print('--- Publish study metadata');
   const studyMetaData = {
