@@ -32,12 +32,20 @@ BeforeSuite(async ({ sheepdog, nodes }) => {
 });
 Before(() => {
   // clone the base file for "clean" files to work with before each test
-  files = makeFiles(baseFileNode);
+  try {
+    files = makeFiles(baseFileNode);
+  } catch (error) {
+    console.log(error);
+  }
 });
 AfterSuite(async ({ sheepdog, nodes }) => {
-  await sheepdog.complete.deleteNodes(nodes.getPathToFile());
-  // try to delete anything else that may be remaining
-  await sheepdog.complete.findDeleteAllNodes();
+  try {
+    await sheepdog.complete.deleteNodes(nodes.getPathToFile());
+    // try to delete anything else that may be remaining
+    await sheepdog.complete.findDeleteAllNodes();
+  } catch (error) {
+    console.log(error);
+  }
 });
 Scenario('submit and delete file @reqData', async ({ sheepdog, indexd }) => {
   // submit basic file without url

@@ -28,31 +28,39 @@ const expectedResult = `${testGUID},s3://cdis-presigned-url-test/testdata,,jenki
 
 BeforeSuite(async ({ I, files, indexd }) => {
   console.log('Setting up dependencies...');
-  I.cache = {};
+  try {
+    I.cache = {};
 
-  I.cache.UNIQUE_NUM = Date.now();
+    I.cache.UNIQUE_NUM = Date.now();
 
-  // create local small files to upload. store their size and hash
-  await files.createTmpFile(`./manifest_${I.cache.UNIQUE_NUM}.tsv`, contentsOfTestManifest);
-  await files.createTmpFile(`./invalid_manifest_${I.cache.UNIQUE_NUM}.tsv`, contentsOfInvalidManifest1);
+    // create local small files to upload. store their size and hash
+    await files.createTmpFile(`./manifest_${I.cache.UNIQUE_NUM}.tsv`, contentsOfTestManifest);
+    await files.createTmpFile(`./invalid_manifest_${I.cache.UNIQUE_NUM}.tsv`, contentsOfInvalidManifest1);
 
-  console.log('deleting existing test records...');
-  const listOfIndexdRecords = await I.sendGetRequest(
-    `${indexd.props.endpoints.get}`,
-  );
+    console.log('deleting existing test records...');
+    const listOfIndexdRecords = await I.sendGetRequest(
+      `${indexd.props.endpoints.get}`,
+    );
 
-  listOfIndexdRecords.data.records.forEach(async ({ record }) => {
-    if (process.env.DEBUG === 'true') {
-      console.log(record.did);
-    }
-    await indexd.do.deleteFile({ did: record.did });
-  });
+    listOfIndexdRecords.data.records.forEach(async ({ record }) => {
+      if (process.env.DEBUG === 'true') {
+        console.log(record.did);
+      }
+      await indexd.do.deleteFile({ did: record.did });
+    });
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 AfterSuite(async ({ I, files }) => {
   // clean up test files
-  files.deleteFile(`manifest_${I.cache.UNIQUE_NUM}.tsv`);
-  files.deleteFile(`invalid_manifest_${I.cache.UNIQUE_NUM}.tsv`);
+  try {
+    files.deleteFile(`manifest_${I.cache.UNIQUE_NUM}.tsv`);
+    files.deleteFile(`invalid_manifest_${I.cache.UNIQUE_NUM}.tsv`);
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 // Scenario #1 - Login and navigate to the indexing page and upload dummy manifest

@@ -22,7 +22,7 @@ exist in the Fence DB. So you need to run usersync again during the test, after 
 also delete the requests created in requestor
 */
 
-Feature('Client_Credentials Grant Type @requires-fence');
+Feature('Client_Credentials Grant Type @requires-fence @requires-requestor');
 
 const { expect } = require('chai');
 const { runUserSync, checkPod, getAccessTokenHeader } = require('../../utils/apiUtil.js');
@@ -33,41 +33,32 @@ const requestorProps = require('../../services/apis/requestor/requestorProps.js'
 
 const bash = new Bash();
 
-async function getAccessToken(clientID, secretID) {
-  const tokenReq = bash.runCommand(`curl --user "${clientID}:${secretID}" --request POST "https://${process.env.HOSTNAME}/user/oauth2/token?grant_type=client_credentials" -d scope="openid user"`);
-  if (process.env.DEBUG === 'true') {
-    console.log(`data : ${tokenReq}`);
-  }
-  const tokens = JSON.parse(tokenReq);
-  const accessToken = tokens.access_token;
-  if (process.env.DEBUG === 'true') {
-    console.log(`###Access_Token : ${accessToken}`);
-  }
-  return accessToken;
-}
-
 BeforeSuite(async ({ I }) => {
   I.cache = {};
 });
 
 AfterSuite(async ({ I }) => {
-  // deleting the request created
-  console.log('Deleting the request from the requestor DB ... ');
-  if (process.env.DEBUG === 'true') {
-    console.log(I.cache.requestID);
-  }
-  const deleteRequest = await requestorTasks.deleteRequest(I.cache.requestID);
-  if (deleteRequest.status === 200) {
-    console.log(`Request ${I.cache.requestID} deleted successfully`);
-  }
+  try {
+    // deleting the request created
+    console.log('Deleting the request from the requestor DB ... ');
+    if (process.env.DEBUG === 'true') {
+      console.log(I.cache.requestID);
+    }
+    const deleteRequest = await requestorTasks.deleteRequest(I.cache.requestID);
+    if (deleteRequest.status === 200) {
+      console.log(`Request ${I.cache.requestID} deleted successfully`);
+    }
 
-  // revoking the arborist policy for the user
-  console.log('Revoking the arborist policy for the user0 ...');
-  await bash.runCommand(`
-      gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/policy/requestor_client_credentials_test`);
+    // revoking the arborist policy for the user
+    console.log('Revoking the arborist policy for the user0 ...');
+    await bash.runCommand(`
+        gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/policy/requestor_client_credentials_test`);
+  } catch (error) {
+    console.log(error);
+  }
 });
 
-Scenario('Client Credentials Grant Type interaction with Requestor @clientCreds', async ({ I, users }) => {
+Scenario('Client Credentials Grant Type interaction with Requestor @clientCreds', async ({ I, users, fence }) => {
   // creating OIDC client for the test
   // const { clientID, secretID } = fence.do.createClient(clientName, users.user0, 'client_credentials');
   const clientGrant = new Client({
@@ -89,7 +80,7 @@ Scenario('Client Credentials Grant Type interaction with Requestor @clientCreds'
   await runUserSync();
   await checkPod(I, 'usersync', 'gen3job,job-name=usersync');
   // getting the access_token from clientID and clientSecret
-  const clientAccessToken = await getAccessToken(clientID, secretID);
+  const clientAccessToken = await fence.do.getAccessTokenWithClientCredentials(clientID, secretID);
 
   // create data for request
   const { username } = users.user0;
@@ -126,8 +117,17 @@ Scenario('Client Credentials Grant Type interaction with Requestor @clientCreds'
   const requestStatusSigned = await requestorTasks.getRequestStatus(I.cache.requestID);
   console.log(`Status of the request is:${requestStatusSigned}`);
 
-  // do not uncomment this code below until PXP - 10229 is done
   // getting the list of users access request
-  // const list = await requestorTasks.getRequestList(clientAccessToken);
-  // console.log(list);
+  const list = await requestorTasks.getRequestList(clientAccessToken);
+  if (process.env.DEBUG === 'true') {
+    console.log(list.data);
+  }
+  if (list.data.length > 0) {
+    if (process.env.DEBUG === 'true') {
+      console.log(I.cache.requestID);
+    }
+    // filtering to get object with request_id === I.cache.requestID
+    let requestData = list.data.filter(obj => obj.request_id === I.cache.requestID);
+    expect(requestData.length).to.equal(1);
+  }
 });
