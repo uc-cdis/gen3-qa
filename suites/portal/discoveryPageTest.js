@@ -3,6 +3,7 @@ const uuid = require('uuid');
 const { expect } = require('chai');
 const { output } = require('codeceptjs');
 const { Bash } = require('../../utils/bash.js');
+const fs = require('fs');
 
 const bash = new Bash();
 const I = actor();
