@@ -20,7 +20,7 @@ module.exports = {
     if (process.env.DEBUG === 'true') {
       I.saveScreenshot('launched_workspace.png');
     }
-    I.waitForElement(props.iframeWorkspace, 600);
+    I.waitForElement(props.iframeWorkspace, 900);
     I.saveScreenshot('workspace.tasks.launchWorkspace.png');
   },
 
