@@ -55,7 +55,7 @@ Scenario('Publish a study, search and export to workspace @requires-indexd @requ
   
   output.print('--- Creating metadata record');
   await mds.do.createMetadataRecord(
-    users.mainAcct.accessTokenHeader, I.cache.studyId, studyMetaData,
+    users.mainAcct.accessTokenHeader, I.cache.studyId, studyMetadata,
   );
   output.print('--- Re-sync aggregate metadata');
   await mds.do.reSyncAggregateMetadata();
