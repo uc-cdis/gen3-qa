@@ -8,7 +8,7 @@ const bash = new Bash();
 const I = actor();
 I.cache = {};
 
-Feature('Discovery page @discoveryPage @requires-portal @requires-metadata @requires-indexd @aggMDS');
+Feature('Discovery page @discoveryPage @requires-portal @requires-metadata @aggMDS');
 
 After(({ users, mds }) => {
   if ('studyId' in I.cache) {
@@ -20,12 +20,12 @@ After(({ users, mds }) => {
   }
 });
 
-Scenario('User is able to navigate to Discovery page @requires-portal', ({ discovery }) => {
+Scenario('User is able to navigate to Discovery page', ({ discovery }) => {
   discovery.do.goToPage();
   discovery.ask.isPageLoaded();
 });
 
-Scenario('Publish a study, search and export to workspace @requires-hatchery @requires-portal', async ({
+Scenario('Publish a study, search and export to workspace @requires-indexd @requires-hatchery', async ({
   mds, users, discovery, files, indexd, home, workspace,
 }) => {
   // dynamically get UID field name from portal config
@@ -48,53 +48,10 @@ Scenario('Publish a study, search and export to workspace @requires-hatchery @re
   const ok = await indexd.do.addFileIndices(indexdRecords);
   expect(ok, 'Unable to index files').to.be.true;
 
-  output.print('--- Publish study metadata');
-  const studyMetaData = {
-    _guid_type: 'discovery_metadata',
-    gen3_discovery: {
-      tags: [
-        {
-          category: 'Other',
-          name: 'AUTOTEST Tag',
-        },
-      ],
-      authz: ['/programs/QA'],
-      [UIDFieldName]: `${I.cache.studyId}`,
-      sites: 3,
-      summary: '[AUTOTEST Summary] The BACPAC Research Program, Data Integration, Algorithm Development, and Operations Management Center (DAC) will bring cohesion to research performed by the participating Mechanistic Research Centers, Technology Research Sites, and Phase 2 Clinical Trials Centers. DAC Investigators will share their vision and provide scientific leadership and organizational support to the BACPAC Consortium. The research plan consists of supporting design and conduct of clinical trials with precision interventions that focus on identifying the best treatments for individual patients. The DAC will enhance collaboration and research progress with experienced leadership, innovative design and analysis methodologies, comprehensive research operations support, a state-of-the-art data management and integration system, and superior administrative support. This integrated structure will set the stage for technology assessments, solicitation of patient input and utilities, and the evaluation of high-impact interventions through the innovative design and sound execution of clinical trials, leading to effective personalized treatment approaches for patients with chronic lower back pain.',
-      study_description_summary: '[AUTOTEST Summary] The BACPAC Research Program, Data Integration, Algorithm Development, and Operations Management Center (DAC) will bring cohesion to research performed by the participating Mechanistic Research Centers, Technology Research Sites, and Phase 2 Clinical Trials Centers. DAC Investigators will share their vision and provide scientific leadership and organizational support to the BACPAC Consortium. The research plan consists of supporting design and conduct of clinical trials with precision interventions that focus on identifying the best treatments for individual patients. The DAC will enhance collaboration and research progress with experienced leadership, innovative design and analysis methodologies, comprehensive research operations support, a state-of-the-art data management and integration system, and superior administrative support. This integrated structure will set the stage for technology assessments, solicitation of patient input and utilities, and the evaluation of high-impact interventions through the innovative design and sound execution of clinical trials, leading to effective personalized treatment approaches for patients with chronic lower back pain.',
-      location: 'Chapel Hill, Nc',
-      subjects: 150,
-      __manifest: [
-        {
-          md5sum: `${I.cache.md5sum}`,
-          file_name: 'discovery_test.csv',
-          file_size: 16,
-          object_id: `${I.cache.did}`,
-          commons_url: `${process.env.HOSTNAME}`,
-        },
-      ],
-      study_name: 'BACPAC Research Consortium',
-      study_name_title: 'BACPAC Research Consortium',
-      study_type: 'Other',
-      institutions: 'University Of North Carolina Chapel Hill',
-      year_awarded: 2019,
-      investigators: 'Lavange, Lisa',
-      project_title: '[AUTOTEST Title] Back Pain Consortium (BACPAC) Research Program Data Integration, Algorithm Development and Operations Management Center',
-      protocol_name: 'BACPAC Minimum Dataset Example',
-      administering_ic: 'NIAMS',
-      advSearchFilters: [
-        {
-          key: 'Research Focus Area',
-          value: 'AUTOTEST Filter',
-        },
-      ],
-      research_program: 'Back Pain Consortium Research Program',
-      research_question: 'To inform a precision medicine approach to cLBP.',
-      study_description: 'Observational',
-      research_focus_area: 'Clinical Research in Pain Management',
-    },
-  };
+  output.print('--- Populate study metadata');
+  const studyMetadata = JSON.parse(fs.readFileSync('test-data/aggMDSTest/study1.json'));
+  studyMetadata.gen3_discovery[UIDFieldName] = I.cache.studyId;
+  
   output.print('--- Creating metadata record');
   await mds.do.createMetadataRecord(
     users.mainAcct.accessTokenHeader, I.cache.studyId, studyMetaData,
@@ -142,9 +99,11 @@ Scenario('Publish a study, search and export to workspace @requires-hatchery @re
   discovery.do.openInWorkspace(I.cache.studyId);
   I.saveScreenshot('6_open_in_workspace.png');
   I.waitInUrl('/workspace', 120);
+
+  // --- Disabled the validation since workspaces are failing to launch in jenkins envs ---
   // await workspace.do.launchWorkspace('(Tutorial) Bacpac Synthetic Data Analysis Notebook');
 
   // output.print('--- Run `gen3 drs-pull object` in a new Python3 notebook');
   // await workspace.do.runCommandinPythonNotebook(`!gen3 drs-pull object --object_id ${I.cache.did}`);
   // I.saveScreenshot('7_run_drs_pull_in_notebook.png');
-}).tag('@discoveryPage');
+});
