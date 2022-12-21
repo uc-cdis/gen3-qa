@@ -8,7 +8,7 @@ const bash = new Bash();
 const I = actor();
 I.cache = {};
 
-Feature('Discovery page @discoveryPage @requires-portal @requires-metadata @requires-indexd @requires-sower @aggMDS');
+Feature('Discovery page @discoveryPage @requires-portal @requires-metadata @requires-indexd @aggMDS');
 
 After(({ users, mds }) => {
   if ('studyId' in I.cache) {
@@ -142,9 +142,9 @@ Scenario('Publish a study, search and export to workspace @requires-hatchery @re
   discovery.do.openInWorkspace(I.cache.studyId);
   I.saveScreenshot('6_open_in_workspace.png');
   I.waitInUrl('/workspace', 120);
-  await workspace.do.launchWorkspace('(Tutorial) Bacpac Synthetic Data Analysis Notebook');
+  // await workspace.do.launchWorkspace('(Tutorial) Bacpac Synthetic Data Analysis Notebook');
 
-  output.print('--- Run `gen3 drs-pull object` in a new Python3 notebook');
-  await workspace.do.runCommandinPythonNotebook(`!gen3 drs-pull object --object_id ${I.cache.did}`);
-  I.saveScreenshot('7_run_drs_pull_in_notebook.png');
-}).tag('@discoveryPage', '@e2e');
+  // output.print('--- Run `gen3 drs-pull object` in a new Python3 notebook');
+  // await workspace.do.runCommandinPythonNotebook(`!gen3 drs-pull object --object_id ${I.cache.did}`);
+  // I.saveScreenshot('7_run_drs_pull_in_notebook.png');
+}).tag('@discoveryPage');
