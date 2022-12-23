@@ -23,7 +23,7 @@ testDataFiles.add(['test-data/aggMDSTest/study1.json']);
 testDataFiles.add(['test-data/aggMDSTest/study2.json']);
 testDataFiles.add(['test-data/aggMDSTest/study3.json']);
 
-Data(testDataFiles).Scenario('Create, edit and delete aggregate metadata record @wip', async ({
+Data(testDataFiles).Scenario('Create, edit and delete aggregate metadata record', async ({
   mds, users, current,
 }) => {
   I.cache.studyId = uuid.v4();
