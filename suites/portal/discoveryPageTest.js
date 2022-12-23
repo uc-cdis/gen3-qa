@@ -52,6 +52,13 @@ Scenario('Publish a study, search and export to workspace @requires-indexd @requ
   output.print('--- Populate study metadata');
   const studyMetadata = JSON.parse(fs.readFileSync('test-data/aggMDSTest/study1.json'));
   studyMetadata.gen3_discovery[UIDFieldName] = I.cache.studyId;
+  studyMetadata.gen3_discovery.__manifest.push({
+    md5sum: `${I.cache.md5sum}`,
+    file_name: 'discovery_test.csv',
+    file_size: 16,
+    object_id: `${I.cache.did}`,
+    commons_url: `${process.env.HOSTNAME}`,
+  });
   
   output.print('--- Creating metadata record');
   await mds.do.createMetadataRecord(
