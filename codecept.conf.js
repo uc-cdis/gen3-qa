@@ -130,6 +130,8 @@ exports.config = {
     },
     screenshotOnFail: {
       enabled: true,
+      uniqueScreenshotNames: true,
+      fullPageScreenshots: true,
     },
   },
   timeout: 900, // in seconds (15 min)
