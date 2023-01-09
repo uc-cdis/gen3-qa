@@ -202,5 +202,5 @@ Scenario('User requests access for resource_paths and role_ids with a signed sta
 
   // Verify if the access is revoked from the user
   userInfo = await fence.do.getUserInfo(user0AccessToken);
-  expect(userInfo.data.authz['/requestor_integration_test']).to.deep.to.not.include({ method: 'access', service: 'mds_gateway' });
+  expect(userInfo.data.authz).to.not.have.property('/requestor_integration_test');
 });
