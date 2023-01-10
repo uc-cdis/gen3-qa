@@ -163,7 +163,7 @@ Scenario('User requests access for resource_paths and role_ids with a signed sta
 }) => {
   // Check that the user does not have already access
   let userInfo = await fence.do.getUserInfo(users.user0.accessToken);
-  expect(userInfo.data.authz['/requestor_integration_test']).to.deep.to.not.include({ method: 'access', service: 'mds_gateway' });
+  expect(userInfo.data.authz).to.not.have.property('/requestor_integration_test');
 
   const { accessTokenHeader } = users.mainAcct;
   // Create a request for resource_paths + role_ids present in Arborist with a SIGNED status to test
@@ -202,5 +202,5 @@ Scenario('User requests access for resource_paths and role_ids with a signed sta
 
   // Verify if the access is revoked from the user
   userInfo = await fence.do.getUserInfo(user0AccessToken);
-  expect(userInfo.data.authz['/requestor_integration_test']).to.deep.to.not.include({ method: 'access', service: 'mds_gateway' });
+  expect(userInfo.data.authz).to.not.have.property('/requestor_integration_test');
 });
