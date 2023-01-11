@@ -595,7 +595,7 @@ if [[ "$(hostname)" == *"cdis-github-org"* ]] || [[ "$(hostname)" == *"planx-ci-
   # npx selenium-standalone install --version=4.0.0-alpha-7 --drivers.chrome.version=96.0.4664.45 --drivers.chrome.baseURL=https://chromedriver.storage.googleapis.com
   chromeVersion=$(google-chrome --version | grep -Eo '[0-9.]{10,20}')
   npx selenium-standalone install --drivers.chrome.version=$chromeVersion --drivers.chrome.baseURL=https://chromedriver.storage.googleapis.com
-  timeout $seleniumTimeout npx selenium-standalone start
+  timeout $seleniumTimeout npx selenium-standalone start --drivers.chrome.version=$chromeVersion
 
   # gen3-qa-in-a-box requires a couple of changes to its webdriver config
   set +e
