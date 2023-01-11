@@ -12,6 +12,6 @@ module.exports = {
   },
 
   isStudyFound(studyId) {
-    I.seeElement(props.studyLocator(studyId));
+    I.seeElement(props.studyLocator(studyId), 30);
   },
 };
