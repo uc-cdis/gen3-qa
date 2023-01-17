@@ -32,7 +32,7 @@ Scenario('Publish a study, search and export to workspace @requires-indexd @requ
   // dynamically get UID field name from portal config
   const UIDFieldName = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.discoveryConfig.minimalFieldMapping.uid\'').replace(/^"(.*)"$/, '$1');
   expect(UIDFieldName).to.be.a('string').that.is.not.empty;
-  const studyPreviewField = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.discoveryConfig.studyPreviewField.field\'');
+  const studyPreviewField = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.discoveryConfig.studyPreviewField.field\'').replace(/^"(.*)"$/, '$1');
   expect(studyPreviewField).to.be.a('string').that.is.not.empty;
 
   output.print('--- Create Indexd Record');
