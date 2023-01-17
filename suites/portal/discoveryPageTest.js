@@ -30,8 +30,10 @@ Scenario('Publish a study, search and export to workspace @requires-indexd @requ
   mds, users, discovery, files, indexd, home, workspace,
 }) => {
   // dynamically get UID field name from portal config
-  const UIDFieldName = await bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.discoveryConfig.minimalFieldMapping.uid\'').replace(/^"(.*)"$/, '$1');
+  const UIDFieldName = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.discoveryConfig.minimalFieldMapping.uid\'').replace(/^"(.*)"$/, '$1');
   expect(UIDFieldName).to.be.a('string').that.is.not.empty;
+  const studyPreviewField = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.discoveryConfig.studyPreviewField.field\'');
+  expect(studyPreviewField).to.be.a('string').that.is.not.empty;
 
   output.print('--- Create Indexd Record');
   I.cache.did = uuid.v4();
@@ -51,6 +53,9 @@ Scenario('Publish a study, search and export to workspace @requires-indexd @requ
 
   output.print('--- Populate study metadata');
   const studyMetadata = JSON.parse(fs.readFileSync('test-data/aggMDSTest/study1.json'));
+  studyMetadata.gen3_discovery[studyPreviewField] = studyMetadata.gen3_discovery.summary;
+  delete studyMetadata["gen3_discovery"]["summary"];
+  studyMetadata.replace('"summary":', `"${studyPreviewField}":`);
   studyMetadata.gen3_discovery[UIDFieldName] = I.cache.studyId;
   studyMetadata.gen3_discovery.__manifest.push({
     md5sum: `${I.cache.md5sum}`,
