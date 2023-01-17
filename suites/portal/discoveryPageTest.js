@@ -53,8 +53,10 @@ Scenario('Publish a study, search and export to workspace @requires-indexd @requ
 
   output.print('--- Populate study metadata');
   const studyMetadata = JSON.parse(fs.readFileSync('test-data/aggMDSTest/study1.json'));
-  studyMetadata.gen3_discovery[studyPreviewField] = studyMetadata.gen3_discovery.summary;
-  delete studyMetadata["gen3_discovery"]["summary"];
+  if(studyPreviewField !== 'summary') {
+    studyMetadata.gen3_discovery[studyPreviewField] = studyMetadata.gen3_discovery.summary;
+    delete studyMetadata["gen3_discovery"]["summary"];
+  }
   studyMetadata.gen3_discovery[UIDFieldName] = I.cache.studyId;
   studyMetadata.gen3_discovery.__manifest.push({
     md5sum: `${I.cache.md5sum}`,
