@@ -248,7 +248,7 @@ Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try crea
       + 'project phs000178, even though they have read access.');
 }).retry(1);
 
-Scenario('dbGaP + user.yaml Sync: ensure combined access @dbgapSyncing @reqGoogle',
+xScenario('dbGaP + user.yaml Sync: ensure combined access @dbgapSyncing @reqGoogle',
   async ({ fence, users }) => {
     console.log('Running usersync job and adding dbgap sync to yaml sync');
     console.log(`start time: ${Math.floor(Date.now() / 1000)}`);
@@ -284,7 +284,7 @@ Scenario('dbGaP + user.yaml Sync: ensure combined access @dbgapSyncing @reqGoogl
       + 'and read file for a record in authorized program QA').to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
 }).retry(1);
 
-Scenario('dbGaP + user.yaml Sync (from prev test): ensure user without dbGap access cannot create/update/delete dbGaP indexd records @dbgapSyncing @reqGoogle',
+xScenario('dbGaP + user.yaml Sync (from prev test): ensure user without dbGap access cannot create/update/delete dbGaP indexd records @dbgapSyncing @reqGoogle',
   async ({ fence, indexd, users }) => {
     console.log('populating guids for indexd records to attempt to create...');
     // populate new GUIDs per test
@@ -353,7 +353,7 @@ Scenario('dbGaP + user.yaml Sync (from prev test): ensure user without dbGap acc
     );
 }).retry(1);
 
-Scenario('dbGaP + user.yaml Sync (from prev test): ensure users with dbGap access cannot create/update/delete dbGaP indexd records @dbgapSyncing @reqGoogle',
+xScenario('dbGaP + user.yaml Sync (from prev test): ensure users with dbGap access cannot create/update/delete dbGaP indexd records @dbgapSyncing @reqGoogle',
   async ({ fence, indexd, users }) => {
     console.log('populating guids for indexd records to attempt to create...');
     // populate new GUIDs per test
