@@ -136,10 +136,10 @@ AfterSuite(async ({ fence, indexd, users }) => {
     await indexd.do.deleteFileIndices(Object.values(indexed_files));
     await indexd.do.deleteFileIndices(Object.values(new_dbgap_records));
 
-    /* console.log('Running usersync after dbgap testing');
+    console.log('Running usersync after dbgap testing');
     console.log(`start time: ${Math.floor(Date.now() / 1000)}`);
     bash.runJob('usersync', args = 'FORCE true');
-    console.log(`end time: ${Math.floor(Date.now() / 1000)}`); */
+    console.log(`end time: ${Math.floor(Date.now() / 1000)}`);
   } catch (error) {
     console.log(error);
   }
