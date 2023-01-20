@@ -136,17 +136,17 @@ AfterSuite(async ({ fence, indexd, users }) => {
     await indexd.do.deleteFileIndices(Object.values(indexed_files));
     await indexd.do.deleteFileIndices(Object.values(new_dbgap_records));
 
-    console.log('Running usersync after dbgap testing');
+    /* console.log('Running usersync after dbgap testing');
     console.log(`start time: ${Math.floor(Date.now() / 1000)}`);
     bash.runJob('usersync', args = 'FORCE true');
-    console.log(`end time: ${Math.floor(Date.now() / 1000)}`);
+    console.log(`end time: ${Math.floor(Date.now() / 1000)}`); */
   } catch (error) {
     console.log(error);
   }
 });
 
 Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try creating urls to upload @dbgapSyncing @reqGoogle',
-  async ({ fence, users }) => {
+  async ({ I, fence, users }) => {
     // ASSUME BeforeSuite has run the ONLY_DBGAP usersync
     // users.mainAcct has access to phs000178
     console.log('Use mainAcct to create s3 signed URL for file phs000178');
@@ -162,7 +162,7 @@ Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try crea
 
     let phs000178s3FileContents = null;
     let phs000178gsFileContents = null;
-
+    I.wait(10);
     try {
       phs000178s3FileContents = await fence.do.getFileFromSignedUrlRes(
         signedUrls3phs000178Res,
