@@ -163,7 +163,7 @@ Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try crea
     let phs000178s3FileContents = null;
     let phs000178gsFileContents = null;
     console.log(Date.now());
-    I.wait(60);
+    await apiUtil.sleepMS(60000);
     console.log(Date.now());
     try {
       phs000178s3FileContents = await fence.do.getFileFromSignedUrlRes(
