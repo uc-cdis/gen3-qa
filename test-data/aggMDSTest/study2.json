@@ -79,7 +79,7 @@
 			"study_primary_or_secondary": "",
 			"study_observational_or_experimental": ""
 		},
-		"__manifest": "",
+		"__manifest": [],
 		"award_type": "1",
 		"budget_end": "2021-06-30T12:06:00Z",
 		"date_added": "2019-01-05T07:01:48Z",
