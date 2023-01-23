@@ -70,6 +70,8 @@ Scenario('SA removal job test: no access removal when SA is valid @reqGoogle', a
 
   // Setup
   const googleProject = fence.props.googleProjectDynamic;
+  console.dir(`#### USER0 HERE : ${users.user0}`);
+  console.dir(`#### googleProject Owner HERE : ${googleProject.owner}`);
   await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
 
   // Register account
