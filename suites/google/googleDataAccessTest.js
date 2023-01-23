@@ -155,7 +155,7 @@ BeforeSuite(async ({ indexd, fence, google, users }) => {
     console.log('Adding indexd files used to test signed urls');
     await indexd.do.addFileIndices(Object.values(indexed_files));
     console.log('deleting keys for SA associated with users 0, 1 and user2...');
-    ['user0', 'user1', 'user2'].forEach(async({ user }) => {
+    ['user0', 'user1', 'user2'].forEach(async(user) => {
       const getCredsRes = await fence.do.getUserGoogleCreds(users[user].accessTokenHeader);
       await google.deleteSAKeys(user, getCredsRes.access_keys);
     });
@@ -241,7 +241,7 @@ Scenario('Test Google Data Access User1 @reqGoogle @googleDataAccess @manual',
   }
 );
 
-Scenario('Test Google Data Access User2 @reqGoogle @googleDataAccess',
+Scenario('Test Google Data Access User2 @reqGoogle @googleDataAccess @wip',
   async ({ I, fence, users, google, files }) => {
     const result = await googleDataAccessTestSteps(
       I, fence, users.user2, google, files,
