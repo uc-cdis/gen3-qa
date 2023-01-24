@@ -43,7 +43,7 @@
 		"cfda_code": "090",
 		"cong_dist": "XX-00",
 		"is_active": "False",
-		"__manifest": "",
+		"__manifest": [],
 		"award_type": "1",
 		"budget_end": "2020-02-29T12:02:00Z",
 		"date_added": "2019-06-01T07:06:09Z",

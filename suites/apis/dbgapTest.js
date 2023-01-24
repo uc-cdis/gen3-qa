@@ -146,7 +146,7 @@ AfterSuite(async ({ fence, indexd, users }) => {
 });
 
 Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try creating urls to upload @dbgapSyncing @reqGoogle',
-  async ({ fence, users }) => {
+  async ({ I, fence, users }) => {
     // ASSUME BeforeSuite has run the ONLY_DBGAP usersync
     // users.mainAcct has access to phs000178
     console.log('Use mainAcct to create s3 signed URL for file phs000178');
@@ -162,7 +162,9 @@ Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try crea
 
     let phs000178s3FileContents = null;
     let phs000178gsFileContents = null;
-
+    console.log(Date.now());
+    await apiUtil.sleepMS(60000);
+    console.log(Date.now());
     try {
       phs000178s3FileContents = await fence.do.getFileFromSignedUrlRes(
         signedUrls3phs000178Res,
