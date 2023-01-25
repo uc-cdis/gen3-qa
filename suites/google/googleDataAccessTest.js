@@ -241,7 +241,7 @@ Scenario('Test Google Data Access User1 @reqGoogle @googleDataAccess @manual',
   }
 );
 
-Scenario('Test Google Data Access User2 @reqGoogle @googleDataAccess @wip',
+Scenario('Test Google Data Access User2 @reqGoogle @googleDataAccess',
   async ({ I, fence, users, google, files }) => {
     const result = await googleDataAccessTestSteps(
       I, fence, users.user2, google, files,
