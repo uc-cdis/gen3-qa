@@ -1,6 +1,6 @@
 # TL;DR
 
-gen3 integration tests - run by https://jenkins.planx-pla.net/ via a `Jenkinsfile` pipeline in each github repo
+gen3 integration tests - run by https://jenkins.planx-pla.net/ via a `Jenkinsfile` pipeline in each github repo.
 
 ## Prerequisites (may not need to install on MAC):
 
