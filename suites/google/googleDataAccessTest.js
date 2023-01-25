@@ -127,7 +127,7 @@ const googleDataAccessTestSteps = async (I, fence, user, google, files, paramsQA
   const signedUrlTest2Res = await fence.do.createSignedUrlForUser(
     indexed_files.testFile.did, user.accessTokenHeader,
   );
-
+  await sleepMS(60000);
   console.log('*** ACCESS GOOGLE BUCKET AGAIN TO QA AND TEST ***');
   const userAccessQA2Res = await google.getFileFromBucket(
     fence.props.googleBucketInfo.QA.googleProjectId,
@@ -186,9 +186,6 @@ Scenario('Test Google Data Access User0 @reqGoogle @googleDataAccess @manual',
       { nAttempts: 3, expectAccessDenied: true }, // paramsQA2
       { nAttempts: 3, expectAccessDenied: true } // paramsTest2
     )
-    console.log(Date.now());
-    await sleepMS(60000);
-    console.log(Date.now());
     console.log('*** VALIDATE RESULT ***');
     // Signed URL for QA - First Run
     chai.expect(result[0]).to.have.property('status', 200);
@@ -218,9 +215,6 @@ Scenario('Test Google Data Access User1 @reqGoogle @googleDataAccess @manual',
       { nAttempts: 3, expectAccessDenied: true }, // paramsQA2
       { nAttempts: 1, expectAccessDenied: false } // paramsTest2
     )
-    console.log(Date.now());
-    await sleepMS(60000);
-    console.log(Date.now());
     console.log('*** VALIDATE RESULT ***');
     // Signed URL for QA - First Run
     chai.expect(result[0]).to.have.property('status', 200);
@@ -250,9 +244,6 @@ Scenario('Test Google Data Access User2 @reqGoogle @googleDataAccess',
       { nAttempts: 1, expectAccessDenied: false }, // paramsQA2
       { nAttempts: 1, expectAccessDenied: false } // paramsTest2
     )
-    console.log(Date.now());
-    await sleepMS(60000);
-    console.log(Date.now());
     console.log('*** VALIDATE RESULT ***');
     // Signed URL for QA - First Run
     chai.expect(result[0]).to.have.property('status', 401);
