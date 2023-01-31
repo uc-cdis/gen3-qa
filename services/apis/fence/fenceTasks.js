@@ -321,7 +321,7 @@ module.exports = {
     // hit link endpoint to ensure a proxy group is created for user
     const getRes = await I.sendGetRequest(fenceProps.endpoints.linkGoogle, userAcct.accessTokenHeader);
 
-    console.dir(`#### force link res : ${getRes}`);
+    console.dir(`#### force link res : ${getRes.data}`);
 
 
     // run fence-create command to circumvent google and add user link to fence
