@@ -66,6 +66,7 @@ module.exports = {
   async forceLinkGoogleAcct(userAcct, googleEmail) {
     const linkRes = await fenceTasks.forceLinkGoogleAcct(userAcct, googleEmail);
     fenceQuestions.forceLinkSuccess(linkRes);
+    console.dir(`#### force link res : ${linkRes}`);
     return linkRes;
   },
 
