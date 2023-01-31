@@ -319,11 +319,17 @@ module.exports = {
    */
   async forceLinkGoogleAcct(userAcct, googleEmail) {
     // hit link endpoint to ensure a proxy group is created for user
-    await I.sendGetRequest(fenceProps.endpoints.linkGoogle, userAcct.accessTokenHeader);
+    const getRes = await I.sendGetRequest(fenceProps.endpoints.linkGoogle, userAcct.accessTokenHeader);
+
+    console.dir(`#### force link res : ${getRes}`);
+
 
     // run fence-create command to circumvent google and add user link to fence
     const cmd = `fence-create force-link-google --username ${userAcct.username} --google-email ${googleEmail}`;
     const res = bash.runCommand(cmd, 'fence', takeLastLine);
+
+    console.dir(`#### fence create : ${res}`);
+
     userAcct.linkedGoogleAccount = googleEmail;
     return res;
   },
