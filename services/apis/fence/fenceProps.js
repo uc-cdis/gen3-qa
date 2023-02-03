@@ -8,6 +8,7 @@ const bash = new Bash();
  */
 const rootEndpoint = '/user';
 
+// TODO move `createClient()` and `deleteClient()` to `fenceTasks`
 /**
  * Runs a fence command for creating a client
  * @param {string} clientName - client name

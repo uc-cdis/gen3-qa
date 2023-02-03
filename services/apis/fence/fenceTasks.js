@@ -49,6 +49,20 @@ module.exports = {
   },
 
   /**
+   * Runs a fence command to rotate a client's ID and secret
+   * @param {string} clientName - client name
+   */
+  rotateClientCredentials(clientName, expiresInDays) {
+    let fenceCmd = `fence-create client-rotate --client ${clientName}`;
+    if (expiresInDays) {
+      fenceCmd = `${fenceCmd} --expires-in ${expiresInDays}`;
+    }
+    const res = bash.runCommand(fenceCmd, 'fence', takeLastLine);
+    const arr = res.replace(/[()']/g, '').split(',').map((val) => val.trim());
+    return { client_id: arr[0], client_secret: arr[1] };
+  },
+
+  /**
    * Hits fence's signed url endpoint
    * @param {string} id - id/did of an indexd file
    * @param {string[]} args - additional args for endpoint
