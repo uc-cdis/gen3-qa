@@ -322,8 +322,8 @@ module.exports = {
     const getRes = await I.sendGetRequest(fenceProps.endpoints.linkGoogle, userAcct.accessTokenHeader);
 
     console.dir(`#### force link res : ${getRes.data}`);
-    console.dir(`#### force link access token : ${userAcct.accessTokenHeader}`);
-    console.dir(`#### force link useracct : ${userAcct}`);
+    console.dir(`#### force link access token : ${userAcct.accessTokenHeader.Authorization}`);
+    console.dir(`#### force link useracct : ${userAcct.username}`);
 
 
     // run fence-create command to circumvent google and add user link to fence
