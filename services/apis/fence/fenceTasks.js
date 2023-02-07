@@ -58,6 +58,7 @@ module.exports = {
       fenceCmd = `${fenceCmd} --expires-in ${expiresInDays}`;
     }
     const res = bash.runCommand(fenceCmd, 'fence', takeLastLine);
+    // parse the response, which is in format: `('<client ID>', '<client secret>')`
     const arr = res.replace(/[()']/g, '').split(',').map((val) => val.trim());
     return { client_id: arr[0], client_secret: arr[1] };
   },
