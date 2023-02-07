@@ -59,3 +59,32 @@ Scenario('OIDC Client Expiration @clientExpiration', async ({ I, fence }) => {
     await fence.do.getAccessTokenWithClientCredentials(clientId, clientSecret, expectSuccess);
   }
 });
+
+
+Scenario('OIDC Client Expiration @clientRotation', async ({ I, fence }) => {
+  const clientName = 'jenkinsClient@clientRotation';
+  console.log(`  Creating client '${clientName}'`);
+  const creds1 = new Client({
+    clientName,
+    userName: 'test-user',
+    clientType: 'client_credentials',
+  });
+  expect(creds1.id, 'No client ID').not.to.be.empty;
+  expect(creds1.secret, 'No client secret').not.to.be.empty;
+  if (process.env.DEBUG === 'true') {
+    console.log(`Client credentials before rotating: (${creds1.id}, ${creds1.secret})`);
+  }
+
+  const creds2 = fence.do.rotateClientCredentials(clientName);
+  expect(creds2.client_id, 'No client ID').not.to.be.empty;
+  expect(creds2.client_secret, 'No client secret').not.to.be.empty;
+  if (process.env.DEBUG === 'true') {
+    console.log(`Client credentials after rotating: (${creds2.client_id}, ${creds2.client_secret})`);
+  }
+
+  // check that both sets of credentials work (we can get an access token using the creds)
+  console.log('Checking credentials obtained before rotating...');
+  await fence.do.getAccessTokenWithClientCredentials(creds1.id, creds1.secret);
+  console.log('Checking credentials obtained after rotating...');
+  await fence.do.getAccessTokenWithClientCredentials(creds2.client_id, creds2.client_secret);
+});
