@@ -176,7 +176,7 @@ module.exports = {
       console.log(`getting access token for ${username} - Attempt #${i}`);
       // TODO - introduce support for getting token from environment variable
       //     or with API key when running in LOCAL_AGAINST_REMOTE mode ...
-      const fenceCmd = `fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account,google_credentials,google_link --type access_token --exp ${expiration} --username ${username}`;
+      const fenceCmd = `fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account,google_credentials --type access_token --exp ${expiration} --username ${username}`;
       try {
         if (process.env.RUNNING_LOCAL === 'true') {
           process.env.KUBECTL_NAMESPACE = process.env.NAMESPACE;

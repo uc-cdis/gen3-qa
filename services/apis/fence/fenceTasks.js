@@ -325,13 +325,6 @@ module.exports = {
     const cmd = `fence-create force-link-google --username ${userAcct.username} --google-email ${googleEmail}`;
     const res = bash.runCommand(cmd, 'fence', takeLastLine);
     
-    console.dir("################################################################")
-    console.dir(cmd);
-    console.dir(res);
-    console.dir(res.stdout);
-    console.dir("################################################################")
-
-
     userAcct.linkedGoogleAccount = googleEmail;
     return res;
   },
