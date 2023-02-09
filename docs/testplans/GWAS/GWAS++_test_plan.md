@@ -19,7 +19,7 @@ Gen3 GWAS App provides the interface to perform high throughput GWAS on Million 
 -   User logs in and navigates to Apps on commons homepage
 -   Selects GWAS++ App
 -   Selects the Cohort and sees change in Attrition table on the top for selected cohort. Click Next
--   Select Outcome Phenotype (Continuous or Dichotomous). Select variables.Click Submit. See the change in Attrition Table. Click Submit
+-   Select Outcome Phenotype (Continuous or Dichotomous). Select variables.Click Submit. See the change in Attrition Table. Click Submit. Also `Add new Cohort` button can enable to add new cohort for selection.
 -   Select Covariate Phenotype (Continuous or Dichotomous). Select covariate variables. Click Add. See the change in Attrition Table.
 -   Configure GWAS.
 -   Submitting the job.
@@ -28,5 +28,5 @@ Gen3 GWAS App provides the interface to perform high throughput GWAS on Million 
 ## Test Scenarios
 
 -   Testing whole workflow to submit a GWAS job with both continuous and dichotomous phenotype and covariate phenotypes.
--   Negative tests - unauthorized permissions to GWAS, Selecting non-phenotype file at intial stages of the workflow
+-   Negative tests - unauthorized permissions to GWAS.
 -   Adding various parameters and fields and unseleting them -   Checking the GWAS results
