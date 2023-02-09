@@ -12,7 +12,7 @@ The documentation about the GWAS app can be found in QA and PreProd
 
 ## Scope
 
-GWAS++ provides unified process tool for the scientists convert input files/folders into input manifest for mariner
+Gen3 GWAS App provides the interface to perform high throughput GWAS on Million Veteran Program (MVP) data using the University of Washington Genesis pipeline.
 
 ## Workflow
 
