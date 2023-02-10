@@ -12,7 +12,7 @@ function assembleCustomHeaders(ACCESS_TOKEN) {
     };
   }
 
-async function fetchDIDLists(I, params = { hardcodedAuthz: null }) {
+async function fetchDIDLists(I, params = { hardcodedAuthz: null }, guid) {
     // assembling the list for the test
     const httpResp = await I.sendGetRequest(
       `https://${TARGET_ENVIRONMENT}/user/user`,
@@ -24,8 +24,9 @@ async function fetchDIDLists(I, params = { hardcodedAuthz: null }) {
     console.log(`foundHardcodedAuthzInResponse: ${foundHardcodedAuthzInResponse}`);
     // if hardcodedAuthzx is not mentioned
     if (foundHardcodedAuthzInResponse !== '') {
-      projectAccessList = httpResp.data.process_access;
-    }
+      projectAccessList = httpResp.data.authz;
+    } else {
+      projectAccessList = httpResp.data.project_access;
 
     // initialize dict of accessible DIDs
     let ok200files = {}; // eslint-disable-line prefer-const
@@ -51,11 +52,11 @@ async function fetchDIDLists(I, params = { hardcodedAuthz: null }) {
         };
       }
     }
-
-    console.log(`GUID selected: ${I.cache.GUID}`);
+    
+    console.log(`GUID selected: ${guid}`);
     // assemble 401 unauthorized ids
     const record401Resp = await I.sendGetRequest(
-      `https://${TARGET_ENVIRONMENT}/index/index/${I.cache.GUID}`,
+      `https://${TARGET_ENVIRONMENT}/index/index/${guid}`,
     );
     unauthorized401files[record401Resp.data.did] = { urls: record401Resp.data.urls };
 
@@ -67,4 +68,41 @@ async function fetchDIDLists(I, params = { hardcodedAuthz: null }) {
     I.didList.unauthorized401files = unauthorized401files;
 
     return I.didList;
+  }
+
+function performPreSignedURLTest(cloudProvider, typeOfTest) {
+    const filteredDIDs = {};
+    if (I.cache.ACCESS_TOKEN) {
+      // Obtain project access list to determine which files(DIDs) the user can access
+      // two lists: http 200 files and http 401 files
+      const { ok200files, unauthorized401files } = await fetchDIDLists(I);
+
+      const listOfDIDs = typeOfTest === 'positive' ? ok200files : unauthorized401files;
+      console.log('####');
+      console.log(`The Selected List of DIDs : ${JSON.stringify(listOfDIDs)}`);
+
+      // AWS: s3:// | Google: gs://
+      const preSignedURLPrefix = cloudProvider === 'AWS S3' ? 's3://' : 'gs://';
+
+      for (const key in listOfDIDs) { // eslint-disable-line guard-for-in
+        listOfDIDs[key].urls.forEach((url) => { // eslint-disable-line no-loop-func
+          if (url.startsWith(preSignedURLPrefix)) filteredDIDs[key] = url;
+        });
+      }
+    }
+
+    console.log('####');
+    console.log(filteredDIDs);
+
+    // selecting random key DID from the list
+    const keys = Object.keys(filteredDIDs);
+    const selectedDid = keys[Math.floor(Math.random() * keys.length)];
+    console.log(`#### Selected DID : ${JSON.stringify(selectedDid)}`);
+    // PreSignedURL request
+    const signedUrlRes = await fence.do.createSignedUrl(
+      `${selectedDid}`,
+      [],
+      assembleCustomHeaders(I.cache.ACCESS_TOKEN),      
+    );
+  }
 }
