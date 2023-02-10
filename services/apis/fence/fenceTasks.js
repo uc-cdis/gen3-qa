@@ -8,6 +8,7 @@ const user = require('../../../utils/user.js');
 const portal = require('../../../utils/portal.js');
 const { Gen3Response, sleepMS, getCookie, getAccessTokenHeader } = require('../../../utils/apiUtil');
 const { Bash, takeLastLine } = require('../../../utils/bash');
+const { googleLogin } = require('./fenceProps.js');
 
 const bash = new Bash();
 const { expect } = chai;
@@ -333,9 +334,6 @@ module.exports = {
    * @returns {Promise<string>} - std out from the fence-create script
    */
   async forceLinkGoogleAcct(userAcct, googleEmail) {
-    // hit link endpoint to ensure a proxy group is created for user
-    await I.sendGetRequest(fenceProps.endpoints.linkGoogle, userAcct.accessTokenHeader);
-
     // run fence-create command to circumvent google and add user link to fence
     const cmd = `fence-create force-link-google --username ${userAcct.username} --google-email ${googleEmail}`;
     const res = bash.runCommand(cmd, 'fence', takeLastLine);

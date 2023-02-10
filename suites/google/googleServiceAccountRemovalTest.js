@@ -64,10 +64,14 @@ function runVerifyUserSAsJob() {
 }
 
 Scenario('SA removal job test: no access removal when SA is valid @reqGoogle', async ({
-  fence, users, google, files,
+  I, fence, users, google, files,
 }) => {
   // test that the clean up job does not remove access to valid SA/projects
-
+  // the user logs in
+  // login with the user0
+  login.complete.login(users.user0);
+  // browser UI request for redirect
+  I.amOnPage(fenceProps.endpoints.linkGoogle);
   // Setup
   const googleProject = fence.props.googleProjectDynamic;
   await fence.complete.forceLinkGoogleAcct(users.user0, googleProject.owner);
