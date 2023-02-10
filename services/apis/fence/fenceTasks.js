@@ -8,7 +8,6 @@ const user = require('../../../utils/user.js');
 const portal = require('../../../utils/portal.js');
 const { Gen3Response, sleepMS, getCookie, getAccessTokenHeader } = require('../../../utils/apiUtil');
 const { Bash, takeLastLine } = require('../../../utils/bash');
-const { googleLogin } = require('./fenceProps.js');
 
 const bash = new Bash();
 const { expect } = chai;
