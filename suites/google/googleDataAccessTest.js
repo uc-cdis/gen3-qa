@@ -70,8 +70,9 @@ const googleDataAccessTestSteps = async (I, fence, user, google, files, paramsQA
   bash.runJob('usersync', args = 'FORCE true');
   await checkPod(I, 'usersync', 'gen3job,job-name=usersync');
 
-  console.log('*** UNLINK AND LINK GOOGLE ACCOUNT ***');
+  console.log('*** UNLINK GOOGLE ACCOUNT ***');
   await fence.complete.forceUnlinkGoogleAcct(user);
+  console.log('*** LINK GOOGLE ACCOUNT');
   await fence.complete.linkGoogleAcctMocked(user);
 
   console.log(`*** CREATE TEMP GOOGLE CREDS FOR USER ${user.username} AND SAVE TO TEMP FILE ***`);
