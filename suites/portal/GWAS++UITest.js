@@ -1,12 +1,9 @@
-const GWASppProps = require('../../services/portal/GWASpp/GWASppProps.js');
-const GWASppTasks = require('../../services/portal/GWASpp/GWASppTasks.js');
-
 const I = actor();
 
 Feature('GWAS++ UI Test @requires-portal @requires-argo-wrapper @requires-cohort-middleware');
 
 Scenario('Submit workflow Continuous Outcome - Continuous Variate Phenotype @GWASUI', async ({
-    I, home, users
+    I, home, users, gwas
 }) => {
     I.useWebDriverTo('set window size', async ({ browser }) => {
         browser.setWindowSize(1920, 1080);
@@ -15,40 +12,40 @@ Scenario('Submit workflow Continuous Outcome - Continuous Variate Phenotype @GWA
     await home.complete.login(users.mainAcct);
     I.saveScreenshot('homepage.png');
 
-    GWASppTasks.goToGWASPage();
-    GWASppTasks.selectCohort();
-    GWASppTasks.attritionTable();
-    GWASppTasks.clickNextButton();
+    gwas.do.goToGWASPage();
+    gwas.do.selectCohort();
+    gwas.do.attritionTable();
+    gwas.do.clickNextButton();
 
-    GWASppTasks.selectContinuousPhenotype();
+    gwas.do.selectContinuousPhenotype();
     I.wait(3);
-    GWASppTasks.selectContinuousPhenotypeConcept();
-    I.click(GWASppProps.PhenotypeSubmitButton);
+    gwas.do.selectContinuousPhenotypeConcept();
+    I.click(gwas.props.PhenotypeSubmitButton);
     //check the attrition table for update
 
-    GWASppTasks.selectContinuousVariate();
+    gwas.do.selectContinuousVariate();
     I.wait(3);
-    GWASppTasks.selectFirstConcept();
-    I.click(GWASppProps.AddButton);
-    GWASppTasks.selectContinuousVariate();
-    GWASppTasks.selectSecondConcept();
-    I.click(GWASppProps.AddButton);
+    gwas.do.selectFirstConcept();
+    I.click(gwas.props.AddButton);
+    gwas.do.selectContinuousVariate();
+    gwas.do.selectSecondConcept();
+    I.click(gwas.props.AddButton);
     I.saveScreenshot('Continuous-ContinuousVariate.png');
-    GWASppTasks.clickNextButton();
+    gwas.do.clickNextButton();
 
     //Step4
-    GWASppTasks.selectAncestry();
-    GWASppTasks.clickNextButton();
+    gwas.do.selectAncestry();
+    gwas.do.clickNextButton();
     I.wait(3);
 
-    I.seeElement(GWASppProps.SubmitDialogBox);
-    const jobName = GWASppTasks.enterJobName();
-    await GWASppTasks.submitJob();
-    GWASppTasks.checkJobStatus();
+    I.seeElement(gwas.props.SubmitDialogBox);
+    const jobName = gwas.do.enterJobName();
+    await gwas.do.submitJob();
+    gwas.do.checkJobStatus();
 });
 
 Scenario('Submit workflow Continuous Outcome - Dichotomous Variate Phenotype @GWASUI', async ({
-    I, home, users
+    I, home, users, gwas
 }) => {
     I.useWebDriverTo('set window size', async ({ browser }) => {
         browser.setWindowSize(1920, 1200);
@@ -57,39 +54,39 @@ Scenario('Submit workflow Continuous Outcome - Dichotomous Variate Phenotype @GW
     await home.complete.login(users.mainAcct);
     I.saveScreenshot('homepage.png');
 
-    GWASppTasks.goToGWASPage();
-    GWASppTasks.selectCohort();
-    GWASppTasks.attritionTable();
-    GWASppTasks.clickNextButton();
+    gwas.do.goToGWASPage();
+    gwas.do.selectCohort();
+    gwas.do.attritionTable();
+    gwas.do.clickNextButton();
 
-    GWASppTasks.selectContinuousPhenotype();
+    gwas.do.selectContinuousPhenotype();
     I.wait(3);
-    GWASppTasks.selectContinuousPhenotypeConcept();
-    I.click(GWASppProps.PhenotypeSubmitButton);
+    gwas.do.selectContinuousPhenotypeConcept();
+    I.click(gwas.props.PhenotypeSubmitButton);
     //check the attrition table for update
      
-    GWASppTasks.selectDichotomouosVariate();
-    GWASppTasks.selectFirstValue();
-    GWASppTasks.selectSecondValue();
+    gwas.do.selectDichotomouosVariate();
+    gwas.do.selectFirstValue();
+    gwas.do.selectSecondValue();
     I.wait(5);
-    I.seeElement(GWASppProps.RenderedEulerDiagram);
-    GWASppTasks.enterPhenotypeName();
-    I.click(GWASppProps.AddButton);
+    I.seeElement(gwas.props.RenderedEulerDiagram);
+    gwas.do.enterPhenotypeName();
+    I.click(gwas.props.AddButton);
     I.saveScreenshot('Continuous-DichotomousVariate.png');
-    GWASppTasks.clickNextButton();
+    gwas.do.clickNextButton();
 
-    GWASppTasks.selectAncestry();
-    GWASppTasks.clickNextButton();
+    gwas.do.selectAncestry();
+    gwas.do.clickNextButton();
     I.wait(3);
 
-    I.seeElement(GWASppProps.SubmitDialogBox);
-    const jobName = GWASppTasks.enterJobName();
-    await GWASppTasks.submitJob();
-    GWASppTasks.checkJobStatus();
+    I.seeElement(gwas.props.SubmitDialogBox);
+    const jobName = gwas.do.enterJobName();
+    await gwas.do.submitJob();
+    gwas.do.checkJobStatus();
 });
 
 Scenario('Submit workflow Dichotomous Outcome - Continuous Variate Phenotype @GWASUI', async ({
-    I, home, users
+    I, home, users, gwas
 }) => {
     I.useWebDriverTo('set window size', async ({ browser }) => {
         browser.setWindowSize(1920, 1080);
@@ -98,41 +95,41 @@ Scenario('Submit workflow Dichotomous Outcome - Continuous Variate Phenotype @GW
     await home.complete.login(users.mainAcct);
     I.saveScreenshot('homepage.png');
 
-    GWASppTasks.goToGWASPage();
-    GWASppTasks.selectCohort();
-    GWASppTasks.attritionTable();
-    GWASppTasks.clickNextButton(); 
+    gwas.do.goToGWASPage();
+    gwas.do.selectCohort();
+    gwas.do.attritionTable();
+    gwas.do.clickNextButton(); 
 
-    GWASppTasks.selectDichotomouosPhenotype();
+    gwas.do.selectDichotomouosPhenotype();
     I.wait(3);
-    GWASppTasks.selectDichotomouosPhenotypeValues();
-    I.seeElement(GWASppProps.RenderedEulerDiagram);
-    GWASppTasks.enterPhenotypeName();
-    I.click(GWASppProps.PhenotypeSubmitButton);
+    gwas.do.selectDichotomouosPhenotypeValues();
+    I.seeElement(gwas.props.RenderedEulerDiagram);
+    gwas.do.enterPhenotypeName();
+    I.click(gwas.props.PhenotypeSubmitButton);
     //check the attrition table for update
 
-    GWASppTasks.selectContinuousVariate();
+    gwas.do.selectContinuousVariate();
     I.wait(3);
-    GWASppTasks.selectFirstConcept();
-    I.click(GWASppProps.AddButton);
-    GWASppTasks.selectContinuousVariate();
-    GWASppTasks.selectSecondConcept();
-    I.click(GWASppProps.AddButton);
+    gwas.do.selectFirstConcept();
+    I.click(gwas.props.AddButton);
+    gwas.do.selectContinuousVariate();
+    gwas.do.selectSecondConcept();
+    I.click(gwas.props.AddButton);
     I.saveScreenshot('Dichotomous-ContinuousVariate.png');
-    GWASppTasks.clickNextButton();
+    gwas.do.clickNextButton();
 
-    GWASppTasks.selectAncestry();
-    GWASppTasks.clickNextButton();
+    gwas.do.selectAncestry();
+    gwas.do.clickNextButton();
     I.wait(3);
 
-    I.seeElement(GWASppProps.SubmitDialogBox);
-    const jobName = GWASppTasks.enterJobName();
-    await GWASppTasks.submitJob();
-    GWASppTasks.checkJobStatus();
+    I.seeElement(gwas.props.SubmitDialogBox);
+    const jobName = gwas.do.enterJobName();
+    await gwas.do.submitJob();
+    gwas.do.checkJobStatus();
 });
 
 Scenario('Submit workflow Dichotomous Outcome - Dichotomous Variate Phenotype @GWASUI', async ({
-    I, home, users
+    I, home, users, gwas
 }) => {
     I.useWebDriverTo('set window size', async ({ browser }) => {
         browser.setWindowSize(1920, 1080);
@@ -141,41 +138,41 @@ Scenario('Submit workflow Dichotomous Outcome - Dichotomous Variate Phenotype @G
     await home.complete.login(users.mainAcct);
     I.saveScreenshot('homepage.png');
 
-    GWASppTasks.goToGWASPage();
-    GWASppTasks.selectCohort();
-    GWASppTasks.attritionTable();
-    GWASppTasks.clickNextButton(); 
+    gwas.do.goToGWASPage();
+    gwas.do.selectCohort();
+    gwas.do.attritionTable();
+    gwas.do.clickNextButton(); 
 
-    GWASppTasks.selectDichotomouosPhenotype();
+    gwas.do.selectDichotomouosPhenotype();
     I.wait(3);
-    GWASppTasks.selectDichotomouosPhenotypeValues();
-    I.seeElement(GWASppProps.RenderedEulerDiagram);
-    GWASppTasks.enterPhenotypeName();
-    I.click(GWASppProps.PhenotypeSubmitButton);
+    gwas.do.selectDichotomouosPhenotypeValues();
+    I.seeElement(gwas.props.RenderedEulerDiagram);
+    gwas.do.enterPhenotypeName();
+    I.click(gwas.props.PhenotypeSubmitButton);
     //check the attrition table for update
 
-    GWASppTasks.selectDichotomouosVariate();
-    GWASppTasks.selectFirstValue();
-    GWASppTasks.selectSecondValue();
+    gwas.do.selectDichotomouosVariate();
+    gwas.do.selectFirstValue();
+    gwas.do.selectSecondValue();
     I.wait(5);
-    I.seeElement(GWASppProps.RenderedEulerDiagram);
-    GWASppTasks.enterPhenotypeName();
-    I.click(GWASppProps.AddButton);
+    I.seeElement(gwas.props.RenderedEulerDiagram);
+    gwas.do.enterPhenotypeName();
+    I.click(gwas.props.AddButton);
     I.saveScreenshot('Dichotomous-DichotomousVariate.png');
-    GWASppTasks.clickNextButton();
+    gwas.do.clickNextButton();
 
-    GWASppTasks.selectAncestry();
-    GWASppTasks.clickNextButton();
+    gwas.do.selectAncestry();
+    gwas.do.clickNextButton();
     I.wait(3);
 
-    I.seeElement(GWASppProps.SubmitDialogBox);
-    const jobName = GWASppTasks.enterJobName();
-    await GWASppTasks.submitJob();
-    GWASppTasks.checkJobStatus();
+    I.seeElement(gwas.props.SubmitDialogBox);
+    const jobName = gwas.do.enterJobName();
+    await gwas.do.submitJob();
+    gwas.do.checkJobStatus();
 });
 
 Scenario('Test next and previous buttons GWAS page @GWASUI', async ({
-    I, home, users
+    I, home, users, gwas
 }) => {
     I.useWebDriverTo('set window size', async ({ browser }) => {
         browser.setWindowSize(1920, 1080);
@@ -183,36 +180,36 @@ Scenario('Test next and previous buttons GWAS page @GWASUI', async ({
     home.do.goToHomepage();
     await home.complete.login(users.mainAcct);
 
-    GWASppTasks.goToGWASPage();
-    GWASppTasks.selectCohort();
-    GWASppTasks.clickNextButton();
+    gwas.do.goToGWASPage();
+    gwas.do.selectCohort();
+    gwas.do.clickNextButton();
 
-    GWASppTasks.clickPreviousButton();
-    I.seeElement(GWASppProps.checkedRadio);
-    GWASppTasks.clickNextButton();
+    gwas.do.clickPreviousButton();
+    I.seeElement(gwas.props.checkedRadio);
+    gwas.do.clickNextButton();
 
-    GWASppTasks.selectContinuousPhenotype();
+    gwas.do.selectContinuousPhenotype();
     I.wait(3);
-    GWASppTasks.selectContinuousPhenotypeConcept();
-    I.click(GWASppProps.PhenotypeSubmitButton);
+    gwas.do.selectContinuousPhenotypeConcept();
+    I.click(gwas.props.PhenotypeSubmitButton);
 
-    GWASppTasks.clickPreviousButton();
-    I.seeElement(GWASppProps.ContinuousPhenotypeButton);
-    GWASppTasks.clickNextButton();
+    gwas.do.clickPreviousButton();
+    I.seeElement(gwas.props.ContinuousPhenotypeButton);
+    gwas.do.clickNextButton();
 
-    GWASppTasks.selectContinuousVariate();
-    GWASppTasks.selectFirstConcept();
-    GWASppTasks.clickNextButton();
+    gwas.do.selectContinuousVariate();
+    gwas.do.selectFirstConcept();
+    gwas.do.clickNextButton();
     
-    GWASppTasks.selectAncestry();
-    GWASppTasks.clickNextButton();
+    gwas.do.selectAncestry();
+    gwas.do.clickNextButton();
     I.wait(3);
 
-    I.seeElement(GWASppProps.SubmitDialogBox);
+    I.seeElement(gwas.props.SubmitDialogBox);
 });   
 
 Scenario('Unauthorized access to GWAS @GWASUI', async ({
-    I, home, users
+    I, home, users, gwas
 }) => {
     I.useWebDriverTo('set window size', async ({ browser }) => {
         browser.setWindowSize(1920, 1080);
@@ -220,8 +217,8 @@ Scenario('Unauthorized access to GWAS @GWASUI', async ({
     home.do.goToHomepage();
     await home.complete.login(users.auxAcct1);
 
-    GWASppTasks.goToGWASPage();
+    gwas.do.goToGWASPage();
 
-    I.seeElement(GWASppProps.UnauthorizedSpinner);
-    I.dontSeeElement(GWASppProps.CohortTableTitle);
+    I.seeElement(gwas.props.UnauthorizedSpinner);
+    I.dontSeeElement(gwas.props.CohortTableTitle);
 });
