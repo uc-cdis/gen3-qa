@@ -8,7 +8,7 @@ module.exports = {
     GWASWindow: '//div[@class="select-container"]',
     checkedRadio: '(//*[@class="ant-radio ant-radio-checked"])',
     // from step1
-    AddCohortButton: '//button[contains(text(),"Add New Cohort")]',
+    AddCohortButton: { css: 'button[data-tour="cohort-add"]' },
     CohortTableTitle: '//th[contains(text(),"Cohort Name")]',
     ContinuousPhenotypeButton: '//span[contains(text(),"Add Continuous Outcome Phenotype")]',
     DichotomousPhenotypeButton: '//span[contains(text(),"Add Dichotomous Outcome Phenotype")]',
@@ -25,12 +25,12 @@ module.exports = {
     DichotomousPhenotypeValue1: '(//div[contains(@class,"ant-select-selector")])[1]',
     DichotomousPhenotypeValue2: '(//div[contains(@class,"ant-select-selector")])[2]',
     //for step3
-    ContinuousVariateButton: '//span[contains(text(),"Add Continuous Covariate")]',
-    DichotomousVariateButton: '//span[contains(text(),"Add Dichotomous Covariate")]',
+    ContinuousCovariateButton: '//span[contains(text(),"Add Continuous CoCovariate")]',
+    DichotomousCovariateButton: '//span[contains(text(),"Add Dichotomous CoCovariate")]',
     AddButton: '//button[contains(text(),"Add")]',
     SelectSecondRadioInput: '(//input[@type="radio"])[2]',
-    DichotomousVariateValue1: '(//div[@class="ant-select select-cohort ant-select-single ant-select-show-arrow ant-select-show-search"])[1]',
-    DichotomousVariateValue2: '(//div[@class="ant-select select-cohort ant-select-single ant-select-show-arrow ant-select-show-search"])[2]',
+    DichotomousCovariateValue1: '(//div[@class="ant-select select-cohort ant-select-single ant-select-show-arrow ant-select-show-search"])[1]',
+    DichotomousCovariateValue2: '(//div[@class="ant-select select-cohort ant-select-single ant-select-show-arrow ant-select-show-search"])[2]',
     RenderedEulerDiagram: '//div[@id="euler"]//*[name()="svg"]',
     PhenotypeName: '//input[@id="phenotype-input"]',
     //from step4

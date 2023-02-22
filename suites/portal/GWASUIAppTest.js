@@ -2,7 +2,7 @@ const I = actor();
 
 Feature('GWAS++ UI Test @requires-portal @requires-argo-wrapper @requires-cohort-middleware');
 
-Scenario('Submit workflow Continuous Outcome - Continuous Variate Phenotype @GWASUI', async ({
+Scenario('Submit workflow Continuous Outcome - Continuous Covariate Phenotype @GWASUI', async ({
     I, home, users, gwas
 }) => {
     I.useWebDriverTo('set window size', async ({ browser }) => {
@@ -21,16 +21,16 @@ Scenario('Submit workflow Continuous Outcome - Continuous Variate Phenotype @GWA
     I.wait(3);
     gwas.do.selectContinuousPhenotypeConcept();
     I.click(gwas.props.PhenotypeSubmitButton);
-    //check the attrition table for update
+    //TODO : check the attrition table for update
 
-    gwas.do.selectContinuousVariate();
+    gwas.do.selectContinuousCovariate();
     I.wait(3);
     gwas.do.selectFirstConcept();
     I.click(gwas.props.AddButton);
-    gwas.do.selectContinuousVariate();
+    gwas.do.selectContinuousCovariate();
     gwas.do.selectSecondConcept();
     I.click(gwas.props.AddButton);
-    I.saveScreenshot('Continuous-ContinuousVariate.png');
+    I.saveScreenshot('Continuous-ContinuousCovariate.png');
     gwas.do.clickNextButton();
 
     //Step4
@@ -44,7 +44,7 @@ Scenario('Submit workflow Continuous Outcome - Continuous Variate Phenotype @GWA
     gwas.do.checkJobStatus();
 });
 
-Scenario('Submit workflow Continuous Outcome - Dichotomous Variate Phenotype @GWASUI', async ({
+Scenario('Submit workflow Continuous Outcome - Dichotomous Covariate Phenotype @GWASUI', async ({
     I, home, users, gwas
 }) => {
     I.useWebDriverTo('set window size', async ({ browser }) => {
@@ -63,16 +63,16 @@ Scenario('Submit workflow Continuous Outcome - Dichotomous Variate Phenotype @GW
     I.wait(3);
     gwas.do.selectContinuousPhenotypeConcept();
     I.click(gwas.props.PhenotypeSubmitButton);
-    //check the attrition table for update
+    //TODO : check the attrition table for update
      
-    gwas.do.selectDichotomouosVariate();
+    gwas.do.selectDichotomouosCovariate();
     gwas.do.selectFirstValue();
     gwas.do.selectSecondValue();
     I.wait(5);
     I.seeElement(gwas.props.RenderedEulerDiagram);
     gwas.do.enterPhenotypeName();
     I.click(gwas.props.AddButton);
-    I.saveScreenshot('Continuous-DichotomousVariate.png');
+    I.saveScreenshot('Continuous-DichotomousCovariate.png');
     gwas.do.clickNextButton();
 
     gwas.do.selectAncestry();
@@ -85,7 +85,7 @@ Scenario('Submit workflow Continuous Outcome - Dichotomous Variate Phenotype @GW
     gwas.do.checkJobStatus();
 });
 
-Scenario('Submit workflow Dichotomous Outcome - Continuous Variate Phenotype @GWASUI', async ({
+Scenario('Submit workflow Dichotomous Outcome - Continuous Covariate Phenotype @GWASUI', async ({
     I, home, users, gwas
 }) => {
     I.useWebDriverTo('set window size', async ({ browser }) => {
@@ -106,16 +106,16 @@ Scenario('Submit workflow Dichotomous Outcome - Continuous Variate Phenotype @GW
     I.seeElement(gwas.props.RenderedEulerDiagram);
     gwas.do.enterPhenotypeName();
     I.click(gwas.props.PhenotypeSubmitButton);
-    //check the attrition table for update
+    //TODO : check the attrition table for update
 
-    gwas.do.selectContinuousVariate();
+    gwas.do.selectContinuousCovariate();
     I.wait(3);
     gwas.do.selectFirstConcept();
     I.click(gwas.props.AddButton);
-    gwas.do.selectContinuousVariate();
+    gwas.do.selectContinuousCovariate();
     gwas.do.selectSecondConcept();
     I.click(gwas.props.AddButton);
-    I.saveScreenshot('Dichotomous-ContinuousVariate.png');
+    I.saveScreenshot('Dichotomous-ContinuousCovariate.png');
     gwas.do.clickNextButton();
 
     gwas.do.selectAncestry();
@@ -128,7 +128,7 @@ Scenario('Submit workflow Dichotomous Outcome - Continuous Variate Phenotype @GW
     gwas.do.checkJobStatus();
 });
 
-Scenario('Submit workflow Dichotomous Outcome - Dichotomous Variate Phenotype @GWASUI', async ({
+Scenario('Submit workflow Dichotomous Outcome - Dichotomous Covariate Phenotype @GWASUI', async ({
     I, home, users, gwas
 }) => {
     I.useWebDriverTo('set window size', async ({ browser }) => {
@@ -149,16 +149,16 @@ Scenario('Submit workflow Dichotomous Outcome - Dichotomous Variate Phenotype @G
     I.seeElement(gwas.props.RenderedEulerDiagram);
     gwas.do.enterPhenotypeName();
     I.click(gwas.props.PhenotypeSubmitButton);
-    //check the attrition table for update
+    //TODO : check the attrition table for update
 
-    gwas.do.selectDichotomouosVariate();
+    gwas.do.selectDichotomouosCovariate();
     gwas.do.selectFirstValue();
     gwas.do.selectSecondValue();
     I.wait(5);
     I.seeElement(gwas.props.RenderedEulerDiagram);
     gwas.do.enterPhenotypeName();
     I.click(gwas.props.AddButton);
-    I.saveScreenshot('Dichotomous-DichotomousVariate.png');
+    I.saveScreenshot('Dichotomous-DichotomousCovariate.png');
     gwas.do.clickNextButton();
 
     gwas.do.selectAncestry();
@@ -197,7 +197,7 @@ Scenario('Test next and previous buttons GWAS page @GWASUI', async ({
     I.seeElement(gwas.props.ContinuousPhenotypeButton);
     gwas.do.clickNextButton();
 
-    gwas.do.selectContinuousVariate();
+    gwas.do.selectContinuousCovariate();
     gwas.do.selectFirstConcept();
     gwas.do.clickNextButton();
     
