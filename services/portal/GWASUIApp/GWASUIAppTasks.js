@@ -20,7 +20,7 @@ module.exports = {
     },
     
     selectCohort() {
-        I.seeElement(GWASUIAppProps.CohortTableTitle);
+        I.seeElement(GWASUIAppProps.CohortTable);
         I.seeElement(GWASUIAppProps.AddCohortButton);
         I.click(GWASUIAppProps.SelectFirstRadioInput);
         I.saveScreenshot('CohortSelect.png');
@@ -91,14 +91,12 @@ module.exports = {
 
     selectFirstValue() {
         I.click(GWASUIAppProps.DichotomousCovariateValue1);
-        // I.waitForText(GWASUIAppProps.DichotomousOption1, 5);
         I.click('(//div[contains(@title,"Diabetes Demo")])[1]')
         I.click(GWASUIAppProps.GWASWindow);
     },
 
     selectSecondValue() {
         I.click(GWASUIAppProps.DichotomousCovariateValue2);
-        // I.waitForText(GWASUIAppProps.DichotomousOption2, 5);
         I.click('(//div[contains(@title,"T1D-case")])[2]');
         I.click(GWASUIAppProps.GWASWindow);
     },
@@ -106,8 +104,7 @@ module.exports = {
     selectAncestry() {
         I.seeElement(GWASUIAppProps.ConfigureGWAS);
         I.click(GWASUIAppProps.AncestryDropDown);
-        I.waitForText(GWASUIAppProps.ancestry, 5);
-        I.click(`//*[contains(text(),'${GWASUIAppProps.ancestry}')]`);
+        I.click(GWASUIAppProps.ancestry);
     },
 
     enterJobName() {

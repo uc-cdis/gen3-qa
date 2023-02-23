@@ -20,16 +20,16 @@ Scenario('Submit workflow Continuous Outcome - Continuous Covariate Phenotype @G
     gwas.do.selectContinuousPhenotype();
     I.wait(3);
     gwas.do.selectContinuousPhenotypeConcept();
-    I.click(gwas.props.PhenotypeSubmitButton);
+    I.click(gwas.props.ContinuousPhenoSubmitButton);
     //TODO : check the attrition table for update
 
     gwas.do.selectContinuousCovariate();
     I.wait(3);
     gwas.do.selectFirstConcept();
-    I.click(gwas.props.AddButton);
+    I.click(gwas.props.ContinuousAddButton);
     gwas.do.selectContinuousCovariate();
     gwas.do.selectSecondConcept();
-    I.click(gwas.props.AddButton);
+    I.click(gwas.props.ContinuousAddButton);
     I.saveScreenshot('Continuous-ContinuousCovariate.png');
     gwas.do.clickNextButton();
 
@@ -62,16 +62,17 @@ Scenario('Submit workflow Continuous Outcome - Dichotomous Covariate Phenotype @
     gwas.do.selectContinuousPhenotype();
     I.wait(3);
     gwas.do.selectContinuousPhenotypeConcept();
-    I.click(gwas.props.PhenotypeSubmitButton);
+    I.click(gwas.props.ContinuousPhenoSubmitButton);
     //TODO : check the attrition table for update
      
     gwas.do.selectDichotomouosCovariate();
     gwas.do.selectFirstValue();
     gwas.do.selectSecondValue();
-    I.wait(5);
+    I.wait(10);
+    I.saveScreenshot('RenderedEulerDiagram.png'),
     I.seeElement(gwas.props.RenderedEulerDiagram);
     gwas.do.enterPhenotypeName();
-    I.click(gwas.props.AddButton);
+    I.click(gwas.props.DichoAddButton);
     I.saveScreenshot('Continuous-DichotomousCovariate.png');
     gwas.do.clickNextButton();
 
@@ -105,16 +106,16 @@ Scenario('Submit workflow Dichotomous Outcome - Continuous Covariate Phenotype @
     gwas.do.selectDichotomouosPhenotypeValues();
     I.seeElement(gwas.props.RenderedEulerDiagram);
     gwas.do.enterPhenotypeName();
-    I.click(gwas.props.PhenotypeSubmitButton);
+    I.click(gwas.props.DichoPhenoSubmitButton);
     //TODO : check the attrition table for update
 
     gwas.do.selectContinuousCovariate();
     I.wait(3);
     gwas.do.selectFirstConcept();
-    I.click(gwas.props.AddButton);
+    I.click(gwas.props.ContinuousAddButton);
     gwas.do.selectContinuousCovariate();
     gwas.do.selectSecondConcept();
-    I.click(gwas.props.AddButton);
+    I.click(gwas.props.ContinuousAddButton);
     I.saveScreenshot('Dichotomous-ContinuousCovariate.png');
     gwas.do.clickNextButton();
 
@@ -148,7 +149,7 @@ Scenario('Submit workflow Dichotomous Outcome - Dichotomous Covariate Phenotype 
     gwas.do.selectDichotomouosPhenotypeValues();
     I.seeElement(gwas.props.RenderedEulerDiagram);
     gwas.do.enterPhenotypeName();
-    I.click(gwas.props.PhenotypeSubmitButton);
+    I.click(gwas.props.DichoPhenoSubmitButton);
     //TODO : check the attrition table for update
 
     gwas.do.selectDichotomouosCovariate();
@@ -157,7 +158,7 @@ Scenario('Submit workflow Dichotomous Outcome - Dichotomous Covariate Phenotype 
     I.wait(5);
     I.seeElement(gwas.props.RenderedEulerDiagram);
     gwas.do.enterPhenotypeName();
-    I.click(gwas.props.AddButton);
+    I.click(gwas.props.DichoAddButton);
     I.saveScreenshot('Dichotomous-DichotomousCovariate.png');
     gwas.do.clickNextButton();
 
@@ -191,7 +192,7 @@ Scenario('Test next and previous buttons GWAS page @GWASUI', async ({
     gwas.do.selectContinuousPhenotype();
     I.wait(3);
     gwas.do.selectContinuousPhenotypeConcept();
-    I.click(gwas.props.PhenotypeSubmitButton);
+    I.click(gwas.props.ContinuousPhenoSubmitButton);
 
     gwas.do.clickPreviousButton();
     I.seeElement(gwas.props.ContinuousPhenotypeButton);
@@ -220,5 +221,5 @@ Scenario('Unauthorized access to GWAS @GWASUI', async ({
     gwas.do.goToGWASPage();
 
     I.seeElement(gwas.props.UnauthorizedSpinner);
-    I.dontSeeElement(gwas.props.CohortTableTitle);
+    I.dontSeeElement(gwas.props.CohortTable);
 });

@@ -2,7 +2,7 @@ const GWASUIAppTasks = require('./GWASUIAppTasks.js');
 const GWASUIAppProps = require('./GWASUIAppProps.js');
 
 /**
- * GWAS++ Service
+ * GWASUIApp Service
  */
 module.exports = {
     props: GWASUIAppProps,
