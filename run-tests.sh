@@ -7,6 +7,8 @@
 
 set -xe
 
+export https_proxy='${https_proxy:-"http://cloud-proxy.internal.io:3128"}'
+
 help() {
   cat - <<EOM
 Jenkins test launch script.  Assumes the  GEN3_HOME environment variable
