@@ -36,7 +36,7 @@ exports.config = {
       port: 4444,
     },
     REST: {
-      endpoint: `https://${process.env.HOSTNAME}`,
+      endpoint: `http://${process.env.HOSTNAME}`,
       timeout: 300000,
       defaultHeaders: {
         common: {
