@@ -25,9 +25,10 @@ json_body = {
 auth_token = os.environ["ACCESS_TOKEN"].strip()
 
 header = { 
-    "Content-Type": "application/json" 
+    'Authorization': 'Bearer auth_token',
+    'Content-Type': 'application/json' 
 }
 
-post_request = requests.post(url, json=json_body, auth=auth_token, headers=header)
+post_request = requests.post(url, json=json_body, headers=header)
 print("Status code:", post_request.status_code)
-print("Request body:", post_request.json())
+# print("Request body:", post_request.json())
