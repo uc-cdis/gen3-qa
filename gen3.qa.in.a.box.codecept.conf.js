@@ -39,7 +39,7 @@ exports.config = {
       endpoint: `https://${process.env.HOSTNAME}`,
       onRequest: (request) => {
         request.proxy = false;
-      }
+      },
       timeout: 300000,
       defaultHeaders: {
         common: {
