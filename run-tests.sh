@@ -7,7 +7,7 @@
 
 set -xe
 
-export https_proxy="http://cloud-proxy.internal.io:3128"
+echo $https_proxy
 
 help() {
   cat - <<EOM
