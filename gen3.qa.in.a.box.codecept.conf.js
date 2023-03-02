@@ -37,12 +37,6 @@ exports.config = {
     },
     REST: {
       endpoint: `https://${process.env.HOSTNAME}`,
-      onRequest: (request) => {
-        request.proxy = {
-          host: 'http://cloud-proxy.internal.io',
-          port: 3128
-        }
-      },
       timeout: 300000,
       defaultHeaders: {
         common: {
