@@ -7,8 +7,6 @@
 
 set -xe
 
-echo $https_proxy
-
 help() {
   cat - <<EOM
 Jenkins test launch script.  Assumes the  GEN3_HOME environment variable
