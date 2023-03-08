@@ -81,6 +81,7 @@ exports.config = {
 
     // Pages
     home: './services/portal/home/homeService.js',
+    gwas: './services/portal/GWASUIApp/GWASUIAppService.js',
     indexing: './services/portal/indexing/indexingService.js',
     login: './services/portal/login/loginService.js',
     explorer: './services/portal/explorer/explorerService.js',
@@ -127,6 +128,8 @@ exports.config = {
     },
     screenshotOnFail: {
       enabled: true,
+      uniqueScreenshotNames: true,
+      fullPageScreenshots: true,
     },
   },
   timeout: 900, // in seconds (15 min)

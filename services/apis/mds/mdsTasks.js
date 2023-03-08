@@ -41,8 +41,9 @@ module.exports = {
     if (process.env.DEBUG === 'true') {
       console.log(resp);
     }
-    if (resp.status === 200) {
-      return resp.data;
+    const aggMDSStudyFieldName = bash.runCommand('gen3 secrets decode metadata-g3auto metadata.env | sed -ne "s/AGG_MDS_DEFAULT_STUDY_DATA_FIELD=\([^\.]*\).*/\1/p"') || 'gen3_discovery';
+    if (resp.status === 200 && resp.data) {
+      return resp.data[aggMDSStudyFieldName] || resp.data;
     }
     return { status: resp.status };
   },
