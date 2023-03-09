@@ -1,4 +1,4 @@
-Feature('CoreMetadataPageTest @requires-indexd @requires-portal @requires-pidgin');
+Feature('CoreMetadataPageTest @requires-indexd @requires-portal @requires-peregrine');
 
 const I = actor();
 
@@ -17,9 +17,9 @@ Before(async ({ home }) => {
   await home.complete.login();
 });
 
-Scenario('test core metadata page @coreMetadataPage @portal', async ({ portalCoreMetadataPage, pidgin, users }) => {
-  const metadata = await pidgin.do.getCoremetadata(validFile, 'application/json', users.mainAcct.accessTokenHeader);
-  pidgin.ask.seeJsonCoremetadata(validFile, metadata);
+Scenario('test core metadata page @coreMetadataPage @portal', async ({ portalCoreMetadataPage, peregrine, users }) => {
+  const metadata = await peregrine.do.getCoremetadata(validFile, 'application/json', users.mainAcct.accessTokenHeader);
+  peregrine.ask.seeJsonCoremetadata(validFile, metadata);
   await portalCoreMetadataPage.complete.checkFileCoreMetadataPage(metadata);
 });
 
