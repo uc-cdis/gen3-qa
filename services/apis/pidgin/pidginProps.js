@@ -3,6 +3,7 @@
  */
 module.exports = {
   endpoints: {
-    getCoreMetadata: '/coremetadata',
+    coreMetadataPath: '/api/search/coremetadata',
+    coreMetadataLegacyPath: '/coremetadata',
   },
 };
