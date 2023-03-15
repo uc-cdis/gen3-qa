@@ -71,7 +71,7 @@ async function checkMetadataServiceEntry(I, expectedResult, authHeader) {
       `/mds/metadata/${expectedResult}`,
       authHeader,
       '_guid_type',
-      6,
+      18,
       'metadata ingestion',
     );
   } catch (e) {

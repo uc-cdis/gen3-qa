@@ -1,7 +1,7 @@
-Pidgin is a light-weight API which works on top of Peregrine. It takes a file's GUID as input which queries Peregrine for information about the file and returns an abstract of the file to the user.
+Core Metadata: Pidgin was a light-weight API which works on top of Peregrine. Its functionality is now included in Peregrine. It takes a file's GUID as input which queries Peregrine for information about the file and returns an abstract of the file to the user.
 
-Integration Test Coverage for Pidgin :
-Pidgin has a single endpoint  - `/<GUID of a file>`
+Integration Test Coverage for Core Metadata:
+Single endpoint  - `/<GUID of a file>`
 
 Endpoints :	
 

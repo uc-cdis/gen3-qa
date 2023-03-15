@@ -71,7 +71,6 @@ exports.config = {
     indexd: './services/apis/indexd/indexdService.js',
     drs: './services/apis/drs/drsService.js',
     peregrine: './services/apis/peregrine/peregrineService.js',
-    pidgin: './services/apis/pidgin/pidginService.js',
     fence: './services/apis/fence/fenceService.js',
     dataClient: './services/apis/dataClient/dataClientService.js',
     etl: './services/apis/etl/etlService.js',
