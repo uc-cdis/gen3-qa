@@ -26,14 +26,15 @@ module.exports = {
   },
 
   async systemUseMsg() {
-    try {
+    I.saveScreenshot('SystemUseMessage.png');
+    const title = await bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.components.systemUse.systemUseTitle\'');
+    console.log(title);
+    if (title !== null && title !== '') {
       const numberOfElements = await I.grabNumberOfVisibleElements(`//div[contains(text(), ${title})]//ancestor::div[contains(@class, "popup__box")]`);
       console.log(`### numberOfElements:${numberOfElements}`);
       if (numberOfElements > 0) {
         I.click(homeProps.systemUseAcceptButton.locator);
       }
-    } catch (error) {
-      console.log(error);
     }
   },
 
