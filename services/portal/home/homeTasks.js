@@ -26,12 +26,9 @@ module.exports = {
   },
 
   async systemUseMsg() {
+    I.saveScreenshot("check_system_use_message.png");
     try {
-      const numberOfElements = await I.grabNumberOfVisibleElements(`//div[contains(text(), ${title})]//ancestor::div[contains(@class, "popup__box")]`);
-      console.log(`### numberOfElements:${numberOfElements}`);
-      if (numberOfElements > 0) {
         I.click(homeProps.systemUseAcceptButton.locator);
-      }
     } catch (error) {
       console.log(error);
     }

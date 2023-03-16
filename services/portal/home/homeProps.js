@@ -8,7 +8,7 @@ module.exports = {
 
   systemUseAcceptButton: {
     locator: {
-      xpath: '//button[contains(text(), \'Accept\')]',
+      xpath: '//div[@class="popup__box"]//button[contains(text(), "Accept")]',
     },
   },
 
