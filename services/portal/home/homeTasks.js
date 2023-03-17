@@ -30,7 +30,7 @@ module.exports = {
     const title = await bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.components.systemUse.systemUseTitle\'');
     console.log(title);
     if (title !== null && title !== '') {
-      const numberOfElements = await I.grabNumberOfVisibleElements(`//div[contains(text(), ${title})]//ancestor::div[contains(@class, "popup__box")]`);
+      const numberOfElements = await I.grabNumberOfVisibleElements(`//div[contains(text(), ${title})]/ancestor::div[@id="popup"]`);
       console.log(`### numberOfElements:${numberOfElements}`);
       if (numberOfElements > 0) {
         if (process.env.DEBUG === 'true') {
@@ -68,7 +68,7 @@ module.exports = {
    */
   async logout() {
     portal.clickProp(homeProps.logoutButton);
-    // await this.systemUseMsg();
+    await this.systemUseMsg();
   },
 
   async logoutThroughDropdown() {
