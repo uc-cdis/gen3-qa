@@ -30,6 +30,7 @@ module.exports = {
     const title = await bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.components.systemUse.systemUseTitle\'');
     console.log(title);
     if (title !== null && title !== '') {
+      I.pressKey('Tab');
       const numberOfElements = await I.grabNumberOfVisibleElements(`//div[contains(text(), ${title})]/ancestor::div[@id="popup"]`);
       console.log(`### numberOfElements:${numberOfElements}`);
       if (numberOfElements > 0) {
