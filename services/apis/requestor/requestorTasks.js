@@ -22,6 +22,29 @@ module.exports = {
     return reqID;
   },
 
+  async getRequestData(userToken) {
+    console.log('Getting the Request Data ...');
+    const reqData = await I.sendGetRequest(
+      `${requestorProps.endpoint.userEndPoint}`,
+      userToken,
+    );
+    return reqData.data[0];
+  },
+
+  async getPolicyID(userToken) {
+    const getResponse = await I.sendGetRequest(
+      `${requestorProps.endpoint.userEndPoint}`,
+      userToken,
+    );
+    const responseData = getResponse.data;
+    expect(responseData).to.not.be.empty;
+    const policyID = responseData[0].policy_id;
+    if (process.env.DEBUG === 'true') {
+      console.log(`### request id: ${reqID}`);
+    }
+    return policyID;    
+  },
+
   // getting the list of requests in the DB
   async getRequestList(token) {
     console.log('Getting list of users access request ...');
