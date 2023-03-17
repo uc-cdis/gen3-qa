@@ -31,7 +31,7 @@ module.exports = {
     console.log(title);
     if (title !== null && title !== '') {
       I.pressKey('Tab');
-      const numberOfElements = await I.grabNumberOfVisibleElements(`//div[contains(text(), ${title})]/ancestor::div[@id="popup"]`);
+      const numberOfElements = await I.grabNumberOfVisibleElements(`//div[contains(text(), ${title})]/ancestor::div[@class="popup__box"]`);
       console.log(`### numberOfElements:${numberOfElements}`);
       if (numberOfElements > 0) {
         if (process.env.DEBUG === 'true') {
