@@ -17,6 +17,7 @@ module.exports = {
     } else {
       homeQuestions.seeUserLoggedIn(userAcct.username);
     }
+    I.saveScreenshot('after_login.png');
   },
 
   async logout(userAcct = user.mainAcct) {

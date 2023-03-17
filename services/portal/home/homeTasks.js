@@ -68,13 +68,13 @@ module.exports = {
    */
   async logout() {
     portal.clickProp(homeProps.logoutButton);
-    await this.systemUseMsg();
+    // await this.systemUseMsg();
   },
 
   async logoutThroughDropdown() {
     I.waitForElement({ css: '.g3-icon--user-circle' }, 15);
     I.click('.g3-icon--user-circle');
     portal.clickProp({ locator: { xpath: '//a[contains(text(), \'Logout\')]' } });
-    await this.systemUseMsg();
+    // await this.systemUseMsg();
   },
 };
