@@ -33,8 +33,15 @@ module.exports = {
       const numberOfElements = await I.grabNumberOfVisibleElements(`//div[contains(text(), ${title})]//ancestor::div[contains(@class, "popup__box")]`);
       console.log(`### numberOfElements:${numberOfElements}`);
       if (numberOfElements > 0) {
+        if (process.env.DEBUG === 'true') {
+          console.log('Found systemUse popup');
+        }
         I.click(homeProps.systemUseAcceptButton.locator);
+      } else if (process.env.DEBUG === 'true') {
+        console.log('Did not find systemUse popup');
       }
+    } else if (process.env.DEBUG === 'true') {
+      console.log('systemUse popup not enabled');
     }
   },
 
