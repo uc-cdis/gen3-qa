@@ -45,9 +45,15 @@ module.exports = {
    */
   async login(username) {
     this.goToHomepage();
+    
+    // if `systemUse.showOnlyOnLogin` is false, the system use message is _before_ login
     await this.systemUseMsg();
+
     I.setCookie({ name: 'dev_login', value: username });
     portal.clickProp(homeProps.googleLoginButton);
+    
+     // if `systemUse.showOnlyOnLogin` is true, the system use message is _after_ login
+    await this.systemUseMsg();
   },
 
   /**
