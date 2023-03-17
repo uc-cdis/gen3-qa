@@ -2,6 +2,8 @@ const homeQuestions = require('./homeQuestions.js');
 const homeTasks = require('./homeTasks.js');
 const user = require('../../../utils/user.js');
 
+const I = actor();
+
 /**
  * home sequences
  */
@@ -15,9 +17,11 @@ module.exports = {
     } else {
       homeQuestions.seeUserLoggedIn(userAcct.username);
     }
+    I.saveScreenshot('after_login.png');
   },
 
   async logout(userAcct = user.mainAcct) {
+    I.saveScreenshot('before_logout.png');
     // Custom flow for envs with useProfileDropdown enabled
     if (process.env.testedEnv.includes('midrc') || process.env.testedEnv.includes('jenkins-brain')) {
       await homeTasks.logoutThroughDropdown();

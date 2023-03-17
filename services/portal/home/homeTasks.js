@@ -30,11 +30,19 @@ module.exports = {
     const title = await bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.components.systemUse.systemUseTitle\'');
     console.log(title);
     if (title !== null && title !== '') {
-      const numberOfElements = await I.grabNumberOfVisibleElements(`//div[contains(text(), ${title})]//ancestor::div[contains(@class, "popup__box")]`);
+      I.pressKey('Tab');
+      const numberOfElements = await I.grabNumberOfVisibleElements(`//div[contains(text(), ${title})]/ancestor::div[@class="popup__box"]`);
       console.log(`### numberOfElements:${numberOfElements}`);
       if (numberOfElements > 0) {
+        if (process.env.DEBUG === 'true') {
+          console.log('Found systemUse popup');
+        }
         I.click(homeProps.systemUseAcceptButton.locator);
+      } else if (process.env.DEBUG === 'true') {
+        console.log('Did not find systemUse popup');
       }
+    } else if (process.env.DEBUG === 'true') {
+      console.log('systemUse popup not enabled');
     }
   },
 
@@ -45,9 +53,15 @@ module.exports = {
    */
   async login(username) {
     this.goToHomepage();
+    
+    // if `systemUse.showOnlyOnLogin` is false, the system use message is _before_ login
     await this.systemUseMsg();
+
     I.setCookie({ name: 'dev_login', value: username });
     portal.clickProp(homeProps.googleLoginButton);
+    
+     // if `systemUse.showOnlyOnLogin` is true, the system use message is _after_ login
+    await this.systemUseMsg();
   },
 
   /**
@@ -62,6 +76,6 @@ module.exports = {
     I.waitForElement({ css: '.g3-icon--user-circle' }, 15);
     I.click('.g3-icon--user-circle');
     portal.clickProp({ locator: { xpath: '//a[contains(text(), \'Logout\')]' } });
-    await this.systemUseMsg();
+    // await this.systemUseMsg();
   },
 };
