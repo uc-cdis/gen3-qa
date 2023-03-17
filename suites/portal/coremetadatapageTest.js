@@ -12,7 +12,7 @@ BeforeSuite(async ({ nodes, sheepdog }) => {
   await sheepdog.complete.addNode(validFile);
 });
 
-Scenario('test core metadata page @coreMetadataPage @portal', async ({ portalCoreMetadataPage, peregrine, users }) => {
+Scenario('test core metadata page @coreMetadataPage @portal', async ({ portalCoreMetadataPage, peregrine, users, home }) => {
   await home.complete.login();
   const metadata = await peregrine.do.getCoremetadata(validFile, 'application/json', users.mainAcct.accessTokenHeader);
   peregrine.ask.seeJsonCoremetadata(validFile, metadata);
