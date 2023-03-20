@@ -17,29 +17,25 @@ AfterSuite (async ({ users, mds }) => {
     // deleting the dummy metadata wih DID
     console.log('Deleting the Study ...');
     try {
-        await mds.do.deleteMetadataRecord(users.mainAcct.accessTokenHeader, I.cache.applicationID);
+        await mds.do.deleteMetadataRecord(users.user2.accessTokenHeader, I.cache.applicationID);
     } catch (err) {
         console.error(err);
     }
-    
-    await bash.runCommand(`
-      gen3 devterm curl -X DELETE arborist-service/user/${users.user2.username}/policy/${I.cache.policyID}
-    `);
 
-    // // revoking the request access
-    // const requestData = await requestorTasks.getRequestData(users.user2.accessTokenHeader);
-    // console.log(requestData);
-    // requestData.revoke = true;
-    // console.log(requestData);
+    // revoking the request access
+    const requestData = await requestorTasks.getRequestData(users.user2.accessTokenHeader);
+    requestData.revoke = true;
     // // store policy_id
-    // const policy = requestData.policy_id;
-    // console.log(policy);
-    // const revokePolicy = await requestorTasks.createRequest(requestData);
-    // const revokeReqID = revokePolicy.request_id;
-    // // move the above request to signed state 
-    // await requestorTasks.signedRequest(revokeReqID);
-    // expect(revokePolicy.data.authz).to.not.have.property(`${policy}`);
+    requestData.policyID = requestData.policy_id;
+    requestData.adminUserTokenHeader = users.mainAcct.accessTokenHeader;
+    const revokePolicy = await requestorTasks.createRequest(requestData);
+    const revokeReqID = revokePolicy.request_id;
+    // move the above request to signed state 
+    await requestorTasks.signedRequest(revokeReqID);
     
+    userInfo = await fence.do.getUserInfo(users.user2.accessTokenHeader);
+    expect(userInfo.data.authz).to.not.have.property(`${I.cache.policy_id}`);
+
     // deleting the request from requestor db
     const deleteRequest = await requestorTasks.deleteRequest(I.cache.requestID);
     if (deleteRequest.status === 200) {
@@ -54,6 +50,7 @@ Scenario('Register a new study registration', async ({ I, mds, users, home, disc
     // generate random appl_id to the study metadata on every run
     I.cache.applicationID = Math.floor(Math.random() * 90000000) + 10000000;
     studyMetadata.gen3_discovery.appl_id = I.cache.applicationID;
+    studyMetadata.gen3_discovery.registration_authz = I.cache.resourceAuthz;
     const projectTitle = studyMetadata.gen3_discovery.project_title;
 
     // create a metadata record
@@ -66,7 +63,7 @@ Scenario('Register a new study registration', async ({ I, mds, users, home, disc
     const record = await studyRegistrationTasks.readUnregisteredMetadata(
         users.mainAcct.accessTokenHeader, I.cache.applicationID,
     );
-    expect(record.gen3_discovery.project_title).to.equal(projectTitle);
+    expect(record.gen3_discovery.project_title).to.be.equal(projectTitle);
     
     //step b
     home.do.goToHomepage();
@@ -92,7 +89,7 @@ Scenario('Register a new study registration', async ({ I, mds, users, home, disc
     }
     I.refreshPage();
     I.wait(5);
-    
+
     discovery.do.goToPage();
     I.saveScreenshot('discoveryPage.png');
 
@@ -105,6 +102,6 @@ Scenario('Register a new study registration', async ({ I, mds, users, home, disc
     const linkedRecord = await studyRegistrationTasks.readUnregisteredMetadata(
         users.mainAcct.accessTokenHeader, I.cache.applicationID,
     );
-    I.wait(10);
+
     expect(linkedRecord.gen3_discovery.is_registered).to.be.equal(true);
 })
