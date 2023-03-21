@@ -474,7 +474,7 @@ module.exports = {
       },
       covid19: {
         summary: {
-          css: '.covid19-dashboard_panel',
+          css: '.covid19-dashboard',
         },
         cards: {
           css: '.covid19-dashboard_counts',
