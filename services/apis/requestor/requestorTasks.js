@@ -9,8 +9,9 @@ const I = actor();
 module.exports = {
 
   async getRequestId() {
+    // getting the rquest id by using the filter for requestor/request/user endpoint
     const getResponse = await I.sendGetRequest(
-      `${requestorProps.endpoint.userEndPoint}`,
+      `${requestorProps.endpoint.userEndPoint}?policy_id=programs.jnkns.projects.jenkins_accessor`,
       users.user0.accessTokenHeader,
     );
     const responseData = getResponse.data;
