@@ -41,8 +41,9 @@ module.exports = {
     if (process.env.DEBUG === 'true') {
       console.log(resp);
     }
-    if (resp.status === 200) {
-      return resp.data;
+    const aggMDSStudyFieldName = bash.runCommand('gen3 secrets decode metadata-g3auto metadata.env | sed -ne "s/AGG_MDS_DEFAULT_STUDY_DATA_FIELD=\([^\.]*\).*/\1/p"') || 'gen3_discovery';
+    if (resp.status === 200 && resp.data) {
+      return resp.data[aggMDSStudyFieldName] || resp.data;
     }
     return { status: resp.status };
   },
@@ -50,5 +51,21 @@ module.exports = {
   async reSyncAggregateMetadata() {
     bash.runJob('metadata-aggregate-sync');
     await checkPod(I, 'metadata-aggregate-sync', 'gen3job,job-name=metadata-aggregate-sync', { nAttempts: 30, ignoreFailure: false, keepSessionAlive: false });
+  },
+
+  /**
+   * Hits MDS' object deletion endpoint. Return true for success, false for failure.
+   *
+   * For some reason CodeceptJS hangs on this request:
+   *   await I.sendDeleteRequest(`${mdsProps.endpoints.objects}/${guid}`, accessTokenHeader);
+   * So we use curl instead.
+   */
+  deleteMetadataObject(accessTokenHeader, guid) {
+    const res = bash.runCommand(`curl -I --request DELETE https://${process.env.HOSTNAME}/${mdsProps.endpoints.objects}/${guid} --header 'Authorization: ${accessTokenHeader.Authorization}'`);
+    if (process.env.DEBUG === 'true') {
+      console.log('deleteMetadataObject result:', res);
+    }
+    // check the status code
+    return res.includes('204');
   },
 };

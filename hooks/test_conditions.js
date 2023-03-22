@@ -52,9 +52,25 @@ module.exports = async function () {
     }
 
     if (suite.title === 'nonDBGap Project Usersync @requires-fence @requires-indexd') {
-      const dbGaPConfig = bash.runCommand('gen3 secrets decode fence-config fence-config.yaml | yq -r \'.dbGaP[] | select(."info".username=="qa-dcf") | ."allow_non_dbgap_whitelist"\'');
+      const dbGaPConfig = bash.runCommand('gen3 secrets decode fence-config fence-config.yaml | yq -r \'.dbGaP[] | ."allow_non_dbgap_whitelist"\'');
       if (!dbGaPConfig) {
         console.log('Skipping nonDBGap project usersync tests since the required configuration is not in fence-config.yaml');
+        console.dir(suite.tests);
+        suite.tests.forEach((test) => {
+          test.run = function skip() { // eslint-disable-line func-names
+            console.log(`Ignoring test - ${test.title}`);
+            this.skip();
+          };
+        });
+      }
+    }
+
+    if (suite.title === 'PFB Export @requires-portal @e2e') {
+      // export to pfb button has different configuration in different environments
+      const pfbButton1 = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-pfb"}]}})\'');
+      const pfbButton2 = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'contains({explorerConfig: {buttons: [{enabled: true, type: "export-to-pfb"}]}})\'');
+      if (pfbButton1 !== 'true' && pfbButton2 !== 'true') {
+        console.log('Skipping pfb export tests since the required configuration is not in fence-config.yaml');
         console.dir(suite.tests);
         suite.tests.forEach((test) => {
           test.run = function skip() { // eslint-disable-line func-names

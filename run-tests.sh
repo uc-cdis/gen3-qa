@@ -260,6 +260,13 @@ runTestsIfServiceVersion "@requestor" "requestor" "1.5.0" "2022.02"
 runTestsIfServiceVersion "@requestor" "arborist" "3.2.0" "2021.12"
 runTestsIfServiceVersion "@requestorNew" "requestor" "1.5.1" "2022.06"
 runTestsIfServiceVersion "@requestorNew" "arborist" "3.2.0" "2021.12"
+runTestsIfServiceVersion "@requestorRoleIds" "requestor" "1.7.0" "2022.09"
+runTestsIfServiceVersion "@requestorRoleIds" "arborist" "3.2.0" "2021.12"
+runTestsIfServiceVersion "@clientCreds" "arborist" "4.0.0" "2022.12"
+runTestsIfServiceVersion "@clientCreds" "fence" "6.1.0" "2022.10"
+runTestsIfServiceVersion "@clientCreds" "requestor" "1.8.0" "2022.12"
+runTestsIfServiceVersion "@clientExpiration" "fence" "7.0.0" "2023.01"
+runTestsIfServiceVersion "@clientRotation" "fence" "7.3.0" "2023.03"
 
 # disable tests if the service is not deployed
 # export isIndexdDeployed=$(ifServiceDeployed "indexd")
@@ -268,7 +275,7 @@ runTestsIfServiceVersion "@requestorNew" "arborist" "3.2.0" "2021.12"
 #   donot '@requires-indexd'
 # fi
 
-listVar="arborist fence guppy indexd manifestservice metadata pelican peregrine pidgin portal sheepdog sower tube audit requestor hatchery dicom-viewer dicom-server"
+listVar="arborist fence guppy indexd manifestservice metadata pelican peregrine pidgin portal sheepdog sower tube audit requestor hatchery argo-wrapper cohort-middleware dicom-viewer dicom-server"
 
 for svc_name in $listVar; do
     export isServiceDeployed=$(ifServiceDeployed $svc_name)
@@ -303,6 +310,9 @@ donot '@batch'
 
 # Do not run dataguids.org test for regular PRs
 donot '@dataguids'
+
+# Do not run the test until update the test
+donot '@GWASUI'
 
 # Do not run prjsBucketAccess (for prod-execution only)
 donot '@prjsBucketAccess'
@@ -583,9 +593,12 @@ if [[ "$(hostname)" == *"cdis-github-org"* ]] || [[ "$(hostname)" == *"planx-ci-
   echo "inside an ephemeral gen3-qa-in-a-box pod..."
   
   # Start selenium process within the ephemeral jenkins pod.
-  npx selenium-standalone install --version=4.0.0-alpha-7 --drivers.chrome.version=96.0.4664.45 --drivers.chrome.baseURL=https://chromedriver.storage.googleapis.com
-  timeout $seleniumTimeout npx selenium-standalone start --version=4.0.0-alpha-7 --drivers.chrome.version=96.0.4664.45 &> selenium.log &
- 
+  # npx selenium-standalone install --version=4.0.0-alpha-7 --drivers.chrome.version=96.0.4664.45 --drivers.chrome.baseURL=https://chromedriver.storage.googleapis.com
+  chromeVersion=$(google-chrome --version | grep -Eo '[0-9.]{10,20}' | cut -d '.' -f 1-3)
+  chromeDriverVersion=$(curl -s https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$chromeVersion)
+  npx selenium-standalone install --drivers.chrome.version=$chromeDriverVersion --drivers.chrome.baseURL=https://chromedriver.storage.googleapis.com
+  timeout $seleniumTimeout npx selenium-standalone start --drivers.chrome.version=$chromeDriverVersion &
+
   # gen3-qa-in-a-box requires a couple of changes to its webdriver config
   set +e
   mv gen3.qa.in.a.box.codecept.conf.js codecept.conf.js

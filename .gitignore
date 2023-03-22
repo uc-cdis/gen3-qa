@@ -11,3 +11,4 @@ google_creds.sh
 tmp_creds.json
 load-testing/tmp
 load-testing/libs/*.js
+.dccache

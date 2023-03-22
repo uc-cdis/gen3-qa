@@ -70,7 +70,6 @@ exports.config = {
     indexd: './services/apis/indexd/indexdService.js',
     drs: './services/apis/drs/drsService.js',
     peregrine: './services/apis/peregrine/peregrineService.js',
-    pidgin: './services/apis/pidgin/pidginService.js',
     fence: './services/apis/fence/fenceService.js',
     dataClient: './services/apis/dataClient/dataClientService.js',
     etl: './services/apis/etl/etlService.js',
@@ -81,6 +80,7 @@ exports.config = {
 
     // Pages
     home: './services/portal/home/homeService.js',
+    gwas: './services/portal/GWASUIApp/GWASUIAppService.js',
     indexing: './services/portal/indexing/indexingService.js',
     login: './services/portal/login/loginService.js',
     explorer: './services/portal/explorer/explorerService.js',
@@ -113,6 +113,7 @@ exports.config = {
   bootstrap: require('./test_setup.js'), // eslint-disable-line global-require
   hooks: [
     require('./hooks/test_results.js'), // eslint-disable-line global-require
+    require('./hooks/test_conditions.js'), // eslint-disable-line global-require
   ],
   tests: './suites/**/*.js',
   gherkin: {
@@ -126,8 +127,10 @@ exports.config = {
     },
     screenshotOnFail: {
       enabled: true,
+      uniqueScreenshotNames: true,
+      fullPageScreenshots: true,
     },
   },
-  timeout: 60000,
+  timeout: 900, // in seconds (15 min)
   name: 'selenium',
 };
