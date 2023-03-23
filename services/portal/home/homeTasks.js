@@ -33,7 +33,7 @@ module.exports = {
       console.log(`System Use Message configured: ${title}`);
       // check popup exists
       try {
-        I.seeElementInDom(homeProps.getSystemUsePopup(title));
+        I.seeElementInDOM(homeProps.getSystemUsePopup(title));
         I.click(homeProps.getSystemUsePopup(title));
         I.scrollIntoView(homeProps.systemUseAcceptButton.locator);
         I.click(homeProps.systemUseAcceptButton.locator);
