@@ -6,7 +6,6 @@ const { Bash } = require('../../../utils/bash.js');
 const bash = new Bash();
 const { exists } = require('codeceptjs');
 const I = actor();
-
 /**
  * home Tasks
  */
@@ -33,11 +32,12 @@ module.exports = {
     if (title !== null && title !== '') {
       console.log(`System Use Message configured: ${title}`);
       // check popup exists
-      // if(exists(homeProps.getSystemUsePopup(title))) {
-      I.click(homeProps.systemUseAcceptButton.locator);
-      // } else {
-      //   console.log('Expected systemUse popup to be present but not found');
-      // }
+      try {
+        I.seeElementInDom(homeProps.getSystemUsePopup(title), { optional: true });
+        I.click(homeProps.systemUseAcceptButton.locator);
+      } catch {
+        console.log('Expected systemUse popup to be present but not found');
+      }
     } else if (process.env.DEBUG === 'true') {
       console.log('systemUse popup not enabled');
     }
