@@ -41,7 +41,7 @@ module.exports = {
   },
 
   getSystemUsePopup(title) {
-    return { xpath: `//div[contains(text(), ${title})]/ancestor::div[@div="popup"]` }
+    return { xpath: `//div[contains(text(), ${title})]/ancestor::div[@id="popup"]` }
   },
 
   systemUseAcceptButton: {
