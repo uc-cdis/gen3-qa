@@ -28,18 +28,15 @@ module.exports = {
   async systemUseMsg() {
     I.saveScreenshot('SystemUseMessage.png');
     const title = await bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.components.systemUse.systemUseTitle\'');
-    console.log(title);
+    console.log(`systemUse popup configured: ${title}`);
     if (title !== null && title !== '') {
-      I.pressKey('Tab');
-      const numberOfElements = await I.grabNumberOfVisibleElements(`//div[contains(text(), ${title})]/ancestor::div[@class="popup__box"]`);
-      console.log(`### numberOfElements:${numberOfElements}`);
-      if (numberOfElements > 0) {
-        if (process.env.DEBUG === 'true') {
-          console.log('Found systemUse popup');
-        }
+      console.log(`System Use Message configured: ${title}`);
+      // check popup exists
+      if(I.seeElementInDOM(homeProps.getSystemUsePopup(title))) {
         I.click(homeProps.systemUseAcceptButton.locator);
-      } else if (process.env.DEBUG === 'true') {
-        console.log('Did not find systemUse popup');
+      } else {
+        // fail test
+        require('assert').fail('Expected systemUse popup to be present');
       }
     } else if (process.env.DEBUG === 'true') {
       console.log('systemUse popup not enabled');

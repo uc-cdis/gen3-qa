@@ -6,12 +6,6 @@ const { getHomePageDetails } = require('../../../utils/apiUtil');
 module.exports = {
   path: 'login',
 
-  systemUseAcceptButton: {
-    locator: {
-      xpath: '//button[contains(text(), \'Accept\')]',
-    },
-  },
-
   ready_cue: {
     locator: {
       css: '.nav-bar',
@@ -43,6 +37,16 @@ module.exports = {
   logoutButton: {
     locator: {
       xpath: '//div[contains(text(), \'Logout\')]',
+    },
+  },
+
+  getSystemUsePopup(title) {
+    return { xpath: `//div[contains(text(), ${title})]/ancestor::div[@div="popup"]` }
+  },
+
+  systemUseAcceptButton: {
+    locator: {
+      xpath: '//button[contains(text(), \'Accept\')]',
     },
   },
 };
