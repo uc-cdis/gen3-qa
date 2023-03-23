@@ -33,11 +33,11 @@ module.exports = {
     if (title !== null && title !== '') {
       console.log(`System Use Message configured: ${title}`);
       // check popup exists
-      if(exists(homeProps.getSystemUsePopup(title))) {
-        I.click(homeProps.systemUseAcceptButton.locator);
-      } else {
-        console.log('Expected systemUse popup to be present but not found');
-      }
+      // if(exists(homeProps.getSystemUsePopup(title))) {
+      I.click(homeProps.systemUseAcceptButton.locator);
+      // } else {
+      //   console.log('Expected systemUse popup to be present but not found');
+      // }
     } else if (process.env.DEBUG === 'true') {
       console.log('systemUse popup not enabled');
     }
