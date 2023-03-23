@@ -37,8 +37,8 @@ module.exports = {
         I.click(homeProps.getSystemUsePopup(title));
         I.scrollIntoView(homeProps.systemUseAcceptButton.locator);
         I.click(homeProps.systemUseAcceptButton.locator);
-      } catch {
-        console.log('Expected systemUse popup to be present but not found');
+      } catch(err) {
+        console.log(err);
       }
     } else if (process.env.DEBUG === 'true') {
       console.log('systemUse popup not enabled');
