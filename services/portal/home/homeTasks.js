@@ -34,6 +34,8 @@ module.exports = {
       // check popup exists
       try {
         I.seeElementInDom(homeProps.getSystemUsePopup(title));
+        I.click(homeProps.getSystemUsePopup(title));
+        I.scrollIntoView(homeProps.systemUseAcceptButton.locator);
         I.click(homeProps.systemUseAcceptButton.locator);
       } catch {
         console.log('Expected systemUse popup to be present but not found');
