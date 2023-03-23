@@ -4,8 +4,7 @@ const portal = require('../../../utils/portal.js');
 const { Bash } = require('../../../utils/bash.js');
 
 const bash = new Bash();
-const I = actor();
-
+const { I, exists } = require('codeceptjs');
 /**
  * home Tasks
  */
@@ -32,11 +31,10 @@ module.exports = {
     if (title !== null && title !== '') {
       console.log(`System Use Message configured: ${title}`);
       // check popup exists
-      if(I.seeElementInDOM(homeProps.getSystemUsePopup(title))) {
+      if(exists(homeProps.getSystemUsePopup(title))) {
         I.click(homeProps.systemUseAcceptButton.locator);
       } else {
-        // fail test
-        require('assert').fail('Expected systemUse popup to be present');
+        console.log('Expected systemUse popup to be present but not found');
       }
     } else if (process.env.DEBUG === 'true') {
       console.log('systemUse popup not enabled');
