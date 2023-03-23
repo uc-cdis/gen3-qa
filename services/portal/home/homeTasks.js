@@ -4,7 +4,9 @@ const portal = require('../../../utils/portal.js');
 const { Bash } = require('../../../utils/bash.js');
 
 const bash = new Bash();
-const { I, exists } = require('codeceptjs');
+const { exists } = require('codeceptjs');
+const I = actor();
+
 /**
  * home Tasks
  */
