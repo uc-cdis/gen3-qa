@@ -30,7 +30,7 @@ module.exports = {
 
   loginButton: {
     locator: {
-      xpath: '//div[text()="Login"]',
+      xpath: '//button[contains(text(), "Dev login")]',
     },
   },
 
@@ -40,13 +40,7 @@ module.exports = {
     },
   },
 
-  getSystemUsePopup(title) {
-    return { xpath: `//div[contains(text(), ${title})]/ancestor::div[@id="popup"]` }
-  },
-
   systemUseAcceptButton: {
-    locator: {
-      xpath: '//button[contains(text(), \'Accept\')]',
-    },
+    xpath: '//div[@id="popup"]//button[contains(text(), "Accept")]',
   },
 };

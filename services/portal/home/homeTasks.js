@@ -1,10 +1,11 @@
 /* eslint-disable max-len */
+const { output } = require('codeceptjs');
+
 const homeProps = require('./homeProps.js');
 const portal = require('../../../utils/portal.js');
 const { Bash } = require('../../../utils/bash.js');
 
 const bash = new Bash();
-const { exists } = require('codeceptjs');
 const I = actor();
 /**
  * home Tasks
@@ -25,24 +26,18 @@ module.exports = {
     portal.seeProp(homeProps.ready_cue, 60);
   },
 
-  async systemUseMsg() {
-    I.saveScreenshot('SystemUseMessage.png');
-    const title = await bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.components.systemUse.systemUseTitle\'');
-    console.log(`systemUse popup configured: ${title}`);
-    if (title !== null && title !== '') {
-      console.log(`System Use Message configured: ${title}`);
-      // check popup exists
-      try {
-        I.seeElementInDOM(homeProps.getSystemUsePopup(title), { optional: true });
-        I.click(homeProps.getSystemUsePopup(title));
-        I.scrollIntoView(homeProps.systemUseAcceptButton.locator);
-        I.click(homeProps.systemUseAcceptButton.locator);
-      } catch(err) {
-        console.log(err);
-      }
-    } else if (process.env.DEBUG === 'true') {
-      console.log('systemUse popup not enabled');
+  async handleSystemUsePopup() {
+    I.saveScreenshot('SystemUsePopup.png');
+    const acceptButtonExists = await tryTo(() => I.waitForElement(homeProps.systemUseAcceptButton, 5));
+    output.debug(`Accept button found: ${acceptButtonExists}`);
+    if (acceptButtonExists) {
+      output.debug('Handling popup');
+      I.scrollIntoView(homeProps.systemUseAcceptButton);
+      I.click(homeProps.systemUseAcceptButton);
+    } else {
+      output.print('systemUse popup was not found');
     }
+    I.saveScreenshot('SystemUsePopupHandled.png');
   },
 
   /**
@@ -51,16 +46,8 @@ module.exports = {
    * /!\ remember to logout after logging in or following tests will fail!
    */
   async login(username) {
-    this.goToHomepage();
-    
-    // if `systemUse.showOnlyOnLogin` is false, the system use message is _before_ login
-    await this.systemUseMsg();
-
     I.setCookie({ name: 'dev_login', value: username });
-    portal.clickProp(homeProps.googleLoginButton);
-    
-     // if `systemUse.showOnlyOnLogin` is true, the system use message is _after_ login
-    await this.systemUseMsg();
+    portal.clickProp(homeProps.loginButton);
   },
 
   /**
@@ -68,13 +55,11 @@ module.exports = {
    */
   async logout() {
     portal.clickProp(homeProps.logoutButton);
-    await this.systemUseMsg();
   },
 
   async logoutThroughDropdown() {
     I.waitForElement({ css: '.g3-icon--user-circle' }, 15);
     I.click('.g3-icon--user-circle');
     portal.clickProp({ locator: { xpath: '//a[contains(text(), \'Logout\')]' } });
-    // await this.systemUseMsg();
   },
 };

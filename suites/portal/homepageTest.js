@@ -1,10 +1,8 @@
-Feature('Homepage @requires-portal').retry(2);
+Feature('Homepage @requires-portal');
 
-Scenario('login @portal', async ({ I, home }) => {
-  home.do.goToHomepage();
-  // await home.do.systemUseMsg();
+Scenario('login @portal @wip', async ({ I, home }) => {
   await home.complete.login();
-  I.saveScreenshot('Home_page_after_login_for_debugging.png');
+  I.saveScreenshot('Home_page_after_login.png');
   home.ask.seeDetails();
   await home.complete.logout();
 });
