@@ -47,7 +47,7 @@ module.exports = {
    */
   async login(username) {
     I.setCookie({ name: 'dev_login', value: username });
-    portal.clickProp(homeProps.loginButton);
+    portal.clickProp(homeProps.googleLoginButton);
   },
 
   /**
