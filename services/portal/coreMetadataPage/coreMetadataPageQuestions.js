@@ -14,7 +14,9 @@ const noCheckFieldList = ['file_size', 'type', 'updated_datetime'];
  */
 module.exports = {
   doesCoreMetadataPageLookCorrect(metadata) {
-    console.log('validate the appearance of core metadata page for a given file');
+    if (process.env.DEBUG === 'true') {
+      console.log('validate the appearance of core metadata page for a given file');
+    }
     // validate UI components
     I.seeElement(coreMetadataPageProps.coreMetadataPagePictureClass);
     I.seeElement(coreMetadataPageProps.coreMetadataPageHeaderClass);
@@ -29,7 +31,13 @@ module.exports = {
       if (noShowFieldList.includes(metadataKey)) {
         I.dontSee(metadata[metadataKey]);
       } else if (!noCheckFieldList.includes(metadataKey)) {
+        if (process.env.DEBUG === 'true') {
+          console.log(`looking for field "${metadataKey}" value "${metadata[metadataKey]}"`);
+        }
         I.see(metadata[metadataKey]);
+        if (process.env.DEBUG === 'true') {
+          console.log('found it!');
+        }
       }
     });
   },
