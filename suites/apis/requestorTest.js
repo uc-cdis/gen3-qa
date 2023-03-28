@@ -21,7 +21,7 @@ BeforeSuite(async ({
 Before(async ({
   home, users,
 }) => {
-  home.do.login(users.mainAcct.username);
+  home.complete.login(users.mainAcct.username);
 });
 
 AfterSuite(async ({ I }) => {

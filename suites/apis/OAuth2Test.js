@@ -112,7 +112,7 @@ Scenario('Authorization code flow: Test project access in id token same as proje
    */
 
   // login as a user who has access to some projects
-  await home.do.login(users.mainAcct.username);
+  await home.complete.login(users.mainAcct.username);
 
   // get an access token
   const urlStr = await fence.do.getConsentCode(
