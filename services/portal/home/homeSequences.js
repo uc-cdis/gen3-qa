@@ -13,11 +13,13 @@ module.exports = {
   async login(userAcct = user.mainAcct) {
     const systemUseConfigured = homeQuestions.systemUsePopupConfigured();
     homeTasks.goToHomepage();
+    // if `systemUse.showOnlyOnLogin` is false, the system use message is _before_ login
     output.debug('--- Handling systemUse popup before login ---');
     if (systemUseConfigured) {
       await homeTasks.handleSystemUsePopup();
     }
     await homeTasks.login(userAcct.username);
+    // if `systemUse.showOnlyOnLogin` is true, the system use message is _after_ login
     output.debug('--- Handling systemUse popup after login ---');
     if (systemUseConfigured) {
       await homeTasks.handleSystemUsePopup();
