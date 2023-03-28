@@ -1,13 +1,15 @@
 const homeProps = require('./homeProps.js');
 const portal = require('../../../utils/portal.js');
+const { Bash } = require('../../../utils/bash.js');
 
+const bash = new Bash();
 const I = actor();
 
 /**
  * home Questions
  */
 module.exports = {
-  async haveAccessToken() {
+  haveAccessToken() {
     I.seeCookie('access_token');
   },
 
@@ -35,4 +37,16 @@ module.exports = {
     I.wait(5);
     I.dontSee(username);
   },
+
+  systemUsePopupConfigured() {
+    const systemUseTitle = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.components.systemUse.systemUseTitle\'');
+    if (systemUseTitle !== null && systemUseTitle !== '') {
+      console.log(`systemUse popup configured with title: ${systemUseTitle}`);
+      return true;
+    }
+    else {
+      console.log('sytemUse popup not configured');
+      return false;
+    }
+  }
 };
