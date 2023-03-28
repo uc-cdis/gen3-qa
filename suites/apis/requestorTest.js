@@ -21,7 +21,7 @@ BeforeSuite(async ({
 Before(async ({
   home, users,
 }) => {
-  home.complete.login(users.mainAcct.username);
+  home.complete.login(users.mainAcct);
 });
 
 AfterSuite(async ({ I }) => {
@@ -38,7 +38,7 @@ AfterSuite(async ({ I }) => {
 });
 
 // Create an access request for a policy that doesn’t exist in Arborist => 400 error
-Scenario('User requests access for a policy that does not exist in Arborist @requestor', async ({
+Scenario('User requests access for a policy that does not exist in Arborist @requestor @wip', async ({
   users,
 }) => {
   const { accessTokenHeader } = users.mainAcct;

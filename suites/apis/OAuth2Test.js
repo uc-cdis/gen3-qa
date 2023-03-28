@@ -25,21 +25,21 @@ Scenario('Authorization code flow: Test that successfully generates code @reqGoo
     fence.props.clients.client.id, 'code', 'openid+user',
   );
   fence.ask.assertContainSubStr(resULR, ['code=']);
-}).retry(2);
+});
 
 Scenario('Authorization code flow: Test that fail to generate code due to not provided openid scope @reqGoogle', async ({ fence }) => {
   const resULR = await fence.do.getConsentCode(
     fence.props.clients.client.id, 'code', 'user', 'ok', false,
   );
   fence.ask.assertNotContainSubStr(resULR, ['code=']);
-}).retry(2);
+});
 
 Scenario('Authorization code flow: Test that fail to generate code due to wrong response type @reqGoogle', async ({ fence }) => {
   const resULR = await fence.do.getConsentCode(
     fence.props.clients.client.id, 'wrong_code', 'user', 'yes', false,
   );
   fence.ask.assertNotContainSubStr(resULR, ['code=']);
-}).retry(2);
+});
 
 Scenario('Authorization code flow: Test that successfully generate tokens @reqGoogle', async ({ fence }) => {
   const urlStr = await fence.do.getConsentCode(fence.props.clients.client.id, 'code', 'openid+user');
@@ -55,7 +55,7 @@ Scenario('Authorization code flow: Test that successfully generate tokens @reqGo
     fence.props.clients.client.secret, code, 'authorization_code',
   );
   fence.ask.assertTokensSuccess(res);
-}).retry(2);
+});
 
 Scenario('Authorization code flow: Test that fails to generate tokens due to invalid code @reqGoogle', async ({ fence }) => {
   const res = await fence.do.getTokensWithAuthCode(
@@ -64,7 +64,7 @@ Scenario('Authorization code flow: Test that fails to generate tokens due to inv
     'invalide_code', 'authorization_code',
   );
   fence.ask.assertStatusCode(res, 400);
-}).retry(2);
+});
 
 Scenario('Authorization code flow: Test that fails to generate tokens due to invalid grant type @reqGoogle', async ({ fence }) => {
   const urlStr = await fence.do.getConsentCode(
@@ -81,7 +81,7 @@ Scenario('Authorization code flow: Test that fails to generate tokens due to inv
     fence.props.clients.client.id, fence.props.clients.client.secret, code, 'not_supported',
   );
   fence.ask.assertStatusCode(res, 400);
-}).retry(2);
+});
 
 Scenario('Authorization code flow: Test that can create an access token which can be used in fence @reqGoogle', async ({ fence }) => {
   const urlStr = await fence.do.getConsentCode(
@@ -100,9 +100,9 @@ Scenario('Authorization code flow: Test that can create an access token which ca
   );
   res = await fence.do.getUserInfo(res.data.access_token);
   fence.ask.assertUserInfo(res);
-}).retry(2);
+});
 
-Scenario('Authorization code flow: Test project access in id token same as project access in user endpoint @reqGoogle', async ({ fence, users, home }) => {
+Scenario('Authorization code flow: Test project access in id token same as project access in user endpoint @reqGoogle @wip', async ({ fence, users, home }) => {
   /**
    * Example list of projects the user has access to:
    * projects = {
@@ -112,7 +112,7 @@ Scenario('Authorization code flow: Test project access in id token same as proje
    */
 
   // login as a user who has access to some projects
-  await home.complete.login(users.mainAcct.username);
+  await home.complete.login(users.mainAcct);
 
   // get an access token
   const urlStr = await fence.do.getConsentCode(
@@ -163,7 +163,7 @@ Scenario('Authorization code flow: Test project access in id token same as proje
       `Access to project ${p} is not identical in token and user info`,
     ).to.equal(JSON.stringify(projectsOfUser[p].sort()));
   }
-}).retry(2);
+});
 
 // Scenario('Authorization Code flow: Test successfully refresh token', async (fence) => {
 //   const urlStr = await fence.do.getConsentCode(
@@ -192,7 +192,7 @@ Scenario('Implicit flow: Test that fails to generate tokens due to no user conse
     fence.props.clients.clientImplicit.id, 'id_token+token', 'openid+user', 'cancel', true,
   );
   fence.ask.assertNotContainSubStr(resULR, ['token_type=Bearer', 'id_token=', 'access_token=']);
-}).retry(2);
+});
 
 Scenario('Implicit flow: Test that successfully generates id and access tokens @reqGoogle', async ({ fence }) => {
   const resULR = await fence.do.getTokensImplicitFlow(
@@ -202,14 +202,14 @@ Scenario('Implicit flow: Test that successfully generates id and access tokens @
     resULR,
     ['token_type=Bearer', 'id_token=', 'access_token=', 'expires_in'],
   );
-}).retry(2);
+});
 
 Scenario('Implicit flow: Test that fails to generate tokens due to wrong grant types @reqGoogle', async ({ fence }) => {
   const resULR = await fence.do.getTokensImplicitFlow(
     fence.props.clients.clientImplicit.id, 'not_supported_grant', 'openid+user', 'ok', false,
   );
   fence.ask.assertNotContainSubStr(resULR, ['token_type=Bearer', 'id_token=', 'access_token=']);
-}).retry(2);
+});
 
 Scenario('Implicit flow: Test that successfully generates only id token @reqGoogle', async ({ fence }) => {
   const resULR = await fence.do.getTokensImplicitFlow(
@@ -217,14 +217,14 @@ Scenario('Implicit flow: Test that successfully generates only id token @reqGoog
   );
   fence.ask.assertContainSubStr(resULR, ['token_type=Bearer', 'id_token=', 'expires_in']);
   fence.ask.assertNotContainSubStr(resULR, ['access_token=']);
-}).retry(2);
+});
 
 Scenario('Implicit flow: Test that fails to generate tokens due to openid scope not provided @reqGoogle', async ({ fence }) => {
   const resULR = await fence.do.getTokensImplicitFlow(
     fence.props.clients.clientImplicit.id, 'id_token', 'user', 'ok', false,
   );
   fence.ask.assertNotContainSubStr(resULR, ['token_type=Bearer', 'id_token=', 'access_token=']);
-}).retry(2);
+});
 
 
 Scenario('Implicit flow: Test that can create an access token which can be used in fence @reqGoogle', async ({ fence }) => {
@@ -240,4 +240,4 @@ Scenario('Implicit flow: Test that can create an access token which can be used 
   );
   const res = await fence.do.getUserInfo(token.trim());
   fence.ask.assertUserInfo(res);
-}).retry(2);
+});
