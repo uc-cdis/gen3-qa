@@ -2,7 +2,7 @@
 #
 # Jenkins launch script.
 # Use:
-#   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--seleniumTimeout] [--selectedTest=selectedTest] [--debug=debug]
+#   bash run-tests-by-tag.sh '<namespace>' [--testedEnv=<testedEnv>] [--seleniumTimeout] [--selectedTag=<selectedTag>] [--debug=<debug>]
 #
 
 set -xe
@@ -13,28 +13,13 @@ Jenkins test launch script.  Assumes the  GEN3_HOME environment variable
 references a current [cloud-automation](https://github.com/uc-cdis/cloud-automation) folder.
 
 Use:
-  bash run-tests.sh [[--namespace=]KUBECTL_NAMESPACE] [--service=service] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--selectedTest=selectedTest] [--dryrun] [--debug=debug]
+  bash run-tests-annotated.sh [[--namespace=]KUBECTL_NAMESPACE] [--testedEnv=testedEnv] [--selectedTag=selectedTag] [--debug=debug]
     --namespace default is KUBECTL_NAMESPACE:-default
-    --service default is service:-none
     --testedEnv default is testedEnv:-none (for cdis-manifest PRs, specifies which environment is being tested, to know which tests are relevant)
-    --isGen3Release default is "false"
     --seleniumTimeout default is 3600
-    --selectedTest default is selectedTest:-none
-    --debug default is "false" (run tests in debug mode if true)
+    --selectedTag required
+    --debug default is "true" (run tests in debug mode)
 EOM
-}
-
-isDryRun=false
-
-dryrun() {
-  local command
-  command="$@"
-  if [[ "$isDryRun" == false ]]; then
-    echo "Running: $command" 1>&2
-    eval "$command"
-  else
-    echo "DryRun - not running: $command" 1>&2
-  fi
 }
 
 # Check if a service in the manifest
@@ -152,12 +137,11 @@ source "${GEN3_HOME}/gen3/lib/utils.sh"
 gen3_load "gen3/gen3setup"
 
 namespaceName="${KUBECTL_NAMESPACE}"
-service="${service:-""}"
 testedEnv="${testedEnv:-""}"
 isGen3Release="${isGen3Release:false}"
 seleniumTimeout="${seleniumTimeout:3600}"
-selectedTest="${selectedTest:-"all"}"
-debug="${debug:false}"
+selectedTag="${selectedTag}"
+debug="${debug:true}"
 
 while [[ $# -gt 0 ]]; do
   key="$(echo "$1" | sed -e 's/^-*//' | sed -e 's/=.*$//')"
@@ -166,9 +150,6 @@ while [[ $# -gt 0 ]]; do
     help)
       help
       exit 0
-      ;;
-    service)
-      service="$value"
       ;;
     namespace)
       namespaceName="$value"
@@ -182,11 +163,8 @@ while [[ $# -gt 0 ]]; do
     seleniumTimeout)
       seleniumTimeout="$value"
       ;;
-    selectedTest)
-      selectedTest="$value"
-      ;;
-    dryrun)
-      isDryRun=true
+    selectedTag)
+      selectedTag="$value"
       ;;
     debug)
       debug="$value"
@@ -205,8 +183,8 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
-if [[ -z "$namespaceName" || -z "$service" ]]; then
-  echo "USE: --namespace=NAME and --service=SERVICE are required arguments"
+if [[ -z "$namespaceName" || -z "$selectedTag" ]]; then
+  echo "USE: --namespace=NAME and --selectedTag=TAG are required arguments"
   help
   exit 0
 fi
@@ -235,16 +213,12 @@ Running with:
   testedEnv=$testedEnv
   isGen3Release=$isGen3Release
   seleniumTimeout=$seleniumTimeout
-  selectedTest=$selectedTest
+  selectedTag=$selectedTag
+  degub=$debug
 EOM
 
 echo 'INFO: installing dependencies'
-if [ -f gen3-qa-mutex.marker ]; then
-  echo "parallel-testing is enabled, the dependencies have already been installed by Jenkins."
-  export PARALLEL_TESTING_ENABLED="true"
-else
-  dryrun npm ci
-fi
+npm ci
 
 ################################ Disable Test Tags #####################################
 
@@ -607,40 +581,10 @@ if [[ "$(hostname)" == *"cdis-github-org"* ]] || [[ "$(hostname)" == *"planx-ci-
 else
   echo "NOT inside an ephemeral gen3-qa-in-a-box pod..."
 fi
+
+DEBUG=$debug npm test -- ${testArgs} --verbose --grep ${selectedTag}
+
 ##################################################################################################
-
-if [ "$selectedTest" == "all" ]; then
-    # no interactive tests
-    export GEN3_INTERACTIVE=false
-    cat - <<EOM
-
----------------------------
-Launching test in $NAMESPACE
-EOM
-    set +e
-    dryrun npm 'test' -- $testArgs
-    RC=$?
-    #
-    # Do this kind of thing (uncomment the following line, change the grep)
-    # to limit your test run in jenkins:
-    #    dryrun npm 'test' -- --reporter mocha-multi --verbose --grep '@FRICKJACK'
-    exitCode=$RC
-    set -e
-else
-  set +e
-  additionalArgs=""
-  foundReqGoogle=$(grep "@reqGoogle" ${selectedTest})
-  foundDataClientCLI=$(grep "@dataClientCLI" ${selectedTest})
-  if [ -n "$foundReqGoogle" ]; then
-    additionalArgs="--grep @reqGoogle"
-  elif [ -n "$foundDataClientCLI" ]; then
-    additionalArgs="--grep @indexRecordConsentCodes|@dataClientCLI --invert"
-  elif [[ "$selectedTest" == "suites/sheepdogAndPeregrine/submitAndQueryNodesTest.js" && -z "$ddHasConsentCodes" ]]; then
-    additionalArgs="--grep @indexRecordConsentCodes --invert"
-  fi
-  set -e
-  DEBUG=$debug npm test -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest} --grep @manual --invert
-fi
 
 # When zero tests are executed, a results*.xml file is produced containing a tests="0" counter
 # e.g., output/result57f4d8778c4987bda6a1790eaa703782.xml
