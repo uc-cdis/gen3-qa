@@ -361,8 +361,6 @@ else
   # donot '@rasAuthN'
   runTestsIfServiceVersion "@rasAuthN" "fence" "4.22.1" "2020.09"
   echo "INFO: enabling RAS AuthN Integration tests for $service"
-  donot '@rasAuthN'
-  # Disabling RAS tests temporarily because of RAS authentication issues
 fi
 
 # TODO: eventually enable for all services, but need arborist and fence updates first
