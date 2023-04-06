@@ -637,9 +637,11 @@ else
     additionalArgs="--grep @indexRecordConsentCodes|@dataClientCLI --invert"
   elif [[ "$selectedTest" == "suites/sheepdogAndPeregrine/submitAndQueryNodesTest.js" && -z "$ddHasConsentCodes" ]]; then
     additionalArgs="--grep @indexRecordConsentCodes --invert"
+  else
+    additionalArgs="--grep @manual --invert"
   fi
   set -e
-  DEBUG=$debug npm test -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest} --grep @manual --invert
+  DEBUG=$debug npm test -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
 fi
 
 # When zero tests are executed, a results*.xml file is produced containing a tests="0" counter
