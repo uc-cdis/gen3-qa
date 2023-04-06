@@ -13,7 +13,7 @@ Jenkins test launch script.  Assumes the  GEN3_HOME environment variable
 references a current [cloud-automation](https://github.com/uc-cdis/cloud-automation) folder.
 
 Use:
-  bash run-tests-annotated.sh [[--namespace=]KUBECTL_NAMESPACE] [--testedEnv=testedEnv] [--selectedTag=selectedTag] [--debug=debug]
+  bash run-tests-annotated.sh [[--namespace=]KUBECTL_NAMESPACE] [--testedEnv=testedEnv] [--selectedTag=selectedTag] [--seleniumTimeout=timeout] [--debug=debug]
     --namespace default is KUBECTL_NAMESPACE:-default
     --testedEnv default is testedEnv:-none (for cdis-manifest PRs, specifies which environment is being tested, to know which tests are relevant)
     --seleniumTimeout default is 3600
@@ -36,7 +36,6 @@ gen3_load "gen3/gen3setup"
 
 namespaceName="${KUBECTL_NAMESPACE}"
 testedEnv="${testedEnv:-""}"
-isGen3Release="${isGen3Release:false}"
 seleniumTimeout="${seleniumTimeout:3600}"
 selectedTag="${selectedTag}"
 debug="${debug:true}"
@@ -54,9 +53,6 @@ while [[ $# -gt 0 ]]; do
       ;;
     testedEnv)
       testedEnv="$value"
-      ;;
-    isGen3Release)
-      isGen3Release="$value"
       ;;
     seleniumTimeout)
       seleniumTimeout="$value"
@@ -109,7 +105,6 @@ Running with:
   namespace=$namespaceName
   service=$service
   testedEnv=$testedEnv
-  isGen3Release=$isGen3Release
   seleniumTimeout=$seleniumTimeout
   selectedTag=$selectedTag
   degub=$debug
@@ -141,7 +136,7 @@ fi
 
 ##################################################################################################
 
-DEBUG=$debug npm test -- --reporter mocha-multi --verbose --grep '${selectedTag}' --grep '@manual' --invert
+DEBUG=$debug npm test -- --reporter mocha-multi --verbose --grep "$selectedTag" --grep "@manual" --invert
 
 ##################################################################################################
 
