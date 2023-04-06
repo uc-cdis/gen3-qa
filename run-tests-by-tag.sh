@@ -136,7 +136,7 @@ fi
 
 ##################################################################################################
 
-DEBUG=$debug npm test -- --reporter mocha-multi --verbose --grep "$selectedTag" --grep "@manual" --invert
+DEBUG=$debug npm test -- --reporter mocha-multi --verbose --grep '(?=.*$selectedTag)^(?!.*@manual)'
 
 ##################################################################################################
 
