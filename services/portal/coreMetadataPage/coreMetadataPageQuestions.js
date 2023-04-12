@@ -14,6 +14,7 @@ const noCheckFieldList = ['file_size', 'type', 'updated_datetime', 'citation'];
  */
 module.exports = {
   doesCoreMetadataPageLookCorrect(metadata) {
+    I.saveScreenshot('coremetadata_page.png');
     console.log('validate the appearance of core metadata page for a given file');
     // validate UI components
     I.seeElement(coreMetadataPageProps.coreMetadataPagePictureClass);
