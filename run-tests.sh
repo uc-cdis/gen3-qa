@@ -157,7 +157,7 @@ service="${service:-""}"
 testedEnv="${testedEnv:-""}"
 isGen3Release="${isGen3Release:false}"
 seleniumTimeout="${seleniumTimeout:3600}"
-selectedTest="${selectedTest:-"all"}"
+selectedTest="${selectedTest:-""}"
 selectedTag="${selectedTag:-""}"
 debug="${debug:false}"
 
