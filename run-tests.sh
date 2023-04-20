@@ -135,7 +135,7 @@ donot() {
   if [[ -z "$doNotRunRegex" ]]; then
     or=''
   fi
-  doNotRunRegex=".*${doNotRunRegex}${or}$1"
+  doNotRunRegex="${doNotRunRegex}${or}.*$1"
 }
 
 doNotRunRegex=""
@@ -633,7 +633,8 @@ EOM
     exitCode=$RC
     set -e
 else
-  if [ -n $selectedTest ]; then
+  if [ -n "$selectedTest" ]; then
+    echo "Test selected - $selectedTest"
     set +e
     additionalArgs=""
     foundReqGoogle=$(grep "@reqGoogle" ${selectedTest})
@@ -650,7 +651,8 @@ else
     set -e
     DEBUG=$debug npm test -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
   fi
-  if [ -n $selectedTag ]; then
+  if [ -n "$selectedTag" ]; then
+    echo "Tag selected - $selectedTag"
     DEBUG=$debug npm test -- --reporter mocha-multi --verbose --grep "(?=$selectedTag)^(?!$doNotRunRegex)"
   fi
 fi
