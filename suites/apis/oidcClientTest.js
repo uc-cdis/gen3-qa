@@ -97,7 +97,7 @@ Scenario('OIDC Client Rotation @clientRotation', async ({ I, fence, requestor })
     `${requestor.props.endpoint.requestEndPoint}`,
     {
       username: "test-client-rotation-user",
-      policy_id: 'data_uploader' //'requestor_client_credentials_test',
+      policy_id: 'requestor_client_credentials_test',
     },
     getAccessTokenHeader(client1AccessToken),
   );
@@ -109,7 +109,7 @@ Scenario('OIDC Client Rotation @clientRotation', async ({ I, fence, requestor })
     `${requestor.props.endpoint.requestEndPoint}`,
     {
       username: "test-client-rotation-user",
-      policy_id: 'data_uploader' //'requestor_client_credentials_test',
+      policy_id: 'requestor_client_credentials_test',
     },
     getAccessTokenHeader(client2AccessToken),
   );
