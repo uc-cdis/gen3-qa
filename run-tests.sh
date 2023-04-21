@@ -654,7 +654,7 @@ else
   if [ -n "$selectedTag" ]; then
     echo "Tag selected - $selectedTag"
     # DEBUG=$debug npm test -- --reporter mocha-multi --verbose --grep "(?=$selectedTag)^(?!$doNotRunRegex)"
-    DEBUG=$debug npm test -- --reporter mocha-multi --verbose --grep "(?=$selectedTag)^(?!.*@manual|.*@requires-sower)"
+    DEBUG=$debug npm test -- --reporter mocha-multi --verbose --grep "(?=.*$selectedTag)^(?!.*@manual|.*@requires-sower)"
   fi
 fi
 
