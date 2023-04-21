@@ -2,20 +2,16 @@ const { Bash } = require('../../../utils/bash.js');
 
 const bash = new Bash();
 
-const getStudyViewerIndex = () => {
-  try {
-    const studyViewerIndex = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.studyViewerConfig[].dataType\' | tr -d \'"\'');
-    if (process.env.DEBUG === 'true') {
-      console.log(`### StudyViewer Index : ${studyViewerIndex}`);
-    }
-    return studyViewerIndex;
-  } catch(err) {
-    console.err('Study viewer not configured in portal');
-  }
+if (process.env.DEBUG === 'true') {
+  console.log('### Fetching the studyViewer index datatype from HOSTNAME');
+}
+const studyViewerIndex = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.studyViewerConfig[].dataType\' | tr -d \'"\'');
+if (process.env.DEBUG === 'true') {
+  console.log(`### StudyViewer Index : ${studyViewerIndex}`);
 }
 
 module.exports = {
-  dataset1Path: `study-viewer/${getStudyViewerIndex()}`,
+  dataset1Path: `study-viewer/${studyViewerIndex}`,
   dataset2Path: 'study-viewer/clinical_trials/NCT04401579',
   studyViewerDivClass: '.study-viewer',
   studyViewerRelPath: '.study-viewer',
