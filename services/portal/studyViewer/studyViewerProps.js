@@ -3,7 +3,7 @@ const { Bash } = require('../../../utils/bash.js');
 const bash = new Bash();
 
 module.exports = {
-  getStudyViewerIndex() {
+  getStudyViewerIndex: function() {
     try {
       const studyViewerIndex = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.studyViewerConfig[].dataType\' | tr -d \'"\'');
       if (process.env.DEBUG === 'true') {
