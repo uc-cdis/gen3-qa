@@ -2,7 +2,7 @@
 #
 # Jenkins launch script.
 # Use:
-#   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--seleniumTimeout] [--selectedTest=selectedTest] [--debug=debug]
+#   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--seleniumTimeout] [--selectedTest=selectedTest] [--selectedTag=selectedTag] [--debug=debug]
 #
 
 set -xe
@@ -13,13 +13,14 @@ Jenkins test launch script.  Assumes the  GEN3_HOME environment variable
 references a current [cloud-automation](https://github.com/uc-cdis/cloud-automation) folder.
 
 Use:
-  bash run-tests.sh [[--namespace=]KUBECTL_NAMESPACE] [--service=service] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--selectedTest=selectedTest] [--dryrun] [--debug=debug]
+  bash run-tests.sh [[--namespace=]KUBECTL_NAMESPACE] [--service=service] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--selectedTest=selectedTest] [--selectedTag=selectedTag] [--dryrun] [--debug=debug]
     --namespace default is KUBECTL_NAMESPACE:-default
     --service default is service:-none
     --testedEnv default is testedEnv:-none (for cdis-manifest PRs, specifies which environment is being tested, to know which tests are relevant)
     --isGen3Release default is "false"
     --seleniumTimeout default is 3600
     --selectedTest default is selectedTest:-none
+    --selectedTag default is selectedTag:-none
     --debug default is "false" (run tests in debug mode if true)
 EOM
 }
@@ -134,7 +135,7 @@ donot() {
   if [[ -z "$doNotRunRegex" ]]; then
     or=''
   fi
-  doNotRunRegex="${doNotRunRegex}${or}$1"
+  doNotRunRegex="${doNotRunRegex}${or}.*$1"
 }
 
 doNotRunRegex=""
@@ -156,7 +157,8 @@ service="${service:-""}"
 testedEnv="${testedEnv:-""}"
 isGen3Release="${isGen3Release:false}"
 seleniumTimeout="${seleniumTimeout:3600}"
-selectedTest="${selectedTest:-"all"}"
+selectedTest="${selectedTest:-""}"
+selectedTag="${selectedTag:-""}"
 debug="${debug:false}"
 
 while [[ $# -gt 0 ]]; do
@@ -184,6 +186,9 @@ while [[ $# -gt 0 ]]; do
       ;;
     selectedTest)
       selectedTest="$value"
+      ;;
+    selectedTag)
+      selectedTag="$value"
       ;;
     dryrun)
       isDryRun=true
@@ -236,6 +241,7 @@ Running with:
   isGen3Release=$isGen3Release
   seleniumTimeout=$seleniumTimeout
   selectedTest=$selectedTest
+  selectedTag=$selectedTag
 EOM
 
 echo 'INFO: installing dependencies'
@@ -627,21 +633,28 @@ EOM
     exitCode=$RC
     set -e
 else
-  set +e
-  additionalArgs=""
-  foundReqGoogle=$(grep "@reqGoogle" ${selectedTest})
-  foundDataClientCLI=$(grep "@dataClientCLI" ${selectedTest})
-  if [ -n "$foundReqGoogle" ]; then
-    additionalArgs="--grep @reqGoogle"
-  elif [ -n "$foundDataClientCLI" ]; then
-    additionalArgs="--grep @indexRecordConsentCodes|@dataClientCLI --invert"
-  elif [[ "$selectedTest" == "suites/sheepdogAndPeregrine/submitAndQueryNodesTest.js" && -z "$ddHasConsentCodes" ]]; then
-    additionalArgs="--grep @indexRecordConsentCodes --invert"
-  else
-    additionalArgs="--grep @manual --invert"
+  if [ -n "$selectedTest" ]; then
+    echo "Test selected - $selectedTest"
+    set +e
+    additionalArgs=""
+    foundReqGoogle=$(grep "@reqGoogle" ${selectedTest})
+    foundDataClientCLI=$(grep "@dataClientCLI" ${selectedTest})
+    if [ -n "$foundReqGoogle" ]; then
+      additionalArgs="--grep @reqGoogle"
+    elif [ -n "$foundDataClientCLI" ]; then
+      additionalArgs="--grep @indexRecordConsentCodes|@dataClientCLI --invert"
+    elif [[ "$selectedTest" == "suites/sheepdogAndPeregrine/submitAndQueryNodesTest.js" && -z "$ddHasConsentCodes" ]]; then
+      additionalArgs="--grep @indexRecordConsentCodes --invert"
+    else
+      additionalArgs="--grep @manual --invert"
+    fi
+    set -e
+    DEBUG=$debug npm test -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
   fi
-  set -e
-  DEBUG=$debug npm test -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
+  if [ -n "$selectedTag" ]; then
+    echo "Tag selected - $selectedTag"
+    DEBUG=$debug npm test -- --reporter mocha-multi --verbose --grep "(?=.*$selectedTag)^(?!$doNotRunRegex)"
+  fi
 fi
 
 # When zero tests are executed, a results*.xml file is produced containing a tests="0" counter
