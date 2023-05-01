@@ -636,24 +636,22 @@ else
   if [ -n "$selectedTest" ]; then
     echo "Test selected - $selectedTest"
     set +e
-    additionalArgs=""
-    foundReqGoogle=$(grep "@reqGoogle" ${selectedTest})
     foundDataClientCLI=$(grep "@dataClientCLI" ${selectedTest})
-    if [ -n "$foundReqGoogle" ]; then
-      additionalArgs="--grep @reqGoogle"
-    elif [ -n "$foundDataClientCLI" ]; then
-      additionalArgs="--grep @indexRecordConsentCodes|@dataClientCLI --invert"
-    elif [[ "$selectedTest" == "suites/sheepdogAndPeregrine/submitAndQueryNodesTest.js" && -z "$ddHasConsentCodes" ]]; then
-      additionalArgs="--grep @indexRecordConsentCodes --invert"
-    else
-      additionalArgs="--grep @manual --invert"
+    if [ -n "$foundDataClientCLI" ]; then
+      donot '@indexRecordConsentCodes'
+      donot '@dataClientCLI'
     fi
+    if [[ "$selectedTest" == "suites/sheepdogAndPeregrine/submitAndQueryNodesTest.js" && -z "$ddHasConsentCodes" ]]; then
+      donot '@indexRecordConsentCodes'
+    fi
+    DEBUG=$debug npm test -- $testArgs ${selectedTest}
+    exitCode=$?
     set -e
-    DEBUG=$debug npm test -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
   fi
   if [ -n "$selectedTag" ]; then
     echo "Tag selected - $selectedTag"
     DEBUG=$debug npm test -- --reporter mocha-multi --verbose --grep "(?=.*$selectedTag)^(?!$doNotRunRegex)"
+    exitCode=$?
   fi
 fi
 
