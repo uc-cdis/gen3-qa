@@ -61,7 +61,7 @@ Scenario('OIDC Client Expiration @clientExpiration', async ({ I, fence }) => {
 });
 
 
-Scenario('OIDC Client Rotation @clientRotation', async ({ I, fence, requestor }) => {
+Scenario('OIDC Client Rotation @clientRotation @requires-requestor', async ({ I, fence, requestor }) => {
   const clientName = 'jenkinsClientTester';
   console.log(`  Creating client '${clientName}'`);
   const creds1 = new Client({
