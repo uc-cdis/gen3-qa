@@ -74,7 +74,8 @@ module.exports = {
       console.log(`when checking mocked Google Linking success, got final URL: ${linkRes.finalURL}`);
     }
     // let the exception bubble up to facilitate retries
-    let linkUrl = new URL(linkRes.finalURL);
+    // NOTE: finalURL is relative and URL() fails on relative URLs if no base is provided
+    let linkUrl = new URL(linkRes.finalURL, "https://example.com");
     if (process.env.DEBUG === 'true') {
       console.log(`parse URL result: ${linkRes.finalURL}`);
     }
