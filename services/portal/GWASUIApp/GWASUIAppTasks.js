@@ -1,5 +1,6 @@
 const GWASUIAppProps = require('./GWASUIAppProps.js');
 
+const { expect } = chai;
 const I = actor();
 
 module.exports = {
@@ -121,7 +122,7 @@ module.exports = {
         I.click(GWASUIAppProps.JobSubmitButton);
     },
 
-    checkJobStatus() {           
+    goToJobStatus() {           
         I.seeElement(GWASUIAppProps.SeeStatusButton);
         I.seeElement(GWASUIAppProps.SubmissionSuccessMessage);
         I.saveScreenshot('Aftersubmitbutton.png');
@@ -130,4 +131,52 @@ module.exports = {
         I.wait(5);
         I.saveScreenshot('resultsPage.png');
     },
+
+    goToResultPage() {
+        I.amOnPage(GWASUIAppProps.resultsPath);
+        I.wait(5);
+        I.saveScreenshot('resultsPage.png');
+    },
+
+    async getUserWF() {
+        const userWFs =  await I.sendGetRequest(
+            `${GWASUIAppProps.gwasAPI}/workflows`,
+            users.mainAcct.accessTokenHeader,
+        );
+        const workflowData = userWFs.data;
+        expect(workflowData).to.not.be.empty;
+        return workflowData[0];
+    },
+
+    async getWFName() {
+        const data = await this.getUserWF();
+        const wfName = data[0].name;
+        if (process.env.DEBUG === 'true') {
+            console.log(`### workflow name : ${wfName}`);
+        };
+        return wfName;
+    },
+
+    async getWFUID() {
+        const data = await this.getUserWF();
+        const wfUID = data[0].uid;
+        if (process.env.DEBUG === 'true') {
+            console.log(`### workflow uid : ${wfUID}`);
+        };
+        return wfUID;
+    },
+
+   async getWFStatus() {
+        const data = await this.getUserWF();
+        const wfStatus = data[0].phase;
+        if (process.env.DEBUG === 'true') {
+            console.log(`### workflow status : ${wfStatus}`);
+        };
+        return wfStatus;
+    },
+
+    checkWFStatus(jobname) {
+        
+
+    }
 };

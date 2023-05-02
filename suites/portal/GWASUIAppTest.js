@@ -41,7 +41,7 @@ Scenario('Submit workflow Continuous Outcome - Continuous Covariate Phenotype @G
     I.seeElement(gwas.props.SubmitDialogBox);
     const jobName = gwas.do.enterJobName();
     await gwas.do.submitJob();
-    gwas.do.checkJobStatus();
+    gwas.do.goToJobStatus();
 });
 
 Scenario('Submit workflow Continuous Outcome - Dichotomous Covariate Phenotype @GWASUI', async ({
@@ -83,7 +83,7 @@ Scenario('Submit workflow Continuous Outcome - Dichotomous Covariate Phenotype @
     I.seeElement(gwas.props.SubmitDialogBox);
     const jobName = gwas.do.enterJobName();
     await gwas.do.submitJob();
-    gwas.do.checkJobStatus();
+    gwas.do.goToJobStatus();
 });
 
 Scenario('Submit workflow Dichotomous Outcome - Continuous Covariate Phenotype @GWASUI', async ({
@@ -126,7 +126,7 @@ Scenario('Submit workflow Dichotomous Outcome - Continuous Covariate Phenotype @
     I.seeElement(gwas.props.SubmitDialogBox);
     const jobName = gwas.do.enterJobName();
     await gwas.do.submitJob();
-    gwas.do.checkJobStatus();
+    gwas.do.goToJobStatus();
 });
 
 Scenario('Submit workflow Dichotomous Outcome - Dichotomous Covariate Phenotype @GWASUI', async ({
@@ -169,7 +169,20 @@ Scenario('Submit workflow Dichotomous Outcome - Dichotomous Covariate Phenotype 
     I.seeElement(gwas.props.SubmitDialogBox);
     const jobName = gwas.do.enterJobName();
     await gwas.do.submitJob();
-    gwas.do.checkJobStatus();
+    gwas.do.goToJobStatus();
+});
+
+Scenario('GWAS Result V2 App @GWASUI', async ({ 
+    I, home, users, gwas 
+}) => {
+    I.useWebDriverTo('set window size', async ({ browser }) => {
+        browser.setWindowSize(1920, 1080);
+    });
+    home.do.goToHomepage();
+    await home.complete.login(users.mainAcct);
+    gwas.do.goToResultPage();
+    // check the status of the job submitted by the user
+    gwas.do.checkWFStatus();
 });
 
 Scenario('Test next and previous buttons GWAS page @GWASUI', async ({
@@ -207,7 +220,7 @@ Scenario('Test next and previous buttons GWAS page @GWASUI', async ({
     I.wait(3);
 
     I.seeElement(gwas.props.SubmitDialogBox);
-});   
+}); 
 
 Scenario('Unauthorized access to GWAS @GWASUI', async ({
     I, home, users, gwas

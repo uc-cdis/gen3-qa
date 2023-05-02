@@ -1,6 +1,7 @@
 module.exports = {
     path: 'analysis/GWASUIApp',
-    resultsPath: 'analysis/GWASResults',
+    resultsPath: 'analysis/GWASResultsV2',
+    gwasAPI: '/ga4gh/wes/v2',
 
     // GWAS++ elements
     NextSpan: '//span[contains(text(),\'Next\')]',
@@ -40,7 +41,7 @@ module.exports = {
     NoOfPC: '//input[@id="input-numOfPCs"]',
     AncestryDropDown: '//*[contains(@class,"ant-select ant-select-single ant-select-show-arrow ant-select-show-search")]',
     // ancestry: 'non-Hispanic Black',
-    ancestry: '//div[@title="non-Hispanic Black"]',
+    ancestry: '//div[@title="non-Hispanic Asian"]',
     // last step
     SubmitDialogBox: '//div[@role="dialog"]',
     EnterJobName: '//input[@class="ant-input gwas-job-name"]',
@@ -48,7 +49,15 @@ module.exports = {
     JobStatusButton: '//button[@id="see-status"]',
     SubmissionSuccessMessage: '//div[@class="dismissable-message success"]',
     SeeStatusButton: '//button[@id="see-status"]',
-    SubmissionSuccessMessage: '//div[@class="dismissable-message success"]',
+    // results page
+    JobStatusTable: '//div[@class="analysis-app-wrapper"]',
+    ExecutionButton: '(//span[contains(text(),"Execution")])[1]',
+    ResultsButton: '(//span[contains(text(),"Results")])[1]',
+    ActionDotsButton: '//tbody/tr[1]/td[7]/div[1]/div[1]/button[1]/span[1]//*[name()="svg"]',
+    DownloadButton: '//a[normalize-space()="Download"]',
+    FirstRowTable: '//table[@class="ant-table-content"]/tbody/tr[1]',
+    SucceededStatus: '//table[@class="ant-table-content"]/tbody/tr[1]/td[4]',
     //unauthorized
     UnauthorizedSpinner: '//span[@class="ant-spin-dot ant-spin-dot-spin"]',
+
 };
