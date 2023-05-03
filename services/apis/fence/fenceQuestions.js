@@ -55,7 +55,7 @@ module.exports = {
    */
   linkSuccess(linkRes, linkedAcct) {
     expect(linkRes).to.have.property('finalURL');
-    const linkUrl = new URL(linkRes.finalURL);
+    const linkUrl = new URL(linkRes.finalURL, `https://${process.env.HOSTNAME}`);
     expect(linkUrl.searchParams.get('linked_email')).to.equal(
       linkedAcct.googleCreds.email,
     );
@@ -75,7 +75,7 @@ module.exports = {
     }
     // let the exception bubble up to facilitate retries
     // NOTE: finalURL is relative and URL() fails on relative URLs if no base is provided
-    let linkUrl = new URL(linkRes.finalURL, "https://example.com");
+    let linkUrl = new URL(linkRes.finalURL, `https://${process.env.HOSTNAME}`);
     if (process.env.DEBUG === 'true') {
       console.log(`parse URL result: ${linkRes.finalURL}`);
     }

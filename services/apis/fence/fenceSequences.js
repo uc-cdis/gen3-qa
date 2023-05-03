@@ -44,10 +44,6 @@ module.exports = {
         if (process.env.DEBUG === 'true') {
           console.log(`### ## linkRes for [${JSON.stringify(userAcct.username)}]: ${JSON.stringify(linkRes)}`);
         }
-        console.log('###### DEBUGGING - linkRes.finalURL ###########');
-        console.log(linkRes);
-        console.log(linkRes.finalURL);
-        console.log('################################################');
         fenceQuestions.mockedLinkSuccess(linkRes);
         return linkRes;
       } catch (e) {
