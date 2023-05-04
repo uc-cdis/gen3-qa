@@ -181,8 +181,8 @@ Scenario('GWAS Result V2 App @GWASUI', async ({
     home.do.goToHomepage();
     await home.complete.login(users.mainAcct);
     gwas.do.goToResultPage();
-    // check the status of the job submitted by the user
-    gwas.do.checkWFStatus();
+    // await gwas.do.getUserWF();
+    await gwas.do.completeWFCheck();
 });
 
 Scenario('Test next and previous buttons GWAS page @GWASUI', async ({

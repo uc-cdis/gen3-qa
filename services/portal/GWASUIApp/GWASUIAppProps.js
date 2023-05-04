@@ -57,6 +57,12 @@ module.exports = {
     DownloadButton: '//a[normalize-space()="Download"]',
     FirstRowTable: '//table[@class="ant-table-content"]/tbody/tr[1]',
     SucceededStatus: '//table[@class="ant-table-content"]/tbody/tr[1]/td[4]',
+    // execution page
+    executionView: '//div[@class="view"]',
+    executionLogs: '//div[@class="execution-data"]',
+    backButton: '//button[@type="button"]',
+    // results page
+    manhattanPlot: '//img[@alt="Manhattan plot"]',
     //unauthorized
     UnauthorizedSpinner: '//span[@class="ant-spin-dot ant-spin-dot-spin"]',
 

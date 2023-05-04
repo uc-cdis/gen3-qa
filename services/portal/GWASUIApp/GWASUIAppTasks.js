@@ -1,9 +1,12 @@
 const GWASUIAppProps = require('./GWASUIAppProps.js');
+const chai = require('chai');
+const users = require('../../../utils/user');
 
 const { expect } = chai;
 const I = actor();
 
 module.exports = {
+
     goToGWASPage() {
         I.amOnPage(GWASUIAppProps.path); // /analysis/vaGWAS
         I.wait(2);
@@ -135,6 +138,7 @@ module.exports = {
     goToResultPage() {
         I.amOnPage(GWASUIAppProps.resultsPath);
         I.wait(5);
+        I.seeElement(GWASUIAppProps.ExecutionButton);
         I.saveScreenshot('resultsPage.png');
     },
 
@@ -143,14 +147,15 @@ module.exports = {
             `${GWASUIAppProps.gwasAPI}/workflows`,
             users.mainAcct.accessTokenHeader,
         );
-        const workflowData = userWFs.data;
+        const workflowData = userWFs.data[0];
+        console.log(workflowData);
         expect(workflowData).to.not.be.empty;
-        return workflowData[0];
+        return workflowData;
     },
 
     async getWFName() {
         const data = await this.getUserWF();
-        const wfName = data[0].name;
+        const wfName = data.name;
         if (process.env.DEBUG === 'true') {
             console.log(`### workflow name : ${wfName}`);
         };
@@ -159,7 +164,7 @@ module.exports = {
 
     async getWFUID() {
         const data = await this.getUserWF();
-        const wfUID = data[0].uid;
+        const wfUID = data.uid;
         if (process.env.DEBUG === 'true') {
             console.log(`### workflow uid : ${wfUID}`);
         };
@@ -168,15 +173,32 @@ module.exports = {
 
    async getWFStatus() {
         const data = await this.getUserWF();
-        const wfStatus = data[0].phase;
+        const wfStatus = data.phase;
         if (process.env.DEBUG === 'true') {
             console.log(`### workflow status : ${wfStatus}`);
         };
         return wfStatus;
     },
 
-    checkWFStatus(jobname) {
-        
+    executionButton() {
+        I.click(GWASUIAppProps.ExecutionButton);
+        I.wait(5);
+        I.seeElement(GWASUIAppProps.executionView);
+        I.seeElement(GWASUIAppProps.executionLogs);
+        I.click(GWASUIAppProps.backButton);
+    },
 
-    }
-};
+    resultsButton() {
+        I.click(GWASUIAppProps.ResultsButton);
+        
+    },
+
+    async completeWFCheck() {
+        const status = await this.getWFStatus();
+        if (status === 'Succeeded') {
+            I.seeElement(GWASUIAppProps.ExecutionButton);
+        } else {
+            console.log(`### workflow status : ${status}`);
+        }
+    },
+}
