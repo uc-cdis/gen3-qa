@@ -55,14 +55,14 @@ module.exports = {
     ResultsButton: '(//span[contains(text(),"Results")])[1]',
     ActionDotsButton: '//tbody/tr[1]/td[7]/div[1]/div[1]/button[1]/span[1]//*[name()="svg"]',
     DownloadButton: '//a[normalize-space()="Download"]',
-    FirstRowTable: '//table[@class="ant-table-content"]/tbody/tr[1]',
-    SucceededStatus: '//table[@class="ant-table-content"]/tbody/tr[1]/td[4]',
     // execution page
     executionView: '//div[@class="view"]',
     executionLogs: '//div[@class="execution-data"]',
     backButton: '//button[@type="button"]',
     // results page
+    resultsBackButton: '//button[@class="ant-btn ant-btn-text ant-btn-icon-only return-home-button"]',
     manhattanPlot: '//img[@alt="Manhattan plot"]',
+    downloadAllResults: '(//button[@type="button"])[2]',
     //unauthorized
     UnauthorizedSpinner: '//span[@class="ant-spin-dot ant-spin-dot-spin"]',
 

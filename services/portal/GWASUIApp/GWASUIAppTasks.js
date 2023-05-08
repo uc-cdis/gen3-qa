@@ -1,6 +1,7 @@
 const GWASUIAppProps = require('./GWASUIAppProps.js');
 const chai = require('chai');
 const users = require('../../../utils/user');
+const fs = require('fs');
 
 const { expect } = chai;
 const I = actor();
@@ -113,7 +114,7 @@ module.exports = {
 
     enterJobName() {
         const jobName = `AutomationTest${Date.now()}`;
-        console.log(`the job name is ${jobName}`);
+        console.log(`### the job name is ${jobName}`);
         I.fillField(GWASUIAppProps.EnterJobName,jobName);
         I.saveScreenshot('submissionDialogBox.png');
         return jobName;
@@ -147,8 +148,10 @@ module.exports = {
             `${GWASUIAppProps.gwasAPI}/workflows`,
             users.mainAcct.accessTokenHeader,
         );
-        const workflowData = userWFs.data[0];
-        console.log(workflowData);
+        const workflowData = userWFs.data[2];
+        if (process.env.DEBUG === 'true') {
+            console.log(workflowData);
+        };
         expect(workflowData).to.not.be.empty;
         return workflowData;
     },
@@ -181,6 +184,7 @@ module.exports = {
     },
 
     executionButton() {
+        I.saveScreenshot('executionButton.png');
         I.click(GWASUIAppProps.ExecutionButton);
         I.wait(5);
         I.seeElement(GWASUIAppProps.executionView);
@@ -189,16 +193,33 @@ module.exports = {
     },
 
     resultsButton() {
+        I.saveScreenshot('resultButton.png');
         I.click(GWASUIAppProps.ResultsButton);
-        
+        I.wait(5);
+        I.seeElement(GWASUIAppProps.ResultsButton);
+        I.seeElement(GWASUIAppProps.manhattanPlot);
+        I.seeElement(GWASUIAppProps.downloadAllResults);
+        I.click(GWASUIAppProps.resultsBackButton);
+    },
+
+    actionButton() {
+        I.seeElement(GWASUIAppProps.actionButton);
+        I.click(GWASUIAppProps.actionButton);
+        I.seeElement(GWASUIAppPro.downloadAllResults);
     },
 
     async completeWFCheck() {
+        const workflowName = await this.getWFName();
         const status = await this.getWFStatus();
         if (status === 'Succeeded') {
-            I.seeElement(GWASUIAppProps.ExecutionButton);
+            console.log(`### Status : ${status}.Workflow ${workflowName} has completed successfully`);
+            this.executionButton();
+            this.resultsButton();
+        } else if (status === 'Error' || status === 'Failed') {
+            console.error(`### Workflow ${workflowName} Please check the failed workflow job logs for more details.`);
+            I.click(GWASUIAppProps.ExecutionButton);
         } else {
-            console.log(`### workflow status : ${status}`);
+            console.log(`### The status of the workflow ${workflowName} is : ${status}`);
         }
     },
 }
