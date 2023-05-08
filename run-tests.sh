@@ -334,11 +334,6 @@ if [ "$testedEnv" == "dataguids.org" ]; then
   sed -i '/bootstrap\:/d' gen3.qa.in.a.box.codecept.conf.js
 fi
 
-# if [[ "$testedEnv" == *"heal"* ]]; then
-  # use moon instead of selenium
-  # sed -i 's/selenium-hub/moon.moon/' codecept.conf.js
-# fi
-
 #
 # Google Data Access tests are only required for some envs
 #
@@ -601,9 +596,10 @@ if [[ "$(hostname)" == *"cdis-github-org"* ]] || [[ "$(hostname)" == *"planx-ci-
   # Start selenium process within the ephemeral jenkins pod.
   # npx selenium-standalone install --version=4.0.0-alpha-7 --drivers.chrome.version=96.0.4664.45 --drivers.chrome.baseURL=https://chromedriver.storage.googleapis.com
   chromeVersion=$(google-chrome --version | grep -Eo '[0-9.]{10,20}' | cut -d '.' -f 1-3)
-  chromeDriverVersion=$(curl -s https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$chromeVersion)
-  npx selenium-standalone install --drivers.chrome.version=$chromeDriverVersion --drivers.chrome.baseURL=https://chromedriver.storage.googleapis.com
-  timeout $seleniumTimeout npx selenium-standalone start --drivers.chrome.version=$chromeDriverVersion &
+  echo "Chrome Version: ${chromeVersion}"
+  # chromeDriverVersion=$(curl -s https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$chromeVersion)
+  # npx selenium-standalone install --drivers.chrome.version=$chromeDriverVersion --drivers.chrome.baseURL=https://chromedriver.storage.googleapis.com
+  # timeout $seleniumTimeout npx selenium-standalone start --drivers.chrome.version=$chromeDriverVersion &
 
   # gen3-qa-in-a-box requires a couple of changes to its webdriver config
   set +e
