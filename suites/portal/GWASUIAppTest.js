@@ -1,8 +1,21 @@
+// How to execute the test ?
+// 
+// Initially we are executing this test locally. TBD - if we want to execute this test in CI/CD? And how to deploy the test
+// Also we need to be aware that the smallest workflow runs for 30-35mins which means this test would take long time
+// We can add this test as a part of NIGHTLY BUILD runs and also add some polling logic to check the status of the workflow after certain intervals
+
+// to execute this test locally
+// 1. docker-compose -f docker-compose-test-infra-arm64.yaml down && docker-compose -f docker-compose-test-infra-arm64.yaml up -d
+// 2. GEN3_SKIP_PROJ_SETUP=true RUNNING_LOCAL=true NAMESPACE=qa-mickey PORTAL_SUFFIX="" npm test -- --verbose suites/portal/GWASUIAppTest.js
+
+// Also if you want to execute this test against staging. Use the same command by adding parameter `GEN3_COMMONS_HOSTNAME=va-testing.data-commons.org` 
+// and remove `NAMESPACE=qa-mickey`.
+
 const I = actor();
 
-Feature('GWAS++ UI Test @requires-portal @requires-argo-wrapper @requires-cohort-middleware');
+Feature('GWAS App UI Test @requires-portal @requires-argo-wrapper @requires-cohort-middleware');
 
-Scenario('Submit workflow Continuous Outcome - Continuous Covariate Phenotype @GWASUI', async ({
+Scenario('Submit workflow Continuous Outcome - Continuous Covariate Phenotype @GWASUI @manual', async ({
     I, home, users, gwas
 }) => {
     I.useWebDriverTo('set window size', async ({ browser }) => {
