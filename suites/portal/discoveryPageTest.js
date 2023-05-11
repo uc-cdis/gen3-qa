@@ -9,7 +9,7 @@ const bash = new Bash();
 const I = actor();
 I.cache = {};
 
-Feature('Discovery page @discoveryPage @requires-portal @requires-metadata @requires-indexd @aggMDS');
+Feature('Discovery page @discoveryPage @requires-portal @requires-metadata @requires-indexd @requires-hatchery @aggMDS');
 
 After(({ users, mds }) => {
   if ('studyId' in I.cache) {
