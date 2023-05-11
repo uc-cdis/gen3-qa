@@ -2,7 +2,7 @@ const chai = require('chai');
 
 const { expect } = chai;
 
-Feature('GetCoreMetadata @requires-indexd @requires-peregrine');
+Feature('GetCoreMetadata @requires-indexd @requires-peregrine @requires-sheepdog');
 
 // test data
 let valid_file;
