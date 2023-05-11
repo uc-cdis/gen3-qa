@@ -580,7 +580,7 @@ runTestsIfServiceVersion "@discoveryPage" "portal" "3.8.1" "2021.09"
 testArgs="--reporter mocha-multi"
 
 if [[ -n "$doNotRunRegex" ]]; then
-  testArgs="${testArgs} --grep ${doNotRunRegex} --invert"
+  testArgs="${testArgs} --grep ${doNotRunRegexDotStar} --invert"
 fi
 
 exitCode=0
