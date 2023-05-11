@@ -1,4 +1,4 @@
-Feature('CoreMetadataPageTest @requires-indexd @requires-portal @requires-peregrine');
+Feature('CoreMetadataPageTest @requires-indexd @requires-portal @requires-peregrine @requires-sheepdog');
 
 const I = actor();
 
