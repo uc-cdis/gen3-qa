@@ -135,10 +135,13 @@ donot() {
   if [[ -z "$doNotRunRegex" ]]; then
     or=''
   fi
-  doNotRunRegex="${doNotRunRegex}${or}.*$1"
+  doNotRunRegex="${doNotRunRegex}${or}$1"
+  doNotRunRegexDotStar="${doNotRunRegexDotStar}${or}.*$1"
 }
 
 doNotRunRegex=""
+# for advanced grep usage
+doNotRunRegexDotStar=""
 
 #----------------------------------------------------
 # main
@@ -646,7 +649,7 @@ else
   fi
   if [ -n "$selectedTag" ]; then
     echo "Tag selected - $selectedTag"
-    DEBUG=$debug npm test -- --reporter mocha-multi --verbose --grep "(?=.*$selectedTag)^(?!$doNotRunRegex)"
+    DEBUG=$debug npm test -- --reporter mocha-multi --verbose --grep "(?=.*$selectedTag)^(?!$doNotRunRegexDotStar)"
     exitCode=$?
   fi
 fi
