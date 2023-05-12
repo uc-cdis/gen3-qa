@@ -314,9 +314,6 @@ donot '@fail'
 # Do not run batch processing tests
 donot '@batch'
 
-# Do not run dataguids.org test for regular PRs
-donot '@dataguids'
-
 # Do not run the test until update the test
 donot '@GWASUI'
 
@@ -332,6 +329,9 @@ if [ "$testedEnv" == "dataguids.org" ]; then
   # disable bootstrap script from codeceptjs
   sed -i '/bootstrap\:/d' codecept.conf.js
   sed -i '/bootstrap\:/d' gen3.qa.in.a.box.codecept.conf.js
+else
+  # skip dataguids tests for PRs other than dataguids.org manifest PRs
+  donot '@dataguids'
 fi
 
 #
