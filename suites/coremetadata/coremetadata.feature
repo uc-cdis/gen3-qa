@@ -1,4 +1,4 @@
-@Pidgintests
+@CoreMetadataTests
 Feature : GetCoremetadata 
 
     @JsonFormat
