@@ -80,5 +80,19 @@ module.exports = async function () {
         });
       }
     }
+
+    if (suite.title === 'Study Registration @heal @requires-portal @requires-requestor @aggMDS @discoveryPage @requires-metadata') {
+      const studyRegistration = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.featureFlags.studyRegistration\'');
+      if (studyRegistration !== 'true') {
+        console.log('Skipping study registration since the required configuration is not in gitops.json');
+        console.dir(suite.tests);
+        suite.tests.forEach((test) => {
+          test.run = function skip() { // eslint-disable-line 
+            console.log(`Ignoring test - ${test.title}`);
+            this.skip();
+          };
+        })
+      }
+    }
   });
 };

@@ -1,4 +1,4 @@
-Feature('Study Registration @requires-portal @requires-requestor @aggMDS @discoveryPage');
+Feature('Study Registration @heal @requires-portal @requires-requestor @aggMDS @discoveryPage @requires-metadata');
 
 const { expect } = require('chai');
 const { Bash } = require('../../utils/bash.js');
@@ -14,13 +14,13 @@ I.cache = {};
 const cedarUUID = process.env.CEDAR_UUID;
 
 AfterSuite (async ({ users, mds }) => {
-    // deleting the dummy metadata wih DID
-    console.log('Deleting the Study ...');
-    try {
-        await mds.do.deleteMetadataRecord(users.user2.accessTokenHeader, I.cache.applicationID);
-    } catch (err) {
-        console.error(err);
-    }
+    // // deleting the dummy metadata wih DID
+    // console.log('Deleting the Study ...');
+    // try {
+    //     await mds.do.deleteMetadataRecord(users.user2.accessTokenHeader, I.cache.applicationID);
+    // } catch (err) {
+    //     console.error(err);
+    // }
 
     // revoking the request access
     const requestData = await requestorTasks.getRequestData(users.user2.accessTokenHeader);
@@ -75,7 +75,7 @@ Scenario('Register a new study registration', async ({ I, mds, users, home, disc
     studyRegistrationTasks.searchStudy(I.cache.applicationID);
     I.click(studyRegistrationProps.requestAccessButton);
     studyRegistrationTasks.fillRequestAccessForm(users.user2.username);
-    I.click(studyRegistrationProps.goToDiscoverPageButton);
+    // I.click(studyRegistrationProps.goToDiscoverPageButton);
 
     // get request ID by sending request to requestor end point
     // requests for user2

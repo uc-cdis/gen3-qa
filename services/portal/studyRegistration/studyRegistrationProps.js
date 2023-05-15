@@ -12,11 +12,11 @@ module.exports = {
     studyCheckBoxButton: '//td[@class="ant-table-cell ant-table-selection-column"]//label[@class="ant-checkbox-wrapper ant-checkbox-wrapper-disabled"]',
 
     //REQUEST ACCESS STAGE
-    formPage: '//div[@class="study-reg-form-container"]',
-    firstName: '//input[@id="study-reg-request-form_First Name"]',
-    lastName: '//input[@id="study-reg-request-form_Last Name"]',
-    emailAddress: '//input[@id="study-reg-request-form_E-mail Address"]',
-    institute: '//input[@id="study-reg-request-form_Affiliated Institution"]',
+    formPage: '//div[@class="generic-access-form-container"]',
+    firstName: '//input[@id="generic-access-request-form_First Name"]',
+    lastName: '//input[@id="generic-access-request-form_Last Name"]',
+    emailAddress: '//input[@id="generic-access-request-form_E-mail Address"]',
+    institute: '//input[@id="generic-access-request-form_Affiliated Institution"]',
     roleRadioButton:'//input[@value="Principal Investigator"]',
     submitButton: '//button[@type="submit"]',
     successMessage: '//div[@class="ant-result ant-result-success"]',

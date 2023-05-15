@@ -53,6 +53,7 @@ module.exports = {
 
     fillRequestAccessForm(email) {
         I.amOnPage(studyRegistrationProps.requestPath);
+        I.saveScreenshot('FormPage.png');
         I.seeElement(studyRegistrationProps.formPage);
         I.fillField(studyRegistrationProps.firstName, 'Test');
         I.fillField(studyRegistrationProps.lastName, 'User');
