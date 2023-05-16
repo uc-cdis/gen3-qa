@@ -1,4 +1,4 @@
-Feature('AuditServiceAPI @requires-audit @requires-fence');
+Feature('AuditServiceAPI @requires-audit-service @requires-fence');
 
 /**
  * Because it can take a bit of time for audit logs to be processed, we test

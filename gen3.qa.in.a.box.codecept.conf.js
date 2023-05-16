@@ -77,6 +77,7 @@ exports.config = {
     guppy: './services/apis/guppy/guppyService.js',
     mds: './services/apis/mds/mdsService.js',
     auditService: './services/apis/auditService/auditService.js',
+    requestor: './services/apis/requestor/requestorService.js',
 
     // Pages
     home: './services/portal/home/homeService.js',

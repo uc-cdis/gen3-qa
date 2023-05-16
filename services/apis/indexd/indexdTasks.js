@@ -31,7 +31,7 @@ module.exports = {
    *                 user account (mainAcct)'s access token
    * @returns {Array<Promise<>>}
    */
-  async addFileIndices(files, authHeaders = user.mainAcct.indexdAuthHeader) {
+  async addFileIndices(files, authHeaders = user.mainAcct.indexdAuthHeader, ignoreFailures = true) {
     authHeaders['Content-Type'] = 'application/json; charset=UTF-8';
     const promiseList = files.map((file) => {
       if (!file.did) {
@@ -79,9 +79,13 @@ module.exports = {
       async () => Promise.all(promiseList).then(
         () => true,
         (v) => {
-          console.log('Some of the indexd submissions failed?  Ignoring failure ...', v);
-          // succeed anyway - this thing is flaky for some reason
-          return true;
+          if (ignoreFailures) {
+            console.log('Some of the indexd submissions failed?  Ignoring failure ...', v);
+            // succeed anyway - this thing is flaky for some reason
+            return true;
+          } else {
+            return false;
+          }
         },
       )
     )();
