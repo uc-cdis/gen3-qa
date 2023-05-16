@@ -2,6 +2,7 @@ const GWASUIAppProps = require('./GWASUIAppProps.js');
 const chai = require('chai');
 const users = require('../../../utils/user');
 const fs = require('fs');
+const { sleepMS } = require('../../../utils/apiUtil.js');
 
 const { expect } = chai;
 const I = actor();
@@ -149,6 +150,7 @@ module.exports = {
             users.mainAcct.accessTokenHeader,
         );
         const workflowData = userWFs.data[2];
+        console.log(workflowData);
         if (process.env.DEBUG === 'true') {
             console.log(workflowData);
         };
@@ -208,18 +210,48 @@ module.exports = {
         I.seeElement(GWASUIAppPro.downloadAllResults);
     },
 
-    async completeWFCheck() {
+    async checkStatusPolling() {
+        console.log('### waiting for status polling ...');
+        await sleepMS(10000);
+        const attempts = 10;
+        let workflowStatus = '';
+        for (let i = 1; i < attempts; i += 1) {
+            console.log("Checking the status of the workflow...");
+            workflowStatus = await this.getWFStatus();
+            if (process.env.DEBUG === 'true') {
+                console.log(workflowStatus);
+            }
+
+            if (workflowStatus !== 'Running') {
+                console.log('### The workflow is done ...')
+                break;
+            } else {
+                console.log(`The workflow has not completed yet - attempt ${i}`);
+                await sleepMS(60000);
+                if (i === attempts - 1) {
+                    throw new Error(`### Error : The workflow has not finished yet. The status of the workflow is ${workflowStatus}`);
+                }
+            }
+        }
+        return workflowStatus;
+    },
+
+    async checkStatus(failed = false) {
         const workflowName = await this.getWFName();
-        const status = await this.getWFStatus();
-        if (status === 'Succeeded') {
+        const status = await this.checkStatusPolling();
+        if (process.env.DEBUG === 'true') {
+            console.log(`### workflow status : ${status}`);
+        };
+        // for negative testing
+        // if the failed is set to true, this workflow with trigger
+        let failedStates = [ "Failed", "Error" ];
+        if (failed) {
+            expect(status).to.be.oneOf(failedStates);
+        } else {
+            expect(status).to.equal('Succeeded');
             console.log(`### Status : ${status}.Workflow ${workflowName} has completed successfully`);
             this.executionButton();
             this.resultsButton();
-        } else if (status === 'Error' || status === 'Failed') {
-            console.error(`### Workflow ${workflowName} Please check the failed workflow job logs for more details.`);
-            I.click(GWASUIAppProps.ExecutionButton);
-        } else {
-            console.log(`### The status of the workflow ${workflowName} is : ${status}`);
         }
     },
 }

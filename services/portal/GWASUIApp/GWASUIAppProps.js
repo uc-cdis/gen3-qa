@@ -1,6 +1,6 @@
 module.exports = {
     path: 'analysis/GWASUIApp',
-    resultsPath: 'analysis/GWASResultsV2',
+    resultsPath: 'analysis/GWASResults',
     gwasAPI: '/ga4gh/wes/v2',
 
     // GWAS++ elements
