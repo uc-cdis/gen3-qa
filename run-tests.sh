@@ -650,7 +650,7 @@ else
   fi
   if [ -n "$selectedTag" ]; then
     echo "Tag selected - $selectedTag"
-    dryrun DEBUG=$debug npm 'test' -- --reporter mocha-multi --verbose --grep "(?=.*$selectedTag)^(?!$doNotRunRegexDotStar)"
+    dryrun DEBUG=$debug npm 'test' -- --reporter mocha-multi --verbose --grep '(?=.*$selectedTag)^(?!$doNotRunRegexDotStar)'
     RC=$?
     exitCode=$RC
     set -e
