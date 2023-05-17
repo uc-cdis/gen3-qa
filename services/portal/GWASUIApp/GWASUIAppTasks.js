@@ -149,7 +149,7 @@ module.exports = {
             `${GWASUIAppProps.gwasAPI}/workflows`,
             users.mainAcct.accessTokenHeader,
         );
-        const workflowData = userWFs.data[2];
+        const workflowData = userWFs.data[0];
         console.log(workflowData);
         if (process.env.DEBUG === 'true') {
             console.log(workflowData);
@@ -212,7 +212,7 @@ module.exports = {
 
     async checkStatusPolling() {
         console.log('### waiting for status polling ...');
-        await sleepMS(10000);
+        await sleepMS(300000);
         const attempts = 10;
         let workflowStatus = '';
         for (let i = 1; i < attempts; i += 1) {
