@@ -135,10 +135,13 @@ donot() {
   if [[ -z "$doNotRunRegex" ]]; then
     or=''
   fi
-  doNotRunRegex="${doNotRunRegex}${or}.*$1"
+  doNotRunRegex="${doNotRunRegex}${or}$1"
+  doNotRunRegexDotStar="${doNotRunRegexDotStar}${or}.*$1"
 }
 
 doNotRunRegex=""
+# for advanced grep usage
+doNotRunRegexDotStar=""
 
 #----------------------------------------------------
 # main
@@ -640,14 +643,17 @@ else
     if [[ "$selectedTest" == "suites/sheepdogAndPeregrine/submitAndQueryNodesTest.js" && -z "$ddHasConsentCodes" ]]; then
       donot '@indexRecordConsentCodes'
     fi
-    DEBUG=$debug npm test -- $testArgs ${selectedTest}
-    exitCode=$?
+    dryrun DEBUG=$debug npm 'test' -- $testArgs ${selectedTest}
+    RC=$?
+    exitCode=$RC
     set -e
   fi
   if [ -n "$selectedTag" ]; then
     echo "Tag selected - $selectedTag"
-    DEBUG=$debug npm test -- --reporter mocha-multi --verbose --grep "(?=.*$selectedTag)^(?!$doNotRunRegex)"
-    exitCode=$?
+    DEBUG=$debug npm 'test' -- --reporter mocha-multi --verbose --grep "(?=.*$selectedTag)^(?!$doNotRunRegexDotStar)"
+    RC=$?
+    exitCode=$RC
+    set -e
   fi
 fi
 
