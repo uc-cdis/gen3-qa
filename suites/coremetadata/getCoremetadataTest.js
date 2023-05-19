@@ -21,13 +21,13 @@ Scenario('test core metadata @coreMetadata', async ({ peregrine, users }) => {
 });
 
 Scenario('test core metadata invalid object_id @coreMetadata', async ({ peregrine, users }) => {
-  const data = await peregrine.do.getCoremetadata(invalid_id_file, 'application/json', users.mainAcct.accessTokenHeader);
+  const data = await peregrine.do.getCoremetadata(invalid_id_file, 'application/json', users.mainAcct.accessTokenHeader, 404);
   peregrine.ask.seeCoreMetadataError(data);
 });
 
 Scenario('test core metadata no permission @coreMetadata', async ({ peregrine }) => {
   const invalid_token = { Authorization: 'invalid' };
-  const data = await peregrine.do.getCoremetadata(valid_file, 'application/json', invalid_token);
+  const data = await peregrine.do.getCoremetadata(valid_file, 'application/json', invalid_token, 401);
   peregrine.ask.seeCoreMetadataError(data);
 });
 
