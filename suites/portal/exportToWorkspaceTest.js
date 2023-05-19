@@ -1,4 +1,4 @@
-Feature('ExportToWorkspaceTest @requires-portal @requires-hatchery');
+Feature('ExportToWorkspaceTest @requires-portal @requires-hatchery @requires-wts');
 
 Before(async ({ home }) => {
   await home.complete.login();
