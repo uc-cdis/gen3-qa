@@ -135,10 +135,13 @@ donot() {
   if [[ -z "$doNotRunRegex" ]]; then
     or=''
   fi
-  doNotRunRegex="${doNotRunRegex}${or}.*$1"
+  doNotRunRegex="${doNotRunRegex}${or}$1"
+  doNotRunRegexDotStar="${doNotRunRegexDotStar}${or}.*$1"
 }
 
 doNotRunRegex=""
+# for advanced grep usage
+doNotRunRegexDotStar=""
 
 #----------------------------------------------------
 # main
@@ -281,7 +284,7 @@ runTestsIfServiceVersion "@clientRotation" "fence" "8.0.0" "2023.06"
 #   donot '@requires-indexd'
 # fi
 
-listVar="arborist fence guppy indexd manifestservice metadata pelican peregrine pidgin portal sheepdog sower tube audit requestor hatchery argo-wrapper cohort-middleware dicom-viewer dicom-server"
+listVar="arborist fence guppy indexd manifestservice metadata pelican peregrine pidgin portal sheepdog sower tube audit-service requestor hatchery argo-wrapper cohort-middleware dicom-viewer dicom-server"
 
 for svc_name in $listVar; do
     export isServiceDeployed=$(ifServiceDeployed $svc_name)
@@ -314,9 +317,6 @@ donot '@fail'
 # Do not run batch processing tests
 donot '@batch'
 
-# Do not run dataguids.org test for regular PRs
-donot '@dataguids'
-
 # Do not run the test until update the test
 donot '@GWASUI'
 
@@ -332,12 +332,10 @@ if [ "$testedEnv" == "dataguids.org" ]; then
   # disable bootstrap script from codeceptjs
   sed -i '/bootstrap\:/d' codecept.conf.js
   sed -i '/bootstrap\:/d' gen3.qa.in.a.box.codecept.conf.js
+else
+  # skip dataguids tests for PRs other than dataguids.org manifest PRs
+  donot '@dataguids'
 fi
-
-# if [[ "$testedEnv" == *"heal"* ]]; then
-  # use moon instead of selenium
-  # sed -i 's/selenium-hub/moon.moon/' codecept.conf.js
-# fi
 
 #
 # Google Data Access tests are only required for some envs
@@ -601,9 +599,10 @@ if [[ "$(hostname)" == *"cdis-github-org"* ]] || [[ "$(hostname)" == *"planx-ci-
   # Start selenium process within the ephemeral jenkins pod.
   # npx selenium-standalone install --version=4.0.0-alpha-7 --drivers.chrome.version=96.0.4664.45 --drivers.chrome.baseURL=https://chromedriver.storage.googleapis.com
   chromeVersion=$(google-chrome --version | grep -Eo '[0-9.]{10,20}' | cut -d '.' -f 1-3)
-  chromeDriverVersion=$(curl -s https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$chromeVersion)
-  npx selenium-standalone install --drivers.chrome.version=$chromeDriverVersion --drivers.chrome.baseURL=https://chromedriver.storage.googleapis.com
-  timeout $seleniumTimeout npx selenium-standalone start --drivers.chrome.version=$chromeDriverVersion &
+  echo "Chrome Version: ${chromeVersion}"
+  # chromeDriverVersion=$(curl -s https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$chromeVersion)
+  # npx selenium-standalone install --drivers.chrome.version=$chromeDriverVersion --drivers.chrome.baseURL=https://chromedriver.storage.googleapis.com
+  # timeout $seleniumTimeout npx selenium-standalone start --drivers.chrome.version=$chromeDriverVersion &
 
   # gen3-qa-in-a-box requires a couple of changes to its webdriver config
   set +e
@@ -644,14 +643,17 @@ else
     if [[ "$selectedTest" == "suites/sheepdogAndPeregrine/submitAndQueryNodesTest.js" && -z "$ddHasConsentCodes" ]]; then
       donot '@indexRecordConsentCodes'
     fi
-    DEBUG=$debug npm test -- $testArgs ${selectedTest}
-    exitCode=$?
+    dryrun DEBUG=$debug npm 'test' -- $testArgs ${selectedTest}
+    RC=$?
+    exitCode=$RC
     set -e
   fi
   if [ -n "$selectedTag" ]; then
     echo "Tag selected - $selectedTag"
-    DEBUG=$debug npm test -- --reporter mocha-multi --verbose --grep "(?=.*$selectedTag)^(?!$doNotRunRegex)"
-    exitCode=$?
+    DEBUG=$debug npm 'test' -- --reporter mocha-multi --verbose --grep "(?=.*$selectedTag)^(?!$doNotRunRegexDotStar)"
+    RC=$?
+    exitCode=$RC
+    set -e
   fi
 fi
 
