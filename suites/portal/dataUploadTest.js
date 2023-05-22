@@ -1,4 +1,4 @@
-Feature('DataUploadTest @requires-portal @requires-sower @requires-fence @requires-sheepdog @requires-indexd');
+Feature('DataUploadTest @requires-portal @requires-sower @requires-ssjdispatcher @requires-fence @requires-sheepdog @requires-indexd');
 
 // const { interactive, ifInteractive } = require('../../utils/interactive');
 const { checkPod, sleepMS } = require('../../utils/apiUtil.js');
