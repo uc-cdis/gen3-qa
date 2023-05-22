@@ -1,8 +1,11 @@
+const chai = require('chai');
+
 const semver = require('semver');
 
 const peregrineProps = require('./peregrineProps.js');
 const user = require('../../../utils/user.js');
 
+const { expect } = chai;
 const I = actor();
 
 /**
@@ -121,7 +124,7 @@ module.exports = {
   },
 
   async getCoremetadata(
-    file, format = 'application/json', access_token,
+    file, format = 'application/json', access_token, expected_status_code=200
   ) {
     const token = {
       Accept: format,
@@ -157,6 +160,8 @@ module.exports = {
     });
 
     const endpoint = `${url}/${file.did}`;
-    return I.sendGetRequest(endpoint, token).then((res) => res.data);
+    const res = await I.sendGetRequest(endpoint, token);
+    expect(res, 'Unable to get core metadata').to.have.property('status', expected_status_code);
+    return res.data;
   },
 };
