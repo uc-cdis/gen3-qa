@@ -492,7 +492,7 @@ else
   fi
 fi
 # disabling the studyViewer test for debugging
-donot '@studyViewer'
+# donot '@studyViewer'
 
 # disabling the nondbgap usersync test as the jenkins is configured
 donot '@nondbgapUsersyncTest'
