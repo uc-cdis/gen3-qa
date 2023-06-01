@@ -46,7 +46,7 @@ const getUploadUrlFromFence = async function (fence, users) {
 Scenario('File upload and download via API calls @dataUpload', async ({
   fence, users, nodes, indexd, sheepdog, dataUpload,
 }) => {
-  console.log(`${new Date()}: request a  presigned URL from fence`);
+  console.log(`${new Date()}: request a presigned URL from fence`);
   const fenceUploadRes = await getUploadUrlFromFence(fence, users);
   const fileGuid = fenceUploadRes.data.guid;
   createdGuids.push(fileGuid);
