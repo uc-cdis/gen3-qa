@@ -445,6 +445,15 @@ module.exports = {
     }
   },
 
+  // running usersync jobs in the env
+  async runUserSync() {
+    console.log('### Running usersync job ...');
+    console.log(`start time: ${Math.floor(Date.now() / 1000)}`);
+    console.log('*** RUN USERSYNC JOB ***');
+    bash.runJob('usersync');
+    console.log(`end time: ${Math.floor(Date.now() / 1000)}`);
+  },
+
   getHomePageDetails(detail) {
     const detailsMap = {
       '': {
@@ -457,7 +466,7 @@ module.exports = {
       },
       pandemicresponsecommons: {
         summary: {
-          css: '.covid19-dashboard_panel',
+          css: '.covid19-dashboard',
         },
         cards: {
           css: '.covid19-dashboard_counts',
@@ -465,7 +474,7 @@ module.exports = {
       },
       covid19: {
         summary: {
-          css: '.covid19-dashboard_panel',
+          css: '.covid19-dashboard',
         },
         cards: {
           css: '.covid19-dashboard_counts',

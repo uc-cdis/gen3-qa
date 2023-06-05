@@ -46,7 +46,7 @@ const getUploadUrlFromFence = async function (fence, users) {
 Scenario('File upload and download via API calls @dataUpload', async ({
   fence, users, nodes, indexd, sheepdog, dataUpload,
 }) => {
-  console.log(`${new Date()}: request a  presigned URL from fence`);
+  console.log(`${new Date()}: request a presigned URL from fence`);
   const fenceUploadRes = await getUploadUrlFromFence(fence, users);
   const fileGuid = fenceUploadRes.data.guid;
   createdGuids.push(fileGuid);
@@ -515,27 +515,39 @@ BeforeSuite(async ({ sheepdog, files }) => {
 });
 
 AfterSuite(async ({ files, indexd, dataUpload }) => {
-  // delete the temp files from local storage
-  if (fs.existsSync(filePath)) {
-    files.deleteFile(filePath);
-  }
-  if (fs.existsSync(bigFileName)) {
-    files.deleteFile(bigFileName);
-  }
+  try {
+    // delete the temp files from local storage
+    if (fs.existsSync(filePath)) {
+      files.deleteFile(filePath);
+    }
+    if (fs.existsSync(bigFileName)) {
+      files.deleteFile(bigFileName);
+    }
 
-  // clean up in indexd and S3 (remove the records created by this test suite)
-  // Note: we don't use fence's /delete endpoint here because it does not allow
-  // deleting from indexd records that have already been linked to metadata
-  await indexd.complete.deleteFiles(createdGuids);
-  await dataUpload.cleanS3(fileName, createdGuids);
+    // clean up in indexd and S3 (remove the records created by this test suite)
+    // Note: we don't use fence's /delete endpoint here because it does not allow
+    // deleting from indexd records that have already been linked to metadata
+    await indexd.complete.deleteFiles(createdGuids);
+    await dataUpload.cleanS3(fileName, createdGuids);
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 Before(({ nodes }) => {
-  // Refresh nodes before every test to clear any appended results, id's, etc
-  nodes.refreshPathNodes();
+  try {
+    // Refresh nodes before every test to clear any appended results, id's, etc
+    nodes.refreshPathNodes();
+} catch (error) {
+  console.log(error);
+}
 });
 
 After(async ({ sheepdog }) => {
-  // clean up in sheepdog
-  await sheepdog.complete.findDeleteAllNodes();
+  try {
+    // clean up in sheepdog
+    await sheepdog.complete.findDeleteAllNodes();
+  } catch (error) {
+    console.log(error);
+  }
 });

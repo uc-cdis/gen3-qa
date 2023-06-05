@@ -100,49 +100,53 @@ const new_dbgap_records = {
 };
 
 BeforeSuite(async ({ fence, users, indexd }) => {
-  console.log('Removing test indexd records if they exist');
-  await indexd.do.deleteFileIndices(Object.values(indexed_files));
-  await indexd.do.deleteFileIndices(Object.values(new_dbgap_records));
+    console.log('Removing test indexd records if they exist');
+    await indexd.do.deleteFileIndices(Object.values(indexed_files));
+    await indexd.do.deleteFileIndices(Object.values(new_dbgap_records));
 
-  console.log('Adding indexd files used to test signed urls');
-  const ok = await indexd.do.addFileIndices(Object.values(indexed_files));
-  chai.expect(
-    ok, 'unable to add files to indexd as part of dbgapTest setup',
-  ).to.be.true;
+    console.log('Adding indexd files used to test signed urls');
+    const ok = await indexd.do.addFileIndices(Object.values(indexed_files));
+    chai.expect(
+      ok, 'unable to add files to indexd as part of dbgapTest setup',
+    ).to.be.true;
 
-  console.log('Running usersync job and forcing only dbgap sync');
-  console.log(`start time: ${Math.floor(Date.now() / 1000)}`);
-  bash.runJob('usersync', args = 'FORCE true ONLY_DBGAP true');
-  console.log(`end time: ${Math.floor(Date.now() / 1000)}`);
+    console.log('Running usersync job and forcing only dbgap sync');
+    console.log(`start time: ${Math.floor(Date.now() / 1000)}`);
+    bash.runJob('usersync', args = 'FORCE true ONLY_DBGAP true');
+    console.log(`end time: ${Math.floor(Date.now() / 1000)}`);
 
-  // Google signed urls are testing for dbgap syncing as well, link phs ids to
-  // existing buckets
-  let { bucketId } = fenceProps.googleBucketInfo.QA;
-  var fenceCmd = `fence-create link-bucket-to-project --project_auth_id phs000179 --bucket_id ${bucketId} --bucket_provider google`;
-  console.log(`Running: ${fenceCmd}`);
-  bash.runCommand(fenceCmd, 'fence');
+    // Google signed urls are testing for dbgap syncing as well, link phs ids to
+    // existing buckets
+    let { bucketId } = fenceProps.googleBucketInfo.QA;
+    var fenceCmd = `fence-create link-bucket-to-project --project_auth_id phs000179 --bucket_id ${bucketId} --bucket_provider google`;
+    console.log(`Running: ${fenceCmd}`);
+    bash.runCommand(fenceCmd, 'fence');
 
-  // Google signed urls are testing for dbgap syncing as well, link phs ids to
-  // existing buckets
-  bucketId = fenceProps.googleBucketInfo.test.bucketId;
-  var fenceCmd = `fence-create link-bucket-to-project --project_auth_id phs000178 --bucket_id ${bucketId} --bucket_provider google`;
-  console.log(`Running: ${fenceCmd}`);
-  bash.runCommand(fenceCmd, 'fence');
+    // Google signed urls are testing for dbgap syncing as well, link phs ids to
+    // existing buckets
+    bucketId = fenceProps.googleBucketInfo.test.bucketId;
+    var fenceCmd = `fence-create link-bucket-to-project --project_auth_id phs000178 --bucket_id ${bucketId} --bucket_provider google`;
+    console.log(`Running: ${fenceCmd}`);
+    bash.runCommand(fenceCmd, 'fence');
 });
 
 AfterSuite(async ({ fence, indexd, users }) => {
-  console.log('Removing indexd files used to test signed urls');
-  await indexd.do.deleteFileIndices(Object.values(indexed_files));
-  await indexd.do.deleteFileIndices(Object.values(new_dbgap_records));
+  try {
+    console.log('Removing indexd files used to test signed urls');
+    await indexd.do.deleteFileIndices(Object.values(indexed_files));
+    await indexd.do.deleteFileIndices(Object.values(new_dbgap_records));
 
-  console.log('Running usersync after dbgap testing');
-  console.log(`start time: ${Math.floor(Date.now() / 1000)}`);
-  bash.runJob('usersync', args = 'FORCE true');
-  console.log(`end time: ${Math.floor(Date.now() / 1000)}`);
+    console.log('Running usersync after dbgap testing');
+    console.log(`start time: ${Math.floor(Date.now() / 1000)}`);
+    bash.runJob('usersync', args = 'FORCE true');
+    console.log(`end time: ${Math.floor(Date.now() / 1000)}`);
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try creating urls to upload @dbgapSyncing @reqGoogle',
-  async ({ fence, users }) => {
+  async ({ I, fence, users }) => {
     // ASSUME BeforeSuite has run the ONLY_DBGAP usersync
     // users.mainAcct has access to phs000178
     console.log('Use mainAcct to create s3 signed URL for file phs000178');
@@ -158,7 +162,9 @@ Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try crea
 
     let phs000178s3FileContents = null;
     let phs000178gsFileContents = null;
-
+    console.log(Date.now());
+    await apiUtil.sleepMS(60000);
+    console.log(Date.now());
     try {
       phs000178s3FileContents = await fence.do.getFileFromSignedUrlRes(
         signedUrls3phs000178Res,

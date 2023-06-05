@@ -107,5 +107,9 @@ Scenario('get drs presigned-url no auth header @drs', async ({ drs, fence }) => 
 }).retry(1);
 
 AfterSuite(async ({ indexd }) => {
-  await indexd.do.deleteFileIndices(Object.values(files));
+  try {
+    await indexd.do.deleteFileIndices(Object.values(files));
+  } catch (error) {
+    console.log(error);
+  }
 });

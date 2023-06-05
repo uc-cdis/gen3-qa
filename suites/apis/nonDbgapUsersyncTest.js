@@ -22,8 +22,6 @@ Steps for configuration ->
       encrypted: false
       study_to_resource_namespaces:
         '_default': ['/']
-        'PROJECT-12345': ['']
-        'PROJECT-67890': ['']
     allow_non_dbGaP_whitelist: true
     allowed_whitelist_patterns: ['authentication_file_PROJECT-(\d*).(csv|txt)', 'authentication_file_NCI-(\d*).(csv|txt)']
     protocol: 'sftp'
@@ -82,7 +80,7 @@ const indexdFiles = {
       's3://cdis-presigned-url-test/testdata',
       'gs://dcf-integration-test/file.txt',
     ],
-    authz: ['/PROJECT-12345'],
+    authz: ['/programs/PROJECT-12345'],
     acl: ['PROJECT-12345'],
     form: 'object',
   },
@@ -94,7 +92,7 @@ const indexdFiles = {
       's3://cdis-presigned-url-test/testdata',
       'gs://dcf-integration-test/file.txt',
     ],
-    authz: ['/PROJECT-67890'],
+    authz: ['/programs/PROJECT-67890'],
     acl: ['PROJECT-67890'],
     form: 'object',
   },
@@ -132,21 +130,25 @@ BeforeSuite(async ({ indexd }) => {
 AfterSuite(async ({ indexd }) => {
   console.log('#### Deleting the indexd files ...');
   // delete multiple files form indexd
-  await indexd.do.deleteFileIndices(Object.values(indexdFiles));
+  try {
+    await indexd.do.deleteFileIndices(Object.values(indexdFiles));
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 // user main Acct - cdis.autotest@gmail.com
 Scenario('PresignedUrl with google mainAcct @nondbgapUsersyncTest', async ({ fence, users, nondbgap }) => {
   // checking presigned url before running usersync
   console.log('creating presigned url with mainAcct user for PROJECT-12345 before running usersync.');
-  const signedUrlProject12345BeforeUserSync = await fence.do.createSignedUrl(indexdFiles.project12345File.did, ['protocol=gs'], users.mainAcct.accessTokenHeader);
+  const signedUrlProject12345BeforeUserSync = await fence.do.createSignedUrl(indexdFiles.project12345File.did, ['protocol=s3'], users.mainAcct.accessTokenHeader);
   if (signedUrlProject12345BeforeUserSync.data.status !== 200) {
     console.log(`${users.mainAcct.username} can not create presigned URL for project 12345 file`);
   }
   console.log('creating presigned url with mainAcct user for PROJECT-67890 before running usersync.');
-  const signedUrlProject67890BeforeUserSync = await fence.do.createSignedUrl(indexdFiles.project67890File.did, ['protocol=s3'], users.mainAcct.accessTokenHeader);
+  const signedUrlProject67890BeforeUserSync = await fence.do.createSignedUrl(indexdFiles.project67890File.did, ['protocol=gs'], users.user0.accessTokenHeader);
   if (signedUrlProject67890BeforeUserSync.data.status !== 200) {
-    console.log(`${users.mainAcct.username} can not create presigned URL for project 67890 file`);
+    console.log(`${users.user0.username} can not create presigned URL for project 67890 file`);
   }
 
   // run the usersync wth DBGap = true
@@ -154,10 +156,18 @@ Scenario('PresignedUrl with google mainAcct @nondbgapUsersyncTest', async ({ fen
 
   // checking presigned url after running usersync
   // project 12345 with mainAcct user
-  await nondbgap.do.presignedURLRequest(fence, 'PROJECT-12345', indexdFiles.project12345File.did, users.user0.username, users.user0.accessTokenHeader);
-
+  console.log('### mainAcct has access to PROJECT-12345 in the whitelist. This test should pass');
+  await nondbgap.do.presignedURLRequestS3(fence, 'PROJECT-12345', indexdFiles.project12345File.did, users.mainAcct.username, users.mainAcct.accessTokenHeader);
   // project 67890 with mainAcct user
-  await nondbgap.do.presignedURLRequest(fence, 'PROJECT-67890', indexdFiles.project67890File.did, users.user0.username, users.user0.accessTokenHeader);
+  console.log('### mainAcct does not have access to PROJECT-67890 in the whitelist. This test should not pass');
+  await nondbgap.do.presignedURLRequestGs(fence, 'PROJECT-67890', indexdFiles.project67890File.did, users.mainAcct.username, users.mainAcct.accessTokenHeader);
+
+  // project 12345 with user0 user
+  console.log('### user0 does not have access to PROJECT-12345 in the whitelist. This test should not pass');
+  await nondbgap.do.presignedURLRequestS3(fence, 'PROJECT-12345', indexdFiles.project12345File.did, users.user0.username, users.user0.accessTokenHeader);
+  // project 67890 with user0 user
+  console.log('### user0 has access to PROJECT-67890 in the whitelist. This test should pass');
+  await nondbgap.do.presignedURLRequestGs(fence, 'PROJECT-67890', indexdFiles.project67890File.did, users.user0.username, users.user0.accessTokenHeader);
 
   // project FAIL_00000 , user shouldnt have access to project files
   const signedURLFail00000 = await fence.do.createSignedUrl(indexdFiles.fail00000File.did, users.mainAcct.accessTokenHeader);
@@ -177,45 +187,47 @@ Scenario('PresignedUrl with google mainAcct @nondbgapUsersyncTest', async ({ fen
   await nondbgap.do.runUserSync();
 });
 
-Scenario('Presigned Url with RAS user @nondbgapUsersyncTest', async ({ fence, users, nondbgap }) => {
-  // carry out the OIDC flow and get the access token for RAS user
-  const rasAccessToken = await nondbgap.do.getRasToken();
-  // checking presigned url before running usersync
-  console.log('creating presigned url with RAS UCtestuser121 user for PROJECT-12345 before running usersync.');
-  const signedUrlProject12345BeforeUserSync = await fence.do.createSignedUrl(indexdFiles.project12345File, rasAccessToken);
-  if (signedUrlProject12345BeforeUserSync.data.status !== 200) {
-    console.log(`${users.mainAcct.username} can not create presigned URL for project 12345 file`);
-  }
-  console.log('creating presigned url with mainAcct user for PROJECT-67890 before running usersync.');
-  const signedUrlProject67890BeforeUserSync = await fence.do.createSignedUrl(indexdFiles.project67890File, rasAccessToken);
-  if (signedUrlProject67890BeforeUserSync.data.status !== 200) {
-    console.log(`${users.mainAcct.username} can not create presigned URL for project 67890 file`);
-  }
+// commenting out the RAS scenario below as we arent sure how to handle 2FA auth app from RAS in the test
 
-  // run the usersync with DBGap = true
-  await nondbgap.do.runUserSyncDBGap();
+// Scenario('Presigned Url with RAS user @nondbgapUsersyncTest', async ({ fence, users, nondbgap }) => {
+//   // carry out the OIDC flow and get the access token for RAS user
+//   const rasAccessToken = await nondbgap.do.getRasToken();
+//   // checking presigned url before running usersync
+//   console.log('creating presigned url with RAS UCtestuser121 user for PROJECT-12345 before running usersync.');
+//   const signedUrlProject12345BeforeUserSync = await fence.do.createSignedUrl(indexdFiles.project12345File, rasAccessToken);
+//   if (signedUrlProject12345BeforeUserSync.data.status !== 200) {
+//     console.log(`${users.mainAcct.username} can not create presigned URL for project 12345 file`);
+//   }
+//   console.log('creating presigned url with mainAcct user for PROJECT-67890 before running usersync.');
+//   const signedUrlProject67890BeforeUserSync = await fence.do.createSignedUrl(indexdFiles.project67890File, rasAccessToken);
+//   if (signedUrlProject67890BeforeUserSync.data.status !== 200) {
+//     console.log(`${users.mainAcct.username} can not create presigned URL for project 67890 file`);
+//   }
 
-  // checking presigned url after running usersync
-  // project 12345 with RAS user
-  await nondbgap.do.presignedURLRequest(fence, 'PROJECT-12345', indexdFiles.project12345File, 'UCtestuser121', rasAccessToken);
+//   // run the usersync with DBGap = true
+//   await nondbgap.do.runUserSyncDBGap();
 
-  // project 67890 with RAS user
-  await nondbgap.do.presignedURLRequest(fence, 'PROJECT-67890', indexdFiles.project67890File, 'UCtestuser121', rasAccessToken);
+//   // checking presigned url after running usersync
+//   // project 12345 with RAS user
+//   await nondbgap.do.presignedURLRequest(fence, 'PROJECT-12345', indexdFiles.project12345File, 'UCtestuser121', rasAccessToken);
 
-  // project FAIL_00000 , user shouldnt have access to project files
-  const signedURLFail00000 = await fence.do.createSignedUrl(indexdFiles.fail00000File, rasAccessToken);
-  if (signedURLFail00000.data.status !== 200) {
-    console.log('Cannot create presigned urls for project FAIL_00000 file');
-  }
+//   // project 67890 with RAS user
+//   await nondbgap.do.presignedURLRequest(fence, 'PROJECT-67890', indexdFiles.project67890File, 'UCtestuser121', rasAccessToken);
 
-  // checking if the user still has access to dbGap projects
-  console.log(`Checking if the user ${users.mainAcct.username} still has access to dbGap projects`);
-  const dbGapProjectDID = await nondbgap.do.checkDbGapAccess(rasAccessToken);
-  const dbGpProjectAccess = await fence.do.createSignedUrl(dbGapProjectDID, rasAccessToken);
-  if (dbGpProjectAccess.data.status === 200) {
-    console.log(`The presigned url for project 12345 files is created. The URL -> ${dbGpProjectAccess.data.urls}`);
-  }
+//   // project FAIL_00000 , user shouldnt have access to project files
+//   const signedURLFail00000 = await fence.do.createSignedUrl(indexdFiles.fail00000File, rasAccessToken);
+//   if (signedURLFail00000.data.status !== 200) {
+//     console.log('Cannot create presigned urls for project FAIL_00000 file');
+//   }
 
-  // running usersync job after the test
-  await nondbgap.do.runUserSync();
-});
+//   // checking if the user still has access to dbGap projects
+//   console.log(`Checking if the user ${users.mainAcct.username} still has access to dbGap projects`);
+//   const dbGapProjectDID = await nondbgap.do.checkDbGapAccess(rasAccessToken);
+//   const dbGpProjectAccess = await fence.do.createSignedUrl(dbGapProjectDID, rasAccessToken);
+//   if (dbGpProjectAccess.data.status === 200) {
+//     console.log(`The presigned url for project 12345 files is created. The URL -> ${dbGpProjectAccess.data.urls}`);
+//   }
+
+//   // running usersync job after the test
+//   await nondbgap.do.runUserSync();
+// });

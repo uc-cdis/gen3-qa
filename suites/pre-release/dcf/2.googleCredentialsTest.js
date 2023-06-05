@@ -116,7 +116,7 @@ Scenario('Obtain temporary access keys with specific expiration time (Google Cre
 Scenario('Negative test - Delete a non-existing access keys (Google Credentials) @manual', ifInteractive(
   async ({ I, fence }) => {
     if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
-    const someKeyId = 'aa123bb456cc';
+    const someKeyId = 'aa123bb456cc'; // pragma: allowlist secret
 
     const httpResp = await fence.do.deleteTempGoogleCreds(
       someKeyId,

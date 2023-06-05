@@ -1,4 +1,4 @@
-Feature('CoreMetadataPageTest @requires-indexd @requires-portal @requires-pidgin');
+Feature('CoreMetadataPageTest @requires-indexd @requires-portal @requires-peregrine @requires-sheepdog');
 
 const I = actor();
 
@@ -12,15 +12,12 @@ BeforeSuite(async ({ nodes, sheepdog }) => {
   await sheepdog.complete.addNode(validFile);
 });
 
-Before(async ({ home }) => {
-  I.saveScreenshot('coremetadata_page_login.png');
+Scenario('test core metadata page @coreMetadataPage @portal', async ({ portalCoreMetadataPage, peregrine, users, home }) => {
   await home.complete.login();
-});
-
-Scenario('test core metadata page @coreMetadataPage @portal', async ({ portalCoreMetadataPage, pidgin, users }) => {
-  const metadata = await pidgin.do.getCoremetadata(validFile, 'application/json', users.mainAcct.accessTokenHeader);
-  pidgin.ask.seeJsonCoremetadata(validFile, metadata);
+  const metadata = await peregrine.do.getCoremetadata(validFile, 'application/json', users.mainAcct.accessTokenHeader);
+  peregrine.ask.seeJsonCoremetadata(validFile, metadata);
   await portalCoreMetadataPage.complete.checkFileCoreMetadataPage(metadata);
+  await home.complete.logout();
 });
 
 /* TODO: an optimal test scenario for this core metadata page test is to generate test data,
@@ -30,10 +27,10 @@ Unfortunately this cannot be achieved for now since we are pinning ES indices in
 and the file explorer depends on Guppy and ES now.
 */
 
-After(async ({ home }) => {
-  await home.complete.logout();
-});
-
 AfterSuite(async ({ sheepdog }) => {
-  await sheepdog.complete.findDeleteAllNodes();
+  try {
+    await sheepdog.complete.findDeleteAllNodes();
+  } catch (error) {
+    console.log(error);
+  }
 });

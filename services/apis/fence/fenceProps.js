@@ -8,6 +8,7 @@ const bash = new Bash();
  */
 const rootEndpoint = '/user';
 
+// TODO move `createClient()` and `deleteClient()` to `fenceTasks`
 /**
  * Runs a fence command for creating a client
  * @param {string} clientName - client name
@@ -16,7 +17,7 @@ const rootEndpoint = '/user';
  * @param {string} arboristPolicies - space-delimited list of arborist policies to give to client
  * @returns {json}
  */
-function createClient(clientName, userName, clientType, arboristPolicies = null) {
+function createClient(clientName, userName, clientType, expires_in, arboristPolicies = null) {
   let fenceCmd = 'fence-create';
 
   // see test_setup.js for the ARBORIST_... global flag setup
@@ -24,17 +25,25 @@ function createClient(clientName, userName, clientType, arboristPolicies = null)
     fenceCmd = `${fenceCmd} --arborist http://arborist-service/`;
   }
 
-  fenceCmd = `${fenceCmd} client-create --client ${clientName} --user ${userName} --urls https://${process.env.HOSTNAME}`;
-
-  if (clientType === 'implicit') {
-    fenceCmd = `${fenceCmd} --grant-types implicit --public`;
+  if (clientType === 'client_credentials') {
+    fenceCmd = `${fenceCmd} client-create --client ${clientName} --grant-types client_credentials`;
+  } else if (clientType === 'implicit') {
+    fenceCmd = `${fenceCmd} client-create --client ${clientName} --user ${userName} --urls https://${process.env.HOSTNAME} --grant-types implicit --public`;
+  } else {
+    fenceCmd = `${fenceCmd} client-create --client ${clientName} --user ${userName} --urls https://${process.env.HOSTNAME}`;
   }
-  // see test_setup.js for the ARBORIST_... global flag setup
+
   if (arboristPolicies && process.env.ARBORIST_CLIENT_POLICIES) {
     fenceCmd = `${fenceCmd} --policies ${arboristPolicies}`;
   }
+
+  if (expires_in) {
+    fenceCmd = `${fenceCmd} --expires-in ${expires_in}`;
+  }
+
   console.log(`running: ${fenceCmd}`);
   const resCmd = bash.runCommand(fenceCmd, 'fence', takeLastLine);
+  // parse the response, which is in format: `('<client ID>', '<client secret>')`
   const arr = resCmd.replace(/[()']/g, '').split(',').map((val) => val.trim());
   return { client_id: arr[0], client_secret: arr[1] };
 }
@@ -44,7 +53,9 @@ function createClient(clientName, userName, clientType, arboristPolicies = null)
  * @param {string} clientName - client name
  */
 function deleteClient(clientName) {
-  bash.runCommand(`fence-create client-delete --client ${clientName}`, 'fence', takeLastLine);
+  const deleteClientCmd = `fence-create client-delete --client ${clientName}`;
+  const deleteClientReq = bash.runCommand(deleteClientCmd, 'fence', takeLastLine);
+  console.log(`Client deleted : ${deleteClientReq}`);
 }
 
 /**
@@ -52,14 +63,18 @@ function deleteClient(clientName) {
  */
 class Client {
   constructor({
-    clientName, userName, clientType, arboristPolicies,
+    clientName, userName, clientType, arboristPolicies, expires_in,
   }) {
     this.clientName = clientName;
     this.userName = userName;
     this.clientType = clientType;
     this.arboristPolicies = arboristPolicies;
+    this.expires_in = expires_in;
     this._client = null;
   }
+
+  // deleteClient = fenceTasks.deleteClient;
+  // createClient = fenceTasks.createClient;
 
   get client() {
     if (!this._client) {
@@ -68,6 +83,7 @@ class Client {
         this.clientName,
         this.userName,
         this.clientType,
+        this.expires_in,
         this.arboristPolicies,
       );
     }
@@ -87,6 +103,7 @@ module.exports = {
   /**
    * Fence endpoints
    */
+  Client,
   endpoints: {
     root: rootEndpoint,
     version: `${rootEndpoint}/_version`,

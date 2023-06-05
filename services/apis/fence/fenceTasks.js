@@ -39,12 +39,28 @@ async function getNoRedirect(url, headers) {
  * fence Tasks
  */
 module.exports = {
+
   async getVersion() {
     const response = await I.sendGetRequest(fenceProps.endpoints.version);
     expect(response, 'Can\'t get Fence version').to.have.property('status', 200);
     expect(response, 'No data in response').to.have.property('data');
     expect(response.data, 'No version in JSON response').to.have.property('version');
     return response.data.version;
+  },
+
+  /**
+   * Runs a fence command to rotate a client's ID and secret
+   * @param {string} clientName - client name
+   */
+  rotateClientCredentials(clientName, expiresInDays) {
+    let fenceCmd = `fence-create client-rotate --client ${clientName}`;
+    if (expiresInDays) {
+      fenceCmd = `${fenceCmd} --expires-in ${expiresInDays}`;
+    }
+    const res = bash.runCommand(fenceCmd, 'fence', takeLastLine);
+    // parse the response, which is in format: `('<client ID>', '<client secret>')`
+    const arr = res.replace(/[()']/g, '').split(',').map((val) => val.trim());
+    return { client_id: arr[0], client_secret: arr[1] };
   },
 
   /**
@@ -222,6 +238,25 @@ module.exports = {
       data,
       { 'Content-Type': 'application/json' },
     ).then((res) => new Gen3Response(res));
+  },
+
+  async getAccessTokenWithClientCredentials(clientID, secretID, expectSuccess=true) {
+    const tokenReq = bash.runCommand(`curl --user "${clientID}:${secretID}" --request POST "https://${process.env.HOSTNAME}/user/oauth2/token?grant_type=client_credentials" -d scope="openid user"`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`getAccessTokenWithClientCredentials token response: ${tokenReq}`);
+    }
+    const tokens = JSON.parse(tokenReq);
+    if (expectSuccess) {
+      expect(tokens, `Cannot get access token: ${tokenReq}`).to.have.property('access_token');
+    }
+    else {
+      expect(tokens, 'Should not have been able to get access token').not.to.have.property('access_token');
+    }
+    const accessToken = tokens.access_token;
+    if (process.env.DEBUG === 'true') {
+      console.log(`getAccessTokenWithClientCredentials accessToken: ${accessToken}`);
+    }
+    return accessToken;
   },
 
   /**
@@ -463,8 +498,9 @@ module.exports = {
   async getConsentCode(clientId, responseType, scope, consent = 'ok', expectCode = true) {
     const fullURL = `https://${process.env.HOSTNAME}${fenceProps.endpoints.authorizeOAuth2Client}?response_type=${responseType}&client_id=${clientId}&redirect_uri=https://${process.env.HOSTNAME}&scope=${scope}`;
     if (process.env.DEBUG === 'true') {
-      console.log(fullURL);
+      console.log('fenceTasks.getConsentCode fullURL:', fullURL);
     }
+
     I.amOnPage(fullURL);
     if (process.env.DEBUG === 'true') {
       I.saveScreenshot('getConsentCode.png');

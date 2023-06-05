@@ -52,7 +52,7 @@ module.exports = async function () {
     }
 
     if (suite.title === 'nonDBGap Project Usersync @requires-fence @requires-indexd') {
-      const dbGaPConfig = bash.runCommand('gen3 secrets decode fence-config fence-config.yaml | yq -r \'.dbGaP[] | select(."info".username=="qa-dcf") | ."allow_non_dbgap_whitelist"\'');
+      const dbGaPConfig = bash.runCommand('gen3 secrets decode fence-config fence-config.yaml | yq -r \'.dbGaP[] | ."allow_non_dbgap_whitelist"\'');
       if (!dbGaPConfig) {
         console.log('Skipping nonDBGap project usersync tests since the required configuration is not in fence-config.yaml');
         console.dir(suite.tests);
@@ -78,6 +78,20 @@ module.exports = async function () {
             this.skip();
           };
         });
+      }
+    }
+
+    if (suite.title === 'Study Registration @heal @requires-portal @requires-requestor @aggMDS @discoveryPage @requires-metadata') {
+      const studyRegistration = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.featureFlags.studyRegistration\'');
+      if (studyRegistration !== 'true') {
+        console.log('Skipping study registration since the required configuration is not in gitops.json');
+        console.dir(suite.tests);
+        suite.tests.forEach((test) => {
+          test.run = function skip() { // eslint-disable-line 
+            console.log(`Ignoring test - ${test.title}`);
+            this.skip();
+          };
+        })
       }
     }
   });

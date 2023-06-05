@@ -7,13 +7,14 @@ const I = actor();
 const noShowFieldList = ['project_id'];
 // Some metadata fields should show but we don't check the content since they
 // are reformatted into an different format in Portal
-const noCheckFieldList = ['file_size', 'type', 'updated_datetime'];
+const noCheckFieldList = ['file_size', 'type', 'updated_datetime', 'citation'];
 
 /**
  * coreMetadataPage Questions
  */
 module.exports = {
   doesCoreMetadataPageLookCorrect(metadata) {
+    I.saveScreenshot('coremetadata_page.png');
     console.log('validate the appearance of core metadata page for a given file');
     // validate UI components
     I.seeElement(coreMetadataPageProps.coreMetadataPagePictureClass);
