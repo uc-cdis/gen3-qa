@@ -28,10 +28,12 @@ AfterSuite (async ({ users, mds }) => {
     // // store policy_id
     requestData.policyID = requestData.policy_id;
     requestData.adminUserTokenHeader = users.mainAcct.accessTokenHeader;
+    requestData.requestStatus = "SIGNED";
     const revokePolicy = await requestorTasks.createRequest(requestData);
     const revokeReqID = revokePolicy.request_id;
+    console.log(`Revoke request id - ${revokeReqID}`);
     // move the above request to signed state 
-    await requestorTasks.signedRequest(revokeReqID);
+    // await requestorTasks.signedRequest(revokeReqID);
     
     userInfo = await fence.do.getUserInfo(users.user2.accessTokenHeader);
     expect(userInfo.data.authz).to.not.have.property(`${I.cache.policy_id}`);
