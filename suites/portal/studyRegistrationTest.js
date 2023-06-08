@@ -13,7 +13,7 @@ const filePath = 'test-data/studyRegistrationTest/studyRegistrationData.json';
 I.cache = {};
 const cedarUUID = process.env.CEDAR_UUID;
 
-AfterSuite (async ({ users, mds }) => {
+AfterSuite (async ({ users, mds, requestor }) => {
     // deleting the dummy metadata wih DID
     console.log('Deleting the Study ...');
     try {
@@ -23,7 +23,8 @@ AfterSuite (async ({ users, mds }) => {
     }
 
     // revoking the request access
-    const requestData = await requestorTasks.getRequestData(users.user2.accessTokenHeader);
+    const requestData = await requestor.do.getRequestData(users.user2.accessTokenHeader);
+    console.log(requestData);
     requestData.revoke = true;
     // // store policy_id
     requestData.policyID = requestData.policy_id;

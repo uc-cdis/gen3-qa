@@ -29,6 +29,7 @@ module.exports = {
       `${requestorProps.endpoint.userEndPoint}`,
       userToken,
     );
+    console.log(`######## revoke request data: ${reqData}`);
     return reqData.data[0];
   },
 
