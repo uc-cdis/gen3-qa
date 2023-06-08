@@ -32,7 +32,10 @@ const I = actor();
 
 BeforeSuite(async ({ I }) => {
   I.cache = {};
-  // check
+  // // check if the profile already exists here it would be the env-name.
+  // const profile = await bash.runCommand(`./gen3-client auth --profile=${process.env.NAMESPACE}`);
+  // console.log(`Profile = ${profile}`);
+  // // If it exists then, delete the profile first and run the test
 });
 
 // AfterSuite(async ({ I }) => {
@@ -42,6 +45,7 @@ BeforeSuite(async ({ I }) => {
 // })
 
 Scenario('Configure Gen3-Client', async ({ fence, users }) => {
+  console.log(__dirname);
   await bash.runCommand('curl -L https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_linux.zip -o gen3-client.zip');
   await bash.runCommand('unzip -o gen3-client.zip');
   // checking the gen3-client version
@@ -67,14 +71,17 @@ Scenario('Upload via Gen3-client', async ({ I }) => {
   // create a file that can be uploaded
   const fileToBeUploaded = `file_${Date.now()}.txt`;
   I.cache.FileName = fileToBeUploaded;
+  console.log(`Uploading file ${fileToBeUploaded}`);
 
   // adding content to the file
   await bash.runCommand(`echo "This is a test file" >> ./${fileToBeUploaded}`);
 
   // upload the file via gen3-client
-  const uploadFile = await bash.runCommand(`./gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=./${fileToBeUploaded} 2>&1`);
-  const regexToFindGUID = /.*GUID(.*)\..*$/;
-  const guid = regexToFindGUID.exec(uploadFile)[1].replace(' ', '');
+  const uploadFile = await bash.runCommand(`./gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=./${fileToBeUploaded}`);
+  const regexToFindGUID = /.GUID(.*)\..*$/;
+  const guid = regexToFindGUID.exec(uploadFile);
+  console.log(`guid to find: ${guid}`);
+  //.replace(' ', '');
   I.cache.GUID = guid;
   console.log(guid);
 
@@ -84,28 +91,28 @@ Scenario('Upload via Gen3-client', async ({ I }) => {
 
 });
 
-Scenario('Download via Gen3-client', async({ I }) => {
+// Scenario('Download via Gen3-client', async({ I }) => {
   
-  await sleepMS(20000);
-  // download the file
-  const downloadFile = await bash.runCommand(`./gen3-client download-single --profile=${process.env.NAMESPACE} --guid=${I.cache.GUID} --no-prompt`);
-  // have a check to see if the file has been download or not
-  const filePath = `./${I.cache.FileName}`;
-  console.dir(filePath);
+//   await sleepMS(20000);
+//   // download the file
+//   const downloadFile = await bash.runCommand(`./gen3-client download-single --profile=${process.env.NAMESPACE} --guid=${I.cache.GUID} --no-prompt`);
+//   // have a check to see if the file has been download or not
+//   const filePath = `./${I.cache.FileName}`;
+//   console.dir(filePath);
   
-  // if (fs.existsSync(filePath)) {
-  //   console.log('Download is complete. Path :', filePath);
-  // } else {
-  //   console.log('Download is not complete. Path doesnt exists');
-  // }
+//   // if (fs.existsSync(filePath)) {
+//   //   console.log('Download is complete. Path :', filePath);
+//   // } else {
+//   //   console.log('Download is not complete. Path doesnt exists');
+//   // }
 
-  // fs.accessSync(filePath, fs.W_OK, (err) => {
-  //   if(err) {
-  //     console.log(err, "Download is not complete");
-  //     return;
-  //   }
-  //   console.log("Download is complete. Path :", filePath);
-  // });
-  await bash.runCommand(`touch ${filePath}`);
-  // checkFileExists(filePath);
-});
+//   // fs.accessSync(filePath, fs.W_OK, (err) => {
+//   //   if(err) {
+//   //     console.log(err, "Download is not complete");
+//   //     return;
+//   //   }
+//   //   console.log("Download is complete. Path :", filePath);
+//   // });
+//   await bash.runCommand(`touch ${filePath}`);
+//   // checkFileExists(filePath);
+// });
