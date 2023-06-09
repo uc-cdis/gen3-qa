@@ -51,7 +51,7 @@ module.exports = {
     //     I.seeElement(studyRegistrationProps.requestAccessButton);    
     // },
 
-    fillRequestAccessForm(email) {
+    async fillRequestAccessForm(email) {
         I.amOnPage(studyRegistrationProps.requestPath);
         I.saveScreenshot('FormPage.png');
         I.seeElement(studyRegistrationProps.formPage);
@@ -61,7 +61,7 @@ module.exports = {
         I.fillField(studyRegistrationProps.institute, 'University of Chicago');
         I.click(studyRegistrationProps.roleRadioButton);
         I.saveScreenshot('registerPage.png');
-        I.scrollDown(studyRegistrationProps.formPage);
+        await I.scrollPageToBottom(studyRegistrationProps.formPage);
         I.saveScreenshot('scrollDownRegisterPage.png');        
         I.click(studyRegistrationProps.submitButton);
         I.wait(5);
