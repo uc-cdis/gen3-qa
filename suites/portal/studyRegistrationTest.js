@@ -74,7 +74,7 @@ Scenario('Register a new study registration', async ({ I, mds, users, home, disc
     // request access to register study 
     studyRegistrationTasks.searchStudy(I.cache.applicationID);
     I.click(studyRegistrationProps.requestAccessButton);
-    studyRegistrationTasks.fillRequestAccessForm(users.user2.username);
+    await studyRegistrationTasks.fillRequestAccessForm(users.user2.username);
     I.click(studyRegistrationProps.goToDiscoverPageButton);
 
     // get request ID by sending request to requestor end point
