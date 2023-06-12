@@ -318,7 +318,7 @@ donot '@fail'
 donot '@batch'
 
 # Do not run the test until update the test
-donot '@GWASUI'
+# donot '@GWASUI'
 
 # Do not run prjsBucketAccess (for prod-execution only)
 donot '@prjsBucketAccess'
