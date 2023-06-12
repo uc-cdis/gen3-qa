@@ -61,7 +61,7 @@ module.exports = {
         I.fillField(studyRegistrationProps.institute, 'University of Chicago');
         I.click(studyRegistrationProps.roleRadioButton);
         I.saveScreenshot('registerPage.png');
-        I.scrollDown(studyRegistrationProps.formPage);
+        I.scrollPageToBottom(studyRegistrationProps.formPage);
         I.wait(5);
         I.saveScreenshot('scrollDownRegisterPage.png');        
         I.click(studyRegistrationProps.submitButton);
