@@ -137,12 +137,12 @@
     "mocha-junit-reporter": {
       "strip-ansi": {
         "ansi-regex": "^3.0.1"
-      } 
+      }
     },
     "table": {
       "strip-ansi": {
         "ansi-regex": "^4.1.1"
-      } 
+      }
     }
   }
 }
