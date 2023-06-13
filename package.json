@@ -85,7 +85,10 @@
       "ansi-regex": "^3.0.1"
     },
     "wcag": {
-      "ansi-regex": "^3.0.1"
+      "ansi-regex": "^3.0.1",
+      "strip-ansi": {
+        "ansi-regex": "^3.0.1"
+      }
     },
     "log-symbols": {
       "chalk": {
@@ -110,10 +113,36 @@
       "ansi-regex": "^3.0.1"
     },
     "localtunnel": {
-      "ansi-regex": "^3.0.1"
+      "ansi-regex": "^3.0.1",
+      "strip-ansi": {
+        "ansi-regex": "^3.0.1"
+      }
     },
     "string-length": {
-      "ansi-regex": "^3.0.1"
+      "ansi-regex": "^3.0.1",
+      "strip-ansi": {
+        "ansi-regex": "^3.0.1"
+      }
+    },
+    "string-width": {
+      "strip-ansi": {
+        "ansi-regex": "^3.0.1"
+      }
+    },
+    "eslint": {
+      "strip-ansi": {
+        "ansi-regex": "^4.1.1"
+      }
+    },
+    "mocha-junit-reporter": {
+      "strip-ansi": {
+        "ansi-regex": "^3.0.1"
+      } 
+    },
+    "table": {
+      "strip-ansi": {
+        "ansi-regex": "^4.1.1"
+      } 
     }
   }
 }
