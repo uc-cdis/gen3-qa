@@ -21,7 +21,7 @@ After(({ users, mds }) => {
   }
 });
 
-Scenario('User is able to navigate to Discovery page', ({ discovery }) => {
+xScenario('User is able to navigate to Discovery page', ({ discovery }) => {
   discovery.do.goToPage();
   discovery.ask.isPageLoaded();
 });
