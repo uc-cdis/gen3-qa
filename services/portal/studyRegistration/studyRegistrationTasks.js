@@ -8,12 +8,13 @@ const I = actor();
 
 module.exports = {
 
-    async readUnregisteredMetadata(accesstTokenheader, guid) {
-        const resp = await I.sendGetRequest(`${studyRegistrationProps.registrationPath}/${guid}`, accesstTokenheader);
+    async readUnregisteredMetadata(accessTokenHeader, guid) {
+        const resp = await I.sendGetRequest(`${studyRegistrationProps.registrationPath}/${guid}`, accessTokenHeader);
         if (resp.status === 200) {
             return resp.data;
         }
     },
+
     async getRequestId(userToken) {
         const getResponse = await I.sendGetRequest(
           `${requestorProps.endpoint.userEndPoint}`,
@@ -65,6 +66,8 @@ module.exports = {
         I.wait(5);
         I.saveScreenshot('scrollDownRegisterPage.png');        
         I.click(studyRegistrationProps.submitButton);
+        I.scrollPageTop();
+        I.saveScreenshot('DummySuccessPage.png');
         I.wait(5);
         I.saveScreenshot('SuccessPage.png');
         I.seeElement(studyRegistrationProps.successMessage);
