@@ -6,6 +6,7 @@ const fs = require('fs');
 const studyRegistrationProps = require('../../services/portal/studyRegistration/studyRegistrationProps.js');
 const studyRegistrationTasks = require('../../services/portal/studyRegistration/studyRegistrationTasks.js');
 const requestorTasks = require('../../services/apis/requestor/requestorTasks.js');
+const { addInterceptor } = require ('codeceptjs');
 
 const I = actor();
 const bash = new Bash();
@@ -14,13 +15,14 @@ I.cache = {};
 const cedarUUID = process.env.CEDAR_UUID;
 
 AfterSuite (async ({ users, mds }) => {
-    // deleting the dummy metadata wih DID
-    console.log('Deleting the Study ...');
-    try {
-        await mds.do.deleteMetadataRecord(users.user2.accessTokenHeader, I.cache.applicationID);
-    } catch (err) {
-        console.error(err);
-    }
+    // // deleting the dummy metadata wih DID
+    // console.log('Deleting the Study ...');
+    // try {
+    //     await mds.do.deleteMetadataRecord(users.user2.accessTokenHeader, I.cache.applicationID);
+    // } catch (err) {
+    //     console.error(err);
+    // }
+
 
     // revoking the request access
     const requestData = await requestorTasks.getRequestData(users.user2.accessTokenHeader);
