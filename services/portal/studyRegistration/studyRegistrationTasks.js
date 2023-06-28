@@ -66,6 +66,7 @@ module.exports = {
         I.wait(5);
         I.saveScreenshot('scrollDownRegisterPage.png');        
         I.click(studyRegistrationProps.submitButton);
+        I.captureBrowserLog();
         I.scrollPageToTop();
         I.saveScreenshot('DummySuccessPage.png');
         I.wait(5);
