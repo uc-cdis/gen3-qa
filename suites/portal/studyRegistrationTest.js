@@ -14,7 +14,7 @@ const filePath = 'test-data/studyRegistrationTest/studyRegistrationData.json';
 I.cache = {};
 const cedarUUID = process.env.CEDAR_UUID;
 
-AfterSuite (async ({ users, mds }) => {
+AfterSuite (async ({ users, fence }) => {
     // // deleting the dummy metadata wih DID
     // console.log('Deleting the Study ...');
     // try {
