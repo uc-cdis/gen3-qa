@@ -8,7 +8,7 @@ const I = actor();
 
 module.exports = {
 
-    async readUnregisteredMetadata(accessTokenHeader, guid) {
+    async readRegisteredMetadata(accessTokenHeader, guid) {
         const resp = await I.sendGetRequest(`${studyRegistrationProps.registrationPath}/${guid}`, accessTokenHeader);
         if (resp.status === 200) {
             return resp.data;
@@ -61,17 +61,12 @@ module.exports = {
         I.fillField(studyRegistrationProps.emailAddress, email);
         console.log(`#####${email}#####`);
         I.fillField(studyRegistrationProps.institute, 'University of Chicago');
-        // I.click(studyRegistrationProps.roleRadioButton);
+        I.click(studyRegistrationProps.roleRadioButton);
         I.saveScreenshot('registerPage.png');
         I.scrollPageToBottom(studyRegistrationProps.formPage);
         I.wait(5);
-        I.saveScreenshot('scrollDownRegisterPage.png');
-        //I.startTracing('devtools');      
+        I.saveScreenshot('scrollDownRegisterPage.png');  
         I.click(studyRegistrationProps.submitButton);
-        //I.stopTracing();
-
-        //const events = I.grabNetworkTraffic('devtools');
-        
         I.scrollPageToTop();
         I.saveScreenshot('DummySuccessPage.png');
         I.wait(5);
