@@ -43,7 +43,7 @@ AfterSuite (async ({ users, mds }) => {
     }   
 })
 
-Scenario('Register a new study registration', async ({ I, mds, users, home, discovery }) => {
+Scenario('Register a new study registration @manual', async ({ I, mds, users, home, discovery }) => {
     // create a dummy metadata
     // and storing values for the test in the I.cache
     const studyMetadata = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf8' }));
