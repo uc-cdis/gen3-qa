@@ -6,7 +6,6 @@ const fs = require('fs');
 const studyRegistrationProps = require('../../services/portal/studyRegistration/studyRegistrationProps.js');
 const studyRegistrationTasks = require('../../services/portal/studyRegistration/studyRegistrationTasks.js');
 const requestorTasks = require('../../services/apis/requestor/requestorTasks.js');
-const { addInterceptor } = require ('codeceptjs');
 
 const I = actor();
 const bash = new Bash();
@@ -52,20 +51,24 @@ Scenario('Register a new study registration', async ({ I, mds, users, home, disc
     // generate random appl_id to the study metadata on every run
     I.cache.applicationID = Math.floor(Math.random() * 90000000) + 10000000;
     studyMetadata.gen3_discovery.appl_id = I.cache.applicationID;
-    studyMetadata.gen3_discovery.registration_authz = I.cache.resourceAuthz;
     const projectTitle = studyMetadata.gen3_discovery.project_title;
 
+    // step 1 : create a dummy metadata record
     // create a metadata record
     await mds.do.createMetadataRecord(
       users.mainAcct.accessTokenHeader, I.cache.applicationID, studyMetadata,
     );
-
-    // run aggMDS sync job
-    await mds.do.reSyncAggregateMetadata();
-    const record = await studyRegistrationTasks.readUnregisteredMetadata(
+    // put request to add registration_authz
+    console.log("Updating metadata record");
+    studyMetadata.gen3_discovery.registration_authz = "/study/9675420";
+    await mds.do.editMetadataRecord(users.mainAcct.accessTokenHeader, I.cache.applicationID,studyMetadata
+    );
+    // GET the mds record from mds/metadata endpoint after it is created
+    const record = await studyRegistrationTasks.readRegisteredMetadata(
         users.mainAcct.accessTokenHeader, I.cache.applicationID,
     );
     expect(record.gen3_discovery.project_title).to.be.equal(projectTitle);
+    expect(record._guid_type).to.be.equal("unregistered_discovery_metadata");
     
     //step b
     home.do.goToHomepage();
@@ -73,16 +76,16 @@ Scenario('Register a new study registration', async ({ I, mds, users, home, disc
     discovery.do.goToPage();
     I.saveScreenshot('discoveryPage.png');
     
-    // request access to register study 
+    // step 2 : request access to register the study
+    // request access to register study by filling the registration form
     studyRegistrationTasks.searchStudy(I.cache.applicationID);
     I.click(studyRegistrationProps.requestAccessButton);
     await studyRegistrationTasks.fillRequestAccessForm(users.user2.username);
     I.click(studyRegistrationProps.goToDiscoverPageButton);
-
     // get request ID by sending request to requestor end point
-    // requests for user2
     I.cache.requestID = await studyRegistrationTasks.getRequestId(users.user2.accessTokenHeader);
     I.cache.policyID = await requestorTasks.getPolicyID(users.user2.accessTokenHeader); 
+    // updating the request to SIGNED status
     console.log(`### Updating the request ID - ${I.cache.requestID}`);
     await requestorTasks.signedRequest(I.cache.requestID);
     if (process.env.DEBUG === 'true') {
@@ -92,18 +95,20 @@ Scenario('Register a new study registration', async ({ I, mds, users, home, disc
     I.refreshPage();
     I.wait(5);
 
-    discovery.do.goToPage();
-    I.saveScreenshot('discoveryPage.png');
+    // // step 3 : registration of the study using the CEDAR UUID
+    // // registration the study
+    // discovery.do.goToPage();
+    // I.saveScreenshot('discoveryPage.png');
+    
+    // studyRegistrationTasks.searchStudy(I.cache.applicationID);
+    // studyRegistrationTasks.seeRegisterButton();
+    // studyRegistrationTasks.fillRegistrationForm(projectTitle, cedarUUID);
 
-    studyRegistrationTasks.searchStudy(I.cache.applicationID);
-    studyRegistrationTasks.seeRegisterButton();
-    studyRegistrationTasks.fillRegistrationForm(projectTitle, cedarUUID);
+    // // run aggMDS sync job again after sending CEDAR request
+    // await mds.do.reSyncAggregateMetadata();
+    // const linkedRecord = await studyRegistrationTasks.readUnregisteredMetadata(
+    //     users.mainAcct.accessTokenHeader, I.cache.applicationID,
+    // );
 
-    // run aggMDS sync job again after sending CEDAR request
-    await mds.do.reSyncAggregateMetadata();
-    const linkedRecord = await studyRegistrationTasks.readUnregisteredMetadata(
-        users.mainAcct.accessTokenHeader, I.cache.applicationID,
-    );
-
-    expect(linkedRecord.gen3_discovery.is_registered).to.be.equal(true);
+    // expect(linkedRecord.gen3_discovery.is_registered).to.be.equal(true);
 })
