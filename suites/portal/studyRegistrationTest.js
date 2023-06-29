@@ -29,12 +29,16 @@ AfterSuite (async ({ users, fence }) => {
     // // store policy_id
     requestData.policyID = requestData.policy_id;
     requestData.adminUserTokenHeader = users.mainAcct.accessTokenHeader;
+    if (process.env.DEBUG === 'true') {
+        console.log(`### Revoke Request Data: ${requestData}`);
+    }
     const revokePolicy = await requestorTasks.createRequest(requestData);
     const revokeReqID = revokePolicy.request_id;
     // move the above request to signed state 
     await requestorTasks.signedRequest(revokeReqID);
     
-    userInfo = await fence.do.getUserInfo(users.user2.accessTokenHeader);
+    userInfo = await fence.do.getUserInfo(users.user2.accessToken);
+    console.log(`### UserInfo from fence endpoint: ${userInfo}`);
     expect(userInfo.data.authz).to.not.have.property(`${I.cache.policy_id}`);
 
     // deleting the request from requestor db
@@ -64,7 +68,7 @@ Scenario('Register a new study registration', async ({ I, mds, users, home, disc
     await mds.do.editMetadataRecord(users.mainAcct.accessTokenHeader, I.cache.applicationID,studyMetadata
     );
     // GET the mds record from mds/metadata endpoint after it is created
-    const record = await studyRegistrationTasks.readRegisteredMetadata(
+    const record = await studyRegistrationTasks.readMetadata(
         users.mainAcct.accessTokenHeader, I.cache.applicationID,
     );
     expect(record.gen3_discovery.project_title).to.be.equal(projectTitle);
@@ -74,7 +78,7 @@ Scenario('Register a new study registration', async ({ I, mds, users, home, disc
     home.do.goToHomepage();
     await home.complete.login(users.user2);
     discovery.do.goToPage();
-    I.saveScreenshot('discoveryPage.png');
+    I.saveScreenshot('discoveryPage1.png');
     
     // step 2 : request access to register the study
     // request access to register study by filling the registration form
@@ -95,20 +99,20 @@ Scenario('Register a new study registration', async ({ I, mds, users, home, disc
     I.refreshPage();
     I.wait(5);
 
-    // // step 3 : registration of the study using the CEDAR UUID
-    // // registration the study
-    // discovery.do.goToPage();
-    // I.saveScreenshot('discoveryPage.png');
+    // step 3 : registration of the study using the CEDAR UUID
+    // registration the study
+    discovery.do.goToPage();
+    I.saveScreenshot('discoveryPage2.png');
     
-    // studyRegistrationTasks.searchStudy(I.cache.applicationID);
-    // studyRegistrationTasks.seeRegisterButton();
-    // studyRegistrationTasks.fillRegistrationForm(projectTitle, cedarUUID);
+    studyRegistrationTasks.searchStudy(I.cache.applicationID);
+    studyRegistrationTasks.seeRegisterButton();
+    studyRegistrationTasks.fillRegistrationForm(cedarUUID);
 
-    // // run aggMDS sync job again after sending CEDAR request
-    // await mds.do.reSyncAggregateMetadata();
-    // const linkedRecord = await studyRegistrationTasks.readUnregisteredMetadata(
-    //     users.mainAcct.accessTokenHeader, I.cache.applicationID,
-    // );
+    // run aggMDS sync job again after sending CEDAR request
+    await mds.do.reSyncAggregateMetadata();
+    const linkedRecord = await studyRegistrationTasks.readMetadata(
+        users.mainAcct.accessTokenHeader, I.cache.applicationID,
+    );
 
-    // expect(linkedRecord.gen3_discovery.is_registered).to.be.equal(true);
+    expect(linkedRecord.gen3_discovery.is_registered).to.be.equal(true);
 })

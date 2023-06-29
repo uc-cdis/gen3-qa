@@ -8,7 +8,7 @@ const I = actor();
 
 module.exports = {
 
-    async readRegisteredMetadata(accessTokenHeader, guid) {
+    async readMetadata(accessTokenHeader, guid) {
         const resp = await I.sendGetRequest(`${studyRegistrationProps.registrationPath}/${guid}`, accessTokenHeader);
         if (resp.status === 200) {
             return resp.data;
@@ -59,16 +59,13 @@ module.exports = {
         I.fillField(studyRegistrationProps.firstName, 'Test');
         I.fillField(studyRegistrationProps.lastName, 'User');
         I.fillField(studyRegistrationProps.emailAddress, email);
-        console.log(`#####${email}#####`);
         I.fillField(studyRegistrationProps.institute, 'University of Chicago');
         I.click(studyRegistrationProps.roleRadioButton);
         I.saveScreenshot('registerPage.png');
         I.scrollPageToBottom(studyRegistrationProps.formPage);
+        I.saveScreenshot('scrollDownRegisterPage.png');
         I.wait(5);
-        I.saveScreenshot('scrollDownRegisterPage.png');  
         I.click(studyRegistrationProps.submitButton);
-        I.scrollPageToTop();
-        I.saveScreenshot('DummySuccessPage.png');
         I.wait(5);
         I.saveScreenshot('SuccessPage.png');
         I.seeElement(studyRegistrationProps.successMessage);
@@ -79,11 +76,12 @@ module.exports = {
         I.click(studyRegistrationProps.registerStudyButton);
     },
     
-    fillRegistrationForm(title, uuid) {
+    fillRegistrationForm(uuid) {
         I.amOnPage(studyRegistrationProps.registerPath);
         I.seeElement(studyRegistrationProps.registerForm);
-        I.wait(20);
+        I.wait(10);
         I.fillField(studyRegistrationProps.cedarUUID, uuid);
+        I.saveScreenshot('registerCedarID.png');
         I.click(studyRegistrationProps.registerSubmitButton);
     },
 }
