@@ -11,7 +11,7 @@ const I = actor();
 const bash = new Bash();
 const filePath = 'test-data/studyRegistrationTest/studyRegistrationData.json';
 I.cache = {};
-const cedarUUID = process.env.CEDAR_UUID;
+const cedarUUID = process.env.CEDAR_UUID.toString();
 
 AfterSuite (async ({ users, fence }) => {
     // // deleting the dummy metadata wih DID
@@ -106,6 +106,9 @@ Scenario('Register a new study registration', async ({ I, mds, users, home, disc
     
     studyRegistrationTasks.searchStudy(I.cache.applicationID);
     studyRegistrationTasks.seeRegisterButton();
+    if (process.env.DEBUG === 'true') {
+        console.log(`###CEDAR UUID: ${cedarUUID}`);
+    };
     studyRegistrationTasks.fillRegistrationForm(cedarUUID);
 
     // run aggMDS sync job again after sending CEDAR request
