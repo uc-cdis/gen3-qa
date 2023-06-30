@@ -125,7 +125,11 @@ exports.config = {
     steps: './suites/bdd/**/*.js',
   },
   plugins: {
-    allure: {},
+    allure: {
+      enabled: true,
+      require: "allure-codeceptjs",
+      outputDir: "output",
+    },
     tryTo: {
       enabled: true,
     },
