@@ -1,17 +1,13 @@
 Feature('Study Registration @heal @requires-portal @requires-requestor @aggMDS @discoveryPage @requires-metadata');
 
 const { expect } = require('chai');
-const { Bash } = require('../../utils/bash.js');
 const fs = require('fs');
-const studyRegistrationProps = require('../../services/portal/studyRegistration/studyRegistrationProps.js');
-const studyRegistrationTasks = require('../../services/portal/studyRegistration/studyRegistrationTasks.js');
 const requestorTasks = require('../../services/apis/requestor/requestorTasks.js');
 
 const I = actor();
-const bash = new Bash();
 const filePath = 'test-data/studyRegistrationTest/studyRegistrationData.json';
 I.cache = {};
-const cedarUUID = process.env.CEDAR_UUID.toString();
+const cedarUUID = "c5891154-750a-4ed7-83b7-7cac3ddddae6";
 
 AfterSuite (async ({ users, fence }) => {
     // // deleting the dummy metadata wih DID
@@ -68,7 +64,7 @@ Scenario('Register a new study registration', async ({ I, mds, users, home, disc
     await mds.do.editMetadataRecord(users.mainAcct.accessTokenHeader, I.cache.applicationID,studyMetadata
     );
     // GET the mds record from mds/metadata endpoint after it is created
-    const record = await studyRegistrationTasks.readMetadata(
+    const record = await studyRegistration.do.readMetadata(
         users.mainAcct.accessTokenHeader, I.cache.applicationID,
     );
     expect(record.gen3_discovery.project_title).to.be.equal(projectTitle);
@@ -82,12 +78,12 @@ Scenario('Register a new study registration', async ({ I, mds, users, home, disc
     
     // step 2 : request access to register the study
     // request access to register study by filling the registration form
-    studyRegistrationTasks.searchStudy(I.cache.applicationID);
-    I.click(studyRegistrationProps.requestAccessButton);
-    await studyRegistrationTasks.fillRequestAccessForm(users.user2.username);
-    I.click(studyRegistrationProps.goToDiscoverPageButton);
+    studyRegistration.do.searchStudy(I.cache.applicationID);
+    I.click(studyRegistration.props.requestAccessButton);
+    await studyRegistration.do.fillRequestAccessForm(users.user2.username);
+    I.click(studyRegistration.props.goToDiscoverPageButton);
     // get request ID by sending request to requestor end point
-    I.cache.requestID = await studyRegistrationTasks.getRequestId(users.user2.accessTokenHeader);
+    I.cache.requestID = await studyRegistration.do.getRequestId(users.user2.accessTokenHeader);
     I.cache.policyID = await requestorTasks.getPolicyID(users.user2.accessTokenHeader); 
     // updating the request to SIGNED status
     console.log(`### Updating the request ID - ${I.cache.requestID}`);
@@ -104,16 +100,16 @@ Scenario('Register a new study registration', async ({ I, mds, users, home, disc
     discovery.do.goToPage();
     I.saveScreenshot('discoveryPage2.png');
     
-    studyRegistrationTasks.searchStudy(I.cache.applicationID);
-    studyRegistrationTasks.seeRegisterButton();
+    studyRegistration.do.searchStudy(I.cache.applicationID);
+    studyRegistration.do.seeRegisterButton();
     if (process.env.DEBUG === 'true') {
         console.log(`###CEDAR UUID: ${cedarUUID}`);
     };
-    studyRegistrationTasks.fillRegistrationForm(cedarUUID);
+    studyRegistration.do.fillRegistrationForm(cedarUUID);
 
     // run aggMDS sync job again after sending CEDAR request
     await mds.do.reSyncAggregateMetadata();
-    const linkedRecord = await studyRegistrationTasks.readMetadata(
+    const linkedRecord = await studyRegistration.do.readMetadata(
         users.mainAcct.accessTokenHeader, I.cache.applicationID,
     );
 
