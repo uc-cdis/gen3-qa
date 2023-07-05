@@ -1,7 +1,6 @@
 const studyRegistrationProps = require('./studyRegistrationProps.js');
 const discoveryProps = require('../discovery/discoveryProps.js');
 const requestorProps = require('../../apis/requestor/requestorProps.js');
-const users = require('../../../utils/user');
 
 const { expect } = require('chai');
 const I = actor();
