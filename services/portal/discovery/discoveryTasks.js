@@ -30,7 +30,7 @@ module.exports = {
 
   openInWorkspace(studyId) {
     I.click(props.studySelectorLocator(studyId));
-    I.wait(1);
+    I.wait(5);
     I.saveScreenshot('study_selected.png');
     I.seeElementInDOM(props.btnOpenInWorkspace);
     I.click(props.btnOpenInWorkspace);
