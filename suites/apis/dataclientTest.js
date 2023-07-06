@@ -8,7 +8,7 @@
 Feature('Gen3-Client pre-release testing');
 
 const { expect } = require('chai');
-const { sleepMS } = require('../../utils/apiUtil.js');
+const { checkPod, sleepMS } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash.js');
 const fs = require('fs');
 
@@ -35,11 +35,11 @@ BeforeSuite(async ({ I }) => {
   // // check if the profile already exists here it would be the env-name.
   // const profile = await bash.runCommand(`./gen3-client auth --profile=${process.env.NAMESPACE}`);
   // console.log(`Profile = ${profile}`);
-  // // If it exists then, delete the profile first and run the test
+  // If it exists then, delete the profile first and run the test
 });
 
 // AfterSuite(async ({ I }) => {
-//     // delete the index recordl
+//     // delete the index record
 //     // delete the profile created via qa-dcp
       // delete the uploaded file from qa-dcp
 // })
@@ -57,7 +57,11 @@ Scenario('Configure Gen3-Client', async ({ fence, users }) => {
     ['data', 'user'],
     users.mainAcct.accessTokenHeader,
   );
-  const stringfiedKeys = JSON.stringify(apiKey.data).replace(/"/g, '\\"');
+  const data = {
+    api_key: apiKey.data.api_key,
+    key_id: apiKey.data.key_id,
+  };
+  const stringfiedKeys = JSON.stringify(data).replace(/"/g, '\\"');
 
   // adding the api key to a cred file
   const credsFile = `./${process.env.NAMESPACE}_creds.json`;
@@ -77,16 +81,20 @@ Scenario('Upload via Gen3-client', async ({ I }) => {
   await bash.runCommand(`echo "This is a test file" >> ./${fileToBeUploaded}`);
 
   // upload the file via gen3-client
-  const uploadFile = await bash.runCommand(`./gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=./${fileToBeUploaded}`);
+  const uploadFile = await bash.runCommand(`./gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=./${fileToBeUploaded} 2>&1`);
+  console.log(`##### Upload file: ${uploadFile}`);
   const regexToFindGUID = /.GUID(.*)\..*$/;
-  const guid = regexToFindGUID.exec(uploadFile);
+  const regexGUID = regexToFindGUID.exec(uploadFile)[1];
+  const guid = regexGUID.replace(' ', '');
   console.log(`guid to find: ${guid}`);
-  //.replace(' ', '');
   I.cache.GUID = guid;
-  console.log(guid);
 
+  await checkPod(I, 'indexing', 'ssjdispatcherjob');
+  
   // checking the index/index/{guid} endpoint
   const indexGUID = await I.sendGetRequest(`https://${process.env.NAMESPACE}.planx-pla.net/index/${guid}`);
+  console.log(`File Data: ${indexGUID.data}`);
+  expect(indexGUID).to.have.property('status', 200);
   expect(indexGUID.data).to.have.property('file_name', fileToBeUploaded);
 
 });
