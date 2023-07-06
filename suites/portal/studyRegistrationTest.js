@@ -44,12 +44,17 @@ AfterSuite (async ({ users, fence, requestor }) => {
 })
 
 Scenario('Register a new study registration', async ({ I, mds, users, home, discovery, studyRegistration, requestor }) => {
+    // dynamically get UID field name from portal config
+    const UIDFieldName = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.discoveryConfig.minimalFieldMapping.uid\'').replace(/^"(.*)"$/, '$1');
+    expect(UIDFieldName).to.be.a('string').that.is.not.empty;
     // create a dummy metadata
     // and storing values for the test in the I.cache
     const studyMetadata = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf8' }));
     // generate random appl_id to the study metadata on every run
     I.cache.applicationID = Math.floor(Math.random() * 90000000) + 10000000;
+    // updating the studyMetadata with values
     studyMetadata.gen3_discovery.appl_id = I.cache.applicationID;
+    studyMetadata.gen3_discovery[UIDFieldName] = I.cache.applicationID;
     const projectTitle = studyMetadata.gen3_discovery.project_title;
 
     // step 1 : create a dummy metadata record
@@ -99,14 +104,14 @@ Scenario('Register a new study registration', async ({ I, mds, users, home, disc
     discovery.do.goToPage();
     I.saveScreenshot('discoveryPage2.png');
     
-    studyRegistration.do.searchStudy(I.cache.applicationID);
+    studyRegistration.do.searchStudy(projectTitle);
     studyRegistration.do.seeRegisterButton();
     if (process.env.DEBUG === 'true') {
         console.log(`###CEDAR UUID: ${cedarUUID}`);
     };
     studyRegistration.do.fillRegistrationForm(cedarUUID);
 
-    // run aggMDS sync job again after sending CEDAR request
+    // run aggMDS sync job after sending CEDAR request
     await mds.do.reSyncAggregateMetadata();
     const linkedRecord = await studyRegistration.do.readMetadata(
         users.mainAcct.accessTokenHeader, I.cache.applicationID,

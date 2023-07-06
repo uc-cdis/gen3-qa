@@ -82,5 +82,7 @@ module.exports = {
         I.fillField(studyRegistrationProps.cedarUUID, uuid);
         I.saveScreenshot('registerCedarID.png');
         I.click(studyRegistrationProps.registerSubmitButton);
+        I.wait(5);
+        I.saveScreenshot('registerAfterSubmitButton.png');
     },
 }
