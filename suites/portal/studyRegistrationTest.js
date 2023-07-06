@@ -2,6 +2,8 @@ Feature('Study Registration @heal @requires-portal @requires-requestor @aggMDS @
 
 const { expect } = require('chai');
 const fs = require('fs');
+const { Bash } = require('../../utils/bash.js');
+const bash = new Bash();
 
 const I = actor();
 const filePath = 'test-data/studyRegistrationTest/studyRegistrationData.json';
