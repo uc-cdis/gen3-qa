@@ -58,6 +58,7 @@ Scenario('Register a new study registration', async ({ I, mds, users, home, disc
     studyMetadata.gen3_discovery.appl_id = I.cache.applicationID;
     studyMetadata.gen3_discovery[UIDFieldName] = I.cache.applicationID;
     const projectTitle = studyMetadata.gen3_discovery.project_title;
+    const projectNumber = studyMetadata.gen3_discovery.project_number;
 
     // step 1 : create a dummy metadata record
     // create a metadata record
@@ -76,7 +77,7 @@ Scenario('Register a new study registration', async ({ I, mds, users, home, disc
     expect(record.gen3_discovery.project_title).to.be.equal(projectTitle);
     expect(record._guid_type).to.be.equal("unregistered_discovery_metadata");
     
-    //step b
+    // step b
     home.do.goToHomepage();
     await home.complete.login(users.user2);
     discovery.do.goToPage();
@@ -86,7 +87,7 @@ Scenario('Register a new study registration', async ({ I, mds, users, home, disc
     // request access to register study by filling the registration form
     studyRegistration.do.searchStudy(I.cache.applicationID);
     I.click(studyRegistration.props.requestAccessButton);
-    await studyRegistration.do.fillRequestAccessForm(users.user2.username);
+    await studyRegistration.do.fillRequestAccessForm(users.user2.username, projectTitle);
     I.click(studyRegistration.props.goToDiscoverPageButton);
     // get request ID by sending request to requestor end point
     I.cache.requestID = await studyRegistration.do.getRequestId(users.user2.accessTokenHeader);
@@ -106,12 +107,13 @@ Scenario('Register a new study registration', async ({ I, mds, users, home, disc
     discovery.do.goToPage();
     I.saveScreenshot('discoveryPage2.png');
     
-    studyRegistration.do.searchStudy(projectTitle);
+    studyRegistration.do.searchStudy(I.cache.applicationID);
     studyRegistration.do.seeRegisterButton();
     if (process.env.DEBUG === 'true') {
         console.log(`###CEDAR UUID: ${cedarUUID}`);
     };
-    studyRegistration.do.fillRegistrationForm(cedarUUID);
+    const studyName = `${projectNumber} : ${projectTitle} : ${I.cache.applicationID}`;
+    await studyRegistration.do.fillRegistrationForm(cedarUUID, studyName);
 
     // run aggMDS sync job after sending CEDAR request
     await mds.do.reSyncAggregateMetadata();

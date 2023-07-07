@@ -51,10 +51,11 @@ module.exports = {
     //     I.seeElement(studyRegistrationProps.requestAccessButton);    
     // },
 
-    fillRequestAccessForm(email) {
+    fillRequestAccessForm(email, projectTitle) {
         I.amOnPage(studyRegistrationProps.requestPath);
         I.saveScreenshot('FormPage.png');
         I.seeElement(studyRegistrationProps.formPage);
+        I.waitForValue(studyRegistrationProps.projectTitle, projectTitle, 5);
         I.fillField(studyRegistrationProps.firstName, 'Test');
         I.fillField(studyRegistrationProps.lastName, 'User');
         I.fillField(studyRegistrationProps.emailAddress, email);
@@ -65,7 +66,6 @@ module.exports = {
         I.saveScreenshot('scrollDownRegisterPage.png');
         I.wait(5);
         I.click(studyRegistrationProps.submitButton);
-        I.wait(5);
         I.saveScreenshot('SuccessPage.png');
         I.seeElement(studyRegistrationProps.successMessage);
     },
@@ -75,10 +75,14 @@ module.exports = {
         I.click(studyRegistrationProps.registerStudyButton);
     },
     
-    fillRegistrationForm(uuid) {
+    async fillRegistrationForm(uuid, studyName) {
         I.amOnPage(studyRegistrationProps.registerPath);
         I.seeElement(studyRegistrationProps.registerForm);
-        I.wait(10);
+        const study =  await I.grabAttributeFrom(studyRegistrationProps.studyTitle, 'title');
+        if (process.env.DEBUG === 'true') {
+            console.log(`### StudyTitle Retrieved: ${study}`);
+        }
+        expect(study).to.be.equal(studyName);
         I.fillField(studyRegistrationProps.cedarUUID, uuid);
         I.saveScreenshot('registerCedarID.png');
         I.click(studyRegistrationProps.registerSubmitButton);
