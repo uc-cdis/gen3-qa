@@ -133,7 +133,7 @@ Scenario('Audit: download presigned URL events @audit', async ({ fence, auditSer
   );
 }).retry(1);
 
-Scenario('Audit: homepage login events @audit', async ({ home, auditService }) => {
+Scenario('Audit: homepage login events @audit @requires-portal', async ({ home, auditService }) => {
   const timestamp = Math.floor(Date.now() / 1000); // epoch timestamp
   console.log(`Start timestamp: ${timestamp}`);
   const expectedResults = [];
