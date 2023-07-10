@@ -77,6 +77,7 @@ exports.config = {
     guppy: './services/apis/guppy/guppyService.js',
     mds: './services/apis/mds/mdsService.js',
     auditService: './services/apis/auditService/auditService.js',
+    ras: './services/apis/rasDrs/rasService.js',
     requestor: './services/apis/requestor/requestorService.js',
 
     // Pages
@@ -91,6 +92,8 @@ exports.config = {
     discovery: './services/portal/discovery/discoveryService.js',
     workspace: './services/portal/workspace/workspaceService.js',
     gen3ffLandingPage: './services/portal/gen3ffLandingPage/gen3ffLandingPageService.js',
+    studyRegistration: './services/portal/studyRegistration/studyRegistrationService.js',
+
   },
   mocha: {
     reporterOptions: {

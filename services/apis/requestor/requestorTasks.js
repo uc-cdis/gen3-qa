@@ -41,7 +41,7 @@ module.exports = {
     expect(responseData).to.not.be.empty;
     const policyID = responseData[0].policy_id;
     if (process.env.DEBUG === 'true') {
-      console.log(`### request id: ${reqID}`);
+      console.log(`### request id: ${policyID}`);
     }
     return policyID;    
   },

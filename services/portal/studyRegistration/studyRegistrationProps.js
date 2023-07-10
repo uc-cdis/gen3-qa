@@ -13,6 +13,7 @@ module.exports = {
 
     //REQUEST ACCESS STAGE
     formPage: '//div[@class="generic-access-form-container"]',
+    projectTitle: '//textarea[@id="generic-access-request-form_Study Grant_doNotInclude"]',
     firstName: '//input[@id="generic-access-request-form_First Name"]',
     lastName: '//input[@id="generic-access-request-form_Last Name"]',
     emailAddress: '//input[@id="generic-access-request-form_E-mail Address"]',
@@ -25,7 +26,7 @@ module.exports = {
     //REGISTER STUDY STAGE
     registerStudyButton: '//span[normalize-space()="Register This Study"]',
     registerForm: '//form[@id="study-reg-form"]',
-    studyTitle: '//div[@aria-required="true"]//div[@class="ant-select-selector"]',
+    studyTitle: '//span[@class="ant-select-selection-item"]',
     cedarUUID: '//input[@placeholder="Provide your CEDAR user UUID here"]',
     registerSubmitButton: '//span[normalize-space()="Submit"]',
 };

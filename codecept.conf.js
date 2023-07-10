@@ -94,6 +94,7 @@ exports.config = {
     discovery: './services/portal/discovery/discoveryService.js',
     workspace: './services/portal/workspace/workspaceService.js',
     gen3ffLandingPage: './services/portal/gen3ffLandingPage/gen3ffLandingPageService.js',
+    studyRegistration: './services/portal/studyRegistration/studyRegistrationService.js',
   },
   mocha: {
     reporterOptions: {
