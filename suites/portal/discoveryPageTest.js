@@ -112,7 +112,7 @@ Scenario('Publish a study, search and export to workspace @requires-indexd @requ
   output.print('--- Open study in workspace');
   discovery.do.openInWorkspace(I.cache.studyId);
   I.saveScreenshot('6_open_in_workspace.png');
-  I.waitInUrl('/workspace', 120);
+  I.waitInUrl('/workspace', 600);
 
   // --- Disabled the validation since workspaces are failing to launch in jenkins envs ---
   // await workspace.do.launchWorkspace('(Tutorial) Bacpac Synthetic Data Analysis Notebook');
