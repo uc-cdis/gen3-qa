@@ -18,10 +18,8 @@ const fs = require('fs');
 const { execSync } = require('child_process');
 const axios = require('axios');
 const AdmZip = require('adm-zip');
-const homedir = require('os').homedir();
 
 const I = actor();
-const client_dir = `${homedir}/.gen3`;
 const latest_gen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_linux.zip';
 
 let fileToBeUploaded; let fileSize=10; let fileMd5='bdc147c6d08bf120f246609bc5f4632d';
@@ -54,7 +52,7 @@ const writeToFile = async(filePath, dataContent) => {
   }
 };
 
-BeforeSuite(async ({ I, files }) => {
+BeforeSuite(async ({ I }) => {
   I.cache = {};
 
   // create a file that can be uploaded
@@ -66,57 +64,42 @@ BeforeSuite(async ({ I, files }) => {
   writeToFile(filePath, fileData);
 });
 
-AfterSuite(async ({ I, files, indexd }) => {
-    // delete the uploaded file from qa-dcp
-    files.deleteFile(filePath);
+// AfterSuite(async ({ I, files, indexd }) => {
+//     // delete the uploaded file from qa-dcp
+//     files.deleteFile(filePath);
 
-    // delete indexd record
-    await indexd.do.deleteFile(I.cache.GUID);
-});
+//     // delete indexd record
+//     await indexd.do.deleteFile(I.cache.GUID);
+// });
 
-Scenario('Configure, Upload and Download via Gen3-client @manual', async ({ I, fence, users, indexd, files }) => {
+Scenario('Configure, Upload and Download via Gen3-client', async ({ I, fence, users, indexd, files }) => {
   
   // TODO: figure out how to download latest version in automated script
   
-  // console.log('### Downloading latest gen3-client executable file ...');
-  // // download and unzip the latest gen3-client executable file
-  // await download(latest_gen3client, `${homedir}/gen3-client.zip`)
-  // .then(() => {
-  //   console.log('File downloaded successfully!');
-  //   unzip(`${homedir}/gen3-client.zip`, homedir);
-  //   console.log('File unzipped successfully!');
-  // })
-  // .catch((error) => {
-  //   console.error('Error downloading/unzipping file:', error);
-  // });
+  const pwd = execSync('pwd', { encoding: 'utf-8' });
+  console.log(pwd.trim());
 
-  // fs.appendFileSync(`${homedir}/.zshrc`,`\nexport PATH=$PATH:$HOME`, (err) => {
-  //   if (err) {
-  //     console.error('Error writing to zshrc file:', err);
-  //   } else {
-  //     console.log('Successfully added to zshrc');
-  //     execSync('source ~/.zshrc');
-  //   }
-  // })
-  
-  // // // change permissions on the gen3-client executable
-  // // // if you dont change the permissions, you will get permission denied
-  // // const desiredMode = '+x';
-  // // fs.chmod(`${homedir}/.gen3/gen3-client`, desiredMode , (err) => {
-  // //   if (err) {
-  // //     console.error('Error updating permissions:', err);
-  // //   }}
-  // // );
+  console.log('### Downloading latest gen3-client executable file ...');
+  // download and unzip the latest gen3-client executable file
+  await download(latest_gen3client, 'gen3-client.zip')
+  .then(() => {
+    console.log('File downloaded successfully!');
+    unzip('gen3-client.zip', 'gen3-client');
+    console.log('File unzipped successfully!');
+  })
+  .catch((error) => {
+    console.error('Error downloading/unzipping file:', error);
+  });
 
   // checking if the gen3-client executable exists in fs after unzipping
   console.log('Looking for data client executable...');
-  if (!fs.existsSync(`${client_dir}/gen3-client`)) {
-    const msg = `Did not find a gen3-client executable in ${client_dir}`;
+  if (!fs.existsSync('gen3-client')) {
+    const msg = `Did not find a gen3-client executable`;
     console.log(`WARNING: ${msg}`);
   } else {
     console.log('Found a gen3-client executable...')
     // check the gen3-client version
-    checkVersionCmd = `${client_dir}/gen3-client --version`;
+    checkVersionCmd = 'gen3-client --version';
     try {
       const version = execSync(checkVersionCmd);
       console.log(`### ${version}`);
@@ -149,7 +132,7 @@ Scenario('Configure, Upload and Download via Gen3-client @manual', async ({ I, f
   });
   
 
-  const configureClientCmd = `${client_dir}/gen3-client configure --profile=${process.env.NAMESPACE} --cred=${credsFile} --apiendpoint=https://${process.env.NAMESPACE}.planx-pla.net`;
+  const configureClientCmd = `gen3-client configure --profile=${process.env.NAMESPACE} --cred=${credsFile} --apiendpoint=https://${process.env.NAMESPACE}.planx-pla.net`;
   try {
     execSync(configureClientCmd);
     console.log('### gen3-client profile is configured');
@@ -161,7 +144,7 @@ Scenario('Configure, Upload and Download via Gen3-client @manual', async ({ I, f
   files.deleteFile(credsFile);
 
   // upload a file via gen3-client
-  const uploadFileCmd = `${client_dir}/gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=${fileToBeUploaded} 2>&1`;
+  const uploadFileCmd = `gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=${fileToBeUploaded} 2>&1`;
   try {
     let cmdOut;
     try {
@@ -203,7 +186,7 @@ Scenario('Configure, Upload and Download via Gen3-client @manual', async ({ I, f
   indexd.complete.checkRecordExists();
 
   const downloadPath= './tmpDownloadFile.txt';
-  const downloadFileCmd = `${client_dir}/gen3-client download-single --profile=${process.env.NAMESPACE} --guid=${I.cache.GUID} --file=${downloadPath}`;
+  const downloadFileCmd = `gen3-client download-single --profile=${process.env.NAMESPACE} --guid=${I.cache.GUID} --file=${downloadPath}`;
   try {
     execSync(downloadFileCmd);
   } catch(error) {
