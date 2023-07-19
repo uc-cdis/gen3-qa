@@ -1,126 +1,214 @@
+// to run this test, you need to download and install the latest version of gen3-client
 // curl -L https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_linux.zip -o gen3-client.zip
 // unzip -o gen3-client.zip
-// # check the version
-// ./gen3-client --version
+
+
+// Files created during the test
+// 1. temp creds file
+// 2. file to be uploaded
+// 3. indexd record for the uploaded file
+// 4. temp downloaded file
 
 /* eslint-disable max-len */
 
 Feature('Gen3-Client pre-release testing');
 
 const { expect } = require('chai');
-const { checkPod, sleepMS } = require('../../utils/apiUtil.js');
-const { Bash } = require('../../utils/bash.js');
 const fs = require('fs');
-
-const bash = new Bash();
+const { execSync } = require('child_process');
+const axios = require('axios');
+const AdmZip = require('adm-zip');
+const homedir = require('os').homedir();
 
 const I = actor();
+const client_dir = `${homedir}/.gen3`;
+const latest_gen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_linux.zip';
 
-// function checkFileExists(filename) {
-//   var xhr = new XMLHttpRequest();
-//   xhr.open('HEAD', filename, false);
-//   xhr.send();
+let fileToBeUploaded; let fileSize=10; let fileMd5='bdc147c6d08bf120f246609bc5f4632d';
+const fileData = "This is a test file uploaded via gen3-client test";
+let urls = [ 's3://qa-dcp-databucket-gen3/testdata' ];
 
-//   if (xhr.status == "404") {
-//     console.log('File not found: ' + filename);
-//     return false;
-//   } else {
-//     console.log('File exists: ' + filename);
-//     return true;
-//   }
-// }
+//download the file locally
+const download =  async(url, path) => {
+  const response = await axios.get(url, { responseType: 'arraybuffer'});
+  fs.writeFileSync(path, response.data);
+};
+// Unzip the file locally
+const unzip = (zipPath, targetPath) => {
+  const zip = new AdmZip(zipPath);
+  zip.extractAllTo(targetPath, true);
+};
 
-BeforeSuite(async ({ I }) => {
+// create a new file and write data into it
+const writeToFile = async(filePath, dataContent) => {
+  const stream = fs.createWriteStream(filePath);
+  stream.once('open', (fd) => {
+    stream.write(dataContent);
+    stream.end();
+  });
+  // now checking if the file is created locally
+  if (!fs.existsSync(filePath)) {
+      return false;
+  } else {
+    console.log(`File ${filePath} exists`);
+  }
+};
+
+BeforeSuite(async ({ I, files }) => {
   I.cache = {};
-  // // check if the profile already exists here it would be the env-name.
-  // const profile = await bash.runCommand(`./gen3-client auth --profile=${process.env.NAMESPACE}`);
-  // console.log(`Profile = ${profile}`);
-  // If it exists then, delete the profile first and run the test
+
+  // create a file that can be uploaded
+  // add fileData to the file
+  fileToBeUploaded = `file_${Date.now()}.txt`;
+  filePath = `./${fileToBeUploaded}`;
+  console.log(`File to be uploaded : ${fileToBeUploaded}`);
+  // adding content to the file
+  writeToFile(filePath, fileData);
 });
 
-// AfterSuite(async ({ I }) => {
-//     // delete the index record
-//     // delete the profile created via qa-dcp
-      // delete the uploaded file from qa-dcp
-// })
+AfterSuite(async ({ I, files, indexd }) => {
+    // delete the uploaded file from qa-dcp
+    files.deleteFile(filePath);
 
-Scenario('Configure Gen3-Client', async ({ fence, users }) => {
-  console.log(__dirname);
-  await bash.runCommand('curl -L https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_linux.zip -o gen3-client.zip');
-  await bash.runCommand('unzip -o gen3-client.zip');
-  // checking the gen3-client version
-  const gen3ClientVersion = await bash.runCommand('./gen3-client --version');
-  console.log(`Gen3-client version: ${gen3ClientVersion}`);
+    // delete indexd record
+    await indexd.do.deleteFile(I.cache.GUID);
+});
 
-  // create API key for the creds.json
+Scenario('Configure, Upload and Download via Gen3-client @manual', async ({ I, fence, users, indexd, files }) => {
+  
+  // TODO: figure out how to download latest version in automated script
+  
+  // console.log('### Downloading latest gen3-client executable file ...');
+  // // download and unzip the latest gen3-client executable file
+  // await download(latest_gen3client, `${homedir}/gen3-client.zip`)
+  // .then(() => {
+  //   console.log('File downloaded successfully!');
+  //   unzip(`${homedir}/gen3-client.zip`, homedir);
+  //   console.log('File unzipped successfully!');
+  // })
+  // .catch((error) => {
+  //   console.error('Error downloading/unzipping file:', error);
+  // });
+
+  // fs.appendFileSync(`${homedir}/.zshrc`,`\nexport PATH=$PATH:$HOME`, (err) => {
+  //   if (err) {
+  //     console.error('Error writing to zshrc file:', err);
+  //   } else {
+  //     console.log('Successfully added to zshrc');
+  //     execSync('source ~/.zshrc');
+  //   }
+  // })
+  
+  // // // change permissions on the gen3-client executable
+  // // // if you dont change the permissions, you will get permission denied
+  // // const desiredMode = '+x';
+  // // fs.chmod(`${homedir}/.gen3/gen3-client`, desiredMode , (err) => {
+  // //   if (err) {
+  // //     console.error('Error updating permissions:', err);
+  // //   }}
+  // // );
+
+  // checking if the gen3-client executable exists in fs after unzipping
+  console.log('Looking for data client executable...');
+  if (!fs.existsSync(`${client_dir}/gen3-client`)) {
+    const msg = `Did not find a gen3-client executable in ${client_dir}`;
+    console.log(`WARNING: ${msg}`);
+  } else {
+    console.log('Found a gen3-client executable...')
+    // check the gen3-client version
+    checkVersionCmd = `${client_dir}/gen3-client --version`;
+    try {
+      const version = execSync(checkVersionCmd);
+      console.log(`### ${version}`);
+    } catch (error) {
+      const msg = error.stdout.toString('utf8');
+      console.log(`ERROR: ${msg}`);
+    }
+  }
+  
+  // creating a API key
   const apiKey = await fence.do.createAPIKey(
     ['data', 'user'],
-    users.mainAcct.accessTokenHeader,
+    users.indexingAcct.accessTokenHeader,
   );
   const data = {
     api_key: apiKey.data.api_key,
     key_id: apiKey.data.key_id,
   };
-  const stringfiedKeys = JSON.stringify(data).replace(/"/g, '\\"');
-
-  // adding the api key to a cred file
+  const stringifiedKeys = JSON.stringify(data);
+  console.log(`##${stringifiedKeys}`);
+  // // adding the api key to a cred file
   const credsFile = `./${process.env.NAMESPACE}_creds.json`;
-  await bash.runCommand(`echo "${stringfiedKeys}" > ${credsFile}`);
+  await writeToFile(credsFile, stringifiedKeys);
+  fs.readFileSync(credsFile, 'utf8', (error, data) => {
+    if (error) {
+      console.error('Error reading the file:', error);
+    } else {
+      console.log('File contents:', data);
+    }
+  });
+  
 
-  // configure client in gen3-client
-  await bash.runCommand(`./gen3-client configure --profile=${process.env.NAMESPACE} --cred=${credsFile} --apiendpoint=https://${process.env.NAMESPACE}.planx-pla.net`);
+  const configureClientCmd = `${client_dir}/gen3-client configure --profile=${process.env.NAMESPACE} --cred=${credsFile} --apiendpoint=https://${process.env.NAMESPACE}.planx-pla.net`;
+  try {
+    execSync(configureClientCmd);
+    console.log('### gen3-client profile is configured');
+  } catch (error) {
+    const msg = error.stdout.toString('utf-8');
+    throw new Error(`Error configuring the data client:\n$${msg}`);
+  }
+  
+  files.deleteFile(credsFile);
+
+  // upload a file via gen3-client
+  const uploadFileCmd = `${client_dir}/gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=${fileToBeUploaded} 2>&1`;
+  try {
+    let cmdOut;
+    try {
+      cmdOut = execSync(uploadFileCmd, { encoding: 'utf-8' });
+      console.log(`### ${cmdOut}`);
+    } catch (error) {
+      throw new Error(error.stdout.toString('utf-8'));
+    }
+    const guidRegex = cmdOut.match(/to GUID (.*)./);
+    if (!guidRegex || guidRegex.length < 2 || guidRegex[1].length < 36) {
+      throw new Error(`Did not find a GUID in the command output from gen3-client upload:\n${cmdOut}`);
+    }
+    const guid = guidRegex[1];
+    I.cache.GUID = guid;
+  } catch (error) {
+    const msg = error.toString('utf8');
+    throw new Error(`Error uploading file with data client:\n${msg}`);
+  }
+  
+  const addFields = {
+    // hashes: {
+    //   "md5sum": "bdc147c6d08bf120f246609bc5f4632d" 
+    // },
+    // size: 10,
+    urls: [ "s3://qa-dcp-databucket-gen3/testdata" ],  
+  };
+
+  // indexd.do.updateFile(I.cache.GUID, fileNode, users.indexingAcct.accessTokenHeader);
+  const getIndexdRecord = await I.sendGetRequest(`${indexd.props.endpoints.get}/${I.cache.GUID}`, users.indexingAcct.accessTokenHeader);
+  const rev = getIndexdRecord.data.rev;
+  console.log(rev);
+
+  const updateRecord = await I.sendPutRequest(
+    `${indexd.props.endpoints.put}/${I.cache.GUID}?rev=${rev}`,
+    addFields,
+    users.indexingAcct.accessTokenHeader,
+  )
+  expect(updateRecord.data).to.have.property('urls');
+  indexd.complete.checkRecordExists();
+
+  const downloadPath= './tmpDownloadFile.txt';
+  const downloadFileCmd = `${client_dir}/gen3-client download-single --profile=${process.env.NAMESPACE} --guid=${I.cache.GUID} --file=${downloadPath}`;
+  try {
+    execSync(downloadFileCmd);
+  } catch(error) {
+    const msg = error.stdout.toString('utf8');
+    throw new Error(`Error downloading file with gen3-client:\n${msg}`);
+  }
 });
 
-Scenario('Upload via Gen3-client', async ({ I }) => {
-  // create a file that can be uploaded
-  const fileToBeUploaded = `file_${Date.now()}.txt`;
-  I.cache.FileName = fileToBeUploaded;
-  console.log(`Uploading file ${fileToBeUploaded}`);
-
-  // adding content to the file
-  await bash.runCommand(`echo "This is a test file" >> ./${fileToBeUploaded}`);
-
-  // upload the file via gen3-client
-  const uploadFile = await bash.runCommand(`./gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=./${fileToBeUploaded} 2>&1`);
-  console.log(`##### Upload file: ${uploadFile}`);
-  const regexToFindGUID = /.GUID(.*)\..*$/;
-  const regexGUID = regexToFindGUID.exec(uploadFile)[1];
-  const guid = regexGUID.replace(' ', '');
-  console.log(`guid to find: ${guid}`);
-  I.cache.GUID = guid;
-
-  await checkPod(I, 'indexing', 'ssjdispatcherjob');
-  
-  // checking the index/index/{guid} endpoint
-  const indexGUID = await I.sendGetRequest(`https://${process.env.NAMESPACE}.planx-pla.net/index/${guid}`);
-  console.log(`File Data: ${indexGUID.data}`);
-  expect(indexGUID).to.have.property('status', 200);
-  expect(indexGUID.data).to.have.property('file_name', fileToBeUploaded);
-
-});
-
-// Scenario('Download via Gen3-client', async({ I }) => {
-  
-//   await sleepMS(20000);
-//   // download the file
-//   const downloadFile = await bash.runCommand(`./gen3-client download-single --profile=${process.env.NAMESPACE} --guid=${I.cache.GUID} --no-prompt`);
-//   // have a check to see if the file has been download or not
-//   const filePath = `./${I.cache.FileName}`;
-//   console.dir(filePath);
-  
-//   // if (fs.existsSync(filePath)) {
-//   //   console.log('Download is complete. Path :', filePath);
-//   // } else {
-//   //   console.log('Download is not complete. Path doesnt exists');
-//   // }
-
-//   // fs.accessSync(filePath, fs.W_OK, (err) => {
-//   //   if(err) {
-//   //     console.log(err, "Download is not complete");
-//   //     return;
-//   //   }
-//   //   console.log("Download is complete. Path :", filePath);
-//   // });
-//   await bash.runCommand(`touch ${filePath}`);
-//   // checkFileExists(filePath);
-// });
