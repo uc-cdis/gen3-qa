@@ -30,7 +30,7 @@ module.exports = {
       if (noShowFieldList.includes(metadataKey)) {
         I.dontSee(metadata[metadataKey]);
       } else if (!noCheckFieldList.includes(metadataKey)) {
-        I.see(metadata[metadataKey]);
+        I.see(Array.isArray(metadata[metadataKey]) ? metadata[metadataKey].join(', ') : metadata[metadataKey]);
       }
     });
   },

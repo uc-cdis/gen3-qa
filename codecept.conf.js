@@ -94,6 +94,7 @@ exports.config = {
     discovery: './services/portal/discovery/discoveryService.js',
     workspace: './services/portal/workspace/workspaceService.js',
     gen3ffLandingPage: './services/portal/gen3ffLandingPage/gen3ffLandingPageService.js',
+    studyRegistration: './services/portal/studyRegistration/studyRegistrationService.js',
   },
   mocha: {
     reporterOptions: {
@@ -125,7 +126,11 @@ exports.config = {
     steps: './suites/bdd/**/*.js',
   },
   plugins: {
-    allure: {},
+    allure: {
+      enabled: true,
+      require: "allure-codeceptjs",
+      outputDir: "output",
+    },
     tryTo: {
       enabled: true,
     },

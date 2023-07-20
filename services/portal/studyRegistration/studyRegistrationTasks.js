@@ -1,19 +1,19 @@
 const studyRegistrationProps = require('./studyRegistrationProps.js');
 const discoveryProps = require('../discovery/discoveryProps.js');
 const requestorProps = require('../../apis/requestor/requestorProps.js');
-const users = require('../../../utils/user');
 
 const { expect } = require('chai');
 const I = actor();
 
 module.exports = {
 
-    async readUnregisteredMetadata(accesstTokenheader, guid) {
-        const resp = await I.sendGetRequest(`${studyRegistrationProps.registrationPath}/${guid}`, accesstTokenheader);
+    async readMetadata(accessTokenHeader, guid) {
+        const resp = await I.sendGetRequest(`${studyRegistrationProps.registrationPath}/${guid}`, accessTokenHeader);
         if (resp.status === 200) {
             return resp.data;
         }
     },
+
     async getRequestId(userToken) {
         const getResponse = await I.sendGetRequest(
           `${requestorProps.endpoint.userEndPoint}`,
@@ -51,18 +51,21 @@ module.exports = {
     //     I.seeElement(studyRegistrationProps.requestAccessButton);    
     // },
 
-    fillRequestAccessForm(email) {
+    fillRequestAccessForm(email, projectTitle) {
         I.amOnPage(studyRegistrationProps.requestPath);
         I.saveScreenshot('FormPage.png');
         I.seeElement(studyRegistrationProps.formPage);
+        I.waitForValue(studyRegistrationProps.projectTitle, projectTitle, 5);
         I.fillField(studyRegistrationProps.firstName, 'Test');
         I.fillField(studyRegistrationProps.lastName, 'User');
         I.fillField(studyRegistrationProps.emailAddress, email);
         I.fillField(studyRegistrationProps.institute, 'University of Chicago');
         I.click(studyRegistrationProps.roleRadioButton);
         I.saveScreenshot('registerPage.png');
-        I.click(studyRegistrationProps.submitButton);
+        I.scrollPageToBottom(studyRegistrationProps.formPage);
+        I.saveScreenshot('scrollDownRegisterPage.png');
         I.wait(5);
+        I.click(studyRegistrationProps.submitButton);
         I.saveScreenshot('SuccessPage.png');
         I.seeElement(studyRegistrationProps.successMessage);
     },
@@ -72,11 +75,18 @@ module.exports = {
         I.click(studyRegistrationProps.registerStudyButton);
     },
     
-    fillRegistrationForm(title, uuid) {
+    async fillRegistrationForm(uuid, studyName) {
         I.amOnPage(studyRegistrationProps.registerPath);
         I.seeElement(studyRegistrationProps.registerForm);
-        I.wait(20);
+        const study =  await I.grabAttributeFrom(studyRegistrationProps.studyTitle, 'title');
+        if (process.env.DEBUG === 'true') {
+            console.log(`### StudyTitle Retrieved: ${study}`);
+        }
+        expect(study).to.be.equal(studyName);
         I.fillField(studyRegistrationProps.cedarUUID, uuid);
+        I.saveScreenshot('registerCedarID.png');
         I.click(studyRegistrationProps.registerSubmitButton);
+        I.wait(5);
+        I.saveScreenshot('registerAfterSubmitButton.png');
     },
 }
