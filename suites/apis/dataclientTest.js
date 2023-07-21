@@ -100,10 +100,22 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({ I, fence, us
   } else {
     console.log('Found a gen3-client executable...')
     // check the gen3-client version
-    checkVersionCmd = 'gen3-client --version';
+    
+    console.log('using ./');
+    checkVersionCmd = './gen3-client --version';
     try {
       const version = execSync(checkVersionCmd);
       console.log(`### ${version}`);
+    } catch (error) {
+      const msg = error.stdout.toString('utf8');
+      console.log(`ERROR: ${msg}`);
+    }
+
+    console.log('bash command output');
+    checkVersionCmd1 = 'bash gen3-client --version';
+    try {
+      const version = execSync(checkVersionCmd1);
+      console.log(`### bash : ${version}`);
     } catch (error) {
       const msg = error.stdout.toString('utf8');
       console.log(`ERROR: ${msg}`);
@@ -166,11 +178,11 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({ I, fence, us
   }
   
   const addFields = {
-    // hashes: {
-    //   "md5sum": "bdc147c6d08bf120f246609bc5f4632d" 
-    // },
-    // size: 10,
-    urls: [ "s3://qa-dcp-databucket-gen3/testdata" ],  
+    hashes: {
+      md5sum: 'bdc147c6d08bf120f246609bc5f4632d' 
+    },
+    size: 10,
+    urls: [ 's3://qa-dcp-databucket-gen3/testdata' ],  
   };
 
   // indexd.do.updateFile(I.cache.GUID, fileNode, users.indexingAcct.accessTokenHeader);
@@ -180,10 +192,16 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({ I, fence, us
     console.log(rev);
   }
 
+  const params = {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${users.indexingAcct.accessToken}` 
+    }
+  }
   const updateRecord = await I.sendPutRequest(
     `${indexd.props.endpoints.put}/${I.cache.GUID}?rev=${rev}`,
     addFields,
-    users.indexingAcct.accessTokenHeader,
+    params,
   )
   expect(updateRecord.data).to.have.property('urls');
   indexd.complete.checkRecordExists();
