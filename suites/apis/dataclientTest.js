@@ -175,7 +175,9 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({ I, fence, us
   // indexd.do.updateFile(I.cache.GUID, fileNode, users.indexingAcct.accessTokenHeader);
   const getIndexdRecord = await I.sendGetRequest(`${indexd.props.endpoints.get}/${I.cache.GUID}`, users.indexingAcct.accessTokenHeader);
   const rev = getIndexdRecord.data.rev;
-  console.log(rev);
+  if (process.env.DEBUG === 'true') {
+    console.log(rev);
+  }
 
   const updateRecord = await I.sendPutRequest(
     `${indexd.props.endpoints.put}/${I.cache.GUID}?rev=${rev}`,
