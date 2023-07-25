@@ -99,20 +99,8 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({ I, fence, us
     console.log(`WARNING: ${msg}`);
   } else {
     console.log('Found a gen3-client executable...')
-    // check the gen3-client version
-    
-    console.log('using ./');
-    checkVersionCmd = './gen3-client --version';
-    try {
-      const version = execSync(checkVersionCmd);
-      console.log(`### ${version}`);
-    } catch (error) {
-      const msg = error.stdout.toString('utf8');
-      console.log(`ERROR: ${msg}`);
-    }
-
-    console.log('bash command output');
-    checkVersionCmd1 = 'bash gen3-client --version';
+    // check the gen3-client version  
+    checkVersionCmd1 = 'bash ./gen3-client --version';
     try {
       const version = execSync(checkVersionCmd1);
       console.log(`### bash : ${version}`);
@@ -121,6 +109,24 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({ I, fence, us
       console.log(`ERROR: ${msg}`);
     }
   }
+
+  // changing the permission on gen3c-client
+  // if you dont change the permissions, you will get permission denied
+  console.log('Changing the permission on gen3c-client executable ...');
+  const desiredMode = 0o111;
+  fs.chmod('gen3-client', desiredMode , (err) => {
+    if (err) {
+      console.error('Error updating permissions:', err);
+    }}
+  );
+  console.log('Checking for executable permissions ');
+  fs.accessSync('gen3-client', fs.constants.X_OK, (err) => {
+    if (err) {
+      console.error('### gen3-client is not executable.');
+    } else {
+      console.log('### gen3-client is executable.');
+    }
+  });
   
   // creating a API key
   const apiKey = await fence.do.createAPIKey(
