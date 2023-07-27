@@ -18,9 +18,20 @@ const fs = require('fs');
 const { execSync } = require('child_process');
 const axios = require('axios');
 const AdmZip = require('adm-zip');
+// const os = require('os');
 
 const I = actor();
+
 const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_linux.zip';
+
+// // downloading the correct version of the gen3-client zip  as per the architecture it is running on
+// if (os.platform === 'darwin') {
+//   console.log('Running in macOS, will download latest MACOS version ...');
+//   latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_osx.zip';
+// } else if (os.platform === 'linux') {
+//   console.log('Running in LINUX, will download latest LINUX version ...');
+//   latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_linux.zip';
+// }
 
 let fileToBeUploaded;
 const fileData = 'This is a test file uploaded via gen3-client test';
@@ -104,18 +115,16 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({
     console.log('Changing the permission on gen3-client executable ...');
     const desiredMode = 0o765;
     fs.chmodSync('gen3-client/gen3-client', desiredMode, (err) => {
+      console.log('### All good updating permissions');
       if (err) {
         console.error('Error updating permissions:', err);
-      } else {
-        console.log('All good updating permissions');
       }
     });
     console.log('Checking for executable permissions ');
     fs.accessSync('./gen3-client/gen3-client', fs.constants.X_OK, (err) => {
+      console.log('### gen3-client is executable.');
       if (err) {
         console.error('### gen3-client is not executable.');
-      } else {
-        console.log('### gen3-client is executable.');
       }
     });
     // check the gen3-client version
@@ -139,16 +148,15 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({
     key_id: apiKey.data.key_id,
   };
   const stringifiedKeys = JSON.stringify(data);
-  console.log(`##${stringifiedKeys}`);
+  console.log(`##1: ${stringifiedKeys}`);
   // // adding the api key to a cred file
   const credsFile = `./${process.env.NAMESPACE}_creds.json`;
   await writeToFile(credsFile, stringifiedKeys);
   // eslint-disable-next-line no-shadow
   fs.readFileSync(credsFile, 'utf8', (error, data) => {
+    console.log('File contents:', data);
     if (error) {
       console.error('Error reading the file:', error);
-    } else {
-      console.log('File contents:', data);
     }
   });
 
