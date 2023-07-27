@@ -139,15 +139,16 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({
   }
 
   // creating a API key
+  const scope = ['data', 'user'];
   const apiKey = await fence.do.createAPIKey(
-    ['data', 'user'],
+    scope,
     users.indexingAcct.accessTokenHeader,
   );
   const data = {
     api_key: apiKey.data.api_key,
     key_id: apiKey.data.key_id,
   };
-  const stringifiedKeys = JSON.stringify(data);
+  const stringifiedKeys = JSON.stringify(data).replace(/"/g, '\\"');
   console.log(`##1: ${stringifiedKeys}`);
   // // adding the api key to a cred file
   const credsFile = `./${process.env.NAMESPACE}_creds.json`;
