@@ -2,15 +2,13 @@
 /* eslint-disable consistent-return */
 /* eslint-disable max-len */
 
-// to run this test, you need to download and install the latest version of gen3-client
-// curl -L https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_linux.zip -o gen3-client.zip
-// unzip -o gen3-client.zip
-
-// Files created during the test
-// 1. temp creds file
-// 2. file to be uploaded
-// 3. indexd record for the uploaded file
-// 4. temp downloaded file
+// what does this test do:
+// 1. downloads the latest gene-client version and unzips in the working directory
+// 2. creates the api key and stores them in the creds.json file
+// 3. using the creds.json, configure the profile
+// 4. upload the file
+// 5. check the file is uploaded in indexd
+// 6. download the file
 
 Feature('Gen3-Client pre-release testing');
 
@@ -37,7 +35,6 @@ const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/l
 //   latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_linux.zip';
 // }
 
-let fileToBeUploaded;
 const fileData = 'This is a test file uploaded via gen3-client test';
 
 // download the file locally
@@ -74,27 +71,24 @@ BeforeSuite(async () => {
     console.log(`Access token: ${I.cache.accessToken}`);
   }
   // create a file that can be uploaded
-  // add fileData to the file
-  fileToBeUploaded = `file_${Date.now()}.txt`;
+  const fileToBeUploaded = `file_${Date.now()}.txt`;
   const filePath = `./${fileToBeUploaded}`;
   console.log(`File to be uploaded : ${fileToBeUploaded}`);
   // adding content to the file
   writeToFile(filePath, fileData);
+  I.cache.fileToBeUploaded = fileToBeUploaded;
 });
 
-// AfterSuite(async ({ I, files, indexd }) => {
-//     // delete the uploaded file from qa-dcp
-//     files.deleteFile(filePath);
+AfterSuite(async ({ indexd }) => {
+  // TODO : delete the files from fs
 
-//     // delete indexd record
-//     await indexd.do.deleteFile(I.cache.GUID);
-// });
+  // delete indexd record
+  await indexd.do.deleteFile(I.cache.GUID);
+});
 
 Scenario('Configure, Upload and Download via Gen3-client', async ({
   fence, indexd, files,
 }) => {
-  // TODO: figure out how to download latest version in automated script
-
   const pwd = execSync('pwd', { encoding: 'utf-8' });
   console.log('#### current working directory:');
   console.log(pwd.trim());
@@ -161,17 +155,11 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({
     key_id: apiKey.data.key_id,
   };
   const stringifiedKeys = JSON.stringify(data).replace(/\*\*\*\*/g, '{');
-  console.log(`#### Stringified Keys: ${stringifiedKeys}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`#### Stringified Keys: ${stringifiedKeys}`);
+  }
   // // adding the api key to a cred file
   const credsFile = `./${process.env.NAMESPACE}_creds.json`;
-  // await writeToFile(credsFile, stringifiedKeys);
-  // // eslint-disable-next-line no-shadow
-  // fs.readFileSync(credsFile, 'utf8', (error, data) => {
-  //   console.log('File contents:', data);
-  //   if (error) {
-  //     console.error('Error reading the file:', error);
-  //   }
-  // });
   try {
     fs.writeFileSync(credsFile, stringifiedKeys);
     console.log('File created and data written successfully');
@@ -185,7 +173,7 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({
   } catch (e) {
     console.error('Error reading the file:', e);
   }
-  
+
   const configureClientCmd = `./gen3-client/gen3-client configure --profile=${process.env.NAMESPACE} --cred=${credsFile} --apiendpoint=https://${process.env.NAMESPACE}.planx-pla.net`;
   try {
     console.log('Configuring profile ...');
@@ -196,10 +184,10 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({
     throw new Error(`Error configuring the data client:\n$${msg}`);
   }
 
-  // files.deleteFile(credsFile);
+  files.deleteFile(credsFile);
 
   // upload a file via gen3-client
-  const uploadFileCmd = `./gen3-client/gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=${fileToBeUploaded} 2>&1`;
+  const uploadFileCmd = `./gen3-client/gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=${I.cache.fileToBeUploaded} 2>&1`;
   try {
     let cmdOut;
     try {
@@ -220,36 +208,14 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({
     throw new Error(`Error uploading file with data client:\n${msg}`);
   }
 
-  // const addFields = {
-  //   hashes: {
-  //     md5sum: 'bdc147c6d08bf120f246609bc5f4632d',
-  //   },
-  //   size: 10,
-  //   urls: ['s3://cdis-presigned-url-test3/testdata'],
-  // };
-
-  // indexd.do.updateFile(I.cache.GUID, fileNode, users.indexingAcct.accessTokenHeader);
   const getIndexdRecord = await I.sendGetRequest(`${indexd.props.endpoints.get}/${I.cache.GUID}`, users.indexingAcct.accessTokenHeader);
   const { rev } = getIndexdRecord.data;
   if (process.env.DEBUG === 'true') {
     console.log(rev);
+    console.log(getIndexdRecord.data);
   }
-  console.log(getIndexdRecord.data);
   expect(getIndexdRecord.data).to.have.property('urls');
 
-  // const params = {
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //     Authorization: `Bearer ${users.indexingAcct.accessToken}`,
-  //   },
-  // };
-  // const updateRecord = await I.sendPutRequest(
-  //   `${process.env.NAMESPACE}/index/index/blank/${I.cache.GUID}?rev=${rev}`,
-  //   addFields,
-  //   params,
-  // );
-  // expect(updateRecord.data).to.have.property('urls');
-  // indexd.complete.checkRecordExists();
   execSync('sleep 10');
   const downloadPath = `tmpDownloadFile_${Date.now()}.txt`;
   const downloadFileCmd = `./gen3-client/gen3-client download-single --profile=${process.env.NAMESPACE} --guid=${I.cache.GUID} --download-path=${downloadPath} --no-prompt`;
@@ -260,5 +226,10 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({
     const msg = error.stdout.toString('utf8');
     throw new Error(`Error downloading file with gen3-client:\n${msg}`);
   }
-  // After download check the file exists in the download folder and also check if the content matches 
+  // After download check the file exists in the download folder and also check if the content matches
+  if (fs.existsSync(`${downloadPath}/${I.cache.fileToBeUploaded}`)) {
+    console.log('File is downloaded successfully');
+  } else {
+    console.log('File is not downloaded successfully');
+  }
 });
