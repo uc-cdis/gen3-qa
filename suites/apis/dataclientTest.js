@@ -148,19 +148,19 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({
     api_key: apiKey.data.api_key,
     key_id: apiKey.data.key_id,
   };
-  const stringifiedKeys = JSON.stringify(data);
+  console.log(`${data}`);
+  const stringifiedKeys = JSON.stringify(data).replace(/\*\*\*\*/g, '{');
   console.log(`##1: ${stringifiedKeys}`);
   // // adding the api key to a cred file
   const credsFile = `./${process.env.NAMESPACE}_creds.json`;
   await writeToFile(credsFile, stringifiedKeys);
-  console.log(`2: Creds file after writing : ${credsFile}`);
-  // // eslint-disable-next-line no-shadow
-  // fs.readFileSync(credsFile, 'utf8', (error, data) => {
-  //   console.log('File contents:', data);
-  //   if (error) {
-  //     console.error('Error reading the file:', error);
-  //   }
-  // });
+  // eslint-disable-next-line no-shadow
+  fs.readFileSync(credsFile, 'utf8', (error, data) => {
+    console.log('File contents:', data);
+    if (error) {
+      console.error('Error reading the file:', error);
+    }
+  });
 
   const configureClientCmd = `./gen3-client/gen3-client configure --profile=${process.env.NAMESPACE} --cred=${credsFile} --apiendpoint=https://${process.env.NAMESPACE}.planx-pla.net`;
   try {
