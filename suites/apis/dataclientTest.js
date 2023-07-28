@@ -25,8 +25,8 @@ const users = require('../../utils/user');
 
 const I = actor();
 
-// const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_linux.zip';
-const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_osx.zip';
+const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_linux.zip';
+// const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_osx.zip';
 
 // // downloading the correct version of the gen3-client zip  as per the architecture it is running on
 // if (os.platform === 'darwin') {
@@ -236,8 +236,8 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({
   // expect(updateRecord.data).to.have.property('urls');
   // indexd.complete.checkRecordExists();
 
-  const downloadPath = './tmpDownloadFile.txt';
-  const downloadFileCmd = `./gen3-client/gen3-client download-single --profile=${process.env.NAMESPACE} --guid=${I.cache.GUID} --file=${downloadPath}`;
+  const downloadPath = `tmpDownloadFile_${Date.now()}.txt`;
+  const downloadFileCmd = `./gen3-client/gen3-client download-single --profile=${process.env.NAMESPACE} --guid=${I.cache.GUID} --download-path=${downloadPath}`;
   try {
     execSync(downloadFileCmd);
   } catch (error) {
