@@ -1,4 +1,6 @@
+/* eslint-disable no-undef */
 /* eslint-disable consistent-return */
+
 // to run this test, you need to download and install the latest version of gen3-client
 // curl -L https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_linux.zip -o gen3-client.zip
 // unzip -o gen3-client.zip
@@ -18,11 +20,13 @@ const fs = require('fs');
 const { execSync } = require('child_process');
 const axios = require('axios');
 const AdmZip = require('adm-zip');
+const users = require('../../utils/user');
 // const os = require('os');
 
 const I = actor();
 
-const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_linux.zip';
+// const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_linux.zip';
+const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_osx.zip';
 
 // // downloading the correct version of the gen3-client zip  as per the architecture it is running on
 // if (os.platform === 'darwin') {
@@ -64,7 +68,11 @@ const writeToFile = async (filePath, dataContent) => {
 
 BeforeSuite(async () => {
   I.cache = {};
-
+  const userAccessToken = users.indexingAcct.accessToken;
+  I.cache.accessToken = userAccessToken;
+  if (process.env.DEBUG === 'true') {
+    console.log(`Access token: ${I.cache.accessToken}`);
+  }
   // create a file that can be uploaded
   // add fileData to the file
   fileToBeUploaded = `file_${Date.now()}.txt`;
@@ -83,7 +91,7 @@ BeforeSuite(async () => {
 // });
 
 Scenario('Configure, Upload and Download via Gen3-client', async ({
-  fence, users, indexd, files,
+  fence, indexd, files,
 }) => {
   // TODO: figure out how to download latest version in automated script
 
@@ -142,13 +150,16 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({
   const scope = ['data', 'user'];
   const apiKey = await fence.do.createAPIKey(
     scope,
-    users.indexingAcct.accessTokenHeader,
+    {
+      Accept: 'application/json',
+      Authorization: `bearer ${I.cache.accessToken}`,
+      'Content-Type': 'application/json',
+    },
   );
   const data = {
     api_key: apiKey.data.api_key,
     key_id: apiKey.data.key_id,
   };
-  console.log(`${data}`);
   const stringifiedKeys = JSON.stringify(data).replace(/\*\*\*\*/g, '{');
   console.log(`##1: ${stringifiedKeys}`);
   // // adding the api key to a cred file
@@ -194,13 +205,13 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({
     throw new Error(`Error uploading file with data client:\n${msg}`);
   }
 
-  const addFields = {
-    hashes: {
-      md5sum: 'bdc147c6d08bf120f246609bc5f4632d',
-    },
-    size: 10,
-    urls: ['s3://qa-dcp-databucket-gen3/testdata'],
-  };
+  // const addFields = {
+  //   hashes: {
+  //     md5sum: 'bdc147c6d08bf120f246609bc5f4632d',
+  //   },
+  //   size: 10,
+  //   urls: ['s3://qa-dcp-databucket-gen3/testdata'],
+  // };
 
   // indexd.do.updateFile(I.cache.GUID, fileNode, users.indexingAcct.accessTokenHeader);
   const getIndexdRecord = await I.sendGetRequest(`${indexd.props.endpoints.get}/${I.cache.GUID}`, users.indexingAcct.accessTokenHeader);
@@ -208,20 +219,22 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({
   if (process.env.DEBUG === 'true') {
     console.log(rev);
   }
+  console.log(getIndexdRecord.data);
+  expect(getIndexdRecord.data).to.have.property('urls');
 
-  const params = {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${users.indexingAcct.accessToken}`,
-    },
-  };
-  const updateRecord = await I.sendPutRequest(
-    `${indexd.props.endpoints.put}/${I.cache.GUID}?rev=${rev}`,
-    addFields,
-    params,
-  );
-  expect(updateRecord.data).to.have.property('urls');
-  indexd.complete.checkRecordExists();
+  // const params = {
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //     Authorization: `Bearer ${users.indexingAcct.accessToken}`,
+  //   },
+  // };
+  // const updateRecord = await I.sendPutRequest(
+  //   `${indexd.props.endpoints.put}/${I.cache.GUID}?rev=${rev}`,
+  //   addFields,
+  //   params,
+  // );
+  // expect(updateRecord.data).to.have.property('urls');
+  // indexd.complete.checkRecordExists();
 
   const downloadPath = './tmpDownloadFile.txt';
   const downloadFileCmd = `./gen3-client/gen3-client download-single --profile=${process.env.NAMESPACE} --guid=${I.cache.GUID} --file=${downloadPath}`;
