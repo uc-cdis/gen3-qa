@@ -1,5 +1,6 @@
 /* eslint-disable no-undef */
 /* eslint-disable consistent-return */
+/* eslint-disable max-len */
 
 // to run this test, you need to download and install the latest version of gen3-client
 // curl -L https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_linux.zip -o gen3-client.zip
@@ -11,8 +12,6 @@
 // 3. indexd record for the uploaded file
 // 4. temp downloaded file
 
-/* eslint-disable max-len */
-
 Feature('Gen3-Client pre-release testing');
 
 const { expect } = require('chai');
@@ -21,7 +20,6 @@ const { execSync } = require('child_process');
 const axios = require('axios');
 const AdmZip = require('adm-zip');
 const users = require('../../utils/user');
-const { sleepMS } = require('../../utils/apiUtil');
 // const os = require('os');
 
 const I = actor();
@@ -29,6 +27,7 @@ const I = actor();
 const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_linux.zip';
 // const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_osx.zip';
 
+// TODO
 // // downloading the correct version of the gen3-client zip  as per the architecture it is running on
 // if (os.platform === 'darwin') {
 //   console.log('Running in macOS, will download latest MACOS version ...');
@@ -186,7 +185,7 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({
   } catch (e) {
     console.error('Error reading the file:', e);
   }
-  sleepMS(30000);
+  
   const configureClientCmd = `./gen3-client/gen3-client configure --profile=${process.env.NAMESPACE} --cred=${credsFile} --apiendpoint=https://${process.env.NAMESPACE}.planx-pla.net`;
   try {
     console.log('Configuring profile ...');
@@ -251,7 +250,7 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({
   // );
   // expect(updateRecord.data).to.have.property('urls');
   // indexd.complete.checkRecordExists();
-
+  execSync('sleep 10');
   const downloadPath = `tmpDownloadFile_${Date.now()}.txt`;
   const downloadFileCmd = `./gen3-client/gen3-client download-single --profile=${process.env.NAMESPACE} --guid=${I.cache.GUID} --download-path=${downloadPath} --no-prompt`;
   try {
@@ -261,4 +260,5 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({
     const msg = error.stdout.toString('utf8');
     throw new Error(`Error downloading file with gen3-client:\n${msg}`);
   }
+  // After download check the file exists in the download folder and also check if the content matches 
 });
