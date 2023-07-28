@@ -21,12 +21,13 @@ const { execSync } = require('child_process');
 const axios = require('axios');
 const AdmZip = require('adm-zip');
 const users = require('../../utils/user');
+const { sleepMS } = require('../../utils/apiUtil');
 // const os = require('os');
 
 const I = actor();
 
-// const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_linux.zip';
-const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_osx.zip';
+const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_linux.zip';
+// const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_osx.zip';
 
 // // downloading the correct version of the gen3-client zip  as per the architecture it is running on
 // if (os.platform === 'darwin') {
@@ -185,7 +186,7 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({
   } catch (e) {
     console.error('Error reading the file:', e);
   }
-
+  sleepMS(30000);
   const configureClientCmd = `./gen3-client/gen3-client configure --profile=${process.env.NAMESPACE} --cred=${credsFile} --apiendpoint=https://${process.env.NAMESPACE}.planx-pla.net`;
   try {
     console.log('Configuring profile ...');
