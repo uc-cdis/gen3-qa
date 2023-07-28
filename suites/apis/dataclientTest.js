@@ -25,8 +25,8 @@ const users = require('../../utils/user');
 
 const I = actor();
 
-const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_linux.zip';
-// const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_osx.zip';
+// const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_linux.zip';
+const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_osx.zip';
 
 // // downloading the correct version of the gen3-client zip  as per the architecture it is running on
 // if (os.platform === 'darwin') {
@@ -164,17 +164,31 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({
   console.log(`#### Stringified Keys: ${stringifiedKeys}`);
   // // adding the api key to a cred file
   const credsFile = `./${process.env.NAMESPACE}_creds.json`;
-  await writeToFile(credsFile, stringifiedKeys);
-  // eslint-disable-next-line no-shadow
-  fs.readFileSync(credsFile, 'utf8', (error, data) => {
-    console.log('File contents:', data);
-    if (error) {
-      console.error('Error reading the file:', error);
-    }
-  });
+  // await writeToFile(credsFile, stringifiedKeys);
+  // // eslint-disable-next-line no-shadow
+  // fs.readFileSync(credsFile, 'utf8', (error, data) => {
+  //   console.log('File contents:', data);
+  //   if (error) {
+  //     console.error('Error reading the file:', error);
+  //   }
+  // });
+  try {
+    fs.writeFileSync(credsFile, stringifiedKeys);
+    console.log('File created and data written successfully');
+  } catch (e) {
+    console.error('Error writing the file:', e);
+  }
+
+  try {
+    const fileContent = fs.readFileSync(credsFile, 'utf8');
+    console.log(`Data read from ${credsFile}:`, fileContent);
+  } catch (e) {
+    console.error('Error reading the file:', e);
+  }
 
   const configureClientCmd = `./gen3-client/gen3-client configure --profile=${process.env.NAMESPACE} --cred=${credsFile} --apiendpoint=https://${process.env.NAMESPACE}.planx-pla.net`;
   try {
+    console.log('Configuring profile ...');
     execSync(configureClientCmd);
     console.log('### gen3-client profile is configured');
   } catch (error) {
@@ -182,13 +196,14 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({
     throw new Error(`Error configuring the data client:\n$${msg}`);
   }
 
-  files.deleteFile(credsFile);
+  // files.deleteFile(credsFile);
 
   // upload a file via gen3-client
   const uploadFileCmd = `./gen3-client/gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=${fileToBeUploaded} 2>&1`;
   try {
     let cmdOut;
     try {
+      console.log('Uploading the file ...');
       cmdOut = execSync(uploadFileCmd, { encoding: 'utf-8' });
       console.log(`### ${cmdOut}`);
     } catch (error) {
@@ -210,7 +225,7 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({
   //     md5sum: 'bdc147c6d08bf120f246609bc5f4632d',
   //   },
   //   size: 10,
-  //   urls: ['s3://qa-dcp-databucket-gen3/testdata'],
+  //   urls: ['s3://cdis-presigned-url-test3/testdata'],
   // };
 
   // indexd.do.updateFile(I.cache.GUID, fileNode, users.indexingAcct.accessTokenHeader);
@@ -229,7 +244,7 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({
   //   },
   // };
   // const updateRecord = await I.sendPutRequest(
-  //   `${indexd.props.endpoints.put}/${I.cache.GUID}?rev=${rev}`,
+  //   `${process.env.NAMESPACE}/index/index/blank/${I.cache.GUID}?rev=${rev}`,
   //   addFields,
   //   params,
   // );
@@ -237,8 +252,9 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({
   // indexd.complete.checkRecordExists();
 
   const downloadPath = `tmpDownloadFile_${Date.now()}.txt`;
-  const downloadFileCmd = `./gen3-client/gen3-client download-single --profile=${process.env.NAMESPACE} --guid=${I.cache.GUID} --download-path=${downloadPath}`;
+  const downloadFileCmd = `./gen3-client/gen3-client download-single --profile=${process.env.NAMESPACE} --guid=${I.cache.GUID} --download-path=${downloadPath} --no-prompt`;
   try {
+    console.log('Downloading file ...');
     execSync(downloadFileCmd);
   } catch (error) {
     const msg = error.stdout.toString('utf8');
