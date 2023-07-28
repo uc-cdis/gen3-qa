@@ -161,7 +161,7 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({
     key_id: apiKey.data.key_id,
   };
   const stringifiedKeys = JSON.stringify(data).replace(/\*\*\*\*/g, '{');
-  console.log(`## Stringified Keys: ${stringifiedKeys}`);
+  console.log(`#### Stringified Keys: ${stringifiedKeys}`);
   // // adding the api key to a cred file
   const credsFile = `./${process.env.NAMESPACE}_creds.json`;
   await writeToFile(credsFile, stringifiedKeys);
