@@ -5,6 +5,8 @@
 #   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--seleniumTimeout] [--selectedTest=selectedTest] [--selectedTag=selectedTag] [--debug=debug]
 #
 
+# DUMMY COMMIT
+
 set -xe
 
 help() {
