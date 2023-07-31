@@ -3,14 +3,16 @@
 /* eslint-disable max-len */
 
 // what does this test do:
-// 1. downloads the latest gene-client version and unzips in the working directory
-// 2. creates the api key and stores them in the creds.json file
+// 1. downloads the latest gen3-client version and unzips in the working directory
+// 2. creates the api key and stores them in the creds.json file - filename 'credsFile'
 // 3. using the creds.json, configure the profile
-// 4. upload the file
+// 4. upload the file - filename 'fileToBeUploaded'
 // 5. check the file is uploaded in indexd
 // 6. download the file
 
-Feature('Gen3-Client pre-release testing');
+// this test will run in nightly-builds and gen3-qa PRs
+
+Feature('Gen3-Client CLI testing @requires-fence @requires-indexd');
 
 const { expect } = require('chai');
 const fs = require('fs');
@@ -22,8 +24,8 @@ const users = require('../../utils/user');
 
 const I = actor();
 
-const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_linux.zip';
-// const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_osx.zip';
+// const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_linux.zip';
+const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_osx.zip';
 
 // TODO
 // // downloading the correct version of the gen3-client zip  as per the architecture it is running on
@@ -79,19 +81,35 @@ BeforeSuite(async () => {
   I.cache.fileToBeUploaded = fileToBeUploaded;
 });
 
-AfterSuite(async ({ indexd }) => {
-  // TODO : delete the files from fs
+AfterSuite(async ({ files, indexd }) => {
+  // delete the gen3-client zip file
+  console.log('Deleting gen3-client zip file ...');
+  files.deleteFile('gen3-client.zip');
+
+  // delete the gen3-client executable
+  fs.rmSync(I.cache.downloadFile, { recursive: true });
+  console.log('gen3-client executable deleted ...');
+
+  // delete the fileUploaded and creds.file
+  console.log('Deleting test upload files ...');
+  files.deleteFile(I.cache.fileToBeUploaded);
+  console.log('Deleting creds.file ...');
+  files.deleteFile(I.cache.credsFile);
+
+  // remove download folder with tmp file
+  fs.rmSync(I.cache.downloadFile, { recursive: true });
+  console.log('Tmp download folder deleted successfully ...');
 
   // delete indexd record
-  await indexd.do.deleteFile(I.cache.GUID);
+  console.log('Deleting indexd record ...');
+  await indexd.do.deleteFile({ did: I.cache.GUID });
 });
 
-Scenario('Configure, Upload and Download via Gen3-client', async ({
-  fence, indexd, files,
+Scenario('Configure, Upload and Download via Gen3-client @gen3-client', async ({
+  fence, indexd,
 }) => {
   const pwd = execSync('pwd', { encoding: 'utf-8' });
-  console.log('#### current working directory:');
-  console.log(pwd.trim());
+  console.log('#### current working directory:', pwd.trim());
 
   console.log('### Downloading latest gen3-client executable file ...');
   // download and unzip the latest gen3-client executable file
@@ -166,12 +184,15 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({
   } catch (e) {
     console.error('Error writing the file:', e);
   }
+  I.cache.credsFile = credsFile;
 
-  try {
-    const fileContent = fs.readFileSync(credsFile, 'utf8');
-    console.log(`Data read from ${credsFile}:`, fileContent);
-  } catch (e) {
-    console.error('Error reading the file:', e);
+  if (process.env.DEBUG === 'true') {
+    try {
+      const credsContent = fs.readFileSync(credsFile, 'utf8');
+      console.log(`Data read from ${credsFile}:`, credsContent);
+    } catch (e) {
+      console.error('Error reading the file:', e);
+    }
   }
 
   const configureClientCmd = `./gen3-client/gen3-client configure --profile=${process.env.NAMESPACE} --cred=${credsFile} --apiendpoint=https://${process.env.NAMESPACE}.planx-pla.net`;
@@ -183,8 +204,6 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({
     const msg = error.stdout.toString('utf-8');
     throw new Error(`Error configuring the data client:\n$${msg}`);
   }
-
-  files.deleteFile(credsFile);
 
   // upload a file via gen3-client
   const uploadFileCmd = `./gen3-client/gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=${I.cache.fileToBeUploaded} 2>&1`;
@@ -218,6 +237,7 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({
 
   execSync('sleep 10');
   const downloadPath = `tmpDownloadFile_${Date.now()}.txt`;
+  I.cache.downloadFile = downloadPath;
   const downloadFileCmd = `./gen3-client/gen3-client download-single --profile=${process.env.NAMESPACE} --guid=${I.cache.GUID} --download-path=${downloadPath} --no-prompt`;
   try {
     console.log('Downloading file ...');
@@ -226,10 +246,13 @@ Scenario('Configure, Upload and Download via Gen3-client', async ({
     const msg = error.stdout.toString('utf8');
     throw new Error(`Error downloading file with gen3-client:\n${msg}`);
   }
-  // After download check the file exists in the download folder and also check if the content matches
+  // After download check the file exists in the download folder
   if (fs.existsSync(`${downloadPath}/${I.cache.fileToBeUploaded}`)) {
     console.log('File is downloaded successfully');
   } else {
     console.log('File is not downloaded successfully');
   }
+  // checking if the file content matches with the original content added
+  const fileContent = fs.readFileSync(`${downloadPath}/${I.cache.fileToBeUploaded}`, 'utf8');
+  expect(fileContent).to.equal(fileData, 'The file content does not match');
 });
