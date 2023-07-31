@@ -24,8 +24,7 @@ const users = require('../../utils/user');
 
 const I = actor();
 
-// const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_linux.zip';
-const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_osx.zip';
+const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_linux.zip';
 
 // TODO
 // // downloading the correct version of the gen3-client zip  as per the architecture it is running on
