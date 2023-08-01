@@ -95,10 +95,6 @@ AfterSuite(async ({ files, indexd }) => {
   console.log('Deleting creds.file ...');
   files.deleteFile(I.cache.credsFile);
 
-  // remove download folder with tmp file
-  fs.rmSync(I.cache.downloadFile, { recursive: true });
-  console.log('Tmp download folder deleted successfully ...');
-
   // delete indexd record
   console.log('Deleting indexd record ...');
   await indexd.do.deleteFile({ did: I.cache.GUID });
@@ -235,7 +231,7 @@ Scenario('Configure, Upload and Download via Gen3-client @gen3-client', async ({
   expect(getIndexdRecord.data).to.have.property('urls');
 
   execSync('sleep 10');
-  const downloadPath = `tmpDownloadFile_${Date.now()}.txt`;
+  const downloadPath = `tmpDownloadFile_${Date.now()}`;
   I.cache.downloadFile = downloadPath;
   const downloadFileCmd = `./gen3-client/gen3-client download-single --profile=${process.env.NAMESPACE} --guid=${I.cache.GUID} --download-path=${downloadPath} --no-prompt`;
   try {
