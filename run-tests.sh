@@ -528,6 +528,7 @@ donot '@jupyterNb'
 # gen3-client tests run on gen3-qa repo and in nightly builds
 if [[ "$service" != "gen3-qa"]]; then
   donot '@gen3-client'
+fi
 
 #
 # only run audit-service tests for manifest repos IF audit-service is
