@@ -524,6 +524,7 @@ fi
 # Nightly Build exclusive tests
 donot '@pfbExport'
 donot '@jupyterNb'
+donot '@gen3-client'
 
 #
 # only run audit-service tests for manifest repos IF audit-service is
