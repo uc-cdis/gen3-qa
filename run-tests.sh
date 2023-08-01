@@ -351,6 +351,11 @@ else
   echo "INFO: enabling Google Data Access tests for $service"
 fi
 
+# gen3-client tests run on gen3-qa repo and in nightly builds
+if [[ "$service" != "gen3-qa" ]]; then
+  donot '@gen3-client'
+fi
+
 #
 # RAS AuthN Integration tests are only required for some repos
 #
@@ -524,11 +529,6 @@ fi
 # Nightly Build exclusive tests
 donot '@pfbExport'
 donot '@jupyterNb'
-
-# gen3-client tests run on gen3-qa repo and in nightly builds
-if [[ "$service" != "gen3-qa"]]; then
-  donot '@gen3-client'
-fi
 
 #
 # only run audit-service tests for manifest repos IF audit-service is
