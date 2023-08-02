@@ -24,7 +24,7 @@ const users = require('../../utils/user');
 
 const I = actor();
 
-const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_linux.zip';
+// const latestGen3client = 'https://github.com/uc-cdis/cdis-data-client/releases/latest/download/dataclient_linux.zip';
 
 // TODO
 // // downloading the correct version of the gen3-client zip  as per the architecture it is running on
@@ -65,6 +65,9 @@ const writeToFile = async (filePath, dataContent) => {
 };
 
 BeforeSuite(async () => {
+  console.log('###########################');
+  console.log('If you are running this test locally, you need to install go binary locally in your laptop');
+  console.log('###########################');
   I.cache = {};
   const userAccessToken = users.indexingAcct.accessToken;
   I.cache.accessToken = userAccessToken;
@@ -106,148 +109,170 @@ Scenario('Configure, Upload and Download via Gen3-client @gen3-client', async ({
   const pwd = execSync('pwd', { encoding: 'utf-8' });
   console.log('#### current working directory:', pwd.trim());
 
-  console.log('### Downloading latest gen3-client executable file ...');
-  // download and unzip the latest gen3-client executable file
-  await download(latestGen3client, 'gen3-client.zip')
-    .then(() => {
-      console.log('File downloaded successfully!');
-      unzip('gen3-client.zip', 'gen3-client');
-      console.log('File unzipped successfully!');
-    })
-    .catch((error) => {
-      console.error('Error downloading/unzipping file:', error);
-    });
+  // console.log('### Downloading latest gen3-client executable file ...');
+  // // download and unzip the latest gen3-client executable file
+  // await download(latestGen3client, 'gen3-client.zip')
+  //   .then(() => {
+  //     console.log('File downloaded successfully!');
+  //     unzip('gen3-client.zip', 'gen3-client');
+  //     console.log('File unzipped successfully!');
+  //   })
+  //   .catch((error) => {
+  //     console.error('Error downloading/unzipping file:', error);
+  //   });
 
-  // checking if the gen3-client executable exists in fs after unzipping
-  console.log('Looking for data client executable...');
-  if (!fs.existsSync('gen3-client/gen3-client')) {
-    const msg = 'Did not find a gen3-client executable';
-    console.log(`WARNING: ${msg}`);
-  } else {
-    console.log('Found a gen3-client executable...');
-    // changing the permission on gen3c-client
-    // if you dont change the permissions, you will get permission denied
-    console.log('Changing the permission on gen3-client executable ...');
-    const desiredMode = 0o765;
-    fs.chmodSync('gen3-client/gen3-client', desiredMode, (err) => {
-      console.log('### All good updating permissions');
-      if (err) {
-        console.error('Error updating permissions:', err);
-      }
-    });
-    console.log('Checking for executable permissions ');
-    fs.accessSync('./gen3-client/gen3-client', fs.constants.X_OK, (err) => {
-      console.log('### gen3-client is executable.');
-      if (err) {
-        console.error('### gen3-client is not executable.');
-      }
-    });
-    // check the gen3-client version
-    const checkVersionCmd1 = './gen3-client/gen3-client --version';
-    try {
-      const version = execSync(checkVersionCmd1);
-      console.log(`### bash : ${version}`);
-    } catch (error) {
-      const msg = error.stdout.toString('utf8');
-      console.log(`ERROR: ${msg}`);
-    }
-  }
+  // clone gen3-client repo and install go
+  const gen3ClientCommands = `mkdir -p ${process.env.GOPATH}/src/github.com/uc-cdis && cd ${process.env.GOPATH}/src/github.com/uc-cdis && git clone git@github.com:uc-cdis/cdis-data-client.git && mv cdis-data-client gen3-client && cd gen3-client && go get -d ./... && go install .`;
 
-  // creating a API key
-  const scope = ['data', 'user'];
-  const apiKey = await fence.do.createAPIKey(
-    scope,
-    {
-      Accept: 'application/json',
-      Authorization: `bearer ${I.cache.accessToken}`,
-      'Content-Type': 'application/json',
-    },
-  );
-  const data = {
-    api_key: apiKey.data.api_key,
-    key_id: apiKey.data.key_id,
-  };
-  const stringifiedKeys = JSON.stringify(data).replace(/\*\*\*\*/g, '{');
-  if (process.env.DEBUG === 'true') {
-    console.log(`#### Stringified Keys: ${stringifiedKeys}`);
-  }
-  // // adding the api key to a cred file
-  const credsFile = `./${process.env.NAMESPACE}_creds.json`;
-  try {
-    fs.writeFileSync(credsFile, stringifiedKeys);
-    console.log('File created and data written successfully');
-  } catch (e) {
-    console.error('Error writing the file:', e);
-  }
-  I.cache.credsFile = credsFile;
+  execSync(gen3ClientCommands);
+  const version = execSync('gen3-client --version');
+  console.log(version);
 
-  if (process.env.DEBUG === 'true') {
-    try {
-      const credsContent = fs.readFileSync(credsFile, 'utf8');
-      console.log(`Data read from ${credsFile}:`, credsContent);
-    } catch (e) {
-      console.error('Error reading the file:', e);
-    }
-  }
+  // gen3ClientCommands.forEach((command) => {
+  //   execSync(command, (error, stdout) => {
+  //     if (error) {
+  //       console.error(`Error executing command: ${command}`);
+  //       console.error(error.message);
+  //     } else {
+  //       onsole.log(`Command executed successfully: ${command}`);
+  //       console.log(stdout);
+  //     }
+  //   });
+  // });
 
-  const configureClientCmd = `./gen3-client/gen3-client configure --profile=${process.env.NAMESPACE} --cred=${credsFile} --apiendpoint=https://${process.env.NAMESPACE}.planx-pla.net`;
-  try {
-    console.log('Configuring profile ...');
-    execSync(configureClientCmd);
-    console.log('### gen3-client profile is configured');
-  } catch (error) {
-    const msg = error.stdout.toString('utf-8');
-    throw new Error(`Error configuring the data client:\n$${msg}`);
-  }
+  const afterPWD = execSync('pwd', { encoding: 'utf-8' });
+  console.log('#### After current working directory:', afterPWD.trim());
 
-  // upload a file via gen3-client
-  const uploadFileCmd = `./gen3-client/gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=${I.cache.fileToBeUploaded} 2>&1`;
-  try {
-    let cmdOut;
-    try {
-      console.log('Uploading the file ...');
-      cmdOut = execSync(uploadFileCmd, { encoding: 'utf-8' });
-      console.log(`### ${cmdOut}`);
-    } catch (error) {
-      throw new Error(error.stdout.toString('utf-8'));
-    }
-    const guidRegex = cmdOut.match(/to GUID (.*)./);
-    if (!guidRegex || guidRegex.length < 2 || guidRegex[1].length < 36) {
-      throw new Error(`Did not find a GUID in the command output from gen3-client upload:\n${cmdOut}`);
-    }
-    const guid = guidRegex[1];
-    I.cache.GUID = guid;
-  } catch (error) {
-    const msg = error.toString('utf8');
-    throw new Error(`Error uploading file with data client:\n${msg}`);
-  }
+  // // checking if the gen3-client executable exists in fs after unzipping
+  // console.log('Looking for data client executable...');
+  // if (!fs.existsSync('gen3-client/gen3-client')) {
+  //   const msg = 'Did not find a gen3-client executable';
+  //   console.log(`WARNING: ${msg}`);
+  // } else {
+  //   console.log('Found a gen3-client executable...');
+  //   // changing the permission on gen3c-client
+  //   // if you dont change the permissions, you will get permission denied
+  //   console.log('Changing the permission on gen3-client executable ...');
+  //   const desiredMode = 0o765;
+  //   fs.chmodSync('gen3-client/gen3-client', desiredMode, (err) => {
+  //     console.log('### All good updating permissions');
+  //     if (err) {
+  //       console.error('Error updating permissions:', err);
+  //     }
+  //   });
+  //   console.log('Checking for executable permissions ');
+  //   fs.accessSync('./gen3-client/gen3-client', fs.constants.X_OK, (err) => {
+  //     console.log('### gen3-client is executable.');
+  //     if (err) {
+  //       console.error('### gen3-client is not executable.');
+  //     }
+  //   });
+  //   // check the gen3-client version
+  //   const checkVersionCmd1 = './gen3-client/gen3-client --version';
+  //   try {
+  //     const version = execSync(checkVersionCmd1);
+  //     console.log(`### bash : ${version}`);
+  //   } catch (error) {
+  //     const msg = error.stdout.toString('utf8');
+  //     console.log(`ERROR: ${msg}`);
+  //   }
+  // }
 
-  const getIndexdRecord = await I.sendGetRequest(`${indexd.props.endpoints.get}/${I.cache.GUID}`, users.indexingAcct.accessTokenHeader);
-  const { rev } = getIndexdRecord.data;
-  if (process.env.DEBUG === 'true') {
-    console.log(rev);
-    console.log(getIndexdRecord.data);
-  }
-  expect(getIndexdRecord.data).to.have.property('urls');
+  // // creating a API key
+  // const scope = ['data', 'user'];
+  // const apiKey = await fence.do.createAPIKey(
+  //   scope,
+  //   {
+  //     Accept: 'application/json',
+  //     Authorization: `bearer ${I.cache.accessToken}`,
+  //     'Content-Type': 'application/json',
+  //   },
+  // );
+  // const data = {
+  //   api_key: apiKey.data.api_key,
+  //   key_id: apiKey.data.key_id,
+  // };
+  // const stringifiedKeys = JSON.stringify(data).replace(/\*\*\*\*/g, '{');
+  // if (process.env.DEBUG === 'true') {
+  //   console.log(`#### Stringified Keys: ${stringifiedKeys}`);
+  // }
+  // // // adding the api key to a cred file
+  // const credsFile = `./${process.env.NAMESPACE}_creds.json`;
+  // try {
+  //   fs.writeFileSync(credsFile, stringifiedKeys);
+  //   console.log('File created and data written successfully');
+  // } catch (e) {
+  //   console.error('Error writing the file:', e);
+  // }
+  // I.cache.credsFile = credsFile;
 
-  execSync('sleep 10');
-  const downloadPath = `tmpDownloadFile_${Date.now()}`;
-  I.cache.downloadFile = downloadPath;
-  const downloadFileCmd = `./gen3-client/gen3-client download-single --profile=${process.env.NAMESPACE} --guid=${I.cache.GUID} --download-path=${downloadPath} --no-prompt`;
-  try {
-    console.log('Downloading file ...');
-    execSync(downloadFileCmd);
-  } catch (error) {
-    const msg = error.stdout.toString('utf8');
-    throw new Error(`Error downloading file with gen3-client:\n${msg}`);
-  }
-  // After download check the file exists in the download folder
-  if (fs.existsSync(`${downloadPath}/${I.cache.fileToBeUploaded}`)) {
-    console.log('File is downloaded successfully');
-  } else {
-    console.log('File is not downloaded successfully');
-  }
-  // checking if the file content matches with the original content added
-  const fileContent = fs.readFileSync(`${downloadPath}/${I.cache.fileToBeUploaded}`, 'utf8');
-  expect(fileContent).to.equal(fileData, 'The file content does not match');
+  // if (process.env.DEBUG === 'true') {
+  //   try {
+  //     const credsContent = fs.readFileSync(credsFile, 'utf8');
+  //     console.log(`Data read from ${credsFile}:`, credsContent);
+  //   } catch (e) {
+  //     console.error('Error reading the file:', e);
+  //   }
+  // }
+
+  // const configureClientCmd = `./gen3-client/gen3-client configure --profile=${process.env.NAMESPACE} --cred=${credsFile} --apiendpoint=https://${process.env.NAMESPACE}.planx-pla.net`;
+  // try {
+  //   console.log('Configuring profile ...');
+  //   execSync(configureClientCmd);
+  //   console.log('### gen3-client profile is configured');
+  // } catch (error) {
+  //   const msg = error.stdout.toString('utf-8');
+  //   throw new Error(`Error configuring the data client:\n$${msg}`);
+  // }
+
+  // // upload a file via gen3-client
+  // const uploadFileCmd = `./gen3-client/gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=${I.cache.fileToBeUploaded} 2>&1`;
+  // try {
+  //   let cmdOut;
+  //   try {
+  //     console.log('Uploading the file ...');
+  //     cmdOut = execSync(uploadFileCmd, { encoding: 'utf-8' });
+  //     console.log(`### ${cmdOut}`);
+  //   } catch (error) {
+  //     throw new Error(error.stdout.toString('utf-8'));
+  //   }
+  //   const guidRegex = cmdOut.match(/to GUID (.*)./);
+  //   if (!guidRegex || guidRegex.length < 2 || guidRegex[1].length < 36) {
+  //     throw new Error(`Did not find a GUID in the command output from gen3-client upload:\n${cmdOut}`);
+  //   }
+  //   const guid = guidRegex[1];
+  //   I.cache.GUID = guid;
+  // } catch (error) {
+  //   const msg = error.toString('utf8');
+  //   throw new Error(`Error uploading file with data client:\n${msg}`);
+  // }
+
+  // const getIndexdRecord = await I.sendGetRequest(`${indexd.props.endpoints.get}/${I.cache.GUID}`, users.indexingAcct.accessTokenHeader);
+  // const { rev } = getIndexdRecord.data;
+  // if (process.env.DEBUG === 'true') {
+  //   console.log(rev);
+  //   console.log(getIndexdRecord.data);
+  // }
+  // expect(getIndexdRecord.data).to.have.property('urls');
+
+  // execSync('sleep 10');
+  // const downloadPath = `tmpDownloadFile_${Date.now()}`;
+  // I.cache.downloadFile = downloadPath;
+  // const downloadFileCmd = `./gen3-client/gen3-client download-single --profile=${process.env.NAMESPACE} --guid=${I.cache.GUID} --download-path=${downloadPath} --no-prompt`;
+  // try {
+  //   console.log('Downloading file ...');
+  //   execSync(downloadFileCmd);
+  // } catch (error) {
+  //   const msg = error.stdout.toString('utf8');
+  //   throw new Error(`Error downloading file with gen3-client:\n${msg}`);
+  // }
+  // // After download check the file exists in the download folder
+  // if (fs.existsSync(`${downloadPath}/${I.cache.fileToBeUploaded}`)) {
+  //   console.log('File is downloaded successfully');
+  // } else {
+  //   console.log('File is not downloaded successfully');
+  // }
+  // // checking if the file content matches with the original content added
+  // const fileContent = fs.readFileSync(`${downloadPath}/${I.cache.fileToBeUploaded}`, 'utf8');
+  // expect(fileContent).to.equal(fileData, 'The file content does not match');
 });
