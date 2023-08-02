@@ -15,7 +15,7 @@ const I = actor();
 
 Feature('GWAS App UI Test @requires-portal @requires-argo-wrapper @requires-cohort-middleware');
 
-Scenario('Submit workflow Continuous Outcome - Continuous Covariate Phenotype @GWASUI @manual', async ({
+Scenario('Submit workflow Continuous Outcome - Continuous Covariate Phenotype @GWASUI', async ({
     I, home, users, gwas
 }) => {
     I.useWebDriverTo('set window size', async ({ browser }) => {
@@ -58,7 +58,7 @@ Scenario('Submit workflow Continuous Outcome - Continuous Covariate Phenotype @G
     await gwas.do.checkStatus();
 });
 
-Scenario('Submit workflow Continuous Outcome - Dichotomous Covariate Phenotype @GWASUI @manual', async ({
+Scenario('Submit workflow Continuous Outcome - Dichotomous Covariate Phenotype @GWASUI', async ({
     I, home, users, gwas
 }) => {
     I.useWebDriverTo('set window size', async ({ browser }) => {
@@ -101,7 +101,7 @@ Scenario('Submit workflow Continuous Outcome - Dichotomous Covariate Phenotype @
     await gwas.do.checkStatus();
 });
 
-Scenario('Submit workflow Dichotomous Outcome - Continuous Covariate Phenotype @GWASUI @manual', async ({
+Scenario('Submit workflow Dichotomous Outcome - Continuous Covariate Phenotype @GWASUI', async ({
     I, home, users, gwas
 }) => {
     I.useWebDriverTo('set window size', async ({ browser }) => {
@@ -145,7 +145,7 @@ Scenario('Submit workflow Dichotomous Outcome - Continuous Covariate Phenotype @
     await gwas.do.checkStatus();
 });
 
-Scenario('Submit workflow Dichotomous Outcome - Dichotomous Covariate Phenotype @GWASUI @manual', async ({
+Scenario('Submit workflow Dichotomous Outcome - Dichotomous Covariate Phenotype @GWASUI', async ({
     I, home, users, gwas
 }) => {
     I.useWebDriverTo('set window size', async ({ browser }) => {
@@ -190,7 +190,7 @@ Scenario('Submit workflow Dichotomous Outcome - Dichotomous Covariate Phenotype 
 });
 
 // this scenarios is largely dependent on the success of submissions of workflows in previous scenarios
-Scenario('GWAS Result App @GWASUI @manual', async ({ 
+Scenario('GWAS Result App @GWASUI', async ({ 
     I, home, users, gwas 
 }) => {
     I.useWebDriverTo('set window size', async ({ browser }) => {
@@ -202,7 +202,7 @@ Scenario('GWAS Result App @GWASUI @manual', async ({
     await gwas.do.checkStatus();
 });
 
-Scenario('Test next and previous buttons GWAS page @GWASUI @manual', async ({
+Scenario('Test next and previous buttons GWAS page @GWASUI', async ({
     I, home, users, gwas
 }) => {
     I.useWebDriverTo('set window size', async ({ browser }) => {
@@ -239,7 +239,7 @@ Scenario('Test next and previous buttons GWAS page @GWASUI @manual', async ({
     I.seeElement(gwas.props.SubmitDialogBox);
 }); 
 
-Scenario('Unauthorized access to GWAS @GWASUI @manual', async ({
+Scenario('Unauthorized access to GWAS @GWASUI', async ({
     I, home, users, gwas
 }) => {
     I.useWebDriverTo('set window size', async ({ browser }) => {
