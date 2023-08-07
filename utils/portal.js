@@ -73,19 +73,27 @@ module.exports = {
     I.waitForVisible(Object.values(prop.locator)[0], seconds);
   },
 
-  async getPortalConfig(field) {
-    const cmd = 'g3kubectl get configmaps manifest-global -o json | jq -r \'.data.portal_app\'';
-    const portalApp = bash.runCommand(cmd);
-    const portalConfigURL = `https://${process.env.HOSTNAME}${process.env.PORTAL_SUFFIX}/data/config/${portalApp}.json`;
-    return I.sendGetRequest(portalConfigURL)
-      .then((res) => res.data[field]);
-  },
-
-  async isPortalUsingGuppy() {
-    const data = await this.getPortalConfig('dataExplorerConfig');
-    if (data === undefined || data.guppyConfig === undefined) {
+  isPortalUsingGuppy() {
+    const cmd = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.explorerConfig\'');
+    if (cmd === null || cmd.guppyConfig === null) {
       return false;
     }
     return true;
   },
+
+  // async getPortalConfig(field) {
+  //   const cmd = 'g3kubectl get configmaps manifest-global -o json | jq -r \'.data.portal_app\'';
+  //   const portalApp = bash.runCommand(cmd);
+  //   const portalConfigURL = `https://${process.env.HOSTNAME}${process.env.PORTAL_SUFFIX}/data/config/${portalApp}.json`;
+  //   return I.sendGetRequest(portalConfigURL)
+  //     .then((res) => res.data[field]);
+  // },
+
+  // async isPortalUsingGuppy() {
+  //   const data = await this.getPortalConfig('explorerConfig');
+  //   if (data === undefined || data.guppyConfig === undefined) {
+  //     return false;
+  //   }
+  //   return true;
+  // },
 };
