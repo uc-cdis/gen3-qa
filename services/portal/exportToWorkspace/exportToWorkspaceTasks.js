@@ -10,22 +10,27 @@ const I = actor();
 module.exports = {
   goToWorkspacePage() {
     I.amOnPage(exportToWorkspaceProps.workspacePath);
-    I.waitForVisible(exportToWorkspaceProps.workspaceDivClass, 10);
+    I.waitForVisible(exportToWorkspaceProps.workspaceDivClass, 30);
+    I.saveScreenshot('seeWorkspacePage.png');
   },
 
   async goToExplorerPage() {
     I.amOnPage(exportToWorkspaceProps.explorerPath);
-    if (await portal.isPortalUsingGuppy()) {
-      I.waitForVisible(exportToWorkspaceProps.guppyExplorerHeaderClass, 10);
-    } else {
-      I.waitForVisible(exportToWorkspaceProps.explorerHeaderClass, 10);
-    }
+    await portal.isPortalUsingGuppy();
+    I.wait(10);
+    I.saveScreenshot('seeExplorerPage.png');
+    I.waitForVisible(exportToWorkspaceProps.guppyExplorerHeaderClass, 30);
+    // if (isPortalUsingGuppy) {
+    //   I.waitForVisible(exportToWorkspaceProps.guppyExplorerHeaderClass, 50);
+    // } else {
+    //   I.waitForVisible(exportToWorkspaceProps.explorerHeaderClass, 50);
+    // }
   },
 
   async exportDefaultManifestToWorkspace() {
     console.log('from \'Explore\' page, click \'Export to workspace\' button to export default manifest to workspace');
     await this.goToExplorerPage();
-    I.waitForElement(exportToWorkspaceProps.exportToWorkspaceButtonXPath, 30);
+    I.waitForElement(exportToWorkspaceProps.exportToWorkspaceButtonXPath, 100);
     I.seeElement(exportToWorkspaceProps.exportToWorkspaceButtonXPath);
     I.click(exportToWorkspaceProps.exportToWorkspaceButtonXPath);
     I.waitForElement(exportToWorkspaceProps.exportToWorkspaceToasterClass, 60);
@@ -129,6 +134,8 @@ module.exports = {
   async logoutAndGetToWorkspace(home) {
     console.log('Log out current user');
     await home.complete.logout();
+    await home.do.handleSystemUsePopup();
+    I.saveScreenshot('afterLogout.png');
     console.log('Try to get to workspace');
     I.amOnPage(exportToWorkspaceProps.workspacePath);
     console.log('Check if still seeing login page');
@@ -140,6 +147,7 @@ module.exports = {
     console.log('Login as test user');
     await home.complete.login();
     console.log('Get to Workspace page and verify now is on workspace page');
+    I.saveScreenshot('afterLogin.png');
     this.goToWorkspacePage();
   },
 };

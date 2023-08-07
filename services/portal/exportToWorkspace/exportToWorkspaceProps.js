@@ -13,7 +13,7 @@ module.exports = {
   exportToWorkspaceToasterClass: '.toaster__div',
   loginPageClass: '.login-page',
 
-  exportToWorkspaceButtonXPath: '//button[contains(@class, "g3-button--primary") and contains(translate(text(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "export to workspace")]',
+  exportToWorkspaceButtonXPath: '//button[contains(@class, "g3-button--primary") and contains(text(), "Export Files to Workspace")]',
   goToWorkspaceButtonXPath: '//button[contains(@class, "g3-button--primary") and contains(translate(text(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "go to workspace")]',
   closeButtonXPath: '//button[contains(@class, "g3-button--primary") and contains(text(), "Close")]',
   workspaceIFrameXPath: '//iframe[contains(@class, "workspace")]',
