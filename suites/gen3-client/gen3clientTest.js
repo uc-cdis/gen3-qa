@@ -1,139 +1,159 @@
-Feature('Gen3-dataclient');
+// what does this test do:
+// 1. installs gen3-client from source https://github.com/uc-cdis/cdis-data-client#installation
+// 2. creates the api key and stores them in the creds.json file - filename 'credsFile'
+// 3. using the creds.json, configure the profile
+// 4. upload a file
+// 5. check the indexd record
+// 6. download the file
 
-const chai = require('chai');
-const { interactive, ifInteractive } = require('../../utils/interactive.js');
+// this test will run in nightly-builds and gen3-qa PRs
 
-const { expect } = chai;
-const hostname = process.env.HOSTNAME;
+// to run this locally please ensure golang is installed in the machine (runs on linux and mac)
 
-// Installation
-Scenario('Install gen3-client @manual', ifInteractive(
-  async () => {
-    const result = await interactive(`
-            1. Download the newest version of gen3-client from github repo - https://github.com/uc-cdis/cdis-data-client/releases/tag/{latest-tag}
-            2. Unzip the download and add the executable to directory, ~/.gen3/gen3-client.exe
-            3. on terminal, echo 'export PATH=$PATH:~/.gen3' >> ~/.bash_profile or ~/.zshrc       
-        `);
-    expect(result.didPass, result.details).to.be.true;
-  },
-));
+Feature('Gen3-client @requires-fence @requires-indexd @gen3-client');
 
-// configuration
-Scenario('Configure gen3-client @manual', ifInteractive(
-  async () => {
-    const result = await interactive(`
-            1. go to the dedicated user's data commons you need your gen3-client configured with
-            2. Login and go to Profile tab
-            3. 'Create a API key' and download the json, downloaded as 'credential.json'
-            4. use gen3-client configure command - gen3-client configure --profile=<profile_name> --cred=<credentials.json> --apiendpoint=<api_endpoint_url>
-                where --cred is full path to 'credentials.json' and --apiendpoint is the datacommons.org
-                example : 
-                gen3-client configure --profile=bob --cred=/Users/Bob/Downloads/credentials.json --apiendpoint=https://data.mycommons.org
-        `);
-    expect(result.didPass, result.details).to.be.true;
-  },
-));
+const { expect } = require('chai');
+const { output } = require('codeceptjs');
+const fs = require('fs');
+const { execSync } = require('child_process');
+const axios = require('axios');
+const AdmZip = require('adm-zip');
+const users = require('../../utils/user');
+// const os = require('os');
 
-// misconfiguration error checker
-Scenario('Wrong API key correct apiendpoint @manual', ifInteractive(
-  async () => {
-    const result = await interactive(`
-            1. user has a wrong cred.json (API key) and correct API endpoint
-            2. the misconfiguration checker displays a message Invalid credentials for apiendpoint '<apiendpoint>': check if your credentials are expired or incorrect  
-        `);
-    expect(result.didPass, result.details).to.be.true;
-  },
-));
+const I = actor();
 
-Scenario('correct API key wrong apiendpoint @manual', ifInteractive(
-  async () => {
-    const result = await interactive(`
-            1. user has a correct cred.json (API key) but wrong API endpoint
-            2. the misconfiguration checker displays a message 'The provided apiendpoint '<apiendpoint>' is possibly not a valid Gen3 data commons' 
-        `);
-    expect(result.didPass, result.details).to.be.true;
-  },
-));
+BeforeSuite(async ({ I, files}) => {
+  I.cache.fileData = 'This is a test file uploaded via gen3-client test';
+  const userAccessToken = users.indexingAcct.accessToken;
+  I.cache.accessToken = userAccessToken;
+  if (process.env.DEBUG === 'true') {
+    console.log(`Access token: ${I.cache.accessToken}`);
+  }
+  // create a file that can be uploaded
+  const fileToBeUploaded = `file_${Date.now()}.txt`;
+  const filePath = `./${fileToBeUploaded}`;
+  console.log(`File to be uploaded : ${fileToBeUploaded}`);
+  await files.createTmpFile(filePath, I.cache.fileData);
+  I.cache.fileToBeUploaded = fileToBeUploaded;
 
-// version checker
-Scenario('Version Checker error @manual', ifInteractive(
-  async () => {
-    const result = await interactive(`
-            1. After the successful installation and configuration of profile, user can use gen3-client command on terminal console
-            2. the version checker will show 'A new version of gen3-client is avaliable! The latest version is <LATEST_VERSION>. You are using version <CURRENT_VERSION>
-            Please download the latest gen3-client release from https://github.com/uc-cdis/cdis-data-client/releases/latest' message on the console if a newer version of gen3-client is available
+  // Install gen3-client
+  const goPath = execSync('go env GOPATH');
+  const clientInstallCommands = `mkdir -p ${goPath}/src/github.com/uc-cdis` +
+    ` && cd ${goPath}/src/github.com/uc-cdis` +
+    ' && git clone git@github.com:uc-cdis/cdis-data-client.git' +
+    ' && mv cdis-data-client gen3-client' +
+    ' && cd gen3-client' + 
+    ' && go get -d ./... && go install .' +
+    ` && export PATH="${goPath}/bin:$PATH"`;
 
-            Note : This test can be done only locally currently as there are no versions for gen3-client. To carry out the test locally, follow this https://github.com/uc-cdis/cdis-data-client#installation and make a version change in 'gitversion' on path gen3-client/g3cmd/gitversion.go
-            After the changes are made, run command 'go install .' and run any gen3-client command to see the response. 
-        `);
-    expect(result.didPass, result.details).to.be.true;
-  },
-));
+  execSync(clientInstallCommands);
+  const version = execSync('gen3-client --version');
+  output.debug(`### gen3-client version installed is ${version}`);
+});
 
-// file-upload
-Scenario('Create a folder and generate a test file @manual', ifInteractive(
-  async () => {
-    const result = await interactive(`
-            1. Create a new directory called "test_upload"
-            2. Go to directory /test_upload
-            3. Create a new file (echo "gen3 test" > test.txt)
-            4. Generate a sha256 hash of the test file and take note of the value
-               (Linux: cat test.txt | sha256sum)
-               (OSX: shasum -a 256 test.txt)
-               e.g., % shasum -a 256 test.txt
-                     d3b79a56c5641cc2e44f3067fba5410684df8fbb287c42a5d25496d19c736e33  test.txt
-            `);
-    expect(result.didPass, result.details).to.be.true;
-  },
-));
+AfterSuite(async ({ files, indexd }) => {
+  // delete the fileUploaded and creds.file
+  output.log('Deleting test upload files ...');
+  files.deleteFile(I.cache.fileToBeUploaded);
+  output.log('Deleting creds.file ...');
+  files.deleteFile(I.cache.credsFile);
 
-// The test assumes the presence of a valid profile configuration
-// in ~/.gen3/config (containing api-key, JWT token and api endpoint)
-Scenario('Run the gen3-client CLI utility and upload the test file to <profile> @manual', ifInteractive(
-  async () => {
-    const result = await interactive(`
-            1. Run the gen3-cli upload command and store the output in a log file: gen3-client upload --profile=<profile> --upload-path=test.txt | tee upload.log
-            2. Take note of the GUID that is printed as part of the output
-        `);
-    expect(result.didPass, result.details).to.be.true;
-  },
-));
+  // delete indexd record
+  output.log('Deleting indexd record ...');
+  await indexd.do.deleteFile({ did: I.cache.GUID });
+});
 
-Scenario('Download the same test file and verify integrity @manual', ifInteractive(
-  async () => {
-    const result = await interactive(`
-            1. Run the gen3-cli download command: gen3-client download-single --profile=<profile> --guid=<GUID from the previous scenario>
-            2. Generate a sha256 hash of the file that was downloaded (see instructions from the first scenario)
-            3. Run a diff command against the hashes to check if both files have the same hash (i.e., confirming integrity of the file by comparing the hash values).
-               diff uploaded-file-sha256 downloaded-file-sha256
-        `);
-    expect(result.didPass, result.details).to.be.true;
-  },
-));
+Scenario('Upload and download and file with gen3-client', async ({
+  I, fence, indexd,
+}) => {
+  const pwd = execSync('pwd', { encoding: 'utf-8' });
+  output.debug(`#### current working directory: ${pwd.trim()}`);
 
-Scenario('Try the download-multiple feature @manual', ifInteractive(
-  async () => {
-    const result = await interactive(`
-            1. This scenario assumes the presence of uploaded files that have been ETL'ed. The manifest containing the files metadata should be found under the Files (or Downloadable) tab in the Explorer page. Click on the "Download Manifest" button to save the json file to your disk.
-            2. Run the gen3-cli download-multiple command: gen3-client download-multiple --profile=<profile> --manifest=<path_to_the_manifest_json_file>
-            3. Make sure the download-multiple operation is completed successfully and all files are downloaded.
-        `);
-    expect(result.didPass, result.details).to.be.true;
-  },
-));
+  // creating a API key
+  const scope = ['data', 'user'];
+  const apiKey = await fence.do.createAPIKey(
+    scope,
+    {
+      Accept: 'application/json',
+      Authorization: `bearer ${I.cache.accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  );
+  const data = {
+    api_key: apiKey.data.api_key,
+    key_id: apiKey.data.key_id,
+  };
+  const stringifiedKeys = JSON.stringify(data);
+  output.debug(`#### Stringified Keys: ${stringifiedKeys}`);
 
-// clean-up
-Scenario('Delete file from the commons system and also from local disk @manual', ifInteractive(
-  async () => {
-    const accessTokenPlaceholderString = '{ACCESS_TOKEN}';
-    const result = await interactive(`
-            1. Login to the target environment's web interface and take note of the value of the "access_token" cookie
-            2. Store the access token in an environment variable (export ACCESS_TOKEN=<ACCESS_TOKEN>)
-            2. Run the following curl command to produce an HTTP DELETE request to remove all references of the test file from the system. Make sure you provide the same GUID correspondent to the test file that has been used in previous scenarios. The HTTP Response Code must be 2xx (not 5xx).
-               curl -L -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer $${accessTokenPlaceholderString}" -X DELETE https://${hostname}/user/data/<GUID>
-            3. Delete the test file from the local disk (rm test.txt)
-            4. Repeat the same steps for the 2nd test file.
-        `);
-    expect(result.didPass, result.details).to.be.true;
-  },
-));
+  // adding the api key to a cred file
+  const credsFile = `./${process.env.NAMESPACE}_creds.json`;
+  await files.createTmpFile(credsFile, stringifiedKeys);
+  I.cache.credsFile = credsFile;
+
+  try {
+    const credsContent = fs.readFileSync(credsFile, 'utf8');
+    output.debug(`Data read from ${credsFile}:`, credsContent);
+  } catch (e) {
+    output.error('Error reading the file:', e);
+  }
+
+  const configureClientCmd = `gen3-client configure --profile=${process.env.NAMESPACE} --cred=${credsFile} --apiendpoint=https://${process.env.NAMESPACE}.planx-pla.net`;
+  try {
+    output.log('Configuring profile ...');
+    execSync(configureClientCmd);
+    output.log('### gen3-client profile is configured');
+  } catch (error) {
+    const msg = error.stdout.toString('utf-8');
+    throw new Error(`Error configuring the data client:\n$${msg}`);
+  }
+
+  // upload a file via gen3-client
+  const uploadFileCmd = `./gen3-client/gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=${I.cache.fileToBeUploaded} 2>&1`;
+  try {
+    let cmdOut;
+    try {
+      console.log('Uploading the file ...');
+      cmdOut = execSync(uploadFileCmd, { encoding: 'utf-8' });
+      console.log(`### ${cmdOut}`);
+    } catch (error) {
+      throw new Error(error.stdout.toString('utf-8'));
+    }
+    const guidRegex = cmdOut.match(/to GUID (.*)./);
+    if (!guidRegex || guidRegex.length < 2 || guidRegex[1].length < 36) {
+      throw new Error(`Did not find a GUID in the command output from gen3-client upload:\n${cmdOut}`);
+    }
+    const guid = guidRegex[1];
+    I.cache.GUID = guid;
+  } catch (error) {
+    const msg = error.toString('utf8');
+    throw new Error(`Error uploading file with data client:\n${msg}`);
+  }
+
+  const getIndexdRecord = await I.sendGetRequest(`${indexd.props.endpoints.get}/${I.cache.GUID}`, users.indexingAcct.accessTokenHeader);
+  const { rev } = getIndexdRecord.data;
+  output.debug(rev);
+  output.debug(getIndexdRecord.data);
+  expect(getIndexdRecord.data).to.have.property('urls');
+
+  const downloadPath = `tmpDownloadFile_${Date.now()}`;
+  I.cache.downloadFile = downloadPath;
+  const downloadFileCmd = `./gen3-client/gen3-client download-single --profile=${process.env.NAMESPACE} --guid=${I.cache.GUID} --download-path=${downloadPath} --no-prompt`;
+  try {
+    console.log('Downloading file ...');
+    execSync(downloadFileCmd);
+  } catch (error) {
+    const msg = error.stdout.toString('utf8');
+    throw new Error(`Error downloading file with gen3-client:\n${msg}`);
+  }
+  // After download check the file exists in the download folder
+  if (fs.existsSync(`${downloadPath}/${I.cache.fileToBeUploaded}`)) {
+    console.log('File is downloaded successfully');
+  } else {
+    console.log('File is not downloaded successfully');
+  }
+  // checking if the file content matches with the original content added
+  const fileContent = fs.readFileSync(`${downloadPath}/${I.cache.fileToBeUploaded}`, 'utf8');
+  expect(fileContent).to.equal(I.cache.fileData, 'The file content does not match');
+});
