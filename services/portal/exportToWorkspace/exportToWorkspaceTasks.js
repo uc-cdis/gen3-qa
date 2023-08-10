@@ -129,6 +129,8 @@ module.exports = {
   async logoutAndGetToWorkspace(home) {
     console.log('Log out current user');
     await home.complete.logout();
+    await home.do.handleSystemUsePopup();
+    I.saveScreenshot('afterLogout.png');
     console.log('Try to get to workspace');
     I.amOnPage(exportToWorkspaceProps.workspacePath);
     console.log('Check if still seeing login page');
@@ -140,6 +142,7 @@ module.exports = {
     console.log('Login as test user');
     await home.complete.login();
     console.log('Get to Workspace page and verify now is on workspace page');
+    I.saveScreenshot('afterLogin.png');
     this.goToWorkspacePage();
   },
 };
