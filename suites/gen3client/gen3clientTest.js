@@ -22,6 +22,7 @@ const users = require('../../utils/user');
 // const os = require('os');
 
 const I = actor();
+I.cache = {};
 
 BeforeSuite(async ({ I, files}) => {
   I.cache.fileData = 'This is a test file uploaded via gen3-client test';
