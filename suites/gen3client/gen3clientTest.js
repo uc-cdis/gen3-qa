@@ -39,7 +39,7 @@ BeforeSuite(async ({ I, files}) => {
   I.cache.fileToBeUploaded = fileToBeUploaded;
 
   // Install gen3-client
-  const goPath = execSync('go env GOPATH').trim();
+  const goPath = execSync('go env GOPATH').toString().trim();
   output.debug(`#### goPath: ${goPath}`);
   const clientInstallCommands = `mkdir -p ${goPath}/src/github.com/uc-cdis` +
     ` && cd ${goPath}/src/github.com/uc-cdis` +
@@ -54,7 +54,7 @@ BeforeSuite(async ({ I, files}) => {
   output.debug(`### gen3-client version installed is ${version}`);
 });
 
-AfterSuite(async ({ files, indexd }) => {
+AfterSuite(async ({ I, files, indexd }) => {
   // delete the fileUploaded and creds.file
   output.log('Deleting test upload files ...');
   files.deleteFile(I.cache.fileToBeUploaded);
