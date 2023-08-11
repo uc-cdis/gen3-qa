@@ -45,15 +45,17 @@ BeforeSuite(async ({ I, files}) => {
     ' && git clone https://github.com/uc-cdis/cdis-data-client.git' +
     ' && mv cdis-data-client gen3-client' +
     ' && cd gen3-client' + 
-    ' && go get -d ./... && go install .' +
+    ' && go get -d ./...' +
+    ' && go install .' +
     ` && export PATH="${I.cache.goPath}/bin:$PATH"`;
+
+  execSync(clientInstallCommands, { shell: 'bash' });
 
   output.debug('#### PATH ####');
   output.debug(execSync('echo $PATH', { shell: 'bash' }));
   output.debug('#### GOPATH BIN CONTENTS ####');
   output.debug(execSync(`ls ${I.cache.goPath}/bin`, { shell: 'bash' }));
 
-  execSync(clientInstallCommands, { shell: 'bash' });
   const version = execSync('gen3-client --version', { shell: 'bash' });
   output.debug(`### gen3-client version installed is ${version}`);
 });
