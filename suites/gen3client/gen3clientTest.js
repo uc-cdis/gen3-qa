@@ -40,8 +40,8 @@ BeforeSuite(async ({ I, files}) => {
   // Install gen3-client
   I.cache.goPath = execSync('go env GOPATH', { shell: 'bash' }).toString().trim();
   output.debug(`#### goPath: ${I.cache.goPath}`);
-  const clientInstallCommands = `mkdir -p ${goPath}/src/github.com/uc-cdis` +
-    ` && cd ${goPath}/src/github.com/uc-cdis` +
+  const clientInstallCommands = `mkdir -p ${I.cache.goPath}/src/github.com/uc-cdis` +
+    ` && cd ${I.cache.goPath}/src/github.com/uc-cdis` +
     ' && git clone https://github.com/uc-cdis/cdis-data-client.git' +
     ' && mv cdis-data-client gen3-client' +
     ' && cd gen3-client' + 
