@@ -46,17 +46,11 @@ BeforeSuite(async ({ I, files}) => {
     ' && mv cdis-data-client gen3-client' +
     ' && cd gen3-client' + 
     ' && go get -d ./...' +
-    ' && go install .' +
-    ` && export PATH="${I.cache.goPath}/bin:$PATH"`;
+    ' && go install .'
 
   execSync(clientInstallCommands, { shell: 'bash' });
 
-  output.debug('#### PATH ####');
-  output.debug(execSync('echo $PATH', { shell: 'bash' }));
-  output.debug('#### GOPATH BIN CONTENTS ####');
-  output.debug(execSync(`ls ${I.cache.goPath}/bin`, { shell: 'bash' }));
-
-  const version = execSync('gen3-client --version', { shell: 'bash' });
+  const version = execSync(`${I.cache.goPath}/bin/gen3-client --version`, { shell: 'bash' });
   output.debug(`### gen3-client version installed is ${version}`);
 });
 
@@ -107,7 +101,7 @@ Scenario('Upload and download and file with gen3-client', async ({
     output.error('Error reading the file:', e);
   }
 
-  const configureClientCmd = `gen3-client configure --profile=${process.env.NAMESPACE} --cred=${credsFile} --apiendpoint=https://${process.env.NAMESPACE}.planx-pla.net`;
+  const configureClientCmd = `${I.cache.goPath}/bin/gen3-client configure --profile=${process.env.NAMESPACE} --cred=${credsFile} --apiendpoint=https://${process.env.NAMESPACE}.planx-pla.net`;
   try {
     output.log('Configuring profile ...');
     execSync(configureClientCmd, { shell: 'bash' });
@@ -118,7 +112,7 @@ Scenario('Upload and download and file with gen3-client', async ({
   }
 
   // upload a file via gen3-client
-  const uploadFileCmd = `gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=${I.cache.fileToBeUploaded} 2>&1`;
+  const uploadFileCmd = `${I.cache.goPath}/bin/gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=${I.cache.fileToBeUploaded} 2>&1`;
   try {
     let cmdOut;
     try {
@@ -147,7 +141,7 @@ Scenario('Upload and download and file with gen3-client', async ({
 
   const downloadPath = `tmpDownloadFile_${Date.now()}`;
   I.cache.downloadFile = downloadPath;
-  const downloadFileCmd = `gen3-client download-single --profile=${process.env.NAMESPACE} --guid=${I.cache.GUID} --download-path=${downloadPath} --no-prompt`;
+  const downloadFileCmd = `${I.cache.goPath}/bin/gen3-client download-single --profile=${process.env.NAMESPACE} --guid=${I.cache.GUID} --download-path=${downloadPath} --no-prompt`;
   try {
     console.log('Downloading file ...');
     execSync(downloadFileCmd, { shell: 'bash' });
