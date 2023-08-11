@@ -28,9 +28,8 @@ BeforeSuite(async ({ I, files}) => {
   I.cache.fileData = 'This is a test file uploaded via gen3-client test';
   const userAccessToken = users.indexingAcct.accessToken;
   I.cache.accessToken = userAccessToken;
-  if (process.env.DEBUG === 'true') {
-    console.log(`Access token: ${I.cache.accessToken}`);
-  }
+  output.debug(`Access token: ${I.cache.accessToken}`);
+
   // create a file that can be uploaded
   const fileToBeUploaded = `file_${Date.now()}.txt`;
   const filePath = `./${fileToBeUploaded}`;
@@ -39,7 +38,7 @@ BeforeSuite(async ({ I, files}) => {
   I.cache.fileToBeUploaded = fileToBeUploaded;
 
   // Install gen3-client
-  const goPath = execSync('go env GOPATH').toString().trim();
+  I.cache.goPath = execSync('go env GOPATH', { shell: 'bash' }).toString().trim();
   output.debug(`#### goPath: ${goPath}`);
   const clientInstallCommands = `mkdir -p ${goPath}/src/github.com/uc-cdis` +
     ` && cd ${goPath}/src/github.com/uc-cdis` +
@@ -47,10 +46,15 @@ BeforeSuite(async ({ I, files}) => {
     ' && mv cdis-data-client gen3-client' +
     ' && cd gen3-client' + 
     ' && go get -d ./... && go install .' +
-    ` && export PATH="${goPath}/bin:$PATH"`;
+    ` && export PATH="${I.cache.goPath}/bin:$PATH"`;
 
-  execSync(clientInstallCommands);
-  const version = execSync('gen3-client --version');
+  output.debug('#### PATH ####');
+  output.debug(execSync('echo $PATH', { shell: 'bash' }));
+  output.debug('#### GOPATH BIN CONTENTS ####');
+  output.debug(execSync(`ls ${I.cache.goPath}/bin`, { shell: 'bash' }));
+
+  execSync(clientInstallCommands, { shell: 'bash' });
+  const version = execSync('gen3-client --version', { shell: 'bash' });
   output.debug(`### gen3-client version installed is ${version}`);
 });
 
@@ -69,7 +73,7 @@ AfterSuite(async ({ I, files, indexd }) => {
 Scenario('Upload and download and file with gen3-client', async ({
   I, fence, indexd,
 }) => {
-  const pwd = execSync('pwd', { encoding: 'utf-8' });
+  const pwd = execSync('pwd', { encoding: 'utf-8', shell: 'bash' });
   output.debug(`#### current working directory: ${pwd.trim()}`);
 
   // creating a API key
@@ -104,7 +108,7 @@ Scenario('Upload and download and file with gen3-client', async ({
   const configureClientCmd = `gen3-client configure --profile=${process.env.NAMESPACE} --cred=${credsFile} --apiendpoint=https://${process.env.NAMESPACE}.planx-pla.net`;
   try {
     output.log('Configuring profile ...');
-    execSync(configureClientCmd);
+    execSync(configureClientCmd, { shell: 'bash' });
     output.log('### gen3-client profile is configured');
   } catch (error) {
     const msg = error.stdout.toString('utf-8');
@@ -112,12 +116,12 @@ Scenario('Upload and download and file with gen3-client', async ({
   }
 
   // upload a file via gen3-client
-  const uploadFileCmd = `./gen3-client/gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=${I.cache.fileToBeUploaded} 2>&1`;
+  const uploadFileCmd = `gen3-client upload --profile=${process.env.NAMESPACE} --upload-path=${I.cache.fileToBeUploaded} 2>&1`;
   try {
     let cmdOut;
     try {
       console.log('Uploading the file ...');
-      cmdOut = execSync(uploadFileCmd, { encoding: 'utf-8' });
+      cmdOut = execSync(uploadFileCmd, { encoding: 'utf-8', shell: 'bash' });
       console.log(`### ${cmdOut}`);
     } catch (error) {
       throw new Error(error.stdout.toString('utf-8'));
@@ -141,10 +145,10 @@ Scenario('Upload and download and file with gen3-client', async ({
 
   const downloadPath = `tmpDownloadFile_${Date.now()}`;
   I.cache.downloadFile = downloadPath;
-  const downloadFileCmd = `./gen3-client/gen3-client download-single --profile=${process.env.NAMESPACE} --guid=${I.cache.GUID} --download-path=${downloadPath} --no-prompt`;
+  const downloadFileCmd = `gen3-client download-single --profile=${process.env.NAMESPACE} --guid=${I.cache.GUID} --download-path=${downloadPath} --no-prompt`;
   try {
     console.log('Downloading file ...');
-    execSync(downloadFileCmd);
+    execSync(downloadFileCmd, { shell: 'bash' });
   } catch (error) {
     const msg = error.stdout.toString('utf8');
     throw new Error(`Error downloading file with gen3-client:\n${msg}`);
