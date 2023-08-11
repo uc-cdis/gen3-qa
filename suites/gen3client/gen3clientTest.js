@@ -67,7 +67,7 @@ AfterSuite(async ({ I, files, indexd }) => {
 });
 
 Scenario('Upload and download and file with gen3-client', async ({
-  I, fence, indexd,
+  I, fence, indexd, files,
 }) => {
   const pwd = execSync('pwd', { encoding: 'utf-8', shell: 'bash' });
   output.debug(`#### current working directory: ${pwd.trim()}`);
