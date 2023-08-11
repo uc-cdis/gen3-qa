@@ -39,7 +39,7 @@ BeforeSuite(async ({ I, files}) => {
 
   // Install gen3-client
   I.cache.goPath = execSync('go env GOPATH', { shell: 'bash' }).toString().trim();
-  output.debug(`#### goPath: ${goPath}`);
+  output.debug(`#### goPath: ${I.cache.goPath}`);
   const clientInstallCommands = `mkdir -p ${goPath}/src/github.com/uc-cdis` +
     ` && cd ${goPath}/src/github.com/uc-cdis` +
     ' && git clone https://github.com/uc-cdis/cdis-data-client.git' +
