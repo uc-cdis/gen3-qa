@@ -40,13 +40,26 @@ BeforeSuite(async ({ I, files}) => {
   // Install gen3-client
   I.cache.goPath = execSync('go env GOPATH', { shell: 'bash' }).toString().trim();
   output.debug(`#### goPath: ${I.cache.goPath}`);
-  const clientInstallCommands = `mkdir -p ${I.cache.goPath}/src/github.com/uc-cdis` +
+  output.debug(`#### Env variable service - ${service}`);
+  output.debug(`#### change branch - ${process.env.CHANGE_BRANCH}`);
+  if(process.env.service === 'cdis-data-client' || process.env.service === 'gen3-client') {
+    const clientInstallCommands = `mkdir -p ${I.cache.goPath}/src/github.com/uc-cdis` +
     ` && cd ${I.cache.goPath}/src/github.com/uc-cdis` +
     ' && git clone https://github.com/uc-cdis/cdis-data-client.git' +
     ' && mv cdis-data-client gen3-client' +
-    ' && cd gen3-client' + 
+    ' && cd gen3-client' +
+    ` && git checkout ${process.env.CHANGE_BRANCH}` +
     ' && go get -d ./...' +
     ' && go install .'
+  } else {
+    const clientInstallCommands = `mkdir -p ${I.cache.goPath}/src/github.com/uc-cdis` +
+      ` && cd ${I.cache.goPath}/src/github.com/uc-cdis` +
+      ' && git clone https://github.com/uc-cdis/cdis-data-client.git' +
+      ' && mv cdis-data-client gen3-client' +
+      ' && cd gen3-client' + 
+      ' && go get -d ./...' +
+      ' && go install .'
+  }
 
   execSync(clientInstallCommands, { shell: 'bash' });
 
