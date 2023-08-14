@@ -136,8 +136,10 @@ Scenario('Upload and download and file with gen3-client', async ({
   const getIndexdRecord = await I.sendGetRequest(`${indexd.props.endpoints.get}/${I.cache.GUID}`, users.indexingAcct.accessTokenHeader);
   const { rev } = getIndexdRecord.data;
   output.debug(rev);
-  output.debug(getIndexdRecord.data);
+  output.debug(`${JSON.stringify(getIndexdRecord.data)}`);
   expect(getIndexdRecord.data).to.have.property('urls');
+
+  await I.wait(10);
 
   const downloadPath = `tmpDownloadFile_${Date.now()}`;
   I.cache.downloadFile = downloadPath;
