@@ -648,14 +648,14 @@ else
     if [[ "$selectedTest" == "suites/sheepdogAndPeregrine/submitAndQueryNodesTest.js" && -z "$ddHasConsentCodes" ]]; then
       donot '@indexRecordConsentCodes'
     fi
-    dryrun DEBUG=$debug npm 'test' -- $testArgs ${selectedTest}
+    dryrun REPO=$service DEBUG=$debug npm 'test' -- $testArgs ${selectedTest}
     RC=$?
     exitCode=$RC
     set -e
   fi
   if [ -n "$selectedTag" ]; then
     echo "Tag selected - $selectedTag"
-    DEBUG=$debug npm 'test' -- --reporter mocha-multi --verbose --grep "(?=.*$selectedTag)^(?!$doNotRunRegexDotStar)"
+    REPO=$service DEBUG=$debug npm 'test' -- --reporter mocha-multi --verbose --grep "(?=.*$selectedTag)^(?!$doNotRunRegexDotStar)"
     RC=$?
     exitCode=$RC
     set -e

@@ -38,9 +38,9 @@ BeforeSuite(async ({ I, files}) => {
   // Install gen3-client
   I.cache.goPath = execSync('go env GOPATH', { shell: 'bash' }).toString().trim();
   output.debug(`#### goPath: ${I.cache.goPath}`);
-  output.debug(`#### service: ${process.env.service}`);
+  output.debug(`#### REPO: ${process.env.REPO}`);
   output.debug(`#### CHANGE_BRANCH: ${process.env.CHANGE_BRANCH}`);
-  if(process.env.service === 'cdis-data-client' || process.env.service === 'gen3-client') {
+  if(process.env.REPO === 'cdis-data-client' || process.env.REPO === 'gen3-client') {
     output.debug(`#### change branch - ${process.env.CHANGE_BRANCH}`);
     const clientInstallCommands = `mkdir -p ${I.cache.goPath}/src/github.com/uc-cdis` +
     ` && cd ${I.cache.goPath}/src/github.com/uc-cdis` +
