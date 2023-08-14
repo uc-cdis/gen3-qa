@@ -150,7 +150,7 @@ Scenario('Upload and download and file with gen3-client', async ({
   output.debug(`${JSON.stringify(getIndexdRecord.data)}`);
   expect(getIndexdRecord.data).to.have.property('urls');
 
-  await sleepMS(5000);
+  await sleepMS(10000);
 
   const downloadPath = `tmpDownloadFile_${Date.now()}`;
   I.cache.downloadFile = downloadPath;
