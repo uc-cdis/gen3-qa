@@ -39,10 +39,16 @@ BeforeSuite(async ({ I, files}) => {
   I.cache.goPath = execSync('go env GOPATH', { shell: 'bash' }).toString().trim();
   output.debug(`#### goPath: ${I.cache.goPath}`);
   output.debug(`#### REPO: ${process.env.REPO}`);
-  output.debug(`#### CHANGE_BRANCH: ${process.env.CHANGE_BRANCH}`);
+  let clientInstallCommands = `mkdir -p ${I.cache.goPath}/src/github.com/uc-cdis` +
+      ` && cd ${I.cache.goPath}/src/github.com/uc-cdis` +
+      ' && git clone https://github.com/uc-cdis/cdis-data-client.git' +
+      ' && mv cdis-data-client gen3-client' +
+      ' && cd gen3-client' + 
+      ' && go get -d ./...' +
+      ' && go install .'
   if(process.env.REPO === 'cdis-data-client' || process.env.REPO === 'gen3-client') {
     output.debug(`#### change branch - ${process.env.CHANGE_BRANCH}`);
-    const clientInstallCommands = `mkdir -p ${I.cache.goPath}/src/github.com/uc-cdis` +
+    clientInstallCommands = `mkdir -p ${I.cache.goPath}/src/github.com/uc-cdis` +
     ` && cd ${I.cache.goPath}/src/github.com/uc-cdis` +
     ' && git clone https://github.com/uc-cdis/cdis-data-client.git' +
     ' && mv cdis-data-client gen3-client' +
@@ -50,16 +56,9 @@ BeforeSuite(async ({ I, files}) => {
     ` && git checkout ${process.env.CHANGE_BRANCH}` +
     ' && go get -d ./...' +
     ' && go install .'
-  } else {
-    const clientInstallCommands = `mkdir -p ${I.cache.goPath}/src/github.com/uc-cdis` +
-      ` && cd ${I.cache.goPath}/src/github.com/uc-cdis` +
-      ' && git clone https://github.com/uc-cdis/cdis-data-client.git' +
-      ' && mv cdis-data-client gen3-client' +
-      ' && cd gen3-client' + 
-      ' && go get -d ./...' +
-      ' && go install .'
   }
 
+  output.debug(`## clientInstallCommands - ${clientInstallCommands}`)
   execSync(clientInstallCommands, { shell: 'bash' });
 
   const version = execSync(`${I.cache.goPath}/bin/gen3-client --version`, { shell: 'bash' });
