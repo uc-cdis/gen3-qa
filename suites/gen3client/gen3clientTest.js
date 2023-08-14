@@ -6,7 +6,7 @@
 // 5. check the indexd record
 // 6. download the file
 
-// this test will run in nightly-builds and gen3-qa PRs
+// this test will run in cdis-data-client and gen3-qa PRs
 
 // to run this locally please ensure golang is installed in the machine (runs on linux and mac)
 
@@ -16,10 +16,8 @@ const { expect } = require('chai');
 const { output } = require('codeceptjs');
 const fs = require('fs');
 const { execSync } = require('child_process');
-const axios = require('axios');
-const AdmZip = require('adm-zip');
 const users = require('../../utils/user');
-// const os = require('os');
+const { sleepMS } = require('../../utils/apiUtil');
 
 const I = actor();
 I.cache = {};
@@ -40,9 +38,8 @@ BeforeSuite(async ({ I, files}) => {
   // Install gen3-client
   I.cache.goPath = execSync('go env GOPATH', { shell: 'bash' }).toString().trim();
   output.debug(`#### goPath: ${I.cache.goPath}`);
-  output.debug(`#### Env variable service - ${service}`);
-  output.debug(`#### change branch - ${process.env.CHANGE_BRANCH}`);
   if(process.env.service === 'cdis-data-client' || process.env.service === 'gen3-client') {
+    output.debug(`#### change branch - ${process.env.CHANGE_BRANCH}`);
     const clientInstallCommands = `mkdir -p ${I.cache.goPath}/src/github.com/uc-cdis` +
     ` && cd ${I.cache.goPath}/src/github.com/uc-cdis` +
     ' && git clone https://github.com/uc-cdis/cdis-data-client.git' +
@@ -152,7 +149,7 @@ Scenario('Upload and download and file with gen3-client', async ({
   output.debug(`${JSON.stringify(getIndexdRecord.data)}`);
   expect(getIndexdRecord.data).to.have.property('urls');
 
-  await I.wait(10);
+  await sleepMS(5000);
 
   const downloadPath = `tmpDownloadFile_${Date.now()}`;
   I.cache.downloadFile = downloadPath;

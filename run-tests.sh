@@ -352,7 +352,7 @@ else
 fi
 
 # gen3-client tests run on gen3-qa repo and in nightly builds
-if [[ "$service" != "gen3-qa" ]]; then
+if [[ "$service" != "gen3-qa" && "$service" != "cdis-data-client" && "$service" != "gen3-client" ]]; then
   donot '@gen3-client'
 fi
 
