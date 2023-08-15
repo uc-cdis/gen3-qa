@@ -1,7 +1,7 @@
 Feature('Gen3-dataclient');
 
 const chai = require('chai');
-const { interactive, ifInteractive } = require('../../utils/interactive.js');
+const { interactive, ifInteractive } = require('../../../utils/interactive.js');
 
 const { expect } = chai;
 const hostname = process.env.HOSTNAME;
