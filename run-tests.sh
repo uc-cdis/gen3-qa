@@ -526,7 +526,7 @@ elif ! (g3kubectl get pods --no-headers -l app=hatchery | grep hatchery) > /dev/
   donot '@exportToWorkspacePortalHatchery'
 fi
 
-if ! [[ "$service" != "pelican" ]]; then
+if [[ "$service" != "pelican" ]]; then
   donot '@pfbExport'
 fi
 
