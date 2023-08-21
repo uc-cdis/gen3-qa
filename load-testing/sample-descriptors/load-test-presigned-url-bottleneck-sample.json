@@ -1,7 +1,7 @@
 {
   "objective": "Determine throughput bottleneck",
   "details": {
-    "name": "qa-dcp.planx-plan.net",
+    "name": "jenkins-perf.planx-plan.net",
     "UWSGI_PROCESSES": 1,
     "fence_autoscaler": {
       "min": 10,
@@ -12,8 +12,8 @@
   },
   "service": "fence",
   "load_test_scenario": "presigned-url",
-  "presigned_url_guids": [],
   "indexd_record_acl": "phs000178",
+  "presigned_url_protocol": "s3",
   "virtual_users": [
     { "duration": "1s", "target": 1 },
     { "duration": "5s", "target": 1 },
