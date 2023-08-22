@@ -82,6 +82,7 @@ module.exports = {
   deleteFile(filePath) {
     fs.unlink(filePath, (err) => {
       if (err) throw err;
+      console.log(`Deleted file "${filePath}"`);
     });
   },
 

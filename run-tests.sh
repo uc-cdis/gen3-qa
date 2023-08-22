@@ -351,6 +351,11 @@ else
   echo "INFO: enabling Google Data Access tests for $service"
 fi
 
+# gen3-client tests run on gen3-qa repo and in nightly builds
+if [[ "$service" != "gen3-qa" && "$service" != "cdis-data-client" && "$service" != "gen3-client" ]]; then
+  donot '@gen3-client'
+fi
+
 #
 # RAS AuthN Integration tests are only required for some repos
 #
@@ -521,8 +526,10 @@ elif ! (g3kubectl get pods --no-headers -l app=hatchery | grep hatchery) > /dev/
   donot '@exportToWorkspacePortalHatchery'
 fi
 
-# Nightly Build exclusive tests
-donot '@pfbExport'
+if [[ "$service" != "pelican" ]]; then
+  donot '@pfbExport'
+fi
+
 donot '@jupyterNb'
 
 #
@@ -643,14 +650,14 @@ else
     if [[ "$selectedTest" == "suites/sheepdogAndPeregrine/submitAndQueryNodesTest.js" && -z "$ddHasConsentCodes" ]]; then
       donot '@indexRecordConsentCodes'
     fi
-    dryrun DEBUG=$debug npm 'test' -- $testArgs ${selectedTest}
+    dryrun REPO=$service DEBUG=$debug npm 'test' -- $testArgs ${selectedTest}
     RC=$?
     exitCode=$RC
     set -e
   fi
   if [ -n "$selectedTag" ]; then
     echo "Tag selected - $selectedTag"
-    DEBUG=$debug npm 'test' -- --reporter mocha-multi --verbose --grep "(?=.*$selectedTag)^(?!$doNotRunRegexDotStar)"
+    REPO=$service DEBUG=$debug npm 'test' -- --reporter mocha-multi --verbose --grep "(?=.*$selectedTag)^(?!$doNotRunRegexDotStar)"
     RC=$?
     exitCode=$RC
     set -e
