@@ -2,7 +2,8 @@
  * A module providing util functions to handle indexd records
  * @module indexdLTUtils
  */
-const ax = require('axios'); // eslint-disable-line import/no-extraneous-dependencies
+// const ax = require('axios'); // eslint-disable-line import/no-extraneous-dependencies
+const request = require('request');
 
 module.exports = {
   /**
@@ -19,27 +20,39 @@ module.exports = {
       if (indexdRecordACL) {
         url += `?acl=${indexdRecordACL}`;
       }
-      ax.request({
-        // e.g., url: '/index/index?url=s3://cdis-presigned-url-test/dcp-s3-test-1.txt',
+      request.get(
         url,
-        method: 'get',
-        maxRedirects: 0,
-        timeout: 10000,
-        header: {
-          // Authorization: `bearer ${accessToken}`,
-          'content-type': 'application/json',
-          accept: 'application/json',
-        },
-      }).then(
-        (resp) => {
-          // console.log(resp.data);
-          resolve(resp.data.records);
+      ).then(
+        (response) => {
+          console.log(response.data.records);
+          resolve(response.data.records);
         },
         (err) => {
           console.log(`err: ${JSON.stringify(err)}`);
           reject(err.response || err);
         },
       );
+      // ax.request({
+      //   // e.g., url: '/index/index?url=s3://cdis-presigned-url-test/dcp-s3-test-1.txt',
+      //   url,
+      //   method: 'get',
+      //   maxRedirects: 0,
+      //   timeout: 10000,
+      //   header: {
+      //     // Authorization: `bearer ${accessToken}`,
+      //     'content-type': 'application/json',
+      //     accept: 'application/json',
+      //   },
+      // }).then(
+      //   (resp) => {
+      //     // console.log(resp.data);
+      //     resolve(resp.data.records);
+      //   },
+      //   (err) => {
+      //     console.log(`err: ${JSON.stringify(err)}`);
+      //     reject(err.response || err);
+      //   },
+      // );
     }));
   },
 };
