@@ -216,7 +216,7 @@ async function runLoadTestScenario() {
 
   // The first arg should always be 'run'
   // dd_api_key-k6_load_testing
-  loadTestArgs.unshift('run');
+  loadTestArgs.unshift('run --verbose');
   console.log(`running: k6 ${loadTestArgs}`);
   spawnSync('k6', loadTestArgs, { stdio: 'inherit' });
 }
