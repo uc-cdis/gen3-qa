@@ -20,6 +20,7 @@ module.exports = {
       if (indexdRecordACL) {
         url += `?acl=${indexdRecordACL}`;
       }
+      console.log(`### Sending Get request to /index/index point with acl ${indexdRecordACL}`);
       request.get(
         url,
       ).then(
