@@ -30,7 +30,7 @@ module.exports = {
   async exportDefaultManifestToWorkspace() {
     console.log('from \'Explore\' page, click \'Export to workspace\' button to export default manifest to workspace');
     await this.goToExplorerPage();
-    I.waitForElement(exportToWorkspaceProps.exportToWorkspaceButtonXPath, 100);
+    I.waitForElement(exportToWorkspaceProps.exportToWorkspaceButtonXPath, 50);
     I.seeElement(exportToWorkspaceProps.exportToWorkspaceButtonXPath);
     I.click(exportToWorkspaceProps.exportToWorkspaceButtonXPath);
     I.waitForElement(exportToWorkspaceProps.exportToWorkspaceToasterClass, 60);
