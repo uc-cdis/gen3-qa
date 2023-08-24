@@ -15,13 +15,14 @@ module.exports = {
     return new Promise(((resolve, reject) => {
       // TODO: dynamically identify the records accessible by the owner of the access token
       // allowing user to provide the url for the indexd query for now
-      let url = `https://${targetEnvironment}/index/index`;
+      let url = '/index/index';
       if (indexdRecordACL) {
         url += `?acl=${indexdRecordACL}`;
       }
       ax.request({
         // e.g., url: '/index/index?url=s3://cdis-presigned-url-test/dcp-s3-test-1.txt',
         url,
+        baseURL: `https://${targetEnvironment}`,
         method: 'get',
         maxRedirects: 0,
         header: {
