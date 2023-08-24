@@ -3,7 +3,6 @@
  * @module indexdLTUtils
  */
 const ax = require('axios'); // eslint-disable-line import/no-extraneous-dependencies
-// const request = require('request');
 
 module.exports = {
   /**
@@ -20,25 +19,11 @@ module.exports = {
       if (indexdRecordACL) {
         url += `?acl=${indexdRecordACL}`;
       }
-      // console.log(`### Sending Get request to /index/index point with acl ${indexdRecordACL}`);
-      // request.get(
-      //   url,
-      // ).then(
-      //   (response) => {
-      //     console.log(response.data.records);
-      //     resolve(response.data.records);
-      //   },
-      //   (err) => {
-      //     console.log(`err: ${JSON.stringify(err)}`);
-      //     reject(err.response || err);
-      //   },
-      // );
       ax.request({
         // e.g., url: '/index/index?url=s3://cdis-presigned-url-test/dcp-s3-test-1.txt',
         url,
         method: 'get',
         maxRedirects: 0,
-        timeout: 10000,
         header: {
           // Authorization: `bearer ${accessToken}`,
           'content-type': 'application/json',
