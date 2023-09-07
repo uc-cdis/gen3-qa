@@ -36,6 +36,20 @@ module.exports = async function () {
       }
     }
 
+    if (suite.title === 'ExportToWorkspaceTest @requires-portal @requires-hatchery @requires-wts') {
+      const workspaceButton = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq -r \'.components.index.buttons[] | select(.link | contains ("/workspace"))\'');
+      if (!workspaceButton) {
+        console.log('Skipping export to workspace portal tests as workspace button is not configured in navigation bar');
+        console.dir(suite.tests);
+        suite.tests.forEach((test) => {
+          test.run = function skip() { // eslint-disable-line 
+            console.log(`Ignoring test - ${test.title}`);
+            this.skip();
+          };
+        });
+      }
+    }
+
     if (suite.title === 'Register User For Data Downloading @requires-portal') {
       const loginForDownload = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.explorerConfig[1].loginForDownload\'');
       const haveDropdown = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.explorerConfig[0].guppyConfig.dropdowns\'');
