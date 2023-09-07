@@ -37,7 +37,7 @@ module.exports = async function () {
     }
 
     if (suite.title === 'ExportToWorkspaceTest @requires-portal @requires-hatchery @requires-wts') {
-      const workspaceButton = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq -r \'.components.index.buttons[] | select(.link | contains ("/workspace"))\'');
+      const workspaceButton = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq -r \'.components.navigation.items[] | select(.link | contains ("/workspace"))\'');
       if (!workspaceButton) {
         console.log('Skipping export to workspace portal tests as workspace button is not configured in navigation bar');
         console.dir(suite.tests);
