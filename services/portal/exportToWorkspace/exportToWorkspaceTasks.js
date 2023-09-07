@@ -10,7 +10,8 @@ const I = actor();
 module.exports = {
   goToWorkspacePage() {
     I.amOnPage(exportToWorkspaceProps.workspacePath);
-    I.waitForVisible(exportToWorkspaceProps.workspaceDivClass, 10);
+    I.saveScreenshot('exportToWorkspace_workspacePage.png');
+    I.waitForVisible(exportToWorkspaceProps.workspaceDivClass, 50);
   },
 
   async goToExplorerPage() {
