@@ -111,7 +111,7 @@ module.exports = {
     if (terminateBtnCount !== 0) {
       I.click(exportToWorkspaceProps.terminateWorkspaceButtonXPath);
     }
-    I.amOnPage('/');
+    // I.amOnPage('/');
   },
 
   /* Get the manifest name to be mounted from python output */
