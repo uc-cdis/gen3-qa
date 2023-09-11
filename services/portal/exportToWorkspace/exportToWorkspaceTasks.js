@@ -10,7 +10,8 @@ const I = actor();
 module.exports = {
   goToWorkspacePage() {
     I.amOnPage(exportToWorkspaceProps.workspacePath);
-    I.waitForVisible(exportToWorkspaceProps.workspaceDivClass, 10);
+    I.saveScreenshot('exportToWorkspace_workspacePage.png');
+    I.waitForVisible(exportToWorkspaceProps.workspaceDivClass, 100);
   },
 
   async goToExplorerPage() {
@@ -110,7 +111,6 @@ module.exports = {
     if (terminateBtnCount !== 0) {
       I.click(exportToWorkspaceProps.terminateWorkspaceButtonXPath);
     }
-    I.amOnPage('/');
   },
 
   /* Get the manifest name to be mounted from python output */
