@@ -17,6 +17,6 @@
     { "duration": "1s", "target": 1 },
     { "duration": "5s", "target": 5 },
     { "duration": "300s", "target": 10 },
-    { "duration": "21600s", "target": 20 }
+    { "duration": "4500s", "target": 20 }
   ]
 }
