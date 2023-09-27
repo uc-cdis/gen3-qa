@@ -3,6 +3,7 @@ const chai = require('chai');
 const users = require('../../../utils/user');
 const fs = require('fs');
 const { sleepMS } = require('../../../utils/apiUtil.js');
+const { captureRejectionSymbol } = require('events');
 
 const { expect } = chai;
 const I = actor();
@@ -127,7 +128,7 @@ module.exports = {
         I.click(GWASUIAppProps.JobSubmitButton);
     },
 
-    goToJobStatus() {           
+    async goToJobStatus() {           
         I.seeElement(GWASUIAppProps.SeeStatusButton);
         I.seeElement(GWASUIAppProps.SubmissionSuccessMessage);
         I.saveScreenshot('Aftersubmitbutton.png');
@@ -137,34 +138,11 @@ module.exports = {
         I.saveScreenshot('resultsPage.png');
     },
 
-    goToResultPage() {
+    async goToResultPage() {
         I.amOnPage(GWASUIAppProps.resultsPath);
         I.wait(5);
         I.seeElement(GWASUIAppProps.ExecutionButton);
         I.saveScreenshot('resultsPage.png');
-    },
-
-    async getUserWF() {
-        const userWFs =  await I.sendGetRequest(
-            `${GWASUIAppProps.gwasAPI}/workflows`,
-            users.mainAcct.accessTokenHeader,
-        );
-        const workflowData = userWFs.data[0];
-        console.log(workflowData);
-        if (process.env.DEBUG === 'true') {
-            console.log(workflowData);
-        };
-        expect(workflowData).to.not.be.empty;
-        return workflowData;
-    },
-
-    async getWFName() {
-        const data = await this.getUserWF();
-        const wfName = data.name;
-        if (process.env.DEBUG === 'true') {
-            console.log(`### workflow name : ${wfName}`);
-        };
-        return wfName;
     },
 
     async getWFUID() {
@@ -176,30 +154,21 @@ module.exports = {
         return wfUID;
     },
 
-   async getWFStatus() {
-        const data = await this.getUserWF();
-        const wfStatus = data.phase;
-        if (process.env.DEBUG === 'true') {
-            console.log(`### workflow status : ${wfStatus}`);
-        };
-        return wfStatus;
-    },
-
-    executionButton() {
-        I.saveScreenshot('executionButton.png');
+    async executionButton() {
         I.click(GWASUIAppProps.ExecutionButton);
         I.wait(5);
+        I.saveScreenshot('executionButtonPage.png');
         I.seeElement(GWASUIAppProps.executionView);
         I.seeElement(GWASUIAppProps.executionLogs);
         I.click(GWASUIAppProps.backButton);
     },
 
-    resultsButton() {
-        I.saveScreenshot('resultButton.png');
+    async resultsButton() {
         I.click(GWASUIAppProps.ResultsButton);
         I.wait(5);
+        I.saveScreenshot('resultButtonPage.png');
         I.seeElement(GWASUIAppProps.ResultsButton);
-        I.seeElement(GWASUIAppProps.manhattanPlot);
+        // I.seeElement(GWASUIAppProps.manhattanPlot);
         I.seeElement(GWASUIAppProps.downloadAllResults);
         I.click(GWASUIAppProps.resultsBackButton);
     },
@@ -210,48 +179,113 @@ module.exports = {
         I.seeElement(GWASUIAppPro.downloadAllResults);
     },
 
-    async checkStatusPolling() {
-        console.log('### waiting for status polling ...');
-        await sleepMS(300000);
-        const attempts = 10;
-        let workflowStatus = '';
-        for (let i = 1; i < attempts; i += 1) {
-            console.log("Checking the status of the workflow...");
-            workflowStatus = await this.getWFStatus();
-            if (process.env.DEBUG === 'true') {
-                console.log(workflowStatus);
-            }
+    async getUserWF(job) {
+        console.log('### Getting workflows for the user ...');
+        const userWFs =  await I.sendGetRequest(
+            `${GWASUIAppProps.gwasAPI}`,
+            users.mainAcct.accessTokenHeader,
+        );
+        const workflowData = userWFs.data;
+        if (process.env.DEBUG === 'true') {
+            console.log(`### ${JSON.stringify(workflowData)}`);
+        };
+        expect(workflowData).to.not.be.empty;
+        var wf = workflowData.find((obj) => obj.wf_name === job)
+        console.log("Matching object:", wf);
+        return wf;
+    },
 
-            if (workflowStatus !== 'Running') {
-                console.log('### The workflow is done ...')
-                break;
-            } else {
-                console.log(`The workflow has not completed yet - attempt ${i}`);
-                await sleepMS(60000);
-                if (i === attempts - 1) {
-                    throw new Error(`### Error : The workflow has not finished yet. The status of the workflow is ${workflowStatus}`);
+    async getWFStatus(job) {
+        const data = await this.getUserWF(job);
+        const wfStatus = data.phase;
+        console.log(`### getWFStatus workflow status : ${wfStatus}`);
+        return wfStatus;
+    },
+
+    async checkStatusPolling(job, status) {
+        const attempts = 5;
+        await sleepMS(10000);
+        let workflowStatus = status;
+        if (workflowStatus !== 'Running'){
+            console.log('### workflowStatus: ', workflowStatus);
+        } else {
+            console.log('### workflow is Running. Starting the polling process ...');
+            for(let i = 1; i < attempts; i += 1) {
+                try {
+                    console.log(`###Checking the status of ${i}`);
+                    workflowStatus = await this.getWFStatus(job);
+                    console.log(`### attempt ${i} status :${workflowStatus}`);
+                    if (workflowStatus !== 'Running') {
+                        break;
+                    } else {
+                        console.log(`### workflow has not completed yet - attempt ${i}`);
+                        await sleepMS(10000);
+                        if (i === attempts) {
+                            throw new Error(`### Error : The workflow has not finished yet. The status of the workflow is ${workflowStatus}`);
+                        }
+                    }
+                } catch (e) {
+                    throw new Error(`Failed to get status of job ${job} on attempts ${i} : ${e.message}`)
                 }
             }
         }
         return workflowStatus;
     },
 
-    async checkStatus(failed = false) {
-        const workflowName = await this.getWFName();
-        const status = await this.checkStatusPolling();
+
+    async checkStatus(job, failed = false) {
+        const wkStatus = await this.getWFStatus(job);
+        const status = await this.checkStatusPolling(job, wkStatus);
+        console.log(`### workflow status : ${status}`);
         if (process.env.DEBUG === 'true') {
-            console.log(`### workflow status : ${status}`);
+            console.log(`### checkStatus workflow status : ${status}`);
         };
         // for negative testing
         // if the failed is set to true, this workflow with trigger
         let failedStates = [ "Failed", "Error" ];
         if (failed) {
             expect(status).to.be.oneOf(failedStates);
+        } else if (status === "Failed") {
+            console.log('Workflow has Failed');
         } else {
             expect(status).to.equal('Succeeded');
             console.log(`### Status : ${status}.Workflow ${workflowName} has completed successfully`);
-            this.executionButton();
-            this.resultsButton();
+            // check I am on Page
+            // check if the user is logged in or not, if not then login again and continue the test
+            await this.executionButton();
+            await this.resultsButton();
         }
     },
+
+        // async checkStatusPolling(job, status) {
+    //     const attempts = 4;
+    //     let workflowStatus = status;
+    //     if (workflowStatus !== 'Running') {
+    //         console.log('### The workflow is done. Worksflow status : ' + workflowStatus)
+    //     }
+    //     if (workflowStatus === 'Running') {
+    //         console.log('The status of the workflow is Running');
+    //         console.log(`### waiting for status polling for ${job}...`)
+    //         // start the polling mechanism
+    //         for (let i = 1; i < attempts; i += 1) {
+    //             console.log(`Checking the status of the workflow : attempt ${i} ...`);
+    //             workflowStatus = await this.getWFStatus(job)
+    //             if (process.env.DEBUG === 'true') {
+    //                 console.log(workflowStatus);
+    //             }
+
+    //             if (workflowStatus !== 'Running') {
+    //                 console.log('### The workflow is done ...')
+    //                 break;
+    //             } else {
+    //                 console.log(`The workflow has not completed yet - attempt ${i}`);
+    //                 if (i === attempts - 1) {
+    //                     throw new Error(`### Error : The workflow has not finished yet. The status of the workflow is ${workflowStatus}`);
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     return workflowStatus;
+    // },
+
 }

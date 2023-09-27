@@ -1,7 +1,7 @@
 module.exports = {
     path: 'analysis/GWASUIApp',
     resultsPath: 'analysis/GWASResults',
-    gwasAPI: '/ga4gh/wes/v2',
+    gwasAPI: '/ga4gh/wes/v2/workflows',
 
     // GWAS++ elements
     NextSpan: '//span[contains(text(),\'Next\')]',
@@ -56,7 +56,7 @@ module.exports = {
     ActionDotsButton: '//tbody/tr[1]/td[7]/div[1]/div[1]/button[1]/span[1]//*[name()="svg"]',
     DownloadButton: '//a[normalize-space()="Download"]',
     // execution page
-    executionView: '//div[@class="view"]',
+    executionView: '.view',
     executionLogs: '//div[@class="execution-data"]',
     backButton: '//button[@type="button"]',
     // results page

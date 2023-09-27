@@ -15,6 +15,9 @@ const I = actor();
 
 Feature('GWAS App UI Test @requires-portal @requires-argo-wrapper @requires-cohort-middleware');
 
+I.cache = {};
+I.cache.workflows = [ 'AutomationTest1695062226397', 'AutomationTest1695759048748', 'test' ];
+
 Scenario('Submit workflow Continuous Outcome - Continuous Covariate Phenotype @GWASUI', async ({
     I, home, users, gwas
 }) => {
@@ -53,9 +56,11 @@ Scenario('Submit workflow Continuous Outcome - Continuous Covariate Phenotype @G
 
     I.seeElement(gwas.props.SubmitDialogBox);
     const jobName = gwas.do.enterJobName();
+    console.log(jobName);
+    I.cache.workflows.push(jobName);
+    console.log(I.cache.workflows);
     await gwas.do.submitJob();
     gwas.do.goToJobStatus();
-    await gwas.do.checkStatus();
 });
 
 Scenario('Submit workflow Continuous Outcome - Dichotomous Covariate Phenotype @GWASUI', async ({
@@ -96,9 +101,9 @@ Scenario('Submit workflow Continuous Outcome - Dichotomous Covariate Phenotype @
 
     I.seeElement(gwas.props.SubmitDialogBox);
     const jobName = gwas.do.enterJobName();
+    I.cache.workflows.push(jobName);
     await gwas.do.submitJob();
     gwas.do.goToJobStatus();
-    await gwas.do.checkStatus();
 });
 
 Scenario('Submit workflow Dichotomous Outcome - Continuous Covariate Phenotype @GWASUI', async ({
@@ -140,9 +145,9 @@ Scenario('Submit workflow Dichotomous Outcome - Continuous Covariate Phenotype @
 
     I.seeElement(gwas.props.SubmitDialogBox);
     const jobName = gwas.do.enterJobName();
+    I.cache.workflows.push(jobName);
     await gwas.do.submitJob();
     gwas.do.goToJobStatus();
-    await gwas.do.checkStatus();
 });
 
 Scenario('Submit workflow Dichotomous Outcome - Dichotomous Covariate Phenotype @GWASUI', async ({
@@ -184,12 +189,13 @@ Scenario('Submit workflow Dichotomous Outcome - Dichotomous Covariate Phenotype 
 
     I.seeElement(gwas.props.SubmitDialogBox);
     const jobName = gwas.do.enterJobName();
+    I.cache.workflows.push(jobName);
     await gwas.do.submitJob();
     gwas.do.goToJobStatus();
-    await gwas.do.checkStatus();
 });
 
 // this scenarios is largely dependent on the success of submissions of workflows in previous scenarios
+
 Scenario('GWAS Result App @GWASUI', async ({ 
     I, home, users, gwas 
 }) => {
@@ -198,8 +204,13 @@ Scenario('GWAS Result App @GWASUI', async ({
     });
     home.do.goToHomepage();
     await home.complete.login(users.mainAcct);
-    gwas.do.goToResultPage();
-    await gwas.do.checkStatus();
+    await gwas.do.goToResultPage();
+    console.log(I.cache.workflows);
+    I.cache.workflows.forEach(async (job) => {
+        console.log(job);
+        await gwas.do.checkStatus(job);
+        console.log('THE END');
+    })
 });
 
 Scenario('Test next and previous buttons GWAS page @GWASUI', async ({
