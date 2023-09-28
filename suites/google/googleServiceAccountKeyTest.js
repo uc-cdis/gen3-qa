@@ -1,7 +1,7 @@
 /*eslint-disable */
 const chai = require('chai');
-const apiUtil = require('../../../utils/apiUtil.js');
-const { Bash } = require('../../../utils/bash.js');
+const apiUtil = require('../../utils/apiUtil.js');
+const { Bash } = require('../../utils/bash.js');
 
 const bash = new Bash();
 
@@ -190,7 +190,7 @@ Scenario('Test no data access anymore after SA key is deleted @reqGoogle', async
 
 
 Scenario('Delete SA creds that do not exist @reqGoogle', async ({ fence, users }) => {
-  const fakeKeyId = '64a48da067f4a4f053e6197bf2b134df7d0abcde';  // pragma: allowlist secret
+  const fakeKeyId = '64a48da067f4a4f053e6197bf2b134df7d0abcde';
   const deleteRes = await fence.do.deleteTempGoogleCreds(
     fakeKeyId,
     users.user0.accessTokenHeader,
