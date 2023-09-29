@@ -64,6 +64,6 @@ module.exports = {
     manhattanPlot: '//img[@alt="Manhattan plot"]',
     downloadAllResults: '(//button[@type="button"])[2]',
     //unauthorized
-    UnauthorizedSpinner: '//span[@class="ant-spin-dot ant-spin-dot-spin"]',
-
+    UnauthorizedSpinner: '//div[@class="GWASUI-spinnerContainer GWASUI-emptyTable"]',
+    cohortTableColumn: '//th[contains(text(),"Cohort Name")]',
 };
