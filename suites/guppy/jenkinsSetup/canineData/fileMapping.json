@@ -1,49 +1,47 @@
 {
     "mappings" : {
-      "file" : {
-        "properties" : {
-          "auth_resource_path" : {
-            "type" : "keyword"
-          },
-          "data_format" : {
-            "type" : "keyword"
-          },
-          "data_type" : {
-            "type" : "keyword"
-          },
-          "file_id" : {
-            "type" : "keyword"
-          },
-          "file_name" : {
-            "type" : "keyword"
-          },
-          "file_size" : {
-            "type" : "long"
-          },
-          "md5sum" : {
-            "type" : "keyword"
-          },
-          "node_id" : {
-            "type" : "keyword"
-          },
-          "object_id" : {
-            "type" : "keyword"
-          },
-          "program_name" : {
-            "type" : "keyword"
-          },
-          "project_code" : {
-            "type" : "keyword"
-          },
-          "project_id" : {
-            "type" : "keyword"
-          },
-          "state" : {
-            "type" : "keyword"
-          },
-          "subject_id" : {
-            "type" : "keyword"
-          }
+      "properties" : {
+        "auth_resource_path" : {
+          "type" : "keyword"
+        },
+        "data_format" : {
+          "type" : "keyword"
+        },
+        "data_type" : {
+          "type" : "keyword"
+        },
+        "file_id" : {
+          "type" : "keyword"
+        },
+        "file_name" : {
+          "type" : "keyword"
+        },
+        "file_size" : {
+          "type" : "long"
+        },
+        "md5sum" : {
+          "type" : "keyword"
+        },
+        "node_id" : {
+          "type" : "keyword"
+        },
+        "object_id" : {
+          "type" : "keyword"
+        },
+        "program_name" : {
+          "type" : "keyword"
+        },
+        "project_code" : {
+          "type" : "keyword"
+        },
+        "project_id" : {
+          "type" : "keyword"
+        },
+        "state" : {
+          "type" : "keyword"
+        },
+        "subject_id" : {
+          "type" : "keyword"
         }
       }
     }
