@@ -123,8 +123,8 @@ module.exports = {
     },
 
     async submitJob() {
-        await I.waitForVisible(GWASUIAppProps.JobSubmitButton, 10);
         I.saveScreenshot('BlueButton.png');
+        await I.waitForVisible(GWASUIAppProps.JobSubmitButton, 10);
         I.click(GWASUIAppProps.JobSubmitButton);
     },
 

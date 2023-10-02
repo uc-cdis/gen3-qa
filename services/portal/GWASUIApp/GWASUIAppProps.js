@@ -23,7 +23,7 @@ module.exports = {
     PhenotypeTable: '//div[@class="ant-table-container"]',
     ContinuousPhenoSubmitButton: { css: 'button[class="submit-button"]' },
     DichoPhenoSubmitButton: { css: 'button[class="submit-button GWASUI-btnEnable GWASUI-dichBtn"]' },
-    SelectFirstRadioInput: '(//input[@class="ant-radio-input"])[1]',
+    SelectFirstRadioInput: '(//input[@type="radio"])[1]',
     DichotomousPhenotypeValue1: '(//div[contains(@class,"ant-select-selector")])[1]',
     DichotomousPhenotypeValue2: '(//div[contains(@class,"ant-select-selector")])[2]',
     //for step3
