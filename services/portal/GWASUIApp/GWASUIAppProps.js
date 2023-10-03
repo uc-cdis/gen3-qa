@@ -1,7 +1,7 @@
 module.exports = {
     path: 'analysis/GWASUIApp',
     resultsPath: 'analysis/GWASResults',
-    gwasAPI: '/ga4gh/wes/v2',
+    gwasAPI: '/ga4gh/wes/v2/workflows',
 
     // GWAS++ elements
     NextSpan: '//span[contains(text(),\'Next\')]',
@@ -23,7 +23,7 @@ module.exports = {
     PhenotypeTable: '//div[@class="ant-table-container"]',
     ContinuousPhenoSubmitButton: { css: 'button[class="submit-button"]' },
     DichoPhenoSubmitButton: { css: 'button[class="submit-button GWASUI-btnEnable GWASUI-dichBtn"]' },
-    SelectFirstRadioInput: '(//input[@class="ant-radio-input" and not(@disabled)])[1]',
+    SelectFirstRadioInput: '(//input[@type="radio"])[1]',
     DichotomousPhenotypeValue1: '(//div[contains(@class,"ant-select-selector")])[1]',
     DichotomousPhenotypeValue2: '(//div[contains(@class,"ant-select-selector")])[2]',
     //for step3
@@ -56,7 +56,7 @@ module.exports = {
     ActionDotsButton: '//tbody/tr[1]/td[7]/div[1]/div[1]/button[1]/span[1]//*[name()="svg"]',
     DownloadButton: '//a[normalize-space()="Download"]',
     // execution page
-    executionView: '//div[@class="view"]',
+    executionView: '.view',
     executionLogs: '//div[@class="execution-data"]',
     backButton: '//button[@type="button"]',
     // results page
@@ -64,6 +64,6 @@ module.exports = {
     manhattanPlot: '//img[@alt="Manhattan plot"]',
     downloadAllResults: '(//button[@type="button"])[2]',
     //unauthorized
-    UnauthorizedSpinner: '//span[@class="ant-spin-dot ant-spin-dot-spin"]',
-
+    UnauthorizedSpinner: '//div[@class="GWASUI-spinnerContainer GWASUI-emptyTable"]',
+    cohortTableColumn: '//th[contains(text(),"Cohort Name")]',
 };
