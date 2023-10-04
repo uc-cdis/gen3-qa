@@ -317,14 +317,14 @@ donot '@fail'
 # Do not run batch processing tests
 donot '@batch'
 
-# Do not run the test until update the test
-donot '@GWASUI'
-
 # Do not run prjsBucketAccess (for prod-execution only)
 donot '@prjsBucketAccess'
 
 echo "INFO: disabling RAS DRS test as jenkins env is not configured"
 donot '@rasDRS'
+
+# echo "INFO: temporarily disabling GWAS UI tests as jenkins envs are not still configured"
+# donot '@GWASUI'
 
 # For dataguids.org PRs, skip all fence-related bootstrapping oprations
 # as the environment does not have fence
