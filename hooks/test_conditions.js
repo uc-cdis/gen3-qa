@@ -36,6 +36,21 @@ module.exports = async function () {
       }
     }
 
+    if (suite.title === 'GWAS App UI Test @requires-portal @requires-argo-wrapper @requires-cohort-middleware'){
+      const analysisTools = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.analysisTools\'')
+      const analysisFlag = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.featureFlags.analysis\'')
+      if (!analysisTools || analysisFlag !== 'true') {
+        console.log('Skipping GWASUI tests as the GWAS app is not configured in the env')
+        console.dir(suite.tests);
+        suite.tests.forEach((test) => {
+          test.run = function skip() { // eslint-disable-line 
+            console.log(`Ignoring test - ${test.title}`);
+            this.skip();
+          };
+        });
+      }
+    }
+
     if (suite.title === 'ExportToWorkspaceTest @requires-portal @requires-hatchery @requires-wts') {
       const workspaceButton = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq -r \'.components.navigation.items[] | select(.link | contains ("/workspace"))\'');
       if (!workspaceButton) {
