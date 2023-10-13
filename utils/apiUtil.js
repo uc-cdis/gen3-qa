@@ -488,7 +488,15 @@ module.exports = {
           css: '.g3-button',
         },
       },
-      heal: {
+      healdata: {
+        summary: {
+          css: '.discovery-header',
+        },
+        cards: {
+          css: '.discovery-studies-container',
+        },
+      },
+      'qa-heal': {
         summary: {
           css: '.discovery-header',
         },
