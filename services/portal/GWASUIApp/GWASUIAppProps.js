@@ -46,6 +46,7 @@ module.exports = {
     SubmitDialogBox: '//div[@role="dialog"]',
     EnterJobName: '//input[@class="ant-input gwas-job-name"]',
     JobSubmitButton: '//span[normalize-space()="Submit"]',
+    JobStatusButton: '//button[@id="see-status"]',
     SubmissionSuccessMessage: '//div[@class="dismissable-message success"]',
     SeeStatusButton: '//button[@id="see-status"]',
     // results page

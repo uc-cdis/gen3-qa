@@ -195,6 +195,7 @@ Scenario('Submit workflow Dichotomous Outcome - Dichotomous Covariate Phenotype 
 });
 
 // this scenarios is largely dependent on the success of submissions of workflows in previous scenarios
+
 Scenario('GWAS Result App @GWASUI', async ({ 
     I, home, users, gwas 
 }) => {
