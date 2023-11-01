@@ -349,16 +349,21 @@ module.exports = {
       };
     }
 
-    console.log(`${new Date()}: about to add metadata node`);
-    if (process.env.DEBUG === 'true') {
-      console.log(`metadata.data: ${JSON.stringify(metadata.data)}`);
-    }
-
     // delete the existing file node and replace it with the newly generated one, to avoid conflicts if
     // any of the links do not allow linking multiple file nodes to the same parent node.
     // NOTE: instead of delete+submit, we could just replace the existing node by not overwriting `submitter_id`.
-    await sheepdog.complete.deleteNode(existingFileNode);
+    if (existingFileNode.data.id) { // only delete if it has an id (meaning it has been submitted previously)
+      console.log(`${new Date()}: deleting old metadata node`);
+      if (process.env.DEBUG === 'true') {
+        console.log(`old metadata.data: ${JSON.stringify(existingFileNode.data)}`);
+      }
+      await sheepdog.complete.deleteNode(existingFileNode);
+    }
 
+    console.log(`${new Date()}: adding metadata node`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`new metadata.data: ${JSON.stringify(metadata.data)}`);
+    }
     await sheepdog.do.addNode(metadata); // submit, but don't check for success
 
     // the result of the submission is stored in metadata.addRes by addNode()

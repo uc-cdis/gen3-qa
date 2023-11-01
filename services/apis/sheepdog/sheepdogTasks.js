@@ -128,6 +128,10 @@ module.exports = {
    * @returns {Promise<Gen3Response>}
    */
   async deleteNode(node, accessTokenHeader = user.mainAcct.accessTokenHeader) {
+    if (!node.data.id) {
+      console.log('Cannot delete:', node);
+      throw Error('Cannot delete node because `node.data.id` is missing');
+    }
     const deleteEndpoint = `${sheepdogProps.endpoints.delete}/${node.data.id}`;
     return I.sendDeleteRequest(
       deleteEndpoint,
