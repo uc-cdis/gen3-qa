@@ -60,6 +60,8 @@ if [[ ! -f "$TEST_DATA_PATH/schema.json" ]]; then
   echo "ERROR: failed to download $dictURL"
   writeMetricWithResult "FAIL"
   exit 1
+else
+ echo Downloaded schema.json at "$TEST_DATA_PATH/schema.json"
 fi
 
 #

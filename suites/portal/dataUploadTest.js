@@ -102,7 +102,7 @@ BeforeSuite(async ({
 
     // Add coremetadata node.
     // FIXME: once windmill allow parent nodes other than core-metadata-collection, remove this
-    const newSubmitterID = await nodes.generateAndAddCoremetadataNode(sheepdog);
+    const newSubmitterID = await nodes.generateAndAddRecord(sheepdog, 'core_metadata_collection');
     submitterID = newSubmitterID;
   } catch (error) {
     console.log(error);
