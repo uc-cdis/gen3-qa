@@ -156,6 +156,37 @@ const getPathWithFileNode = function (allNodes) {
   };
 };
 
+const getNodeWithSubmitterId = function (submitterId) {
+  const nodeName = Object.keys(allNodes).find(
+    (nodeName) => allNodes[nodeName].data.submitter_id == submitterId,
+  );
+  return allNodes[nodeName];
+};
+
+/**
+ * Recursively steps through nodes from bottom to top looking for links, and submit any linked nodes that
+ * have not been submitted yet.
+ */
+const submitLinksForNode = async function (sheepdog, record) {
+  for (const prop in record.data) {
+    // check if it's a link
+    if (record.data[prop] && record.data[prop].hasOwnProperty('submitter_id')) {
+      if (process.env.DEBUG === 'true') {
+        console.log(`Submitting links: record '${record.data.submitter_id}' links to '${record.data[prop].submitter_id}'`);
+      }
+      // submit the linked node
+      const linkedNode = getNodeWithSubmitterId(record.data[prop].submitter_id);
+      if (!linkedNode) {
+        throw new Error(`Record has a link to '${record.data[prop].submitter_id}' but we can't find that record`);
+      }
+      if (!linkedNode.data.id) { // if the record has no ID, it means it hasn't been submitted yet
+        await submitLinksForNode(sheepdog, linkedNode);
+        await sheepdog.do.addNode(linkedNode);
+      }
+    }
+  }
+};
+
 // IMPORTANT: treat allNodes as immutable after init; allows refreshing nodes without reading files
 let allNodes;
 let pathAndFile;
@@ -311,11 +342,11 @@ module.exports = {
   },
 
   /**
-   * link metadata to an indexd file via sheepdog,
-   * after submitting metadata for the parent nodes
+   * Creates a file record in sheepdog, linked to the specified indexd file.
+   * Submits the file record and all its parent links.
    *
    * /!\ this function does not include a check for success or
-   * failure of the file node's submission
+   * failure of the file node's submission, to allow for negative tests
    */
   async submitGraphAndFileMetadata(sheepdog, fileGuid = null, fileSize = null, fileMd5 = null, submitter_id = null, consent_codes = null) {
     // submit metadata with object id via sheepdog
@@ -344,13 +375,15 @@ module.exports = {
 
     // there is probably already a link to a `core_metadata_collection` record, but it may not have been submitted.
     // create a new `core_metadata_collection` record, submit it and overwrite the link so it links to that new record.
-    if (process.env.DEBUG === 'true') {
-      console.log("Generating a `core_metadata_collections` link (involves generating and submitting a CMC node)");
-    }
-    const cmcSubmitterID = await module.exports.generateAndAddNode(sheepdog, 'core_metadata_collection');
-    metadata.data.core_metadata_collections = {
-      submitter_id: cmcSubmitterID,
-    };
+    // if (process.env.DEBUG === 'true') {
+    //   console.log("Generating a `core_metadata_collections` link (involves generating and submitting a CMC node)");
+    // }
+    // const cmcSubmitterID = 'cmc-abc'; //await module.exports.generateAndAddNode(sheepdog, 'core_metadata_collection');
+    // metadata.data.core_metadata_collections = {
+    //   submitter_id: cmcSubmitterID,
+    // };
+
+    await submitLinksForNode(sheepdog, metadata);
 
     // delete the existing file node and replace it with the newly generated one, to avoid conflicts if
     // any of the links do not allow linking multiple file nodes to the same parent node.
