@@ -156,16 +156,20 @@ const getPathWithFileNode = function (allNodes) {
   };
 };
 
+/**
+ * Returns the node that has the specified submitter_id, or null if there isn't one.
+ * @param {string} submitterId
+ * @returns Node
+ */
 const getNodeWithSubmitterId = function (submitterId) {
   const nodeName = Object.keys(allNodes).find(
     (nodeName) => allNodes[nodeName].data.submitter_id == submitterId,
   );
-  return allNodes[nodeName];
+  return allNodes[nodeName].clone();
 };
 
 /**
- * Recursively steps through nodes from bottom to top looking for links, and submit any linked nodes that
- * have not been submitted yet.
+ * Recursively steps through nodes from bottom to top looking for links, and submit all linked nodes.
  */
 const submitLinksForNode = async function (sheepdog, record) {
   for (const prop in record.data) {
@@ -174,15 +178,16 @@ const submitLinksForNode = async function (sheepdog, record) {
       if (process.env.DEBUG === 'true') {
         console.log(`Submitting links: record '${record.data.submitter_id}' links to '${record.data[prop].submitter_id}'`);
       }
-      // submit the linked node
+      // find the linked node
       const linkedNode = getNodeWithSubmitterId(record.data[prop].submitter_id);
       if (!linkedNode) {
         throw new Error(`Record has a link to '${record.data[prop].submitter_id}' but we can't find that record`);
       }
-      // if (!linkedNode.data.id) { // if the record has no ID, it means it hasn't been submitted yet
-        await submitLinksForNode(sheepdog, linkedNode);
-        await sheepdog.complete.addNode(linkedNode, true); // allow updates - TODO explain more
-      // }
+      // submit the linked node's own linked nodes
+      await submitLinksForNode(sheepdog, linkedNode);
+      // submit the linked node.
+      // allow updates: this node may have been submitted before if it's a parent to several other nodes.
+      await sheepdog.complete.addNode(linkedNode, true);
     }
   }
 };
@@ -373,23 +378,15 @@ module.exports = {
       metadata.data.consent_codes = consent_codes;
     }
 
-    // there is probably already a link to a `core_metadata_collection` record, but it may not have been submitted.
-    // create a new `core_metadata_collection` record, submit it and overwrite the link so it links to that new record.
-    // if (process.env.DEBUG === 'true') {
-    //   console.log("Generating a `core_metadata_collections` link (involves generating and submitting a CMC node)");
-    // }
-    // const cmcSubmitterID = 'cmc-abc'; //await module.exports.generateAndAddNode(sheepdog, 'core_metadata_collection');
-    // metadata.data.core_metadata_collections = {
-    //   submitter_id: cmcSubmitterID,
-    // };
-
+    // submit all nodes that are directly or indirectly linked to this one
     await submitLinksForNode(sheepdog, metadata);
 
     // delete the existing file node and replace it with the newly generated one, to avoid conflicts if
     // any of the links do not allow linking multiple file nodes to the same parent node.
     // NOTE: instead of delete+submit, we could just replace the existing node by not overwriting `submitter_id`.
     if (existingFileNode.data.id) { // only delete if it has an id (meaning it has been submitted previously)
-      // NOTE: this assumes this node has no child nodes (or that they haven't been submitted)
+      // NOTE: currently this assumes the node has no child nodes (or that they haven't been submitted).
+      // If it does, this will error.
       console.log(`${new Date()}: deleting old metadata node`);
       if (process.env.DEBUG === 'true') {
         console.log(`old metadata.data: ${JSON.stringify(existingFileNode.data)}`);
