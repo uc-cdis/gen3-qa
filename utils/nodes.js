@@ -179,10 +179,10 @@ const submitLinksForNode = async function (sheepdog, record) {
       if (!linkedNode) {
         throw new Error(`Record has a link to '${record.data[prop].submitter_id}' but we can't find that record`);
       }
-      if (!linkedNode.data.id) { // if the record has no ID, it means it hasn't been submitted yet
+      // if (!linkedNode.data.id) { // if the record has no ID, it means it hasn't been submitted yet
         await submitLinksForNode(sheepdog, linkedNode);
-        await sheepdog.do.addNode(linkedNode);
-      }
+        await sheepdog.complete.addNode(linkedNode);
+      // }
     }
   }
 };

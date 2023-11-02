@@ -6,7 +6,7 @@ Scenario('submit node unauthenticated @reqData', async ({
   sheepdog, nodes, users,
 }) => {
   const authHeader = await users.mainAcct.getExpiredAccessTokenHeader();
-  await sheepdog.do.addNode(nodes.getFirstNode(), authHeader);
+  await sheepdog.complete.addNode(nodes.getFirstNode(), authHeader);
   sheepdog.ask.hasExpiredAuthError(nodes.getFirstNode().addRes);
   await sheepdog.do.deleteNode(nodes.getFirstNode());
 });
