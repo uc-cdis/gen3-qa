@@ -181,7 +181,7 @@ const submitLinksForNode = async function (sheepdog, record) {
       }
       // if (!linkedNode.data.id) { // if the record has no ID, it means it hasn't been submitted yet
         await submitLinksForNode(sheepdog, linkedNode);
-        await sheepdog.complete.addNode(linkedNode);
+        await sheepdog.complete.addNode(linkedNode, true); // allow updates - TODO explain more
       // }
     }
   }

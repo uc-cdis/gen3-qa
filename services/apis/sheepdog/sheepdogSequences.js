@@ -46,9 +46,9 @@ module.exports = {
    * @param {Node} node
    * @returns {Promise<void>}
    */
-  async addNode(node, accessTokenHeader = user.mainAcct.accessTokenHeader) {
+  async addNode(node, allowUpdate = false, accessTokenHeader = user.mainAcct.accessTokenHeader) {
     await sheepdogTasks.addNode(node, accessTokenHeader);
-    sheepdogQuestions.addNodeSuccess(node);
+    sheepdogQuestions.addNodeSuccess(node, '', allowUpdate);
   },
 
   /**
