@@ -72,15 +72,9 @@ fi
 #
 leafNode="submitted_unaligned_reads"
 
-# diff testedEnvs require diff nodes of type "file"
-if [ "$testedEnv" == "data.midrc.org" ] || [ "$testedEnv" == "qa-midrc.planx-pla.net" ]; then
-  if ! jq -r '.|values|map(select(.category=="imaging_data_file"))|map(.id)|join("\n")' < "$TEST_DATA_PATH/schema.json" | grep "$leafNode" > /dev/null; then
-    leafNode="$(jq -r '.|values|map(select(.category=="imaging_data_file"))|map(.id)|join("\n")' < "$TEST_DATA_PATH/schema.json" | head -1)"
-  fi
-else
-  if ! jq -r '.|values|map(select(.category=="data_file"))|map(.id)|join("\n")' < "$TEST_DATA_PATH/schema.json" | grep "$leafNode" > /dev/null; then
-    leafNode="$(jq -r '.|values|map(select(.category=="data_file"))|map(.id)|join("\n")' < "$TEST_DATA_PATH/schema.json" | head -1)"
-  fi
+if ! jq -r '.|values|map(select(.category=="data_file"))|map(.id)|join("\n")' < "$TEST_DATA_PATH/schema.json" | grep "$leafNode" > /dev/null; then
+  echo "Did not find default leaf node '$leafNode' in schema. Finding a new node of category 'data_file'..."
+  leafNode="$(jq -r '.|values|map(select(.category=="data_file"))|map(.id)|join("\n")' < "$TEST_DATA_PATH/schema.json" | head -1)"
 fi
 
 if [[ -z "$leafNode" ]]; then
