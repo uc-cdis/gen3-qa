@@ -44,6 +44,8 @@ else
 fi
 
 cd "$WORKSPACE/data-simulator"
+last_commit=`git log --name-status HEAD^..HEAD`
+echo "data-simulator last commit: $last_commit"
 
 projectName=jenkins
 nData=1
@@ -60,6 +62,8 @@ if [[ ! -f "$TEST_DATA_PATH/schema.json" ]]; then
   echo "ERROR: failed to download $dictURL"
   writeMetricWithResult "FAIL"
   exit 1
+else
+ echo Downloaded schema.json at "$TEST_DATA_PATH/schema.json"
 fi
 
 #
@@ -113,6 +117,7 @@ if [ -f ./pyproject.toml ]; then
 
   export PYTHONPATH=.
   pyCMD="poetry run data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
+  echo Running command: $pyCMD
   eval $pyCMD
   if [[ $? -ne 0 ]]; then
     echo "ERROR: Failed to simulate test data for $namespace"
@@ -121,6 +126,7 @@ if [ -f ./pyproject.toml ]; then
   fi
 
   pyCMD2="poetry run data-simulator submission_order --url $dictURL --path $TEST_DATA_PATH --node_name $leafNode"
+  echo Running command: $pyCMD2
   eval $pyCMD2
   if [[ $? -ne 0 ]]; then
     echo "ERROR: Failed to generate submission_order data for $namespace"
@@ -138,6 +144,7 @@ else
 
   export PYTHONPATH=.
   pyCMD="python3 bin/data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
+  echo Running command: $pyCMD
   eval $pyCMD
   if [[ $? -ne 0 ]]; then
     echo "ERROR: Failed to simulate test data for $namespace"
@@ -146,6 +153,7 @@ else
   fi
 
   pyCMD2="python3 bin/data-simulator submission_order --url $dictURL --path $TEST_DATA_PATH --node_name $leafNode"
+  echo Running command: $pyCMD2
   eval $pyCMD2
   if [[ $? -ne 0 ]]; then
     echo "ERROR: Failed to generate submission_order data for $namespace"
