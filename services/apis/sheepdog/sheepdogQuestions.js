@@ -22,12 +22,16 @@ module.exports = {
     const msg = `${message} - adding node ${JSON.stringify(copy, null, '  ')}`;
     try {
       expect(node.addRes, msg).to.be.a.gen3Res(sheepdogProps.resAddSuccess);
-    } catch (e) {
+    } catch (originalError) {
       if (allowUpdate) {
         console.log('Node creation check failed, but updates are allowed: check if successful update');
-        expect(node.addRes, msg).to.be.a.gen3Res(sheepdogProps.resUpdateSuccess);
+        try {
+          expect(node.addRes, msg).to.be.a.gen3Res(sheepdogProps.resUpdateSuccess);
+        } catch {
+          throw originalError;
+        }
       } else {
-        throw e;
+        throw originalError;
       }
     }
   },
