@@ -111,24 +111,18 @@ Scenario('File upload and download via API calls @dataUpload', async ({
 
   console.log(`${new Date()}: make sure we can link metadata to a file that already has metadata.`);
   // try to submit metadata for this file again
+  // `createNewParents=true` creates new nodes to avoid conflicts with the nodes already submitted by the
+  // previous `submitGraphAndFileMetadata()` call
   sheepdogRes = await nodes.submitGraphAndFileMetadata(
     sheepdog,
     fileGuid,
     fileSize,
     fileMd5,
     'submitter_id_new_value',
+    null,
+    true,
   );
-  // this should succeed - unless the dictionary used does not allow multiple links to one of the parent nodes,
-  // in which case we should get a 400 INVALID_LINK error that we can ignore. Any other error is abnormal.
-  try {
-    sheepdog.ask.addNodeSuccess(sheepdogRes);
-  } catch (originalError) {
-    try {
-      sheepdog.ask.hasEntityError(sheepdogRes.addRes, 'INVALID_LINK');
-    } catch {
-      throw originalError;
-    }
-  }
+  sheepdog.ask.addNodeSuccess(sheepdogRes);
 }).retry(1);
 
 /**
@@ -292,12 +286,16 @@ Scenario('Upload the same file twice @dataUpload', async ({
   await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 
   // submit metadata for this file
+  // `createNewParents=true` creates new nodes to avoid conflicts with the nodes already submitted by the
+  // previous `submitGraphAndFileMetadata()` call
   sheepdogRes = await nodes.submitGraphAndFileMetadata(
     sheepdog,
     fileGuid,
     fileSize,
     fileMd5,
     'submitter_id_new_value',
+    null,
+    true,
   );
   sheepdog.ask.addNodeSuccess(sheepdogRes, 'second upload');
 
