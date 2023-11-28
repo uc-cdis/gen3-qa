@@ -187,12 +187,14 @@ const submitLinksForNode = async function (sheepdog, record, newSubmitterIds = f
         throw new Error(`Record has a link to '${record.data[prop].submitter_id}' but we can't find that record`);
       }
       // submit the linked node's own linked nodes
-      await submitLinksForNode(sheepdog, linkedNode);
+      await submitLinksForNode(sheepdog, linkedNode, newSubmitterIds);
 
-      if (newSubmitterIds) {
-        // `linkedNode` is a clone of the original node. Generate a new submitter ID.
+      if (newSubmitterIds) { // generate a new submitter ID
         const rand = Math.random().toString(36).substring(2, 7); // 5 random chars
-        linkedNode.data.submitter_id = `${linkedNode.data.type}_${rand}`;
+        const newId = `${linkedNode.data.type}_${rand}`;
+        console.log(`Updating link from '${record.data[prop].submitter_id}' to new record '${newId}'`);
+        linkedNode.data.submitter_id = newId; // `addNode` will create a new record since it's a new ID
+        record.data[prop].submitter_id = newId; // update the link to reference the new node
       }
 
       // submit the linked node.
