@@ -170,8 +170,11 @@ const getNodeWithSubmitterId = function (submitterId) {
 
 /**
  * Recursively steps through nodes from bottom to top looking for links, and submit all linked nodes.
+ *
+ * @param {boolean} newSubmitterIds - false by default, submit the nodes as-is. If true, generate a new submitter ID
+ * before submitting each linked node.
  */
-const submitLinksForNode = async function (sheepdog, record) {
+const submitLinksForNode = async function (sheepdog, record, newSubmitterIds = false) {
   for (const prop in record.data) {
     // check if it's a link
     if (record.data[prop] && record.data[prop].hasOwnProperty('submitter_id')) {
@@ -184,7 +187,16 @@ const submitLinksForNode = async function (sheepdog, record) {
         throw new Error(`Record has a link to '${record.data[prop].submitter_id}' but we can't find that record`);
       }
       // submit the linked node's own linked nodes
-      await submitLinksForNode(sheepdog, linkedNode);
+      await submitLinksForNode(sheepdog, linkedNode, newSubmitterIds);
+
+      if (newSubmitterIds) { // generate a new submitter ID
+        const rand = Math.random().toString(36).substring(2, 7); // 5 random chars
+        const newId = `${linkedNode.data.type}_${rand}`;
+        console.log(`Updating link from '${record.data[prop].submitter_id}' to new record '${newId}'`);
+        linkedNode.data.submitter_id = newId; // `addNode` will create a new record since it's a new ID
+        record.data[prop].submitter_id = newId; // update the link to reference the new node
+      }
+
       // submit the linked node.
       // allow updates: this node may have been submitted before if it's a parent to several other nodes.
       await sheepdog.complete.addNode(linkedNode, true);
@@ -352,8 +364,11 @@ module.exports = {
    *
    * /!\ this function does not include a check for success or
    * failure of the file node's submission, to allow for negative tests
+   *
+   * @param {boolean} createNewParents - false by default, submit the nodes as-is. If true, generate a new node
+   * with a new submitter IDs for each parent node.
    */
-  async submitGraphAndFileMetadata(sheepdog, fileGuid = null, fileSize = null, fileMd5 = null, submitter_id = null, consent_codes = null) {
+  async submitGraphAndFileMetadata(sheepdog, fileGuid = null, fileSize = null, fileMd5 = null, submitter_id = null, consent_codes = null, createNewParents = false) {
     // submit metadata with object id via sheepdog
     existingFileNode = module.exports.getFileNode()
     const metadata = existingFileNode.clone();
@@ -379,7 +394,7 @@ module.exports = {
     }
 
     // submit all nodes that are directly or indirectly linked to this one
-    await submitLinksForNode(sheepdog, metadata);
+    await submitLinksForNode(sheepdog, metadata, createNewParents);
 
     // delete the existing file node and replace it with the newly generated one, to avoid conflicts if
     // any of the links do not allow linking multiple file nodes to the same parent node.
