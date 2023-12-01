@@ -8,6 +8,7 @@ const bash = new Bash();
 Feature('GoogleServiceAccountKey');
 
 /**
+ * Dummy commit
  * Calculate the age of a given service account key based on its 'validAfterTime' parameter
  * @param {int} number of days since the creation of the key
  */
