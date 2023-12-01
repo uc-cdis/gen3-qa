@@ -209,7 +209,7 @@ Scenario('GWAS Result App @GWASUI', async ({
     I.cache.workflows.forEach(async (job) => {
         console.log(job);
         await gwas.do.checkStatus(job);
-        console.log('THE END');
+        console.log('-----')
     })
 });
 
