@@ -430,8 +430,11 @@ module.exports = {
               console.log(`The container from pod ${podName} failed as expected! Just ignore as this is part of a negative test.`);
               break;
             } else {
-              // The pod failed 4 realz
-              throw new Error(`THE POD FAILED ON ATTEMPT ${i}. OMG!`);
+              // The pod failed. Get the logs if available, for debugging purposes
+              const errMsg = `THE POD FAILED ON ATTEMPT ${i}. GIVING UP.`;
+              const podLogs = bash.runCommand(`g3kubectl logs ${podName}`);
+              console.log(`${errMsg} Logs:\n${podLogs}`);
+              throw new Error(errMsg);
             }
           }
         }
