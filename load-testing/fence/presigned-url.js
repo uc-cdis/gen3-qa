@@ -14,7 +14,7 @@ const {
 // or it should be assembled based on an indexd query (requires `indexd_record_url` to fetch DIDs)
 const guids = GUIDS_LIST.split(',');
 
-const myFailRate = new Rate('failed requests');
+const myFailRate = new Rate('failed_requests');
 
 export const options = {
   tags: {
