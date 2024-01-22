@@ -15,7 +15,7 @@ const {
 // or it should be assembled based on an indexd query (requires `indexd_record_url` to fetch DIDs)
 const guids = GUIDS_LIST.split(',');
 
-const myFailRate = new Rate('failed requests');
+const myFailRate = new Rate('failed_requests');
 
 export const options = {
   tags: {
@@ -27,7 +27,7 @@ export const options = {
   stages: JSON.parse(VIRTUAL_USERS.slice(1, -1)),
   thresholds: {
     http_req_duration: ['avg<3000', 'p(95)<15000'],
-    'failed requests': ['rate<0.1'],
+    'failed_requests': ['rate<0.1'],
   },
   noConnectionReuse: true,
 };
