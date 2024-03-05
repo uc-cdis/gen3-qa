@@ -15,6 +15,42 @@ module.exports = {
         I.saveScreenshot('GWAS_page.png');
     },
 
+    goToAnalysisPage() {
+        I.amOnPage(GWASUIAppProps.analysisPath);
+        I.wait(5);
+        I.saveScreenshot('analysis.png');
+    },
+
+    async selectTeamProject1() {
+        I.seeElement(GWASUIAppProps.TeamProjectSelectorBox);
+        I.click(GWASUIAppProps.TeamProjectSelectorDropdown);
+        I.click(GWASUIAppProps.TeamProject1Select);
+        I.saveScreenshot('GwasTeamSelect1.png');
+        I.click(GWASUIAppProps.TeamProjectSubmitButton);
+        I.seeElement('.team-project-header');
+        const text = await I.grabTextFrom('//div[@class="team-project-header"]');
+        expect(text).to.equal('Team Project / /gwas_projects/project1');
+    },
+
+    async changeTeamProject() {
+        I.click(GWASUIAppProps.ChangeTeamProject);
+        I.seeElement(GWASUIAppProps.TeamProjectSelectorBox);
+        I.click(GWASUIAppProps.TeamProjectSelectorDropdown);
+        I.click(GWASUIAppProps.TeamProject2Select);
+        I.saveScreenshot('GwasTeamSelect2.png');
+        I.click(GWASUIAppProps.TeamProjectSubmitButton);
+        I.seeElement('.team-project-header');
+        const text = await I.grabTextFrom('//div[@class="team-project-header"]');
+        expect(text).to.equal('Team Project / /gwas_projects/project2');
+    },
+
+    unauthorizedUserSelectTeamProject() {
+        I.seeElement(GWASUIAppProps.TeamProjectSelectorBox);
+        I.click(GWASUIAppProps.TeamProjectSelectorDropdown);
+        I.saveScreenshot('UnauthorizedUserDropdownBox.png')
+        I.dontSeeElement(GWASUIAppProps.TeamProject1Select);
+    },
+
     clickNextButton() {
         I.seeElement(GWASUIAppProps.NextSpan);
         I.click(GWASUIAppProps.NextSpan);
