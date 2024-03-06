@@ -10,7 +10,7 @@ module.exports = {
     TeamProject1Select: '//div[@title="/gwas_projects/project1"]',
     TeamProject2Select: '//div[@title="/gwas_projects/project2"]',
     ChangeTeamProject: '//span[@role="button"]//*[name()="svg"]',
-    TeamHeader: '.team-project-header',
+    TeamHeader: '//div[@class="team-project-header"]',
     // GWAS++ elements
     NextSpan: '//span[contains(text(),\'Next\')]',
     PreviousSpan: '//span[contains(text(),\'Previous\')]',

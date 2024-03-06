@@ -274,9 +274,4 @@ Scenario('Unauthorized access to GWAS @GWASUI', async ({
 
     gwas.do.goToAnalysisPage();
     gwas.do.unauthorizedUserSelectTeamProject();
-
-    // gwas.do.goToGWASPage();
-
-    // I.seeElement(gwas.props.UnauthorizedSpinner);
-    // I.dontSeeElement(gwas.props.cohortTableColumn);
 });

@@ -27,8 +27,8 @@ module.exports = {
         I.click(GWASUIAppProps.TeamProject1Select);
         I.saveScreenshot('GwasTeamSelect1.png');
         I.click(GWASUIAppProps.TeamProjectSubmitButton);
-        I.seeElement('.team-project-header');
-        const text = await I.grabTextFrom('//div[@class="team-project-header"]');
+        I.seeElement(GWASUIAppProps.TeamHeader);
+        const text = await I.grabTextFrom(GWASUIAppProps.TeamHeader);
         expect(text).to.equal('Team Project / /gwas_projects/project1');
     },
 
@@ -39,8 +39,8 @@ module.exports = {
         I.click(GWASUIAppProps.TeamProject2Select);
         I.saveScreenshot('GwasTeamSelect2.png');
         I.click(GWASUIAppProps.TeamProjectSubmitButton);
-        I.seeElement('.team-project-header');
-        const text = await I.grabTextFrom('//div[@class="team-project-header"]');
+        I.seeElement(GWASUIAppProps.TeamHeader);
+        const text = await I.grabTextFrom(GWASUIAppProps.TeamHeader);
         expect(text).to.equal('Team Project / /gwas_projects/project2');
     },
 
