@@ -237,6 +237,11 @@ module.exports = {
         return wfStatus;
     },
 
+    // checkWFsInTable() {
+    //     I.seeElement(GWASUIAppProps.ResultsTable);
+
+    // },
+
     async checkStatusPolling(job, status) {
         const attempts = 5;
         await sleepMS(10000);

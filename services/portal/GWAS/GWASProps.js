@@ -6,7 +6,7 @@ module.exports = {
 
     TeamProjectSelectorBox: '//div[@class="ant-modal-content"]',
     TeamProjectSelectorDropdown: '//div[@class="ant-select-selector"]',
-    TeamProjectSubmitButton: '//button[@type="button"]',
+    TeamProjectSubmitButton: '//button[@class="ant-btn ant-btn-primary"]',
     TeamProject1Select: '//div[@title="/gwas_projects/project1"]',
     TeamProject2Select: '//div[@title="/gwas_projects/project2"]',
     ChangeTeamProject: '//span[@role="button"]//*[name()="svg"]',
@@ -57,6 +57,9 @@ module.exports = {
     SubmissionSuccessMessage: '//div[@class="dismissable-message success"]',
     SeeStatusButton: '//button[@id="see-status"]',
     // results page
+    ResultsTable: '//div[@class="ant-table-wrapper"]',
+
+
     JobStatusTable: '//div[@class="analysis-app-wrapper"]',
     ExecutionButton: '(//span[contains(text(),"Execution")])[1]',
     ResultsButton: '(//span[contains(text(),"Results")])[1]',
