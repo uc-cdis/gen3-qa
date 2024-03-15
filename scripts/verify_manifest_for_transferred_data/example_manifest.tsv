@@ -1,0 +1,4 @@
+file_name	file_size	md5	acl	urls
+xaaaaaaagly	10	0cb9617fab5b7ac9fa8670f287a8e1db	"DEV, test"	s3://qaplanetv1-data-bucket/00037250-f2e5-47e2-863c-5f225c7f79e8/xaaaaaaagly
+QABrain2671	5000000	8649ae5a732bc808f228677b27a1e9b6		s3://qaplanetv1-data-bucket/0005cf11-17bd-405e-96a7-602a37d6a379/QABrain2671
+xaaaaaaaaaa	100000	cb416c2a1615dji87add7da24f5b030a		s3://qaplanetv1-data-bucket/2927063b-4d87-4a7d-9156-a312fbc324a7/xaaaaaaaaaa
