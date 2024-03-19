@@ -3,6 +3,7 @@ const chai = require('chai');
 const users = require('../../../utils/user');
 const fs = require('fs');
 const { sleepMS } = require('../../../utils/apiUtil.js');
+const { table } = require('console');
 
 const { expect } = chai;
 const I = actor();
@@ -237,10 +238,23 @@ module.exports = {
         return wfStatus;
     },
 
-    // checkWFsInTable() {
+    // async checkWFsInTable(workflows) {
     //     I.seeElement(GWASUIAppProps.ResultsTable);
-
-    // },
+    //     const rows = await I.$$('table tbody tr')
+    //     console.log(`### Rows in table : ${rows.length}`);
+    //     for (const workflow of workflows) {
+    //         const tableText = await I.grabTextFrom('table tbody');
+    //         if (typeof tableText === 'string' && tableText.includes(workflow)) {
+    //             console.log('yes');
+    //         }
+    //         // const workflowNamePresent = await I.see(workflow, GWASUIAppProps.ResultsTable);
+    //         // if (workflowNamePresent) {
+    //         //     console.log(`${workflow} is present in Results table`);
+    //         // } else {
+    //         //     console.log(`${workflow} could not be found in Results table`);
+    //         // }
+    //     }
+    // },  
 
     async checkStatusPolling(job, status) {
         const attempts = 5;
@@ -272,7 +286,6 @@ module.exports = {
         return workflowStatus;
     },
 
-
     async checkStatus(job, failed = false) {
         const wkStatus = await this.getWFStatus(job);
         const status = await this.checkStatusPolling(job, wkStatus);
@@ -296,36 +309,4 @@ module.exports = {
             await this.resultsButton();
         }
     },
-
-        // async checkStatusPolling(job, status) {
-    //     const attempts = 4;
-    //     let workflowStatus = status;
-    //     if (workflowStatus !== 'Running') {
-    //         console.log('### The workflow is done. Worksflow status : ' + workflowStatus)
-    //     }
-    //     if (workflowStatus === 'Running') {
-    //         console.log('The status of the workflow is Running');
-    //         console.log(`### waiting for status polling for ${job}...`)
-    //         // start the polling mechanism
-    //         for (let i = 1; i < attempts; i += 1) {
-    //             console.log(`Checking the status of the workflow : attempt ${i} ...`);
-    //             workflowStatus = await this.getWFStatus(job)
-    //             if (process.env.DEBUG === 'true') {
-    //                 console.log(workflowStatus);
-    //             }
-
-    //             if (workflowStatus !== 'Running') {
-    //                 console.log('### The workflow is done ...')
-    //                 break;
-    //             } else {
-    //                 console.log(`The workflow has not completed yet - attempt ${i}`);
-    //                 if (i === attempts - 1) {
-    //                     throw new Error(`### Error : The workflow has not finished yet. The status of the workflow is ${workflowStatus}`);
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     return workflowStatus;
-    // },
-
 }

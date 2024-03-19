@@ -57,9 +57,8 @@ module.exports = {
     SubmissionSuccessMessage: '//div[@class="dismissable-message success"]',
     SeeStatusButton: '//button[@id="see-status"]',
     // results page
-    ResultsTable: '//div[@class="ant-table-wrapper"]',
-
-
+    ResultsTable: '//tbody',
+    
     JobStatusTable: '//div[@class="analysis-app-wrapper"]',
     ExecutionButton: '(//span[contains(text(),"Execution")])[1]',
     ResultsButton: '(//span[contains(text(),"Results")])[1]',
