@@ -98,7 +98,7 @@ module.exports = async function () {
       // export to pfb button has different configuration in different environments
       const pfbButton1 = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-pfb"}]}})\'');
       const pfbButton2 = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'contains({explorerConfig: {buttons: [{enabled: true, type: "export-to-pfb"}]}})\'');
-      if (pfbButton1 !== 'true' || pfbButton2 !== 'true') {
+      if (pfbButton1 !== 'true' && pfbButton2 !== 'true') {
         console.log('Skipping pfb export tests since the required configuration is not in fence-config.yaml');
         console.dir(suite.tests);
         suite.tests.forEach((test) => {
