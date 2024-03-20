@@ -1,200 +1,200 @@
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2539296_3998887010_R03C02_Grn.idat.gz","subject_id":["c37ab5f8-7a67-11e9-8f9e-2a86e4085a59"],"md5sum":"d36c5ed853c13aed7c54745c1c9ccc5d","data_format":"IDAT","object_id":"38590587-26e9-49bd-9e75-e90a7dce5244","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"a1a688be-9682-4f9e-8676-ccc58748b501","file_id":"a1a688be-9682-4f9e-8676-ccc58748b501","file_size":1365705,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401155_9255905117_R04C01_Grn.idat.gz","subject_id":["10bc2e98-5fbd-11e9-8647-d663bd873d93"],"md5sum":"8c2cb02d6c60678f30d22c0cbbde530d","data_format":"IDAT","object_id":"91508246-4ae6-4504-900d-eeecfbc80844","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"8d59bd56-e2cd-4e49-a42e-e2f614362487","file_id":"8d59bd56-e2cd-4e49-a42e-e2f614362487","file_size":1380443,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400642_9830881021_R02C01_Grn.idat.gz","subject_id":["cb13cb08-5fbc-11e9-8647-d663bd873d93"],"md5sum":"0e0b0915e5d1e95dd6c044dd2321ffb3","data_format":"IDAT","object_id":"7e8dc443-fd07-42b0-9b6d-6353164a6bed","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"84a97284-d2b3-4e28-86e0-1911d2bbf6a0","file_id":"84a97284-d2b3-4e28-86e0-1911d2bbf6a0","file_size":1373740,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400862_9830881003_R03C02_Grn.idat.gz","subject_id":["e3af85b2-5fbc-11e9-8647-d663bd873d93"],"md5sum":"7468d8266be1f3f6798a4cc42098d2f9","data_format":"IDAT","object_id":"de26207b-56c2-4d38-b74d-1d330c5411f8","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"7c74c628-a5ab-4dec-b5d2-98baef404255","file_id":"7c74c628-a5ab-4dec-b5d2-98baef404255","file_size":1377806,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Unaligned Reads","file_name":"SRR7012463_1.fastq.gz","subject_id":["5d258ae8-815c-11e9-bc42-526af7764f64"],"md5sum":"13be12043b42e2d33ba4b2b1e5ae3f52","data_format":"FASTQ","object_id":"4527012c-3a5f-481d-820c-da7b77a26b48","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"032962ee-aebf-45ef-b56b-218fcf4d0ae0","file_id":"032962ee-aebf-45ef-b56b-218fcf4d0ae0","file_size":1188739333,"project_id":"Canine-B_cell_lymphoma"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2539251_5092291053_R06C01_Grn.idat.gz","subject_id":["a48ad5b0-7a67-11e9-8f9e-2a86e4085a59"],"md5sum":"dc870b0288489821ed1f65019ba1ae77","data_format":"IDAT","object_id":"222b7d8a-087d-4113-8425-b60d81ad672b","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"15d80f81-f3af-4cb1-8a0e-80a1d9a01234","file_id":"15d80f81-f3af-4cb1-8a0e-80a1d9a01234","file_size":1386596,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400657_9806219031_R05C02_Red.idat.gz","subject_id":["cb13e156-5fbc-11e9-8647-d663bd873d93"],"md5sum":"d8f4b8f698cf84215427de72c7c3b720","data_format":"IDAT","object_id":"09045577-4b73-4f37-bb4b-e2acbff60f34","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"3e98b336-67bf-48bb-bc2d-1262c2adb3db","file_id":"3e98b336-67bf-48bb-bc2d-1262c2adb3db","file_size":1390923,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2539195_9270664010_R06C01_Red.idat.gz","subject_id":["8fcf470a-7a67-11e9-8f9e-2a86e4085a59"],"md5sum":"adf2a635b025a2921a012e246e2926fe","data_format":"IDAT","object_id":"35a7dd1e-aea3-4003-85ce-1be05e6df010","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"15023d69-45fc-4fc4-8eea-ba927ff140ad","file_id":"15023d69-45fc-4fc4-8eea-ba927ff140ad","file_size":1406787,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400996_9700838026_R01C01_Red.idat.gz","subject_id":["fa515098-5fbc-11e9-8647-d663bd873d93"],"md5sum":"c63b8431b6908b4714c2d55cd6410d6b","data_format":"IDAT","object_id":"c4014dad-b22b-4a21-bcfe-2dd5907e6a2b","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"cf2b4b60-3d0b-4dbe-b022-0e3cf6f78fb4","file_id":"cf2b4b60-3d0b-4dbe-b022-0e3cf6f78fb4","file_size":1393152,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400931_9806219014_R04C02_Grn.idat.gz","subject_id":["05f96106-5fbd-11e9-8647-d663bd873d93"],"md5sum":"1070034534c9e147c706f487b5344698","data_format":"IDAT","object_id":"083b35bb-9886-463e-bd31-4ec378be2ba8","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"be07f3b5-2877-42a2-8170-0667cb2ea655","file_id":"be07f3b5-2877-42a2-8170-0667cb2ea655","file_size":1372868,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400840_9933510201_R02C02_Red.idat.gz","subject_id":["ee782706-5fbc-11e9-8647-d663bd873d93"],"md5sum":"b48e2ad01b9af0c9938c1461dc6629eb","data_format":"IDAT","object_id":"b2e74870-69c7-4350-b6b3-f6217a91b870","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"490a7780-528f-4d4b-92bd-b7576c99910a","file_id":"490a7780-528f-4d4b-92bd-b7576c99910a","file_size":1399942,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401311_9388954081_R06C02_Red.idat.gz","subject_id":["20a49ba6-5fbd-11e9-8647-d663bd873d93"],"md5sum":"0e529ef98daffa53740866ecdeca7dfa","data_format":"IDAT","object_id":"1debac2d-aca3-45d7-9653-97f5d057b762","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"6897300a-c5b1-463e-bbe2-727d5ad1196c","file_id":"6897300a-c5b1-463e-bbe2-727d5ad1196c","file_size":1406863,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400779_9933510196_R06C01_Red.idat.gz","subject_id":["d7d214f8-5fbc-11e9-8647-d663bd873d93"],"md5sum":"c1f686fefade63bb255d4de6de30be16","data_format":"IDAT","object_id":"0aae5950-daa5-41c0-9c6e-b29a54a8e917","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"a98a8776-ae2e-4c6c-ba7a-e7ca458f4c1d","file_id":"a98a8776-ae2e-4c6c-ba7a-e7ca458f4c1d","file_size":1400527,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2195671_3998887021_R02C02_Grn.idat.gz","subject_id":["0cdef7b0-7b1f-11e9-8f9e-2a86e4085a59"],"md5sum":"e5134e3940434fc901d300d30db26b4e","data_format":"IDAT","object_id":"1555702f-eda2-44ee-b1dc-fe128fb8909f","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"584cf477-8a0f-4df5-9615-d50597be8000","file_id":"584cf477-8a0f-4df5-9615-d50597be8000","file_size":1368207,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400580_9830881008_R01C02_Red.idat.gz","subject_id":["cb139b42-5fbc-11e9-8647-d663bd873d93"],"md5sum":"e9db10d82434188ea327086c63d41f67","data_format":"IDAT","object_id":"682938d7-e4a1-4edb-be63-135409f433e3","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"d32ca8da-ac8d-49f9-ad1a-1552790f46c3","file_id":"d32ca8da-ac8d-49f9-ad1a-1552790f46c3","file_size":1379077,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400804_9255473017_R06C02_Grn.idat.gz","subject_id":["e3af782e-5fbc-11e9-8647-d663bd873d93"],"md5sum":"50676031e71fc846cce461b76b6e7e96","data_format":"IDAT","object_id":"5d2cb9b3-eb6f-4ac0-a10b-ed9f936da800","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"4f2c3de5-ffff-4225-b660-e1fb9827158e","file_id":"4f2c3de5-ffff-4225-b660-e1fb9827158e","file_size":1400082,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400878_9933510190_R03C02_Grn.idat.gz","subject_id":["e3afa16e-5fbc-11e9-8647-d663bd873d93"],"md5sum":"ca2669400b495569bbfdb2c200fd3bc9","data_format":"IDAT","object_id":"03c15c58-42c4-4205-a47f-59dd3473c1bc","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"d241764f-e916-446a-8add-28d8fd5e0a08","file_id":"d241764f-e916-446a-8add-28d8fd5e0a08","file_size":1364786,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Unaligned Reads","file_name":"SRR1697344_1.fastq.gz","subject_id":["3c3d91ea-7c0c-11e9-8f9e-2a86e4085a59"],"md5sum":"d4f32340ce70e6bad28ce8cd3c43b12b","data_format":"FASTQ","object_id":"d4b6a324-be69-4842-847e-527319d2a8ff","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"156edf6a-7896-467f-94da-cbd3ec94d35d","file_id":"156edf6a-7896-467f-94da-cbd3ec94d35d","file_size":1271245731,"project_id":"Canine-Non-Hodgkin_lymphoma"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400749_9830881019_R01C01_Grn.idat.gz","subject_id":["e3afb5dc-5fbc-11e9-8647-d663bd873d93"],"md5sum":"3e49eb0b1a83a7c8eeb30ae394f37005","data_format":"IDAT","object_id":"9d94dc93-f7cd-4223-bcc5-5705a803a0a8","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"a883f34f-f979-4c01-b96b-880a40a8d551","file_id":"a883f34f-f979-4c01-b96b-880a40a8d551","file_size":1351506,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2539231_9806219011_R04C01_Grn.idat.gz","subject_id":["99ba9cd8-7a67-11e9-8f9e-2a86e4085a59"],"md5sum":"1b7382ea931a8808d889130bb4294428","data_format":"IDAT","object_id":"5e565bcf-455f-440b-bba7-73e19ed80db8","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"29b7ddfd-1c0e-4ba1-8fdd-dfa99f003c59","file_id":"29b7ddfd-1c0e-4ba1-8fdd-dfa99f003c59","file_size":1378950,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400565_9933510186_R02C01_Red.idat.gz","subject_id":["cb138684-5fbc-11e9-8647-d663bd873d93"],"md5sum":"5f99e5d03aaaf394a386f9bc6625d5b8","data_format":"IDAT","object_id":"a21507c7-a029-4262-bc9e-60e3dbb0b37a","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"34c8a5e2-73d6-4088-9661-d25b94a2d7ad","file_id":"34c8a5e2-73d6-4088-9661-d25b94a2d7ad","file_size":1392871,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401321_9933510201_R04C01_Red.idat.gz","subject_id":["20a4b6ea-5fbd-11e9-8647-d663bd873d93"],"md5sum":"90e064833ee3bd839c3d37e668bb238c","data_format":"IDAT","object_id":"db4566be-e18a-4eaa-bb20-0a892e14a2c7","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"923625a0-1fb8-4971-9abd-b63e62b118ca","file_id":"923625a0-1fb8-4971-9abd-b63e62b118ca","file_size":1406116,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400972_9700838010_R04C02_Grn.idat.gz","subject_id":["05f997e8-5fbd-11e9-8647-d663bd873d93"],"md5sum":"7fbb54c42bcb2b98d08923734b50b013","data_format":"IDAT","object_id":"76da997c-4c00-43f6-bb0b-8f81fa354508","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"8d2e996e-a687-458d-beb1-53067d2a0146","file_id":"8d2e996e-a687-458d-beb1-53067d2a0146","file_size":1386494,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401314_5666151013_R05C02_Red.idat.gz","subject_id":["20a4a1d2-5fbd-11e9-8647-d663bd873d93"],"md5sum":"e98032c2fc21dab6e025c30863c3071c","data_format":"IDAT","object_id":"4dcb7da5-0546-412e-bf5e-d36bf6146908","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"2959ca9a-8090-4e6b-810f-c8c8e745c07e","file_id":"2959ca9a-8090-4e6b-810f-c8c8e745c07e","file_size":1366512,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401307_9388954081_R05C02_Grn.idat.gz","subject_id":["20a49408-5fbd-11e9-8647-d663bd873d93"],"md5sum":"fb15ba853f058e4902df88c8fba4a91d","data_format":"IDAT","object_id":"b0a83062-a736-4759-823c-6b2182156d7f","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"5c8ec323-c576-4b22-bba2-c818d1d649c1","file_id":"5c8ec323-c576-4b22-bba2-c818d1d649c1","file_size":1396807,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401020_9933510082_R04C02_Grn.idat.gz","subject_id":["ee785e56-5fbc-11e9-8647-d663bd873d93"],"md5sum":"cca7334a444b0ef33bb8e13936d582af","data_format":"IDAT","object_id":"5a8b2301-9a50-4041-98c5-b2e83ba70197","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"63331bee-33c1-4bf1-a221-bd11ec6c0309","file_id":"63331bee-33c1-4bf1-a221-bd11ec6c0309","file_size":1371990,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400549_9806219043_R05C01_Red.idat.gz","subject_id":["cb136c30-5fbc-11e9-8647-d663bd873d93"],"md5sum":"c61e3abd8288c3578cacb2c82a253289","data_format":"IDAT","object_id":"af06b34a-1608-4949-b90a-fec7ecf40e4a","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"84df3365-2d93-472e-bc38-1ba4a09a5de4","file_id":"84df3365-2d93-472e-bc38-1ba4a09a5de4","file_size":1416235,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2539226_9806219007_R06C01_Red.idat.gz","subject_id":["99ba949a-7a67-11e9-8f9e-2a86e4085a59"],"md5sum":"5b1c36d86e339cdb3194425a57ce151d","data_format":"IDAT","object_id":"93cc3760-ce1d-4212-8d66-0f60b69a4287","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"6643d547-1be1-4a8e-9fb1-8c03d943298a","file_id":"6643d547-1be1-4a8e-9fb1-8c03d943298a","file_size":1415187,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400677_9806219043_R01C02_Grn.idat.gz","subject_id":["d7d1e23a-5fbc-11e9-8647-d663bd873d93"],"md5sum":"d7193491dcd8ef6549547dfbfb6716c0","data_format":"IDAT","object_id":"f13f2a54-eee6-4f81-84f9-ee0d331ad242","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"68d1bb49-b594-4364-9949-d90edddd9670","file_id":"68d1bb49-b594-4364-9949-d90edddd9670","file_size":1368466,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2539196_9374872013_R02C01_Red.idat.gz","subject_id":["8fcf4886-7a67-11e9-8f9e-2a86e4085a59"],"md5sum":"77ca49ac30fceb4cbebbd42aa8ac20e4","data_format":"IDAT","object_id":"04590724-0906-4896-a9e5-fbcf7e28d4b8","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"749b6eff-3c31-4a61-b515-888a13d85e4e","file_id":"749b6eff-3c31-4a61-b515-888a13d85e4e","file_size":1393366,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400660_7918068011_R02C01_Grn.idat.gz","subject_id":["cb13ecaa-5fbc-11e9-8647-d663bd873d93"],"md5sum":"a61de0df035a22af09a102e7567d5e7a","data_format":"IDAT","object_id":"1e1026b5-15b7-4e2e-9f92-ab3663e60365","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"da472be4-b9e5-4747-a7a3-233e0804a48f","file_id":"da472be4-b9e5-4747-a7a3-233e0804a48f","file_size":1369853,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400722_9700838031_R05C01_Red.idat.gz","subject_id":["d7d1b6b6-5fbc-11e9-8647-d663bd873d93"],"md5sum":"2e5152e95ce2c90626e7b9e70991efd8","data_format":"IDAT","object_id":"a7445c63-c9ed-4cb1-b195-8d0e68a47f95","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"a640e055-167d-4e88-9d46-c210aaedf438","file_id":"a640e055-167d-4e88-9d46-c210aaedf438","file_size":1401445,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401166_9255905117_R01C02_Red.idat.gz","subject_id":["05f984b0-5fbd-11e9-8647-d663bd873d93"],"md5sum":"ee106b38b8f25d29c91be20141db4bc3","data_format":"IDAT","object_id":"4c3b6e49-997b-48b4-886f-d72a16858235","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"f7eb95f5-5cb6-44fa-94f4-f454ee4eb2e8","file_id":"f7eb95f5-5cb6-44fa-94f4-f454ee4eb2e8","file_size":1397325,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400898_9806219014_R05C01_Red.idat.gz","subject_id":["fa51c258-5fbc-11e9-8647-d663bd873d93"],"md5sum":"a259bb5a9b3db1449bb003a27130bc6c","data_format":"IDAT","object_id":"ed1f1f4f-6b70-4239-a80d-51ae867a2c6b","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"fecec48d-05cb-441b-b1e8-2972cfe68f67","file_id":"fecec48d-05cb-441b-b1e8-2972cfe68f67","file_size":1388589,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401150_9933510137_R05C01_Grn.idat.gz","subject_id":["10bbdd26-5fbd-11e9-8647-d663bd873d93"],"md5sum":"fc4df8abdc8d3e93daa4c86076535f74","data_format":"IDAT","object_id":"3b42bfaa-58ef-4a12-84da-b74256c56b86","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"16be1be9-1d90-41bc-9c04-34cf8804df49","file_id":"16be1be9-1d90-41bc-9c04-34cf8804df49","file_size":1377542,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400890_9270664009_R04C02_Red.idat.gz","subject_id":["fa51b808-5fbc-11e9-8647-d663bd873d93"],"md5sum":"e726c26d8e7550f05b3c7f5c7ee559f3","data_format":"IDAT","object_id":"2cb73f4c-5716-4c68-8485-1b4e5a5f50ba","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"9835d761-84fe-4f82-b2c0-49cd7bb9570a","file_id":"9835d761-84fe-4f82-b2c0-49cd7bb9570a","file_size":1395958,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401142_9806219050_R04C01_Grn.idat.gz","subject_id":["10bbd092-5fbd-11e9-8647-d663bd873d93"],"md5sum":"a63beb71577e5ecd0f3c97f25a8dcc7b","data_format":"IDAT","object_id":"e19dae05-e572-42de-b668-d07c60ade03a","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"30f56206-b2c7-459e-88f7-737e9156d78d","file_id":"30f56206-b2c7-459e-88f7-737e9156d78d","file_size":1371714,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2195701_3998887042_R01C02_Grn.idat.gz","subject_id":["1a983362-7b1f-11e9-8f9e-2a86e4085a59"],"md5sum":"313c4112200815a5512f75c2a893bb4b","data_format":"IDAT","object_id":"196c40ad-3b3a-41d3-b102-0ee9c760be1c","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"e146d992-8b96-473d-a55f-40d7df7ce309","file_id":"e146d992-8b96-473d-a55f-40d7df7ce309","file_size":1350395,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400891_9270664010_R05C01_Grn.idat.gz","subject_id":["fa51b934-5fbc-11e9-8647-d663bd873d93"],"md5sum":"3b52aab405ce1a038385e5c33034f0ae","data_format":"IDAT","object_id":"ebc2ca09-570d-4aaa-b59b-0114e2bf8f17","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"510f34ab-125e-49a4-b35e-c3555bacbc24","file_id":"510f34ab-125e-49a4-b35e-c3555bacbc24","file_size":1401860,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2195694_3998887040_R06C02_Grn.idat.gz","subject_id":["1a98287c-7b1f-11e9-8f9e-2a86e4085a59"],"md5sum":"d5cadb67c88379ed031c08466f065bd3","data_format":"IDAT","object_id":"f14cb1aa-3e53-4a79-abfe-6c18b620672a","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"f3a6bcaa-cf86-4a69-8b3c-2030786ed263","file_id":"f3a6bcaa-cf86-4a69-8b3c-2030786ed263","file_size":1379877,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401106_9700838025_R05C01_Red.idat.gz","subject_id":["05f92042-5fbd-11e9-8647-d663bd873d93"],"md5sum":"70f1e9db5bbdcc67337a353c6905be9d","data_format":"IDAT","object_id":"a6ffb0c5-52bb-405f-bb9f-4f4ec018df46","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"f8b5cd0a-c4a3-4a72-a273-e3feda69423c","file_id":"f8b5cd0a-c4a3-4a72-a273-e3feda69423c","file_size":1389448,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401128_9806219049_R04C01_Red.idat.gz","subject_id":["05f95256-5fbd-11e9-8647-d663bd873d93"],"md5sum":"c381559dda4955ded915ccd78703da2f","data_format":"IDAT","object_id":"5072aec0-4b9a-4958-adeb-cec14b2037ec","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"ab5fa0b7-9a55-4d7c-9359-a7db15297de7","file_id":"ab5fa0b7-9a55-4d7c-9359-a7db15297de7","file_size":1385026,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401175_9700838010_R03C01_Red.idat.gz","subject_id":["20a43f1c-5fbd-11e9-8647-d663bd873d93"],"md5sum":"2e52c7312e3ea4e1c8eebfff8486b0f6","data_format":"IDAT","object_id":"9ba8dda8-6137-4a76-b1ba-fbcab73094bd","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"b72d7b69-6f1a-48b8-91eb-c5e3aaa6dcd2","file_id":"b72d7b69-6f1a-48b8-91eb-c5e3aaa6dcd2","file_size":1414164,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401273_9700838054_R03C02_Grn.idat.gz","subject_id":["20a41f3c-5fbd-11e9-8647-d663bd873d93"],"md5sum":"3810801aa9a46eff1df712dbb874406c","data_format":"IDAT","object_id":"7e4634dc-0c63-4957-a021-fd885c5b1166","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"52f474eb-1d3e-4e4c-88dd-b8ef220ad073","file_id":"52f474eb-1d3e-4e4c-88dd-b8ef220ad073","file_size":1390706,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400701_9806219017_R03C02_Grn.idat.gz","subject_id":["ee78a35c-5fbc-11e9-8647-d663bd873d93"],"md5sum":"40d83dd2d3a385dcca001898fd981266","data_format":"IDAT","object_id":"15617414-3c13-427b-beac-38e6c4de88ae","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"6c90ccf8-979b-4876-8f1d-42f59bb863b0","file_id":"6c90ccf8-979b-4876-8f1d-42f59bb863b0","file_size":1366468,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Unaligned Reads","file_name":"SRR6953263_1.fastq.gz","subject_id":["4f1c4e50-815c-11e9-bc42-526af7764f64"],"md5sum":"7a557e7ad0f27acf12995d2c21efc249","data_format":"FASTQ","object_id":"0c69dbca-a921-4143-a085-adc9bb4c7bff","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"896d705b-570e-4ae0-940a-eeacdb149534","file_id":"896d705b-570e-4ae0-940a-eeacdb149534","file_size":1408028885,"project_id":"Canine-B_cell_lymphoma"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401121_9933510194_R06C01_Grn.idat.gz","subject_id":["05f94734-5fbd-11e9-8647-d663bd873d93"],"md5sum":"6c3898a9e24c9ed7506ac3ce0b6f7c31","data_format":"IDAT","object_id":"e23bdc70-2ebf-4072-9ec5-a31a6103eb42","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"2efa0c93-7395-4fde-bd62-7a476c4f0fe6","file_id":"2efa0c93-7395-4fde-bd62-7a476c4f0fe6","file_size":1385321,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2195707_3998887055_R01C01_Red.idat.gz","subject_id":["1a983d1c-7b1f-11e9-8f9e-2a86e4085a59"],"md5sum":"8c451559945e079bce0b0cca3191d726","data_format":"IDAT","object_id":"b5c01599-9f64-4c11-808e-7b07379665a5","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"0e6a1ba6-d3e8-446e-a889-865f19e152e7","file_id":"0e6a1ba6-d3e8-446e-a889-865f19e152e7","file_size":1395454,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400562_9700838057_R06C02_Red.idat.gz","subject_id":["cb1382ec-5fbc-11e9-8647-d663bd873d93"],"md5sum":"9a620ec9190d36542cb2ecc98d6ecd2c","data_format":"IDAT","object_id":"d461fd99-84c2-441d-bf49-a3ccb65b2784","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"e2e297d9-fdb0-4673-9da5-4ab583c6f173","file_id":"e2e297d9-fdb0-4673-9da5-4ab583c6f173","file_size":1405405,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2539301_3998887025_R06C02_Grn.idat.gz","subject_id":["c37ac2c8-7a67-11e9-8f9e-2a86e4085a59"],"md5sum":"4b54217c4c0ccf823a0396cdd37a510f","data_format":"IDAT","object_id":"b048fd57-83f5-402b-9fba-c64735493a61","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"9930e5c3-17d7-4e48-9aa4-02b392890824","file_id":"9930e5c3-17d7-4e48-9aa4-02b392890824","file_size":1370516,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401104_9933510185_R04C02_Red.idat.gz","subject_id":["05f91dcc-5fbd-11e9-8647-d663bd873d93"],"md5sum":"5162d19cde76f0b97d5a5efa628202aa","data_format":"IDAT","object_id":"69b82eab-3b73-4fd9-9538-4f16bcc8933b","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"d96357f1-4962-483c-acde-78887cc83c5c","file_id":"d96357f1-4962-483c-acde-78887cc83c5c","file_size":1397472,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401139_9806219032_R05C01_Grn.idat.gz","subject_id":["10bbcba6-5fbd-11e9-8647-d663bd873d93"],"md5sum":"2bee3617316ad1a071afbf1e1508bccd","data_format":"IDAT","object_id":"2d09914a-e24a-4f86-b604-d448c5721a32","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"330bebe9-e7a3-4d3b-bfb3-7bc18f5a58a5","file_id":"330bebe9-e7a3-4d3b-bfb3-7bc18f5a58a5","file_size":1380175,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2539205_9270665010_R01C01_Grn.idat.gz","subject_id":["99ba715e-7a67-11e9-8f9e-2a86e4085a59"],"md5sum":"7fb2b30a67316c7e2fdeac9a795f5196","data_format":"IDAT","object_id":"1425dc4d-f659-4220-a951-9cedc4db4c01","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"5e6d5543-8cf0-4a31-9fb8-463c5b619d59","file_id":"5e6d5543-8cf0-4a31-9fb8-463c5b619d59","file_size":1370382,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400693_9700838056_R01C01_Grn.idat.gz","subject_id":["d7d1ff36-5fbc-11e9-8647-d663bd873d93"],"md5sum":"35f4fb326af301fa0977bd3a0bde1ec5","data_format":"IDAT","object_id":"42673e4b-575c-4cac-a727-ea43dae059e2","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"58feadce-26d7-434c-9d81-0b2aaea1454c","file_id":"58feadce-26d7-434c-9d81-0b2aaea1454c","file_size":1370702,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401045_9806219050_R01C02_Grn.idat.gz","subject_id":["fa51732a-5fbc-11e9-8647-d663bd873d93"],"md5sum":"a26b58e084d268e70634b37a96d124f0","data_format":"IDAT","object_id":"550083db-7ee9-4336-9d01-e23724684e3a","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"f5de969f-9155-465c-9237-253c1f0d1fad","file_id":"f5de969f-9155-465c-9237-253c1f0d1fad","file_size":1348123,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2195593_3998887021_R05C01_Grn.idat.gz","subject_id":["0cde9fea-7b1f-11e9-8f9e-2a86e4085a59"],"md5sum":"6671d6ca16f09c9863033403e9c025c1","data_format":"IDAT","object_id":"a43ffa45-0892-4ff1-98bc-0f1405c61542","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"44e04cef-bea9-41af-8e9d-374912a64897","file_id":"44e04cef-bea9-41af-8e9d-374912a64897","file_size":1388667,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2195681_3998887025_R06C01_Grn.idat.gz","subject_id":["1a98110c-7b1f-11e9-8f9e-2a86e4085a59"],"md5sum":"34330a80e94a379db2cb5c69e4d95b94","data_format":"IDAT","object_id":"176da6ed-6297-42a7-9b2c-3f3909a9c0ce","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"b9343118-d144-4417-ad78-e90f4ff6dfed","file_id":"b9343118-d144-4417-ad78-e90f4ff6dfed","file_size":1371961,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401184_9806219011_R02C02_Red.idat.gz","subject_id":["05f9bc28-5fbd-11e9-8647-d663bd873d93"],"md5sum":"660a3451aaaf4f0fb78e12f2f1e22e48","data_format":"IDAT","object_id":"ef261b5c-7a76-43ac-bc15-3cb2b07cefc0","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"e501d6b2-2f19-462c-ae4f-4bea97bb94ec","file_id":"e501d6b2-2f19-462c-ae4f-4bea97bb94ec","file_size":1391750,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2539246_9388954081_R06C01_Grn.idat.gz","subject_id":["a48accb4-7a67-11e9-8f9e-2a86e4085a59"],"md5sum":"0aa4ee0e3a0fa579390176e7ad009350","data_format":"IDAT","object_id":"da04852c-60a4-41ab-bc76-788c3c4839b6","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"d5a98451-151a-4eb2-9c89-b69dcc4d7408","file_id":"d5a98451-151a-4eb2-9c89-b69dcc4d7408","file_size":1401280,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2539267_3998887016_R03C01_Red.idat.gz","subject_id":["b6525be2-7a67-11e9-8f9e-2a86e4085a59"],"md5sum":"c6023804b5dd50e85accadf838d9b0b9","data_format":"IDAT","object_id":"e04fc9e4-fb54-4d52-9514-c105c209d295","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"491f1d52-68cd-4148-b525-e848b72b646b","file_id":"491f1d52-68cd-4148-b525-e848b72b646b","file_size":1404572,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400823_9933510190_R02C01_Grn.idat.gz","subject_id":["ee7807d0-5fbc-11e9-8647-d663bd873d93"],"md5sum":"9c8bcc74e8fb92dcee0348e8f1f1adf2","data_format":"IDAT","object_id":"a0fdda74-3dd4-4561-bfb3-d20d4a5f81a5","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"7ce2d948-8ff0-4d94-b0c2-b5d174a98654","file_id":"7ce2d948-8ff0-4d94-b0c2-b5d174a98654","file_size":1358741,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2539210_9374872029_R05C01_Grn.idat.gz","subject_id":["99ba7a00-7a67-11e9-8f9e-2a86e4085a59"],"md5sum":"55265f8729f28e1000412e38201b9efb","data_format":"IDAT","object_id":"7ec64c45-ccec-4649-ba70-816783ca4666","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"63098e9e-ab44-4d3e-ba88-10c3d8bf0129","file_id":"63098e9e-ab44-4d3e-ba88-10c3d8bf0129","file_size":1394610,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401152_9933510161_R06C01_Red.idat.gz","subject_id":["10bc284e-5fbd-11e9-8647-d663bd873d93"],"md5sum":"97eb1fbc00964b5b001788f0b90f6d51","data_format":"IDAT","object_id":"a3f9e727-ce45-48f8-a1b6-be8e9429c299","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"712e437d-93e4-442f-bbb2-5c083de581bb","file_id":"712e437d-93e4-442f-bbb2-5c083de581bb","file_size":1396677,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401278_9806219023_R03C01_Grn.idat.gz","subject_id":["20a427c0-5fbd-11e9-8647-d663bd873d93"],"md5sum":"7079fb035f483d6aa60100b5b8456320","data_format":"IDAT","object_id":"98710080-284b-49ee-aec6-dde3381f7780","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"2c924c84-310e-46bf-9e92-f4a999e1d412","file_id":"2c924c84-310e-46bf-9e92-f4a999e1d412","file_size":1376352,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400749_9830881019_R01C01_Red.idat.gz","subject_id":["e3afb5dc-5fbc-11e9-8647-d663bd873d93"],"md5sum":"c3675ef658db97165b6a871fc9f4970a","data_format":"IDAT","object_id":"0c622e52-bc65-4de1-b0b6-d5b7e58b0433","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"42e8fa05-c344-4000-a70e-2c9d84a054ea","file_id":"42e8fa05-c344-4000-a70e-2c9d84a054ea","file_size":1376740,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401064_9933510196_R05C02_Grn.idat.gz","subject_id":["fa519346-5fbc-11e9-8647-d663bd873d93"],"md5sum":"9215071f288d2af972f9afe43eb45bbd","data_format":"IDAT","object_id":"9ff0bd01-324d-470f-a195-63acd40f6300","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"3881149a-f555-4d70-974c-6afcfacb9015","file_id":"3881149a-f555-4d70-974c-6afcfacb9015","file_size":1380308,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2539192_9270665006_R02C01_Grn.idat.gz","subject_id":["8fcf42c8-7a67-11e9-8f9e-2a86e4085a59"],"md5sum":"bab2fdbf14f343b4f2debe5bda40f4d7","data_format":"IDAT","object_id":"ca620ea7-5dd2-4af7-a663-5ec0e2419485","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"eaa15e2d-cc4c-4d0e-a671-21a2616b412b","file_id":"eaa15e2d-cc4c-4d0e-a671-21a2616b412b","file_size":1385477,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400663_9255905104_R01C01_Red.idat.gz","subject_id":["cb13f042-5fbc-11e9-8647-d663bd873d93"],"md5sum":"a427676c1a15aa0862520f730b219598","data_format":"IDAT","object_id":"881d4bea-ccda-47c2-92d1-6a3a0838993f","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"1e1340d1-198b-449e-8026-f6d853face0c","file_id":"1e1340d1-198b-449e-8026-f6d853face0c","file_size":1399935,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400786_9806219037_R04C01_Red.idat.gz","subject_id":["d7d22060-5fbc-11e9-8647-d663bd873d93"],"md5sum":"7ed61a736e0f95f32e6bddbee9eec9fe","data_format":"IDAT","object_id":"60386755-d3e9-43e6-a1cd-e563e80cd863","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"f8edf916-f854-491b-83d7-9c7893f1c2e7","file_id":"f8edf916-f854-491b-83d7-9c7893f1c2e7","file_size":1392024,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400851_9806219031_R03C02_Red.idat.gz","subject_id":["05f92b82-5fbd-11e9-8647-d663bd873d93"],"md5sum":"20c344d9660bc67bb80f548e73b73735","data_format":"IDAT","object_id":"bd351aac-ba5b-4a55-85f7-bbc8c234d71e","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"c8a4670e-c4b2-422d-afe1-a1f72e51bb03","file_id":"c8a4670e-c4b2-422d-afe1-a1f72e51bb03","file_size":1380682,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401111_9806219032_R03C02_Grn.idat.gz","subject_id":["05f92a56-5fbd-11e9-8647-d663bd873d93"],"md5sum":"5329658f7bfce4389ca4788aeab7627f","data_format":"IDAT","object_id":"d3debf2c-70db-42c8-9f8e-cc855c75dc38","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"8ebb1aba-9391-4124-b562-9517ab1787b5","file_id":"8ebb1aba-9391-4124-b562-9517ab1787b5","file_size":1370438,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400909_9806219019_R02C01_Red.idat.gz","subject_id":["e3affa4c-5fbc-11e9-8647-d663bd873d93"],"md5sum":"43297563bcea7720a493b8f88a5bc77c","data_format":"IDAT","object_id":"d6d6e989-ce8e-4ad9-8bd1-b0e9d0c41b02","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"92b19790-a001-4770-8b3c-7d3f7fdfc501","file_id":"92b19790-a001-4770-8b3c-7d3f7fdfc501","file_size":1391459,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401090_9933510197_R05C01_Grn.idat.gz","subject_id":["10bbbd0a-5fbd-11e9-8647-d663bd873d93"],"md5sum":"d98bbbcd32807e484c9ae4b4da9629ad","data_format":"IDAT","object_id":"02b3a6fb-c695-4566-b050-e73351fa659f","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"ebc5a7e8-3dab-4c3c-b5d6-90c387f9cc5c","file_id":"ebc5a7e8-3dab-4c3c-b5d6-90c387f9cc5c","file_size":1378770,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401143_9933510137_R02C02_Grn.idat.gz","subject_id":["10bbd1be-5fbd-11e9-8647-d663bd873d93"],"md5sum":"584f973c341c308aabc1b83224f317a0","data_format":"IDAT","object_id":"5cd22859-7ee1-4855-9a3b-31a9d38bcd0c","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"f3a4588d-b771-4cc3-b3be-882ff56c6d19","file_id":"f3a4588d-b771-4cc3-b3be-882ff56c6d19","file_size":1364050,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401304_9534484003_R04C01_Red.idat.gz","subject_id":["20a49084-5fbd-11e9-8647-d663bd873d93"],"md5sum":"969c4bc8d60b8fc8bc3b93aed628e823","data_format":"IDAT","object_id":"c17c7959-6837-4a81-8329-c97a0f5ddc03","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"24336d39-f8d0-49e7-ae63-cd55de7b3be6","file_id":"24336d39-f8d0-49e7-ae63-cd55de7b3be6","file_size":1398988,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400836_9806219023_R05C01_Red.idat.gz","subject_id":["ee781f22-5fbc-11e9-8647-d663bd873d93"],"md5sum":"272c355b0c48e7258c561761f3647feb","data_format":"IDAT","object_id":"f1f7bb60-17df-482a-a18d-ff3d88ad3bce","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"848ff182-24c7-45ff-9477-7598c9cb7af0","file_id":"848ff182-24c7-45ff-9477-7598c9cb7af0","file_size":1388168,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401327_9933510195_R04C02_Red.idat.gz","subject_id":["20a4c0fe-5fbd-11e9-8647-d663bd873d93"],"md5sum":"4b8307f4cbc02dea72cb36172e591844","data_format":"IDAT","object_id":"e6848d37-ef61-4677-932c-f5d1c4ac8001","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"e117e462-dc8f-4ce2-9b6b-485e66a72695","file_id":"e117e462-dc8f-4ce2-9b6b-485e66a72695","file_size":1396391,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2539184_9374872029_R01C01_Grn.idat.gz","subject_id":["8fcf3530-7a67-11e9-8f9e-2a86e4085a59"],"md5sum":"91da7d0307c046689aee6ea63cd254b1","data_format":"IDAT","object_id":"772969e2-c743-44c8-9b11-d59c054ebdcf","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"0e908417-eabd-4175-9948-0b8861b8abf2","file_id":"0e908417-eabd-4175-9948-0b8861b8abf2","file_size":1379519,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2195612_3998887040_R05C01_Red.idat.gz","subject_id":["0cdebcbe-7b1f-11e9-8f9e-2a86e4085a59"],"md5sum":"e3caa35f15a0d1127e48ea8b5393281b","data_format":"IDAT","object_id":"da5c0272-dab0-4ec3-b27f-5a3312e0c2ab","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"9e3ca290-a122-4dba-810b-048cc46089e7","file_id":"9e3ca290-a122-4dba-810b-048cc46089e7","file_size":1402364,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2539242_9388954081_R03C01_Grn.idat.gz","subject_id":["a48ac430-7a67-11e9-8f9e-2a86e4085a59"],"md5sum":"9a302954fb6335bd4fbbbdd8992c33c1","data_format":"IDAT","object_id":"ba06a603-9aea-4113-816f-e840bb7db280","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"864e2c95-5d37-4afc-abe9-2d0921aa2816","file_id":"864e2c95-5d37-4afc-abe9-2d0921aa2816","file_size":1378706,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2539232_9806219011_R05C01_Red.idat.gz","subject_id":["99ba9e0e-7a67-11e9-8f9e-2a86e4085a59"],"md5sum":"47cd91ed683f0c2d9f75a41b633496ed","data_format":"IDAT","object_id":"f2923295-9ebb-4685-b3be-23771f2bea3b","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"ed828e02-6b37-4c4c-8a2b-ce56a30a0e92","file_id":"ed828e02-6b37-4c4c-8a2b-ce56a30a0e92","file_size":1397965,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"mRNA Expression Quantification","file_name":"GSM1239320_1502_Canine_2_.CEL.gz","subject_id":["eda66de4-4f1b-11e9-8647-d663bd873d93"],"md5sum":"68d70778826c5af1089bf83e648bd51b","data_format":"CEL","object_id":"917ca0cc-f40f-4b93-a215-1e1a117cd5bf","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"a6a43109-b5aa-4a91-a99c-c6b0484dfd56","file_id":"a6a43109-b5aa-4a91-a99c-c6b0484dfd56","file_size":2444614,"project_id":"Canine-PMed_trial"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400863_9830881003_R05C01_Red.idat.gz","subject_id":["e3af86de-5fbc-11e9-8647-d663bd873d93"],"md5sum":"70b72e7bb7201c0c2abdb545574582d7","data_format":"IDAT","object_id":"45c83f26-9fd2-480c-8fd5-5c3ffe228a19","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"9a2b0bec-2283-482a-9ab1-faded1562899","file_id":"9a2b0bec-2283-482a-9ab1-faded1562899","file_size":1416095,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400864_9830881003_R06C01_Red.idat.gz","subject_id":["e3af897c-5fbc-11e9-8647-d663bd873d93"],"md5sum":"99cac2ae9d98f83d1b9c4071957e55f7","data_format":"IDAT","object_id":"eb68c64c-779a-40a4-a8ac-f4a9a7518905","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"dd3ec417-5ebd-4be7-b742-3ae73d742731","file_id":"dd3ec417-5ebd-4be7-b742-3ae73d742731","file_size":1417573,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400771_5092291017_R04C01_Grn.idat.gz","subject_id":["e3afda9e-5fbc-11e9-8647-d663bd873d93"],"md5sum":"3c0ff1fbfa70200da155969c1efcf26e","data_format":"IDAT","object_id":"e560f5a6-6bcd-4444-8ecd-c5cd3613c867","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"58e85f22-35b3-4e04-8102-3f60bf9ea8f4","file_id":"58e85f22-35b3-4e04-8102-3f60bf9ea8f4","file_size":1382836,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401196_9534484014_R02C02_Grn.idat.gz","subject_id":["10bc13ae-5fbd-11e9-8647-d663bd873d93"],"md5sum":"700c6c1672464e24a28826899c706e02","data_format":"IDAT","object_id":"fceff3c5-749a-4cbf-8f17-4ddb32edd06a","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"c2fd6765-7e57-4bf2-aaa2-3e691b566fc2","file_id":"c2fd6765-7e57-4bf2-aaa2-3e691b566fc2","file_size":1374505,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Unaligned Reads","file_name":"SRR6953236_1.fastq.gz","subject_id":["4f1c1732-815c-11e9-bc42-526af7764f64"],"md5sum":"bca79db59a64b6af1a13a843a1de16b7","data_format":"FASTQ","object_id":"a2b4c8a6-7e1c-4f8c-8bd6-ad821bfa6b83","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"6f3211e1-422e-4a64-8095-6755829c4c69","file_id":"6f3211e1-422e-4a64-8095-6755829c4c69","file_size":1520626576,"project_id":"Canine-B_cell_lymphoma"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400713_9830881017_R01C02_Grn.idat.gz","subject_id":["d7d1a77a-5fbc-11e9-8647-d663bd873d93"],"md5sum":"1c157283a0fc901815e4f756bb87caae","data_format":"IDAT","object_id":"bd7cc438-bd98-4b2b-ba71-a1c44212fba8","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"3a54ab91-f069-41c1-bb26-56fb913e5a2e","file_id":"3a54ab91-f069-41c1-bb26-56fb913e5a2e","file_size":1355742,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401149_9933510137_R04C01_Red.idat.gz","subject_id":["10bbdc04-5fbd-11e9-8647-d663bd873d93"],"md5sum":"fe73dafc28522932199d21f8a3e8a623","data_format":"IDAT","object_id":"5626a225-94da-441e-be03-7ab0226aa3d4","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"eff61038-4b50-40c8-a8a2-e2afe3c6a8c2","file_id":"eff61038-4b50-40c8-a8a2-e2afe3c6a8c2","file_size":1390705,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2401182_9700838025_R05C02_Red.idat.gz","subject_id":["05f9b9bc-5fbd-11e9-8647-d663bd873d93"],"md5sum":"4c764b0cf45f1e529cafe7598c0b9a41","data_format":"IDAT","object_id":"d7e91a11-7f4e-4e6f-a181-57dd5cc15d86","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"5454610d-3cac-4011-8f83-0df3d00030d4","file_id":"5454610d-3cac-4011-8f83-0df3d00030d4","file_size":1390443,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Unaligned Reads","file_name":"SRR3111242_2.fastq.gz","subject_id":["fdf3b1d6-84a7-11e9-bc42-526af7764f64"],"md5sum":"f06d53041d9ba22212607730ea465ab7","data_format":"FASTQ","object_id":"8900f293-a75e-4143-a6aa-3f663ae02edb","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"ea332221-e1d2-4693-9a0e-8b2f15fa7ef9","file_id":"ea332221-e1d2-4693-9a0e-8b2f15fa7ef9","file_size":4873738843,"project_id":"Canine-Bladder_cancer"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2195620_3998887042_R01C01_Red.idat.gz","subject_id":["0cdecbe6-7b1f-11e9-8f9e-2a86e4085a59"],"md5sum":"b778cfc57cf2345d1a0b44000fc13bbb","data_format":"IDAT","object_id":"c7e0d923-a0f5-401a-9606-3b6ab66f3130","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"ba7359f9-8538-4efa-b838-6b07e0dc1f9f","file_id":"ba7359f9-8538-4efa-b838-6b07e0dc1f9f","file_size":1372746,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400589_9806219037_R03C02_Red.idat.gz","subject_id":["cb13b1cc-5fbc-11e9-8647-d663bd873d93"],"md5sum":"a443f20bac3d45de88d83000a6224803","data_format":"IDAT","object_id":"33bd2119-be40-40f6-9a27-f4c1a5a1ed90","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"546491d5-d053-47a9-9fb5-650f9eba3ff0","file_id":"546491d5-d053-47a9-9fb5-650f9eba3ff0","file_size":1391561,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400781_9933510137_R01C02_Grn.idat.gz","subject_id":["d7d21796-5fbc-11e9-8647-d663bd873d93"],"md5sum":"080b221962472ae9e75ebf4d412f0182","data_format":"IDAT","object_id":"2a63d373-77d7-4d41-99fb-4ecb3773ab3c","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"d1c23b18-60e1-4d1f-9dae-6fe6ceb4f8ef","file_id":"d1c23b18-60e1-4d1f-9dae-6fe6ceb4f8ef","file_size":1355292,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400668_9830881008_R06C02_Grn.idat.gz","subject_id":["cb13fa88-5fbc-11e9-8647-d663bd873d93"],"md5sum":"1d4aecd1745b0d2d1f9fac65542f97af","data_format":"IDAT","object_id":"0d3c33de-d8ab-454a-a3e1-41f5ab283e6f","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"3b3a679d-1e43-4475-9534-c4e48425a720","file_id":"3b3a679d-1e43-4475-9534-c4e48425a720","file_size":1382199,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2195609_3998887040_R02C01_Red.idat.gz","subject_id":["0cdeb93a-7b1f-11e9-8f9e-2a86e4085a59"],"md5sum":"fe462865402a2eaaaf0f01d3311a0775","data_format":"IDAT","object_id":"cb8f7a05-67e2-4dd3-9214-30dc402a7dbc","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"dedecb9f-3a16-4d2e-92f7-c527043a1ee2","file_id":"dedecb9f-3a16-4d2e-92f7-c527043a1ee2","file_size":1392482,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400972_9700838010_R04C02_Red.idat.gz","subject_id":["05f997e8-5fbd-11e9-8647-d663bd873d93"],"md5sum":"03271bac7fa27fd95d7696c5444aefc5","data_format":"IDAT","object_id":"807e9212-987e-4c58-a9e5-f9006a172c7c","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"c049c942-b8dc-46f6-9d97-1802542b97bc","file_id":"c049c942-b8dc-46f6-9d97-1802542b97bc","file_size":1410121,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2400990_9830881021_R06C01_Grn.idat.gz","subject_id":["fa5146fc-5fbc-11e9-8647-d663bd873d93"],"md5sum":"4ec595e9205026147c621b140121f8cd","data_format":"IDAT","object_id":"68b7f1f6-7817-4442-b59c-d24cd165c883","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"8ec19e08-3e2f-4a12-9deb-723f8c10b69c","file_id":"8ec19e08-3e2f-4a12-9deb-723f8c10b69c","file_size":1396140,"project_id":"Canine-NHGRI"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"mRNA Expression Quantification","file_name":"GSM1239315_0509_Canine_2_.CEL.gz","subject_id":["eda680ae-4f1b-11e9-8647-d663bd873d93"],"md5sum":"6bb54ca78ce382e577a82f41f5949d23","data_format":"CEL","object_id":"6fed999b-05e8-434d-ba50-68003c89cd51","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"ef575e63-5992-45de-94f7-bfc8947408be","file_id":"ef575e63-5992-45de-94f7-bfc8947408be","file_size":2417805,"project_id":"Canine-PMed_trial"}
-{"index":{}}
+{"index":{"_type" : "_doc"}}
 {"data_type":"Genotyping Raw Intensity","file_name":"GSM2539155_5092291011_R01C01_Grn.idat.gz","subject_id":["836e0cc6-7a67-11e9-8f9e-2a86e4085a59"],"md5sum":"ea739565abb971e2c9a68070828621bb","data_format":"IDAT","object_id":"38f88505-f3c0-4bfa-83ec-ad843be9bceb","auth_resource_path":"/programs/jnkns/projects/jenkins","state":"validated","node_id":"709f81d5-6df4-4dbb-9649-7bf2b0c65a2c","file_id":"709f81d5-6df4-4dbb-9649-7bf2b0c65a2c","file_size":1381596,"project_id":"Canine-NHGRI"}
