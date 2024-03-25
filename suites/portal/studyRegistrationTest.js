@@ -10,7 +10,7 @@ const filePath = 'test-data/studyRegistrationTest/studyRegistrationData.json';
 I.cache = {};
 const cedarUUID = 'c5891154-750a-4ed7-83b7-7cac3ddddae6';
 
-AfterSuite (async ({ users, fence, requestor }) => {
+AfterSuite (async ({ users, fence, requestor, mds }) => {
     // revoking the request access
     const requestData = await requestor.do.getRequestData(users.user2.accessTokenHeader);
     requestData.revoke = true;
