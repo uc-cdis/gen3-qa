@@ -11,15 +11,6 @@ I.cache = {};
 const cedarUUID = 'c5891154-750a-4ed7-83b7-7cac3ddddae6';
 
 AfterSuite (async ({ users, fence, requestor }) => {
-    // // deleting the dummy metadata wih DID
-    // console.log('Deleting the Study ...');
-    // try {
-    //     await mds.do.deleteMetadataRecord(users.user2.accessTokenHeader, I.cache.applicationID);
-    // } catch (err) {
-    //     console.error(err);
-    // }
-
-
     // revoking the request access
     const requestData = await requestor.do.getRequestData(users.user2.accessTokenHeader);
     requestData.revoke = true;
@@ -35,7 +26,6 @@ AfterSuite (async ({ users, fence, requestor }) => {
     await requestor.do.signedRequest(revokeReqID);
     
     userInfo = await fence.do.getUserInfo(users.user2.accessToken);
-    console.log(`### UserInfo from fence endpoint: ${userInfo}`);
     expect(userInfo.data.authz).to.not.have.property(`${I.cache.policy_id}`);
 
     // deleting the request from requestor db
@@ -43,6 +33,18 @@ AfterSuite (async ({ users, fence, requestor }) => {
     if (deleteRequest.status === 200) {
         console.log(`Request ${I.cache.requestID} is deleted successfully`);
     }   
+    // delete the above created revoke request 
+    await requestor.do.deleteRequest(revokeReqID);
+
+    // deleting the dummy metadata wih DID
+    console.log('Deleting the Study ...');
+    try {
+        await mds.do.deleteMetadataRecord(users.user2.accessTokenHeader, I.cache.applicationID);
+    } catch (err) {
+        console.error(err);
+    }
+
+    // TODO - clean up the CEDAR instance
 })
 
 Scenario('Register a new study registration', async ({ I, mds, users, home, discovery, studyRegistration, requestor }) => {
@@ -88,7 +90,7 @@ Scenario('Register a new study registration', async ({ I, mds, users, home, disc
     studyRegistration.do.searchStudy(I.cache.applicationID);
     I.click(studyRegistration.props.requestAccessButton);
     await studyRegistration.do.fillRequestAccessForm(users.user2.username, projectTitle);
-    I.click(studyRegistration.props.goToDiscoverPageButton);
+    // I.click(studyRegistration.props.goToDiscoverPageButton);
     // get request ID by sending request to requestor end point
     I.cache.requestID = await studyRegistration.do.getRequestId(users.user2.accessTokenHeader);
     I.cache.policyID = await requestor.do.getPolicyID(users.user2.accessTokenHeader); 
