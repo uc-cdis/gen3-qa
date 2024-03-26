@@ -236,25 +236,7 @@ module.exports = {
         const wfStatus = data.phase;
         console.log(`### getWFStatus workflow status : ${wfStatus}`);
         return wfStatus;
-    },
-
-    // async checkWFsInTable(workflows) {
-    //     I.seeElement(GWASUIAppProps.ResultsTable);
-    //     const rows = await I.$$('table tbody tr')
-    //     console.log(`### Rows in table : ${rows.length}`);
-    //     for (const workflow of workflows) {
-    //         const tableText = await I.grabTextFrom('table tbody');
-    //         if (typeof tableText === 'string' && tableText.includes(workflow)) {
-    //             console.log('yes');
-    //         }
-    //         // const workflowNamePresent = await I.see(workflow, GWASUIAppProps.ResultsTable);
-    //         // if (workflowNamePresent) {
-    //         //     console.log(`${workflow} is present in Results table`);
-    //         // } else {
-    //         //     console.log(`${workflow} could not be found in Results table`);
-    //         // }
-    //     }
-    // },  
+    },   
 
     async checkStatusPolling(job, status) {
         const attempts = 5;
