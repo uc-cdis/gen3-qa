@@ -1,48 +1,48 @@
 {
-    "mappings" : {
-      "properties" : {
-        "auth_resource_path" : {
-          "type" : "keyword"
-        },
-        "data_format" : {
-          "type" : "keyword"
-        },
-        "data_type" : {
-          "type" : "keyword"
-        },
-        "file_id" : {
-          "type" : "keyword"
-        },
-        "file_name" : {
-          "type" : "keyword"
-        },
-        "file_size" : {
-          "type" : "long"
-        },
-        "md5sum" : {
-          "type" : "keyword"
-        },
-        "node_id" : {
-          "type" : "keyword"
-        },
-        "object_id" : {
-          "type" : "keyword"
-        },
-        "program_name" : {
-          "type" : "keyword"
-        },
-        "project_code" : {
-          "type" : "keyword"
-        },
-        "project_id" : {
-          "type" : "keyword"
-        },
-        "state" : {
-          "type" : "keyword"
-        },
-        "subject_id" : {
-          "type" : "keyword"
-        }
+  "mappings" : {
+    "properties" : {
+      "auth_resource_path" : {
+        "type" : "text"
+      },
+      "data_format" : {
+        "type" : "text"
+      },
+      "data_type" : {
+        "type" : "text"
+      },
+      "file_id" : {
+        "type" : "text"
+      },
+      "file_name" : {
+        "type" : "text"
+      },
+      "file_size" : {
+        "type" : "long"
+      },
+      "md5sum" : {
+        "type" : "text"
+      },
+      "node_id" : {
+        "type" : "text"
+      },
+      "object_id" : {
+        "type" : "text"
+      },
+      "program_name" : {
+        "type" : "text"
+      },
+      "project_code" : {
+        "type" : "text"
+      },
+      "project_id" : {
+        "type" : "text"
+      },
+      "state" : {
+        "type" : "text"
+      },
+      "subject_id" : {
+        "type" : "text"
       }
     }
+  }
 }
