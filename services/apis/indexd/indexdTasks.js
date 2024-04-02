@@ -192,6 +192,7 @@ module.exports = {
    * @returns {Promise<void>}
    */
   async deleteFileIndices(files) {
+    console.log(files)
     await Promise.all(
       files.map((file) => this.deleteFile(file)),
     );
