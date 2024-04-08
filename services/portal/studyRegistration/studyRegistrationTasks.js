@@ -68,6 +68,7 @@ module.exports = {
         I.click(studyRegistrationProps.submitButton);
         I.wait(10);
         I.saveScreenshot('SuccessPage.png');
+        // kayako is not set up in CI
         // I.seeElement(studyRegistrationProps.successMessage);
     },
 
