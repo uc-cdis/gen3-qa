@@ -95,10 +95,10 @@ module.exports = {
 
     selectDichotomouosPhenotypeValues() {
         I.click(GWASUIAppProps.DichotomousPhenotypeValue1);
-        I.click('(//div[contains(@title,"Test cohortC - Large (do not run generate)")])[1]');
+        I.click('(//div[contains(@title,"Test cohortA - medium (do not run generate)")])[1]');
         I.click(GWASUIAppProps.GWASWindow);
         I.click(GWASUIAppProps.DichotomousPhenotypeValue2);
-        I.click('(//div[contains(@title,"Test cohortD - Large (do not run generate)")])[2]');
+        I.click('(//div[contains(@title,"Test cohortB - medium (do not run generate)")])[2]');
         I.click(GWASUIAppProps.GWASWindow);
         I.saveScreenshot('phenotype.png');
     },
@@ -134,13 +134,13 @@ module.exports = {
 
     selectFirstValue() {
         I.click(GWASUIAppProps.DichotomousCovariateValue1);
-        I.click('(//div[contains(@title,"Test cohortC - Large (do not run generate)")])[1]');
+        I.click('(//div[contains(@title,"Test cohortA - medium (do not run generate)")])[1]');
         I.click(GWASUIAppProps.GWASWindow);
     },
 
     selectSecondValue() {
         I.click(GWASUIAppProps.DichotomousCovariateValue2);
-        I.click('(//div[contains(@title,"Test cohortD - Large (do not run generate)")])[2]');
+        I.click('(//div[contains(@title,"Test cohortB - medium (do not run generate)")])[2]');
         I.click(GWASUIAppProps.GWASWindow);
     },
 
