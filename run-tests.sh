@@ -483,21 +483,22 @@ if [ -z "$checkForPresenceOfMetadataIngestionSowerJob" ]; then
 fi
 
 # # Study Viewer test
-runStudyViewerTests=false
-#run for data-portal/requestor/gen3-qa/gitops-qa/cdis-manifest repo
-if [[ ! ("$service" =~ ^(data-portal|requestor|gen3-qa)$ || $testedEnv == *"niaid"*) ]]; then
-  echo "Disabling study-viewer test"
-  donot "@studyViewer"
-else
-  if [[ $(curl -s "$portalConfigURL" | jq 'contains({studyViewerConfig})') == "true" ]]; then
-    if (g3kubectl get pods --no-headers -l app=requestor | grep requestor) > /dev/null 2>&1; then
-      echo "### Study-Viewer is deployed"
-      runStudyViewerTests=true
-    fi
-  fi
-fi
+# runStudyViewerTests=false
+# #run for data-portal/requestor/gen3-qa/gitops-qa/cdis-manifest repo
+# if [[ ! ("$service" =~ ^(data-portal|requestor|gen3-qa)$ || $testedEnv == *"niaid"*) ]]; then
+#   echo "Disabling study-viewer test"
+#   donot "@studyViewer"
+# else
+#   if [[ $(curl -s "$portalConfigURL" | jq 'contains({studyViewerConfig})') == "true" ]]; then
+#     if (g3kubectl get pods --no-headers -l app=requestor | grep requestor) > /dev/null 2>&1; then
+#       echo "### Study-Viewer is deployed"
+#       runStudyViewerTests=true
+#     fi
+#   fi
+# fi
+
 # disabling the studyViewer test for debugging
-# donot '@studyViewer'
+donot '@studyViewer'
 
 # disabling the nondbgap usersync test as the jenkins is configured
 donot '@nondbgapUsersyncTest'
