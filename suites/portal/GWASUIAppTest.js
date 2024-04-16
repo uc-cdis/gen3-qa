@@ -16,7 +16,7 @@ const I = actor();
 Feature('GWAS App UI Test @requires-portal @requires-argo-wrapper @requires-cohort-middleware');
 
 I.cache = {};
-I.cache.workflows = [ 'AutomationTest1710788183101', 'AutomationTest1710358143247'];
+I.cache.workflows = [];
 
 Scenario('Submit workflow Continuous Outcome - Continuous Covariate Phenotype @GWASUI', async ({
     I, home, users, gwas
