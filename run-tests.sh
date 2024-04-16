@@ -353,6 +353,9 @@ if [[ "$service" != "gen3-qa" && "$service" != "cdis-data-client" && "$service" 
   donot '@gen3-client'
 fi
 
+echo "INFO: temporarily disabling GWAS UI tests as jenkins envs are not still configured"
+donot '@GWASUI'
+
 #
 # RAS AuthN Integration tests are only required for some repos
 #
