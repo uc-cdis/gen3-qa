@@ -28,6 +28,8 @@ Scenario('Submit workflow Continuous Outcome - Continuous Covariate Phenotype @G
     await home.complete.login(users.mainAcct);
     I.saveScreenshot('homepage.png');
 
+    gwas.do.goToAnalysisPage();
+    gwas.do.selectTeamProject1();
     gwas.do.goToGWASPage();
     gwas.do.selectCohort();
     gwas.do.attritionTable();
@@ -73,6 +75,8 @@ Scenario('Submit workflow Continuous Outcome - Dichotomous Covariate Phenotype @
     await home.complete.login(users.mainAcct);
     I.saveScreenshot('homepage.png');
 
+    gwas.do.goToAnalysisPage();
+    gwas.do.selectTeamProject1();
     gwas.do.goToGWASPage();
     gwas.do.selectCohort();
     gwas.do.attritionTable();
@@ -116,6 +120,8 @@ Scenario('Submit workflow Dichotomous Outcome - Continuous Covariate Phenotype @
     await home.complete.login(users.mainAcct);
     I.saveScreenshot('homepage.png');
 
+    gwas.do.goToAnalysisPage();
+    gwas.do.selectTeamProject1();
     gwas.do.goToGWASPage();
     gwas.do.selectCohort();
     gwas.do.attritionTable();
@@ -160,6 +166,8 @@ Scenario('Submit workflow Dichotomous Outcome - Dichotomous Covariate Phenotype 
     await home.complete.login(users.mainAcct);
     I.saveScreenshot('homepage.png');
 
+    gwas.do.goToAnalysisPage();
+    gwas.do.selectTeamProject1();
     gwas.do.goToGWASPage();
     gwas.do.selectCohort();
     gwas.do.attritionTable();
@@ -195,7 +203,6 @@ Scenario('Submit workflow Dichotomous Outcome - Dichotomous Covariate Phenotype 
 });
 
 // this scenarios is largely dependent on the success of submissions of workflows in previous scenarios
-
 Scenario('GWAS Result App @GWASUI', async ({ 
     I, home, users, gwas 
 }) => {
@@ -204,14 +211,19 @@ Scenario('GWAS Result App @GWASUI', async ({
     });
     home.do.goToHomepage();
     await home.complete.login(users.mainAcct);
+
+    gwas.do.goToAnalysisPage();
+    gwas.do.selectTeamProject1();
     await gwas.do.goToResultPage();
     console.log(I.cache.workflows);
+    
+    // check status of all the workflows which was started in this test
     I.cache.workflows.forEach(async (job) => {
         console.log(job);
         await gwas.do.checkStatus(job);
         console.log('-----')
     })
-});
+}); 
 
 Scenario('Test next and previous buttons GWAS page @GWASUI', async ({
     I, home, users, gwas
@@ -222,6 +234,8 @@ Scenario('Test next and previous buttons GWAS page @GWASUI', async ({
     home.do.goToHomepage();
     await home.complete.login(users.mainAcct);
 
+    gwas.do.goToAnalysisPage();
+    gwas.do.selectTeamProject1();
     gwas.do.goToGWASPage();
     gwas.do.selectCohort();
     gwas.do.clickNextButton();
@@ -259,8 +273,6 @@ Scenario('Unauthorized access to GWAS @GWASUI', async ({
     home.do.goToHomepage();
     await home.complete.login(users.auxAcct1);
 
-    gwas.do.goToGWASPage();
-
-    I.seeElement(gwas.props.UnauthorizedSpinner);
-    I.dontSeeElement(gwas.props.cohortTableColumn);
+    gwas.do.goToAnalysisPage();
+    gwas.do.unauthorizedUserSelectTeamProject();
 });
