@@ -3,6 +3,7 @@ const chai = require('chai');
 const users = require('../../../utils/user');
 const fs = require('fs');
 const { sleepMS } = require('../../../utils/apiUtil.js');
+const { table } = require('console');
 
 const { expect } = chai;
 const I = actor();
@@ -13,6 +14,42 @@ module.exports = {
         I.amOnPage(GWASUIAppProps.path); // /analysis/vaGWAS
         I.wait(2);
         I.saveScreenshot('GWAS_page.png');
+    },
+
+    goToAnalysisPage() {
+        I.amOnPage(GWASUIAppProps.analysisPath);
+        I.wait(5);
+        I.saveScreenshot('analysis.png');
+    },
+
+    async selectTeamProject1() {
+        I.seeElement(GWASUIAppProps.TeamProjectSelectorBox);
+        I.click(GWASUIAppProps.TeamProjectSelectorDropdown);
+        I.click(GWASUIAppProps.TeamProject1Select);
+        I.saveScreenshot('GwasTeamSelect1.png');
+        I.click(GWASUIAppProps.TeamProjectSubmitButton);
+        I.seeElement(GWASUIAppProps.TeamHeader);
+        const text = await I.grabTextFrom(GWASUIAppProps.TeamHeader);
+        expect(text).to.equal('Team Project / /gwas_projects/project1');
+    },
+
+    async changeTeamProject() {
+        I.click(GWASUIAppProps.ChangeTeamProject);
+        I.seeElement(GWASUIAppProps.TeamProjectSelectorBox);
+        I.click(GWASUIAppProps.TeamProjectSelectorDropdown);
+        I.click(GWASUIAppProps.TeamProject2Select);
+        I.saveScreenshot('GwasTeamSelect2.png');
+        I.click(GWASUIAppProps.TeamProjectSubmitButton);
+        I.seeElement(GWASUIAppProps.TeamHeader);
+        const text = await I.grabTextFrom(GWASUIAppProps.TeamHeader);
+        expect(text).to.equal('Team Project / /gwas_projects/project2');
+    },
+
+    unauthorizedUserSelectTeamProject() {
+        I.seeElement(GWASUIAppProps.TeamProjectSelectorBox);
+        I.click(GWASUIAppProps.TeamProjectSelectorDropdown);
+        I.saveScreenshot('UnauthorizedUserDropdownBox.png')
+        I.dontSeeElement(GWASUIAppProps.TeamProject1Select);
     },
 
     clickNextButton() {
@@ -58,10 +95,10 @@ module.exports = {
 
     selectDichotomouosPhenotypeValues() {
         I.click(GWASUIAppProps.DichotomousPhenotypeValue1);
-        I.click('(//div[contains(@title,"Test cohortC - Large (do not run generate)")])[1]');
+        I.click('(//div[contains(@title,"Test cohortA - medium (do not run generate)")])[1]');
         I.click(GWASUIAppProps.GWASWindow);
         I.click(GWASUIAppProps.DichotomousPhenotypeValue2);
-        I.click('(//div[contains(@title,"Test cohortD - Large (do not run generate)")])[2]');
+        I.click('(//div[contains(@title,"Test cohortB - medium (do not run generate)")])[2]');
         I.click(GWASUIAppProps.GWASWindow);
         I.saveScreenshot('phenotype.png');
     },
@@ -97,13 +134,13 @@ module.exports = {
 
     selectFirstValue() {
         I.click(GWASUIAppProps.DichotomousCovariateValue1);
-        I.click('(//div[contains(@title,"Test cohortC - Large (do not run generate)")])[1]');
+        I.click('(//div[contains(@title,"Test cohortA - medium (do not run generate)")])[1]');
         I.click(GWASUIAppProps.GWASWindow);
     },
 
     selectSecondValue() {
         I.click(GWASUIAppProps.DichotomousCovariateValue2);
-        I.click('(//div[contains(@title,"Test cohortD - Large (do not run generate)")])[2]');
+        I.click('(//div[contains(@title,"Test cohortB - medium (do not run generate)")])[2]');
         I.click(GWASUIAppProps.GWASWindow);
     },
 
@@ -199,7 +236,7 @@ module.exports = {
         const wfStatus = data.phase;
         console.log(`### getWFStatus workflow status : ${wfStatus}`);
         return wfStatus;
-    },
+    },   
 
     async checkStatusPolling(job, status) {
         const attempts = 5;
@@ -231,7 +268,6 @@ module.exports = {
         return workflowStatus;
     },
 
-
     async checkStatus(job, failed = false) {
         const wkStatus = await this.getWFStatus(job);
         const status = await this.checkStatusPolling(job, wkStatus);
@@ -255,36 +291,4 @@ module.exports = {
             await this.resultsButton();
         }
     },
-
-        // async checkStatusPolling(job, status) {
-    //     const attempts = 4;
-    //     let workflowStatus = status;
-    //     if (workflowStatus !== 'Running') {
-    //         console.log('### The workflow is done. Worksflow status : ' + workflowStatus)
-    //     }
-    //     if (workflowStatus === 'Running') {
-    //         console.log('The status of the workflow is Running');
-    //         console.log(`### waiting for status polling for ${job}...`)
-    //         // start the polling mechanism
-    //         for (let i = 1; i < attempts; i += 1) {
-    //             console.log(`Checking the status of the workflow : attempt ${i} ...`);
-    //             workflowStatus = await this.getWFStatus(job)
-    //             if (process.env.DEBUG === 'true') {
-    //                 console.log(workflowStatus);
-    //             }
-
-    //             if (workflowStatus !== 'Running') {
-    //                 console.log('### The workflow is done ...')
-    //                 break;
-    //             } else {
-    //                 console.log(`The workflow has not completed yet - attempt ${i}`);
-    //                 if (i === attempts - 1) {
-    //                     throw new Error(`### Error : The workflow has not finished yet. The status of the workflow is ${workflowStatus}`);
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     return workflowStatus;
-    // },
-
 }

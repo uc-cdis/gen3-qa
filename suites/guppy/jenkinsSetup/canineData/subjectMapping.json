@@ -2,79 +2,79 @@
     "mappings" : {
       "properties" : {
         "_aggregated_genotyping_arrays_count" : {
-          "type" : "float"
+          "type" : "long"
         },
         "_aliquots_count" : {
-          "type" : "float"
+          "type" : "long"
         },
         "_copy_number_estimates_count" : {
-          "type" : "float"
+          "type" : "long"
         },
         "_copy_numer_segments_count" : {
-          "type" : "float"
+          "type" : "long"
         },
         "_genotyping_arrays_count" : {
-          "type" : "float"
+          "type" : "long"
         },
         "_mRNA_microarrays_count" : {
-          "type" : "float"
+          "type" : "long"
         },
         "_read_groups_count" : {
-          "type" : "float"
+          "type" : "long"
         },
         "_samples_count" : {
-          "type" : "float"
+          "type" : "long"
         },
         "_submitted_aligned_reads_count" : {
-          "type" : "float"
+          "type" : "long"
         },
         "_submitted_genomic_profiles_count" : {
-          "type" : "float"
+          "type" : "long"
         },
         "_submitted_methylations_count" : {
-          "type" : "float"
+          "type" : "long"
         },
         "_submitted_unaligned_reads_count" : {
-          "type" : "float"
+          "type" : "long"
         },
         "_tangent_copy_numbers_count" : {
-          "type" : "float"
+          "type" : "long"
         },
         "auth_resource_path" : {
-          "type" : "keyword"
+          "type" : "text"
         },
         "breed" : {
-          "type" : "keyword"
+          "type" : "text"
         },
         "data_format" : {
-          "type" : "keyword"
+          "type" : "text"
         },
         "data_type" : {
-          "type" : "keyword"
+          "type" : "text"
         },
         "disease_type" : {
-          "type" : "keyword"
+          "type" : "text"
         },
         "file_id" : {
-          "type" : "keyword"
+          "type" : "text"
         },
         "gender" : {
-          "type" : "keyword"
+          "type" : "text"
         },
         "node_id" : {
-          "type" : "keyword"
+          "type" : "text"
         },
         "primary_site" : {
-          "type" : "keyword"
+          "type" : "text"
         },
         "project_id" : {
-          "type" : "keyword"
+          "type" : "text"
         },
         "subject_id" : {
-          "type" : "keyword"
+          "type" : "text"
         },
         "submitter_id" : {
-          "type" : "keyword"
+          "type" : "text"
         }
       }
     }

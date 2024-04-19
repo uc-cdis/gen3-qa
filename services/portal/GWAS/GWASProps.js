@@ -1,8 +1,16 @@
 module.exports = {
+    analysisPath: '/analysis',
     path: 'analysis/GWASUIApp',
     resultsPath: 'analysis/GWASResults',
     gwasAPI: '/ga4gh/wes/v2/workflows',
 
+    TeamProjectSelectorBox: '//div[@class="ant-modal-content"]',
+    TeamProjectSelectorDropdown: '//div[@class="ant-select-selector"]',
+    TeamProjectSubmitButton: '//button[@class="ant-btn ant-btn-primary"]',
+    TeamProject1Select: '//div[@title="/gwas_projects/project1"]',
+    TeamProject2Select: '//div[@title="/gwas_projects/project2"]',
+    ChangeTeamProject: '//span[@role="button"]//*[name()="svg"]',
+    TeamHeader: '//div[@class="team-project-header"]',
     // GWAS++ elements
     NextSpan: '//span[contains(text(),\'Next\')]',
     PreviousSpan: '//span[contains(text(),\'Previous\')]',
@@ -49,6 +57,8 @@ module.exports = {
     SubmissionSuccessMessage: '//div[@class="dismissable-message success"]',
     SeeStatusButton: '//button[@id="see-status"]',
     // results page
+    ResultsTable: '//tbody',
+    
     JobStatusTable: '//div[@class="analysis-app-wrapper"]',
     ExecutionButton: '(//span[contains(text(),"Execution")])[1]',
     ResultsButton: '(//span[contains(text(),"Results")])[1]',
@@ -66,3 +76,4 @@ module.exports = {
     UnauthorizedSpinner: '//div[@class="GWASUI-spinnerContainer GWASUI-emptyTable"]',
     cohortTableColumn: '//th[contains(text(),"Cohort Name")]',
 };
+

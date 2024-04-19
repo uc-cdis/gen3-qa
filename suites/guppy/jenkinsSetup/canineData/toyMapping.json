@@ -2,7 +2,7 @@
     "mappings" : {
       "properties" : {
         "auth_resource_path" : {
-          "type" : "keyword"
+          "type" : "text"
         }
       }
     }
