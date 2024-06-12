@@ -57,7 +57,7 @@ Scenario('Submit workflow Continuous Outcome - Continuous Covariate Phenotype @G
     I.wait(3);
 
     I.seeElement(gwas.props.SubmitDialogBox);
-    const jobName = gwas.do.enterJobName();
+    const jobName = await gwas.do.enterJobName();
     console.log(jobName);
     I.cache.workflows.push(jobName);
     console.log(I.cache.workflows);
@@ -104,7 +104,7 @@ Scenario('Submit workflow Continuous Outcome - Dichotomous Covariate Phenotype @
     I.wait(3);
 
     I.seeElement(gwas.props.SubmitDialogBox);
-    const jobName = gwas.do.enterJobName();
+    const jobName = await gwas.do.enterJobName();
     I.cache.workflows.push(jobName);
     await gwas.do.submitJob();
     gwas.do.goToJobStatus();
@@ -150,7 +150,7 @@ Scenario('Submit workflow Dichotomous Outcome - Continuous Covariate Phenotype @
     I.wait(3);
 
     I.seeElement(gwas.props.SubmitDialogBox);
-    const jobName = gwas.do.enterJobName();
+    const jobName = await gwas.do.enterJobName();
     I.cache.workflows.push(jobName);
     await gwas.do.submitJob();
     gwas.do.goToJobStatus();
@@ -196,7 +196,7 @@ Scenario('Submit workflow Dichotomous Outcome - Dichotomous Covariate Phenotype 
     I.wait(3);
 
     I.seeElement(gwas.props.SubmitDialogBox);
-    const jobName = gwas.do.enterJobName();
+    const jobName = await gwas.do.enterJobName();
     I.cache.workflows.push(jobName);
     await gwas.do.submitJob();
     gwas.do.goToJobStatus();
