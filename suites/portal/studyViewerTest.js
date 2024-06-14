@@ -165,7 +165,7 @@ Scenario('User logs in and requests the access @studyViewer', async ({
 
 // For download feature
 /* user with access and can download the dataset */
-Scenario('User has access to download @studyViewer', async ({
+Scenario('User has access to download @studyViewer ', async ({
   I, home, users, login,
 }) => {
   home.do.goToHomepage();
