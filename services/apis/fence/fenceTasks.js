@@ -339,6 +339,7 @@ module.exports = {
     // run fence-create command to circumvent google and add user link to fence
     const cmd = `fence-create force-link-google --username ${userAcct.username} --google-email ${googleEmail}`;
     const res = bash.runCommand(cmd, 'fence', takeLastLine);
+    
     userAcct.linkedGoogleAccount = googleEmail;
     return res;
   },
