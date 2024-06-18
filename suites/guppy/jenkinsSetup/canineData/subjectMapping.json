@@ -70,7 +70,7 @@
         "project_id" : {
           "type" : "text"
         },
-        "subject_id" : {
+        "_subject_id" : {
           "type" : "text"
         },
         "submitter_id" : {

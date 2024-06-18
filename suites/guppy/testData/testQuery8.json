@@ -5,7 +5,7 @@
     "gender",
     "auth_resource_path",
     "_aggregated_genotyping_arrays_count",
-    "subject_id",
+    "_subject_id",
     "breed",
     "_copy_numer_segments_count",
     "_submitted_unaligned_reads_count",
