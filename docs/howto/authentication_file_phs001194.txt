@@ -1,0 +1,2 @@
+user name, login, authority, role, email, phone, status, phsid, permission set, created, updated, expires, downloader for, downloader for names, downloader for emails
+cdis.autotest@gmail.com,cdis.autotest@gmail.com,eRA,Downloader,cdis.autotest@gmail.com,"+(111) 1111111",active,"phs001194","General Research Use",2022-12-09 14:29:32.580,2022-12-10 12:49:58.870,2023-12-09 00:00:00.000,ME,ME ME,cdis.autotest@gmail.com
