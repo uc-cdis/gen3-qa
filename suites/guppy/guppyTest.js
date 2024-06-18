@@ -23,7 +23,7 @@ Before(async ({ I, users, fence }) => {
       users.mainAcct.accessTokenHeader,
     );
     if (guppyStatusCheckResp.status === 200
-      && (Object.prototype.hasOwnProperty.call(guppyStatusCheckResp.data.indices, 'jenkins_subject_1')
+      && (Object.prototype.hasOwnProperty.call(guppyStatusCheckResp.data.indices, 'jenkins_subject_new')
       && Object.prototype.hasOwnProperty.call(guppyStatusCheckResp.data.indices, 'jenkins_file_1'))) {
       console.log(`${new Date()}: all good, proceed with the test...`);
       break;
