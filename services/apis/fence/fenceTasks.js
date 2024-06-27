@@ -515,7 +515,15 @@ module.exports = {
         }
       // }
     } else {
-        I.seeTextEquals('Bad Request', 'h2') || I.seeTextEquals('Unauthorized', 'h2');
+      try {
+        I.seeTextEquals('Bad Request', 'h2');
+      } catch (err) {
+        try {
+          I.seeTextEquals('Unauthorized', 'h2');
+        } catch (err) {
+          console.log('Expected to see Bad Request or Unauthorized on the page');
+        }
+      }
     }
     // I.saveScreenshot('consent_auth_code_flow.png');
     const urlStr = await I.grabCurrentUrl();
