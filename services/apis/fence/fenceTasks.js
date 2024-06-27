@@ -495,7 +495,7 @@ module.exports = {
    * @param {boolean} expectCode - true to check for 'code=' in post submit url
    * @returns {string}
    */
-  async getConsentCode(clientId, responseType, scope, consent = 'ok', expectCode = true) {
+  async getConsentCode(clientId, responseType, scope, consent = 'ok', expectCode = true, errorCode = 401) {
     const fullURL = `https://${process.env.HOSTNAME}${fenceProps.endpoints.authorizeOAuth2Client}?response_type=${responseType}&client_id=${clientId}&redirect_uri=https://${process.env.HOSTNAME}&scope=${scope}`;
     if (process.env.DEBUG === 'true') {
       console.log('fenceTasks.getConsentCode fullURL:', fullURL);
@@ -515,7 +515,14 @@ module.exports = {
         }
       // }
     } else {
-      I.seeTextEquals('Unauthorized', 'h2');
+      if(errorCode===400)
+      {
+        I.seeTextEquals('Bad Request', 'h2');
+      }
+      else
+      {
+        I.seeTextEquals('Unauthorized', 'h2');
+      }
     }
     // I.saveScreenshot('consent_auth_code_flow.png');
     const urlStr = await I.grabCurrentUrl();
