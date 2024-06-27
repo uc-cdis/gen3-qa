@@ -515,15 +515,8 @@ module.exports = {
         }
       // }
     } else {
-      try {
-        I.seeTextEquals('Bad Request', 'h2');
-      } catch (err) {
-        try {
-          I.seeTextEquals('Unauthorized', 'h2');
-        } catch (err) {
-          console.log('Expected to see Bad Request or Unauthorized on the page');
-        }
-      }
+      let errorMessage = await I.grabTextFrom('//div[@class="error-page__status-code-text"]/h2');
+      expect(errorMessage).to.be.oneOf(["Bad Request", "Unauthorized"]);
     }
     // I.saveScreenshot('consent_auth_code_flow.png');
     const urlStr = await I.grabCurrentUrl();
