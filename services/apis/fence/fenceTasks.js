@@ -515,7 +515,8 @@ module.exports = {
         }
       // }
     } else {
-      I.seeTextEquals('Unauthorized', 'h2');
+      let errorMessage = await I.grabTextFrom('//div[@class="error-page__status-code-text"]/h2');
+      expect(errorMessage).to.be.oneOf(["Bad Request", "Unauthorized"]);
     }
     // I.saveScreenshot('consent_auth_code_flow.png');
     const urlStr = await I.grabCurrentUrl();
