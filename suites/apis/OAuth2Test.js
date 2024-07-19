@@ -29,7 +29,7 @@ Scenario('Authorization code flow: Test that successfully generates code @reqGoo
 
 Scenario('Authorization code flow: Test that fail to generate code due to not provided openid scope @reqGoogle', async ({ fence }) => {
   const resULR = await fence.do.getConsentCode(
-    fence.props.clients.client.id, 'code', 'user', 'ok', false,
+    fence.props.clients.client.id, 'code', 'user', 'ok', false
   );
   fence.ask.assertNotContainSubStr(resULR, ['code=']);
 });
