@@ -36,6 +36,35 @@ module.exports = async function () {
       }
     }
 
+    if (suite.title === 'GWAS App UI Test @requires-portal @requires-argo-wrapper @requires-cohort-middleware'){
+      const analysisTools = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.analysisTools\'')
+      const analysisFlag = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.featureFlags.analysis\'')
+      if (!analysisTools || analysisFlag !== 'true') {
+        console.log('Skipping GWASUI tests as the GWAS app is not configured in the env')
+        console.dir(suite.tests);
+        suite.tests.forEach((test) => {
+          test.run = function skip() { // eslint-disable-line 
+            console.log(`Ignoring test - ${test.title}`);
+            this.skip();
+          };
+        });
+      }
+    }
+
+    if (suite.title === 'ExportToWorkspaceTest @requires-portal @requires-hatchery @requires-wts') {
+      const workspaceButton = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq -r \'.components.navigation.items[] | select(.link | contains ("/workspace"))\'');
+      if (!workspaceButton) {
+        console.log('Skipping export to workspace portal tests as workspace button is not configured in navigation bar');
+        console.dir(suite.tests);
+        suite.tests.forEach((test) => {
+          test.run = function skip() { // eslint-disable-line 
+            console.log(`Ignoring test - ${test.title}`);
+            this.skip();
+          };
+        });
+      }
+    }
+
     if (suite.title === 'Register User For Data Downloading @requires-portal') {
       const loginForDownload = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.explorerConfig[1].loginForDownload\'');
       const haveDropdown = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.explorerConfig[0].guppyConfig.dropdowns\'');
@@ -65,7 +94,7 @@ module.exports = async function () {
       }
     }
 
-    if (suite.title === 'PFB Export @requires-portal @e2e') {
+    if (suite.title === 'PFB Export @requires-portal @requires-tube @e2e') {
       // export to pfb button has different configuration in different environments
       const pfbButton1 = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'contains({dataExplorerConfig: {buttons: [{enabled: true, type: "export-to-pfb"}]}})\'');
       const pfbButton2 = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'contains({explorerConfig: {buttons: [{enabled: true, type: "export-to-pfb"}]}})\'');
@@ -78,6 +107,20 @@ module.exports = async function () {
             this.skip();
           };
         });
+      }
+    }
+
+    if (suite.title === 'Study Registration @heal @requires-portal @requires-requestor @aggMDS @discoveryPage @requires-metadata') {
+      const studyRegistration = bash.runCommand('gen3 secrets decode portal-config gitops.json | jq \'.featureFlags.studyRegistration\'');
+      if (studyRegistration !== 'true') {
+        console.log('Skipping study registration since the required configuration is not in gitops.json');
+        console.dir(suite.tests);
+        suite.tests.forEach((test) => {
+          test.run = function skip() { // eslint-disable-line 
+            console.log(`Ignoring test - ${test.title}`);
+            this.skip();
+          };
+        })
       }
     }
   });

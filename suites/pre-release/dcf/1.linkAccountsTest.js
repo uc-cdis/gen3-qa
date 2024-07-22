@@ -70,7 +70,7 @@ Scenario(`Login to https://${TARGET_ENVIRONMENT} and check the Project Access li
   async () => {
     const result = await interactive(`
               1. Go to https://${TARGET_ENVIRONMENT}
-              2. Login with NIH account
+              2. Login with RAS account with UCTestUser129
               3. Check if the Profile page contains projects the user can access
               e.g., The projects are usually named as "phs000178".
             `);

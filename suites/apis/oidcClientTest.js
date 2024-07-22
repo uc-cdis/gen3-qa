@@ -2,7 +2,7 @@ Feature('OIDC Client tests @requires-fence');
 
 const { expect } = require('chai');
 const { Bash } = require('../../utils/bash.js');
-const { checkPod } = require('../../utils/apiUtil.js');
+const { checkPod, runUserSync, getAccessTokenHeader } = require('../../utils/apiUtil.js');
 const { Client } = require('../../services/apis/fence/fenceProps.js');
 
 const bash = new Bash();
@@ -61,8 +61,8 @@ Scenario('OIDC Client Expiration @clientExpiration', async ({ I, fence }) => {
 });
 
 
-Scenario('OIDC Client Expiration @clientRotation', async ({ I, fence }) => {
-  const clientName = 'jenkinsClient@clientRotation';
+Scenario('OIDC Client Rotation @clientRotation @requires-indexd', async ({ I, fence, indexd }) => {
+  const clientName = 'jenkinsClientTester';
   console.log(`  Creating client '${clientName}'`);
   const creds1 = new Client({
     clientName,
@@ -82,9 +82,30 @@ Scenario('OIDC Client Expiration @clientRotation', async ({ I, fence }) => {
     console.log(`Client credentials after rotating: (${creds2.client_id}, ${creds2.client_secret})`);
   }
 
-  // check that both sets of credentials work (we can get an access token using the creds)
+  // run usersync job - the client has some access in the user.yaml, but it didn't exist in the fence db
+  // before this test. usersync does not grant access to clients that don't exist in fence db, so we need
+  // to run usersync here now that the client has been created
+  await runUserSync();
+  await checkPod(I, 'usersync', 'gen3job,job-name=usersync');
+
+  // check that both sets of credentials work:
+  // - we can get an access token using the creds
+  // - the token should have access to create a record in indexd, as stated in the user.yaml
+  const indexdRecord = {
+    filename: 'testfile',
+    size: 9,
+    md5: '73d643ec3f4beb9020eef0beed440ad0',
+    urls: ['s3://mybucket/testfile'],
+    authz: ['/programs/jnkns/projects/jenkins'],
+  };
   console.log('Checking credentials obtained before rotating...');
-  await fence.do.getAccessTokenWithClientCredentials(creds1.id, creds1.secret);
+  const client1AccessToken = await fence.do.getAccessTokenWithClientCredentials(creds1.id, creds1.secret);
+  let ok = await indexd.do.addFileIndices([indexdRecord], getAccessTokenHeader(client1AccessToken), false);
+  expect(ok, 'The token generated with the old creds should have access').to.be.true;
+
   console.log('Checking credentials obtained after rotating...');
-  await fence.do.getAccessTokenWithClientCredentials(creds2.client_id, creds2.client_secret);
+  delete indexdRecord.did; // reset the GUID so a new record is created
+  const client2AccessToken = await fence.do.getAccessTokenWithClientCredentials(creds2.client_id, creds2.client_secret);
+  ok = await indexd.do.addFileIndices([indexdRecord], getAccessTokenHeader(client2AccessToken), false);
+  expect(ok, 'The token generated with the new creds should have access').to.be.true;
 });

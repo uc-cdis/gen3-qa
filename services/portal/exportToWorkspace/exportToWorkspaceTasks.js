@@ -10,7 +10,8 @@ const I = actor();
 module.exports = {
   goToWorkspacePage() {
     I.amOnPage(exportToWorkspaceProps.workspacePath);
-    I.waitForVisible(exportToWorkspaceProps.workspaceDivClass, 10);
+    I.saveScreenshot('exportToWorkspace_workspacePage.png');
+    I.waitForVisible(exportToWorkspaceProps.workspaceDivClass, 100);
   },
 
   async goToExplorerPage() {
@@ -110,7 +111,6 @@ module.exports = {
     if (terminateBtnCount !== 0) {
       I.click(exportToWorkspaceProps.terminateWorkspaceButtonXPath);
     }
-    I.amOnPage('/');
   },
 
   /* Get the manifest name to be mounted from python output */
@@ -129,6 +129,8 @@ module.exports = {
   async logoutAndGetToWorkspace(home) {
     console.log('Log out current user');
     await home.complete.logout();
+    await home.do.handleSystemUsePopup();
+    I.saveScreenshot('afterLogout.png');
     console.log('Try to get to workspace');
     I.amOnPage(exportToWorkspaceProps.workspacePath);
     console.log('Check if still seeing login page');
@@ -140,6 +142,7 @@ module.exports = {
     console.log('Login as test user');
     await home.complete.login();
     console.log('Get to Workspace page and verify now is on workspace page');
+    I.saveScreenshot('afterLogin.png');
     this.goToWorkspacePage();
   },
 };

@@ -1,11 +1,11 @@
 /* eslint-disable codeceptjs/no-skipped-tests */
 Feature('GWAS UI @requires-portal @requires-argo-wrapper @requires-cohort-middleware');
 
-const GWASTasks = require('../../services/portal/GWAS/GWASTasks.js');
-const GWASProps = require('../../services/portal/GWAS/GWASProps.js');
-const GWASQuestions = require('../../services/portal/GWAS/GWASQuestions.js');
+const GWASTasks = require('../../../services/portal/GWAS/GWASTasks.js');
+const GWASProps = require('../../../services/portal/GWAS/GWASProps.js');
+const GWASQuestions = require('../../../services/portal/GWAS/GWASQuestions.js');
 
-Scenario('GWAS submit workflow through Case Control GWAS @GWASUI', async ({
+Scenario('GWAS submit workflow through Case Control GWAS', async ({
   I, home, users,
 }) => {
   I.useWebDriverTo('set window size', async ({ browser }) => {
@@ -51,7 +51,7 @@ Scenario('GWAS submit workflow through Case Control GWAS @GWASUI', async ({
   I.saveScreenshot('GWAS_page_check_job_status_Complete_1.png');
 });
 
-Scenario('GWAS submit workflow through Quantitative Phenotype GWAS @GWASUI', async ({
+Scenario('GWAS submit workflow through Quantitative Phenotype GWAS', async ({
   I, home, users,
 }) => {
   I.useWebDriverTo('set window size', async ({ browser }) => {
@@ -94,7 +94,7 @@ Scenario('GWAS submit workflow through Quantitative Phenotype GWAS @GWASUI', asy
   I.saveScreenshot('GWAS_page_check_job_status_Complete_2.png');
 });
 
-Scenario('GWAS previous button and next button @GWASUI', async ({
+Scenario('GWAS previous button and next button', async ({
   I, home, users,
 }) => {
   home.do.goToHomepage();
@@ -125,7 +125,7 @@ Scenario('GWAS previous button and next button @GWASUI', async ({
   I.seeElement(GWASProps.SelectConceptTitle);
 });
 
-Scenario('Select different GWAS Type @GWASUI', async ({
+Scenario('Select different GWAS Type', async ({
   I, home, users,
 }) => {
   home.do.goToHomepage();
@@ -156,7 +156,7 @@ Scenario('Select different GWAS Type @GWASUI', async ({
   I.seeElement(GWASProps.SelectedRadio);
 });
 
-Scenario('Unauthorize to workflow @GWASUI', async ({
+Scenario('Unauthorize to workflow', async ({
   I, home, users,
 }) => {
   home.do.goToHomepage();

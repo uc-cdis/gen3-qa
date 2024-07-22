@@ -1,4 +1,4 @@
-# GWAS++ Test Plan
+# GWAS app Test Plan
 
 ## Overview
 

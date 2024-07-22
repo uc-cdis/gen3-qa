@@ -207,6 +207,7 @@ module.exports = {
     I.setCookie({ name: 'dev_login', value: user.username });
 
     const urlStr = await fenceTasks.getConsentCode(client.id, 'code', scopes);
+    I.saveScreenshot('getUserTokensWithClient_getConsentCode.png');
     fenceQuestions.assertContainSubStr(urlStr, ['code=']);
     const match = urlStr.match(RegExp('/?code=(.*)'));
     const code = match && match[1];

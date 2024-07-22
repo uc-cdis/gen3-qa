@@ -1,7 +1,7 @@
 /*eslint-disable */
 // Feature # 5 in the sequence of testing
 // This test plan has a few pre-requisites: Check prereq.md for more details.
-Feature('5. OIDC Flow - DCF Staging testing for release sign off - PXP-3836');
+Feature('4. OIDC Flow - DCF Staging testing for release sign off - PXP-3836');
 
 // To be executed with GEN3_SKIP_PROJ_SETUP=true
 // No need to set up program / retrieve access token, etc.

@@ -1,0 +1,233 @@
+{
+    "_guid_type": "unregistered_discovery_metadata",
+    "gen3_discovery": {
+      "tags": [
+        
+      ],
+      "authz": "",
+      "_hdp_uid": "HDP88888",
+      "__manifest": [
+        {
+          "title": "Test CNA Data PDF",
+          "md5sum": "95262d889e1c64d918df0e14fae96bd4",
+          "file_name": "test-data-file_1.pdf",
+          "file_size": 72067,
+          "object_id": "dg.H35L/f459352b-4001-435d-9318-15739e5debd0",
+          "commons_url": "externaldata.healdata.org",
+          "description": "fastq files of low pass whole genome sequencing data for copy number alteration (CNA) analysis of FFPE tissue, cfDNA and single cells"
+        },
+        {
+          "title": "Test BCMA_Cell_Enumeration Spreadsheet",
+          "md5sum": "6a921e1bb773b20390b48fdc48570343",
+          "file_name": "test-data-file_2.xlsx",
+          "file_size": 53564,
+          "object_id": "dg.H35L/57a52b2e-121c-480f-85bb-2dcb0598c900",
+          "commons_url": "externaldata.healdata.org",
+          "description": "Each folder contains 10X and  40X magnification jpeg images and Either Singled End or Paired End Read fastq files (e.g. MGUS01_0AAF108_955_759_10X.jpg)."
+        }
+      ],
+      "source_url": "",
+      "institutions": "TEST",
+      "year_awarded": "2018",
+      "is_registered": false,
+      "project_title": "StudyRegistration Test",
+      "project_number": "1K24AT011995-01",
+      "study_metadata": {
+        "data": {
+          "data_type": [
+            
+          ],
+          "data_source": [
+            
+          ],
+          "data_orientation": [
+            
+          ],
+          "subject_data_level_available": [
+            
+          ],
+          "subject_data_unit_of_analysis": [
+            
+          ],
+          "subject_data_unit_of_collection": [
+            
+          ],
+          "subject_geographic_data_level_available": [
+            
+          ],
+          "subject_geographic_data_level_collected": [
+            
+          ],
+          "subject_data_unit_of_analysis_expected_number": "",
+          "subject_data_unit_of_collection_expected_number": ""
+        },
+        "citation": {
+          "funding": [
+            
+          ],
+          "investigators": [
+            {
+              "investigator_last_name": "LAST",
+              "investigator_first_name": "FIRST",
+              "investigator_middle_initial": ""
+            }
+          ],
+          "study_collections": [
+            
+          ],
+          "heal_funded_status": "",
+          "heal_platform_citation": "",
+          "study_collection_status": "",
+          "heal_platform_persistent_ID": ""
+        },
+        "findings": {
+          "primary_publications": [
+            
+          ],
+          "primary_study_findings": [
+            
+          ],
+          "secondary_publications": [
+            
+          ]
+        },
+        "study_type": {
+          "study_stage": "",
+          "study_type_design": [
+            
+          ],
+          "study_subject_type": [
+            
+          ],
+          "study_primary_or_secondary": "",
+          "study_observational_or_experimental": ""
+        },
+        "minimal_info": {
+          "study_name": "TEST",
+          "study_description": "TEST DESCRIPTION",
+          "alternative_study_name": "",
+          "alternative_study_description": ""
+        },
+        "data_availability": {
+          "produce_data": "",
+          "produce_other": "",
+          "data_available": "",
+          "data_restricted": "",
+          "data_release_status": "",
+          "data_collection_status": "",
+          "data_release_start_date": "",
+          "data_release_finish_date": "",
+          "data_collection_start_date": "",
+          "data_collection_finish_date": ""
+        },
+        "metadata_location": {
+          "data_repositories": [
+            
+          ],
+          "nih_reporter_link": "",
+          "nih_application_id": "HDP88888",
+          "other_study_websites": [
+            
+          ],
+          "clinical_trials_study_ID": "",
+          "cedar_study_level_metadata_template_instance_ID": ""
+        },
+        "contacts_and_registrants": {
+          "contacts": [
+            
+          ],
+          "registrants": [
+            
+          ]
+        },
+        "study_translational_focus": {
+          "study_translational_focus": "",
+          "study_translational_topic_grouping": [
+            
+          ]
+        },
+        "human_subject_applicability": {
+          "age_applicability": [
+            
+          ],
+          "gender_applicability": [
+            
+          ],
+          "geographic_applicability": [
+            
+          ],
+          "biological_sex_applicability": [
+            
+          ],
+          "sexual_identity_applicability": [
+            
+          ],
+          "irb_vulnerability_conditions_applicability": [
+            
+          ]
+        },
+        "human_condition_applicability": {
+          "condition_category": [
+            
+          ],
+          "all_other_condition": [
+            
+          ],
+          "all_outcome_condition": [
+            
+          ],
+          "pain_causal_condition": [
+            
+          ],
+          "condition_investigation_stage_or_type": [
+            
+          ],
+          "all_treatment_or_study_target_condition": [
+            
+          ],
+          "pain_treatment_or_study_target_condition": [
+            
+          ]
+        },
+        "human_treatment_applicability": {
+          "treatment_mode": [
+            
+          ],
+          "treatment_type": [
+            
+          ],
+          "treatment_novelty": [
+            
+          ],
+          "treatment_application_level": [
+            
+          ],
+          "treatment_investigation_stage_or_type": [
+            
+          ]
+        }
+      },
+      "dataset_1_title": "test-data-file_1.pdf",
+      "dataset_2_title": "test-data-file_2.xlsx",
+      "dataset_3_title": "",
+      "dataset_4_title": "",
+      "dataset_5_title": "",
+      "related_studies": [
+        
+      ],
+      "administering_ic": "",
+      "advSearchFilters": [
+        
+      ],
+      "research_program": "",
+      "data_availability": "available",
+      "investigators_name": [
+        "LAST, FIRST"
+      ],
+      "registrant_username": "test_username@example.com",
+      "research_focus_area": "",
+      "time_of_registration": "2023-03-24T14:00:03-07:00",
+      "study_description_summary": "TEST DESCRIPTION",
+      "time_of_last_cedar_updated": "2023-03-24T14:00:03-07:00"
+    }
+  }

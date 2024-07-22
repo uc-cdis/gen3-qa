@@ -56,7 +56,7 @@ const {
   MTLS_KEY,
 } = __ENV; // eslint-disable-line no-undef
 
-const myFailRate = new Rate('failed requests');
+const myFailRate = new Rate('failed_requests');
 
 let rawOptions = { // eslint-disable-line prefer-const
   tags: {
@@ -67,7 +67,7 @@ let rawOptions = { // eslint-disable-line prefer-const
   rps: 90000,
   thresholds: {
     http_req_duration: ['avg<3000', 'p(95)<15000'],
-    'failed requests': ['rate<0.1'],
+    'failed_requests': ['rate<0.1'],
   },
   duration: '2h',
   noConnectionReuse: true,

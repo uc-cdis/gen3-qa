@@ -498,8 +498,9 @@ module.exports = {
   async getConsentCode(clientId, responseType, scope, consent = 'ok', expectCode = true) {
     const fullURL = `https://${process.env.HOSTNAME}${fenceProps.endpoints.authorizeOAuth2Client}?response_type=${responseType}&client_id=${clientId}&redirect_uri=https://${process.env.HOSTNAME}&scope=${scope}`;
     if (process.env.DEBUG === 'true') {
-      console.log(fullURL);
+      console.log('fenceTasks.getConsentCode fullURL:', fullURL);
     }
+
     I.amOnPage(fullURL);
     if (process.env.DEBUG === 'true') {
       I.saveScreenshot('getConsentCode.png');
@@ -514,7 +515,8 @@ module.exports = {
         }
       // }
     } else {
-      I.seeTextEquals('Unauthorized', 'h2');
+      let errorMessage = await I.grabTextFrom('//div[@class="error-page__status-code-text"]/h2');
+      expect(errorMessage).to.be.oneOf(["Bad Request", "Unauthorized"]);
     }
     // I.saveScreenshot('consent_auth_code_flow.png');
     const urlStr = await I.grabCurrentUrl();

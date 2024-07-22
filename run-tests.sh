@@ -2,7 +2,7 @@
 #
 # Jenkins launch script.
 # Use:
-#   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--seleniumTimeout] [--selectedTest=selectedTest] [--debug=debug]
+#   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--seleniumTimeout] [--selectedTest=selectedTest] [--selectedTag=selectedTag] [--debug=debug]
 #
 
 set -xe
@@ -13,13 +13,14 @@ Jenkins test launch script.  Assumes the  GEN3_HOME environment variable
 references a current [cloud-automation](https://github.com/uc-cdis/cloud-automation) folder.
 
 Use:
-  bash run-tests.sh [[--namespace=]KUBECTL_NAMESPACE] [--service=service] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--selectedTest=selectedTest] [--dryrun] [--debug=debug]
+  bash run-tests.sh [[--namespace=]KUBECTL_NAMESPACE] [--service=service] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--selectedTest=selectedTest] [--selectedTag=selectedTag] [--dryrun] [--debug=debug]
     --namespace default is KUBECTL_NAMESPACE:-default
     --service default is service:-none
     --testedEnv default is testedEnv:-none (for cdis-manifest PRs, specifies which environment is being tested, to know which tests are relevant)
     --isGen3Release default is "false"
     --seleniumTimeout default is 3600
     --selectedTest default is selectedTest:-none
+    --selectedTag default is selectedTag:-none
     --debug default is "false" (run tests in debug mode if true)
 EOM
 }
@@ -135,9 +136,12 @@ donot() {
     or=''
   fi
   doNotRunRegex="${doNotRunRegex}${or}$1"
+  doNotRunRegexDotStar="${doNotRunRegexDotStar}${or}.*$1"
 }
 
 doNotRunRegex=""
+# for advanced grep usage
+doNotRunRegexDotStar=""
 
 #----------------------------------------------------
 # main
@@ -156,7 +160,8 @@ service="${service:-""}"
 testedEnv="${testedEnv:-""}"
 isGen3Release="${isGen3Release:false}"
 seleniumTimeout="${seleniumTimeout:3600}"
-selectedTest="${selectedTest:-"all"}"
+selectedTest="${selectedTest:-""}"
+selectedTag="${selectedTag:-""}"
 debug="${debug:false}"
 
 while [[ $# -gt 0 ]]; do
@@ -184,6 +189,9 @@ while [[ $# -gt 0 ]]; do
       ;;
     selectedTest)
       selectedTest="$value"
+      ;;
+    selectedTag)
+      selectedTag="$value"
       ;;
     dryrun)
       isDryRun=true
@@ -236,6 +244,7 @@ Running with:
   isGen3Release=$isGen3Release
   seleniumTimeout=$seleniumTimeout
   selectedTest=$selectedTest
+  selectedTag=$selectedTag
 EOM
 
 echo 'INFO: installing dependencies'
@@ -266,7 +275,7 @@ runTestsIfServiceVersion "@clientCreds" "arborist" "4.0.0" "2022.12"
 runTestsIfServiceVersion "@clientCreds" "fence" "6.1.0" "2022.10"
 runTestsIfServiceVersion "@clientCreds" "requestor" "1.8.0" "2022.12"
 runTestsIfServiceVersion "@clientExpiration" "fence" "7.0.0" "2023.01"
-runTestsIfServiceVersion "@clientRotation" "fence" "7.3.0" "2023.03"
+runTestsIfServiceVersion "@clientRotation" "fence" "8.0.0" "2023.06"
 
 # disable tests if the service is not deployed
 # export isIndexdDeployed=$(ifServiceDeployed "indexd")
@@ -275,7 +284,7 @@ runTestsIfServiceVersion "@clientRotation" "fence" "7.3.0" "2023.03"
 #   donot '@requires-indexd'
 # fi
 
-listVar="arborist fence guppy indexd manifestservice metadata pelican peregrine pidgin portal sheepdog sower tube audit requestor hatchery argo-wrapper cohort-middleware dicom-viewer dicom-server"
+listVar="arborist fence guppy indexd manifestservice metadata pelican peregrine pidgin portal sheepdog sower tube audit-service requestor hatchery argo-wrapper cohort-middleware dicom-viewer dicom-server"
 
 for svc_name in $listVar; do
     export isServiceDeployed=$(ifServiceDeployed $svc_name)
@@ -308,12 +317,6 @@ donot '@fail'
 # Do not run batch processing tests
 donot '@batch'
 
-# Do not run dataguids.org test for regular PRs
-donot '@dataguids'
-
-# Do not run the test until update the test
-donot '@GWASUI'
-
 # Do not run prjsBucketAccess (for prod-execution only)
 donot '@prjsBucketAccess'
 
@@ -326,12 +329,10 @@ if [ "$testedEnv" == "dataguids.org" ]; then
   # disable bootstrap script from codeceptjs
   sed -i '/bootstrap\:/d' codecept.conf.js
   sed -i '/bootstrap\:/d' gen3.qa.in.a.box.codecept.conf.js
+else
+  # skip dataguids tests for PRs other than dataguids.org manifest PRs
+  donot '@dataguids'
 fi
-
-# if [[ "$testedEnv" == *"heal"* ]]; then
-  # use moon instead of selenium
-  # sed -i 's/selenium-hub/moon.moon/' codecept.conf.js
-# fi
 
 #
 # Google Data Access tests are only required for some envs
@@ -346,6 +347,14 @@ else
   #
   echo "INFO: enabling Google Data Access tests for $service"
 fi
+
+# gen3-client tests run on gen3-qa repo and in nightly builds
+if [[ "$service" != "gen3-qa" && "$service" != "cdis-data-client" && "$service" != "gen3-client" ]]; then
+  donot '@gen3-client'
+fi
+
+echo "INFO: temporarily disabling GWAS UI tests as jenkins envs are not still configured"
+donot '@GWASUI'
 
 #
 # RAS AuthN Integration tests are only required for some repos
@@ -474,19 +483,20 @@ if [ -z "$checkForPresenceOfMetadataIngestionSowerJob" ]; then
 fi
 
 # # Study Viewer test
-runStudyViewerTests=false
-#run for data-portal/requestor/gen3-qa/gitops-qa/cdis-manifest repo
-if [[ ! ("$service" =~ ^(data-portal|requestor|gen3-qa)$ || $testedEnv == *"niaid"*) ]]; then
-  echo "Disabling study-viewer test"
-  donot "@studyViewer"
-else
-  if [[ $(curl -s "$portalConfigURL" | jq 'contains({studyViewerConfig})') == "true" ]]; then
-    if (g3kubectl get pods --no-headers -l app=requestor | grep requestor) > /dev/null 2>&1; then
-      echo "### Study-Viewer is deployed"
-      runStudyViewerTests=true
-    fi
-  fi
-fi
+# runStudyViewerTests=false
+# #run for data-portal/requestor/gen3-qa/gitops-qa/cdis-manifest repo
+# if [[ ! ("$service" =~ ^(data-portal|requestor|gen3-qa)$ || $testedEnv == *"niaid"*) ]]; then
+#   echo "Disabling study-viewer test"
+#   donot "@studyViewer"
+# else
+#   if [[ $(curl -s "$portalConfigURL" | jq 'contains({studyViewerConfig})') == "true" ]]; then
+#     if (g3kubectl get pods --no-headers -l app=requestor | grep requestor) > /dev/null 2>&1; then
+#       echo "### Study-Viewer is deployed"
+#       runStudyViewerTests=true
+#     fi
+#   fi
+# fi
+
 # disabling the studyViewer test for debugging
 donot '@studyViewer'
 
@@ -517,8 +527,13 @@ elif ! (g3kubectl get pods --no-headers -l app=hatchery | grep hatchery) > /dev/
   donot '@exportToWorkspacePortalHatchery'
 fi
 
-# Nightly Build exclusive tests
-donot '@pfbExport'
+if [[ "$service" == "pelican" || "$service" == "tube" || "$service" == "cdis-manifest" || "$service" == "gen3-qa" ]]; then
+  echo "Running pfbExportTest since repo is $service"
+else
+  echo "Skipping pfbExportTest since repo is $service"
+  donot '@pfbExport'
+fi
+
 donot '@jupyterNb'
 
 #
@@ -595,9 +610,10 @@ if [[ "$(hostname)" == *"cdis-github-org"* ]] || [[ "$(hostname)" == *"planx-ci-
   # Start selenium process within the ephemeral jenkins pod.
   # npx selenium-standalone install --version=4.0.0-alpha-7 --drivers.chrome.version=96.0.4664.45 --drivers.chrome.baseURL=https://chromedriver.storage.googleapis.com
   chromeVersion=$(google-chrome --version | grep -Eo '[0-9.]{10,20}' | cut -d '.' -f 1-3)
-  chromeDriverVersion=$(curl -s https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$chromeVersion)
-  npx selenium-standalone install --drivers.chrome.version=$chromeDriverVersion --drivers.chrome.baseURL=https://chromedriver.storage.googleapis.com
-  timeout $seleniumTimeout npx selenium-standalone start --drivers.chrome.version=$chromeDriverVersion &
+  echo "Chrome Version: ${chromeVersion}"
+  # chromeDriverVersion=$(curl -s https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$chromeVersion)
+  # npx selenium-standalone install --drivers.chrome.version=$chromeDriverVersion --drivers.chrome.baseURL=https://chromedriver.storage.googleapis.com
+  # timeout $seleniumTimeout npx selenium-standalone start --drivers.chrome.version=$chromeDriverVersion &
 
   # gen3-qa-in-a-box requires a couple of changes to its webdriver config
   set +e
@@ -627,21 +643,29 @@ EOM
     exitCode=$RC
     set -e
 else
-  set +e
-  additionalArgs=""
-  foundReqGoogle=$(grep "@reqGoogle" ${selectedTest})
-  foundDataClientCLI=$(grep "@dataClientCLI" ${selectedTest})
-  if [ -n "$foundReqGoogle" ]; then
-    additionalArgs="--grep @reqGoogle"
-  elif [ -n "$foundDataClientCLI" ]; then
-    additionalArgs="--grep @indexRecordConsentCodes|@dataClientCLI --invert"
-  elif [[ "$selectedTest" == "suites/sheepdogAndPeregrine/submitAndQueryNodesTest.js" && -z "$ddHasConsentCodes" ]]; then
-    additionalArgs="--grep @indexRecordConsentCodes --invert"
-  else
-    additionalArgs="--grep @manual --invert"
+  if [ -n "$selectedTest" ]; then
+    echo "Test selected - $selectedTest"
+    set +e
+    foundDataClientCLI=$(grep "@dataClientCLI" ${selectedTest})
+    if [ -n "$foundDataClientCLI" ]; then
+      donot '@indexRecordConsentCodes'
+      donot '@dataClientCLI'
+    fi
+    if [[ "$selectedTest" == "suites/sheepdogAndPeregrine/submitAndQueryNodesTest.js" && -z "$ddHasConsentCodes" ]]; then
+      donot '@indexRecordConsentCodes'
+    fi
+    dryrun REPO=$service DEBUG=$debug npm 'test' -- $testArgs ${selectedTest}
+    RC=$?
+    exitCode=$RC
+    set -e
   fi
-  set -e
-  DEBUG=$debug npm test -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
+  if [ -n "$selectedTag" ]; then
+    echo "Tag selected - $selectedTag"
+    REPO=$service DEBUG=$debug npm 'test' -- --reporter mocha-multi --verbose --grep "(?=.*$selectedTag)^(?!$doNotRunRegexDotStar)"
+    RC=$?
+    exitCode=$RC
+    set -e
+  fi
 fi
 
 # When zero tests are executed, a results*.xml file is produced containing a tests="0" counter

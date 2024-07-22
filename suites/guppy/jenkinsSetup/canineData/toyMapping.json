@@ -1,10 +1,8 @@
 {
     "mappings" : {
-      "thing" : {
-        "properties" : {
-          "auth_resource_path" : {
-            "type" : "keyword"
-          }
+      "properties" : {
+        "auth_resource_path" : {
+          "type" : "text"
         }
       }
     }

@@ -1,4 +1,4 @@
-Feature('DataUploadTest @requires-portal @requires-sower @requires-fence');
+Feature('DataUploadTest @requires-portal @requires-sower @requires-ssjdispatcher @requires-fence @requires-sheepdog @requires-indexd');
 
 // const { interactive, ifInteractive } = require('../../utils/interactive');
 const { checkPod, sleepMS } = require('../../utils/apiUtil.js');
@@ -102,7 +102,7 @@ BeforeSuite(async ({
 
     // Add coremetadata node.
     // FIXME: once windmill allow parent nodes other than core-metadata-collection, remove this
-    const newSubmitterID = await nodes.generateAndAddCoremetadataNode(sheepdog);
+    const newSubmitterID = await nodes.generateAndAddNode(sheepdog, 'core_metadata_collection');
     submitterID = newSubmitterID;
   } catch (error) {
     console.log(error);
@@ -139,7 +139,7 @@ Scenario('Map uploaded files in windmill submission page @dataUpload @portal', a
     // user1 should see 0 files now because all files are mapped.
     portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage(I, []);
   }
-}).retry(2);
+}); // if you add retries here, also add a cleanup step or the test will find more files than expected in the mapping page
 
 Scenario('Cannot see files uploaded by other users @dataUpload @portal', async ({
   I, sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUpload,

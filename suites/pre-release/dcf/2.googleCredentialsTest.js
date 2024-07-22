@@ -1,6 +1,6 @@
 // Feature # 3 in the sequence of testing
 // This test plan has a few pre-requisites: Check prereq.md for more details.
-Feature('3. Google Credentials - DCF Staging testing for release sign off - PXP-3836');
+Feature('2. Google Credentials - DCF Staging testing for release sign off - PXP-3836');
 
 // To be executed with GEN3_SKIP_PROJ_SETUP=true
 // No need to set up program / retrieve access token, etc.
@@ -116,7 +116,7 @@ Scenario('Obtain temporary access keys with specific expiration time (Google Cre
 Scenario('Negative test - Delete a non-existing access keys (Google Credentials) @manual', ifInteractive(
   async ({ I, fence }) => {
     if (!I.cache.ACCESS_TOKEN) I.cache.ACCESS_TOKEN = await requestUserInput('Please provide your ACCESS_TOKEN: ');
-    const someKeyId = 'aa123bb456cc';
+    const someKeyId = 'aa123bb456cc'; // pragma: allowlist secret
 
     const httpResp = await fence.do.deleteTempGoogleCreds(
       someKeyId,
