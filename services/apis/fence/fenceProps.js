@@ -8,6 +8,7 @@ const bash = new Bash();
  */
 const rootEndpoint = '/user';
 
+// TODO move `createClient()` and `deleteClient()` to `fenceTasks`
 /**
  * Runs a fence command for creating a client
  * @param {string} clientName - client name
@@ -42,6 +43,7 @@ function createClient(clientName, userName, clientType, expires_in, arboristPoli
 
   console.log(`running: ${fenceCmd}`);
   const resCmd = bash.runCommand(fenceCmd, 'fence', takeLastLine);
+  // parse the response, which is in format: `('<client ID>', '<client secret>')`
   const arr = resCmd.replace(/[()']/g, '').split(',').map((val) => val.trim());
   return { client_id: arr[0], client_secret: arr[1] };
 }

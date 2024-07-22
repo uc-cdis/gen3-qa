@@ -1,7 +1,7 @@
 /*eslint-disable */
 // Feature # 5 in the sequence of testing
 // This test plan has a few pre-requisites: Check prereq.md for more details.
-Feature('5. OIDC Flow - DCF Staging testing for release sign off - PXP-3836');
+Feature('4. OIDC Flow - DCF Staging testing for release sign off - PXP-3836');
 
 // To be executed with GEN3_SKIP_PROJ_SETUP=true
 // No need to set up program / retrieve access token, etc.
@@ -52,7 +52,7 @@ Scenario('Initiate the OIDC Client flow with NIH credentials to obtain the OAuth
   async ({ I }) => {
     const result = await interactive(`
             1. Using the "client id" provided, paste the following URL into the browser (replacing the CLIENT_ID placeholder accordingly):
-                 https://${TARGET_ENVIRONMENT}/user/oauth2/authorize?redirect_uri=https://${TARGET_ENVIRONMENT}/user&client_id=<CLIENT_ID>&scope=openid+user+data+google_credentials&response_type=code&nonce=test-nonce-${I.cache.NONCE}
+                 https://${TARGET_ENVIRONMENT}/user/oauth2/authorize?redirect_uri=https://${TARGET_ENVIRONMENT}&client_id=<CLIENT_ID>&scope=openid+user+data+google_credentials&response_type=code&nonce=test-nonce-${I.cache.NONCE}
             2. Make sure you are logged in with your NIH Account.
             3. On the Consent page click on the "Yes, I authorize" button.
             4. Once the user is redirected to a new page, copy the value of the "code" parameter that shows up in the URL (this code is valid for 60 seconds).

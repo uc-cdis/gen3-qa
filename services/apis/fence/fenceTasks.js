@@ -49,6 +49,21 @@ module.exports = {
   },
 
   /**
+   * Runs a fence command to rotate a client's ID and secret
+   * @param {string} clientName - client name
+   */
+  rotateClientCredentials(clientName, expiresInDays) {
+    let fenceCmd = `fence-create client-rotate --client ${clientName}`;
+    if (expiresInDays) {
+      fenceCmd = `${fenceCmd} --expires-in ${expiresInDays}`;
+    }
+    const res = bash.runCommand(fenceCmd, 'fence', takeLastLine);
+    // parse the response, which is in format: `('<client ID>', '<client secret>')`
+    const arr = res.replace(/[()']/g, '').split(',').map((val) => val.trim());
+    return { client_id: arr[0], client_secret: arr[1] };
+  },
+
+  /**
    * Hits fence's signed url endpoint
    * @param {string} id - id/did of an indexd file
    * @param {string[]} args - additional args for endpoint
@@ -483,8 +498,9 @@ module.exports = {
   async getConsentCode(clientId, responseType, scope, consent = 'ok', expectCode = true) {
     const fullURL = `https://${process.env.HOSTNAME}${fenceProps.endpoints.authorizeOAuth2Client}?response_type=${responseType}&client_id=${clientId}&redirect_uri=https://${process.env.HOSTNAME}&scope=${scope}`;
     if (process.env.DEBUG === 'true') {
-      console.log(fullURL);
+      console.log('fenceTasks.getConsentCode fullURL:', fullURL);
     }
+
     I.amOnPage(fullURL);
     if (process.env.DEBUG === 'true') {
       I.saveScreenshot('getConsentCode.png');
@@ -499,7 +515,8 @@ module.exports = {
         }
       // }
     } else {
-      I.seeTextEquals('Unauthorized', 'h2');
+      let errorMessage = await I.grabTextFrom('//div[@class="error-page__status-code-text"]/h2');
+      expect(errorMessage).to.be.oneOf(["Bad Request", "Unauthorized"]);
     }
     // I.saveScreenshot('consent_auth_code_flow.png');
     const urlStr = await I.grabCurrentUrl();

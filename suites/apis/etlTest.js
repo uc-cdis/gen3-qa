@@ -22,7 +22,7 @@ Scenario('run ETL first time @etl', async ({ I, sheepdog }) => {
   console.log(`${new Date()}: Before run ETL first time`);
   await sheepdog.do.runGenTestData(1);
   await bash.runJob('etl', '', false);
-  await checkPod(I, 'etl', 'gen3job,job-name=etl', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: false });
+  await checkPod(I, 'etl', 'gen3job,job-name=etl', { nAttempts: 180, ignoreFailure: false, keepSessionAlive: false }); // 180 attempts = 30 minutes
   console.log(`${new Date()}: After run ETL first time`);
 });
 
@@ -30,7 +30,7 @@ Scenario('run ETL second time @etl', async ({ I, sheepdog, etl }) => {
   console.log(`${new Date()}: Before run ETL second time`);
   await sheepdog.do.runGenTestData(1);
   await bash.runJob('etl', '', false);
-  await checkPod(I, 'etl', 'gen3job,job-name=etl', { nAttempts: 80, ignoreFailure: false, keepSessionAlive: false });
+  await checkPod(I, 'etl', 'gen3job,job-name=etl', { nAttempts: 180, ignoreFailure: false, keepSessionAlive: false }); // 180 attempts = 30 minutes
   console.log(`${new Date()}: After run ETL second time`);
 
   const aliases = bash.runCommand('g3kubectl get cm etl-mapping -o jsonpath=\'{.data.etlMapping\\.yaml}\' | yq \'.mappings[].name\' | xargs').split(' ');

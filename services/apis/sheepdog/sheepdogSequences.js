@@ -46,9 +46,9 @@ module.exports = {
    * @param {Node} node
    * @returns {Promise<void>}
    */
-  async addNode(node) {
+  async addNode(node, allowUpdate = false) {
     await sheepdogTasks.addNode(node);
-    sheepdogQuestions.addNodeSuccess(node);
+    sheepdogQuestions.addNodeSuccess(node, '', allowUpdate);
   },
 
   /**

@@ -76,6 +76,7 @@ async function writeMetrics(measurement, test) {
     const options = {
       api_key: process.env.DD_API_KEY,
       app_key: process.env.DD_APP_KEY,
+      api_host: 'ctds.ddog-gov.com',
     };
 
     dogapi.initialize(options);

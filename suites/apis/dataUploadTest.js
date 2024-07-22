@@ -46,7 +46,7 @@ const getUploadUrlFromFence = async function (fence, users) {
 Scenario('File upload and download via API calls @dataUpload', async ({
   fence, users, nodes, indexd, sheepdog, dataUpload,
 }) => {
-  console.log(`${new Date()}: request a  presigned URL from fence`);
+  console.log(`${new Date()}: request a presigned URL from fence`);
   const fenceUploadRes = await getUploadUrlFromFence(fence, users);
   const fileGuid = fenceUploadRes.data.guid;
   createdGuids.push(fileGuid);
@@ -109,14 +109,18 @@ Scenario('File upload and download via API calls @dataUpload', async ({
     fileContents,
   );
 
-  console.log(`${new Date()}: check that we cannot link metadata to a file that already has metadata.`);
+  console.log(`${new Date()}: make sure we can link metadata to a file that already has metadata.`);
   // try to submit metadata for this file again
+  // `createNewParents=true` creates new nodes to avoid conflicts with the nodes already submitted by the
+  // previous `submitGraphAndFileMetadata()` call
   sheepdogRes = await nodes.submitGraphAndFileMetadata(
     sheepdog,
     fileGuid,
     fileSize,
     fileMd5,
     'submitter_id_new_value',
+    null,
+    true,
   );
   sheepdog.ask.addNodeSuccess(sheepdogRes);
 }).retry(1);
@@ -282,12 +286,16 @@ Scenario('Upload the same file twice @dataUpload', async ({
   await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 
   // submit metadata for this file
+  // `createNewParents=true` creates new nodes to avoid conflicts with the nodes already submitted by the
+  // previous `submitGraphAndFileMetadata()` call
   sheepdogRes = await nodes.submitGraphAndFileMetadata(
     sheepdog,
     fileGuid,
     fileSize,
     fileMd5,
     'submitter_id_new_value',
+    null,
+    true,
   );
   sheepdog.ask.addNodeSuccess(sheepdogRes, 'second upload');
 

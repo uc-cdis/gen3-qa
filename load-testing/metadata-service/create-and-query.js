@@ -13,7 +13,7 @@ const {
   VIRTUAL_USERS,
 } = __ENV; // eslint-disable-line no-undef
 
-const myFailRate = new Rate('failed requests');
+const myFailRate = new Rate('failed_requests');
 
 export const options = {
   tags: {
@@ -24,7 +24,7 @@ export const options = {
   stages: JSON.parse(VIRTUAL_USERS.slice(1, -1)),
   thresholds: {
     http_req_duration: ['avg<1000', 'p(95)<2000'],
-    'failed requests': ['rate<0.05'],
+    'failed_requests': ['rate<0.05'],
   },
   noConnectionReuse: true,
 };

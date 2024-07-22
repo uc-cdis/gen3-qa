@@ -6,6 +6,9 @@ module.exports = {
    * API Endpoints
    */
   endpoints: {
+    version: '/api/search/_version',
     query: '/api/v0/submission/graphql',
+    coreMetadataPath: '/api/search/coremetadata',
+    coreMetadataLegacyPath: '/coremetadata',
   },
 };

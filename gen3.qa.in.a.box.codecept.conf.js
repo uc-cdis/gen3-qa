@@ -70,7 +70,6 @@ exports.config = {
     indexd: './services/apis/indexd/indexdService.js',
     drs: './services/apis/drs/drsService.js',
     peregrine: './services/apis/peregrine/peregrineService.js',
-    pidgin: './services/apis/pidgin/pidginService.js',
     fence: './services/apis/fence/fenceService.js',
     dataClient: './services/apis/dataClient/dataClientService.js',
     etl: './services/apis/etl/etlService.js',
@@ -78,9 +77,12 @@ exports.config = {
     guppy: './services/apis/guppy/guppyService.js',
     mds: './services/apis/mds/mdsService.js',
     auditService: './services/apis/auditService/auditService.js',
+    ras: './services/apis/rasDrs/rasService.js',
+    requestor: './services/apis/requestor/requestorService.js',
 
     // Pages
     home: './services/portal/home/homeService.js',
+    gwas: './services/portal/GWAS/GWASService.js',
     indexing: './services/portal/indexing/indexingService.js',
     login: './services/portal/login/loginService.js',
     explorer: './services/portal/explorer/explorerService.js',
@@ -90,6 +92,8 @@ exports.config = {
     discovery: './services/portal/discovery/discoveryService.js',
     workspace: './services/portal/workspace/workspaceService.js',
     gen3ffLandingPage: './services/portal/gen3ffLandingPage/gen3ffLandingPageService.js',
+    studyRegistration: './services/portal/studyRegistration/studyRegistrationService.js',
+
   },
   mocha: {
     reporterOptions: {
@@ -127,6 +131,8 @@ exports.config = {
     },
     screenshotOnFail: {
       enabled: true,
+      uniqueScreenshotNames: true,
+      fullPageScreenshots: true,
     },
   },
   timeout: 900, // in seconds (15 min)
