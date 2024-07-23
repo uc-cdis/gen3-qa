@@ -59,8 +59,12 @@ Scenario('Register a new study registration', async ({ I, mds, users, home, disc
     // updating the studyMetadata with values
     studyMetadata.gen3_discovery.appl_id = I.cache.applicationID;
     studyMetadata.gen3_discovery[UIDFieldName] = I.cache.applicationID;
+    const nihApplID = studyMetadata.gen3_discovery.study_metadata.metadata_location.nih_application_id
     const projectTitle = studyMetadata.gen3_discovery.project_title;
     const projectNumber = studyMetadata.gen3_discovery.project_number;
+    const studyName = studyMetadata.gen3_discovery.study_metadata.minimal_info.study_name;
+
+    const accessProjectTitle = `${studyName} - ${projectNumber}`
 
     // step 1 : create a dummy metadata record
     // create a metadata record
@@ -89,7 +93,7 @@ Scenario('Register a new study registration', async ({ I, mds, users, home, disc
     // request access to register study by filling the registration form
     studyRegistration.do.searchStudy(I.cache.applicationID);
     I.click(studyRegistration.props.requestAccessButton);
-    await studyRegistration.do.fillRequestAccessForm(users.user2.username, projectTitle);
+    await studyRegistration.do.fillRequestAccessForm(users.user2.username, accessProjectTitle);
     // I.click(studyRegistration.props.goToDiscoverPageButton);
     // get request ID by sending request to requestor end point
     I.cache.requestID = await studyRegistration.do.getRequestId(users.user2.accessTokenHeader);
@@ -114,8 +118,8 @@ Scenario('Register a new study registration', async ({ I, mds, users, home, disc
     if (process.env.DEBUG === 'true') {
         console.log(`###CEDAR UUID: ${cedarUUID}`);
     };
-    const studyName = `${projectNumber} : ${projectTitle} : ${I.cache.applicationID}`;
-    await studyRegistration.do.fillRegistrationForm(cedarUUID, studyName);
+    const studyTitle = `${projectNumber} : TEST : ${nihApplID}`;
+    await studyRegistration.do.fillRegistrationForm(cedarUUID, studyTitle);
 
     // run aggMDS sync job after sending CEDAR request
     await mds.do.reSyncAggregateMetadata();

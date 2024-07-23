@@ -53,6 +53,7 @@ module.exports = {
 
     fillRequestAccessForm(email, projectTitle) {
         I.amOnPage(studyRegistrationProps.requestPath);
+        I.wait(10)
         I.saveScreenshot('FormPage.png');
         I.seeElement(studyRegistrationProps.formPage);
         I.waitForValue(studyRegistrationProps.projectTitle, projectTitle, 5);
@@ -77,14 +78,14 @@ module.exports = {
         I.click(studyRegistrationProps.registerStudyButton);
     },
     
-    async fillRegistrationForm(uuid, studyName) {
+    async fillRegistrationForm(uuid, studyTitle) {
         I.amOnPage(studyRegistrationProps.registerPath);
         I.seeElement(studyRegistrationProps.registerForm);
         const study =  await I.grabAttributeFrom(studyRegistrationProps.studyTitle, 'title');
         if (process.env.DEBUG === 'true') {
             console.log(`### StudyTitle Retrieved: ${study}`);
         }
-        expect(study).to.be.equal(studyName);
+        expect(study).to.be.equal(studyTitle);
         I.fillField(studyRegistrationProps.cedarUUID, uuid);
         I.saveScreenshot('registerCedarID.png');
         I.click(studyRegistrationProps.registerSubmitButton);
