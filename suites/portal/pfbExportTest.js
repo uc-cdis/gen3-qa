@@ -415,7 +415,7 @@ Scenario('Install the latest pypfb CLI version and make sure we can parse the av
   // the previous test did not create it
   expect(files.fileExists(`./test_export_${I.cache.UNIQUE_NUM}.avro`), 'A "test_export_<unique number>.avro" file should have been created by previous test').to.be.true;
 
-  const pyPfbInstallationOutput = await bash.runCommand(`python3.8 -m venv pfb_test && source pfb_test/bin/activate && pip install --upgrade pip && pip install pypfb && ${I.cache.WORKSPACE}/gen3-qa/pfb_test/bin/pfb`);
+  const pyPfbInstallationOutput = await bash.runCommand(`python3.9 -m venv pfb_test && source pfb_test/bin/activate && pip install --upgrade pip && pip install pypfb && ${I.cache.WORKSPACE}/gen3-qa/pfb_test/bin/pfb`);
   if (process.env.DEBUG === 'true') {
     console.log(`${new Date()}: pyPfbInstallationOutput = ${pyPfbInstallationOutput}`);
   }
