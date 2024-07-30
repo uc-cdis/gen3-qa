@@ -53,7 +53,7 @@ BeforeSuite(async ({ I }) => {
     // if this is running against an Anvil DD, sequencing must be used
     // TODO: Look into reusing the leafNode logic from jenkins-simulate-data.sh
     // eslint-disable-next-line no-nested-ternary
-    const targetMappingNode = I.cache.testedEnv.includes('anvil') ? 'sequencing' : I.cache.testedEnv.includes('vpodc') ? 'unaligned_reads_file' : 'submitted_unaligned_reads';
+    const targetMappingNode = I.cache.testedEnv.includes('vpodc') ? 'unaligned_reads_file' : 'sequencing';
 
     I.cache.targetMappingNode = targetMappingNode;
 
@@ -415,7 +415,7 @@ Scenario('Install the latest pypfb CLI version and make sure we can parse the av
   // the previous test did not create it
   expect(files.fileExists(`./test_export_${I.cache.UNIQUE_NUM}.avro`), 'A "test_export_<unique number>.avro" file should have been created by previous test').to.be.true;
 
-  const pyPfbInstallationOutput = await bash.runCommand(`python3.8 -m venv pfb_test && source pfb_test/bin/activate && pip install --upgrade pip && pip install pypfb && ${I.cache.WORKSPACE}/gen3-qa/pfb_test/bin/pfb`);
+  const pyPfbInstallationOutput = await bash.runCommand(`python3.9 -m venv pfb_test && source pfb_test/bin/activate && pip install --upgrade pip && pip install pypfb && ${I.cache.WORKSPACE}/gen3-qa/pfb_test/bin/pfb`);
   if (process.env.DEBUG === 'true') {
     console.log(`${new Date()}: pyPfbInstallationOutput = ${pyPfbInstallationOutput}`);
   }
@@ -438,10 +438,6 @@ Scenario('Install the latest pypfb CLI version and make sure we can parse the av
   const itDDNodesSet = ddNodesSet.values();
   expect(itDDNodesSet.next().value).to.equal('program');
   expect(itDDNodesSet.next().value).to.equal('project');
-  if (I.cache.testedEnv.includes('anvil')) {
-    expect(itDDNodesSet.next().value).to.equal('subject');
-  } else {
-    expect(itDDNodesSet.next().value).to.equal('study');
-  }
+  expect(itDDNodesSet.next().value).to.equal('subject');
   // TODO: Refine cohort later and make sure the selected projects show up in the PFB file
 }).retry(2);
