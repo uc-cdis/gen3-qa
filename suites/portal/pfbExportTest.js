@@ -443,6 +443,12 @@ Scenario('Install the latest pypfb CLI version and make sure we can parse the av
   const itDDNodesSet = ddNodesSet.values();
   expect(itDDNodesSet.next().value).to.equal('program');
   expect(itDDNodesSet.next().value).to.equal('project');
-  expect(itDDNodesSet.next().value).to.equal('subject');
+  if (process.env.REPO === 'cdis-manifest' || process.env.REPO === 'gitops-qa') {
+    expect(itDDNodesSet.next().value).to.equal('study');
+  } else {
+    expect(itDDNodesSet.next().value).to.equal('subject');
+  }
+ 
+
   // TODO: Refine cohort later and make sure the selected projects show up in the PFB file
 }).retry(2);
