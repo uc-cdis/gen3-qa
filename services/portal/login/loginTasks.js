@@ -41,6 +41,7 @@ module.exports = {
    */
   logout() {
     portal.clickProp(loginProps.logoutButton);
+    console.log('logged out');
   },
 
   logoutThroughDropdown() {
