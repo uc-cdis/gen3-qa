@@ -45,7 +45,7 @@ echo "changing origin to pull changes from external repo: https://${EXTERNAL_REP
 git remote set-url origin https://${EXTERNAL_REPO_REMOTE_URL}
 
 echo "pulling changes from external branch $NAME_OF_THE_BRANCH"
-git pull origin $NAME_OF_THE_BRANCH --ff-only
+git pull origin $NAME_OF_THE_BRANCH --no-rebase
 
 echo "restore original origin $OUR_REMOTE_URL"
 git remote set-url origin ${URL_PREFIX}${OUR_GEN3_SERVICE_REPO_NAME}.git
