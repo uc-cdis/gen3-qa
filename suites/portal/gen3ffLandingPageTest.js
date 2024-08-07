@@ -1,7 +1,7 @@
 const I = actor();
 I.cache = {};
 
-Feature('Gen3 FF Landing Page @requires-portal @requires-frontend-framework');
+Feature('Gen3 FF Landing Page @requires-portal @requires-frontend-framework @heal');
 
 Scenario('Home page redirects to landing page', async ({ gen3ffLandingPage }) => {
   I.amOnPage('/');
