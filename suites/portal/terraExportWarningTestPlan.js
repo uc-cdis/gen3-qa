@@ -40,7 +40,6 @@ Scenario('When Terra Export Warning is enabled, user should NOT be warned when e
   },
 ));
 
-
 /**
  * (Regression Test)
  * Setup

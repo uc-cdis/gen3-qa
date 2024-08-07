@@ -7,7 +7,7 @@
   3. Access Data (redirects user to /query)
   4. Analyze Data (redirects user to /workspace)
 */
-Feature('Landing page buttons');
+Feature('Landing page buttons @requires-portal');
 
 const { expect } = require('chai');
 const { sleepMS } = require('../../utils/apiUtil.js');
@@ -15,7 +15,7 @@ const { sleepMS } = require('../../utils/apiUtil.js');
 // Login and navigate to the landing page to instrument buttons and assert they are working
 Scenario('Navigate to the landing page and click on buttons @landing', async ({ I, home }) => {
   home.do.goToHomepage();
-  home.complete.login();
+  await home.complete.login();
 
   const buttons = [
     {
@@ -62,6 +62,6 @@ Scenario('Navigate to the landing page and click on buttons @landing', async ({ 
       console.log(`Button ${button.text} does not exist on this landing page. Skipping check...`);
     }
     // Go back to the landing page and try to find / click on the buttons again
-    I.amOnPage('/');
+    I.amOnPage('');
   }
 }).retry(1);

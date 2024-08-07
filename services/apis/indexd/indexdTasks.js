@@ -13,11 +13,12 @@ const getRevFromResponse = function (res) {
   try {
     return res.data.rev;
   } catch (e) {
-    console.log(`Could not get res.data.rev from response: ${res}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`Could not get res.data.rev from response: ${res}`);
+    }
     return 'ERROR_GETTING_INDEXD';
   }
 };
-
 
 /**
  * indexd Tasks
@@ -30,7 +31,7 @@ module.exports = {
    *                 user account (mainAcct)'s access token
    * @returns {Array<Promise<>>}
    */
-  async addFileIndices(files, authHeaders = user.mainAcct.indexdAuthHeader) {
+  async addFileIndices(files, authHeaders = user.mainAcct.indexdAuthHeader, ignoreFailures = true) {
     authHeaders['Content-Type'] = 'application/json; charset=UTF-8';
     const promiseList = files.map((file) => {
       if (!file.did) {
@@ -61,13 +62,10 @@ module.exports = {
       return data;
     }).map((data) => I.sendPostRequest(indexdProps.endpoints.add, data, authHeaders).then(
       (res) => {
-        if (res.status === 200 && res.data && res.data.rev) {
-          console.log('### ## Do we ever enter this block?');
-          file.rev = res.data.rev; // eslint-disable-line  no-undef
-          return Promise.resolve(file); // eslint-disable-line  no-undef
+        if (res.status !== 200 || !res.data || !res.data.rev) {
+          console.error(`Failed indexd submission got status ${res.status}`, res.data);
+          return Promise.reject(new Error('Failed to register file with indexd'));
         }
-        console.error(`Failed indexd submission got status ${res.status}`, res.data);
-        return Promise.reject(new Error('Failed to register file with indexd'));
       },
       (err) => {
         console.err(`Error on indexd submission ${data.file_name}`, err);
@@ -81,9 +79,13 @@ module.exports = {
       async () => Promise.all(promiseList).then(
         () => true,
         (v) => {
-          console.log('Some of the indexd submissions failed?  Ignoring failure ...', v);
-          // succeed anyway - this thing is flaky for some reason
-          return true;
+          if (ignoreFailures) {
+            console.log('Some of the indexd submissions failed?  Ignoring failure ...', v);
+            // succeed anyway - this thing is flaky for some reason
+            return true;
+          } else {
+            return false;
+          }
         },
       )
     )();

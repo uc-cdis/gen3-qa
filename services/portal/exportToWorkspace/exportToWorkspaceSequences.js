@@ -1,7 +1,7 @@
 const exportToWorkspaceQuestions = require('./exportToWorkspaceQuestions.js');
 const exportToWorkspaceTasks = require('./exportToWorkspaceTasks.js');
 
-const I = actor();
+// const I = actor();
 
 /**
  * exportToWorkspace Sequences
@@ -28,9 +28,9 @@ module.exports = {
   },
 
   /* The 'Click Workspace tab when logged out and logged in' test sequence */
-  checkClickWorkspaceTabWithLogoutAndLogin(home) {
-    // exportToWorkspaceTasks.logoutAndGetToWorkspace(home);
-    // exportToWorkspaceTasks.loginAndGetToWorkspace(home);
+  async checkClickWorkspaceTabWithLogoutAndLogin(home) {
+    await exportToWorkspaceTasks.logoutAndGetToWorkspace(home);
+    await exportToWorkspaceTasks.loginAndGetToWorkspace(home);
   },
 
   /* The 'Check export to workspace success message toaster' test sequence */

@@ -1,5 +1,6 @@
 /*eslint-disable */
 const { container } = require('codeceptjs');
+const chai = require('chai');
 const ax = require('axios'); // eslint-disable-line import/no-extraneous-dependencies
 
 const fenceProps = require('./fenceProps.js');
@@ -9,6 +10,7 @@ const { Gen3Response, sleepMS, getCookie, getAccessTokenHeader } = require('../.
 const { Bash, takeLastLine } = require('../../../utils/bash');
 
 const bash = new Bash();
+const { expect } = chai;
 
 const I = actor();
 
@@ -37,6 +39,30 @@ async function getNoRedirect(url, headers) {
  * fence Tasks
  */
 module.exports = {
+
+  async getVersion() {
+    const response = await I.sendGetRequest(fenceProps.endpoints.version);
+    expect(response, 'Can\'t get Fence version').to.have.property('status', 200);
+    expect(response, 'No data in response').to.have.property('data');
+    expect(response.data, 'No version in JSON response').to.have.property('version');
+    return response.data.version;
+  },
+
+  /**
+   * Runs a fence command to rotate a client's ID and secret
+   * @param {string} clientName - client name
+   */
+  rotateClientCredentials(clientName, expiresInDays) {
+    let fenceCmd = `fence-create client-rotate --client ${clientName}`;
+    if (expiresInDays) {
+      fenceCmd = `${fenceCmd} --expires-in ${expiresInDays}`;
+    }
+    const res = bash.runCommand(fenceCmd, 'fence', takeLastLine);
+    // parse the response, which is in format: `('<client ID>', '<client secret>')`
+    const arr = res.replace(/[()']/g, '').split(',').map((val) => val.trim());
+    return { client_id: arr[0], client_secret: arr[1] };
+  },
+
   /**
    * Hits fence's signed url endpoint
    * @param {string} id - id/did of an indexd file
@@ -98,13 +124,17 @@ module.exports = {
     ) {
       // Note: google freaks out if unexpected headers
       //     are passed with signed url requests
-      console.log(`Fetching signed URL: ${signedUrlRes.body.url}`);
+      if (process.env.DEBUG === 'true') {
+        console.log(`Fetching signed URL: ${signedUrlRes.body.url}`);
+      }
       return ax.get(signedUrlRes.body.url).then(
         (resp) => resp.data,
         (err) => err.response.data || err,
       );
     }
-    console.log(fenceProps.FILE_FROM_URL_ERROR, signedUrlRes);
+    if (process.env.DEBUG === 'true') {
+      console.log(fenceProps.FILE_FROM_URL_ERROR, signedUrlRes);
+    }
     return fenceProps.FILE_FROM_URL_ERROR;
   },
 
@@ -134,8 +164,10 @@ module.exports = {
       accessTokenHeader,
     ).then((res) => {
       if (!res.data || !res.data.access_keys) {
-        console.log('Could not get user google creds:');
-        console.log(res);
+        if (process.env.DEBUG === 'true') {
+          console.log('Could not get user google creds:');
+          console.log(res);
+        }
         return { access_keys: [] };
       }
       return res.data;
@@ -161,7 +193,9 @@ module.exports = {
       const g3res = new Gen3Response(res);
       if (g3res.status !== 200) {
         console.error('Error creating temp google creds');
-        console.log(res);
+        if (process.env.DEBUG === 'true') {
+          console.log(res);
+        }
       }
       return g3res;
     });
@@ -204,6 +238,25 @@ module.exports = {
       data,
       { 'Content-Type': 'application/json' },
     ).then((res) => new Gen3Response(res));
+  },
+
+  async getAccessTokenWithClientCredentials(clientID, secretID, expectSuccess=true) {
+    const tokenReq = bash.runCommand(`curl --user "${clientID}:${secretID}" --request POST "https://${process.env.HOSTNAME}/user/oauth2/token?grant_type=client_credentials" -d scope="openid user"`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`getAccessTokenWithClientCredentials token response: ${tokenReq}`);
+    }
+    const tokens = JSON.parse(tokenReq);
+    if (expectSuccess) {
+      expect(tokens, `Cannot get access token: ${tokenReq}`).to.have.property('access_token');
+    }
+    else {
+      expect(tokens, 'Should not have been able to get access token').not.to.have.property('access_token');
+    }
+    const accessToken = tokens.access_token;
+    if (process.env.DEBUG === 'true') {
+      console.log(`getAccessTokenWithClientCredentials accessToken: ${accessToken}`);
+    }
+    return accessToken;
   },
 
   /**
@@ -324,7 +377,9 @@ module.exports = {
         if (res.data && res.data.errors) {
           console.log('Failed SA registration:');
           // stringify to print all the nested objects
-          console.log(JSON.stringify(res.data.errors, null, 2));
+          if (process.env.DEBUG === 'true') {
+            console.log(JSON.stringify(res.data.errors, null, 2));
+          }
         } else if (res.error) {
           if (res.error.code === 'ETIMEDOUT') {
             return 'ETIMEDOUT: Google SA registration timed out';
@@ -334,7 +389,9 @@ module.exports = {
           }
 
           console.log('Failed SA registration:');
-          console.log(res.error);
+          if (process.env.DEBUG === 'true') {
+            console.log(res.error);
+          }
         }
         return new Gen3Response(res);
       });
@@ -343,7 +400,9 @@ module.exports = {
       if (typeof postRes === 'string'
       && (postRes.includes('ETIMEDOUT') || postRes.includes('ECONNRESET'))) {
         console.log(`registerGoogleServiceAccount: try ${tries}/${MAX_TRIES}`);
-        console.log(postRes);
+        if (process.env.DEBUG === 'true') {
+          console.log(postRes);
+        }
         tries += 1;
       } else {
         return postRes;
@@ -437,8 +496,15 @@ module.exports = {
    * @returns {string}
    */
   async getConsentCode(clientId, responseType, scope, consent = 'ok', expectCode = true) {
-    const fullURL = `${fenceProps.endpoints.authorizeOAuth2Client}?response_type=${responseType}&client_id=${clientId}&redirect_uri=https://${process.env.HOSTNAME}&scope=${scope}`;
+    const fullURL = `https://${process.env.HOSTNAME}${fenceProps.endpoints.authorizeOAuth2Client}?response_type=${responseType}&client_id=${clientId}&redirect_uri=https://${process.env.HOSTNAME}&scope=${scope}`;
+    if (process.env.DEBUG === 'true') {
+      console.log('fenceTasks.getConsentCode fullURL:', fullURL);
+    }
+
     I.amOnPage(fullURL);
+    if (process.env.DEBUG === 'true') {
+      I.saveScreenshot('getConsentCode.png');
+    }
     if (expectCode) {
       // if (I.seeElement(fenceProps.consentPage.consentBtn.locator)) {
         if (consent === 'cancel') {
@@ -449,7 +515,8 @@ module.exports = {
         }
       // }
     } else {
-      I.seeTextEquals('Unauthorized', 'h2');
+      let errorMessage = await I.grabTextFrom('//div[@class="error-page__status-code-text"]/h2');
+      expect(errorMessage).to.be.oneOf(["Bad Request", "Unauthorized"]);
     }
     // I.saveScreenshot('consent_auth_code_flow.png');
     const urlStr = await I.grabCurrentUrl();
@@ -508,7 +575,13 @@ module.exports = {
    */
   async getTokensImplicitFlow(clientId, responseType, scope, consent = 'yes', expectToken = true) {
     const fullURL = `https://${process.env.HOSTNAME}${fenceProps.endpoints.authorizeOAuth2Client}?response_type=${responseType}&client_id=${clientId}&redirect_uri=https://${process.env.HOSTNAME}&scope=${scope}&nonce=n-0S6_WzA2Mj`;
+    if (process.env.DEBUG === 'true') {
+      console.log(fullURL);
+    }
     I.amOnPage(fullURL);
+    if (process.env.DEBUG === 'true') {
+      I.saveScreenshot('getTokensImplicitFlow.png');
+    }
     if (expectToken) {
       if (I.seeElement(fenceProps.consentPage.consentBtn.locator)) {
         if (consent === 'cancel') {

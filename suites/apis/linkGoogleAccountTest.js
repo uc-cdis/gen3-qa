@@ -4,19 +4,23 @@ const { expect } = chai;
 
 const apiUtil = require('../../utils/apiUtil.js');
 
-Feature('LinkGoogleAccount');
+Feature('LinkGoogleAccount @requires-fence');
 
 BeforeSuite(({ fence, users }) => {
   // Cleanup before suite
   const unlinkResults = Object.values(users)
     .map(({ user }) => fence.do.unlinkGoogleAcct(user));
-  Promise.all(unlinkResults);
+  Promise.all(unlinkResults).catch(e => {
+    console.log(e);
+  });
 });
 
 After(({ fence, users }) => {
   // Cleanup after each scenario
   const unlinkResults = Object.values(users).map(({ user }) => fence.do.unlinkGoogleAcct(user));
-  Promise.all(unlinkResults);
+  Promise.all(unlinkResults).catch(e => {
+    console.log(e);
+  });
 });
 
 function timeNow() {

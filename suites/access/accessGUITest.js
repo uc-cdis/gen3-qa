@@ -12,7 +12,7 @@
       e.g., export SUPER_ADMINS='admin.userX@uchicago.edu'
     - ADMIN: Added through the Access GUI.
 */
-Feature('Access GUI');
+Feature('Access GUI @requires-portal @requires-fence');
 
 const { expect } = require('chai');
 const stringify = require('json-stringify-safe');
@@ -256,7 +256,9 @@ Scenario('Admin: login + add user. @manual', ifInteractive(
     // Ensure "Dataset Access" contains only the access the "Super Admin"
     // has has granted this "Admin" (see previous tests)
     const listOfCheckboxes = await I.grabHTMLFrom('.form-info__user-access');
-    console.log(`listOfCheckboxes: ${listOfCheckboxes}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`listOfCheckboxes: ${listOfCheckboxes}`);
+    }
     expect(listOfCheckboxes).to.be.equal('<li><input type="checkbox">CF-GTEx (phs000424.c1)</li>');
     await sleepMS(1000);
     I.checkOption({ xpath: 'xpath: //input[@type="checkbox"]' });

@@ -124,17 +124,18 @@ function createGoogleTestBuckets() {
       let fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
       console.log(`Running: ${fenceCmd}`);
       const responseQABucket = bash.runCommand(fenceCmd, 'fence');
-
+      if (process.env.DEBUG === 'true') {
+        console.log(`response fence-create google-bucket-create for QA Bucket: ${responseQABucket}`);
+      }
       bucketId = fenceProps.googleBucketInfo.test.bucketId;
       googleProjectId = fenceProps.googleBucketInfo.test.googleProjectId;
       projectAuthId = 'test';
       fenceCmd = `fence-create google-bucket-create --unique-name ${bucketId} --google-project-id ${googleProjectId} --project-auth-id ${projectAuthId} --public False`;
       console.log(`Running: ${fenceCmd}`);
       const responseTestBucket = bash.runCommand(fenceCmd, 'fence');
-
-      console.log('Clean up Google Bucket Access Groups from previous runs...');
-      console.log(`response fence-create google-bucket-create for QA Bucket: ${responseQABucket}`);
-      console.log(`response fence-create google-bucket-create for Test Bucket: ${responseTestBucket}`);
+      if (process.env.DEBUG === 'true') {
+        console.log(`response fence-create google-bucket-create for Test Bucket: ${responseTestBucket}`);
+      }
       bash.runJob('google-verify-bucket-access-group');
 
       // Wait to check google-manage-keys-job pod logs
@@ -174,8 +175,9 @@ async function setupGoogleProjectDynamic() {
     'NAMESPACE',
     namespace,
   );
-  console.log(`googleProjectDynamic: ${fenceProps.googleProjectDynamic.id}`);
-
+  if (process.env.DEBUG === 'true') {
+    console.log(`googleProjectDynamic: ${fenceProps.googleProjectDynamic.id}`);
+  }
   // Add the IAM access needed by the monitor service account
   const monitorRoles = [
     'roles/resourcemanager.projectIamAdmin',
@@ -260,7 +262,9 @@ module.exports = async function () {
       console.log(`INFO: Setting testedEnv var to ${process.env.testedEnv}`);
     }
 
-    console.log(`isIncluded('@reqGoogle'): ${await isIncluded('@reqGoogle')}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`isIncluded('@reqGoogle'): ${await isIncluded('@reqGoogle')}`);
+    }
     if (isIncluded('@reqGoogle')) {
       createGoogleTestBuckets();
       await setupGoogleProjectDynamic();

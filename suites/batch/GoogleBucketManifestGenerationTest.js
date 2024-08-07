@@ -49,10 +49,13 @@ async function deleteLingeringInfra() {
   const lingeringInfra = await bash.runCommand(`
     gen3 gcp-bucket-manifest list | xargs -i echo "{} "
   `);
-
-  console.log(`lingeringInfra: ${lingeringInfra}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`lingeringInfra: ${lingeringInfra}`);
+  }
   if (lingeringInfra.length > 0) {
-    console.log(`Found jobs in this namespace:\n  ${lingeringInfra}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`Found jobs in this namespace:\n  ${lingeringInfra}`);
+    }
     const jobIdsFromPreviousRuns = lingeringInfra.trim().split(' ');
 
     jobIdsFromPreviousRuns.forEach(async (jobId) => {
@@ -76,12 +79,20 @@ BeforeSuite(async ({ I }) => {
   const authzMappingFile = await bash.runCommand(`
     echo -e \"${contentsOfAuthzMapping}\" | tee -a authz_mapping_${I.cache.UNIQUE_NUM}.tsv
   `);
-  console.log(`authzMappingFile: ${authzMappingFile}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`authzMappingFile: ${authzMappingFile}`);
+  }
 });
 
 AfterSuite(async ({ I }) => {
-  console.log(`I.cache: ${JSON.stringify(I.cache)}`);
-  await deleteLingeringInfra();
+  if (process.env.DEBUG === 'true') {
+    console.log(`I.cache: ${JSON.stringify(I.cache)}`);
+  }
+  try {
+    await deleteLingeringInfra();
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 // Scenario #1 - Generate indexd manifest out of a Google Storage bucket
@@ -90,7 +101,9 @@ Scenario('Generate bucket manifest from Google Storage bucket @googleStorage @ba
   await bash.runCommand('gcloud config set project dcf-integration');
   const svcAccount = await bash.runCommand('gcloud config get-value account');
   const theCmd = `gen3 gcp-bucket-manifest create ${testBucket} ${svcAccount} $PWD/authz_mapping_${I.cache.UNIQUE_NUM}.tsv`;
-  console.log(`Running command: ${theCmd}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`Running command: ${theCmd}`);
+  }
   await bash.runCommand(theCmd);
   const triggerGCPBucketManifestGenerationJobOut = await bash.runCommand(theCmd);
   // parsing weird single line output similar to:
@@ -106,8 +119,9 @@ Scenario('Generate bucket manifest from Google Storage bucket @googleStorage @ba
   const bucketManifestList = await bash.runCommand(`
     gen3 gcp-bucket-manifest list | xargs -i echo "{} "
   `);
-  console.log(`bucketManifestList: ${bucketManifestList}`);
-
+  if (process.env.DEBUG === 'true') {
+    console.log(`bucketManifestList: ${bucketManifestList}`);
+  }
   // looks like this gen3 gcp-bucket-manifest create operation creates two job ids
   if (bucketManifestList.trim().split(' ').length > 2) {
     throw new Error(`ERROR: Found more than two jobIds on namespace ${process.env.KUBECTL_NAMESPACE}.`);
@@ -121,8 +135,9 @@ Scenario('Generate bucket manifest from Google Storage bucket @googleStorage @ba
   const listContentsOfTempBucketRaw = await bash.runCommand(`
     gsutil ls ${tempBucketName} | grep manifest_
   `);
-  console.log(`listContentsOfTempBucketRaw: ${listContentsOfTempBucketRaw}`);
-
+  if (process.env.DEBUG === 'true') {
+    console.log(`listContentsOfTempBucketRaw: ${listContentsOfTempBucketRaw}`);
+  }
   await bash.runCommand(`
     gsutil cp ${listContentsOfTempBucketRaw} .
   `);
@@ -135,20 +150,27 @@ Scenario('Generate bucket manifest from Google Storage bucket @googleStorage @ba
     cat ${bucketManifestFile} | xargs -i echo "{}[EOL]"
   `);
   bucketManifestContentsRaw = bucketManifestContentsRaw.replace(/\[EOL\]/g, '\n');
-  console.log(`bucketManifestContentsRaw: ${bucketManifestContentsRaw}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`bucketManifestContentsRaw: ${bucketManifestContentsRaw}`);
+  }
   let bucketManifestTSV = tsv.parse(bucketManifestContentsRaw);
-  console.log(`bucketManifestTSV: ${JSON.stringify(bucketManifestTSV)}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`bucketManifestTSV: ${JSON.stringify(bucketManifestTSV)}`);
+  }
 
   bucketManifestTSV = bucketManifestTSV.sort((a, b) => a.size - b.size);
-  console.log(`sorted bucketManifestTSV: ${JSON.stringify(bucketManifestTSV)}`);
-
+  if (process.env.DEBUG === 'true') {
+    console.log(`sorted bucketManifestTSV: ${JSON.stringify(bucketManifestTSV)}`);
+  }
   // Final assertions
   const files = ['test_file', 'humongous_file'];
   for (let i = 0; i < files.length; i++) { // eslint-disable-line no-plusplus
     Object.keys(expectedMetadataForAssertions[files[i]]).forEach((assertionKey) => {
-      console.log(
-        `Running assertion for ${files[i]} (index: ${i}) - TSV header: ${assertionKey}...`,
-      );
+      if (process.env.DEBUG === 'true') {
+        console.log(
+          `Running assertion for ${files[i]} (index: ${i}) - TSV header: ${assertionKey}...`,
+        );
+      }
       const assertionFailureMsg = `The ${assertionKey} in the bucket manifest doesn't match expected value for the ${files[i]}.`;
       expect(
         bucketManifestTSV[i][assertionKey],

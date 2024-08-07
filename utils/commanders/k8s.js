@@ -31,7 +31,7 @@ class K8s extends Base {
         ).toString('utf8'));
       } catch (err) {
         const message = `ERROR: something went wrong with: ${fullCommand}`;
-        console.log(message, err);
+        console.log(`${message}\nDetails: ${err}`);
         return message;
       }
     }

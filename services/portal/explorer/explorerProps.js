@@ -2,7 +2,7 @@
  * Explorer Page Properties
  */
 module.exports = {
-  path: '/explorer',
+  path: 'explorer',
 
   ready_cue: {
     locator: {

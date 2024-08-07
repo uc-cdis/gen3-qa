@@ -2,19 +2,19 @@ const profile = require('../../services/portal/profile/service.js');
 
 const I = actor();
 
-Feature('Login');
+Feature('Login @requires-portal');
 
-Scenario('Login redirects to requested page', ({ login }) => {
+Scenario('Login redirects to requested page', async ({ login }) => {
   profile.do.goToPage(); // Navigating to /profile without loggin in redirects to /login
   login.ask.isCurrentPage();
-  login.complete.login();
+  await login.complete.login();
   profile.ask.isCurrentPage(); // User is redirected to profile after logging in
 }).tag('@loginRedirect');
 
 Scenario('Login redirects to requested page with query params intact', async ({ login }) => {
-  I.amOnPage('/DEV-test/search?node_type=summary_clinical');
+  I.amOnPage('DEV-test/search?node_type=summary_clinical');
   login.ask.isCurrentPage();
-  login.complete.login();
+  await login.complete.login();
   await I.saveScreenshot('Post_login_page_for_debugging.png');
   const theURL = await I.grabCurrentUrl();
   console.log(`${new Date()} - INFO: Current URL: ${theURL}`);

@@ -1,8 +1,12 @@
+/* eslint-disable max-len */
+const { output } = require('codeceptjs');
+
 const homeProps = require('./homeProps.js');
 const portal = require('../../../utils/portal.js');
+const { Bash } = require('../../../utils/bash.js');
 
+const bash = new Bash();
 const I = actor();
-
 /**
  * home Tasks
  */
@@ -15,9 +19,25 @@ module.exports = {
     }
     // wait 2 sec to let the page fully loaded
     I.wait(2);
-    I.captureBrowserLog();
-    I.saveScreenshot('Home_page_for_debugging.png');
+    if (process.env.DEBUG === 'true') {
+      I.captureBrowserLog();
+      I.saveScreenshot('Home_page_for_debugging.png');
+    }
     portal.seeProp(homeProps.ready_cue, 60);
+  },
+
+  async handleSystemUsePopup() {;
+    const acceptButtonExists = await tryTo(() => I.waitForElement(homeProps.systemUseAcceptButton, 5));
+    output.debug(`Accept button found: ${acceptButtonExists}`);
+    I.saveScreenshot('SystemUsePopup.png')
+    if (acceptButtonExists) {
+      output.debug('Handling popup');
+      I.scrollIntoView(homeProps.systemUseAcceptButton);
+      I.click(homeProps.systemUseAcceptButton);
+    } else {
+      output.print('systemUse popup was not found');
+    }
+    I.saveScreenshot('SystemUsePopupHandled.png');
   },
 
   /**
@@ -25,29 +45,19 @@ module.exports = {
    * which username to use when mocking the login.
    * /!\ remember to logout after logging in or following tests will fail!
    */
-  login(username) {
-    this.goToHomepage();
+  async login(username) {
     I.setCookie({ name: 'dev_login', value: username });
-    portal.clickProp(homeProps.googleLoginButton);
-  },
-
-  // This should become default once all Commons move to the version of portal
-  // with Login button on top bar
-  topBarLogin(username) {
-    this.goToHomepage();
-    I.setCookie({ name: 'dev_login', value: username });
-    portal.clickProp(homeProps.loginButton);
     portal.clickProp(homeProps.googleLoginButton);
   },
 
   /**
    * Logs out of windmill
    */
-  logout() {
+  async logout() {
     portal.clickProp(homeProps.logoutButton);
   },
 
-  logoutThroughDropdown() {
+  async logoutThroughDropdown() {
     I.waitForElement({ css: '.g3-icon--user-circle' }, 15);
     I.click('.g3-icon--user-circle');
     portal.clickProp({ locator: { xpath: '//a[contains(text(), \'Logout\')]' } });

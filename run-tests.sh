@@ -2,7 +2,7 @@
 #
 # Jenkins launch script.
 # Use:
-#   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--selectedTest=selectedTest]
+#   bash run-tests.sh 'namespace1 namespace2 ...' [--service=fence] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--seleniumTimeout] [--selectedTest=selectedTest] [--selectedTag=selectedTag] [--debug=debug]
 #
 
 set -xe
@@ -13,12 +13,15 @@ Jenkins test launch script.  Assumes the  GEN3_HOME environment variable
 references a current [cloud-automation](https://github.com/uc-cdis/cloud-automation) folder.
 
 Use:
-  bash run-tests.sh [[--namespace=]KUBECTL_NAMESPACE] [--service=service] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--selectedTest=selectedTest] [--dryrun]
+  bash run-tests.sh [[--namespace=]KUBECTL_NAMESPACE] [--service=service] [--testedEnv=testedEnv] [--isGen3Release=isGen3Release] [--selectedTest=selectedTest] [--selectedTag=selectedTag] [--dryrun] [--debug=debug]
     --namespace default is KUBECTL_NAMESPACE:-default
     --service default is service:-none
     --testedEnv default is testedEnv:-none (for cdis-manifest PRs, specifies which environment is being tested, to know which tests are relevant)
     --isGen3Release default is "false"
+    --seleniumTimeout default is 3600
     --selectedTest default is selectedTest:-none
+    --selectedTag default is selectedTag:-none
+    --debug default is "false" (run tests in debug mode if true)
 EOM
 }
 
@@ -35,12 +38,23 @@ dryrun() {
   fi
 }
 
+# Check if a service in the manifest
+ifServiceDeployed() {
+  local command
+  local response
+
+  command="g3kubectl get configmap manifest-versions -o json | jq -r .data.json | jq -r "'".[\"$1\"]"'""
+  response=$(eval "$command")
+
+  echo $response
+}
+
 # Takes one argument, being service name
 getServiceVersion() {
   local command
   local response
   local version
-  command="g3kubectl get configmap manifest-versions -o json | jq -r .data.json | jq -r .$1"
+  command="g3kubectl get configmap manifest-versions -o json | jq -r .data.json | jq -r "'".[\"$1\"]"'""
   response=$(eval "$command")
 
   # Get last item of delimited string using string operators:
@@ -122,9 +136,12 @@ donot() {
     or=''
   fi
   doNotRunRegex="${doNotRunRegex}${or}$1"
+  doNotRunRegexDotStar="${doNotRunRegexDotStar}${or}.*$1"
 }
 
 doNotRunRegex=""
+# for advanced grep usage
+doNotRunRegexDotStar=""
 
 #----------------------------------------------------
 # main
@@ -142,7 +159,10 @@ namespaceName="${KUBECTL_NAMESPACE}"
 service="${service:-""}"
 testedEnv="${testedEnv:-""}"
 isGen3Release="${isGen3Release:false}"
-selectedTest="${selectedTest:-"all"}"
+seleniumTimeout="${seleniumTimeout:3600}"
+selectedTest="${selectedTest:-""}"
+selectedTag="${selectedTag:-""}"
+debug="${debug:false}"
 
 while [[ $# -gt 0 ]]; do
   key="$(echo "$1" | sed -e 's/^-*//' | sed -e 's/=.*$//')"
@@ -164,11 +184,20 @@ while [[ $# -gt 0 ]]; do
     isGen3Release)
       isGen3Release="$value"
       ;;
+    seleniumTimeout)
+      seleniumTimeout="$value"
+      ;;
     selectedTest)
       selectedTest="$value"
       ;;
+    selectedTag)
+      selectedTag="$value"
+      ;;
     dryrun)
       isDryRun=true
+      ;;
+    debug)
+      debug="$value"
       ;;
     *)
       if [[ -n "$value" && "$value" == "$key" ]]; then
@@ -201,18 +230,27 @@ if [[ "$KUBECTL_NAMESPACE" != "$namespaceName" ]]; then
   exit 1
 fi
 
+if [[ "$JENKINS_HOME" != "" && "$RUNNING_LOCAL" == "false" ]]; then
+  # Set HOME environment variable as the current PR workspace
+  # to avoid conflicts between gen3 CLI (cdis-data-client) profile configurations
+  export HOME=$WORKSPACE
+fi
+
 cat - <<EOM
 Running with:
   namespace=$namespaceName
   service=$service
   testedEnv=$testedEnv
   isGen3Release=$isGen3Release
+  seleniumTimeout=$seleniumTimeout
   selectedTest=$selectedTest
+  selectedTag=$selectedTag
 EOM
 
 echo 'INFO: installing dependencies'
 if [ -f gen3-qa-mutex.marker ]; then
   echo "parallel-testing is enabled, the dependencies have already been installed by Jenkins."
+  export PARALLEL_TESTING_ENABLED="true"
 else
   dryrun npm ci
 fi
@@ -227,13 +265,39 @@ runTestsIfServiceVersion "@indexRecordConsentCodes" "sheepdog" "1.1.13"
 runTestsIfServiceVersion "@coreMetadataPage" "portal" "2.20.8"
 runTestsIfServiceVersion "@indexing" "portal" "2.26.0" "2020.05"
 runTestsIfServiceVersion "@cleverSafe" "fence" "4.22.4" "2020.09"
+runTestsIfServiceVersion "@requestor" "requestor" "1.5.0" "2022.02"
+runTestsIfServiceVersion "@requestor" "arborist" "3.2.0" "2021.12"
+runTestsIfServiceVersion "@requestorNew" "requestor" "1.5.1" "2022.06"
+runTestsIfServiceVersion "@requestorNew" "arborist" "3.2.0" "2021.12"
+runTestsIfServiceVersion "@requestorRoleIds" "requestor" "1.7.0" "2022.09"
+runTestsIfServiceVersion "@requestorRoleIds" "arborist" "3.2.0" "2021.12"
+runTestsIfServiceVersion "@clientCreds" "arborist" "4.0.0" "2022.12"
+runTestsIfServiceVersion "@clientCreds" "fence" "6.1.0" "2022.10"
+runTestsIfServiceVersion "@clientCreds" "requestor" "1.8.0" "2022.12"
+runTestsIfServiceVersion "@clientExpiration" "fence" "7.0.0" "2023.01"
+runTestsIfServiceVersion "@clientRotation" "fence" "8.0.0" "2023.06"
+
+# disable tests if the service is not deployed
+# export isIndexdDeployed=$(ifServiceDeployed "indexd")
+# if [ -z "$isIndexdDeployed" ] || [ "$isIndexdDeployed" = "null" ];then
+#   echo "indexd is not deployed.Skip all tests required indexd.."
+#   donot '@requires-indexd'
+# fi
+
+listVar="arborist fence guppy indexd manifestservice metadata pelican peregrine pidgin portal sheepdog sower tube audit-service requestor hatchery argo-wrapper cohort-middleware dicom-viewer dicom-server"
+
+for svc_name in $listVar; do
+    export isServiceDeployed=$(ifServiceDeployed $svc_name)
+    if [ -z "$isServiceDeployed" ] || [ "$isServiceDeployed" = "null" ]; then
+      echo "$svc_name is not deployed.Skip all tests requiring $svc_name.."
+      echo "@requires-$svc_name"
+      donot "@requires-$svc_name"
+    fi
+done
 
 # environments that use DCF features
 # we only run Google Data Access tests for cdis-manifest PRs to these
 envsRequireGoogle="dcp.bionimbus.org internalstaging.theanvil.io staging.theanvil.io gen3.theanvil.io preprod.gen3.biodatacatalyst.nhlbi.nih.gov staging.gen3.biodatacatalyst.nhlbi.nih.gov  gen3.biodatacatalyst.nhlbi.nih.gov nci-crdc-staging.datacommons.io nci-crdc.datacommons.io"
-
-# Do not run mariner before setting up the jenkins envs
-donot '@mariner'
 
 #
 # DataClientCLI tests require a fix to avoid parallel test runs
@@ -253,19 +317,21 @@ donot '@fail'
 # Do not run batch processing tests
 donot '@batch'
 
-# Do not run dataguids.org test for regular PRs
-donot '@dataguids'
+# Do not run prjsBucketAccess (for prod-execution only)
+donot '@prjsBucketAccess'
+
+echo "INFO: disabling RAS DRS test as jenkins env is not configured"
+donot '@rasDRS'
 
 # For dataguids.org PRs, skip all fence-related bootstrapping oprations
 # as the environment does not have fence
 if [ "$testedEnv" == "dataguids.org" ]; then
   # disable bootstrap script from codeceptjs
   sed -i '/bootstrap\:/d' codecept.conf.js
-fi
-
-if [[ "$testedEnv" == *"heal"* ]]; then
-  # use moon instead of selenium
-  sed -i 's/selenium-hub/moon.moon/' codecept.conf.js
+  sed -i '/bootstrap\:/d' gen3.qa.in.a.box.codecept.conf.js
+else
+  # skip dataguids tests for PRs other than dataguids.org manifest PRs
+  donot '@dataguids'
 fi
 
 #
@@ -282,6 +348,14 @@ else
   echo "INFO: enabling Google Data Access tests for $service"
 fi
 
+# gen3-client tests run on gen3-qa repo and in nightly builds
+if [[ "$service" != "gen3-qa" && "$service" != "cdis-data-client" && "$service" != "gen3-client" ]]; then
+  donot '@gen3-client'
+fi
+
+echo "INFO: temporarily disabling GWAS UI tests as jenkins envs are not still configured"
+donot '@GWASUI'
+
 #
 # RAS AuthN Integration tests are only required for some repos
 #
@@ -292,9 +366,12 @@ if [[ "$isGen3Release" != "true" && "$service" != "gen3-qa" && "$service" != "fe
 else
   #
   # Run tests including RAS AuthN Integration tests
+  # If RAS Staging is down, uncomment the line below to skip these tests
+  # donot '@rasAuthN'
+  runTestsIfServiceVersion "@rasAuthN" "fence" "4.22.1" "2020.09"
+  echo "INFO: enabling RAS AuthN Integration tests for $service"
   donot '@rasAuthN'
-  # runTestsIfServiceVersion "@rasAuthN" "fence" "4.22.1" "2020.09"
-  # echo "INFO: enabling RAS AuthN Integration tests for $service"
+  # Disabling RAS tests temporarily because of RAS authentication issues
 fi
 
 # TODO: eventually enable for all services, but need arborist and fence updates first
@@ -306,6 +383,17 @@ if [[ "$service" == "cdis-manifest" ]]; then
 else
   echo "INFO: enabling Centralized Auth tests for $service"
 fi
+
+# Only run register user tests in midrc
+#if [[ !( "$service" =~ ^(cdis-manifest|gitops-qa|gen3-qa) && $testedEnv == *"midrc"* )]]; then
+#  echo "INFO: disabling Register User tests for $service"
+#  donot '@registerUser'
+#else
+#  echo "INFO: enabling Register User tests for $service"
+#fi
+
+donot '@registerUser' 
+donot '@dicomViewer'
 
 # Focus on GUI tests for data-portal
 if [[ "$service" == "data-portal" ]]; then
@@ -341,12 +429,27 @@ if [ -z "$ddHasConsentCodes" ]; then
   donot '@indexRecordConsentCodes'
 fi
 
+#### FRONTEND_ROOT ####
+export frontend_root="$(g3kubectl get configmaps manifest-global -o yaml | yq '.data.frontend_root')"
+if [[ $frontend_root == \"gen3ff\" ]]; then
+  export PORTAL_SUFFIX="/portal"
+  donot '@centralizedAuth'
+else
+  export PORTAL_SUFFIX=""
+  donot '@requires-frontend-framework'
+fi
+
+#### GEN3 FF HEAL ####
+if [[ ! $testedEnv == *"heal"* ]]; then
+  donot '@heal'
+fi
+
 #
 # try to read configs of portal
 #
 hostname="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.hostname')"
 portalApp="$(g3kubectl get configmaps manifest-global -o json | jq -r '.data.portal_app')"
-portalConfigURL="https://${hostname}/data/config/${portalApp}.json"
+portalConfigURL="https://${hostname}${PORTAL_SUFFIX}/data/config/${portalApp}.json"
 portalVersion="$(g3kubectl get configmaps manifest-all -o json | jq -r '.data.json | fromjson.versions.portal')"
 
 # do not run portal related tests for NDE portal
@@ -379,13 +482,26 @@ if [ -z "$checkForPresenceOfMetadataIngestionSowerJob" ]; then
   donot '@metadataIngestion'
 fi
 
-# # studyViewer
-# if [[ $(curl -s "$portalConfigURL" | jq 'contains({studyViewerConfig}) | not') == "true" ]] || [[ ! -z "$testedEnv" ]]; then
-#   donot '@studyViewer'
-# elif ! (g3kubectl get pods --no-header -l app=requestor | grep requestor) > dev/null 2>&1; then
-#   donot '@studyViewer'
+# # Study Viewer test
+# runStudyViewerTests=false
+# #run for data-portal/requestor/gen3-qa/gitops-qa/cdis-manifest repo
+# if [[ ! ("$service" =~ ^(data-portal|requestor|gen3-qa)$ || $testedEnv == *"niaid"*) ]]; then
+#   echo "Disabling study-viewer test"
+#   donot "@studyViewer"
+# else
+#   if [[ $(curl -s "$portalConfigURL" | jq 'contains({studyViewerConfig})') == "true" ]]; then
+#     if (g3kubectl get pods --no-headers -l app=requestor | grep requestor) > /dev/null 2>&1; then
+#       echo "### Study-Viewer is deployed"
+#       runStudyViewerTests=true
+#     fi
+#   fi
 # fi
+
+# disabling the studyViewer test for debugging
 donot '@studyViewer'
+
+# disabling the nondbgap usersync test as the jenkins is configured
+donot '@nondbgapUsersyncTest'
 
 # landing page buttons
 if [[ $(curl -s "$portalConfigURL" | jq '.components | contains({buttons}) | not') == "true" ]] || [[ ! -z "$testedEnv" ]]; then
@@ -411,6 +527,65 @@ elif ! (g3kubectl get pods --no-headers -l app=hatchery | grep hatchery) > /dev/
   donot '@exportToWorkspacePortalHatchery'
 fi
 
+if [[ "$service" == "pelican" || "$service" == "tube" || "$service" == "cdis-manifest" || "$service" == "gen3-qa" ]]; then
+  echo "Running pfbExportTest since repo is $service"
+else
+  echo "Skipping pfbExportTest since repo is $service"
+  donot '@pfbExport'
+fi
+
+donot '@jupyterNb'
+
+#
+# only run audit-service tests for manifest repos IF audit-service is
+# deployed, and for repos with an audit-service integration.
+#
+runAuditTests=true
+if ! [[ "$service" =~ ^(audit-service|fence|cloud-automation|gen3-qa)$ ]]; then
+  if [[ "$service" =~ ^(cdis-manifest|gitops-qa|gitops-dev)$ ]]; then
+    if ! (g3kubectl get pods --no-headers -l app=audit-service | grep audit-service) > /dev/null 2>&1; then
+      echo "INFO: audit-service is not deployed"
+      runAuditTests=false
+    fi
+  else
+    echo "INFO: no need to run audit-service tests for repo $service"
+    runAuditTests=false
+  fi
+fi
+if [[ "$runAuditTests" == true ]]; then
+  echo "INFO: enabling audit-service tests"
+else
+  echo "INFO: disabling audit-service tests"
+  donot '@audit'
+fi
+# the tests assume audit-service can read from an AWS SQS
+runTestsIfServiceVersion "@audit" "audit-service" "1.0.0" "2021.06"
+# the tests assume fence records both successful and unsuccessful events
+runTestsIfServiceVersion "@audit" "fence" "5.1.0" "2021.07"
+
+#
+# Run Agg MDS tests only if the feature is enabled
+# and service is one of metadata-service, cdis-manifest, gitops-qa, gitops-dev and gen3-qa
+# and if metadata service version is 1.5.0 (semver) / 2021.10 (monthly)
+#
+usingAggMDS=$(g3kubectl get cm manifest-metadata -o yaml | yq .data.USE_AGG_MDS)
+portalUsingAggMDS=$(gen3 secrets decode portal-config gitops.json | jq '.featureFlags.discoveryUseAggMDS')
+if ! [[ $usingAggMDS == \"true\" && $portalUsingAggMDS == "true" && "$service" =~ ^(cdis-manifest|gitops-qa|gitops-dev|gen3-qa|metadata-service) ]]; then
+	donot '@aggMDS'
+fi
+runTestsIfServiceVersion "@aggMDS" "metadata" "1.6.0" "2021.10"
+
+#
+# Run Discovery Page tests only if feature flag is enabled
+# and service is one of metadata-service, cdis-manifest, gitops-qa, gitops-dev and gen3-qa
+# and if portal service version is 3.8.1 (semver) / 2021.10 (monthly)
+#
+discoveryFeatureFlagEnabled=$(gen3 secrets decode portal-config gitops.json | jq '.featureFlags.discovery')
+if ! [[ $discoveryFeatureFlagEnabled == "true" && "$service" =~ ^(cdis-manifest|gitops-qa|gitops-dev|gen3-qa|metadata-service) ]]; then
+  donot '@discoveryPage'
+fi
+runTestsIfServiceVersion "@discoveryPage" "portal" "3.8.1" "2021.09"
+
 ########################################################################################
 
 testArgs="--reporter mocha-multi"
@@ -427,6 +602,28 @@ if [[ "$testedEnv" == "ci-env-1.planx-pla.net" ]]; then
   export GCLOUD_DYNAMIC_PROJECT="gen3qa-ci-env-1-279903"
 fi
 export testedEnv="$testedEnv"
+
+#### Gen3 QA in a BOX ############################################################################
+if [[ "$(hostname)" == *"cdis-github-org"* ]] || [[ "$(hostname)" == *"planx-ci-pipeline"* ]]; then
+  echo "inside an ephemeral gen3-qa-in-a-box pod..."
+  
+  # Start selenium process within the ephemeral jenkins pod.
+  # npx selenium-standalone install --version=4.0.0-alpha-7 --drivers.chrome.version=96.0.4664.45 --drivers.chrome.baseURL=https://chromedriver.storage.googleapis.com
+  chromeVersion=$(google-chrome --version | grep -Eo '[0-9.]{10,20}' | cut -d '.' -f 1-3)
+  echo "Chrome Version: ${chromeVersion}"
+  # chromeDriverVersion=$(curl -s https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$chromeVersion)
+  # npx selenium-standalone install --drivers.chrome.version=$chromeDriverVersion --drivers.chrome.baseURL=https://chromedriver.storage.googleapis.com
+  # timeout $seleniumTimeout npx selenium-standalone start --drivers.chrome.version=$chromeDriverVersion &
+
+  # gen3-qa-in-a-box requires a couple of changes to its webdriver config
+  set +e
+  mv gen3.qa.in.a.box.codecept.conf.js codecept.conf.js
+  cat codecept.conf.js
+  set -e
+else
+  echo "NOT inside an ephemeral gen3-qa-in-a-box pod..."
+fi
+##################################################################################################
 
 if [ "$selectedTest" == "all" ]; then
     # no interactive tests
@@ -446,21 +643,29 @@ EOM
     exitCode=$RC
     set -e
 else
-  set +e
-  additionalArgs=""
-  foundReqGoogle=$(grep "@reqGoogle" ${selectedTest})
-  foundDataClientCLI=$(grep "@dataClientCLI" ${selectedTest})
-  if [ -n "$foundReqGoogle" ]; then
-    additionalArgs="--grep @reqGoogle"
-  elif [ -n "$foundDataClientCLI" ]; then
-    additionalArgs="--grep @indexRecordConsentCodes|@dataClientCLI --invert"
-  elif [[ "$selectedTest" == "suites/sheepdogAndPeregrine/submitAndQueryNodesTest.js" && -z "$ddHasConsentCodes" ]]; then
-    additionalArgs="--grep @indexRecordConsentCodes --invert"
-  else
-    additionalArgs="--grep @manual --invert"
+  if [ -n "$selectedTest" ]; then
+    echo "Test selected - $selectedTest"
+    set +e
+    foundDataClientCLI=$(grep "@dataClientCLI" ${selectedTest})
+    if [ -n "$foundDataClientCLI" ]; then
+      donot '@indexRecordConsentCodes'
+      donot '@dataClientCLI'
+    fi
+    if [[ "$selectedTest" == "suites/sheepdogAndPeregrine/submitAndQueryNodesTest.js" && -z "$ddHasConsentCodes" ]]; then
+      donot '@indexRecordConsentCodes'
+    fi
+    dryrun REPO=$service DEBUG=$debug npm 'test' -- $testArgs ${selectedTest}
+    RC=$?
+    exitCode=$RC
+    set -e
   fi
-  set -e
-  npm 'test' -- --reporter mocha-multi --verbose ${additionalArgs} ${selectedTest}
+  if [ -n "$selectedTag" ]; then
+    echo "Tag selected - $selectedTag"
+    REPO=$service DEBUG=$debug npm 'test' -- --reporter mocha-multi --verbose --grep "(?=.*$selectedTag)^(?!$doNotRunRegexDotStar)"
+    RC=$?
+    exitCode=$RC
+    set -e
+  fi
 fi
 
 # When zero tests are executed, a results*.xml file is produced containing a tests="0" counter
@@ -481,5 +686,7 @@ if [ -n "$zeroTests" ]; then
   npm test -- --verbose suites/fail.js
   exitCode=1
 fi
+
+echo "Testing done at $(date)" > output/gen3-qa.log
 
 exit $exitCode

@@ -1,0 +1,28 @@
+{
+    "objective": "GA4GH DRS API Performance Test",
+    "service": "ga4gh",
+    "details": {
+      "name": "qa-dcp.planx-pla.net",
+      "UWSGI_PROCESSES": 1,
+      "fence_autoscaler": {
+        "min": 10,
+        "max": 15,
+        "targetCpu": 40
+      },
+      "nginx_rate_limit": "18r/s"
+    },
+    "load_test_scenario": "drs-performance",
+    "presigned_url_protocol": "s3",
+    "indexd_record_authz_list": "/programs/DEV/projects/test1,/programs/DEV/projects/test2,/programs/DEV/projects/test3",
+    "minimum_records": 10000,
+    "record_chunk_size": 1024,
+    "num_parallel_requests": 5,
+    "passports_list": "",
+    "override_access_token": "test",
+    "GEN3_HOST": "avantol.planx-plan.net",
+    "ACCESS_TOKEN": "",
+    "SIGNED_URL_PROTOCOL": "s3",
+    "MTLS_DOMAIN": "qa-dcp.planx-pla.net",
+    "MTLS_CERT": "mtls.crt",
+    "MTLS_KEY": "mtls.key"
+}

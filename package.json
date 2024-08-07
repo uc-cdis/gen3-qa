@@ -3,9 +3,6 @@
   "version": "0.1.0",
   "description": "Bionimbus Data Portal",
   "main": "index.js",
-  "dependencies": {
-    "eslint-plugin-react-hooks": "^1.7.0"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/uc-cdis/auto-qa.git"
@@ -17,63 +14,87 @@
   },
   "devDependencies": {
     "@elastic/elasticsearch": "^7.9.0",
-    "@google-cloud/storage": "^4.7.0",
+    "@google-cloud/storage": "^5.8.3",
+    "allure-codeceptjs": "^2.4.0",
     "atob": "^2.1.2",
-    "axios": "^0.19.2",
+    "axios": "^0.21.2",
     "babel-eslint": "^10.1.0",
     "browserify": "^16.5.2",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chai-subset": "^1.6.0",
-    "codeceptjs": "^3.0.5",
+    "cli-progress": "^3.12.0",
+    "codeceptjs": "^3.4.1",
+    "dogapi": "^2.8.4",
     "dummy-json": "^2.0.0",
     "es6-promise": "^4.2.8",
-    "eslint": "^6.8.0",
+    "eslint": "^7.32.0",
     "eslint-config-airbnb": "^18.2.0",
     "eslint-plugin-chai-expect": "^2.2.0",
     "eslint-plugin-chai-friendly": "^0.5.0",
     "eslint-plugin-codeceptjs": "^1.3.0",
-    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-json": "^2.1.2",
-    "eslint-plugin-jsx-a11y": "^6.3.1",
-    "eslint-plugin-react": "^7.20.6",
+    "eslint-plugin-jsx-a11y": "^6.7.1",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.2.0",
     "exceljs": "^3.10.0",
     "figures": "^3.2.0",
     "googleapis": "^59.0.0",
     "influx": "^5.6.3",
     "isomorphic-fetch": "^2.2.1",
-    "jsdom": "^16.4.0",
+    "jsdom": "^16.5.0",
     "json-stringify-safe": "^5.0.1",
-    "lint-diff": "^1.2.1",
-    "log4js": "^6.3.0",
-    "minimist": ">=1.2.2",
+    "log4js": "^6.8.0",
+    "minimist": "^1.2.8",
     "mocha-junit-reporter": "^1.23.3",
-    "mocha-multi": "^1.1.3",
-    "nconf": "^0.10.0",
+    "mocha-multi": "^1.1.7",
+    "nconf": "^0.12.0",
     "nock": "^12.0.3",
-    "node-fetch": "^2.6.1",
-    "node-forge": ">=0.10.0",
+    "node-fetch": "^2.6.9",
+    "node-forge": ">=1.0.0",
     "node-ssh": "^7.0.1",
-    "cli-progress": "^3.8.2",
+    "perf_hooks": "^0.0.1",
     "prettier": "^1.19.1",
     "request": "^2.88.2",
-    "selenium-standalone": "^6.20.0",
+    "selenium-standalone": "^8.3.0",
+    "semver": "^7.5.3",
     "ssl-root-cas": "^1.3.1",
     "tsv": "^0.2.0",
     "unirest": "^0.6.0",
     "uuid": "^3.4.0",
-    "wcag": "latest",
+    "wcag": "^0.3.0",
     "webdriverio": "^6.1.17"
   },
   "scripts": {
     "selenium-install": "selenium-standalone install",
     "selenium-start": "selenium-standalone start > /dev/null 2>&1 &",
     "selenium-kill": "pkill -f selenium-standalone",
-    "eslint": "eslint --ignore-path .gitignore .",
-    "eslintdiff": "lint-diff $TRAVIS_COMMIT_RANGE",
+    "eslint": "eslint --ignore-path .gitignore --fix",
+    "eslintdiff": "eslint --ignore-path .gitignore --fix $(git diff --name-only HEAD '**/*.js' | xargs)",
     "flint": "eslint --ignore-path .gitignore",
     "test": "npx --stack-size=65500 codeceptjs run --plugins allure",
     "grep-test": ". local_run.sh && codeceptjs run --verbose --grep",
     "create-service": "node scripts/create_service.js"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.10",
+    "npm-upgrade": "^3.1.0",
+    "query-string": "^7.1.3"
+  },
+  "overrides": {
+    "gauge": {
+      "strip-ansi": {
+        "ansi-regex": "^3.0.1"
+      }
+    },
+    "wcag": {
+      "strip-ansi": {
+        "ansi-regex": "^3.0.1"
+      },
+      "has-ansi": {
+        "ansi-regex": "^3.0.1"
+      }
+    }
   }
 }

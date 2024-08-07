@@ -2,7 +2,7 @@
  * login properties
  */
 module.exports = {
-  path: '/login',
+  path: 'login',
 
   ready_cue: {
     locator: {
@@ -12,7 +12,7 @@ module.exports = {
 
   googleLoginButton: {
     locator: {
-      xpath: '//button[contains(text(), \'Google\')]',
+      xpath: 'xpath: //button[contains(text(), \'Google\') or contains(text(), \'BioData Catalyst Developer Login\')]',
     },
   },
 

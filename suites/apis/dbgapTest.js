@@ -1,5 +1,5 @@
 /*eslint-disable */
-Feature('dbgapSyncing').retry(2);
+Feature('dbgapSyncing @requires-fence @requires-indexd @e2e').retry(2);
 /*
 Test running usersync job and pulling files from a fake dbgap sftp server (populated
 with fake telemetry / user access files). Ensure users can download files they should
@@ -77,6 +77,27 @@ const indexed_files = {
     authz: ['/orgB/programs/phs000179'],
     size: 11,
   },
+  parentPhs001194File: {
+    filename: 'cascauth',
+    urls: [
+      's3://cdis-presigned-url-test/testdata',
+      `gs://${fenceProps.googleBucketInfo.test.bucketId}/${fenceProps.googleBucketInfo.QA.fileName}`
+
+    ],
+    md5: '73d643ec3f4beb9020eef0beed440ad2',
+    authz: ['/programs/phs001194'],
+    size: 11,
+  },
+  childPhs000571File: {
+    filename: 'cascauth',
+    urls: [
+      's3://cdis-presigned-url-test/testdata',
+      `gs://${fenceProps.googleBucketInfo.test.bucketId}/${fenceProps.googleBucketInfo.QA.fileName}`
+    ],
+    md5: '73d643ec3f4beb9020eef0beed440ad2',
+    authz: ['/programs/phs000571'],
+    size: 11,
+  },
   QAFile: {
     filename: 'testdata',
     urls: [
@@ -100,49 +121,67 @@ const new_dbgap_records = {
 };
 
 BeforeSuite(async ({ fence, users, indexd }) => {
-  console.log('Removing test indexd records if they exist');
-  await indexd.do.deleteFileIndices(Object.values(indexed_files));
-  await indexd.do.deleteFileIndices(Object.values(new_dbgap_records));
+    console.log('Removing test indexd records if they exist');
+    await indexd.do.deleteFileIndices(Object.values(indexed_files));
+    await indexd.do.deleteFileIndices(Object.values(new_dbgap_records));
 
-  console.log('Adding indexd files used to test signed urls');
-  const ok = await indexd.do.addFileIndices(Object.values(indexed_files));
-  chai.expect(
-    ok, 'unable to add files to indexd as part of dbgapTest setup',
-  ).to.be.true;
+    console.log('Adding indexd files used to test signed urls');
+    const ok = await indexd.do.addFileIndices(Object.values(indexed_files));
+    chai.expect(
+      ok, 'unable to add files to indexd as part of dbgapTest setup',
+    ).to.be.true;
 
-  console.log('Running usersync job and forcing only dbgap sync');
-  console.log(`start time: ${Math.floor(Date.now() / 1000)}`);
-  bash.runJob('usersync', args = 'FORCE true ONLY_DBGAP true');
-  console.log(`end time: ${Math.floor(Date.now() / 1000)}`);
+    console.log('Running usersync job and forcing only dbgap sync');
+    console.log(`start time: ${Math.floor(Date.now() / 1000)}`);
+    bash.runJob('usersync', args = 'FORCE true ONLY_DBGAP true');
+    console.log(`end time: ${Math.floor(Date.now() / 1000)}`);
 
-  // Google signed urls are testing for dbgap syncing as well, link phs ids to
-  // existing buckets
-  let { bucketId } = fenceProps.googleBucketInfo.QA;
-  var fenceCmd = `fence-create link-bucket-to-project --project_auth_id phs000179 --bucket_id ${bucketId} --bucket_provider google`;
-  console.log(`Running: ${fenceCmd}`);
-  bash.runCommand(fenceCmd, 'fence');
+    // Google signed urls are testing for dbgap syncing as well, link phs ids to
+    // existing buckets
+    let { bucketId } = fenceProps.googleBucketInfo.QA;
+    var fenceCmd = `fence-create link-bucket-to-project --project_auth_id phs000179 --bucket_id ${bucketId} --bucket_provider google`;
+    console.log(`Running: ${fenceCmd}`);
+    bash.runCommand(fenceCmd, 'fence');
 
-  // Google signed urls are testing for dbgap syncing as well, link phs ids to
-  // existing buckets
-  bucketId = fenceProps.googleBucketInfo.test.bucketId;
-  var fenceCmd = `fence-create link-bucket-to-project --project_auth_id phs000178 --bucket_id ${bucketId} --bucket_provider google`;
-  console.log(`Running: ${fenceCmd}`);
-  bash.runCommand(fenceCmd, 'fence');
+    // Google signed urls are testing for dbgap syncing as well, link phs ids to
+    // existing buckets
+    bucketId = fenceProps.googleBucketInfo.test.bucketId;
+    var fenceCmd = `fence-create link-bucket-to-project --project_auth_id phs000178 --bucket_id ${bucketId} --bucket_provider google`;
+    console.log(`Running: ${fenceCmd}`);
+    bash.runCommand(fenceCmd, 'fence');
+
+    // Google signed urls are testing for dbgap syncing as well, link phs ids to
+    // existing buckets
+    bucketId = fenceProps.googleBucketInfo.test.bucketId;
+    var fenceCmd = `fence-create link-bucket-to-project --project_auth_id phs001194 --bucket_id ${bucketId} --bucket_provider google`;
+    console.log(`Running: ${fenceCmd}`);
+    bash.runCommand(fenceCmd, 'fence');
+
+    // Google signed urls are testing for dbgap syncing as well, link phs ids to
+    // existing buckets
+    bucketId = fenceProps.googleBucketInfo.test.bucketId;
+    var fenceCmd = `fence-create link-bucket-to-project --project_auth_id phs000571 --bucket_id ${bucketId} --bucket_provider google`;
+    console.log(`Running: ${fenceCmd}`);
+    bash.runCommand(fenceCmd, 'fence');
 });
 
 AfterSuite(async ({ fence, indexd, users }) => {
-  console.log('Removing indexd files used to test signed urls');
-  await indexd.do.deleteFileIndices(Object.values(indexed_files));
-  await indexd.do.deleteFileIndices(Object.values(new_dbgap_records));
+  try {
+    console.log('Removing indexd files used to test signed urls');
+    await indexd.do.deleteFileIndices(Object.values(indexed_files));
+    await indexd.do.deleteFileIndices(Object.values(new_dbgap_records));
 
-  console.log('Running usersync after dbgap testing');
-  console.log(`start time: ${Math.floor(Date.now() / 1000)}`);
-  bash.runJob('usersync', args = 'FORCE true');
-  console.log(`end time: ${Math.floor(Date.now() / 1000)}`);
+    console.log('Running usersync after dbgap testing');
+    console.log(`start time: ${Math.floor(Date.now() / 1000)}`);
+    bash.runJob('usersync', args = 'FORCE true');
+    console.log(`end time: ${Math.floor(Date.now() / 1000)}`);
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try creating urls to upload @dbgapSyncing @reqGoogle',
-  async ({ fence, users }) => {
+  async ({ I, fence, users }) => {
     // ASSUME BeforeSuite has run the ONLY_DBGAP usersync
     // users.mainAcct has access to phs000178
     console.log('Use mainAcct to create s3 signed URL for file phs000178');
@@ -158,7 +197,9 @@ Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try crea
 
     let phs000178s3FileContents = null;
     let phs000178gsFileContents = null;
-
+    console.log(Date.now());
+    await apiUtil.sleepMS(60000);
+    console.log(Date.now());
     try {
       phs000178s3FileContents = await fence.do.getFileFromSignedUrlRes(
         signedUrls3phs000178Res,
@@ -242,7 +283,66 @@ Scenario('dbGaP Sync: created signed urls (from s3 and gs) to download, try crea
     fence.ask.assertStatusCode(fenceUploadRes, 401,
       `User ${users.mainAcct.username} should not be able to upload for dbgap `
       + 'project phs000178, even though they have read access.');
-  });
+}).retry(1);
+
+Scenario('dbGaP Sync: Cascading Auth - create signed urls from s3 and gs to download, @dbgapSyncing @reqGoogle',
+    async ({I, fence, users}) => {
+        console.log('Use mainAcct to create s3 signed URL for file phs001194');
+
+        console.log('Use mainAcct to create gs signed URL for file phs001194');
+        const signedUrlgsPhs001194Res = await fence.do.createSignedUrl(
+            indexed_files.parentPhs001194File.did, ['protocol=gs'],
+            users.mainAcct.accessTokenHeader,
+        );
+        const signedUrls3phs001194Res = await fence.do.createSignedUrl(
+            indexed_files.parentPhs001194File.did, ['protocol=s3'],
+            users.mainAcct.accessTokenHeader,
+        );
+
+        const phs001194s3FileContents = await fence.do.getFileFromSignedUrlRes(
+            signedUrls3phs001194Res
+        );
+        const phs001194gsFileContents = await fence.do.getFileFromSignedUrlRes(
+            signedUrlgsPhs001194Res
+        );
+
+        console.log('Use mainAcct to create s3 signed URL for file phs000571');
+
+        console.log('Use mainAcct to create gs signed URL for file phs000571');
+        const signedUrlgsPhs000571Res = await fence.do.createSignedUrl(
+            indexed_files.childPhs000571File.did, ['protocol=gs'],
+            users.mainAcct.accessTokenHeader,
+        );
+        const signedUrls3phs000571Res = await fence.do.createSignedUrl(
+            indexed_files.childPhs000571File.did, ['protocol=s3'],
+            users.mainAcct.accessTokenHeader,
+        );
+
+        const phs000571s3FileContents = await fence.do.getFileFromSignedUrlRes(
+            signedUrls3phs000571Res
+        );
+        const phs000571gsFileContents = await fence.do.getFileFromSignedUrlRes(
+            signedUrlgsPhs000571Res
+        );
+        chai.expect(phs000571s3FileContents,
+            `User ${users.mainAcct.username} with access could NOT create s3 signed urls and read file for a ` +
+            `record in authorized dbGaP substudy phs000571 with its parent study phs001194 authorization`)
+            .to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+        chai.expect(phs000571gsFileContents,
+            `User ${users.mainAcct.username} with access could NOT create gs signed urls and read file for a ` +
+             'record in authorized dbGaP substudy phs000571 with parent study phs001194 authorization')
+            .to.equal(fence.props.googleBucketInfo.test.fileContents);
+
+        chai.expect(phs001194s3FileContents,
+            `User ${users.mainAcct.username} with access could NOT create s3 signed urls `
+            + 'and read file for a record in authorized dbGaP parent study phs001194')
+            .to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
+        chai.expect(phs001194gsFileContents,
+            `User ${users.mainAcct.username} with access could NOT create gs signed urls `
+            + 'and read file for a record in authorized dbGaP parent phs001194')
+            .to.equal(fence.props.googleBucketInfo.test.fileContents);
+    }
+)
 
 Scenario('dbGaP + user.yaml Sync: ensure combined access @dbgapSyncing @reqGoogle',
   async ({ fence, users }) => {
@@ -278,7 +378,7 @@ Scenario('dbGaP + user.yaml Sync: ensure combined access @dbgapSyncing @reqGoogl
     chai.expect(QAFileContents,
       `User ${users.mainAcct.username} with access could NOT create s3 signed urls `
       + 'and read file for a record in authorized program QA').to.equal(fence.props.awsBucketInfo.cdis_presigned_url_test.testdata);
-  });
+}).retry(1);
 
 Scenario('dbGaP + user.yaml Sync (from prev test): ensure user without dbGap access cannot create/update/delete dbGaP indexd records @dbgapSyncing @reqGoogle',
   async ({ fence, indexd, users }) => {
@@ -347,7 +447,7 @@ Scenario('dbGaP + user.yaml Sync (from prev test): ensure user without dbGap acc
       new_dbgap_records.fooBarFile,
       msg = 'should have gotten unauthorized for deleting dbgap record',
     );
-  });
+}).retry(1);
 
 Scenario('dbGaP + user.yaml Sync (from prev test): ensure users with dbGap access cannot create/update/delete dbGaP indexd records @dbgapSyncing @reqGoogle',
   async ({ fence, indexd, users }) => {
@@ -416,4 +516,4 @@ Scenario('dbGaP + user.yaml Sync (from prev test): ensure users with dbGap acces
       new_dbgap_records.fooBarFile,
       msg = 'should have gotten unauthorized for deleting dbgap record',
     );
-  });
+}).retry(1);

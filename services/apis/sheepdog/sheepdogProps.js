@@ -6,9 +6,8 @@
 const { Commons } = require('../../../utils/commons.js');
 const { Gen3Response } = require('../../../utils/apiUtil.js');
 
-const apiRoot = `/api/v0/submission/${Commons.program.name}/${
-  Commons.project.name
-}`;
+const apiRootWithoutProgramProject = '/api/v0/submission';
+const apiRoot = `${apiRootWithoutProgramProject}/${Commons.program.name}/${Commons.project.name}`;
 
 // Base properties for a successful result (add/delete/etc)
 const resSuccessBase = {
@@ -26,7 +25,7 @@ module.exports = {
    * API endpoints
    */
   endpoints: {
-    root: apiRoot,
+    root: apiRootWithoutProgramProject,
     add: apiRoot,
     delete: `${apiRoot}/entities`,
     describe: `${apiRoot}/export`,

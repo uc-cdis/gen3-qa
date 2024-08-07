@@ -1,8 +1,46 @@
-Feature('Guppy');
+Feature('Guppy @requires-guppy');
+
+const { sleepMS } = require('../../utils/apiUtil.js');
+const { Bash } = require('../../utils/bash.js');
+
+const bash = new Bash();
 
 let token;
 
-Before(async ({ users, fence }) => {
+Before(async ({ I, users, fence }) => {
+  // Mutate guppy config to point guppy to pre-defined Canine ETL'ed data
+  // more details: https://github.com/uc-cdis/cloud-automation/pull/1667
+  await bash.runCommand('gen3 mutate-guppy-config-for-guppy-test');
+
+  await sleepMS(30000);
+  // start polling logic to capture new es indices
+  const nAttempts = 24; // 2 minutes and then we give up :(
+  let guppyStatusCheckResp = '';
+  for (let i = 0; i < nAttempts; i += 1) {
+    console.log(`waiting for the new guppy pod with the expected predefined canine indices - Attempt #${i}...`);
+    guppyStatusCheckResp = await I.sendGetRequest(
+      `https://${process.env.NAMESPACE}.planx-pla.net/guppy/_status`,
+      users.mainAcct.accessTokenHeader,
+    );
+    if (guppyStatusCheckResp.status === 200
+      && (Object.prototype.hasOwnProperty.call(guppyStatusCheckResp.data.indices, 'jenkins_subject_1')
+      && Object.prototype.hasOwnProperty.call(guppyStatusCheckResp.data.indices, 'jenkins_file_1'))) {
+      console.log(`${new Date()}: all good, proceed with the test...`);
+      break;
+    } else {
+      console.log(`${new Date()}: The expected predefined canine indices did not show up on guppy's status payload yet...`);
+      await sleepMS(5000);
+      if (i === nAttempts - 1) {
+        const errMsg = `${new Date()}: The new guppy pod never came up with the expected indices: Details: ${guppyStatusCheckResp.data}`;
+        console.log(errMsg);
+        console.log(`err: ${guppyStatusCheckResp.data}`);
+        throw new Error(`ERROR: ${errMsg}`);
+      }
+    }
+  }
+  // wait a bit for any old pod replicas to go away
+  await sleepMS(30000);
+
   const scope = ['data', 'user'];
   const apiKeyRes = await fence.complete.createAPIKey(scope, users.mainAcct.accessTokenHeader);
   token = await fence.do.getAccessToken(apiKeyRes.data.api_key);

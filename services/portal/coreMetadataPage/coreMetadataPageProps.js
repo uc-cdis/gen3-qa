@@ -2,7 +2,7 @@
  * coreMetadataPage Properties
  */
 module.exports = {
-  filesPagePath: '/files',
+  filesPagePath: 'files',
 
   coreMetadataPageClass: '.core-metadata-page',
   coreMetadataPagePictureClass: '.core-metadata-page__picture',

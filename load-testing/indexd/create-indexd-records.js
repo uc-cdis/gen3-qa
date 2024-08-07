@@ -14,18 +14,24 @@ const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresol
 let { ACCESS_TOKEN } = __ENV; // eslint-disable-line no-undef
 
 const {
+  RELEASE_VERSION,
   GEN3_HOST,
   API_KEY,
   VIRTUAL_USERS,
 } = __ENV; // eslint-disable-line no-undef
 
-const myFailRate = new Rate('failed requests');
+const myFailRate = new Rate('failed_requests');
 
 export const options = {
+  tags: {
+    test_scenario: 'Indexd - Create records',
+    release: RELEASE_VERSION,
+    test_run_id: (new Date()).toISOString().slice(0, 16),
+  },
   stages: JSON.parse(VIRTUAL_USERS.slice(1, -1)),
   thresholds: {
     http_req_duration: ['avg<3000', 'p(95)<15000'],
-    'failed requests': ['rate<0.1'],
+    'failed_requests': ['rate<0.1'],
   },
   noConnectionReuse: true,
 };

@@ -1,4 +1,4 @@
-Feature('PresignedUrlAPI');
+Feature('PresignedUrlAPI @requires-indexd @requires-fence');
 
 const chai = require('chai');
 
@@ -61,7 +61,9 @@ Scenario('get presigned-url with invalid protocol', async ({ fence }) => {
     files.invalid_protocol.did,
     ['protocol=s2'],
   );
-  console.log(`debug: presigned url response: ${signedUrlRes.data}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`debug: presigned url response: ${signedUrlRes.data}`);
+  }
   fence.ask.responsesEqual(signedUrlRes, fence.props.resInvalidFileProtocol);
 });
 
@@ -115,5 +117,9 @@ BeforeSuite(async ({ indexd }) => {
 });
 
 AfterSuite(async ({ indexd }) => {
-  await indexd.do.deleteFileIndices(Object.values(files));
+  try {
+    await indexd.do.deleteFileIndices(Object.values(files));
+  } catch (error) {
+    console.err(error);
+  }
 });

@@ -8,17 +8,23 @@ const {
   ACCESS_TOKEN,
   BASIC_AUTH,
   MDS_TEST_DATA,
+  RELEASE_VERSION,
   GEN3_HOST,
   VIRTUAL_USERS,
 } = __ENV; // eslint-disable-line no-undef
 
-const myFailRate = new Rate('failed requests');
+const myFailRate = new Rate('failed_requests');
 
 export const options = {
+  tags: {
+    test_scenario: 'MDS - Create and query',
+    release: RELEASE_VERSION,
+    test_run_id: (new Date()).toISOString().slice(0, 16),
+  },
   stages: JSON.parse(VIRTUAL_USERS.slice(1, -1)),
   thresholds: {
     http_req_duration: ['avg<1000', 'p(95)<2000'],
-    'failed requests': ['rate<0.05'],
+    'failed_requests': ['rate<0.05'],
   },
   noConnectionReuse: true,
 };

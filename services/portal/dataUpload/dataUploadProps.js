@@ -2,8 +2,8 @@
  * dataUpload Properties
  */
 module.exports = {
-  submissionPath: '/submission',
-  mapFilesPath: '/submission/files',
+  submissionPath: 'submission',
+  mapFilesPath: 'submission/files',
 
   submissionHeaderClass: '.submission-header',
 

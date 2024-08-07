@@ -18,7 +18,7 @@
     - RAS_TEST_USER_1_USERNAME
     - RAS_TEST_USER_1_PASSWORD
 */
-Feature('RASAuthN - Negative Tests');
+Feature('RASAuthN - Negative Tests @requires-portal @requires-fence');
 
 const { expect } = require('chai');
 const { sleepMS } = require('../../utils/apiUtil.js');
@@ -29,6 +29,12 @@ const bash = new Bash();
 const I = actor();
 
 const rasAuthLogin = async (username, password) => {
+  // check these if you run into errors:
+  // - process.env.RAS_TEST_USER_1_USERNAME
+  // - process.env.RAS_TEST_USER_1_PASSWORD
+  expect(username, '"rasAuthLogin" needs "username" to proceed').to.not.be.empty;
+  expect(password, '"rasAuthLogin" needs "password" to proceed').to.not.be.empty;
+
   const { clientID } = registerRasClient(username);
   const authUrl = '/user/oauth2/authorize?'
     + 'response_type=code'
@@ -60,7 +66,9 @@ Before(async () => {
   // Deleting registered clients for idempotent local runs
   const deleteClientCmd1 = 'fence-create --arborist http://arborist-service/ client-delete --client ras-user1-test-client';
   const deleteClientForRASUser1 = bash.runCommand(deleteClientCmd1, 'fence', takeLastLine);
-  console.log(`deleteClientForRASUser1: ${deleteClientForRASUser1}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`deleteClientForRASUser1: ${deleteClientForRASUser1}`);
+  }
 });
 
 Scenario('Provide invalid credentials in NIH Login page @rasAuthN', async () => {
@@ -80,7 +88,9 @@ Scenario('Click on Deny button in RAS Authorization page @rashAuthN @manual', as
   I.saveScreenshot('NIH_Login_3.png');
   await sleepMS(3000);
   const urlWithCode = await I.grabCurrentUrl();
-  console.log(`URL With Code - ${urlWithCode}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`URL With Code - ${urlWithCode}`);
+  }
   expect(urlWithCode).to.contain('error_description=The+resource_owner+denied+access+to+resources',
     'The error message is not as expected');
 });

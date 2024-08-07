@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 services:
   influxdb:
     image: influxdb:1.8.4
@@ -21,13 +21,17 @@ services:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
   hub:
-    image: selenium/hub:4.0.0-beta-1-prerelease-20201202
+    image: selenium/hub:4.3.0
+    container_name: selenium-hub
     ports:
       - '4444:4444'
       - '4442:4442'
       - '4443:4443'
   chrome:
-    image: selenium/node-chrome:4.0.0-beta-1-prerelease-20201202
+    image: selenium/node-chrome:4.3.0
+    container_name: node-chrome
+    ports:
+      - '5900:5900'
     volumes:
       - /dev/shm:/dev/shm
     depends_on:

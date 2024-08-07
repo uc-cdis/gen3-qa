@@ -8,8 +8,9 @@ const I = actor();
 
 // Note that 'dependent_ids' now only contains 1 ID for optimization reasons.
 // So this function only works if there is only one entity for each node.
-const deleteByIdRecursively = async function (id) {
-  const deleteEndpoint = `${sheepdogProps.endpoints.delete}/${id}`;
+const deleteByIdRecursively = async function (id, program, project) {
+  // don't use `sheepdogProps.endpoints.delete` which has hardcoded prog/proj
+  const deleteEndpoint = `${sheepdogProps.endpoints.root}/${program}/${project}/entities/${id}`;
   const res = await I.sendDeleteRequest(
     deleteEndpoint,
     user.mainAcct.accessTokenHeader,
@@ -31,8 +32,8 @@ const deleteByIdRecursively = async function (id) {
   // need to delete dependent(s)
   if (res.data.code !== 200 && res.data.dependent_ids !== '') {
     const dependents = res.data.dependent_ids.split(',');
-    await deleteByIdRecursively(dependents[0]);
-    await deleteByIdRecursively(id);
+    await deleteByIdRecursively(dependents[0], program, project);
+    await deleteByIdRecursively(id, program, project);
   }
 };
 
@@ -45,9 +46,9 @@ module.exports = {
    * @param {Node} node
    * @returns {Promise<void>}
    */
-  async addNode(node) {
+  async addNode(node, allowUpdate = false) {
     await sheepdogTasks.addNode(node);
-    sheepdogQuestions.addNodeSuccess(node);
+    sheepdogQuestions.addNodeSuccess(node, '', allowUpdate);
   },
 
   /**
@@ -99,12 +100,18 @@ module.exports = {
   async findDeleteAllNodes() {
     // FIXME: This function doesn't always work and can be optimized
     // Delete all nodes in the program/project
+    // We don't use the `submitter_id`s, but query them for debugging purposes
     const topNode = 'project';
     const q = `
     {
-      ${topNode} {
+      ${topNode} (first: 0) {
+        code
+        programs {
+          name
+        }
         _links {
           id
+          submitter_id
         }
       }
     }`;
@@ -113,10 +120,12 @@ module.exports = {
     try {
       while (res.data[topNode].length > 0) {
         const linkedType = res.data[topNode].pop();
+        const project = linkedType.code;
+        const program = linkedType.programs[0].name;
         /*eslint-disable */
         while (linkedType._links.length > 0) {
           const linkedTypeInstance = linkedType._links.pop();
-          await deleteByIdRecursively(linkedTypeInstance.id);
+          await deleteByIdRecursively(linkedTypeInstance.id, program, project);
         }
         /*eslint-disable */
       }

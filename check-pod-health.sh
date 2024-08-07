@@ -14,10 +14,19 @@ peregrine="${commons_url}/peregrine/_status"
 portal="${commons_url}/"
 fence="${commons_url}/user/jwt/keys"
 selenium="selenium-hub:4444/status"
+
 if [ -n $1 ] && [ "$1" == "dataguids.org" ]; then
-  health_endpoints=( $indexd $portal $selenium )
+  health_endpoints=( $indexd $portal )
+elif ! (g3kubectl get pods --no-headers -l app=portal | grep portal) > /dev/null 2>&1; then
+  health_endpoints=( $sheepdog $peregrine $fence )
 else
-  health_endpoints=( $sheepdog $peregrine $portal $fence $selenium )
+  health_endpoints=( $sheepdog $peregrine $portal $fence )
+fi
+
+if [[ "$(hostname)" == *"cdis-github-org"* ]] || [[ "$(hostname)" == *"planx-ci-pipeline"* ]]; then
+  echo "do not include $selenium in the health check."
+else
+  health_endpoints+=($selenium)
 fi
 
 exit_code=0

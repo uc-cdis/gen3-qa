@@ -7,7 +7,7 @@ Pre-requisites for executing the tests:
     User1 has access to project `DEV-test` (which has a file linked)
     User2 has access to project `jnkns-jenkins` (which does not have a file linked)
 */
-Feature('Export PFB To Workspace');
+Feature('Export PFB To Workspace @requires-portal @requires-hatchery');
 
 const { expect } = require('chai');
 const { interactive, ifInteractive } = require('../../utils/interactive.js');

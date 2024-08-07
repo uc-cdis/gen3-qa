@@ -4,7 +4,7 @@ const { getHomePageDetails } = require('../../../utils/apiUtil');
  * home Properties
  */
 module.exports = {
-  path: '/login',
+  path: 'login',
 
   ready_cue: {
     locator: {
@@ -28,15 +28,13 @@ module.exports = {
     },
   },
 
-  loginButton: {
-    locator: {
-      xpath: '//div[text()="Login"]',
-    },
-  },
-
   logoutButton: {
     locator: {
       xpath: '//div[contains(text(), \'Logout\')]',
     },
+  },
+
+  systemUseAcceptButton: {
+    xpath: '//div[@class="popup__foot"]//button[contains(text(), "Accept")]',
   },
 };

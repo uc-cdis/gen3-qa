@@ -3,8 +3,8 @@
  */
 
 module.exports = {
-  workspacePath: '/workspace',
-  explorerPath: '/explorer',
+  workspacePath: 'workspace',
+  explorerPath: 'explorer',
 
   workspaceDivClass: '.workspace', // for Hatchery
   workspaceIFrameDivClass: '.workspace__iframe', // for Hatchery

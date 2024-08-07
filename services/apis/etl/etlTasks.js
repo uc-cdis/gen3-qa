@@ -10,6 +10,31 @@ const bash = new Bash();
  */
 module.exports = {
   /**
+     * Clean up indices created from an ETL run
+     */
+  cleanUpIndices() {
+    const etlMappingNames = bash.runCommand('g3kubectl get cm etl-mapping -o jsonpath=\'{.data.etlMapping\\.yaml}\' | yq \'.mappings[].name\' | xargs').split(' ');
+
+    const aliases = [];
+    etlMappingNames.forEach((etlMappingName) => {
+      aliases.push(etlMappingName, `${etlMappingName}-array-config`);
+    });
+
+    aliases.forEach((alias) => {
+      this.deleteIndices(`${alias}_0`);
+      if (this.existAlias(alias)) {
+        const index = this.getIndexFromAlias(alias);
+        if (index === '') {
+          console.warn(`WARNING: could not get index for alias ${alias}, meaning index versions associated with ${alias} could not be deleted`);
+        } else {
+          console.log(`deleting all index versions associated with alias ${alias}`);
+          this.deleteAllIndexVersions(index);
+        }
+      }
+    });
+  },
+
+  /**
      * Check if an alias exists
      * @param {string} index - name of index need to be checked
      * @returns {boolean}
@@ -17,17 +42,40 @@ module.exports = {
   deleteIndices(index) {
     try {
       if (index) {
-        const res = bash.runCommand(`curl -X DELETE -s ${etlProps.endpoints.root}/${index}`, 'aws-es-proxy-deployment');
-        if (res.includes('"acknowledged": true')) {
+        const res = bash.runCommand(`gen3 es port-forward > /dev/null 2>&1 && sleep 5s && curl -X DELETE -s $ESHOST/${index}`);
+        if (res.includes('"acknowledged":true')) {
+          if (process.env.DEBUG === 'true') {
+            console.log(`index ${index} was successfully deleted`);
+          }
           return true;
         }
+        // warn here instead of error because deleteAllIndexVersions
+        // iteratively deletes older versions of an index until there are no
+        // more versions left to delete (i.e. not a problem in that case)
+        console.warn(`WARNING: index ${index} could not be deleted:\n${res}`);
       } else {
         console.error(`ERROR: ignoring deleteIndices on invalid index key: ${index}`);
       }
-      return false;
     } catch (ex) {
       // do not freak out if esproxy-service is not running
-      return false;
+      console.error(`ERROR: could not execute bash command to delete index ${index}\n${ex}`);
+    }
+    return false;
+  },
+
+  /**
+     * Delete the current and all previous versions of an index
+     * @param {string} index - current index to delete
+     */
+  deleteAllIndexVersions(index) {
+    const match = index.match(RegExp('(.*)_([0-9]+)$'));
+    const prefix = match[1];
+    let number = Number.parseInt(match[2], 10);
+    for (; number >= 0; number -= 1) {
+      const indexToDelete = `${prefix}_${number}`;
+      if (!this.deleteIndices(`${indexToDelete}`)) {
+        break;
+      }
     }
   },
 
@@ -38,7 +86,7 @@ module.exports = {
      */
   existAlias(alias) {
     try {
-      const res = bash.runCommand(`curl -I -s ${etlProps.endpoints.alias}/${alias}`, 'aws-es-proxy-deployment');
+      const res = bash.runCommand(`gen3 es port-forward > /dev/null 2>&1 && sleep 5s && curl -I -s $ESHOST/_alias/${alias}`);
       if (res.startsWith('HTTP/1.1 200 OK')) {
         return true;
       }
@@ -56,11 +104,11 @@ module.exports = {
      */
   getIndexFromAlias(alias) {
     try {
-      const res = bash.runCommand(`curl -X GET -s ${etlProps.endpoints.alias}/${alias}`, 'aws-es-proxy-deployment');
+      const res = bash.runCommand(`gen3 es port-forward > /dev/null 2>&1 && sleep 5s && curl -X GET -s $ESHOST/_alias/${alias}`);
       return Object.keys(JSON.parse(res))[0];
     } catch (ex) {
       // do not freak out if esproxy-service is not running
-      return [];
+      return '';
     }
   },
 

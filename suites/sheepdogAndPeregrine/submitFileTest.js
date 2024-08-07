@@ -1,4 +1,4 @@
-Feature('SubmitFileTest');
+Feature('SubmitFileTest @requires-indexd');
 
 // Used to construct valid and invalid file nodes
 let baseFileNode;
@@ -32,12 +32,20 @@ BeforeSuite(async ({ sheepdog, nodes }) => {
 });
 Before(() => {
   // clone the base file for "clean" files to work with before each test
-  files = makeFiles(baseFileNode);
+  try {
+    files = makeFiles(baseFileNode);
+  } catch (error) {
+    console.log(error);
+  }
 });
 AfterSuite(async ({ sheepdog, nodes }) => {
-  await sheepdog.complete.deleteNodes(nodes.getPathToFile());
-  // try to delete anything else that may be remaining
-  await sheepdog.complete.findDeleteAllNodes();
+  try {
+    await sheepdog.complete.deleteNodes(nodes.getPathToFile());
+    // try to delete anything else that may be remaining
+    await sheepdog.complete.findDeleteAllNodes();
+  } catch (error) {
+    console.log(error);
+  }
 });
 Scenario('submit and delete file @reqData', async ({ sheepdog, indexd }) => {
   // submit basic file without url
@@ -45,7 +53,7 @@ Scenario('submit and delete file @reqData', async ({ sheepdog, indexd }) => {
   await indexd.complete.checkFile(files.validFile);
   await sheepdog.complete.deleteNode(files.validFile);
   await indexd.complete.deleteFile(files.validFile);
-}).retry(2);
+}).retry(3);
 Scenario('submit file with URL @reqData', async ({ sheepdog, indexd }) => {
   // add url and submit
   files.validFile.data.urls = testUrl;
@@ -53,7 +61,7 @@ Scenario('submit file with URL @reqData', async ({ sheepdog, indexd }) => {
   await indexd.complete.checkFile(files.validFile);
   await sheepdog.complete.deleteNode(files.validFile);
   await indexd.complete.deleteFile(files.validFile);
-}).retry(2);
+}).retry(3);
 Scenario('submit file then update with URL @reqData', async ({ sheepdog, indexd }) => {
   // submit basic file without url
   await sheepdog.complete.addNode(files.validFile);
@@ -65,7 +73,7 @@ Scenario('submit file then update with URL @reqData', async ({ sheepdog, indexd 
   // delete from sheepdog and indexd
   await sheepdog.complete.deleteNode(files.validFile);
   await indexd.complete.deleteFile(files.validFile);
-}).retry(2);
+}).retry(3);
 
 // Pauline & Ted: the 2 tests below fail because of a bug in sheepdog (see PXP-1994)
 

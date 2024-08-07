@@ -4,7 +4,7 @@
  - A test bucket named "fence-cleversafe-test" must be provisioned prior to the testing
  - The test user cdis.autotest must have the proper permissions configured in user.yaml
 */
-Feature('CleverSafe');
+Feature('CleverSafe @requires-indexd');
 
 const { expect } = require('chai');
 

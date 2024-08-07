@@ -1,4 +1,4 @@
-Feature('DashboardReports - https://ctds-planx.atlassian.net/browse/PXP-4252');
+Feature('DashboardReports - https://ctds-planx.atlassian.net/browse/PXP-4252 @requires-portal');
 
 const chai = require('chai');
 const { interactive, ifInteractive } = require('../../utils/interactive.js');

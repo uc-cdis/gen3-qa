@@ -32,7 +32,7 @@ module.exports = {
         },
       }).then(
         (resp) => {
-          console.log(resp.data);
+          // console.log(resp.data);
           resolve(resp.data.records);
         },
         (err) => {

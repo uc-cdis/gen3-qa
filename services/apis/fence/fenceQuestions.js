@@ -55,7 +55,7 @@ module.exports = {
    */
   linkSuccess(linkRes, linkedAcct) {
     expect(linkRes).to.have.property('finalURL');
-    const linkUrl = new URL(linkRes.finalURL);
+    const linkUrl = new URL(linkRes.finalURL, `https://${process.env.HOSTNAME}`);
     expect(linkUrl.searchParams.get('linked_email')).to.equal(
       linkedAcct.googleCreds.email,
     );
@@ -70,12 +70,15 @@ module.exports = {
     // TODO: In some cases the resp contains the property finalURL but its value is undefined.	
     expect(linkRes,
       'response after Google linking doesnt have finalURL prop').to.have.property('finalURL');
-
-    console.log(`when checking mocked Google Linking success, got final URL: ${linkRes.finalURL}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`when checking mocked Google Linking success, got final URL: ${linkRes.finalURL}`);
+    }
     // let the exception bubble up to facilitate retries
-    let linkUrl = new URL(linkRes.finalURL);
-    console.log(`parse URL result: ${linkRes.finalURL}`);
-
+    // NOTE: finalURL is relative and URL() fails on relative URLs if no base is provided
+    let linkUrl = new URL(linkRes.finalURL, `https://${process.env.HOSTNAME}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`parse URL result: ${linkRes.finalURL}`);
+    }
     expect(linkUrl.searchParams.get('linked_email'),
       'response after Google linking doesnt include linked_email').to.not.be.null;
 

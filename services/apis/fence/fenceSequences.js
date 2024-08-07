@@ -8,7 +8,7 @@ chai.config.truncateThreshold = 0;
 const fenceQuestions = require('./fenceQuestions.js');
 const fenceTasks = require('./fenceTasks.js');
 const fenceProps = require('./fenceProps.js');
-const { Gen3Response, sleepMS } = require('../../../utils/apiUtil');
+const { Gen3Response, sleepMS } = require('../../../utils/apiUtil.js');
 const userMod = require('../../../utils/user.js');
 
 const I = actor();
@@ -41,7 +41,9 @@ module.exports = {
       try {
         console.log(`linking google account ${userAcct.username} - Attempt #${i}`);
         const linkRes = await fenceTasks.linkGoogleAcctMocked(userAcct, expires_in);
-        console.log(`### ## linkRes for [${JSON.stringify(userAcct.username)}]: ${JSON.stringify(linkRes)}`);
+        if (process.env.DEBUG === 'true') {
+          console.log(`### ## linkRes for [${JSON.stringify(userAcct.username)}]: ${JSON.stringify(linkRes)}`);
+        }
         fenceQuestions.mockedLinkSuccess(linkRes);
         return linkRes;
       } catch (e) {
@@ -201,10 +203,11 @@ module.exports = {
     scopes = 'openid+user+data+google_credentials+google_service_account+google_link',
   ) {
     // set user with cookie
-    I.amOnPage('/');
+    I.amOnPage('');
     I.setCookie({ name: 'dev_login', value: user.username });
 
     const urlStr = await fenceTasks.getConsentCode(client.id, 'code', scopes);
+    I.saveScreenshot('getUserTokensWithClient_getConsentCode.png');
     fenceQuestions.assertContainSubStr(urlStr, ['code=']);
     const match = urlStr.match(RegExp('/?code=(.*)'));
     const code = match && match[1];

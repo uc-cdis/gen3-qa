@@ -1,4 +1,3 @@
-
 Object.defineProperty(exports, '__esModule', { value: true });
 const readline = require('readline');
 const chai = require('chai');

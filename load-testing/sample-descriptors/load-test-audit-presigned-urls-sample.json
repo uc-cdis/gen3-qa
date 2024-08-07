@@ -1,0 +1,19 @@
+{
+  "objective": "Test GET audit service presigned url",
+  "details": {
+    "name": "qa-niaid.planx-plan.net",
+    "fence_autoscaler": {
+      "min": 2,
+      "max": 3,
+      "targetCpu": 40
+    }
+  },
+  "service": "audit-service",
+  "load_test_scenario": "audit-presigned-url",
+  "virtual_users": [
+    { "duration": "1s", "target": 1 },
+    { "duration": "10s", "target": 10 },
+    { "duration": "300s",  "target": 100 },
+    { "duration": "30s", "target": 1 }
+  ]
+}

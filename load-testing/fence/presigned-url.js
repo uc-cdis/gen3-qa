@@ -4,6 +4,7 @@ const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresol
 
 const {
   GUIDS_LIST,
+  RELEASE_VERSION,
   GEN3_HOST,
   ACCESS_TOKEN,
   VIRTUAL_USERS,
@@ -13,14 +14,19 @@ const {
 // or it should be assembled based on an indexd query (requires `indexd_record_url` to fetch DIDs)
 const guids = GUIDS_LIST.split(',');
 
-const myFailRate = new Rate('failed requests');
+const myFailRate = new Rate('failed_requests');
 
 export const options = {
+  tags: {
+    test_scenario: 'Fence - Presigned URL',
+    release: RELEASE_VERSION,
+    test_run_id: (new Date()).toISOString().slice(0, 16),
+  },
   rps: 90000,
   stages: JSON.parse(VIRTUAL_USERS.slice(1, -1)),
   thresholds: {
     http_req_duration: ['avg<3000', 'p(95)<15000'],
-    'failed requests': ['rate<0.1'],
+    'failed_requests': ['rate<0.1'],
   },
   noConnectionReuse: true,
 };

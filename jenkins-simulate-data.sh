@@ -20,8 +20,11 @@ function writeMetricWithResult() {
   else
     measure="fail_count"
   fi
-  
-  curl -i -XPOST "http://influxdb:8086/write?db=ci_metrics" --data-binary "${measure},test_name=data_simulator,repo_name=$(echo $JOB_NAME | cut -d/ -f 2),pr_num=$(echo $BRANCH_NAME | cut -d- -f 2) ${measure}=1"
+
+  set +e
+  # allow failure in case influxdb not in use
+  curl -i -XPOST "http://influxdb:8086/write?db=ci_metrics" --data-binary "${measure},test_name=data_simulator,repo_name=$(echo $JOB_NAME | cut -d/ -f 2),pr_num=$(echo $BRANCH_NAME | cut -d- -f 2) ${measure}=1" || true
+  set -e
 }
 
 namespace="${1:-${KUBECTL_NAMESPACE:-default}}"
@@ -41,6 +44,8 @@ else
 fi
 
 cd "$WORKSPACE/data-simulator"
+last_commit=`git log --name-status HEAD^..HEAD`
+echo "data-simulator last commit: $last_commit"
 
 projectName=jenkins
 nData=1
@@ -57,6 +62,8 @@ if [[ ! -f "$TEST_DATA_PATH/schema.json" ]]; then
   echo "ERROR: failed to download $dictURL"
   writeMetricWithResult "FAIL"
   exit 1
+else
+ echo Downloaded schema.json at "$TEST_DATA_PATH/schema.json"
 fi
 
 #
@@ -65,15 +72,9 @@ fi
 #
 leafNode="submitted_unaligned_reads"
 
-# diff testedEnvs require diff nodes of type "file"
-if [ "$testedEnv" == "data.midrc.org" ] || [ "$testedEnv" == "qa-midrc.planx-pla.net" ]; then
-  if ! jq -r '.|values|map(select(.category=="imaging_data_file"))|map(.id)|join("\n")' < "$TEST_DATA_PATH/schema.json" | grep "$leafNode" > /dev/null; then
-    leafNode="$(jq -r '.|values|map(select(.category=="imaging_data_file"))|map(.id)|join("\n")' < "$TEST_DATA_PATH/schema.json" | head -1)"
-  fi
-else
-  if ! jq -r '.|values|map(select(.category=="data_file"))|map(.id)|join("\n")' < "$TEST_DATA_PATH/schema.json" | grep "$leafNode" > /dev/null; then
-    leafNode="$(jq -r '.|values|map(select(.category=="data_file"))|map(.id)|join("\n")' < "$TEST_DATA_PATH/schema.json" | head -1)"
-  fi
+if ! jq -r '.|values|map(select(.category=="data_file"))|map(.id)|join("\n")' < "$TEST_DATA_PATH/schema.json" | grep "$leafNode" > /dev/null; then
+  echo "Did not find default leaf node '$leafNode' in schema. Finding a new node of category 'data_file'..."
+  leafNode="$(jq -r '.|values|map(select(.category=="data_file"))|map(.id)|join("\n")' < "$TEST_DATA_PATH/schema.json" | head -1)"
 fi
 
 if [[ -z "$leafNode" ]]; then
@@ -90,9 +91,8 @@ if [ -f ./pyproject.toml ]; then
   echo "Found pyproject.toml, using poetry to install data simulator"
   # put poetry in the path
   export PATH="/var/jenkins_home/.local/bin:$PATH"
-  poetry config virtualenvs.path "${WORKSPACE}/datasimvirtenv" --local  
-  poetry env use python3.8
-  # install data-simulator  
+  poetry config virtualenvs.path "${WORKSPACE}/datasimvirtenv" --local
+  # install data-simulator
   # retry in case of any connectivity failures
   for attempt in {1..3}; do
     yes | poetry cache clear --all pypi
@@ -111,6 +111,7 @@ if [ -f ./pyproject.toml ]; then
 
   export PYTHONPATH=.
   pyCMD="poetry run data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
+  echo Running command: $pyCMD
   eval $pyCMD
   if [[ $? -ne 0 ]]; then
     echo "ERROR: Failed to simulate test data for $namespace"
@@ -119,6 +120,7 @@ if [ -f ./pyproject.toml ]; then
   fi
 
   pyCMD2="poetry run data-simulator submission_order --url $dictURL --path $TEST_DATA_PATH --node_name $leafNode"
+  echo Running command: $pyCMD2
   eval $pyCMD2
   if [[ $? -ne 0 ]]; then
     echo "ERROR: Failed to generate submission_order data for $namespace"
@@ -136,6 +138,7 @@ else
 
   export PYTHONPATH=.
   pyCMD="python3 bin/data-simulator simulate --url $dictURL --path $TEST_DATA_PATH --program jnkns --project jenkins"
+  echo Running command: $pyCMD
   eval $pyCMD
   if [[ $? -ne 0 ]]; then
     echo "ERROR: Failed to simulate test data for $namespace"
@@ -144,6 +147,7 @@ else
   fi
 
   pyCMD2="python3 bin/data-simulator submission_order --url $dictURL --path $TEST_DATA_PATH --node_name $leafNode"
+  echo Running command: $pyCMD2
   eval $pyCMD2
   if [[ $? -ne 0 ]]; then
     echo "ERROR: Failed to generate submission_order data for $namespace"
@@ -151,5 +155,10 @@ else
     exit 1
   fi
 fi
+
+for f in $TEST_DATA_PATH/*; do
+  printf "\n$f:\n"
+  cat $f
+done
 
 writeMetricWithResult "PASS"

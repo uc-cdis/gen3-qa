@@ -10,11 +10,12 @@ let { ACCESS_TOKEN } = __ENV; // eslint-disable-line no-undef
 const {
   NUM_OF_JSONS,
   API_KEY,
+  RELEASE_VERSION,
   GEN3_HOST,
   VIRTUAL_USERS,
 } = __ENV; // eslint-disable-line no-undef
 
-const myFailRate = new Rate('failed requests');
+const myFailRate = new Rate('failed_requests');
 const numOfJsons = parseInt(NUM_OF_JSONS.slice(1, -1), 10);
 
 // load all JSONs into memory
@@ -25,10 +26,15 @@ for (let i = 1; i <= numOfJsons; i += 1) {
 }
 
 export const options = {
+  tags: {
+    test_scenario: 'MDS - Filter large database',
+    release: RELEASE_VERSION,
+    test_run_id: (new Date()).toISOString().slice(0, 16),
+  },
   stages: JSON.parse(VIRTUAL_USERS.slice(1, -1)),
   thresholds: {
     http_req_duration: ['avg<1000', 'p(95)<2000'],
-    'failed requests': ['rate<0.05'],
+    'failed_requests': ['rate<0.05'],
   },
   noConnectionReuse: true,
 };

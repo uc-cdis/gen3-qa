@@ -178,9 +178,16 @@ module.exports = {
       //     or with API key when running in LOCAL_AGAINST_REMOTE mode ...
       const fenceCmd = `fence-create token-create --scopes openid,user,fence,data,credentials,google_service_account,google_credentials --type access_token --exp ${expiration} --username ${username}`;
       try {
-        console.log(`### THE KUBECTL_NAMESPACE: ${process.env.KUBECTL_NAMESPACE}`);
+        if (process.env.RUNNING_LOCAL === 'true') {
+          process.env.KUBECTL_NAMESPACE = process.env.NAMESPACE;
+        }
+        if (process.env.DEBUG === 'true') {
+          console.log(`### THE KUBECTL_NAMESPACE: ${process.env.KUBECTL_NAMESPACE}`);
+        }
         const accessToken = bash.runCommand(fenceCmd, 'fence', takeLastLine);
-        console.log(`### THE ACCESS TOKEN: ${accessToken}`);
+        if (process.env.DEBUG === 'true') {
+          console.log(`### THE ACCESS TOKEN: ${accessToken}`);
+        }
         const decodedToken = module.exports.parseJwt(accessToken);
         // console.log(`decodedToken: ${JSON.stringify(decodedToken)}`);
         const nameFromToken = decodedToken.context.user.name;
@@ -320,15 +327,23 @@ module.exports = {
   async smartWait(checkFunc, checkArgs, timeout, errorMessage, startWait = null) {
     let waitTime = (startWait * 1000) || 50; // start by waiting 50 ms
     let waited = 0; // keep track of how many ms have passed
+    let firstIteration = true;
     while (waited < timeout * 1000) {
+      if (firstIteration) {
+        firstIteration = false;
+      } else {
+        // if not done, keep waiting
+        await module.exports.sleepMS(waitTime);
+        waited += waitTime;
+        waitTime *= 2; // wait longer every time
+      }
+
       // check if the task is done
       const done = await checkFunc(...checkArgs);
-      if (done) return;
-
-      // if not done, keep waiting
-      await module.exports.sleepMS(waitTime);
-      waited += waitTime;
-      waitTime *= 2; // wait longer every time
+      if (done) {
+        console.log(`'smartWait' done waiting after ${waited / 1000} seconds`);
+        return;
+      }
     }
     throw new Error(errorMessage);
   },
@@ -373,25 +388,40 @@ module.exports = {
     let podFound = false;
     for (let i = 1; i < params.nAttempts; i += 1) {
       try {
-        console.log(`waiting for ${jobName} job pod... - attempt ${i}`);
+        console.log(`Waiting for ${jobName} job pod... - attempt ${i}`);
         await module.exports.sleepMS(10000);
 
         // refresh page on the underlying chrome browser to force the Selenium session to stay alive
         if (params.keepSessionAlive) {
           I.refreshPage();
         }
+        if (process.env.RUNNING_LOCAL === 'true') {
+          process.env.KUBECTL_NAMESPACE = process.env.NAMESPACE;
+        }
+        if (process.env.DEBUG === 'true') {
+          console.log(`### THE KUBECTL_NAMESPACE: ${process.env.KUBECTL_NAMESPACE}`);
+          const podNameDebug = await bash.runCommand('echo "$KUBECTL_NAMESPACE"');
+          console.log(`#### ### ## podNameDebug: ${podNameDebug}`);
+        }
 
-        const singleQuote = process.env.RUNNING_LOCAL === 'true' ? "\'\\'\'" : "'"; // eslint-disable-line quotes,no-useless-escape
-        const podName = await bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=${labelName} -o jsonpath="{.items[*].metadata.name}" | awk ${singleQuote}{print $NF}${singleQuote}`);
-        console.log(`latest pod found: ${podName}`);
+        // get all pods that match the provided label
+        let podsNames = await bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=${labelName} -o jsonpath="{.items[*].metadata.name}"`);
+        console.log(`Found pods with label '${labelName}': ${podsNames}`);
+
+        // if there's more than 1 pod matching the provided name, the last one
+        // is the most recent (`--sort-by=.metadata.creationTimestamp`)
+        podsNames = podsNames.split(' ').filter((name) => name.startsWith(jobName));
+        const podName = podsNames[podsNames.length - 1];
+        console.log(`Found latest pod with name '${jobName}': '${podName}'`);
+
         if (!podFound) {
-          if (podName.includes(jobName)) {
-            console.log(`the pod ${podName} was found! Proceed with the container check...`);
+          if (podName && podName.includes(jobName)) {
+            console.log(`The pod ${podName} was found! Proceed with the container check...`);
             podFound = true;
           }
         } else {
           const checkIfContainerSucceeded = bash.runCommand(`g3kubectl get pod ${podName} -o jsonpath='{.status.phase}'`);
-          console.log(`check container status: ${checkIfContainerSucceeded}`);
+          console.log(`Check container status: ${checkIfContainerSucceeded}`);
           if (checkIfContainerSucceeded === 'Succeeded') {
             console.log(`The container from pod ${podName} is ready! Proceed with the assertion checks..`);
             break;
@@ -400,8 +430,11 @@ module.exports = {
               console.log(`The container from pod ${podName} failed as expected! Just ignore as this is part of a negative test.`);
               break;
             } else {
-              // The pod failed 4 realz
-              throw new Error(`THE POD FAILED ON ATTEMPT ${i}. OMG!`);
+              // The pod failed. Get the logs if available, for debugging purposes
+              const errMsg = `THE POD FAILED ON ATTEMPT ${i}. GIVING UP.`;
+              const podLogs = bash.runCommand(`g3kubectl logs ${podName}`);
+              console.log(`${errMsg} Logs:\n${podLogs}`);
+              throw new Error(errMsg);
             }
           }
         }
@@ -413,6 +446,15 @@ module.exports = {
         throw new Error(`Failed to obtain a successful phase check from the ${jobName} job on attempt ${i}: ${e.message}`);
       }
     }
+  },
+
+  // running usersync jobs in the env
+  async runUserSync() {
+    console.log('### Running usersync job ...');
+    console.log(`start time: ${Math.floor(Date.now() / 1000)}`);
+    console.log('*** RUN USERSYNC JOB ***');
+    bash.runJob('usersync');
+    console.log(`end time: ${Math.floor(Date.now() / 1000)}`);
   },
 
   getHomePageDetails(detail) {
@@ -427,7 +469,7 @@ module.exports = {
       },
       pandemicresponsecommons: {
         summary: {
-          css: '.covid19-dashboard_panel',
+          css: '.covid19-dashboard',
         },
         cards: {
           css: '.covid19-dashboard_counts',
@@ -435,7 +477,7 @@ module.exports = {
       },
       covid19: {
         summary: {
-          css: '.covid19-dashboard_panel',
+          css: '.covid19-dashboard',
         },
         cards: {
           css: '.covid19-dashboard_counts',
@@ -447,6 +489,30 @@ module.exports = {
         },
         cards: {
           css: '.g3-button',
+        },
+      },
+      healdata: {
+        summary: {
+          css: '.discovery-header',
+        },
+        cards: {
+          css: '.discovery-studies-container',
+        },
+      },
+      'qa-heal': {
+        summary: {
+          css: '.discovery-header',
+        },
+        cards: {
+          css: '.discovery-studies-container',
+        },
+      },
+      brh: {
+        summary: {
+          css: '.discovery-header',
+        },
+        cards: {
+          css: '.discovery-studies-container',
         },
       },
     };

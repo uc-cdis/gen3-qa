@@ -67,7 +67,7 @@ Scenario('GC Sync - upload manifest to GS bucket @manual', ifInteractive(
   },
 ));
 
-Scenario('AWS Sync - run the job @manual', ifInteractive(
+Scenario('GC Sync - run the job @manual', ifInteractive(
   async () => {
     const result = await interactive(`
             1. run jobs/kube-script-setup.sh

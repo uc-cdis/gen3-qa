@@ -28,7 +28,7 @@ module.exports = {
   //
   // FROM ORIGINAL EXPLORER STEPS FILE:
   // module.exports.openDataExplorer = async function() {
-  //   this.amOnPage('/explorer');
+  //   this.amOnPage('explorer');
   //   await this.waitForElement('.data-explorer', 10);
   // }
   //

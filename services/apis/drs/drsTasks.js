@@ -16,7 +16,6 @@ const getRevFromResponse = function (res) {
   }
 };
 
-
 /**
  * drs Tasks
  */

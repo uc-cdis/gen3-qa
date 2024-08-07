@@ -1,4 +1,4 @@
-Feature('ExportToWorkspaceAPITest').retry(2);
+Feature('ExportToWorkspaceAPITest @requires-fence @requires-manifestservice').retry(2);
 
 /* POST request with user creds to the manifestservice endpoint at /manifests/
 to get a list of exported manifests of that user.

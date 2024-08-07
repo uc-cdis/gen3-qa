@@ -12,5 +12,6 @@ const myMockdata = {
 };
 
 const result = dummyjson.parse(template, { mockdata: myMockdata });
-
-console.log(`result: ${result}`);
+if (process.env.DEBUG === 'true') {
+  console.log(`result: ${result}`);
+}

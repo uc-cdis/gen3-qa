@@ -1,4 +1,4 @@
-Feature('Windmill configurable profile page');
+Feature('Windmill configurable profile page @requires-portal');
 
 const chai = require('chai');
 

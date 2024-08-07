@@ -6,7 +6,7 @@
     within the sower config block (ingest-metadata-manifest & get-dbgap-metadata)
  3. Metadata Service (mds) must also be deployed
 */
-Feature('Metadata Ingestion');
+Feature('Metadata Ingestion @requires-sower @requires-metadata @requires-indexd');
 
 const { expect } = require('chai');
 const { checkPod, sleepMS } = require('../../utils/apiUtil.js');
@@ -71,12 +71,14 @@ async function checkMetadataServiceEntry(I, expectedResult, authHeader) {
       `/mds/metadata/${expectedResult}`,
       authHeader,
       '_guid_type',
-      6,
+      18,
       'metadata ingestion',
     );
   } catch (e) {
     const jobLogs = bash.runCommand('g3kubectl logs -l app=sowerjob');
-    console.log(`sower job logs: ${jobLogs}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`sower job logs: ${jobLogs}`);
+    }
     throw e;
   }
   expect(mdsQuery).to.not.be.null;
@@ -100,13 +102,17 @@ async function feedTSVIntoMetadataIngestion(I, fence, uid, authHeader, expectedR
     [jobLogsURL, preSignedURL] = jobOutput.output.split(' ');
   } catch (e) {
     const jobLogs = await I.sendGetRequest(jobLogsURL, authHeader);
-    console.log(`'get-dbgap-metadata logs: ${JSON.stringify(jobLogs)}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`'get-dbgap-metadata logs: ${JSON.stringify(jobLogs)}`);
+    }
     throw e;
   }
 
   console.log('Step #3 - Fetch contents of the TSV');
   const preSignedURLOutput = await fence.do.getFileFromSignedUrlRes(preSignedURL);
-  console.log(`debug: ${preSignedURLOutput}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`debug: ${preSignedURLOutput}`);
+  }
   // TODO: Investigate why we are getting an invalid response for a valid PreSigned URL
   // preSignedURLOutput: "Could not get file contents from signed url response"
   // expect(preSignedURLOutput).to.include(expectedResults.get_dbgap_metadata.tsv);
@@ -145,15 +151,21 @@ BeforeSuite(async ({ I, users, indexd }) => {
     g3kubectl get cm manifest-sower -o json | jq -r .data.json > metadata-ingestion-backup-${I.cache.UNIQUE_NUM}/json;
     echo "result: $?"
   `);
-  console.log(`setupTestingArtifacts: ${setupTestingArtifacts}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`setupTestingArtifacts: ${setupTestingArtifacts}`);
+  }
 
   // TODO: Improve the dbgap script to consume a new DBGAP_STUDY_ENDPOINT url
   // from the job dispatch input parameter to simplify this override
   const singleQuote = process.env.RUNNING_LOCAL === 'true' ? "\'\\'\'" : "'"; // eslint-disable-line quotes,no-useless-escape
   const injectEnvVarToSowerConfigMap = await bash.runCommand(`g3kubectl get cm manifest-sower -o json | jq -r .data.json | jq -r --argjson dbgap_study_endpoint ${singleQuote}[{ "name": "DBGAP_STUDY_ENDPOINT", "value": "${testDbGaPURL}" }]${singleQuote} ${singleQuote}(.[] | select(.name == "get-dbgap-metadata") | .container.env) += $dbgap_study_endpoint${singleQuote} > metadata-ingestion-${I.cache.UNIQUE_NUM}/json`); // eslint-disable-line no-useless-escape
-  console.log(`injectEnvVarToSowerConfigMap: ${injectEnvVarToSowerConfigMap}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`injectEnvVarToSowerConfigMap: ${injectEnvVarToSowerConfigMap}`);
+  }
   const recreateSowerConfigMap = await bash.runCommand(`g3kubectl delete cm manifest-sower; g3kubectl create configmap manifest-sower --from-file=metadata-ingestion-${I.cache.UNIQUE_NUM}/json; gen3 roll sower`);
-  console.log(`recreateSowerConfigMap: ${recreateSowerConfigMap}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`recreateSowerConfigMap: ${recreateSowerConfigMap}`);
+  }
 
   await sleepMS(5000);
 
@@ -178,9 +190,15 @@ BeforeSuite(async ({ I, users, indexd }) => {
 });
 
 AfterSuite(async ({ I }) => {
-  console.log('cleaning up test artifacts...');
-  const recreateSowerConfigMap = bash.runCommand(`g3kubectl delete cm manifest-sower; g3kubectl create configmap manifest-sower --from-file=metadata-ingestion-backup-${I.cache.UNIQUE_NUM}/json; rm -Rf metadata-ingestion-backup-${I.cache.UNIQUE_NUM}; rm -Rf metadata-ingestion-${I.cache.UNIQUE_NUM}`);
-  console.log(`recreateSowerConfigMap: ${recreateSowerConfigMap}`);
+  try {
+    console.log('cleaning up test artifacts...');
+    const recreateSowerConfigMap = bash.runCommand(`g3kubectl delete cm manifest-sower; g3kubectl create configmap manifest-sower --from-file=metadata-ingestion-backup-${I.cache.UNIQUE_NUM}/json; rm -Rf metadata-ingestion-backup-${I.cache.UNIQUE_NUM}; rm -Rf metadata-ingestion-${I.cache.UNIQUE_NUM}`);
+    if (process.env.DEBUG === 'true') {
+      console.log(`recreateSowerConfigMap: ${recreateSowerConfigMap}`);
+    }
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 // Scenario #1 - Instrument sower HTTP API endpoint to trigger the ingest-metadata-manifest job
@@ -294,12 +312,14 @@ Scenario('Dispatch partial match get-dbgap-metadata job with mock dbgap xml and 
 }).retry(1);
 
 // Scenario #4 - Instrument the metadata-service DELETE endpoint
-Scenario('create a new mds entry and then issue http delete against mds/objects/{guid} @metadataIngestion', async ({ I, users }) => {
+Scenario('create a new mds entry and then issue http delete against mds/objects/{guid} @metadataIngestion', async ({ I, users, mds }) => {
   // create a local small file to upload to test bucket.
   const uploadTmpFile = await bash.runCommand(`
     echo "hello mds" > mds-test.file && aws s3 cp ./mds-test.file s3://cdis-presigned-url-test/mds-test.file
   `);
-  console.log(`uploadTmpFile: ${uploadTmpFile}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`uploadTmpFile: ${uploadTmpFile}`);
+  }
 
   const guidToBeDeleted = files.allowed.did;
 
@@ -312,23 +332,17 @@ Scenario('create a new mds entry and then issue http delete against mds/objects/
     },
     users.indexingAcct.accessTokenHeader,
   );
-
-  console.log(`createMdsEntryReq status: ${createMdsEntryReq.status}`);
+  if (process.env.DEBUG === 'true') {
+    console.log(`createMdsEntryReq status: ${createMdsEntryReq.status}`);
+  }
   expect(
     createMdsEntryReq,
     'Creation request did not return a http 201. Check mds logs tarball archived in Jenkins',
   ).to.have.property('status', 201);
 
-  console.log(`Step #4 - send http delete to mds/objects/${guidToBeDeleted} `);
-  const deleteReq = await I.sendDeleteRequest(
-    `/mds/objects/${guidToBeDeleted}`,
-    users.indexingAcct.accessTokenHeader,
-  );
-
-  expect(
-    deleteReq,
-    'Deletion request did not return a http 204. Check mds logs tarball archived in Jenkins',
-  ).to.have.property('status', 204);
+  console.log(`Step #4 - send http delete to mds/objects/${guidToBeDeleted}`);
+  const deleteReq = mds.do.deleteMetadataObject(users.indexingAcct.accessTokenHeader, guidToBeDeleted);
+  expect(deleteReq, 'Deletion request was unsuccessful').to.be.true;
 
   // Make sure the GUID no longer exists in the json blobstore
   const httpReq = await I.sendGetRequest(

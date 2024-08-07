@@ -2,7 +2,7 @@ const { Gen3Response } = require('../../../utils/apiUtil');
 /**
  * DRS Properties
  */
-const apiRoot = '/index/ga4gh/drs/v1/objects';
+const apiRoot = '/ga4gh/drs/v1/objects';
 module.exports = {
   /**
    * DRS endpoints
@@ -20,7 +20,6 @@ module.exports = {
    * Create Access Token Responses
    */
 
-
   /**
    * Presigned URL responses
    */
@@ -31,9 +30,6 @@ module.exports = {
 
   noAccessToken: new Gen3Response({
     request: {},
-    body: { msg: 'Not Authorized. Access Token Required.' },
-    data: { msg: 'Not Authorized. Access Token Required.' },
-    status: 403,
+    status: 401,
   }),
-
 };

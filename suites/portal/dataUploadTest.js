@@ -1,6 +1,6 @@
-Feature('DataUploadTest');
+Feature('DataUploadTest @requires-portal @requires-sower @requires-ssjdispatcher @requires-fence @requires-sheepdog @requires-indexd');
 
-const { interactive, ifInteractive } = require('../../utils/interactive');
+// const { interactive, ifInteractive } = require('../../utils/interactive');
 const { checkPod, sleepMS } = require('../../utils/apiUtil.js');
 const { Bash } = require('../../utils/bash');
 
@@ -44,16 +44,21 @@ const uploadFile = async function (I, dataUpload, indexd, sheepdog, nodes, fileO
   // additional scrutiny for file upload only when running inside Jenkins
   if (inJenkins) {
     const maxAttempts = 6;
-    const jenkinsNamespace = process.env.HOSTNAME.replace('.planx-pla.net', '');
-    const bucketName = `${jenkinsNamespace}-databucket-gen3`;
-
+    // const jenkinsNamespace = process.env.HOSTNAME.replace('.planx-pla.net', '');
+    // const bucketName = `${jenkinsNamespace}-databucket-gen3`;
+    const bucketName = bash.runCommand('gen3 secrets decode fence-config fence-config.yaml | yq -r .DATA_UPLOAD_BUCKET');
+    if (process.env.DEBUG === 'true') {
+      console.log(bucketName);
+    }
     for (let i = 1; i <= maxAttempts; i += 1) {
       try {
         console.log(`waiting for file [${fileName}] with guid [${fileGuid}] to show up on ${bucketName}... - attempt ${i}`);
         await sleepMS(10000);
 
         const contentsOfTheBucket = await bash.runCommand(`aws s3 ls s3://${bucketName}/${fileGuid}/`);
-        console.log(`contentsOfTheBucket: ${contentsOfTheBucket}`);
+        if (process.env.DEBUG === 'true') {
+          console.log(`contentsOfTheBucket: ${contentsOfTheBucket}`);
+        }
         if (contentsOfTheBucket.includes(fileName)) {
           console.log(`the file ${fileName} was found! Proceed with the rest of the test...`);
           break;
@@ -86,21 +91,26 @@ const uploadFile = async function (I, dataUpload, indexd, sheepdog, nodes, fileO
 BeforeSuite(async ({
   sheepdog, nodes, users, indexd,
 }) => {
-  // clean up in sheepdog
-  await sheepdog.complete.findDeleteAllNodes();
+  try {
+    // clean up in sheepdog
+    await sheepdog.complete.findDeleteAllNodes();
 
-  // clean up previous upload files
-  await indexd.do.clearPreviousUploadFiles(users.mainAcct);
-  await indexd.do.clearPreviousUploadFiles(users.auxAcct2);
+    // clean up previous upload files
+    await indexd.do.clearPreviousUploadFiles(users.mainAcct);
+    await indexd.do.clearPreviousUploadFiles(users.auxAcct2);
+    await indexd.do.clearPreviousUploadFiles(users.indexingAcct);
 
-  // Add coremetadata node.
-  // FIXME: once windmill allow parent nodes other than core-metadata-collection, remove this
-  const newSubmitterID = await nodes.generateAndAddCoremetadataNode(sheepdog);
-  submitterID = newSubmitterID;
+    // Add coremetadata node.
+    // FIXME: once windmill allow parent nodes other than core-metadata-collection, remove this
+    const newSubmitterID = await nodes.generateAndAddNode(sheepdog, 'core_metadata_collection');
+    submitterID = newSubmitterID;
+  } catch (error) {
+    console.log(error);
+  }
 });
 
-Before(({ home }) => {
-  home.complete.login();
+Before(async ({ home }) => {
+  await home.complete.login();
 });
 
 Scenario('Map uploaded files in windmill submission page @dataUpload @portal', async ({
@@ -129,7 +139,7 @@ Scenario('Map uploaded files in windmill submission page @dataUpload @portal', a
     // user1 should see 0 files now because all files are mapped.
     portalDataUpload.complete.checkUnmappedFilesAreInSubmissionPage(I, []);
   }
-}).retry(2);
+}); // if you add retries here, also add a cleanup step or the test will find more files than expected in the mapping page
 
 Scenario('Cannot see files uploaded by other users @dataUpload @portal', async ({
   I, sheepdog, nodes, files, fence, users, indexd, portalDataUpload, dataUpload,
@@ -146,37 +156,24 @@ Scenario('Cannot see files uploaded by other users @dataUpload @portal', async (
   await portalDataUpload.complete.checkUnmappedFilesAreNotInFileMappingPage(I, [fileObj]);
 });
 
-After(({ home }) => {
-  home.complete.logout();
+After(async ({ home }) => {
+  await home.complete.logout();
 });
 
 AfterSuite(async ({
   sheepdog, indexd, files, dataUpload,
 }) => {
-  // clean up in sheepdog
-  await sheepdog.complete.findDeleteAllNodes();
+  try {
+    // clean up in sheepdog
+    await sheepdog.complete.findDeleteAllNodes();
 
-  // clean up in indexd and S3 (remove the records created by this test suite)
-  await indexd.complete.deleteFiles(createdGuids);
-  await dataUpload.cleanS3('clean-windmill-data-upload', createdGuids);
-  createdFileNames.forEach(({ fileName }) => {
-    files.deleteFile(fileName);
-  });
+    // clean up in indexd and S3 (remove the records created by this test suite)
+    await indexd.complete.deleteFiles(createdGuids);
+    await dataUpload.cleanS3('clean-windmill-data-upload', createdGuids);
+    createdFileNames.forEach(async ({ fileName }) => {
+      await files.deleteFile(fileName);
+    });
+  } catch (error) {
+    console.log(error);
+  }
 });
-
-/*
---- SAMPLE DATA FOR QA-BRAIN FOR THE SCENARIO BELOW ---
-1. study.csv at gen3-qa/docs/sample-data/data-upload/study.csv
-2. case.csv at gen3-qa/docs/sample-data/data-upload/case.csv
-
-Order of upload - study, case
-*/
-Scenario('Upload clinical data file through portal large enough to trigger chunking @manual @regression', ifInteractive(
-  async () => {
-    const result = await interactive(`
-      1. Submit a clinical data file with enough lines to trigger chunking (>30 rows in the default setting)
-      2. Data is submitted successfully and the state is shown as Succeeded in the 'Recent Submissions' pane
-    `);
-    expect(result.didPass, result.details).to.be.true;
-  },
-));

@@ -1,0 +1,8 @@
+{
+  "objective": "Dicom viewer study url with 50 users",
+  "details": {
+    "name": "qa-midrc.planx-plan.net"
+  },
+  "service": "dicom-viewer",
+  "load_test_scenario": "study"
+}

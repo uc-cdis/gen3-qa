@@ -2,13 +2,26 @@
 
 gen3 integration tests - run by https://jenkins.planx-pla.net/ via a `Jenkinsfile` pipeline in each github repo
 
-## Basic test run
+## Prerequisites (may not need to install on MAC):
 
+* docker-compose (see https://docs.docker.com/compose/install/)
+* gnupg2 pass
+```
+sudo apt install gnupg2 pass
+```
+
+## Basic test run
 ### Start test infra (influxdb, grafana, selenium)
 
+For using linux/amd64 selenium images:
 ```
 # start test infra
-docker-compose -f docker-compose-test-infra.yaml up -d
+docker compose -f docker-compose-test-infra.yaml up -d
+```
+
+For using arm64 selenium images:
+```
+docker compose -f docker-compose-test-infra-arm64.yaml up -d
 ```
 
 ### Initial setup of influxdb and grafana (only needed on a new containers)
@@ -32,7 +45,7 @@ More information about Selenium Hub in [`cloud-automation's documentation`](http
 Run a test locally against a dev environment that you can ssh to and run gen3 commands like this:
 
 ```
-RUNNING_LOCAL=true NAMESPACE=yourDevNamespace TEST_DATA_PATH=./testData npm test -- --verbose --grep '@dataClientCLI|@reqGoogle' --invert --reporter mocha-multi suites/.../myTest.js
+RUNNING_LOCAL=true NAMESPACE=yourDevNamespace PORTAL_SUFFIX="" TEST_DATA_PATH=./testData npm test -- --verbose --grep '@dataClientCLI|@reqGoogle' --invert --reporter mocha-multi suites/.../myTest.js
 ```
 
 ### Test an arbitrary gen3 commons
@@ -149,24 +162,6 @@ In setup, these values will be read and exported to environment variables before
 
 ## Local
 After cloning this repo, get the required packages by running `npm install`.
-### Selenium
-To automate web browser actions, CodeceptJS requires a Selenium webserver. You have two options here: Docker or npm. Note that for both methods, you can visit `localhost:4444/status` to see current Selenium session/check that the server is running.
-#### Docker ([link](https://github.com/SeleniumHQ/docker-selenium))
-If you have docker, you can just run the preconfigured container
-```
-docker run -d -p 4444:4444 --name=selenium --rm -v /dev/shm:/dev/shm selenium/standalone-chrome
-```
-To kill the server just kill the container.
-#### npm ([link](https://www.npmjs.com/package/selenium-standalone))
-If you'd rather not fool with docker, you can run the server yourself with an npm package.
-If you already ran `npm install`, the package selenium-standalone should have been installed. You'll also need to install the webdriver, just run `npm run selenium-install`.
-
-You'll need the Java SDK, version 8, to use Selenium so make sure you have that installed as well (check output of `javac -version`, e.g. javac 1.8.0_171 means I have version 8.0_171)
-
-Once this is done, you can run `npm run selenium-start`, and the server will start running on port 4444 by default.
-
-You can kill the server with `npm run selenium-kill`
-
 
 # Test Development
 ## Running Tests

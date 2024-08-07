@@ -1,8 +1,4 @@
-const chai = require('chai');
 const manifestServiceProps = require('./manifestServiceProps.js');
-const { Gen3Response } = require('../../../utils/apiUtil.js');
-
-const { expect } = chai;
 
 const I = actor();
 
@@ -10,8 +6,14 @@ const I = actor();
  * manifestService Tasks
  */
 module.exports = {
-  /* Using dummy data to create manifests for a given user account by POSTing to the manifestservice endpoint */
+  /*
+     Using dummy data to create manifests for a given user account
+     by POSTing to the manifestservice endpoint
+  */
   async postManifestForUser(userAcct) {
+    if (process.env.DEBUG === 'true') {
+      console.log(`debug token: ${userAcct.accessToken}`);
+    }
     return I.sendPostRequest(
       `${manifestServiceProps.endpoints.post}`,
       manifestServiceProps.dummyManifestData,

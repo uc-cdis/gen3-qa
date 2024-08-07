@@ -19,11 +19,14 @@
                 "run",
                 "--verbose",
                 "--grep",
-                "Test Google Data Access user0"
+                "@wip"
             ],
             "env": {
                 "RUNNING_LOCAL": "true",
-                "NAMESPACE": "qa-dcp"
+                "GEN3_SKIP_PROJ_SETUP": "true",
+                "NAMESPACE": "qa-heal",
+                // "DEBUG": "true",
+                "PORTAL_SUFFIX": "/portal",
             },
         }
     ]

@@ -4,7 +4,7 @@ const homedir = require('os').homedir();
 
 const { inJenkins } = require('../../utils/commons.js');
 
-Feature('Data file upload flow');
+Feature('Data file upload flow @requires-fence @requires-indexd @requires-sheepdog @e2e');
 
 // ///////////
 // GLOBALS //
@@ -46,7 +46,7 @@ const getUploadUrlFromFence = async function (fence, users) {
 Scenario('File upload and download via API calls @dataUpload', async ({
   fence, users, nodes, indexd, sheepdog, dataUpload,
 }) => {
-  console.log(`${new Date()}: request a  presigned URL from fence`);
+  console.log(`${new Date()}: request a presigned URL from fence`);
   const fenceUploadRes = await getUploadUrlFromFence(fence, users);
   const fileGuid = fenceUploadRes.data.guid;
   createdGuids.push(fileGuid);
@@ -109,14 +109,18 @@ Scenario('File upload and download via API calls @dataUpload', async ({
     fileContents,
   );
 
-  console.log(`${new Date()}: check that we cannot link metadata to a file that already has metadata.`);
+  console.log(`${new Date()}: make sure we can link metadata to a file that already has metadata.`);
   // try to submit metadata for this file again
+  // `createNewParents=true` creates new nodes to avoid conflicts with the nodes already submitted by the
+  // previous `submitGraphAndFileMetadata()` call
   sheepdogRes = await nodes.submitGraphAndFileMetadata(
     sheepdog,
     fileGuid,
     fileSize,
     fileMd5,
     'submitter_id_new_value',
+    null,
+    true,
   );
   sheepdog.ask.addNodeSuccess(sheepdogRes);
 }).retry(1);
@@ -282,12 +286,16 @@ Scenario('Upload the same file twice @dataUpload', async ({
   await dataUpload.waitUploadFileUpdatedFromIndexdListener(indexd, fileNode);
 
   // submit metadata for this file
+  // `createNewParents=true` creates new nodes to avoid conflicts with the nodes already submitted by the
+  // previous `submitGraphAndFileMetadata()` call
   sheepdogRes = await nodes.submitGraphAndFileMetadata(
     sheepdog,
     fileGuid,
     fileSize,
     fileMd5,
     'submitter_id_new_value',
+    null,
+    true,
   );
   sheepdog.ask.addNodeSuccess(sheepdogRes, 'second upload');
 
@@ -515,27 +523,39 @@ BeforeSuite(async ({ sheepdog, files }) => {
 });
 
 AfterSuite(async ({ files, indexd, dataUpload }) => {
-  // delete the temp files from local storage
-  if (fs.existsSync(filePath)) {
-    files.deleteFile(filePath);
-  }
-  if (fs.existsSync(bigFileName)) {
-    files.deleteFile(bigFileName);
-  }
+  try {
+    // delete the temp files from local storage
+    if (fs.existsSync(filePath)) {
+      files.deleteFile(filePath);
+    }
+    if (fs.existsSync(bigFileName)) {
+      files.deleteFile(bigFileName);
+    }
 
-  // clean up in indexd and S3 (remove the records created by this test suite)
-  // Note: we don't use fence's /delete endpoint here because it does not allow
-  // deleting from indexd records that have already been linked to metadata
-  await indexd.complete.deleteFiles(createdGuids);
-  await dataUpload.cleanS3(fileName, createdGuids);
+    // clean up in indexd and S3 (remove the records created by this test suite)
+    // Note: we don't use fence's /delete endpoint here because it does not allow
+    // deleting from indexd records that have already been linked to metadata
+    await indexd.complete.deleteFiles(createdGuids);
+    await dataUpload.cleanS3(fileName, createdGuids);
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 Before(({ nodes }) => {
-  // Refresh nodes before every test to clear any appended results, id's, etc
-  nodes.refreshPathNodes();
+  try {
+    // Refresh nodes before every test to clear any appended results, id's, etc
+    nodes.refreshPathNodes();
+} catch (error) {
+  console.log(error);
+}
 });
 
 After(async ({ sheepdog }) => {
-  // clean up in sheepdog
-  await sheepdog.complete.findDeleteAllNodes();
+  try {
+    // clean up in sheepdog
+    await sheepdog.complete.findDeleteAllNodes();
+  } catch (error) {
+    console.log(error);
+  }
 });
