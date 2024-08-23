@@ -26,7 +26,6 @@ const makeFiles = function (baseNode) {
 BeforeSuite(async ({ sheepdog, nodes }) => {
   // Cleanup any leftover nodes from previous Suites
   await sheepdog.complete.findDeleteAllNodes();
-  console.log(JSON.stringify(nodes));
   // add nodes up to, but not including, the file node
   await sheepdog.complete.addNodes(nodes.getPathToFile());
   baseFileNode = nodes.getFileNode();

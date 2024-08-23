@@ -150,10 +150,7 @@ module.exports = {
    */
   async addNodes(nodesList, accessTokenHeader = user.mainAcct.accessTokenHeader) {
     // add nodes, in sorted key ascending order
-    console.log('sheepdogTasks.addNodes nodesList BEFORE sort: ', nodesList);
-    console.log('sheepdogTasks.addNodes nodesList AFTER sort:', nodes.sortNodes(nodesList));
     for (const node of nodes.sortNodes(nodesList)) {
-      console.log('sheepdogTasks.addNodes submitting node: ', node.data.type);
       await this.addNode(node, accessTokenHeader);
     }
   },

@@ -118,14 +118,12 @@ const cloneNodes = function (originalNodes) {
  * @returns {{path: Node[], file: Node}} - Path up to the node, and file node itself
  */
 const getPathWithFileNode = function (allNodes) {
-  // console.log(`allNodes --> ${JSON.stringify(allNodes)}`)
   const allNodesClone = cloneNodes(allNodes);
   const fileNodeName = Object.keys(allNodesClone).findLast(
     (nodeName) => allNodesClone[nodeName].category.includes('_file'),
   );
   const file = allNodesClone[fileNodeName].clone();
   delete allNodesClone[fileNodeName];
-  // console.log(`allNodesClone --> ${JSON.stringify(allNodesClone)}`)
   return {
     path: allNodesClone,
     file,
@@ -205,7 +203,6 @@ module.exports = {
       });
     });
   },
-  
 
   async getNodeFromURL(dataUrl) {
     const fileContents = await module.exports.downloadFile(dataUrl);
