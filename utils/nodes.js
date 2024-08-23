@@ -23,7 +23,6 @@ class Node {
    * @param {Object} props.data - JSON object of node data
    * @param {number} props.order - Sort index
    * @param {string} props.category - Category of the node (e.g. file, clinical, administrative...)
-   * @param {string[]} props.target - Array of names of nodes this node points to in graph
    * @param {Object} props.orig_props - Copy of props for cloning node properties
    */
   constructor(props) {
@@ -31,7 +30,6 @@ class Node {
     this.order = props.order;
     this.category = props.category;
     this.name = props.name;
-    this.target = props.target;
     this.orig_props = props;
   }
 
@@ -77,7 +75,6 @@ const getAllNodes = function () {
   const nodesDict = {};
   try {
     let order = 1;
-    let target = 'project'; // first node (project) is related to program
     for (const line of lines) {
       const parts = line.split('\t');
       const nodeName = parts[0];
@@ -89,9 +86,7 @@ const getAllNodes = function () {
         order,
         category: parts[1],
         name: nodeName,
-        target,
       });
-      target = nodeName;
       order += 1;
     }
     return nodesDict;
@@ -118,27 +113,6 @@ const cloneNodes = function (originalNodes) {
 };
 
 /**
- * Uses BFS to find a path to project node from given starting node
- * @param {string} startNodeName - node to start search from
- * @param {Object} allNodes - Nodes keyed by node name
- */
-const nodePathToProject = function (startNodeName, allNodes) {
-  // BFS to find path to project from a starting node name
-  // returns a dict containing nodes keyed by name
-  const nodesInPath = {};
-  let que = [startNodeName];
-  while (que.length > 0) {
-    const s = que.pop();
-    if (s === 'project') {
-      break;
-    }
-    nodesInPath[s] = allNodes[s];
-    que = allNodes[s].target.concat(que);
-  }
-  return nodesInPath;
-};
-
-/**
  * Finds a file node and gets a path to the project node
  * @param {Object} allNodes - Nodes keyed by node name
  * @returns {{path: Node[], file: Node}} - Path up to the node, and file node itself
@@ -146,11 +120,11 @@ const nodePathToProject = function (startNodeName, allNodes) {
 const getPathWithFileNode = function (allNodes) {
   // console.log(`allNodes --> ${JSON.stringify(allNodes)}`)
   const allNodesClone = cloneNodes(allNodes);
-  const fileNodeName = Object.keys(allNodesClone).find(
+  const fileNodeName = Object.keys(allNodesClone).findLast(
     (nodeName) => allNodesClone[nodeName].category.includes('_file'),
   );
   const file = allNodesClone[fileNodeName].clone();
-  // delete allNodesClone[fileNodeName];
+  delete allNodesClone[fileNodeName];
   // console.log(`allNodesClone --> ${JSON.stringify(allNodesClone)}`)
   return {
     path: allNodesClone,
