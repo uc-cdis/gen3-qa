@@ -288,7 +288,7 @@ Scenario('Unauthorized access to GWAS @GWASUI', async ({
 // Test Case 2: User fails to submit GWAS workflow once "Monthly Workflow Limit" is maxed out
 // 	1. Log into application using main_account user.
 // 	2. Goto /analysis/GWASUIApp endpoint.
-// 	3. Verify the "Monthly Workflow Limit" is maxes out.
+// 	3. Verify the "Monthly Workflow Limit" is maxed out.
 // 	4. Submit the GWAS wokflow.
 // 	5. Validate an the workflow submission fails.
 
