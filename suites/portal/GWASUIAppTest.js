@@ -276,3 +276,31 @@ Scenario('Unauthorized access to GWAS @GWASUI', async ({
     gwas.do.goToAnalysisPage();
     gwas.do.unauthorizedUserSelectTeamProject();
 });
+
+
+// TODO : Add/Update existing test cases for "Monthly Workflow Limit"
+// Test Case 1: On GWAS workflow submission, "Monthly Workflow Limit" increases by 1
+// 	1. Log into application using main_account user.
+// 	2. Goto /analysis/GWASUIApp endpoint.
+// 	3. Submit the GWAS wokflow.
+// 	4. Validate the "Monthly Workflow Limit" is increased by 1.
+
+// Test Case 2: User fails to submit GWAS workflow once "Monthly Workflow Limit" is maxed out
+// 	1. Log into application using main_account user.
+// 	2. Goto /analysis/GWASUIApp endpoint.
+// 	3. Verify the "Monthly Workflow Limit" is maxes out.
+// 	4. Submit the GWAS wokflow.
+// 	5. Validate an the workflow submission fails.
+
+// Test Case 3: Validate the "Monthly Workflow Limit" on GWAS Apps is same as GWAS result
+// 	1. Log into application using main_account user.
+// 	2. Goto /analysis/GWASUIApp endpoint.
+// 	3. Submit the GWAS wokflow.
+// 	4. Validate the "Monthly Workflow Limit" is the same in GWAS result (/analysis/GWASResults endpoint)
+
+// Test Case 4: Validate the "Monthly Workflow Limit" across multiple projects for same user
+// 	1. Log into application using main_account user.
+// 	2. Goto /analysis/GWASUIApp endpoint.
+// 	3. Note down the "Monthly Workflow Limit".
+// 	4. Switch to another project.
+//     5. Validate the "Monthly Workflow Limit" is the same.
