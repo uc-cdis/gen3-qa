@@ -87,6 +87,8 @@ Scenario('OIDC Client Rotation @clientRotation @requires-indexd', async ({ I, fe
   // to run usersync here now that the client has been created
   await runUserSync();
   await checkPod(I, 'usersync', 'gen3job,job-name=usersync');
+  // wait for 10secs after usersync
+  await sleepMS(10000);
 
   // check that both sets of credentials work:
   // - we can get an access token using the creds
