@@ -4,6 +4,7 @@ const { expect } = require('chai');
 const { Bash } = require('../../utils/bash.js');
 const { checkPod, runUserSync, getAccessTokenHeader } = require('../../utils/apiUtil.js');
 const { Client } = require('../../services/apis/fence/fenceProps.js');
+const { sleepMS } = require('../../utils/apiUtil.js');
 
 const bash = new Bash();
 
