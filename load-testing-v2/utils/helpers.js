@@ -19,15 +19,9 @@ export function setApiKeyAccessTokenAndHost(env, credentials) {
     creds = getApiKeyAndTargetEnvironment(credentials);
     console.log(`Target Env: ${creds.targetEnvironment}`);
     if(!env.ACCESS_TOKEN){
-      let token = getAccessTokenFromApiKey(creds)
-        .then((access_token) => {
-          console.log(`access_token: ${access_token}`);
-          return access_token;
-        }).catch((reason) => {
-          console.log(`Failed to get access token from API Key in ${creds.targetEnvironment}. Response: ${reason.status} - ${reason.statusText}`);
-          return null;
-        });
+      let token = getAccessTokenFromApiKey(creds);
       env.ACCESS_TOKEN = token;
+      //console.log(`ACCESS_TOKEN: ${env.ACCESS_TOKEN}`);
     }
 
     if(!env.GEN3_HOST){
@@ -75,18 +69,12 @@ function getAccessTokenFromApiKey(creds) {
   const body = JSON.stringify({ api_key: creds.apiKey });  
   console.log(`Getting access token from ${url}`);
   //console.log(`With body: ${body}`);
-  return new Promise(((resolve, reject) => {
-    http.request({
-      url: url,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: body
-    }).then(
-      (resp) => resolve(JSON.parse(resp.body).access_token),
-      (err) => reject(err.response || err),
-    );
-  }));
+  let response = http.post(url, body, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+  });
+  console.log(`Response: ${response.status}`);
+  return response.json().access_token;
 }

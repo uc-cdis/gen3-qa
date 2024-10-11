@@ -2,8 +2,8 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable one-var */
 
-import { sleep, group } from 'k6';
-import {http} from 'k6/http';
+import { sleep, group, check } from 'k6';
+import http from 'k6/http';
 import { Rate } from 'k6/metrics';
 import { setApiKeyAccessTokenAndHost } from '../utils/helpers.js';
 const myFailRate = new Rate('failed_requests');
@@ -11,43 +11,22 @@ const myFailRate = new Rate('failed_requests');
 const credentials = JSON.parse(open('../utils/credentials.json'));
 console.log(`credentials.key_id: ${credentials.key_id}`);
 
-const env = {
-  RELEASE_VERSION: __ENV.RELEASE_VERSION,
-  VIRTUAL_USERS: __ENV.VIRTUAL_USERS,
-  NUM_OF_RECORDS: __ENV.NUM_OF_RECORDS,
-  ACCESS_TOKEN: __ENV.ACCESS_TOKEN,
-  GEN3_HOST: __ENV.GEN3_HOST,
-  API_KEY: __ENV.API_KEY,
-}; // eslint-disable-line no-undef
-
-console.log(`VIRTUAL_USERS: ${env.VIRTUAL_USERS}`);
-console.log(`GEN3_HOST: ${env.GEN3_HOST}`);
-console.log(`RELEASE_VERSION: ${env.RELEASE_VERSION}`);
-//console.log(`ACCESS_TOKEN: ${env.ACCESS_TOKEN}`);
-
-export function setup() {
-  console.log("ENTERING SETUP");
-
-  setApiKeyAccessTokenAndHost(env, credentials);
-
-//}
-  if (!env.VIRTUAL_USERS) {
-    env.VIRTUAL_USERS = [
-      { "duration": "1s", "target": 1 },
-      { "duration": "5s", "target": 5 },
-      // { "duration": "300s", "target": 10 }
-    ];
-  }
-  console.log(`VIRTUAL_USERS: ${env.VIRTUAL_USERS}`);
-  console.log("EXITTINNG SETUP");
+if (!__ENV.VIRTUAL_USERS) {
+  __ENV.VIRTUAL_USERS = JSON.stringify([
+    { "duration": "1s", "target": 1 },
+    { "duration": "5s", "target": 5 },
+    { "duration": "300s", "target": 10 }
+  ]);
+}
+console.log(`VIRTUAL_USERS: ${__ENV.VIRTUAL_USERS}`);
 
 export const options = {
   tags: {
     test_scenario: 'Sheepdog - Import clinical metadata',
-    release: env.RELEASE_VERSION,
+    release: __ENV.RELEASE_VERSION,
     test_run_id: (new Date()).toISOString().slice(0, 16),
   },
-  //stages: JSON.parse(env.VIRTUAL_USERS),
+  stages: JSON.parse(__ENV.VIRTUAL_USERS),
   thresholds: {
     http_req_duration: ['avg<3000', 'p(95)<15000'],
     'failed_requests': ['rate<0.1'],
@@ -55,7 +34,22 @@ export const options = {
   noConnectionReuse: true,
 };
 
-export default function () {
+export function setup() {
+  console.log("ENTERING SETUP");
+  
+  console.log(`VIRTUAL_USERS: ${__ENV.VIRTUAL_USERS}`);
+  console.log(`GEN3_HOST: ${__ENV.GEN3_HOST}`);
+  console.log(`RELEASE_VERSION: ${__ENV.RELEASE_VERSION}`);
+  //console.log(`ACCESS_TOKEN: ${__ENV.ACCESS_TOKEN}`);
+
+  setApiKeyAccessTokenAndHost(__ENV, credentials);
+
+  console.log("EXITTINNG SETUP");
+
+  return __ENV;
+}
+
+export default function (env) {
   function uuidv4() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
       const r = Math.random() * 16 | 0;
@@ -68,12 +62,13 @@ export default function () {
   const program = 'DEV';
   const project = 'test';
   const url = `https://${env.GEN3_HOST}/api/v0/submission/${program}/${project}/`;
-  // console.log(`sending req to: ${url}`);
+  console.log(`sending req to: ${url}`);
   const params = {
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${env.ACCESS_TOKEN}`,
     },
+    tags: { name: 'Sheepdog-data-submission' },
   };
   const body = {
     "imp_bstrong_followup": 1.0,
@@ -203,18 +198,18 @@ export default function () {
     //console.log(`__ITER: ${__ITER}`); // eslint-disable-line no-undef
     // if (__ITER < NUM_OF_RECORDS) { // eslint-disable-line no-undef
 
-    // group('http put', () => {
-    //   const res = http.put(url, strBody, params, { tags: { name: 'Sheepdog-data-submission' } });
-    //   // console.log(`Request performed: ${new Date()}`);
-    //   myFailRate.add(res.status !== 200);
-    //   if (res.status !== 200) {
-    //     // console.log(`Request response: ${res.status}`);
-    //     console.log(`Request response: ${res.body}`);
-    //   }
-    //   check(res, {
-    //     'is status 200': (r) => r.status === 200,
-    //   });
-    // });
+    group('http put', () => {
+      const res = http.put(url, strBody, params);
+      // console.log(`Request performed: ${new Date()}`);
+      myFailRate.add(res.status !== 200);
+      if (res.status !== 200) {
+        // console.log(`Request response: ${res.status}`);
+        console.log(`Request response: ${res.body}`);
+      }
+      check(res, {
+        'is status 200': (r) => r.status === 200,
+      });
+    });
     group('wait 0.1s between requests', () => {
       sleep(0.1);
     });
