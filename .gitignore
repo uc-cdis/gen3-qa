@@ -3,6 +3,7 @@ output/*
 .idea/*
 *.log
 *.bak
+*.Identifier
 testData/
 .DS_Store
 codecept.json
