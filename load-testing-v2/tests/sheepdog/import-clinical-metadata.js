@@ -36,16 +36,12 @@ export const options = {
 
 export function setup() {
   console.log("ENTERING SETUP");
-  
   console.log(`VIRTUAL_USERS: ${__ENV.VIRTUAL_USERS}`);
   console.log(`GEN3_HOST: ${__ENV.GEN3_HOST}`);
   console.log(`RELEASE_VERSION: ${__ENV.RELEASE_VERSION}`);
   //console.log(`ACCESS_TOKEN: ${__ENV.ACCESS_TOKEN}`);
-
   setApiKeyAccessTokenAndHost(__ENV, credentials);
-
   console.log("EXITTINNG SETUP");
-
   return __ENV;
 }
 
@@ -203,7 +199,7 @@ export default function (env) {
       // console.log(`Request performed: ${new Date()}`);
       myFailRate.add(res.status !== 200);
       if (res.status !== 200) {
-        // console.log(`Request response: ${res.status}`);
+        console.log(`Request response: ${res.status}`);
         console.log(`Request response: ${res.body}`);
       }
       check(res, {
