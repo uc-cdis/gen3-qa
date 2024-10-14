@@ -5,7 +5,7 @@
 import { sleep, group, check } from 'k6';
 import http from 'k6/http';
 import { Rate } from 'k6/metrics';
-import { setApiKeyAccessTokenAndHost } from '../utils/helpers.js';
+import { setApiKeyAccessTokenAndHost } from '../../utils/helpers.js';
 const myFailRate = new Rate('failed_requests');
 
 const credentials = JSON.parse(open('../utils/credentials.json'));
