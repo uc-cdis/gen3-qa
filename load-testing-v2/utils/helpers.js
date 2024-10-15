@@ -13,7 +13,10 @@ export let options = {
  * via other means.
  */
 export function setApiKeyAccessTokenAndHost(env, credentials) {
-  console.log("HERE, HERE, HERE");
+  console.log(`VIRTUAL_USERS: ${env.VIRTUAL_USERS}`);
+  console.log(`GEN3_HOST: ${env.GEN3_HOST}`);
+  console.log(`RELEASE_VERSION: ${env.RELEASE_VERSION}`);
+  //console.log(`ACCESS_TOKEN: ${env.ACCESS_TOKEN}`);
   let creds = {};
   if (credentials) {
     creds = getApiKeyAndTargetEnvironment(credentials);
