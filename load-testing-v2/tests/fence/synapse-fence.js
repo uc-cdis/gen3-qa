@@ -2,14 +2,10 @@
 import { check } from 'k6';
 import http from 'k6/http';
 
-const {
-  RELEASE_VERSION,
-} = __ENV; // eslint-disable-line no-undef
-
 export const options = {
   tags: {
     test_scenario: 'Fence - Synapse login',
-    release: RELEASE_VERSION,
+    release: __ENV.RELEASE_VERSION,
     test_run_id: (new Date()).toISOString().slice(0, 16),
   },
   // //under what conditions a test is considered as successful or not based on maetric data

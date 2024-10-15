@@ -6,6 +6,7 @@ import { sleep, group, check } from 'k6';
 import http from 'k6/http';
 import { Rate } from 'k6/metrics';
 import { setApiKeyAccessTokenAndHost } from '../../utils/helpers.js';
+const myFailRate = new Rate('failed_requests');
 
 const credentials = JSON.parse(open('../../utils/credentials.json'));
 console.log(`credentials.key_id: ${credentials.key_id}`);
@@ -25,8 +26,6 @@ console.log(`VIRTUAL_USERS: ${__ENV.VIRTUAL_USERS}`);
 // or it should be assembled based on an indexd query (requires `indexd_record_url` to fetch DIDs)
 const GUIDS_LIST = __ENV.GUIDS_LIST || 'PREFIX/b136c3ad-fda7-4bb2-8cc1-9c564c8d9675,PREFIX/ec911cc2-2f5b-4c8f-8a2c-f3845599806c,PREFIX/4b1f5e2e-40e7-4346-876b-2170a0f02833,PREFIX/591a3584-4845-4223-b685-0b93d2984bbb,PREFIX/24077849-81d6-4650-b232-155494d17322,PREFIX/d9932f1c-30e9-4d39-984d-3e9e43cf05e1,PREFIX/9acfc027-ee94-4517-9708-3d441452dd55';
 const guids = GUIDS_LIST.split(',');
-
-const myFailRate = new Rate('failed_requests');
 
 export const options = {
   tags: {
@@ -62,7 +61,7 @@ export default function (env) {
   group('Sending PreSigned URL request', () => {
     group('http get', () => {
       console.log(`Shooting requests against: ${url}`);
-      const res = http.get(url, params, {  });
+      const res = http.get(url, params);
       // console.log(`Request performed: ${new Date()}`);
       myFailRate.add(res.status !== 200);
       if (res.status !== 200) {
