@@ -5,7 +5,7 @@
 import { sleep, group, check } from 'k6';
 import http from 'k6/http';
 import { Rate } from 'k6/metrics';
-import { setApiKeyAccessTokenAndHost } from '../../utils/helpers.js';
+import { getCommonVariables, setAccessTokenFromApiKey, uuidv4 }from '../../utils/helpers.js';
 const myFailRate = new Rate('failed_requests');
 
 const credentials = JSON.parse(open('../../utils/credentials.json'));
@@ -14,8 +14,8 @@ console.log(`credentials.key_id: ${credentials.key_id}`);
 if (!__ENV.VIRTUAL_USERS) {
   __ENV.VIRTUAL_USERS = JSON.stringify([
     { "duration": "1s", "target": 1 },
-    { "duration": "5s", "target": 5 },
-    { "duration": "300s", "target": 10 }
+    // { "duration": "5s", "target": 5 },
+    // { "duration": "300s", "target": 10 }
   ]);
 }
 console.log(`VIRTUAL_USERS: ${__ENV.VIRTUAL_USERS}`);
@@ -36,24 +36,17 @@ export const options = {
 
 export function setup() {
   console.log("ENTERING SETUP");
-  setApiKeyAccessTokenAndHost(__ENV, credentials);
-  console.log("EXITTINNG SETUP");
-  return __ENV;
+  const env = getCommonVariables(__ENV, credentials);
+  console.log("EXITING SETUP");
+  return env;
 }
 
 export default function (env) {
-  function uuidv4() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-      const r = Math.random() * 16 | 0;
-      const v = c === 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-    });
-  }
   //console.log(`RUNNING TEST~~~~~~~~~~~~~~~~~~~~~RUNNING TEST~~~~~~~~~~~~~~~~~~~~~RUNNING TEST`);
 
   const program = 'DEV';
   const project = 'test';
-  const url = `https://${env.GEN3_HOST}/api/v0/submission/${program}/${project}/`;
+  const url = `${env.GEN3_HOST}/api/v0/submission/${program}/${project}/`;
   console.log(`sending req to: ${url}`);
   const params = {
     headers: {

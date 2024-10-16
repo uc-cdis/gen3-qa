@@ -5,7 +5,7 @@
 import { sleep, group, check } from 'k6';
 import http from 'k6/http';
 import { Rate } from 'k6/metrics';
-import { setApiKeyAccessTokenAndHost } from '../../utils/helpers.js';
+import { getCommonVariables } from '../../utils/helpers.js';
 const myFailRate = new Rate('failed_requests');
 
 const credentials = JSON.parse(open('../../utils/credentials.json'));
@@ -34,25 +34,26 @@ export const options = {
 
 export function setup() {
   console.log("ENTERING SETUP");
-  setApiKeyAccessTokenAndHost(__ENV, credentials);
-  console.log("EXITTINNG SETUP");
-  return __ENV;
+  const env = getCommonVariables(__ENV, credentials);
+  console.log("EXITING SETUP");
+  return env;
 }
 
 export default function (env) {
   if (__ITER < 2) { // eslint-disable-line no-undef
-    const exportUrl = `https://${env.GEN3_HOST}/api/v0/submission/DEV/test/export?node_label=study`;
+    const exportUrl = `${env.GEN3_HOST}/api/v0/submission/DEV/test/export?node_label=study`;
     console.log(`sending req to: ${exportUrl}`);
     const params = {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${env.ACCESS_TOKEN}`,
       },
+      tags: { name: 'Sheepdog-data-export' }
     };
 
     group('Exporting clinical metadata', () => {
       group('http get', () => {
-        const res2 = http.get(exportUrl, params, { tags: { name: 'Sheepdog-data-export' } });
+        const res2 = http.get(exportUrl, params);
         console.log(`Request performed: ${new Date()}`);
         myFailRate.add(res2.status !== 200);
         console.log(`Request response: ${res2.status}`);
