@@ -1,34 +1,30 @@
 /* eslint-disable no-mixed-operators */
 /* eslint-disable no-bitwise */
 /* eslint-disable one-var */
-const {
-  check,
-  group,
-  sleep,
-//  fail
-} = require('k6'); // eslint-disable-line import/no-unresolved
-const http = require('k6/http'); // eslint-disable-line import/no-unresolved
-const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresolved
 
-// declare mutable ACCESS_TOKEN
-let { ACCESS_TOKEN } = __ENV; // eslint-disable-line no-undef
-
-const {
-  RELEASE_VERSION,
-  GEN3_HOST,
-  API_KEY,
-  VIRTUAL_USERS,
-} = __ENV; // eslint-disable-line no-undef
-
+import { sleep, group, check } from 'k6';
+import http from 'k6/http';
+import { Rate } from 'k6/metrics';
+import { getCommonVariables, setAccessTokenFromApiKey, uuidv4 } from '../../utils/helpers.js';
 const myFailRate = new Rate('failed_requests');
+
+const credentials = JSON.parse(open('../../utils/credentials.json'));
+console.log(`credentials.key_id: ${credentials.key_id}`);
+
+if (!__ENV.VIRTUAL_USERS) {
+  __ENV.VIRTUAL_USERS = JSON.stringify([
+    { "target": 1 }
+  ]);
+}
+console.log(`VIRTUAL_USERS: ${__ENV.VIRTUAL_USERS}`);
 
 export const options = {
   tags: {
     test_scenario: 'Indexd - Create records',
-    release: RELEASE_VERSION,
+    release: __ENV.RELEASE_VERSION,
     test_run_id: (new Date()).toISOString().slice(0, 16),
   },
-  stages: JSON.parse(VIRTUAL_USERS.slice(1, -1)),
+  stages: JSON.parse(__ENV.VIRTUAL_USERS),
   thresholds: {
     http_req_duration: ['avg<3000', 'p(95)<15000'],
     'failed_requests': ['rate<0.1'],
@@ -36,25 +32,22 @@ export const options = {
   noConnectionReuse: true,
 };
 
-export default function () {
-  const apiKey = API_KEY.slice(1, -1);
-  const accessToken = ACCESS_TOKEN;
+export function setup() {
+  console.log("ENTERING SETUP");
+  const env = getCommonVariables(__ENV, credentials);
+  console.log("EXITING SETUP");
+  return env;
+}
 
-  function uuidv4() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-      const r = Math.random() * 16 | 0;
-      const v = c === 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-    });
-  }
-
-  const url = `https://${GEN3_HOST}/index/index`;
+export default function (env) {
+  const url = `${env.GEN3_HOST}/index/index`;
   // console.log(`sending req to: ${url}`);
   const params = {
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${__ENV.ACCESS_TOKEN}`,
     },
+    tags: { name: 'Indexd-record-creation' }
   };
   const body = {
     acl: ['QA'],
@@ -76,7 +69,7 @@ export default function () {
 
   group('Creating indexd records', () => {
     console.log(`sending POST req to: ${url}`);
-    const res = http.post(url, strBody, params, { tags: { name: 'Indexd-record-creation' } });
+    const res = http.post(url, strBody, params);
 
     // If the ACCESS_TOKEN expires, renew it with the apiKey
     if (res.status === 401) {
@@ -84,21 +77,16 @@ export default function () {
       console.log(`Request response: ${res.status}`);
       console.log(`Request response: ${res.body}`);
 
-      const tokenRenewalUrl = `https://${GEN3_HOST}/user/credentials/cdis/access_token`;
-
-      const tokenRenewalParams = {
+      const params = {
         headers: {
           'Content-Type': 'application/json',
-          accept: 'application/json',
+          'Accept': 'application/json',
         },
+        tags: { name: 'renewingToken1' }
       };
-      const tokenRenewalData = JSON.stringify({
-        api_key: apiKey,
-      });
-      const renewalRes = http.post(tokenRenewalUrl, tokenRenewalData, tokenRenewalParams, { tags: { name: 'renewingToken1' } });
-      ACCESS_TOKEN = JSON.parse(renewalRes.body).access_token;
+      setAccessTokenFromApiKey(env, params);
 
-      console.log(`NEW ACCESS TOKEN!: ${ACCESS_TOKEN}`);
+      console.log(`NEW ACCESS TOKEN!: ${env.ACCESS_TOKEN}`);
     } else {
       // console.log(`Request performed: ${new Date()}`);
       console.log(`Request response: ${res.status}`);

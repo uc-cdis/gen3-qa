@@ -5,7 +5,7 @@
 import { sleep, group, check } from 'k6';
 import http from 'k6/http';
 import { Rate } from 'k6/metrics';
-import { setApiKeyAccessTokenAndHost } from '../../utils/helpers.js';
+import { getCommonVariables } from '../../utils/helpers.js';
 const myFailRate = new Rate('failed_requests');
 
 const credentials = JSON.parse(open('../../utils/credentials.json'));
@@ -13,12 +13,12 @@ console.log(`credentials.key_id: ${credentials.key_id}`);
 
 if (!__ENV.VIRTUAL_USERS) {
   __ENV.VIRTUAL_USERS = JSON.stringify([
-    { "duration": "5s", "target": 1 },
-    { "duration": "10s", "target": 10 },
-    { "duration": "120s", "target": 100 },
-    { "duration": "120s", "target": 300 },
-    { "duration": "30s", "target": 1 },
-  ] );
+    { "duration": "3s", "target": 1 },
+    // { "duration": "10s", "target": 10 },
+    // { "duration": "120s", "target": 100 },
+    // { "duration": "120s", "target": 300 },
+    // { "duration": "30s", "target": 1 },
+  ]);
 }
 console.log(`VIRTUAL_USERS: ${__ENV.VIRTUAL_USERS}`);
 
@@ -44,13 +44,13 @@ export const options = {
 
 export function setup() {
   console.log("ENTERING SETUP");
-  setApiKeyAccessTokenAndHost(__ENV, credentials);
-  console.log("EXITTINNG SETUP");
-  return __ENV;
+  const env = getCommonVariables(__ENV, credentials);
+  console.log("EXITING SETUP");
+  return env;
 }
 
 export default function (env) {
-  const url = `https://${env.GEN3_HOST}/user/data/download/${guids[Math.floor(Math.random() * guids.length)]}`;
+  const url = `${env.GEN3_HOST}/user/data/download/${guids[Math.floor(Math.random() * guids.length)]}`;
   const params = {
     headers: {
       'Content-Type': 'application/json',
@@ -60,9 +60,9 @@ export default function (env) {
   };
   group('Sending PreSigned URL request', () => {
     group('http get', () => {
-      console.log(`Shooting requests against: ${url}`);
+      //console.log(`Shooting requests against: ${url}`);
       const res = http.get(url, params);
-      // console.log(`Request performed: ${new Date()}`);
+      console.log(`Request performed: ${new Date()}`);
       myFailRate.add(res.status !== 200);
       if (res.status !== 200) {
         console.log(`Request response: ${res.status}`);
