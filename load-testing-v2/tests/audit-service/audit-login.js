@@ -1,37 +1,50 @@
-const { check, group } = require('k6'); // eslint-disable-line import/no-unresolved
-const http = require('k6/http'); // eslint-disable-line import/no-unresolved
-const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresolved
+/* eslint-disable no-mixed-operators */
+/* eslint-disable no-bitwise */
+/* eslint-disable one-var */
 
-const {
-  ACCESS_TOKEN,
-  RELEASE_VERSION,
-  GEN3_HOST,
-  VIRTUAL_USERS,
-} = __ENV; // eslint-disable-line no-undef
+import { sleep, group, check } from 'k6';
+import http from 'k6/http';
+import { Rate } from 'k6/metrics';
+import { getCommonVariables } from '../../utils/helpers.js';
+const myFailRate = new Rate('failed_requests');
+const credentials = JSON.parse(open('../../utils/credentials.json'));
+console.log(`credentials.key_id: ${credentials.key_id}`);
 
-const myFailRate = new Rate('failed requests');
+if (!__ENV.VIRTUAL_USERS) {
+  __ENV.VIRTUAL_USERS = JSON.stringify([
+    { "duration": "1s", "target": 1 },
+    // { "duration": "10s", "target": 10 },
+    // { "duration": "300s",  "target": 100 },
+    // { "duration": "30s", "target": 1 }
+  ]);
+}
+console.log(`VIRTUAL_USERS: ${__ENV.VIRTUAL_USERS}`);
 
 export const options = {
   tags: {
     test_scenario: 'Audit service - Login',
-    release: RELEASE_VERSION,
+    release: __ENV.RELEASE_VERSION,
     test_run_id: (new Date()).toISOString().slice(0, 16),
   },
-  stages: JSON.parse(VIRTUAL_USERS.slice(1, -1)),
+  stages: JSON.parse(__ENV.VIRTUAL_USERS),
   thresholds: {
     http_req_duration: ['avg<1000', 'p(95)<2000'],
-    'failed requests': ['rate<0.05'],
+    'failed_requests': ['rate<0.05'],
   },
   noConnectionReuse: true,
 };
 
-export default function () {
-  const auditURL = `https://${GEN3_HOST}/audit/log/login`;
+export function setup() {
+  return getCommonVariables(__ENV, credentials);
+}
+
+export default function (env) {
+  const auditURL = `${env.GEN3_HOST}/audit/log/login`;
 
   const params = {
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${ACCESS_TOKEN}`,
+      Authorization: `Bearer ${env.ACCESS_TOKEN}`,
     },
   };
 

@@ -1,42 +1,49 @@
-const { check, group, sleep } = require('k6'); // eslint-disable-line import/no-unresolved
-const http = require('k6/http'); // eslint-disable-line import/no-unresolved
-const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresolved
+/* eslint-disable no-mixed-operators */
+/* eslint-disable no-bitwise */
+/* eslint-disable one-var */
 
-const {
-  GEN3_HOST,
-  RELEASE_VERSION,
-  VU_COUNT,
-  DURATION,
-  ACCESS_TOKEN,
-} = __ENV; // eslint-disable-line no-undef
+import { sleep, group, check } from 'k6';
+import http from 'k6/http';
+import { Rate } from 'k6/metrics';
+import { getCommonVariables } from '../../utils/helpers.js';
+const myFailRate = new Rate('failed_requests');
 
-const myFailRate = new Rate('failed requests');
-console.log('Running scenario - dicom-server-metadata');
+const credentials = JSON.parse(open('../../utils/credentials.json'));
+console.log(`credentials.key_id: ${credentials.key_id}`);
+
+if (!__ENV.VIRTUAL_USERS) {
+  __ENV.VIRTUAL_USERS = JSON.stringify([
+    { duration: '30s', target: __ENV.VU_COUNT },
+    { duration: `${__ENV.DURATION}s`, target: __ENV.VU_COUNT },
+    { duration: '30s', target: 0 },
+  ]);
+}
+console.log(`VIRTUAL_USERS: ${__ENV.VIRTUAL_USERS}`);
+
 export const options = {
   tags: {
     scenario: 'Dicom Server - Metadata',
-    release: RELEASE_VERSION,
+    release: __ENV.RELEASE_VERSION,
     test_run_id: (new Date()).toISOString().slice(0, 16),
   },
-  stages: [
-    { duration: '30s', target: VU_COUNT },
-    { duration: `${DURATION}s`, target: VU_COUNT },
-    { duration: '30s', target: 0 },
-  ],
+  stages: JSON.parse(__ENV.VIRTUAL_USERS),
   noConnectionReuse: true,
 };
 
 export function setup() {
   console.log('Setting up...');
   const METADATA_URLS = [];
-  const DICOM_SERVER_URL = `https://${GEN3_HOST}/dicom-server`;
-  const studies = JSON.parse(http.get(`${DICOM_SERVER_URL}/studies`, { Authorization: `Bearer ${ACCESS_TOKEN}` }).body);
+
+  let env = getCommonVariables(__ENV, credentials);
+  
+  const DICOM_SERVER_URL = `${GEN3_HOST}/dicom-server`;
+  const studies = JSON.parse(http.get(`${DICOM_SERVER_URL}/studies`, { Authorization: `Bearer ${env.ACCESS_TOKEN}` }).body);
   // console.log(studies);
   let studyUrl = '';
   studies.forEach((study) => {
     // console.log(study);
     studyUrl = `${DICOM_SERVER_URL}/studies/${study}`;
-    const res = JSON.parse(http.get(studyUrl, { Authorization: `Bearer ${ACCESS_TOKEN}` }).body);
+    const res = JSON.parse(http.get(studyUrl, { Authorization: `Bearer ${env.ACCESS_TOKEN}` }).body);
     // console.log(studyUrl);
     const studyInstanceUid = res.MainDicomTags.StudyInstanceUID;
     // console.log(studyInstanceUid);
@@ -45,7 +52,7 @@ export function setup() {
     seriesIds.forEach((seriesId) => {
       // console.log(seriesId);
       const seriesUrl = `${DICOM_SERVER_URL}/series/${seriesId}`;
-      const seriesInstanceUid = JSON.parse(http.get(seriesUrl, { Authorization: `Bearer ${ACCESS_TOKEN}` }).body).MainDicomTags.SeriesInstanceUID;
+      const seriesInstanceUid = JSON.parse(http.get(seriesUrl, { Authorization: `Bearer ${env.ACCESS_TOKEN}` }).body).MainDicomTags.SeriesInstanceUID;
       const metadataUrl = `${DICOM_SERVER_URL}/dicom-web/studies/${studyInstanceUid}/series/${seriesInstanceUid}/metadata`;
       // console.log(metadataUrl);
       METADATA_URLS.push(metadataUrl);
