@@ -45,10 +45,7 @@ export const options = {
 };
 
 export function setup() {
-  console.log("ENTERING SETUP");
-  const env = getCommonVariables(__ENV, credentials);
-  console.log("EXITING SETUP");
-  return env;
+  return getCommonVariables(__ENV, credentials);
 }
 
 export default function (env) {

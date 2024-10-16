@@ -20,6 +20,7 @@ if (!__ENV.VIRTUAL_USERS) {
 }
 console.log(`VIRTUAL_USERS: ${__ENV.VIRTUAL_USERS}`);
 
+__ENV.GOOGLE_SVC_ACCOUNT = 'test-svc-account';
 const GOOGLE_PROJECTS_LIST = __ENV.GOOGLE_PROJECTS_LIST || 'Proj1,Proj2,Proj3';
 const googleProjects = GOOGLE_PROJECTS_LIST.split(',');
 
@@ -38,14 +39,11 @@ export const options = {
 };
 
 export function setup() {
-  console.log("ENTERING SETUP");
-  setApiKeyAccessTokenAndHost(__ENV, credentials);
-  console.log("EXITTINNG SETUP");
-  return __ENV;
+  return getCommonVariables(__ENV, credentials);
 }
 
 export default function (env) {
-  const url = `https://${env.GEN3_HOST}/user/google/service_accounts/${env.GOOGLE_SVC_ACCOUNT}`;
+  const url = `${env.GEN3_HOST}/user/google/service_accounts/${env.GOOGLE_SVC_ACCOUNT}`;
   console.log(`sending req to: ${url}`);
   const params = {
     headers: {

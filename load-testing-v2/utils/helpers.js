@@ -41,6 +41,8 @@ export function getCommonVariables(env, credentials) {
   //console.log(`ACCESS_TOKEN_BODY: ${env.ACCESS_TOKEN_BODY}`);
 
   const immutableEnv = Object.freeze({ ...env });
+
+  console.log("FINAL COMMON VARIABLE VALUES HAVE BEEN SET");
   return immutableEnv;
 }
 

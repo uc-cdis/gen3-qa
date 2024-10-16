@@ -1,3 +1,4 @@
+//THIS DOESN'T LOOK LIKE A VALID TEST.
 /*eslint-disable*/
 import { check } from 'k6';
 import http from 'k6/http';
