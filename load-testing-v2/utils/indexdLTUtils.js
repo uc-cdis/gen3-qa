@@ -1,4 +1,5 @@
 /**
+ * THIS CURRENTLY ISN'T BEING USED; IT MAY BE GARBAGE.
  * A module providing util functions to handle indexd records
  * @module indexdLTUtils
  */
