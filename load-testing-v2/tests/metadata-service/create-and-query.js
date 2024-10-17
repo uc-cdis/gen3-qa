@@ -1,19 +1,49 @@
-import uuid from '../libs/uuid.js'; // eslint-disable-line import/no-unresolved, import/extensions
+/* eslint-disable no-mixed-operators */
+/* eslint-disable no-bitwise */
+/* eslint-disable one-var */
 
-const { check, group, sleep } = require('k6'); // eslint-disable-line import/no-unresolved
-const http = require('k6/http'); // eslint-disable-line import/no-unresolved
-const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresolved
+import { sleep, group, check } from 'k6';
+import http from 'k6/http';
+import { Rate } from 'k6/metrics';
+import { getCommonVariables, uuidv4 } from '../../utils/helpers.js';
+const myFailRate = new Rate('failed_requests');
+
+const credentials = JSON.parse(open('../../utils/credentials.json'));
+console.log(`credentials.key_id: ${credentials.key_id}`);
+
+//Default values:
+__ENV.RELEASE_VERSION = __ENV.RELEASE_VERSION || "v3.3.1";
+__ENV.BASIC_AUTH = __ENV.BASIC_AUTH || "";
+// __ENV.BASIC_AUTH = __ENV.BASIC_AUTH || JSON.stringify({
+//   "username": "",
+//   "password": ""
+// });
+__ENV.MDS_TEST_DATA = __ENV.MDS_TEST_DATA || JSON.stringify({
+  "filter1": "a=1",
+  "filter2": "nestedData.b=2",
+  "fictitiousRecord1": {
+    "a": 1
+  },
+  "fictitiousRecord2": {
+    "nestedData": {
+      "b": 2
+    }
+  }
+});
+__ENV.VIRTUAL_USERS = __ENV.VIRTUAL_USERS || JSON.stringify([
+  { "duration": "1s", "target": 1 },
+  { "duration": "10s", "target": 10 },
+  { "duration": "300s",  "target": 100 },
+  { "duration": "30s", "target": 1 }
+  ]);
+console.log(`VIRTUAL_USERS: ${__ENV.VIRTUAL_USERS}`);
 
 const {
-  ACCESS_TOKEN,
   BASIC_AUTH,
   MDS_TEST_DATA,
   RELEASE_VERSION,
-  GEN3_HOST,
-  VIRTUAL_USERS,
+  VIRTUAL_USERS
 } = __ENV; // eslint-disable-line no-undef
-
-const myFailRate = new Rate('failed_requests');
 
 export const options = {
   tags: {
@@ -21,7 +51,7 @@ export const options = {
     release: RELEASE_VERSION,
     test_run_id: (new Date()).toISOString().slice(0, 16),
   },
-  stages: JSON.parse(VIRTUAL_USERS.slice(1, -1)),
+  stages: JSON.parse(VIRTUAL_USERS),
   thresholds: {
     http_req_duration: ['avg<1000', 'p(95)<2000'],
     'failed_requests': ['rate<0.05'],
@@ -29,25 +59,28 @@ export const options = {
   noConnectionReuse: true,
 };
 
-export default function () {
-  // console.log(`MDS_TEST_DATA_JSON: ${MDS_TEST_DATA}`);
-  const MDS_TEST_DATA_JSON = JSON.parse(MDS_TEST_DATA.slice(1, -1));
-  const MDS_BASIC_AUTH = BASIC_AUTH.slice(1, -1);
+export function setup() {
+  return getCommonVariables(__ENV, credentials);
+}
 
-  // console.log(`MDS_BASIC_AUTH.lenght: ${MDS_BASIC_AUTH.length}`);
-  const mdsEndpoint = MDS_BASIC_AUTH.length > 0 ? 'mds' : 'mds-admin';
-  const baseUrl = `https://${GEN3_HOST}/${mdsEndpoint}/metadata`;
+export default function (env) {
+  // console.log(`MDS_TEST_DATA_JSON: ${MDS_TEST_DATA}`);
+  const MDS_TEST_DATA_JSON = JSON.parse(MDS_TEST_DATA);
+
+  // console.log(`BASIC_AUTH.lenght: ${BASIC_AUTH.length}`);
+  const mdsEndpoint = BASIC_AUTH.length > 0 ? 'mds' : 'mds-admin';
+  const baseUrl = `${env.GEN3_HOST}/${mdsEndpoint}/metadata`;
 
   // random guids
-  const guid1 = uuid.v4();
-  const guid2 = uuid.v4();
+  const guid1 = uuidv4();
+  const guid2 = uuidv4();
 
   const url1 = `${baseUrl}/${guid1}`;
   const url2 = `${baseUrl}/${guid2}`;
 
   console.log(`sending requests to: ${baseUrl}`);
 
-  const auth = MDS_BASIC_AUTH.length > 0 ? `Basic ${MDS_BASIC_AUTH}` : `Bearer ${ACCESS_TOKEN}`;
+  const auth = BASIC_AUTH.length > 0 ? `Basic ${BASIC_AUTH}` : `Bearer ${env.ACCESS_TOKEN}`;
 
   const params = {
     headers: {
