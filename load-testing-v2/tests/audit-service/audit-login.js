@@ -1,3 +1,5 @@
+//THIS REQUIRES THE OWNER OF THE ACCESS TOKEN OR CREDENTIALS TO HAVE audit_reader
+
 /* eslint-disable no-mixed-operators */
 /* eslint-disable no-bitwise */
 /* eslint-disable one-var */
