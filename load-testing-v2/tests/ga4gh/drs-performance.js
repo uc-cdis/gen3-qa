@@ -30,38 +30,41 @@ There is sufficient flexibility for adjusting num GUIDs,
 num parallel requests, pagination size, authz resources, etc.
 */
 
-const {
-  check,
-  group,
-  sleep,
-} = require('k6'); // eslint-disable-line import/no-unresolved
-const http = require('k6/http'); // eslint-disable-line import/no-unresolved
-const {
-  Rate,
-} = require('k6/metrics'); // eslint-disable-line import/no-unresolved
+/* eslint-disable no-mixed-operators */
+/* eslint-disable no-bitwise */
+/* eslint-disable one-var */
 
-const {
-  TARGET_ENV,
-  AUTHZ_LIST,
-  MINIMUM_RECORDS,
-  RECORD_CHUNK_SIZE,
-  RELEASE_VERSION,
-  GEN3_HOST,
-  ACCESS_TOKEN,
-  PASSPORTS_LIST,
-  SIGNED_URL_PROTOCOL,
-  NUM_PARALLEL_REQUESTS,
-  MTLS_DOMAIN,
-  MTLS_CERT,
-  MTLS_KEY,
-} = __ENV; // eslint-disable-line no-undef
-
+import { sleep, group, check } from 'k6';
+import http from 'k6/http';
+import { Rate } from 'k6/metrics';
+import { getCommonVariables } from '../../utils/helpers.js';
 const myFailRate = new Rate('failed_requests');
 
+const credentials = JSON.parse(open('../../utils/credentials.json'));
+console.log(`credentials.key_id: ${credentials.key_id}`);
+
+//Default values:
+__ENV.RELEASE_VERSION = __ENV.RELEASE_VERSION || "v3.3.1";
+__ENV.VIRTUAL_USERS = __ENV.VIRTUAL_USERS || JSON.stringify([
+  { "target": 1 }
+  ]);
+console.log(`VIRTUAL_USERS: ${__ENV.VIRTUAL_USERS}`);
+__ENV.MTLS_DOMAIN = __ENV.MTLS_DOMAIN || 'test';
+__ENV.MTLS_CERT = __ENV.MTLS_CERT || '';
+__ENV.MTLS_KEY = __ENV.MTLS_KEY || '';
+__ENV.TARGET_ENV = __ENV.TARGET_ENV || 'qa';
+__ENV.AUTHZ_LIST = __ENV.AUTHZ_LIST || 'phs000178,phs000179,phs000180';
+__ENV.MINIMUM_RECORDS = __ENV.MINIMUM_RECORDS || 1;
+__ENV.RECORD_CHUNK_SIZE = __ENV.RECORD_CHUNK_SIZE || 1024;
+__ENV.PASSPORTS_LIST = __ENV.PASSPORTS_LIST || '';
+__ENV.SIGNED_URL_PROTOCOL = __ENV.SIGNED_URL_PROTOCOL || 'https';
+__ENV.NUM_PARALLEL_REQUESTS = __ENV.NUM_PARALLEL_REQUESTS || 1;
+
+// CREATE OPTIONS
 let rawOptions = { // eslint-disable-line prefer-const
   tags: {
     test_scenario: 'DRS Performace',
-    release: RELEASE_VERSION,
+    release: __ENV.RELEASE_VERSION,
     test_run_id: (new Date()).toISOString().slice(0, 16),
   },
   rps: 90000,
@@ -74,21 +77,25 @@ let rawOptions = { // eslint-disable-line prefer-const
   iterations: 1,
 };
 
-if (`${MTLS_DOMAIN}` !== 'test') {
+if (__ENV.MTLS_DOMAIN !== 'test') {
   console.log('Enabling Mutual TLS with the follow configuration:\n'
-    + `MTLS_DOMAIN: ${MTLS_DOMAIN}\nMTLS_CERT: ${MTLS_CERT}\nMTLS_KEY: ${MTLS_KEY}`); // eslint-disable-line
+    + `MTLS_DOMAIN: ${__ENV.MTLS_DOMAIN}\nMTLS_CERT: ${__ENV.MTLS_CERT}\nMTLS_KEY: ${__ENV.MTLS_KEY}`); // eslint-disable-line
   rawOptions.tlsAuth = [
     {
-      domains: [`${MTLS_DOMAIN}`],
-      cert: open(MTLS_CERT), // eslint-disable-line no-restricted-globals
-      key: open(MTLS_KEY), // eslint-disable-line no-restricted-globals
+      domains: [`${__ENV.MTLS_DOMAIN}`],
+      cert: open(__ENV.MTLS_CERT), // eslint-disable-line no-restricted-globals
+      key: open(__ENV.MTLS_KEY), // eslint-disable-line no-restricted-globals
     },
   ];
 }
 
 export const options = rawOptions;
 
-export default function () {
+export function setup() {
+  return getCommonVariables(__ENV, credentials);
+}
+
+export default function (env) {
   const maxRetries = 5;
 
   let method = 'GET';
@@ -96,13 +103,13 @@ export default function () {
   let params = {
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${ACCESS_TOKEN}`,
+      Authorization: `Bearer ${env.ACCESS_TOKEN}`,
     },
   };
   let requestBody = null;
 
-  if (PASSPORTS_LIST !== undefined && PASSPORTS_LIST !== null && PASSPORTS_LIST !== '') {
-    console.log(`Passport list supplied: ${PASSPORTS_LIST}. Enabling GA4GH Passport flow to POST list of passports rather than use a Gen3 Access Token.`);
+  if (env.PASSPORTS_LIST !== undefined && env.PASSPORTS_LIST !== null && env.PASSPORTS_LIST !== '') {
+    console.log(`Passport list supplied: ${env.PASSPORTS_LIST}. Enabling GA4GH Passport flow to POST list of passports rather than use a Gen3 Access Token.`);
     method = 'POST';
     params = {
       headers: {
@@ -110,7 +117,7 @@ export default function () {
       },
     };
     requestBody = {
-      passports: PASSPORTS_LIST.split(','),
+      passports: env.PASSPORTS_LIST.split(','),
     };
   }
   console.log(`Body for DRS requests: ${JSON.stringify(requestBody)}`);
@@ -118,34 +125,26 @@ export default function () {
   console.log('attempting to get random GUIDs...');
 
   let indexdPaginationPageNum = 0;
-  let minimumRecords = 1;
-  let recordChunkSize = 1024;
-
-  if (MINIMUM_RECORDS !== null) {
-    minimumRecords = MINIMUM_RECORDS;
-  }
-
-  if (RECORD_CHUNK_SIZE !== null) {
-    recordChunkSize = RECORD_CHUNK_SIZE;
-  }
+  let recordChunkSize = env.RECORD_CHUNK_SIZE;
+  let minimumRecords = env.MINIMUM_RECORDS;
+  params = {
+    'content-type': 'application/json',
+    'accept': 'application/json',
+  };
 
   const listOfDIDs = [];
   // as long as we don't have enough records, continue to loop over provided ACL / Authz
   // and attempt to bump the page number for indexd's pagination
   while (listOfDIDs.length < minimumRecords) {
     console.log(`listOfDIDs.length ${listOfDIDs.length} < minimumRecords ${minimumRecords}... paginate to page ${indexdPaginationPageNum} in indexd`);
-    console.log(`parsing authz list ${AUTHZ_LIST}`);
-    const indexdRecordAuthzListSplit = AUTHZ_LIST.split(',');
+    console.log(`parsing authz list ${env.AUTHZ_LIST}`);
+    const indexdRecordAuthzListSplit = env.AUTHZ_LIST.split(',');
 
     for (const authz of indexdRecordAuthzListSplit) {
-      console.log(`Requesting GUIDs for authz ${authz} from ${TARGET_ENV}`);
-      const url = `https://${TARGET_ENV}/index/index?authz=${authz}&limit=${recordChunkSize}&page=${indexdPaginationPageNum}`;
+      console.log(`Requesting GUIDs for authz ${authz} from ${env.GEN3_HOST}`);
+      const url = `${env.GEN3_HOST}/index/index?authz=${authz}&limit=${recordChunkSize}&page=${indexdPaginationPageNum}`;
       console.log(`fetching guids from ${url}`);
-      const resp = http.get(url, {
-        'content-type': 'application/json',
-        accept: 'application/json',
-      }, {});
-
+      const resp = http.get(url, params);
       const body = JSON.parse(resp.body);
       for (const record of body.records) {
         listOfDIDs.push(record.did);
@@ -163,9 +162,9 @@ export default function () {
 
       for (let i = 0; i < listOfDIDs.length; i += 1) {
         for (let k = i;
-          Object.keys(batchRequests).length < NUM_PARALLEL_REQUESTS && k < listOfDIDs.length;
+          Object.keys(batchRequests).length < env.NUM_PARALLEL_REQUESTS && k < listOfDIDs.length;
           k += 1) {
-          const url = `https://${GEN3_HOST}/ga4gh/drs/v1/objects/${listOfDIDs[k]}/access/${SIGNED_URL_PROTOCOL}`;
+          const url = `${env.GEN3_HOST}/ga4gh/drs/v1/objects/${listOfDIDs[k]}/access/${env.SIGNED_URL_PROTOCOL}`;
 
           console.log(`Adding request to batch: ${url}`);
           batchRequests[`${listOfDIDs[k]}`] = {
