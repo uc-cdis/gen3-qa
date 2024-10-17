@@ -92,7 +92,12 @@ export function getAccessTokenFromApiKey(env, params) {
   }
 
   let response = http.post(env.ACCESS_TOKEN_URL, env.ACCESS_TOKEN_BODY, params);
-  console.log(`Response: ${response.status}`);
+
+  if(response.status !== 200){
+    console.log(`Response: ${response.status}`);
+    console.log(`Response Body: ${response.body}`);
+  }
+  
   return response.json().access_token;
 }
 

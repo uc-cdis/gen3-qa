@@ -16,9 +16,9 @@ console.log(`credentials.key_id: ${credentials.key_id}`);
 __ENV.RELEASE_VERSION = __ENV.RELEASE_VERSION || "v3.3.1";
 __ENV.VIRTUAL_USERS = __ENV.VIRTUAL_USERS || JSON.stringify([
   { "duration": "1s", "target": 1 },
-  // { "duration": "10s", "target": 10 },
-  // { "duration": "300s",  "target": 100 },
-  // { "duration": "30s", "target": 1 }
+  { "duration": "10s", "target": 10 },
+  { "duration": "300s",  "target": 100 },
+  { "duration": "30s", "target": 1 }
   ]);
 console.log(`VIRTUAL_USERS: ${__ENV.VIRTUAL_USERS}`);
 
