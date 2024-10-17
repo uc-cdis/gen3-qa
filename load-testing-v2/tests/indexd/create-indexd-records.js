@@ -14,7 +14,10 @@ console.log(`credentials.key_id: ${credentials.key_id}`);
 //Default values:
 __ENV.RELEASE_VERSION = __ENV.RELEASE_VERSION || "v3.3.1";
 __ENV.VIRTUAL_USERS = __ENV.VIRTUAL_USERS || JSON.stringify([
-  { "target": 1 }
+  { "duration": "1s", "target": 1 },
+  { "duration": "5s", "target": 5 },
+  { "duration": "300s", "target": 10 },
+  { "duration": "600s", "target": 20 }
   ]);
 console.log(`VIRTUAL_USERS: ${__ENV.VIRTUAL_USERS}`);
 
@@ -62,6 +65,14 @@ export default function (env) {
   const strBody = JSON.stringify(body);
   // console.log(`debugging: ${JSON.stringify(body)}`);
 
+  const tokenRefreshParams = {
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+    tags: { name: 'renewingToken1' }
+  };
+
   console.log(`submitting: ${__ITER}`); // eslint-disable-line no-undef
 
   group('Creating indexd records', () => {
@@ -70,18 +81,13 @@ export default function (env) {
 
     // If the ACCESS_TOKEN expires, renew it with the apiKey
     if (res.status === 401) {
+      console.log('');
+      console.log('');
       console.log('renewing access token!!!');
       console.log(`Request response: ${res.status}`);
       console.log(`Request response: ${res.body}`);
 
-      const params = {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        tags: { name: 'renewingToken1' }
-      };
-      setAccessTokenFromApiKey(env, params);
+      setAccessTokenFromApiKey(env, tokenRefreshParams);
 
       console.log(`NEW ACCESS TOKEN!: ${env.ACCESS_TOKEN}`);
     } else {
