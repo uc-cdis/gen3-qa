@@ -1,0 +1,45 @@
+{
+    "people": [
+      {
+        "id": 1,
+        "name": "John Doe1",
+        "age": 30,
+        "email": "john.doe@example.com",
+        "address": {
+          "street": "123 Main St",
+          "city": "Anytown",
+          "state": "CA",
+          "zip": "12345"
+        }
+      },
+      {
+        "id": 2,
+        "name": "Jane Smith",
+        "age": 25,
+        "email": "jane.smith@example.com",
+        "address": {
+          "street": "456 Elm St",
+          "city": "Othertown",
+          "state": "NY",
+          "zip": "67890"
+        }
+      },
+      {
+        "id": 3,
+        "name": "Alice Johnson",
+        "age": 28,
+        "email": "alice.johnson@example.com",
+        "address": {
+          "street": "789 Oak St",
+          "city": "Sometown",
+          "state": "TX",
+          "zip": "24680"
+        }
+      }
+    ],
+    "metadata": {
+      "description": "Sample JSON data with people information",
+      "version": "1.0",
+      "created": "2024-10-17"
+    }
+}

@@ -5,7 +5,7 @@
 import { sleep, group, check } from 'k6';
 import http from 'k6/http';
 import { Rate } from 'k6/metrics';
-import { getCommonVariables, setAccessTokenFromApiKey, uuidv4 } from '../../utils/helpers.js';
+import { getCommonVariables, getAccessTokenFromApiKey, uuidv4 } from '../../utils/helpers.js';
 const myFailRate = new Rate('failed_requests');
 
 const credentials = JSON.parse(open('../../utils/credentials.json'));
@@ -40,12 +40,13 @@ export function setup() {
 }
 
 export default function (env) {
+  let accessToken = env.ACCESS_TOKEN;
   const url = `${env.GEN3_HOST}/index/index`;
   // console.log(`sending req to: ${url}`);
   const params = {
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${__ENV.ACCESS_TOKEN}`,
+      Authorization: `Bearer ${accessToken}`,
     },
     tags: { name: 'Indexd-record-creation' }
   };
@@ -81,15 +82,10 @@ export default function (env) {
 
     // If the ACCESS_TOKEN expires, renew it with the apiKey
     if (res.status === 401) {
-      console.log('');
-      console.log('');
-      console.log('renewing access token!!!');
       console.log(`Request response: ${res.status}`);
       console.log(`Request response: ${res.body}`);
-
-      setAccessTokenFromApiKey(env, tokenRefreshParams);
-
-      console.log(`NEW ACCESS TOKEN!: ${env.ACCESS_TOKEN}`);
+      accessToken = getAccessTokenFromApiKey(env, tokenRefreshParams);
+      console.log(`NEW ACCESS TOKEN!: ${accessToken}`);
     } else {
       // console.log(`Request performed: ${new Date()}`);
       console.log(`Request response: ${res.status}`);

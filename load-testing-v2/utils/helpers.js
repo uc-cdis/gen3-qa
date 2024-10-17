@@ -33,7 +33,7 @@ export function getCommonVariables(env, credentials) {
   };
 
   if(!env.ACCESS_TOKEN){
-    setAccessTokenFromApiKey(env);
+    env.ACCESS_TOKEN = getAccessTokenFromApiKey(env);
     //console.log(`ACCESS_TOKEN: ${env.ACCESS_TOKEN}`);
   }
 
@@ -76,19 +76,24 @@ function setApiKeyAndGen3Host(env, credentials) {
 }
 
 /**
- * Sets the access token by instrumenting the fence http api
+ * Gets the access token by instrumenting the fence http api
  * @param {string} env - api key from credentials.json (downloaded by an authenticated user)
  */
-export function setAccessTokenFromApiKey(env, params) {  
+export function getAccessTokenFromApiKey(env, params) {  
   console.log(`Getting access token from ${env.ACCESS_TOKEN_URL}`);
 
   if(!params){
     params = env.ACCESS_TOKEN_PARAMS
   }
+  else{
+    console.log('');
+    console.log('');
+    console.log('renewing access token!!!');
+  }
 
-  let response = http.post(env.ACCESS_TOKEN_URL, env.ACCESS_TOKEN_BODY, env.ACCESS_TOKEN_PARAMS);
+  let response = http.post(env.ACCESS_TOKEN_URL, env.ACCESS_TOKEN_BODY, params);
   console.log(`Response: ${response.status}`);
-  env.ACCESS_TOKEN = response.json().access_token;
+  return response.json().access_token;
 }
 
 export function uuidv4() {
