@@ -40,7 +40,6 @@ export function setup() {
 
 export default function (env) {
   //console.log(`RUNNING TEST~~~~~~~~~~~~~~~~~~~~~RUNNING TEST~~~~~~~~~~~~~~~~~~~~~RUNNING TEST`);
-
   const program = 'DEV';
   const project = 'test';
   const url = `${env.GEN3_HOST}/api/v0/submission/${program}/${project}/`;
