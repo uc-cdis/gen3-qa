@@ -11,16 +11,16 @@ const myFailRate = new Rate('failed requests');
 const credentials = JSON.parse(open('../../utils/credentials.json'));
 console.log(`credentials.key_id: ${credentials.key_id}`);
 
-if (!__ENV.VIRTUAL_USERS) {
-  __ENV.VIRTUAL_USERS = JSON.stringify([
-    { "duration": "1s", "target": 1 },
-    { "duration": "5s", "target": 5 },
-    { "duration": "300s", "target": 10 }
-  ]);
-}
+//Default values:
+__ENV.RELEASE_VERSION = __ENV.RELEASE_VERSION || "v3.3.1";
+__ENV.VIRTUAL_USERS = __ENV.VIRTUAL_USERS || JSON.stringify([
+  { "duration": "1s", "target": 1 },
+  { "duration": "5s", "target": 5 },
+  { "duration": "300s", "target": 10 }
+]);
 console.log(`VIRTUAL_USERS: ${__ENV.VIRTUAL_USERS}`);
 
-__ENV.GOOGLE_SVC_ACCOUNT = 'test-svc-account';
+__ENV.GOOGLE_SVC_ACCOUNT = __ENV.GOOGLE_SVC_ACCOUNT || 'test-svc-account';
 const GOOGLE_PROJECTS_LIST = __ENV.GOOGLE_PROJECTS_LIST || 'Proj1,Proj2,Proj3';
 const googleProjects = GOOGLE_PROJECTS_LIST.split(',');
 

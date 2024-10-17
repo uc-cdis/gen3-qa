@@ -11,18 +11,18 @@ const myFailRate = new Rate('failed_requests');
 const credentials = JSON.parse(open('../../utils/credentials.json'));
 console.log(`credentials.key_id: ${credentials.key_id}`);
 
-if (!__ENV.VIRTUAL_USERS) {
-  __ENV.VIRTUAL_USERS = JSON.stringify([
-    { "duration": "1s", "target": 1 },
-    { "duration": "10s", "target": 10 },
-    // { "duration": "120s", "target": 100 },
-    // { "duration": "120s", "target": 300 },
-    // { "duration": "30s", "target": 1 },
+//Default values:
+__ENV.RELEASE_VERSION = __ENV.RELEASE_VERSION || "v3.3.1";
+__ENV.VIRTUAL_USERS = __ENV.VIRTUAL_USERS || JSON.stringify([
+  { "duration": "1s", "target": 1 },
+  { "duration": "10s", "target": 10 },
+  // { "duration": "120s", "target": 100 },
+  // { "duration": "120s", "target": 300 },
+  // { "duration": "30s", "target": 1 },
   ]);
-}
 console.log(`VIRTUAL_USERS: ${__ENV.VIRTUAL_USERS}`);
 
-__ENV.SIGNED_URL_PROTOCOL = 'https';
+__ENV.SIGNED_URL_PROTOCOL = __ENV.SIGNED_URL_PROTOCOL || 'https';
 
 // __ENV.GUIDS_LIST should contain either a list of GUIDs from load-test-descriptor.json
 // or it should be assembled based on an indexd query (requires `indexd_record_url` to fetch DIDs)

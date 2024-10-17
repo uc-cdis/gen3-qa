@@ -7,17 +7,18 @@ import http from 'k6/http';
 import { Rate } from 'k6/metrics';
 import { getCommonVariables } from '../../utils/helpers.js';
 const myFailRate = new Rate('failed_requests');
-
 const credentials = JSON.parse(open('../../utils/credentials.json'));
 console.log(`credentials.key_id: ${credentials.key_id}`);
 
-if (!__ENV.VIRTUAL_USERS) {
-  __ENV.VIRTUAL_USERS = JSON.stringify([
+//Default values:
+__ENV.VU_COUNT = __ENV.VU_COUNT || "1";
+__ENV.DURATION = __ENV.DURATION || "5s";
+__ENV.RELEASE_VERSION = __ENV.RELEASE_VERSION || "v3.3.1";
+__ENV.VIRTUAL_USERS = __ENV.VIRTUAL_USERS || JSON.stringify([
     { duration: '30s', target: __ENV.VU_COUNT },
     { duration: `${__ENV.DURATION}s`, target: __ENV.VU_COUNT },
     { duration: '30s', target: 0 },
   ]);
-}
 console.log(`VIRTUAL_USERS: ${__ENV.VIRTUAL_USERS}`);
 
 export const options = {
