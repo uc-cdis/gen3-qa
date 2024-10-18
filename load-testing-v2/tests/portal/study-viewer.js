@@ -59,8 +59,8 @@ export default function (env) {
       console.log(`Shooting requests against: ${url}`);
       const res = http.get(url, params);
       // console.log(`Request performed: ${new Date()}`);
-      console.log(`Request response status: ${res.status}`);
-      console.log(`Request response body: ${res.body}`);
+      // console.log(`Request response status: ${res.status}`);
+      // console.log(`Request response body: ${res.body}`);
 
       myFailRate.add(res.status !== 200);
       if (res.status !== 200) {

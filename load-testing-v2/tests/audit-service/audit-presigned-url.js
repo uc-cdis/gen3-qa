@@ -1,3 +1,5 @@
+//THIS TEST REQUIRES THE OWNER OF THE ACCESS TOKEN OR CREDENTIALS TO HAVE audit_reader
+
 /* eslint-disable no-mixed-operators */
 /* eslint-disable no-bitwise */
 /* eslint-disable one-var */
@@ -14,7 +16,10 @@ console.log(`credentials.key_id: ${credentials.key_id}`);
 //Default values:
 __ENV.RELEASE_VERSION = __ENV.RELEASE_VERSION || "v3.3.1";
 __ENV.VIRTUAL_USERS = __ENV.VIRTUAL_USERS || JSON.stringify([
-  { "target": 1 }
+  { "duration": "1s", "target": 1 },
+  { "duration": "10s", "target": 10 },
+  // { "duration": "300s",  "target": 100 },
+  // { "duration": "30s", "target": 1 }
   ]);
 console.log(`VIRTUAL_USERS: ${__ENV.VIRTUAL_USERS}`);
 
@@ -24,10 +29,10 @@ export const options = {
     release: __ENV.RELEASE_VERSION,
     test_run_id: (new Date()).toISOString().slice(0, 16),
   },
-  stages: JSON.parse(__ENV.VIRTUAL_USERS.slice(1, -1)),
+  stages: JSON.parse(__ENV.VIRTUAL_USERS),
   thresholds: {
     http_req_duration: ['avg<1000', 'p(95)<2000'],
-    'failed requests': ['rate<0.05'],
+    'failed_requests': ['rate<0.05'],
   },
   noConnectionReuse: true,
 };

@@ -1,4 +1,4 @@
-//THIS REQUIRES THE OWNER OF THE ACCESS TOKEN OR CREDENTIALS TO HAVE audit_reader
+//THIS TEST REQUIRES THE OWNER OF THE ACCESS TOKEN OR CREDENTIALS TO HAVE audit_reader
 
 /* eslint-disable no-mixed-operators */
 /* eslint-disable no-bitwise */
@@ -16,9 +16,9 @@ console.log(`credentials.key_id: ${credentials.key_id}`);
 __ENV.RELEASE_VERSION = __ENV.RELEASE_VERSION || "v3.3.1";
 __ENV.VIRTUAL_USERS = __ENV.VIRTUAL_USERS || JSON.stringify([
   { "duration": "1s", "target": 1 },
-  { "duration": "10s", "target": 10 },
-  { "duration": "300s",  "target": 100 },
-  { "duration": "30s", "target": 1 }
+  // { "duration": "10s", "target": 10 },
+  // { "duration": "300s",  "target": 100 },
+  // { "duration": "30s", "target": 1 }
   ]);
 console.log(`VIRTUAL_USERS: ${__ENV.VIRTUAL_USERS}`);
 

@@ -1,4 +1,5 @@
 //THIS TEST DOES NOT APPEAR TO BE COMPLETE
+//For example, the ./studies.txt file needs to be loaded into memory in the init section of the test
 
 // const { Rate } = require('k6/metrics'); // eslint-disable-line import/no-unresolved
 import http from 'k6/http'; // eslint-disable-line import/no-unresolved

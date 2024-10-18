@@ -47,6 +47,8 @@ export function setup() {
 
 export default function (env) {
   const url = `${env.GEN3_HOST}/user/data/download/${guids[Math.floor(Math.random() * guids.length)]}`;
+
+  console.log(`env.ACCESS_TOKEN: ${env.ACCESS_TOKEN}`);
   const params = {
     headers: {
       'Content-Type': 'application/json',

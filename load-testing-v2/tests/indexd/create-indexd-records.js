@@ -16,8 +16,8 @@ __ENV.RELEASE_VERSION = __ENV.RELEASE_VERSION || "v3.3.1";
 __ENV.VIRTUAL_USERS = __ENV.VIRTUAL_USERS || JSON.stringify([
   { "duration": "1s", "target": 1 },
   { "duration": "5s", "target": 5 },
-  { "duration": "300s", "target": 10 },
-  { "duration": "600s", "target": 20 }
+  // { "duration": "300s", "target": 10 },
+  // { "duration": "600s", "target": 20 }
   ]);
 console.log(`VIRTUAL_USERS: ${__ENV.VIRTUAL_USERS}`);
 

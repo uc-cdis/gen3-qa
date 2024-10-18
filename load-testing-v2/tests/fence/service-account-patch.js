@@ -5,8 +5,8 @@
 import { sleep, group, check } from 'k6';
 import http from 'k6/http';
 import { Rate } from 'k6/metrics';
-import { setApiKeyAccessTokenAndHost } from '../../utils/helpers.js';
-const myFailRate = new Rate('failed requests');
+import { getCommonVariables } from '../../utils/helpers.js';
+const myFailRate = new Rate('failed_requests');
 
 const credentials = JSON.parse(open('../../utils/credentials.json'));
 console.log(`credentials.key_id: ${credentials.key_id}`);
@@ -20,8 +20,8 @@ __ENV.VIRTUAL_USERS = __ENV.VIRTUAL_USERS || JSON.stringify([
 ]);
 console.log(`VIRTUAL_USERS: ${__ENV.VIRTUAL_USERS}`);
 
-__ENV.GOOGLE_SVC_ACCOUNT = __ENV.GOOGLE_SVC_ACCOUNT || 'test-svc-account';
-const GOOGLE_PROJECTS_LIST = __ENV.GOOGLE_PROJECTS_LIST || 'Proj1,Proj2,Proj3';
+__ENV.GOOGLE_SVC_ACCOUNT = __ENV.GOOGLE_SVC_ACCOUNT || '104383243404619685370';
+const GOOGLE_PROJECTS_LIST = __ENV.GOOGLE_PROJECTS_LIST || 'dnac-gke-krum';
 const googleProjects = GOOGLE_PROJECTS_LIST.split(',');
 
 export const options = {
@@ -33,7 +33,7 @@ export const options = {
   stages: JSON.parse(__ENV.VIRTUAL_USERS),
   thresholds: {
     http_req_duration: ['avg<3000', 'p(95)<15000'],
-    'failed requests': ['rate<0.1'],
+    'failed_requests': ['rate<0.1'],
   },
   noConnectionReuse: true,
 };
