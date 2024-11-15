@@ -28,7 +28,7 @@
     "dogapi": "^2.8.4",
     "dummy-json": "^2.0.0",
     "es6-promise": "^4.2.8",
-    "eslint": "^7.32.0",
+    "eslint": "^9.15.0",
     "eslint-config-airbnb": "^18.2.0",
     "eslint-plugin-chai-expect": "^2.2.0",
     "eslint-plugin-chai-friendly": "^0.5.0",
