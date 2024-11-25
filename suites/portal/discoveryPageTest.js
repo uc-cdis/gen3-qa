@@ -114,10 +114,9 @@ Scenario('Publish a study, search and export to workspace @requires-indexd @requ
   I.saveScreenshot('6_open_in_workspace.png');
   I.waitInUrl('/workspace', 120);
 
-  // --- Disabled the validation since workspaces are failing to launch in jenkins envs ---
-  // await workspace.do.launchWorkspace('(Tutorial) Bacpac Synthetic Data Analysis Notebook');
+  await workspace.do.launchWorkspace('(Tutorial) Bacpac Synthetic Data Analysis Notebook');
 
-  // output.print('--- Run `gen3 drs-pull object` in a new Python3 notebook');
-  // await workspace.do.runCommandinPythonNotebook(`!gen3 drs-pull object --object_id ${I.cache.did}`);
-  // I.saveScreenshot('7_run_drs_pull_in_notebook.png');
+  output.print('--- Run `gen3 drs-pull object` in a new Python3 notebook');
+  await workspace.do.runCommandinPythonNotebook(`!gen3 drs-pull object --object_id ${I.cache.did}`);
+  I.saveScreenshot('7_run_drs_pull_in_notebook.png');
 });

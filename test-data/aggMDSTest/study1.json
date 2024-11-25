@@ -7,7 +7,7 @@
 		}],
 		"authz": "/open",
 		"sites": 3,
-		"summary": "[AUTOTEST Summary] The BACPAC Research Program, Data Integration, Algorithm Development, and Operations Management Center (DAC) will bring cohesion to research performed by the participating Mechanistic Research Centers, Technology Research Sites, and Phase 2 Clinical Trials Centers. DAC Investigators will share their vision and provide scientific leadership and organizational support to the BACPAC Consortium. The research plan consists of supporting design and conduct of clinical trials with precision interventions that focus on identifying the best treatments for individual patients. The DAC will enhance collaboration and research progress with experienced leadership, innovative design and analysis methodologies, comprehensive research operations support, a state-of-the-art data management and integration system, and superior administrative support. This integrated structure will set the stage for technology assessments, solicitation of patient input and utilities, and the evaluation of high-impact interventions through the innovative design and sound execution of clinical trials, leading to effective personalized treatment approaches for patients with chronic lower back pain.",
+		"summary": "[AUTOTEST Summary] Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim",
 		"location": "Chapel Hill, Nc",
 		"subjects": 150,
 		"__manifest": [],
@@ -24,6 +24,12 @@
 			"key": "Research Focus Area",
 			"value": "AUTOTEST Filter"
 		}],
+		"minimal_info": {
+			"study_name": "[AUTOTEST Title] Testing Aggregate Metadata Service",
+			"study_description": "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim",
+			"alternative_study_name": "Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu",
+			"alternative_study_description": "In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim."
+        },
 		"research_program": "Back Pain Consortium Research Program",
 		"research_question": "To inform a precision medicine approach to cLBP.",
 		"study_description": "Observational",
