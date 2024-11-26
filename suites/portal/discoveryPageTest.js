@@ -4,6 +4,7 @@ const { expect } = require('chai');
 const { output } = require('codeceptjs');
 const { Bash } = require('../../utils/bash.js');
 const fs = require('fs');
+const { sleepMS } = require('../../utils/apiUtil.js');
 
 const bash = new Bash();
 const I = actor();
@@ -80,6 +81,7 @@ Scenario('Publish a study, search and export to workspace @requires-indexd @requ
   output.print('--- Navigate to discovery page');
   home.do.goToHomepage();
   await home.complete.login(users.mainAcct);
+  await sleepMS(120000);
   discovery.do.goToPage();
   I.saveScreenshot('discoveryPage.png');
 
