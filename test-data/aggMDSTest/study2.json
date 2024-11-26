@@ -14,8 +14,7 @@
         "institutions": "UNIV OF NORTH CAROLINA CHAPEL HILL",
         "year_awarded": "2019",
         "project_title": "[AUTOTEST Title] Testing Aggregate Metadata Service",
-        "study_metadata": {
-            "data": {
+		"data": {
                 "data_type": [
                     "Imaging",
                     "Questionnaire/Survey/Assessment",
@@ -64,111 +63,11 @@
                 "study_primary_or_secondary": "Primary Research",
                 "study_observational_or_experimental": "Experimental Research"
             },
-            "minimal_info": {
-                "study_name": "[AUTOTEST Title] Testing Aggregate Metadata Service",
-                "study_description": "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim",
-                "alternative_study_name": "Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu",
-                "alternative_study_description": "In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim."
-            },
-            "data_availability": {
-                "produce_data": "Yes",
-                "produce_other": "",
-                "data_available": "some",
-                "data_restricted": "all",
-                "data_release_status": "not started",
-                "data_collection_status": "not started",
-                "data_release_start_date": "2024-05-31",
-                "data_release_finish_date": "",
-                "data_collection_start_date": "2022-08-23",
-                "data_collection_finish_date": "2024-03-01"
-            },
-            "contacts_and_registrants": {
-                "contacts": [],
-                "registrants": []
-            },
-            "study_translational_focus": {
-                "study_translational_focus": "Treatment",
-                "study_translational_topic_grouping": [
-                    "Biology and Health",
-                    "Mental Health",
-                    "Social Determinants"
-                ]
-            },
-            "human_subject_applicability": {
-                "age_applicability": [
-                    "Adult (19 to 44 years)",
-                    "Middle aged adult (45 to 64 years)",
-                    "Aged adult (65 to 79 years)",
-                    "Aged, 80 and over (80 years and over)"
-                ],
-                "gender_applicability": [
-                    "Cis Male",
-                    "Cis Female",
-                    "Trans Male",
-                    "Trans Female",
-                    "Agender, Non-binary, gender non-conforming",
-                    "Gender Queer",
-                    "Intersex"
-                ],
-                "geographic_applicability": [],
-                "geographic_applicability1": [
-                    "US - Specific states",
-                    "CA",
-                    "KS",
-                    "MA",
-                    "MI",
-                    "NC",
-                    "OH",
-                    "PA",
-                    "SC",
-                    "WA"
-                ],
-                "biological_sex_applicability": [],
-                "sexual_identity_applicability": [
-                    "Heterosexual",
-                    "Homosexual",
-                    "Bisexual",
-                    "Pansexual",
-                    "Queer",
-                    "Asexual"
-                ],
-                "irb_vulnerability_conditions_applicability": [
-                    "Racial or ethnic minorities"
-                ]
-            },
-            "human_condition_applicability": {
-                "condition_category": [
-                    "Pain, chronic"
-                ],
-                "all_other_condition": [],
-                "all_outcome_condition": [],
-                "pain_causal_condition": [],
-                "condition_investigation_stage_or_type": [
-                    "Treatment of condition"
-                ],
-                "all_treatment_or_study_target_condition": [],
-                "pain_treatment_or_study_target_condition": []
-            },
-            "human_treatment_applicability": {
-                "treatment_mode": [
-                    "Therapeutic (treating an occurrence)"
-                ],
-                "treatment_type": [
-                    "non-opioid drug",
-                    "behavioral",
-                    "psychotherapy",
-                    "physical therapy",
-                    "education"
-                ],
-                "treatment_novelty": [
-                    "Established, used in novel population, setting, or combination",
-                    "Established"
-                ],
-                "treatment_application_level": [
-                    "Individual"
-                ],
-                "treatment_investigation_stage_or_type": []
-            }
+		"minimal_info": {
+			"study_name": "[AUTOTEST Title] Testing Aggregate Metadata Service",
+			"study_description": "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim",
+			"alternative_study_name": "Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu",
+			"alternative_study_description": "In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim."
         },
         "dataset_1_title": "",
         "dataset_2_title": "",
