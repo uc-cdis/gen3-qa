@@ -61,7 +61,7 @@ Scenario('Initiate the OIDC Client flow with NIH credentials to obtain the OAuth
                b. ID Token
                c. Refresh token
 --
-            % curl --user "<CLIENT_ID>:<CLIENT_SECRET>" -X POST "https://<TARGET_ENVIRONMENT>/user/oauth2/token?grant_type=authorization_code&code=<CODE>&redirect_uri=https://${TARGET_ENVIRONMENT}/user"
+            % curl --user "<CLIENT_ID>:<CLIENT_SECRET>" -X POST "https://<TARGET_ENVIRONMENT>/user/oauth2/token?grant_type=authorization_code&code=<CODE>&redirect_uri=https://${TARGET_ENVIRONMENT}"
             `);
     expect(result.didPass, result.details).to.be.true;
   },
