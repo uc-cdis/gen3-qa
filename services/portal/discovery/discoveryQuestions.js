@@ -1,3 +1,4 @@
+const { sleepMS } = require('../../../utils/apiUtil.js');
 const props = require('./discoveryProps.js');
 const tasks = require('./discoveryTasks.js');
 
@@ -12,21 +13,25 @@ module.exports = {
     I.seeElement(props.readyCue, 30);
   },
 
-  isStudyFound(studyId) {
-    const retries = 10;
-    for(let attempt = 1; attempt <= retries; attempt++){
-      try {
-        I.seeElement(props.studyLocator(studyId));
-        return true;
-      } catch (error) {
-        console.log(`Attempt ${attempt} to find study ${studyId} failed. Retrying ...`);
+  async isStudyFound(studyId) {
+    const retries = 10; // Number of retries
+    const delayInMs = 30000; // Delay between retries in milliseconds
+
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      const visibleElements = I.grabNumberOfVisibleElements(props.studyLocator(studyId));
+
+      if (visibleElements > 0) {
+        console.log(`Study found on attempt ${attempt}`);
+        return true; // Exit the loop if the element is found
+      } else {
+        console.log(`Attempt ${attempt} failed. Retrying in ${delayInMs / 1000} seconds...`);
         if (attempt < retries) {
-          tasks.goToPage();
+          await sleepMS(delayInMs); // Wait before retrying
         } else {
-          console.error(`Study ${studyId} not found after maximum retries.`);
-          throw error; // Re-throw the error after exhausting all retries
+          console.error('Study not found after maximum retries.');
+          throw new Error('Study not found.');
         }
-      };
+      }
     }
   },
 };
