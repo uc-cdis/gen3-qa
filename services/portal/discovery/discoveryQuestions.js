@@ -18,7 +18,7 @@ module.exports = {
     const delayInMs = 30000; // Delay between retries in milliseconds
 
     for (let attempt = 1; attempt <= retries; attempt++) {
-      const visibleElements = I.grabNumberOfVisibleElements(props.studyLocator(studyId));
+      const visibleElements = await I.grabNumberOfVisibleElements(props.studyLocator(studyId));
 
       if (visibleElements > 0) {
         console.log(`Study found on attempt ${attempt}`);
