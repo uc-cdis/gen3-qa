@@ -27,6 +27,7 @@ module.exports = {
         console.log(`Attempt ${attempt} failed. Retrying in ${delayInMs / 1000} seconds...`);
         if (attempt < retries) {
           await sleepMS(delayInMs); // Wait before retrying
+          tasks.goToPage(); // Refresh discovery page
         } else {
           console.error('Study not found after maximum retries.');
           throw new Error('Study not found.');
