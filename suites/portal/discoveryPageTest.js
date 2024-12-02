@@ -4,6 +4,7 @@ const { expect } = require('chai');
 const { output } = require('codeceptjs');
 const { Bash } = require('../../utils/bash.js');
 const fs = require('fs');
+const { sleepMS } = require('../../utils/apiUtil.js');
 
 const bash = new Bash();
 const I = actor();
@@ -86,7 +87,7 @@ Scenario('Publish a study, search and export to workspace @requires-indexd @requ
   output.print('--- Perform tag search');
   discovery.do.tagSearch('TESTING', 'AUTOTEST Tag');
   I.saveScreenshot('2_clicked_tag.png');
-  discovery.ask.isStudyFound(I.cache.studyId);
+  await discovery.ask.isStudyFound(I.cache.studyId);
 
   // Advanced search
   // I.refreshPage();
@@ -100,24 +101,23 @@ Scenario('Publish a study, search and export to workspace @requires-indexd @requ
   I.wait(2);
   discovery.do.textSearch('[AUTOTEST Title]');
   I.saveScreenshot('4_entered_text.png');
-  discovery.ask.isStudyFound(I.cache.studyId);
+  await discovery.ask.isStudyFound(I.cache.studyId);
 
   output.print('--- Perform text search');
   I.refreshPage();
   I.wait(2);
   discovery.do.textSearch('[AUTOTEST Summary]');
   I.saveScreenshot('5_entered_text.png');
-  discovery.ask.isStudyFound(I.cache.studyId);
+  await discovery.ask.isStudyFound(I.cache.studyId);
 
   output.print('--- Open study in workspace');
   discovery.do.openInWorkspace(I.cache.studyId);
   I.saveScreenshot('6_open_in_workspace.png');
   I.waitInUrl('/workspace', 120);
 
-  // --- Disabled the validation since workspaces are failing to launch in jenkins envs ---
-  // await workspace.do.launchWorkspace('(Tutorial) Bacpac Synthetic Data Analysis Notebook');
+  await workspace.do.launchWorkspace('(Tutorial) Bacpac Synthetic Data Analysis Notebook');
 
-  // output.print('--- Run `gen3 drs-pull object` in a new Python3 notebook');
-  // await workspace.do.runCommandinPythonNotebook(`!gen3 drs-pull object --object_id ${I.cache.did}`);
-  // I.saveScreenshot('7_run_drs_pull_in_notebook.png');
+  output.print('--- Run `gen3 drs-pull object` in a new Python3 notebook');
+  await workspace.do.runCommandinPythonNotebook(`!gen3 drs-pull object --object_id ${I.cache.did}`);
+  I.saveScreenshot('7_run_drs_pull_in_notebook.png');
 });
