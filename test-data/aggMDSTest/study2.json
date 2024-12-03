@@ -52,17 +52,6 @@
                 "primary_study_findings": [],
                 "secondary_publications": []
             },
-            "study_type": {
-                "study_stage": "Clinical Research",
-                "study_type_design": [
-                    "Randomized Control Trial"
-                ],
-                "study_subject_type": [
-                    "Human"
-                ],
-                "study_primary_or_secondary": "Primary Research",
-                "study_observational_or_experimental": "Experimental Research"
-            },
 		"minimal_info": {
 			"study_name": "[AUTOTEST Title] Testing Aggregate Metadata Service",
 			"study_description": "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim",
