@@ -322,7 +322,7 @@ Scenario('Visit the Explorer page, select a cohort, export to PFB and download t
   login.complete.login(users.mainAcct);
   I.wait(5);
   I.saveScreenshot('before_checking_navbar.png');
-  const navBarButtons = await I.grabTextFromAll('.nav-button__icon');
+  const navBarButtons = await I.grabTextFromAll('.body-typo.nav-button');
   console.log(`### Nav bar buttons: ${navBarButtons}`);
   if (navBarButtons.includes('Exploration')) {
     I.amOnPage('explorer');
