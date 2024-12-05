@@ -366,6 +366,7 @@ Scenario('Visit the Explorer page, select a cohort, export to PFB and download t
   } else {
     I.saveScreenshot('whatTheHellIsGoingOnWithTheNavBar.png');
     console.log('WARN: This environment does not have any Explorer or Files button on the navigation bar. This test should not run here');
+    throw new Error('Test failed: Navigation bar is missing "Explorer" and "Files" buttons.');
   }
 
   // Click on the Export to PFB button
