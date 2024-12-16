@@ -35,6 +35,6 @@ module.exports = {
   },
 
   systemUseAcceptButton: {
-    xpath: '//div[@id="popup"]//button[contains(text(), "Accept")]',
+    xpath: '//div[@class="popup__foot"]//button[contains(text(), "Accept")]',
   },
 };

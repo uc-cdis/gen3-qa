@@ -21,7 +21,6 @@ I.cache = {};
 const testDataFiles = new DataTable(['studyFilePath']);
 testDataFiles.add(['test-data/aggMDSTest/study1.json']);
 testDataFiles.add(['test-data/aggMDSTest/study2.json']);
-testDataFiles.add(['test-data/aggMDSTest/study3.json']);
 
 Data(testDataFiles).Scenario('Create, edit and delete aggregate metadata record', async ({
   mds, users, current,

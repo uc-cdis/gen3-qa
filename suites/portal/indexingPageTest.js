@@ -6,7 +6,7 @@
     within the sower config block (manifest-indexing & indexd-manifest)
  3. The Indexing GUI is only available in data-portal >= 2.24.9
 */
-Feature('Indexing GUI @requires-portal @requires-sower @requires-ssjdispatcher');
+Feature('Indexing GUI @requires-portal @requires-sower @requires-ssjdispatcher @requires-fence');
 
 const { expect } = require('chai');
 const { checkPod, sleepMS } = require('../../utils/apiUtil.js');

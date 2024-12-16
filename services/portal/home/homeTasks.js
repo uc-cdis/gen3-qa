@@ -26,10 +26,10 @@ module.exports = {
     portal.seeProp(homeProps.ready_cue, 60);
   },
 
-  async handleSystemUsePopup() {
-    I.saveScreenshot('SystemUsePopup.png');
+  async handleSystemUsePopup() {;
     const acceptButtonExists = await tryTo(() => I.waitForElement(homeProps.systemUseAcceptButton, 5));
     output.debug(`Accept button found: ${acceptButtonExists}`);
+    I.saveScreenshot('SystemUsePopup.png')
     if (acceptButtonExists) {
       output.debug('Handling popup');
       I.scrollIntoView(homeProps.systemUseAcceptButton);
