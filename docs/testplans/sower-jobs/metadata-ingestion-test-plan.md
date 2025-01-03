@@ -9,7 +9,7 @@ The Metadata Ingestion is a background batch process, powered by a Python script
 In order to execute this test, the environment must have the following items fully configured:
 - Sower jobs (including the metadata ingestion jobs)
 - Metadata service
-- A test user with the required permissions (arborist policies: sower, mds_admin, indexd_admin) -- A user has already been created for this purpose: `ctds.indexing.test@gmail.com`.
+- A test user with the required permissions (arborist policies: sower, mds_admin, indexd_admin) -- A user has already been created for this purpose: `indexing@example.org`.
 
 ## How to dispatch and retrieve the output from Sower jobs
 These Sower jobs can be dispatched with requests to the Sower endpoint (`/job/dispatch`), such as:

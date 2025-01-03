@@ -2,8 +2,8 @@
 Pre-requisites for executing the tests:
  1. Latest code of data-portal, pelican, manifestservice, gen3-fuse
  2. Users
-    dummy-one@planx-pla.net has access to workspace
-    dummy-one@planx-pla.net has access to a study (NIAID-ACTT in QA-NCT)
+    dummy-one@example.org has access to workspace
+    dummy-one@example.org has access to a study (NIAID-ACTT in QA-NCT)
 */
 Feature('Export to Workspace from Study Viewer @requires-portal @requires-hatchery');
 
@@ -13,7 +13,7 @@ const { interactive, ifInteractive } = require('../../utils/interactive.js');
 Scenario('User can export study to workspace', ifInteractive(
   async () => {
     const result = await interactive(`
-      1. Login as dummy-one@planx-pla.net
+      1. Login as dummy-one@example.org
       2. Navigate to the study viewer page ('/study-viewer/clinical_trials' in QA-NCT)
       3. Click 'Show details' under a study you have access to (ACTT1 in QA-NCT)
       4. Verify that the 'Export to Workspace' button is enabled

@@ -23,9 +23,9 @@ It enables to the user to check :
 
 ## Users 
 
-1. Requestor Admin - cdis.autotest@gmail.com (mainAcct) which helps to update the request status in requestor
-2. User 1 (without access) - dcf-integration-test-0@planx-pla.net (user0)
-3. User 2 (has access and can download dataset) - dummy-one@planx-pla.net (auxAcct1)
+1. Requestor Admin - main@example.org (mainAcct) which helps to update the request status in requestor
+2. User 1 (without access) - user0@example.org (user0)
+3. User 2 (has access and can download dataset) - dummy-one@example.org (auxAcct1)
 
 ## Tests Scenarios
 

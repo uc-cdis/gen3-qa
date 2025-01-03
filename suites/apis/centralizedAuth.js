@@ -93,16 +93,16 @@ Access details from default usersync for QA env (where jenkins is run):
 Create CLIENT with `abc-admin` and `gen3-admin` policy (CRUD under /abc and /gen3)
 Create ABC_CLIENT with `abc-admin` policy (CRUD under /abc)
 
-cdis.autotest@gmail.com (mainAcct)
+main@example.org (mainAcct)
     - abc-admin
 
-dummy-one@planx-pla.net (auxAcct1)
+dummy-one@example.org (auxAcct1)
     - abc.programs.test_program.projects.test_project1-viewer
 
-smarty-two@planx-pla.net (auxAcct2)
+smarty-two@example.org (auxAcct2)
     - abc.programs.test_program2.projects.test_project3-viewer
 
-dcf-integration-test-0@planx-pla.net (user0)
+user0@example.org (user0)
     - gen3-admin
     - hmb-researcher
 
@@ -897,7 +897,7 @@ Scenario('Test open access data with anonymous user @centralizedAuth',
 */
 Scenario('Test create signed URL for file in authorized namespace with authorized consent code (multiple policies) @centralizedAuth',
   async ({ fence, indexd, users, files }) => {
-    // dcf-integration-test-0@planx-pla.net (user0)
+    // user0@example.org (user0)
     //     - gen3-admin
     //     - hmb-researcher
     //
@@ -925,7 +925,7 @@ Scenario('Test create signed URL for file in authorized namespace with authorize
 */
 Scenario('Test create signed URL for file in authorized namespace with authorized consent code (single policies) @centralizedAuth',
   async ({ fence, indexd, users, files }) => {
-    // dcf-integration-test-1@planx-pla.net (user1)
+    // user1@example.org (user1)
     //     - gen3-hmb-researcher
     //
     // gen3HmbResearchFile in `/gen3` namespace but also requires `/consents/HMB`
@@ -954,7 +954,7 @@ Scenario('Test create signed URL for file in authorized namespace with authorize
 */
 Scenario('Test cannot create signed URL for file in authorized namespace with UNauthorized consent code @centralizedAuth',
   async ({ fence, indexd, users, files }) => {
-    // cdis.autotest@gmail.com (mainAcct)
+    // main@example.org (mainAcct)
     //     - abc-admin
     //
     // abcHmbResearchFile in `/abc` namespace but also requires `/consents/HMB`
@@ -983,7 +983,7 @@ Scenario('Test cannot create signed URL for file in authorized namespace with UN
 */
 Scenario('Test create signed URL for file in authorized namespace with IMPLIED authorized consent code (based on DUO hierarchy) @centralizedAuth',
   async ({ fence, indexd, users, files }) => {
-    // dcf-integration-test-0@planx-pla.net (user0)
+    // user0@example.org (user0)
     //     - gen3-admin
     //     - hmb-researcher
     //

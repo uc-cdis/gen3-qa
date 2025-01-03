@@ -7,7 +7,7 @@ have access to through dbgap.
 
 User Access from user.yaml:
 
-    cdis.autotest@gmail.com (mainAcct)
+    main@example.org (mainAcct)
         - programs.QA-admin
         - programs.test-admin
         - programs.DEV-admin
@@ -16,7 +16,7 @@ User Access from user.yaml:
 
 User Access from dbGaP (just read access):
 
-    cdis.autotest@gmail.com (mainAcct)
+    main@example.org (mainAcct)
         - phs000178
 */
 

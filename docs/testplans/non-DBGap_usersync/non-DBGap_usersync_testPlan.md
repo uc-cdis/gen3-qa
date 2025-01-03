@@ -55,7 +55,7 @@ NOTE :
 user name,login,project_id
 UCtestuser121,UCtestuser121,PROJECT-12345
 UCtestuser122,UCtestuser122,PROJECT-12345
-cdis.autotest@gmail.com,cdis.autotest@gmail.com,PROJECT-12345
+main@example.org,main@example.org,PROJECT-12345
 ```
 
 ## Test steps

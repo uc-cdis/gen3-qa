@@ -88,7 +88,7 @@ AfterSuite(async ({ etl }) => {
 });
 
 Scenario('Submit dummy data to the Gen3 Commons environment @pfbExport', async ({ I, users }) => {
-  bash.runJob('gentestdata', `SUBMISSION_USER cdis.autotest@gmail.com MAX_EXAMPLES 1 SUBMISSION_ORDER ${I.cache.targetMappingNode}`);
+  bash.runJob('gentestdata', `SUBMISSION_USER main@example.org MAX_EXAMPLES 1 SUBMISSION_ORDER ${I.cache.targetMappingNode}`);
   await checkPod(I, 'gentestdata', 'gen3job,job-name=gentestdata');
 
   // Querying based on the graph node utilized for file mapping
