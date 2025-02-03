@@ -413,6 +413,10 @@ module.exports = {
         podsNames = podsNames.split(' ').filter((name) => name.startsWith(jobName));
         const podName = podsNames[podsNames.length - 1];
         console.log(`Found latest pod with name '${jobName}': '${podName}'`);
+        if (!podName) {
+          console.log(`'${podName}' is not valid, trying again`);
+          continue;
+        }
 
         if (!podFound) {
           if (podName && podName.includes(jobName)) {
