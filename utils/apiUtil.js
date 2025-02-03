@@ -413,7 +413,7 @@ module.exports = {
           await sleepMS(2000)
           count++;
         }
-        if (value === undefined) {
+        if (podsNames === undefined) {
           throw new Error(`THE POD name with ${labelName} returned undefined even after 5 tries. GIVING UP.`);
         }
 
