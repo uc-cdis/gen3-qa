@@ -407,7 +407,7 @@ module.exports = {
         // get all pods that match the provided label
         let count = 0;
         let podsNames;
-        while (value === undefined && count < 5) {
+        while (podsNames === undefined && count < 5) {
           podsNames = await bash.runCommand(`g3kubectl get pod --sort-by=.metadata.creationTimestamp -l app=${labelName} -o jsonpath="{.items[*].metadata.name}"`);
           console.log(`Found pods with label '${labelName}': ${podsNames}`);
           await sleepMS(2000)
