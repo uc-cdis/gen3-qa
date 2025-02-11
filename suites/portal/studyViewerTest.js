@@ -88,12 +88,12 @@ AfterSuite(async ({ I }) => {
   if (process.env.NAMESPACE.includes('qa-niaid') || process.env.NAMESPACE.includes('accessclinicaldata')) {
     console.log('### revoking access for user0 in QA/PROD envs ...');
     await bash.runCommand(`
-      gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/policy/programs.NIAID.projects.ACTT_reader
+      gen3 devterm curl -X DELETE arborist-service/user/user0@example.org/policy/programs.NIAID.projects.ACTT_reader
     `);
   } else {
     console.log('### revoking access for user0 in jenkins env ...');
     await bash.runCommand(`
-      gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/policy/programs.jnkns.projects.jenkins_accessor
+      gen3 devterm curl -X DELETE arborist-service/user/user0@example.org/policy/programs.jnkns.projects.jenkins_accessor
     `);
   }
   console.log('### The access is revoked');

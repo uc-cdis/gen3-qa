@@ -134,7 +134,7 @@ module.exports = {
    */
   mainAcct: new User(
     {
-      username: 'cdis.autotest@gmail.com',
+      username: 'main@example.org',
       accessToken: process.env.GEN3_TOKEN_MAIN,
       ...gCreds,
     },
@@ -146,7 +146,7 @@ module.exports = {
    */
   auxAcct1: new User(
     {
-      username: 'dummy-one@planx-pla.net',
+      username: 'dummy-one@example.org',
       accessToken: process.env.GEN3_TOKEN_AUX1,
       ...gCreds,
     },
@@ -158,7 +158,7 @@ module.exports = {
    */
   auxAcct2: new User(
     {
-      username: 'smarty-two@planx-pla.net',
+      username: 'smarty-two@example.org',
       accessToken: process.env.GEN3_TOKEN_AUX2,
       ...gCreds,
     },
@@ -168,7 +168,7 @@ module.exports = {
    */
   user0: new User(
     {
-      username: 'dcf-integration-test-0@planx-pla.net',
+      username: 'user0@example.org',
       accessToken: process.env.GEN3_TOKEN_USER0,
       ...gCreds,
     },
@@ -178,7 +178,7 @@ module.exports = {
    */
   user1: new User(
     {
-      username: 'dcf-integration-test-1@planx-pla.net',
+      username: 'user1@example.org',
       accessToken: process.env.GEN3_TOKEN_USER1,
       ...gCreds,
     },
@@ -188,7 +188,7 @@ module.exports = {
    */
   user2: new User(
     {
-      username: 'dcf-integration-test-2@planx-pla.net',
+      username: 'user2@example.org',
       accessToken: process.env.GEN3_TOKEN_USER2,
       ...gCreds,
     },
@@ -200,7 +200,7 @@ module.exports = {
    */
   indexingAcct: new User(
     {
-      username: 'ctds.indexing.test@gmail.com',
+      username: 'indexing@example.org',
       accessToken: process.env.GEN3_TOKEN_MAIN,
       ...gCreds,
     },

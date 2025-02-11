@@ -34,7 +34,7 @@ Steps for configuration ->
 authentication_file_PROJECT-12345.csv
 user name,login,project_id
 UCtestuser121,UCtestuser121,PROJECT-12345
-cdis.autotest@gmail.com,cdis.autotest@gmail.com,PROJECT-12345
+main@example.org,main@example.org,PROJECT-12345
 
 authentication_file_PROJECT-67890.csv
 user name,login,project_id
@@ -113,7 +113,7 @@ const indexdFiles = {
 BeforeSuite(async ({ indexd }) => {
   I.cache = {};
   // access token for main.Acct
-  I.cache.ACCESS_TOKEN = await bash.runCommand('gen3 api access-token cdis.autotest@gmail.com');
+  I.cache.ACCESS_TOKEN = await bash.runCommand('gen3 api access-token main@example.org');
 
   // for the OIDC flow, need clientID and secretID for login
   I.cache.RAS_clientID = process.env.clientID;
@@ -137,7 +137,7 @@ AfterSuite(async ({ indexd }) => {
   }
 });
 
-// user main Acct - cdis.autotest@gmail.com
+// user main Acct - main@example.org
 Scenario('PresignedUrl with google mainAcct @nondbgapUsersyncTest', async ({ fence, users, nondbgap }) => {
   // checking presigned url before running usersync
   console.log('creating presigned url with mainAcct user for PROJECT-12345 before running usersync.');

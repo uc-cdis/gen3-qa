@@ -22,23 +22,23 @@
                 subresources:
                   - name: jenkins
   users:
-    dcf-integration-test-0@planx-pla.net:
+    user0@example.org:
       admin: false
       projects: []
-    dcf-integration-test-1@planx-pla.net:
+    user1@example.org:
       admin: false
       projects:
         - auth_id: test
           privilege: [create, read, update, delete, upload, read-storage]
           resource: /programs/test
-    dcf-integration-test-2@planx-pla.net:
+    user2@example.org:
       admin: false
       projects:
         - auth_id: QA
           privilege: [create, read, update, delete, upload, read-storage]
           resource: /programs/QA
     # This last one is used by the integration tests themselves
-    cdis.autotest@gmail.com:
+    main@example.org:
       admin: true
       projects:
         - auth_id: QA

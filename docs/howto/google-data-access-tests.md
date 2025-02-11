@@ -19,7 +19,7 @@ When an assertion fails, the rest of the test is not executed. When writing Goog
 | SimpleProjectAlpha       | gen3.autotest@gmail.com | googleProjectA                      | Valid project |
 | ProjectWithComputeAPI    | gen3.autotest@gmail.com | googleProjectWithComputeServiceAcct | Valid project |
 | ProjectWithComputeAPI    | gen3.autotest@gmail.com | googleProjectWithInvalidServiceAcct | Used to test invalid SA registration |
-| planxparentproject       | dummy-one@planx-pla.net | googleProjectWithParentOrg          | Used to test invalid SA registration |
+| planxparentproject       | dummy-one@example.org | googleProjectWithParentOrg          | Used to test invalid SA registration |
 | projectfencenoaccess     | gen3.autotest@gmail.com | googleProjectFenceNotRegistered     | Used to test invalid SA registration |
 | ProjectServiceAcctHasKey | gen3.autotest@gmail.com | googleProjectServiceAcctHasKey      | Used to test invalid SA registration |
 | Gen3QA-[namespace]       | gen3.autotest@gmail.com | googleProjectDynamic                | See "Notes on googleProjectDynamic" section |

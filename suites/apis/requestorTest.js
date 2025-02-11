@@ -25,7 +25,7 @@ Before(async ({
 });
 
 AfterSuite(async ({ I }) => {
-  console.log('Deleting all the requests created by this test with user cdis.autotest@gmail.com...');
+  console.log('Deleting all the requests created by this test with user main@example.org...');
   if (process.env.DEBUG === 'true') {
     console.log(I.cache.requestDidList);
   }

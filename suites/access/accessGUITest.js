@@ -195,8 +195,8 @@ Scenario('Super Admin: login + add Admin. @manual', ifInteractive(
     I.fillField({ xpath: 'xpath: //li[@class=\'form-info__detail\']/label[contains(text(),\'Organization *\')]/following-sibling::input' }, 'Get to the choppa, now');
     I.fillField({ xpath: 'xpath: //li[@class=\'form-info__detail\']/label[contains(text(),\'eRA Commons ID\')]/following-sibling::input' }, 'ASCHWAR');
     I.fillField({ xpath: 'xpath: //li[@class=\'form-info__detail\']/label[contains(text(),\'ORCID\')]/following-sibling::input' }, '0000-0003-3292-0780'); // fictitious ORCID
-    I.fillField({ xpath: 'xpath: //li[@class=\'form-info__detail\']/label[contains(text(),\'Contact Email\')]/following-sibling::input' }, 'cdis.autotest@gmail.com');
-    I.fillField({ xpath: 'xpath: //li[@class=\'form-info__detail\']/label[contains(text(),\'Google Email\')]/following-sibling::input' }, 'cdis.autotest@gmail.com');
+    I.fillField({ xpath: 'xpath: //li[@class=\'form-info__detail\']/label[contains(text(),\'Contact Email\')]/following-sibling::input' }, 'main@example.org');
+    I.fillField({ xpath: 'xpath: //li[@class=\'form-info__detail\']/label[contains(text(),\'Google Email\')]/following-sibling::input' }, 'main@example.org');
     I.fillField({ xpath: 'xpath: //li[@class=\'form-info__detail\']/label[contains(text(),\'Access Expiration Date *\')]/following-sibling::input' }, '2021-10-19');
     I.scrollIntoView('.form-info__user-access');
     await sleepMS(1000);
@@ -237,7 +237,7 @@ Scenario('Super Admin: export TSV. @manual', ifInteractive(
 // Admin GUI Testing
 Scenario('Admin: login + add user. @manual', ifInteractive(
   async ({ I }) => {
-    await loginFlow(I, 'Admin Add user', { user: 'cdis.autotest@gmail.com', expectUsers: false });
+    await loginFlow(I, 'Admin Add user', { user: 'main@example.org', expectUsers: false });
 
     // Add user
     I.click({ xpath: 'xpath: //div[@class=\'manage-users__tab\' and contains(text(), \'Add a New User\')]' });
@@ -287,7 +287,7 @@ Scenario('Admin: login + add user. @manual', ifInteractive(
 // Admin GUI Testing
 Scenario('Admin: login again + edit and delete user. @manual', ifInteractive(
   async ({ I }) => {
-    await loginFlow(I, 'Admin Edit and Delete user', { user: 'cdis.autotest@gmail.com', expectUsers: true });
+    await loginFlow(I, 'Admin Edit and Delete user', { user: 'main@example.org', expectUsers: true });
 
     // edit
     I.click({ xpath: 'xpath: //button[contains(text(), \'Edit\')]' });

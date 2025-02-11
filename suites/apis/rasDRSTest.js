@@ -32,8 +32,8 @@ BeforeSuite(async ({ I }) => {
   I.cache = {};
 
   // getting the access_token for the test user
-  // test user -> cdis.autotest@gmail.com
-  I.cache.ACCESS_TOKEN = await bash.runCommand('gen3 api access-token ctds.indexing.test@gmail.com');
+  // test user -> main@example.org
+  I.cache.ACCESS_TOKEN = await bash.runCommand('gen3 api access-token indexing@example.org');
   console.log(`Access_Token: ${I.cache.ACCESS_TOKEN}`);
   // upload new Indexd Records
   const uploadedRecords = [];

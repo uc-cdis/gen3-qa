@@ -170,6 +170,6 @@ module.exports = {
 
   runGenTestData(maxSamples) {
     return bash.runJob('gentestdata',
-      `TEST_PROGRAM jnkns TEST_PROJECT jenkins MAX_EXAMPLES ${maxSamples} SUBMISSION_USER cdis.autotest@gmail.com`);
+      `TEST_PROGRAM jnkns TEST_PROJECT jenkins MAX_EXAMPLES ${maxSamples} SUBMISSION_USER main@example.org`);
   },
 };

@@ -52,7 +52,7 @@ AfterSuite(async ({ I }) => {
     // revoking the arborist policy for the user
     console.log('Revoking the arborist policy for the user0 ...');
     await bash.runCommand(`
-        gen3 devterm curl -X DELETE arborist-service/user/dcf-integration-test-0@planx-pla.net/policy/requestor_client_credentials_test`);
+        gen3 devterm curl -X DELETE arborist-service/user/user0@example.org/policy/requestor_client_credentials_test`);
   } catch (error) {
     console.log(error);
   }

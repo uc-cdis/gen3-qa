@@ -529,7 +529,7 @@ module.exports = {
     id: 'planxparentproject',
     serviceAccountEmail: 'serviceaccount@planxparentproject.iam.gserviceaccount.com',
     defaultIsValidGCP: false,
-    owner: 'dummy-one@planx-pla.net',
+    owner: 'dummy-one@example.org',
   },
 
   googleProjectFenceNotRegistered: {
