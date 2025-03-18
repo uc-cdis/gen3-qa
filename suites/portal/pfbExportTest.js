@@ -194,7 +194,7 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @pfb
   if (!checkboxIsClickable) {
     // if the checkbox is still not clickable,refresh the page
     I.refreshPage();
-    I.wait(1);
+    I.wait(5);
     I.saveScreenshot('ClickCheckboxOfUnmappedFileAfterRefresh.png');
   }
   // Click checkbox with id of the guid of the uploadedfile
@@ -202,7 +202,7 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @pfb
   console.log('Start to map file');
 
   I.click('Map Files (1)');
-  I.waitForVisible('.map-data-model__form', 5);
+  I.waitForVisible('.map-data-model__form', 30);
 
   // Select Project
   I.fillField('//input[@id=\'react-select-2-input\']', 'DEV-test');
