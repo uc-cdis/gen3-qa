@@ -203,7 +203,8 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @pfb
 
   I.click('Map Files (1)');
   I.waitForVisible('.map-data-model__form', 30);
-
+  I.saveScreenshot('checkAfterMapFiles.png');
+ 
   // Select Project
   I.fillField('//input[@id=\'react-select-2-input\']', 'DEV-test');
   I.pressKey('Enter');
@@ -214,7 +215,8 @@ Scenario('Map the uploaded file to one of the subjects of the dummy dataset @pfb
   I.pressKey('Enter');
   console.log('File Node selected');
   I.waitForText('Required Fields', 10);
-
+  I.saveScreenshot('checkAfterFileNodeSelection.png');
+ 
   // Select required fields and core_metadata_collection
   const FIELDS_INDEX_START = 4;
   const FIELDS_INDEX_END = 8;
