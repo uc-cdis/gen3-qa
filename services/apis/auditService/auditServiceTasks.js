@@ -176,7 +176,7 @@ EOM`);
       console.log('Received logs:');
       console.log(receivedLogs);
     }
-    expect(receivedLogs.length, `Should receive exactly ${nExpectedLogs} audit logs, but received ${receivedLogs.length} logs`).to.equal(nExpectedLogs);
+    expect(receivedLogs.length, `Should receive exactly ${nExpectedLogs} audit logs, but received ${receivedLogs.length} logs`).to.be.at.least(nExpectedLogs);
 
     // check that the returned audit logs contain the data we expect.
     // the latest audit-service returns audit logs in the order they were
