@@ -3,7 +3,7 @@
     "indexd records creation"
   ],
   "details": {
-    "name": "emalinowskiv1.planx-plan.net",
+    "name": "jenkins-perf.planx-plan.net",
     "indexd_autoscaler": {
       "min": 3,
       "max": 5,
