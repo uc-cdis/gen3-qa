@@ -24,7 +24,7 @@
     "chai-as-promised": "^7.1.1",
     "chai-subset": "^1.6.0",
     "cli-progress": "^3.12.0",
-    "codeceptjs": "^3.4.1",
+    "codeceptjs": "^3.7.3",
     "dogapi": "^2.8.4",
     "dummy-json": "^2.0.0",
     "es6-promise": "^4.2.8",
